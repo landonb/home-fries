@@ -13,7 +13,9 @@ if [ -f /soft/rko-modules/tcl/init/bash ]; then
 fi
 
 # Activate addt'l software
-if type -P module &>/dev/null; then
+# NOTE whereis module? I can't find it!
+#if type -P module &>/dev/null; then
+if `module --version &>/dev/null`; then
   # Base CS loads
   module load soft/gcc java perl gnu local compilers system x11
   module load openwin modules Frame math/mathematica scheme user
