@@ -1,0 +1,260 @@
+# Retrosoft bash shell script
+# 2009-10-10 Vers. 0000000001
+# 2010-02-08 Vers. 0000000002
+
+# Umask
+#######
+
+# Only ever give everyone execute permissions (and 
+# neither read nor write) by default; more useful 
+# on a shared hosting system than on your own slice...
+# My Debian box defaults to 0022 -- give group and world execute + read
+# My Ubuntu box defaults to 0006, or r/w/x for owner and group, and just 
+# execute for everyone else. 
+umask 0006
+
+# Terminal Prompt
+#################
+
+# Set the prompt thusly:
+#  user@host[dir]
+# See <http://www.termsys.demon.co.uk/vtansi.htm>
+#  for more about colours
+#  nifty chart at <http://www.frexx.de/xterm-256-notes/>
+#export PS1='\u@\[\033[0;35m\]\h\[\033[0;33m\][\W\[\033[00m\]]: '
+#export PS1='\u@\[\033[0;32m\]\h\[\033[0;36m\][\W\[\033[00m\]]: '
+# A;XYm ==> 
+#   A=1 means bright
+#   XY=30 is black, 31 Red, 32 Green, 33 Yellow,
+#      34 Blue, 35 Magenta, 36 Cyan, 37 White
+#   X=3 is Foreground, =4 is Background colors, i.e., 47 is White BG
+#export PS1='\[\033[1;37m\]\u@\[\033[1;33m\]\h\[\033[1;36m\][\W\[\033[00m\]]: '
+#from debian .bashrc
+#PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+PS1='${debian_chroot:+($debian_chroot)}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]\$ '
+
+# SVN/gVim
+##########
+export SVN_EDITOR=gvim
+
+# GEM
+#####
+
+export PATH=~/local/bin:~/.gem/ruby/1.8:$PATH
+export GEM_PATH=~/.gem/ruby/1.8:/usr/lib/ruby/gems/1.8
+export GEM_HOME=~/.gem
+
+# Aliases
+#########
+
+# Some example alias instructions
+# If these are enabled they will be used instead of any instructions
+# they may mask.  For example, alias rm='rm -i' will mask the rm
+# application.  To override the alias instruction use a \ before, ie
+# \rm will call the real rm not the alias.
+
+# Interactive operation...
+# NOTE Sometimes the -i doesn't get overriden by -f 
+#      and then you gotta alias cp='cp', etc.
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+
+# Misc
+alias grep='grep --color'         # show differences in colour
+alias less='less -r'              # raw control characters
+alias whence='type -a'            # where, of a sort
+alias h='history'
+
+# gVim
+alias ff='gvim --servername DIGAMMA --remote-silent' # for those special occassions
+alias fd='gvim --servername DELTA --remote-silent' # when you want to get away
+alias fs='gvim --servername SAMPI --remote-silent' # because relaxation is key
+alias fa='gvim --servername ALPHA --remote-silent' # follow your spirit
+
+# Directory listings
+alias ls='ls -hFA --color=tty'   # human readable, classify files, show almost all, colour
+# NOTE ls was just aliased, right, so the above applies to the below?
+alias l='ls -CF'                 # list entryies by columns (same as prev ls)
+alias ll='ls -laF'               # long list
+
+# Resource usage
+# Default to human readable figures
+alias df='df -h -T'
+#du -ah /home | sort -n
+alias du='du -h'
+alias free="free -m"
+
+# TODO lb Is this useful?
+alias p='pwd'
+
+# Commonly used Debian commands
+#alias update="sudo aptitude update"
+#alias install="sudo aptitude install"
+#alias upgrade="sudo aptitude safe-upgrade"
+#alias remove="sudo aptitude remove"
+
+# Commonly used Rails commands
+alias srv='script/server'
+alias mig='rake db:migrate'
+alias log='tail -f log/development.log'
+
+# And my TV is the second monitor
+alias mp='mplayer -xineramascreen 1'
+alias mpr='mplayer -xineramascreen 1 -lircconf ~/.lircrc-mplayer'
+
+alias cls='clear' # If you're like me and poisoned by DOS
+
+# SSH
+#####
+
+# TODO lb
+# See http://help.github.com/working-with-key-passphrases/
+SSH_ENV="$HOME/.ssh/environment"
+function start_agent {
+  echo "Initializing new SSH agent..."
+  /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
+  echo succeeded
+  chmod 600 "${SSH_ENV}"
+  . "${SSH_ENV}" > /dev/null
+  /usr/bin/ssh-add;
+}
+# Source SSH settings, if applicable
+if [ -f "${SSH_ENV}" ]; then
+  . "${SSH_ENV}" > /dev/null
+  #ps ${SSH_AGENT_PID} doesn't work under cywgin
+  ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
+    start_agent;
+  }
+else
+  start_agent;
+fi
+
+# Functions
+###########
+
+# Some example functions
+# function settitle() { echo -ne "\e]2;$@\a\e]1;$@\a"; }
+
+# TODO lb
+## A function to pipe any command to less
+#function so {
+#  eval "$@" | less -I~
+#}
+
+# TODO lb test with/without; 'export' needed?
+## Timezone
+#TZ='America/Chicago'; export TZ
+
+# Shell Options
+###############
+
+# See man bash for more options...
+
+# Don't wait for job termination notification
+# Report status of terminated bg jobs immed. (same as set -b)
+set -o notify
+
+# Don't use ^D to exit
+# set -o ignoreeof
+
+# Use case-insensitive filename globbing
+# shopt -s nocaseglob
+
+# Make bash append rather than overwrite the history on disk
+# shopt -s histappend
+
+# When changing directory small typos can be ignored by bash
+# for example, cd /vr/lgo/apaache would find /var/log/apache
+# shopt -s cdspell
+
+# Completion options
+####################
+
+# These completion tuning parameters change the default behavior of bash_completion:
+
+# Define to access remotely checked-out files over passwordless ssh for CVS
+# COMP_CVS_REMOTE=1
+
+# Define to avoid stripping description in --option=description of './configure --help'
+# COMP_CONFIGURE_HINTS=1
+
+# Define to avoid flattening internal contents of tar files
+# COMP_TAR_INTERNAL_PATHS=1
+
+# If this shell is interactive, turn on programmable completion enhancements.
+# Any completions you add in ~/.bash_completion are sourced last.
+# case $- in
+#   *i*) [[ -f /etc/bash_completion ]] && . /etc/bash_completion ;;
+# esac
+
+# History Options
+#################
+
+# Don't put duplicate lines in the history.
+export HISTCONTROL="ignoredups"
+
+# Ignore some controlling instructions
+# export HISTIGNORE="[   ]*:&:bg:fg:exit"
+
+# Whenever displaying the prompt, write the previous line to disk
+# export PROMPT_COMMAND="history -a"
+
+# Cygwin section
+################
+
+#alias c:='cd /cygdrive/c'
+#alias d:='cd /cygdrive/d'
+#alias e:='cd /cygdrive/e'
+#alias f:='cd /cygdrive/f'
+#alias g:='cd /cygdrive/g'
+#alias h:='cd /cygdrive/h'
+#alias i:='cd /cygdrive/i'
+
+# It's tedious jumping volumes and dirs everytime 
+# you login, so add your project paths here
+#mount -f -u -b "F:\_var\rails" "/rails"
+#cd /rails
+
+# Source user file
+##################
+
+#if [ -f "~/.bashrc-$USER" ]; then
+#  source "~/.bashrc-$USER"
+## TODO Tilde ne work pas in Cygwin
+##      though alone it works just fine...
+#elif [ -f "$HOME/.bashrc-$USER" ]; then
+#  source "$HOME/.bashrc-$USER"
+#fi
+
+# SSH-AGENT
+###########
+
+#SSH_ENV=$HOME/.ssh/environment
+#
+#function start_agent {
+#   echo "Initialising new SSH agent..."
+#   /usr/bin/ssh-agent | sed 's/^echo/#echo/' > ${SSH_ENV}
+#   echo succeeded
+#   chmod 600 ${SSH_ENV}
+#   . ${SSH_ENV} > /dev/null
+#   /usr/bin/ssh-add;
+#}
+
+# Source SSH settings, if applicable
+
+#if [ -f "${SSH_ENV}" ]; then
+#   . ${SSH_ENV} > /dev/null
+#   #ps ${SSH_AGENT_PID} doesn’t work under cywgin
+#   ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
+#      start_agent;
+#   }
+#else
+#   start_agent;
+#fi
+
+#if [ -z "$SSH_AUTH_SOCK" ] ; then
+#   eval `ssh-agent -s`
+#   ssh-add
+#fi
+
