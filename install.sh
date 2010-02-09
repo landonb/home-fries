@@ -1,13 +1,18 @@
 #!/bin/bash
 
-# Backs up and moves existing vim files and copies dubsacks
+# Backs up and moves existing bash and vim files and copies new ones
+# setup for Cyclopath development
 
-backup_dir="$HOME/.vim-backup-"`eval date +%Y%m%d`
+#CYCLOPATH_PATH=/export/scratch/landonb/cp
+CYCLOPATH_PATH=/home/pee/cp/cp
+# TODO Prompt for this!
+
+backup_dir="$HOME/.Cyclopath_rc-backup-"`eval date +%Y%m%d`
 
 # Case insensitve =~ regex matching
 shopt -s nocasematch
 
-read -a the_answer -p 'Install dubsacks vim files to '$backup_dir' ? [y/N] '
+read -a the_answer -p 'Install Cyclopath_rc bash and vim files to '$HOME' ? [y/N] '
 if [[ $the_answer =~ ^ye?s?$ ]]; then
   : # no-op
 else
@@ -33,21 +38,31 @@ fi
 echo 'Creating backup directory ' $backup_dir
 mkdir $backup_dir
 
-echo 'Backing up existing vim files'
-#mv -f ~/.vim* $backup_dir
-if [[ -d ~/.vim ]]; then
-  echo "Moving $HOME/.vim"
-  mv ~/.vim $backup_dir
-fi
-for f in "$HOME/.vimprojects" "$HOME/.vimrc"; do
+echo 'Backing up existing files'
+for f in "$HOME/.bash_logout" \
+         "$HOME/.bash_profile" \
+         "$HOME/.bashrc" \
+         "$HOME/.bashrc-cyclopath" \
+         "$HOME/.bashrc-dub" \
+         "$HOME/.bashrc-private" \
+         "$HOME/mm.cfg" \
+         "$HOME/.vim/plugin/Cyclopath.vim"; do
+         # See below for "$HOME/.vimprojects"
   if [[ -f $f ]]; then
     echo "Moving $f"
-    mv $f $backup_dir
+    mv $f $backup_dir/
   fi
 done
 
-echo 'Copying dubsacks vim files'
-cp -R dubsacks/.vim* ~/
+echo 'Copying Cyclopath_rc files'
+cp HOME/.bash* ~/
+cp HOME/mm.cfg ~/
+cp HOME/.vim* ~/
+cp -Rf HOME/.vim ~/
+
+# Fix the Cyclopath Path
+echo 'Fixing Cyclopath paths'
+sed s,%CYCLOPATH_PATH%,$CYCLOPATH_PATH,g HOME/.vimprojects > $HOME/.vimprojects
 
 echo 'Enjoy!'
 
