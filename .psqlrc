@@ -1,0 +1,27 @@
+
+/* Display query times. */
+
+\timing on
+
+/* Leave short query responses as terminal output,
+   but for longer output, use the pager. 
+   
+   NOTE: If you always want to use the pager, use 'always'. */
+
+--\pset pager always
+\pset pager on
+
+/* 
+    NOTE: Though the command exists, most users cannot set log_statement 
+
+            cycling=> SET log_statement TO "ALL";
+            ERROR:  permission denied to set parameter "log_statement"
+
+          Instead, if you want verbose logfile output, set
+    
+            log_statement = 'all'
+ 
+          in your postgresql.conf (if you can edit that).
+
+    */
+
