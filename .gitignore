@@ -1,0 +1,44 @@
+# Ignore everything
+*
+
+# But not these files...
+
+# Project boilerplate.
+!LICENSE
+!README.rst
+
+# Simple config files.
+!.Xmodmap
+!.ctags
+!.gitconfig
+!.gitignore
+!.hgrc
+!.psqlrc
+!mm.cfg
+
+# Bash and Vim symlinks.
+!.bashrc
+!.vimrc
+
+# Home Fries (includes Bash).
+!.fries/
+# Ignore machine-private files, but not the templates.
+!.fries/.bashrc/*
+.fries/.bashrc/bashrx.private.*.sh
+!.fries/.bashrc/bashrx.private.sh.template
+.fries/.bashrc/bashrc.cyclopatx.*.sh
+!.fries/.bashrc/bashrc.cyclopatx.sh.template
+# Ignore setup_*.sh generated files.
+.fries/once/setup-mwiki_pwd
+.fries/once/setup-mysql_pwd
+.fries/once/setup-stage
+.fries/once/setup-stage_num
+# Ignore obsolete files and directories (old cruft).
+.fries/bin/daily.*.sh
+!.fries/bin/daily.resync.sh
+.fries/bin/random_password.py
+.fries/.install/
+.fries/secrete/
+.fries/TBD-bashrc-copy/
+.fries/TBD-docs-see-kit/
+
