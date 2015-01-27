@@ -1,0 +1,1 @@
+.fries/.bashrc/bashrc.base.sh
