@@ -1,0 +1,14 @@
+# INSTRUCTIONS:
+#
+#   Copy and rename this file and fill it with either
+#   machine- or user-specific terminal setup commands.
+#
+#   The $HOME/.fries/.bashrc/bashrc.core.sh script
+#   will look for and source the two files,
+#   
+#       bashrx.private.$HOSTNAME.sh
+#
+#   and
+#
+#       bashrx.private.$USER.sh
+#
