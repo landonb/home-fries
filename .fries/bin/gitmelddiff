@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# See: https://www.kernel.org/pub/software/scm/git/docs/git.html
+# 
+# GIT_EXTERNAL_DIFF is called with 7 parameters:
+#   path old-file old-hex old-mode new-file new-hex new-mode
+
+meld $1 $2
+

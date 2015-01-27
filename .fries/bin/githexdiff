@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# See: https://www.kernel.org/pub/software/scm/git/docs/git.html
+# 
+# GIT_EXTERNAL_DIFF is called with 7 parameters:
+#   path old-file old-hex old-mode new-file new-hex new-mode
+
+#echo $1 $2
+#dhex $1 $2
+#hexdiff $1 $2
+file1=/tmp/githexdiff.`uuidgen`
+file2=/tmp/githexdiff.`uuidgen`
+hexdump -v -C $1 > $file1
+hexdump -v -C $2 > $file2
+meld $file1 $file2
+/bin/rm $file1 $file2
+
