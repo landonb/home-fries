@@ -1,0 +1,12 @@
+! On Lenovo ThinkPad: Map Right-Ctrl to Delete
+!  L-Ctrl|Fn|Win|Alt|--Space--|Alt|Menu|Ctrl|Browse-back|Up-arrow|Broforward
+!                                            Left-Arrow|Down-|Right-Arrow
+keycode 105 = Delete
+! (I wanted to use browser back button (whose icon looks like a page left,
+! and which sits amongst the arrow keys), but either I got the keycode wrong
+! or it just doesn't map.
+! NOTE: The browser keys are called XF86Back and XF86Forward by `xev`, except
+!       when you run xev and press browser back, nothing happens.
+! This used to work, maybe on Fedora 14, but now it's Mint 17 and beyond:
+!  keycode 166 = Delete
+
