@@ -1,0 +1,47 @@
+# Landon Bouma's Cyclopath bash startup script
+
+# Cyclopath scripts
+export PATH=/export/scratch/reid/flex/bin:/project/Grouplens/bin:$PATH
+
+# NOTE Things w/ machine names moved to .bashrc-private 
+#export svnroot=svn+ssh://$CYCLOPATH_SVN_MACHINE/project/Grouplens/svn/cyclingproject
+
+# Source the TCL bash script; not sure what for;
+# The default bash script from CS does this....
+if [ -f /soft/rko-modules/tcl/init/bash ]; then
+  . /soft/rko-modules/tcl/init/bash
+fi
+
+# Activate addt'l software
+# NOTE whereis module? I can't find it!
+#if type -P module &>/dev/null; then
+if `module --version &>/dev/null`; then
+  # Base CS loads
+  module load soft/gcc java perl gnu local compilers system x11
+  module load openwin modules Frame math/mathematica scheme user
+  module load mozilla soft/openoffice soft/gimp
+  # Cyclopath SVN client
+  module load soft/subversion/1.5-latest
+  # GIS software
+  module load soft/qgis
+fi
+
+# Cyclopath shortcuts
+## Restart Apache
+alias re='sudo /etc/init.d/apache2 restart'
+## Watch the Server logs
+alias logs='sudo tail -F /var/log/apache2/access.log /var/log/apache2/error.log /var/log/postgresql/postgresql-8.3-main.log /tmp/pyserver.apache.log /tmp/pyserver.routed.log /tmp/pyserver.tilecache.log'
+## Watch the Client logs
+alias logc='tail -F ~/.macromedia/Flash_Player/Logs/flashlog.txt'
+## Login to the Database
+alias cpdb='psql -U cycling cycling'
+# Run routed (from $cp/pyserver)
+alias rd='sudo -u www-data ./routedctl'
+
+# Work-from-home / Cyclopath
+# Redirect dev machine's port 80 to http://localhost:8080
+# NOTE Things w/ machine names moved to .bashrc-private 
+#alias sshcs='ssh -L 8080:localhost:80 $CYCLOPATH_USER@$CYCLOPATH_SVN_MACHINE'
+# alias cpget="rsync -t -a -v -z --exclude='*.svn' --exclude='pyserver/CONFIG' --exclude='flashclient/build/*' $CYCLOPATH_USER@$CYCLOPATH_DEV_MACHINE:/export/scratch/$CYCLOPATH_USER/cp $HOME/cp"
+# alias cpput="rsync -t -a -v -z --exclude='*.svn' --exclude='pyserver/CONFIG' --exclude='flashclient/build/*' $HOME/cp/cp $CYCLOPATH_USER@$CYCLOPATH_DEV_MACHINE:/export/scratch/$CYCLOPATH_USER"
+
