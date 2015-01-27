@@ -22,20 +22,35 @@
 
 # Home Fries (includes Bash).
 !.fries/
-# Ignore machine-private files, but not the templates.
+
+!.fries/.bashrc
+!.fries/.bashrc/
 !.fries/.bashrc/*
 .fries/.bashrc/bashrx.private.*.sh
 !.fries/.bashrc/bashrx.private.sh.template
 .fries/.bashrc/bashrc.cyclopatx.*.sh
 !.fries/.bashrc/bashrc.cyclopatx.sh.template
-# Ignore setup_*.sh generated files.
+
+# Weird: If just one of the .fries/bin is present,
+# it's ignored, but with two or more, it's not??.
+# bin and bin/* work, and bin/ and bin/* work,
+# but not bin and bin/*, and not any on their own.
+!.fries/bin
+!.fries/bin/
+!.fries/bin/*
+
+!.fries/once
+!.fries/once/
+!.fries/once/*
+.fries/once/custom_mint17.landon.sh
 .fries/once/setup-mwiki_pwd
 .fries/once/setup-mysql_pwd
 .fries/once/setup-stage
 .fries/once/setup-stage_num
-# Ignore obsolete files and directories (old cruft).
+
 .fries/bin/daily.*.sh
-!.fries/bin/daily.resync.sh
+#!.fries/bin/daily.resync.sh
+.fries/bin/github_ssh.sh
 .fries/bin/random_password.py
 .fries/.install/
 .fries/secrete/
