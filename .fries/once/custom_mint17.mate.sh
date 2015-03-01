@@ -1,6 +1,6 @@
 # File: custom_mint17.mate.sh
-# Author: Landon Bouma (home-fries &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.01.26
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Last Modified: 2015.02.19
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Custom Mint17 MATE Window Manage Customization.
 # License: GPLv3
@@ -70,11 +70,12 @@ stage_4_wm_customize_mate_misc () {
   #   /usr/lib/pm-utils/sleep.d/
   # See: https://wiki.archlinux.org/index.php/Pm-utils
   sudo /bin/cp -f \
-    ${script_path}/target/usr/lib/pm-utils/sleep.d/33disablewakeups \
+    ${script_path}/target/common/usr/lib/pm-utils/sleep.d/33disablewakeups \
     /usr/lib/pm-utils/sleep.d
   sudo chmod 755 /usr/lib/pm-utils/sleep.d/33disablewakeups
-  sudo pm-suspend
-  # TO-TEST: sudo pm-suspend
+  # TO-TEST:
+  #  sudo pm-suspend
+  # then close and reopen the lid a few times.
 
   # 2014.12.08: The no-wake-on-lid-open seems to *mostly* work,
   #             but every once in a while, when [lb] opens the
@@ -85,8 +86,8 @@ stage_4_wm_customize_mate_misc () {
 
   # FIXME/MAYBE: Maybe move this to a Vim install/setup script?
   #
-  # FIXME: Is there a mate
   # Add a keyboard shortcut for bring gVim to the foreground.
+  # Hint: Type Alt-` to bring gvim to the foreground.
   dconf write /org/mate/desktop/keybindings/custom0/action \
     "'xdotool search --name SAMPI windowactivate'"
   dconf write /org/mate/desktop/keybindings/custom0/binding \
