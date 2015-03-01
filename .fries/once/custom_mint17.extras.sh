@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
-# Author: Landon Bouma (home-fries &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.01.26
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Last Modified: 2015.02.26
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -103,10 +103,12 @@ stage_4_psql_configure () {
   #       configure/install other things so that the server won't not
   #       not start because of some shared memory limit issue.
 
-  sudo chown postgres:${USE_STAFF_GROUP_ASSOCIATION} \
-    /etc/postgresql/${POSTGRESABBR}/main/*
-  # Is this okay?
-  sudo chmod 640 /etc/postgresql/${POSTGRESABBR}/main/*
+  if [[ -n ${USE_STAFF_GROUP_ASSOCIATION} ]]; then
+    sudo chown postgres:${USE_STAFF_GROUP_ASSOCIATION} \
+      /etc/postgresql/${POSTGRESABBR}/main/*
+    # Is this okay?
+    sudo chmod 640 /etc/postgresql/${POSTGRESABBR}/main/*
+  fi
 
   #sudo /etc/init.d/postgresql reload
   sudo /etc/init.d/postgresql restart
@@ -116,19 +118,20 @@ stage_4_psql_configure () {
 stage_4_apache_configure () {
 
   # Make the Apache configs group-writeable.
-
-  sudo /bin/chgrp -R ${USE_STAFF_GROUP_ASSOCIATION} /etc/apache2/
-  sudo /bin/chmod 664  /etc/apache2/apache2.conf
-  sudo /bin/chmod 664  /etc/apache2/ports.conf
-  sudo /bin/chmod 2775 /etc/apache2/sites-available
-  sudo /bin/chmod 2775 /etc/apache2/sites-enabled
-  sudo /bin/chmod 664  /etc/apache2/sites-available/*.conf
+  if [[ -n ${USE_STAFF_GROUP_ASSOCIATION} ]]; then
+    sudo /bin/chgrp -R ${USE_STAFF_GROUP_ASSOCIATION} /etc/apache2/
+    sudo /bin/chmod 664  /etc/apache2/apache2.conf
+    sudo /bin/chmod 664  /etc/apache2/ports.conf
+    sudo /bin/chmod 2775 /etc/apache2/sites-available
+    sudo /bin/chmod 2775 /etc/apache2/sites-enabled
+    sudo /bin/chmod 664  /etc/apache2/sites-available/*.conf
+  fi
 
   # Avoid an apache gripe and set ServerName.
   m4 \
     --define=HOSTNAME=${HOSTNAME} \
     --define=MACH_DOMAIN=${USE_DOMAIN} \
-      ${script_absbase}/common/etc/apache2/apache2.conf \
+      ${script_absbase}/target/common/etc/apache2/apache2.conf \
       > /etc/apache2/apache2.conf
 
   # Enable the virtual hosts module, for VirtualHost.
@@ -165,7 +168,6 @@ stage_4_quicktile_install () {
   # positions, e.g., 1 is lower-left, 6 is right-half, etc.
 
   if $WM_IS_MATE; then
-
     if [[ ! -d ${OPT_DLOADS}/quicktile ]]; then
       cd ${OPT_DLOADS}
       # http://github.com/ssokolow/quicktile/tarball/master
@@ -190,7 +192,6 @@ stage_4_quicktile_install () {
     dest_dir=/usr/local/lib/python2.7/dist-packages/QuickTile-0.2.2-py2.7.egg
     sudo find $dest_dir -type d -exec chmod 2775 {} +
     sudo find $dest_dir -type f -exec chmod u+rw,g+rw,o+r {} +
-
     # Hrm. I reinstalled but then had to make my own startup file, since 
     # /etc/xdg/autostart/quicktile.desktop no longer seemed to work (it
     # doesn't appear to be registered; probably a dconf problem). SO
@@ -198,7 +199,6 @@ stage_4_quicktile_install () {
     #   /usr/local/bin/quicktile.py --daemonize &
     #
     # See: $HOME/.config/autostart/quicktile.py.desktop
-
   fi
 
 } # end: stage_4_quicktile_install
@@ -212,6 +212,8 @@ stage_4_pidgin_setup_autostart () {
 
   # MAYBE: Should we just copy this from a setup file?
   #        Maybe check for a file to copy first, then do this on backup.
+
+  mkdir -p $HOME/.config/autostart
 
   echo "[Desktop Entry]
 Type=Application
@@ -360,6 +362,8 @@ stage_4_dropbox_install () {
 
 stage_4_dev_testing_expect_install () {
 
+  # Unleash this code if you don't want to just `apt-get install -y expect`.
+
   if false; then
 
     # FIXME: Move all the apt-get installs from the big list above
@@ -375,7 +379,7 @@ stage_4_dev_testing_expect_install () {
 
     # 2015.01.20: This seems to install without any perms issues.
     # FIXME: Use `sudo su --login -c ''` to replace chmod cleanups.
-    sudo su --login -c 'cd ${OPT_DLOADS}/expect5.45 && make install'
+    sudo su --login -c "cd ${OPT_DLOADS}/expect5.45 && make install"
 
     # NOTE: You'll have to manually setup your LD_LIBRARY_PATH. E.g.,
     #
@@ -420,8 +424,8 @@ stage_4_cloc_install () {
 
 stage_4_todo_txt_install () {
 
-  /bin/mkdir -p ${OPT_BIN}
-  cd ${OPT_BIN}
+  /bin/mkdir -p ${OPT_DLOADS}
+  cd ${OPT_DLOADS}
   wget -N \
     https://github.com/downloads/ginatrapani/todo.txt-cli/todo.txt_cli-2.9.tar.gz
   tar xvzf todo.txt_cli-2.9.tar.gz
@@ -432,16 +436,41 @@ stage_4_todo_txt_install () {
 
   /bin/ln -s todo.txt_cli-2.9 todo.txt_cli
 
+  /bin/ln -s ${OPT_DLOADS}/todo.txt_cli-2.9/todo.sh ${OPT_BIN}/todo.sh
+
+  # See: ~/.fries/.bashrc/bashrc.core.sh for
+  #   source ${OPT_DLOADS}/todo.txt_cli/todo_completion
+
+  mkdir $HOME/.todo
+  # FIXME: You may have to edit the config file to add the path to it.
+  cp ${OPT_DLOADS}/todo.txt_cli-2.9/todo.cfg $HOME/.todo/config
+
 } # end: stage_4_todo_txt_install
+
+stage_4_punch_tt_install () {
+
+  if false; then
+    /bin/mkdir -p ${OPT_DLOADS}
+    cd ${OPT_DLOADS}
+    wget -N \
+      https://punch-time-tracking.googlecode.com/files/punch-time-tracking-1.3.zip
+    unzip -d punch-time-tracking punch-time-tracking-1.3.zip
+    chmod +x punch-time-tracking/Punch.py
+    /bin/ln -s ${OPT_DLOADS}/punch-time-tracking/Punch.py ${OPT_BIN}/Punch.py
+  fi
+
+} # end: stage_4_punch_tt_install
 
 stage_4_ti_time_tracker_install () {
 
-  /bin/mkdir -p ${OPT_BIN}
-  cd ${OPT_BIN}
-  wget -N \
-    https://raw.githubusercontent.com/sharat87/ti/master/bin/ti
+  if false; then
+    /bin/mkdir -p ${OPT_BIN}
+    cd ${OPT_BIN}
+    wget -N \
+      https://raw.githubusercontent.com/sharat87/ti/master/bin/ti
 
-  chmod +x ti
+    chmod +x ti
+  fi
 
 } # end: stage_4_ti_time_tracker_install
 
@@ -463,10 +492,98 @@ stage_4_utt_time_tracker_install () {
 
 } # end: stage_4_utt_time_tracker_install
 
+stage_4_cookiecutter_install () {
+
+  # 2015.02.06: Cookiecutter in the distro is 0.6.4,
+  #             but >= 0.7.0 is where it's at.
+
+  sudo pip install cookiecutter
+
+  # WTW?                            -rwxrwx--x
+  # 2015.02.19: On fresh Mint 17.1: -rwxr-x--x
+  # Anyway, 'other' is missing the read bit.
+  sudo chmod 755 /usr/local/bin/cookiecutter
+
+} # end: stage_4_cookiecutter_install
+
+stage_4_keepassx_install () {
+
+  # Funny; there's a build problem in the latest version of the source:
+  # a missing include. However, we can also just install keepassx with
+  # apt-get... though I think a text file and encfs or gpg is probably
+  # simpler to use than keepassx. The only security difference is that
+  # keepassx automatically clears the clipboard for you; if you use an
+  # encrypted file, you'll have to remember to clear the clipboard, or
+  # at least to not accidentally paste your password to, say, a web
+  # browser search field.
+
+  if false; then
+
+    /bin/mkdir -p ${OPT_DLOADS}
+    cd ${OPT_DLOADS}
+    wget -N http://www.keepassx.org/releases/keepassx-0.4.3.tar.gz
+    tar xvzf keepassx-0.4.3.tar.gz
+
+    cd keepassx-0.4.3
+
+    # This list contains extraneous pacakges.
+    # I'm not sure which ones are required; I experimented to find the ones.
+    sudo apt-get install -y qt4-qmake qt4-dev-tools qt4-bin-dbg
+    # I'm pretty sure these two are required. I know the second one is.
+    sudo apt-get install -y libqt4-dev libxtst-dev
+
+    # Fix: lib/random.cpp:98:19: error: ‘getpid’ was not declared in this scope
+    # See: https://www.keepassx.org/forum/viewtopic.php?f=4&t=3177
+    /bin/sed -i.bak \
+      "s/#include \"random.h\"/#include \"random.h\"\n#include <unistd.h>/" \
+      src/lib/random.cpp
+
+    qmake
+    make
+    sudo make install
+
+  fi
+
+} 
+# end: stage_4_keepassx_install
+
+stage_4_pencil_install () {
+
+  /bin/mkdir -p ${OPT_DLOADS}
+  cd ${OPT_DLOADS}
+  wget -N http://evoluspencil.googlecode.com/files/evoluspencil_2.0.5_all.deb
+  sudo dpkg -i evoluspencil_2.0.5_all.deb
+  #/bin/rm ${OPT_DLOADS}/evoluspencil_2.0.5_all.deb
+
+} # end: stage_4_pencil_install
+
+stage_4_disable_services () {
+
+  # 2015.02.22: From /var/log/auth.log, lines like
+  #   Feb 22 14:55:05 philae smbd[30165]: pam_unix(samba:session):
+  #     session closed for user nobody
+  # but no "session started" or "session opened" lines. Whatever.
+  # I don't Samba. https://en.wikipedia.org/wiki/Samba_%28software%29
+
+  # Stop it now.
+  sudo service smbd stop
+
+  # Have it not start in the future.
+  sudo update-rc.d -f smbd remove
+  # Restore with:
+  #   sudo update-rc.d -f smbd defaults
+
+} # end: stage_4_disable_services
+
 # ==============================================================
 # Application Main()
 
 setup_customize_extras_go () {
+
+    if [[ -n ${USE_STAFF_GROUP_ASSOCIATION} ]]; then
+      sudo chgrp ${USE_STAFF_GROUP_ASSOCIATION} /srv
+      sudo chmod g+w /srv
+    fi
 
     # Configure Git.
 
@@ -527,13 +644,24 @@ setup_customize_extras_go () {
     #                 ti — A silly simple time tracker, but
     #                 perhaps Ultimate Time Tracker has a few
     #                 tricks that ti could learn (I like the
-    #                 feel of ti but the features of utt...).
+    #                 feel of ti but the features of utt...
+    #                 no, wait, punch-time-tracking seems cool).
 
     stage_4_todo_txt_install
+
+    stage_4_punch_tt_install
 
     stage_4_ti_time_tracker_install
 
     stage_4_utt_time_tracker_install
+
+    stage_4_cookiecutter_install
+
+    stage_4_keepassx_install
+
+    stage_4_pencil_install
+
+    stage_4_disable_services
 
 } # end: setup_customize_extras_go
 

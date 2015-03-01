@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # File: setup_mint17.sh
-# Author: Landon Bouma (home-fries &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.01.26
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Last Modified: 2015.02.26
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -66,7 +66,7 @@ if [[ ! -e ../bin/bash_base.sh ]]; then
 fi
 DEBUG_TRACE=false
 source ../bin/bash_base.sh
-# ${script_absbase} now absolute path to this script's directory.
+# ${script_absbase} is now the absolute path to this script's directory.
 
 # ------------------------------------------
 # Configuration
@@ -134,7 +134,7 @@ OPT_DLOADS=/srv/opt/.downloads
 # The default Mint "start menu" icon is rather drab, so give it some pazazz.
 # [lb] likes the dice icon that's included with Ubuntu. Poke around
 # the /usr/share/icons/ files and find something you like or add you own.
-USE_MINT_MENU_ICON="${script_absbase}/applications-boardgames-21x21.png"
+USE_MINT_MENU_ICON="${script_absbase}/assets/applications-boardgames-21x21.png"
 
 # -- Mercurial setup.
 
@@ -239,7 +239,7 @@ user_home_conf_dump() {
 
     RELAT=$1
 
-    mkdir -p $RELAT
+    /bin/mkdir -p $RELAT
 
     pushd $RELAT
 
@@ -351,15 +351,15 @@ setup_mint_17_stage_1 () {
       sudo chmod 0660 /etc/sudoers
       # For more info on the Defaults, see `man sudoers`.
       # - tty_tickets is on by default.
-      # - timestamp_timeout defaults to 5 (seconds).
+      # - timestamp_timeout defaults to 5 (minutes).
       # Note the sudo tee trick, since you can't run e.g.,
       # sudo echo "" >> to a write-protected file, since
       # the append command happens outside the sudo.
       echo "
-  # Added by ${0} at `date +%Y.%m.%d-%T`.
-  Defaults tty_tickets
-  Defaults:$USER timestamp_timeout=-1
-  " | sudo tee -a /etc/sudoers &> /dev/null
+# Added by ${0} at `date +%Y.%m.%d-%T`.
+Defaults tty_tickets
+Defaults:$USER timestamp_timeout=-1
+" | sudo tee -a /etc/sudoers &> /dev/null
       sudo chmod 0440 /etc/sudoers
     fi
 
@@ -478,13 +478,23 @@ setup_mint_17_stage_1 () {
 
       # Dubsacks Vim.
       vim-gtk
+      # Text columnizer.
       par
+      # Ctags.
       exuberant-ctags
+      # Ruby dev tools for Command-T.
+      ruby-dev
 
       # Awesomest graphical diff.
       meld
       # Excellent diagramming.
       dia
+      # Pencil Project is a prototyping tool that
+      # also support dia-ish diagram drawing.
+      #  http://pencil.evolus.vn
+      # But wait! The pencil package in Ubuntu is a different app.
+      #  No: pencil
+      #  See: stage_4_pencil_install
       # Eye of Gnome, a slideshow image viewer.
       eog
       # Hexadecimal file viewer.
@@ -510,6 +520,8 @@ setup_mint_17_stage_1 () {
       apache2-dev
       apache2-mpm-worker
       apache2-utils
+
+      nginx
 
       postgresql
       postgresql-client
@@ -550,6 +562,8 @@ setup_mint_17_stage_1 () {
       python-xlib
       python-dbus
       pylint
+
+      # FIXME/MAYBE: Can/Should these be virtualenv-installed?
       python-egenix-mxdatetime
       python-egenix-mxtools
       python-logilab-astng
@@ -557,6 +571,30 @@ setup_mint_17_stage_1 () {
       python-subversion
       python-levenshtein
 
+      # MAYBE?:
+      #virtualenvwrapper
+      # Install via virtualenv and pip:
+      #  python-pytest
+      # FIXME: There are more python modules, like levenshtein,
+      #        that should be installed via virtualenv, too.
+      # For tox, install multiple Python versions.
+      #python2.6
+      #python3.2
+      #python3.3
+      # See pip (so we can install current version):
+      #  cookiecutter
+
+
+
+# FIXME: Can I just pip these in requirements.txt?
+      python-tox
+      python-coverage
+      python3-coverage
+      python-flake8
+      python3-flake8
+
+
+      
       libagg-dev
       libedit-dev
       mime-construct
@@ -590,7 +628,12 @@ setup_mint_17_stage_1 () {
 
       thunderbird
 
+      # One would think whois would be standard.
       whois
+      # nslookup is... stale, to be polite. Use dig instead.
+      
+
+      apt-file
 
       python-nltk
       python-matplotlib
@@ -604,7 +647,18 @@ setup_mint_17_stage_1 () {
 
       curl
 
-      okular
+      # PDF/Document readers.
+      # 2015.02.26: [lb] cannot get okular to open any PDFs...
+      #             and all menu items but one are disabled,
+      #             and choosing it crashes okular.
+      #okular
+      # 2015.02.26: One PDF I opened with acroread does not
+      #             use the correct fonts... maybe because
+      #             the version is so old (and acroread is
+      #             no longer maintained). And, though I
+      #             thought evince was installed by default,
+      #             it appears not.
+      evince
 
       akregator
 
@@ -619,6 +673,24 @@ setup_mint_17_stage_1 () {
       # Hopefully never: Windoes emulator and something about its browser.
       #  wine
       #  wine-gecko1.4
+
+      # Interactive bash debugger. To set a breakpoint:
+      #   source /usr/share/bashdb/bashdb-trace
+      #   _Dbg_debugger
+      # http://bashdb.sourceforge.net/
+      bashdb
+
+      # Meh. Keepassx is convenient for people who like GUIs, but I
+      # think gpg or encfs is just as easy for someone comfy on the CLI.
+      #keepassx
+      encfs
+      # I thought scrub was a default program, too; guess not.
+      # Also, if you're doing it right, you won't need scrub:
+      #   on disk, your data should *always* be encrypted;
+      #   it's only in memory or on screen that data should be
+      #   plain.
+      scrub
+
     )
 
     # One Giant MASSIVE package install.
@@ -726,7 +798,7 @@ setup_mint_17_stage_2 () {
     fi
     cd /media/$USER/VBOXADDITIONS_*/
   elif $WM_IS_XFCE; then
-    sudo mkdir /media/VBOXADDITIONS
+    sudo /bin/mkdir /media/VBOXADDITIONS
     sudo mount -r /dev/cdrom /media/VBOXADDITIONS
     cd /media/VBOXADDITIONS
   fi
@@ -1113,9 +1185,10 @@ stage_4_wm_customize_mint () {
   # From the Mint Menu in the lower-left, remove the text and change the
   # icon (to a playing die with five pips showing).
   if [[ -e $USE_MINT_MENU_ICON ]]; then
-    USER_BGS=/home/$USER/Pictures/.backgrounds
+    USER_BGS=/home/${USER}/Pictures/.backgrounds
+    /bin/mkdir -p ${USER_BGS}
     /bin/cp \
-      $USE_MINT_MENU_ICON \
+      ${USE_MINT_MENU_ICON} \
       ${USER_BGS}/mint_menu_custom.png
     gsettings set com.linuxmint.mintmenu applet-icon \
       "${USER_BGS}/mint_menu_custom.png"
@@ -1142,7 +1215,7 @@ stage_4_wm_customize_mint () {
   # FIXME/MAYBE: Maybe move this to a Vim install/setup script?
   #
   # The default mapping to open the MATE Menu is the Windows/Super key
-  # ('<Super_L').
+  # ('<Super_L'), but I fat-finger it sometimes so add the shift key.
   gsettings set com.linuxmint.mintmenu hot-key '<Super>Shift_L'
 
   # MAYBE: Move these thoughts to a reST article, specifically a dead one.
@@ -1299,13 +1372,18 @@ __just_the_basics__ () {
   #      And I changed Console from Ctrl+Shiht+K to Ctrl+Shiht+X
   #        (obscuring Text Switch Directions, which is... weird for Latin).
 
-  # FIXME: Flash is legacy on linux, right?
-  #        I think this is where to get the legacy plugin:
   if false; then
     # Linux Mint 17 Adode Flash update:
     sudo add-apt-repository "deb http://archive.canonical.com/ rebecca partner"
     sudo apt-get update
     sudo apt-get install -y flashplugin-installer
+  fi
+  if false; then
+    # Linux Mint 17.1 Adode Flash update:
+    # FIXME: Is this repository still right?:
+    #  sudo add-apt-repository "deb http://archive.canonical.com/ rebecca partner"
+    sudo apt-get update
+    sudo apt-get install -y adobe-flashplugin
   fi
 }
 
