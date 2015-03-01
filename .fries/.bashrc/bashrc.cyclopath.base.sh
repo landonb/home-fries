@@ -1,6 +1,6 @@
 # File: bashrc.cyclopath.base.sh
-# Author: Landon Bouma (dubsacks &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.01.25
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Last Modified: 2015.02.04
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Cyclopath bash startup script.
 # License: GPLv3
@@ -49,8 +49,10 @@ export CS_PATHBACKUP=$CCP_DEV_DIR/cp_dubs.back
 # Add the Flex build tools to PATH.
 if [[ -e /ccp/opt/flex/bin ]]; then
   export PATH=/ccp/opt/flex/bin:$PATH
-else
-  echo "WARNING: missing: /ccp/opt/flex/bin"
+# FIXME: echoing a warning breaks unison, which expects
+#        a clean response on ssh or whatever it uses.
+#else
+#  echo "WARNING: missing: /ccp/opt/flex/bin"
 fi
 
 # Cyclopath shortcuts
