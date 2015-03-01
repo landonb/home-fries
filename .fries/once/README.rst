@@ -3,7 +3,7 @@ A General Linux Setup Guide For Developers
 ==========================================
 
 .. Author: Landon Bouma
-.. Last Modified: 2015.01.26
+.. Last Modified: 2015.02.20
 .. Project Page: https://github.com/landonb/home_fries
 
 Overview
@@ -411,10 +411,6 @@ run as root is dangerous.
   # It seems dangerous to let vendor Vim code run as root...
   #  sudo /bin/ln -s $HOME/.vim /root/.vim
   #  sudo /bin/ln -s $HOME/.vimrc /root/.vimrc
-  #  sudo /bin/ln -s $HOME/.wakatime.cfg /root/.wakatime.cfg
-  #  sudo /bin/ln -s $HOME/.wakatime.data /root/.wakatime.data
-  #  sudo /bin/ln -s $HOME/.wakatime.db /root/.wakatime.db
-  #  sudo /bin/ln -s $HOME/.wakatime.log /root/.wakatime.log
 
 Add Gmail Account to Pidgin
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -713,4 +709,20 @@ except that defining word boundaries uses the PCRE syntax.
      You'll want to use ``\bark\b`` instead.
 
 See more at: https://github.com/ervandew/ag
+
+Lenovo Laptops...
+^^^^^^^^^^^^^^^^^
+
+Lenovo combines the function keys (Fn, or Fkeys)
+and the hardware-specific keys (like volume up and down)
+into the same row of keys, and it defaults to the hardware
+keys, so to use the Fn keys, you have to press the Function key.
+
+To reverse the mapping, hit ``Fcn-Esc``.
+
+This solves the problem of quickly accessing F-keys
+(which I use in Vim all the time!) but the keys on
+my laptop are iconed with the hardware function, and
+not the Fn marking (it's really very small!), so I'll
+have to rely on my memory map and not the keyboard markings.
 
