@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # File: openterms.sh
-# Author: Landon Bouma (dubsacks &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.01.24
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Last Modified: 2015.02.27
 # Project Page: https://github.com/landonb/home_fries
 # License: GPLv3
 
@@ -41,175 +41,197 @@ function do_sleep () {
   echo "import time;time.sleep(0.5)" | python
 }
 
-# Make sure we reset the DUBs vars btw calls, otherwise they'll be used in
-# subsequent commands (if you're running this openterms.sh script from a
-# gnome taskbar shortcut).
+# Make sure we reset the DUBs vars btw calls, otherwise
+# they'll be used in subsequent commands (if you're running
+# this openterms.sh script from a gnome taskbar shortcut).
 
 # 
-DUBS_TERMNAME="rpdb" \
-  DUBS_STARTIN=/ccp/dev/ccpv3_trunk/pyserver/bin/winpdb \
-  DUBS_STARTUP="/usr/bin/python rpdb2.py" \
+DUBS_TERMNAME="" \
+  DUBS_STARTIN=/kit \
+  DUBS_STARTUP="mount_sepulcher" \
+  $script_path/termdub.py -t lhs \
+  &
+do_sleep
+
+DUBS_TERMNAME="" \
+  DUBS_STARTIN=/kit \
+  DUBS_STARTUP="" \
+  $script_path/termdub.py -t lhs \
+  &
+do_sleep
+
+#
+DUBS_TERMNAME="" \
+  DUBS_STARTIN="" \
+  DUBS_STARTUP="" \
+  $script_path/termdub.py -t rhs \
+  &
+do_sleep
+
+DUBS_TERMNAME="" \
+  DUBS_STARTIN="" \
+  DUBS_STARTUP="" \
+  $script_path/termdub.py -t rhs \
+  &
+do_sleep
+
+#
+DUBS_TERMNAME="logs" \
+  DUBS_STARTIN=/srv/excensus \
+  DUBS_STARTUP="" \
+  $script_path/termdub.py -t logs \
+  &
+do_sleep
+
+DUBS_TERMNAME="" \
+  DUBS_STARTIN=/srv/excensus \
+  DUBS_STARTUP="" \
+  $script_path/termdub.py -t bigl \
+  &
+do_sleep
+
+DUBS_TERMNAME="" \
+  DUBS_STARTIN=~/.fries \
+  DUBS_STARTUP="" \
   $script_path/termdub.py -t dbms \
   &
 do_sleep
 
+#
 DUBS_TERMNAME="" \
-  DUBS_STARTIN=/ccp/bin/ccpdev \
+  DUBS_STARTIN=/srv/excensus \
   DUBS_STARTUP="" \
-  $script_path/bin/termdub.py -t dbms \
+  $script_path/termdub.py -t bigc \
   &
 do_sleep
 
-#
 DUBS_TERMNAME="" \
-  DUBS_STARTIN="" \
+  DUBS_STARTIN=~/.fries \
   DUBS_STARTUP="" \
-  $script_path/bin/termdub.py -t dbms \
+  $script_path/termdub.py -t rhs \
   &
 do_sleep
 
 DUBS_TERMNAME="" \
-  DUBS_STARTIN="" \
-  DUBS_STARTUP="" \
-  $script_path/bin/termdub.py -t dbms \
+  DUBS_STARTIN=/srv/excensus \
+  DUBS_STARTUP="cli_gk12.sh reenter" \
+  $script_path/termdub.py -t bigr \
   &
 do_sleep
+
+# =====================================================
+# +++++++++++++++ END OF ACTIVE WINDOWS +++++++++++++++
+# =====================================================
+
+if false;
+
+  #
+  DUBS_TERMNAME="Psql-v3" \
+    DUBS_STARTIN="" \
+    DUBS_STARTUP="psql -U cycling ccpv3_lite" \
+    $script_path/termdub.py -t logs \
+    &
+  do_sleep
+
+  DUBS_TERMNAME="Psql-v2" \
+    DUBS_STARTIN="" \
+    DUBS_STARTUP="psql -U cycling ccpv3_lite" \
+    $script_path/termdub.py -t logc \
+    &
+  do_sleep
+
+  #
+  DUBS_TERMNAME="rLogs" \
+    DUBS_STARTIN="" \
+    DUBS_STARTUP="sss runic" \
+    $script_path/termdub.py -t logs \
+    &
+  do_sleep
+
+  DUBS_TERMNAME="rPsql" \
+    DUBS_STARTIN="" \
+    DUBS_STARTUP="sss runic" \
+    $script_path/termdub.py -t logc \
+    &
+  do_sleep
+
+  #
+  DUBS_TERMNAME="rLogs_Rd" \
+    DUBS_STARTIN="" \
+    DUBS_STARTUP="sss runic" \
+    $script_path/termdub.py -t logs \
+    &
+  do_sleep
+
+  DUBS_TERMNAME="rPsql2" \
+    DUBS_STARTIN="" \
+    DUBS_STARTUP="sss runic" \
+    $script_path/termdub.py -t logc \
+    &
+  do_sleep
+
+  #
+  DUBS_TERMNAME="" \
+    DUBS_STARTIN="" \
+    DUBS_STARTUP="sss runic" \
+    $script_path/termdub.py -t dbms \
+    &
+  do_sleep
+
+  DUBS_TERMNAME="" \
+    DUBS_STARTIN="" \
+    DUBS_STARTUP="" \
+    $script_path/termdub.py -t dbms \
+    &
+  do_sleep
+
+  #
+  DUBS_TERMNAME="" \
+    DUBS_STARTIN="" \
+    DUBS_STARTUP="sss runic" \
+    $script_path/termdub.py -t dbms \
+    &
+  do_sleep
+
+  DUBS_TERMNAME="" \
+    DUBS_STARTIN="/ccp/etc/cp_confs" \
+    DUBS_STARTUP="" \
+    $script_path/termdub.py -t dbms \
+    &
+  do_sleep
+
+  #
+  DUBS_TERMNAME="" \
+    DUBS_STARTIN="" \
+    DUBS_STARTUP="sss runic" \
+    $script_path/termdub.py -t dbms \
+    &
+  do_sleep
+
+  DUBS_TERMNAME="" \
+    DUBS_STARTIN="" \
+    DUBS_STARTUP="" \
+    $script_path/termdub.py -t dbms \
+    &
+  do_sleep
+
+  #
+  DUBS_TERMNAME="" \
+    DUBS_STARTIN="/ccp/dev/cp/pyserver" \
+    DUBS_STARTUP="sss runic" \
+    $script_path/termdub.py -t dbms \
+    &
+  do_sleep
+
+  DUBS_TERMNAME="py" \
+    DUBS_STARTIN="/ccp/dev/cp/pyserver" \
+    DUBS_STARTUP="python" \
+    $script_path/termdub.py -t dbms \
+    &
+  do_sleep
+
+fi
 
 #
-DUBS_TERMNAME="V3" \
-  DUBS_STARTIN=/ccp/dev/cp_trunk_v3 \
-  DUBS_STARTUP="" \
-  $script_path/bin/termdub.py -t dbms \
-  &
-do_sleep
-
-DUBS_TERMNAME="Working" \
-  DUBS_STARTIN=/ccp/dev/cp/flashclient \
-  DUBS_STARTUP="" \
-  $script_path/bin/termdub.py -t dbms \
-  &
-do_sleep
-
-#
-DUBS_TERMNAME="Logs" \
-  DUBS_STARTIN=/ccp/var/log/daily \
-  DUBS_STARTUP="logs" \
-  $script_path/bin/termdub.py -t logs \
-  &
-do_sleep
-
-DUBS_TERMNAME="Logc" \
-  DUBS_STARTIN=/ccp/var/log/daily \
-  DUBS_STARTUP="logc" \
-  $script_path/bin/termdub.py -t logc \
-  &
-do_sleep
-
-#
-DUBS_TERMNAME="Psql-v3" \
-  DUBS_STARTIN="" \
-  DUBS_STARTUP="psql -U cycling ccpv3_lite" \
-  $script_path/bin/termdub.py -t logs \
-  &
-do_sleep
-
-DUBS_TERMNAME="Psql-v2" \
-  DUBS_STARTIN="" \
-  DUBS_STARTUP="psql -U cycling ccpv3_lite" \
-  $script_path/bin/termdub.py -t logc \
-  &
-do_sleep
-
-#
-DUBS_TERMNAME="rLogs" \
-  DUBS_STARTIN="" \
-  DUBS_STARTUP="sss runic" \
-  $script_path/bin/termdub.py -t logs \
-  &
-do_sleep
-
-DUBS_TERMNAME="rPsql" \
-  DUBS_STARTIN="" \
-  DUBS_STARTUP="sss runic" \
-  $script_path/bin/termdub.py -t logc \
-  &
-do_sleep
-
-#
-DUBS_TERMNAME="rLogs_Rd" \
-  DUBS_STARTIN="" \
-  DUBS_STARTUP="sss runic" \
-  $script_path/bin/termdub.py -t logs \
-  &
-do_sleep
-
-DUBS_TERMNAME="rPsql2" \
-  DUBS_STARTIN="" \
-  DUBS_STARTUP="sss runic" \
-  $script_path/bin/termdub.py -t logc \
-  &
-do_sleep
-
-#
-DUBS_TERMNAME="" \
-  DUBS_STARTIN="" \
-  DUBS_STARTUP="sss runic" \
-  $script_path/bin/termdub.py -t dbms \
-  &
-do_sleep
-
-DUBS_TERMNAME="" \
-  DUBS_STARTIN="" \
-  DUBS_STARTUP="" \
-  $script_path/bin/termdub.py -t dbms \
-  &
-do_sleep
-
-#
-DUBS_TERMNAME="" \
-  DUBS_STARTIN="" \
-  DUBS_STARTUP="sss runic" \
-  $script_path/bin/termdub.py -t dbms \
-  &
-do_sleep
-
-DUBS_TERMNAME="" \
-  DUBS_STARTIN="/ccp/etc/cp_confs" \
-  DUBS_STARTUP="" \
-  $script_path/bin/termdub.py -t dbms \
-  &
-do_sleep
-
-#
-DUBS_TERMNAME="" \
-  DUBS_STARTIN="" \
-  DUBS_STARTUP="sss runic" \
-  $script_path/bin/termdub.py -t dbms \
-  &
-do_sleep
-
-DUBS_TERMNAME="" \
-  DUBS_STARTIN="" \
-  DUBS_STARTUP="" \
-  $script_path/bin/termdub.py -t dbms \
-  &
-do_sleep
-
-#
-DUBS_TERMNAME="" \
-  DUBS_STARTIN="/ccp/dev/cp/pyserver" \
-  DUBS_STARTUP="sss runic" \
-  $script_path/bin/termdub.py -t dbms \
-  &
-do_sleep
-
-DUBS_TERMNAME="py" \
-  DUBS_STARTIN="/ccp/dev/cp/pyserver" \
-  DUBS_STARTUP="python" \
-  $script_path/bin/termdub.py -t dbms \
-  &
-do_sleep
-
-#
-# Skipping: $script_path/bin/termdub.py -t mini
+# Skipping: $script_path/termdub.py -t mini
 
