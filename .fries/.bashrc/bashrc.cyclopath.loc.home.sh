@@ -1,13 +1,18 @@
 # File: bashrc.cyclopath.loc.home.sh
-# Author: Landon Bouma (dubsacks &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.01.25
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Last Modified: 2015.02.23
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Cyclopath bash startup script for remote, non-CS machines.
 # License: GPLv3
 
 # This script is loaded by bashrc.cyclopath.base.sh.
 
-MACHINE_DOMAIN=`hostname --domain`
+# In a chroot, [lb] sees "hostname: Name or service not known"
+#  MACHINE_DOMAIN=`hostname --domain`
+# so use the domainname command instead.
+if [[ $(domainname) != "(none)" ]]; then
+  MACHINE_DOMAIN=$(domainname)
+fi
 if [[ -z "$MACHINE_DOMAIN" ]]; then
    return
 fi
