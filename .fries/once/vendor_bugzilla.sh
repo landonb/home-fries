@@ -1,6 +1,6 @@
 # File: vendor_bugzilla.sh
-# Author: Landon Bouma (home-fries &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.01.26
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Last Modified: 2015.03.01
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bugzilla setup script.
 # License: GPLv3
