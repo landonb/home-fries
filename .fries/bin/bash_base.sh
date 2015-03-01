@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # File: bash_base.sh
-# Author: Landon Bouma (home-fries &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.01.26
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Last Modified: 2015.02.02
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bash function library.
 # License: GPLv3
