@@ -1,9 +1,9 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 # -*- coding: utf-8 -*-
 
 # File: termdub.py
-# Author: Landon Bouma (dubsacks &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.01.23
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Last Modified: 2015.02.27
 # Project Page: https://github.com/landonb/home_fries
 # License: GPLv3
 
@@ -85,8 +85,8 @@ class Termdub_Parser(optparse.OptionParser):
    def prepare(self):
       self.add_option('-t', '--target', dest='target',
          action='store', default='lhs', type='choice',
-         choices=['lhs','rhs','logs','logc','dbms','mini',],
-         help='target: lhs, rhs, logs, logc, dbms, or mini')
+         choices=Termdub.geoms.keys(),
+         help='target: lhs|rhs|logs|logc|dbms|mini|minil|minir|bigl|bigc|bigr')
 
    # FIXME: Add
    # DUBS_TERMNAME="" DUBS_STARTIN="" DUBS_STARTUP="" 
@@ -110,16 +110,23 @@ class Termdub(object):
 
    # CAVEAT: This script fails if the monitor size is not programmed herein.
    geoms = {
-      "lhs": {                   # These resolutions are for [lb's] monitors...
+      "lhs": {                         # A collection of [lb's] monitors...
          1280: {
-            800: "77x38+0+100",  # lenovo x201
-            1024: "77x46+0+100", # hp L1925
+            800: "77x38+0+100",        # Lenovo X201
+            1024: "77x46+0+100",       # HP L1925
+            },
+         1366: {
+            # FIXME: 2015.02.27: Not customized yet. I copied 1280x800's.
+            768: "77x38+0+100",        # Lenovo T440p
             },
          1600: {
-            1200: "97x56+0+100", # Dell ...
+            1200: "97x56+0+100",       # Dell ...
             },
          1680: {
-            1050: "97x52+30+20", # SyncMaster 226BW
+            1050: "97x52+30+20",       # SyncMaster 226BW
+            },
+         1920: {
+            1080: "95x45+130+100",     # ASUS VS228H-P
             },
          },
       "rhs": {
@@ -127,11 +134,17 @@ class Termdub(object):
             800: "77x38+1000+100",
             1024: "77x46+1000+100",
             },
+         1366: {
+            768: "77x38+1000+100",
+            },
          1600: {
             1200: "97x56+1000+100",
             },
          1680: {
             1050: "97x52+850+20",
+            },
+         1920: {
+            1080: "95x45+950+100",
             },
          },
       "logs": {
@@ -139,11 +152,17 @@ class Termdub(object):
             800: "1000x17+0+20",
             1024: "1000x27+0+20",
             },
+         1366: {
+            768: "1000x17+0+20",
+            },
          1600: {
             1200: "1000x32+0+20",
             },
          1680: {
             1050: "1000x27+0+20",
+            },
+         1920: {
+            1080: "1000x27+0+7",
             },
          },
       "logc": {
@@ -151,11 +170,17 @@ class Termdub(object):
             800: "1000x18+0+1000",
             1024: "1000x21+0+1000",
             },
+         1366: {
+            768: "1000x18+0+1000",
+            },
          1600: {
             1200: "1000x26+0+1000",
             },
          1680: {
             1050: "1000x22+0+535",
+            },
+         1920: {
+            1080: "1000x25+0+495",
             },
          },
       "dbms": {
@@ -163,11 +188,17 @@ class Termdub(object):
             800: "100x38+150+100",
             1024: "110x43+315+115",
             },
+         1366: {
+            768: "100x38+150+100",
+            },
          1600: {
             1200: "110x43+525+250",
             },
          1680: {
             1050: "110x43+515+115",
+            },
+         1920: {
+            1080: "110x43+515+115",
             },
          },
       "mini": {
@@ -175,11 +206,113 @@ class Termdub(object):
             800: "77x30+250+100",
             1024: "77x30+250+100",
             },
+         1366: {
+            768: "77x30+250+100",
+            },
          1600: {
             1200: "77x30+725+425",
             },
          1680: {
             1050: "77x30+575+200",
+            },
+         1920: {
+            1080: "77x30+575+200",
+            },
+         },
+      # 2015.02.27: [lb] added these for 1920x1080 but did not modify others.
+      # A mini on the left.
+      "minil": {
+         1280: {
+            800: "77x30+250+100",
+            1024: "77x30+250+100",
+            },
+         1366: {
+            768: "77x30+250+100",
+            },
+         1600: {
+            1200: "77x30+725+425",
+            },
+         1680: {
+            1050: "77x30+575+200",
+            },
+         1920: {
+            1080: "77x30+235+200",
+            },
+         },
+      # A mini on the left mini's right.
+      "minir": {
+         1280: {
+            800: "77x30+250+100",
+            1024: "77x30+250+100",
+            },
+         1366: {
+            768: "77x30+250+100",
+            },
+         1600: {
+            1200: "77x30+725+425",
+            },
+         1680: {
+            1050: "77x30+575+200",
+            },
+         1920: {
+            1080: "77x30+890+200",
+            },
+         },
+      # Three big windows, cascaded.
+      # MAYBE: Add 'cycle' option and open bigl first time,
+      #        then bigm, then bigr? Or use math?
+      "bigl": {
+         1280: {
+            800: "100x38+150+100",
+            1024: "110x43+315+115",
+            },
+         1366: {
+            768: "100x38+150+100",
+            },
+         1600: {
+            1200: "110x43+525+250",
+            },
+         1680: {
+            1050: "110x43+515+115",
+            },
+         1920: {
+            1080: "110x43+265+50",
+            },
+         },
+      "bigc": {
+         1280: {
+            800: "100x38+150+100",
+            1024: "110x43+315+115",
+            },
+         1366: {
+            768: "100x38+150+100",
+            },
+         1600: {
+            1200: "110x43+525+250",
+            },
+         1680: {
+            1050: "110x43+515+115",
+            },
+         1920: {
+            1080: "110x43+515+140",
+            },
+         },
+      "bigr": {
+         1280: {
+            800: "100x38+150+100",
+            1024: "110x43+315+115",
+            },
+         1366: {
+            768: "100x38+150+100",
+            },
+         1600: {
+            1200: "110x43+525+250",
+            },
+         1680: {
+            1050: "110x43+515+115",
+            },
+         1920: {
+            1080: "110x43+765+210",
             },
          },
       }
@@ -215,8 +348,7 @@ class Termdub(object):
                               close_fds=True,
                               universal_newlines=True)
 
-# FIXME: py 3 v 2 problem ,.... except TypeError as e:
-      except TypeError, e:
+      except TypeError as e:
          p = subprocess.Popen([the_cmd], 
                               shell=True, 
                               # bufsize=bufsize,
@@ -287,7 +419,7 @@ class Termdub(object):
          wind_mgr = subprocess.check_output(
                      ['/usr/bin/wmctrl', '-m',],
                      stderr=subprocess.STDOUT)
-      except TypeError, e:
+      except TypeError as e:
          wind_mgr = subprocess.check_output(
                      ['/usr/bin/wmctrl', '-m',],
                      stderr=subprocess.STDOUT,
@@ -333,7 +465,7 @@ class Termdub(object):
       #
       try:
          p = subprocess.Popen(the_cmd, shell=True, universal_newlines=True)
-      except TypeError, e:
+      except TypeError as e:
          p = subprocess.Popen(the_cmd, shell=True)
       sts = os.waitpid(p.pid, 0)
 
