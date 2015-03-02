@@ -9,12 +9,19 @@
 
 # Simple config files.
 !.Xmodmap
+!.cookiecutterrc.m4
 !.ctags
-!.gitconfig
+!.gitconfig.m4
 !.gitignore
 !.hgrc
 !.psqlrc
 !mm.cfg
+
+# Hrm...
+# FIXME: Include these?:
+#.ti-sheet
+#.tetris
+#.tetris_stat
 
 # Bash and Vim symlinks.
 !.bashrc
@@ -30,6 +37,7 @@
 !.fries/.bashrc/bashrx.private.sh.template
 .fries/.bashrc/bashrc.cyclopatx.*.sh
 !.fries/.bashrc/bashrc.cyclopatx.sh.template
+.fries/.bashrc/bashrc0.excensus.base.sh
 
 # Weird: If just one of the .fries/bin is present,
 # it's ignored, but with two or more, it's not??.
@@ -43,17 +51,18 @@
 !.fries/once/
 !.fries/once/*
 .fries/once/custom_mint17.landon.sh
+# Generated files.
 .fries/once/setup-mwiki_pwd
 .fries/once/setup-mysql_pwd
 .fries/once/setup-stage
 .fries/once/setup-stage_num
 
+# None of your business files.
+.fries/bin/bkuppers/
 .fries/bin/daily.*.sh
-#!.fries/bin/daily.resync.sh
 .fries/bin/github_ssh.sh
 .fries/bin/random_password.py
-.fries/.install/
-.fries/secrete/
-.fries/TBD-bashrc-copy/
-.fries/TBD-docs-see-kit/
+.fries/cheat/
+.fries/.erectus/
+.fries/.guard/
 
