@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
-# Author: Landon Bouma (dubsacks &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.01.25
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Last Modified: 2015.03.01
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -35,7 +35,7 @@ elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
 else
   echo "WARNING: Unknown OS flavor."
   echo "Please update this file ($(basename $0)) or comment out this gripe."
-fi;
+fi
 
 # Update PATH
 #############
@@ -51,7 +51,9 @@ export PATH
 # Umask
 #######
 
-# Set umask to ensure group r-w-x permissions for new files and directories.
+# Set umask to ensure group r-w-x permissions for new files and directories
+# (for collaborative development, e.g., so a co-worker can ssh to your machine
+# and poke around your files).
 #
 # This is more useful in a collaborative environment than on one's own machine.
 #
@@ -71,8 +73,15 @@ export PATH
 # Circa 2009, Debian defaults to 0022 -- give group and world execute + read.
 # Ubuntu defaults to 0006, or r+w+x for owner and group, and just
 #                             execute for everyone else.
+# 2015.02.26: Linux Mint 17.1 defaults to 0022.
 
-umask 0006
+#umask 0006
+# 2015.02.26: [lb] doesn't have anyone ssh'ing into my box anymore (or
+#             at least rarely ever) and since I'm developing web apps,
+#             I should probably default to no access for other, and
+#             then to deliberately use a fix-perms/web-perms macro to
+#             make htdocs/ directories accessible to the web user.
+umask 0007
 
 # SVN/gVim
 ##########
@@ -232,7 +241,7 @@ if [[ $EUID -ne 0 \
           if [[    -n "$SSH_SECRETS" \
                 && -d "$SSH_SECRETS" \
                 && -e "$SSH_SECRETS/$secret_name" ]]; then
-            if [[ `command -v expect > /dev/null` -eq 0 ]]; then
+            if [[ $(command -v expect > /dev/null && echo true) ]]; then
               pphrase=$(cat ${SSH_SECRETS}/${secret_name})
               /usr/bin/expect -c "
               spawn /usr/bin/ssh-add ${pvt_key}; \
@@ -278,10 +287,10 @@ alias cp='cp -i'
 alias mv='mv -i'
 
 # Misc.
-alias c='command -v $1'   # Show executable path or alias definition.
 alias h='history'         # Nothing special, just convenient.
 alias n='netstat -tulpn'  # --tcp --udp --listening --program (name) --numeric
 alias t='top -c'          # Show full command.
+alias cmd='command -v $1' # Show executable path or alias definition.
 alias grep='grep --color' # Show differences in colour.
 alias less='less -r'      # Raw control characters.
 alias sed='sed -r'        # Use extended regex.
@@ -489,6 +498,10 @@ function dubs_set_terminal_prompt () {
   elif [[ "`cat /proc/version | grep Ubuntu`" ]]; then
     $DUBS_TRACE && echo "Ubuntu"
     PS1="${TITLEBAR}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]\$ "
+    # 2015.02.26: Add git branch.
+    #             Maybe... not sure I like this...
+    #             maybe change delimiter and make branch name colorful?
+    #PS1="${TITLEBAR}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]"'$(__git_ps1 "-%s" )\$ '
   elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
     $DUBS_TRACE && echo "Red Hat"
     PS1="${TITLEBAR}\[\033[01;36m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]\$ "
@@ -695,19 +708,33 @@ echoerr () { echo "$@" 1>&2; }
 # Helpers for fixing permissions (mostly for web-accessible files).
 
 # Recursively web-ify a directory hierarchy.
+
+
+
+
+
+
+# FIXME: Copy the webify fcn here.......
 webperms () {
-  if [[ -z $1 || ! -e $1 ]]; then
+  if [[ -z $1 || ! -d $1 ]]; then
     echo "ERROR: Not a directory: $1"
     return 1
   else
     # The naive `find` approach.
     #   find $1 -type d -exec chmod 2775 {} +
     #   find $1 -type f -exec chmod u+rw,g+rw,o+r {} +
-    # A smarter chmod usage: The 'X' flag
-    # only adds the execute bit to directories.
+    # A smarter chmod usage: The 'X' flag only adds the execute
+    # bit to directories or to files that already have execute
+    # permission for some user.
+    #chmod -R o+rX $1
     chmod -R u+rwX,g+rwX,o+rX $1
   fi
 }
+
+
+
+
+
 
 # Web-ify a single directory (does not recurse).
 dirperms () {
@@ -763,9 +790,360 @@ simpletimeit () {
 # In lieu of system-wide installation, i.e.,
 #   sudo cp path/to/todo_completion /etc/bash_completion.d/todo
 # we can just source the file for ourselves.
-if [[ -e ${OPT_BIN}/todo.txt_cli/todo_completion ]]; then
-  source ${OPT_BIN}/todo.txt_cli/todo_completion
+if [[ -e ${OPT_DLOADS}/todo.txt_cli/todo_completion ]]; then
+  source ${OPT_DLOADS}/todo.txt_cli/todo_completion
+  # NOTE: If you alias todo.sh, e.g.,
+  #         alias t="todo.sh"
+  #       you'll also need to update the completion.
+  #         complete -F _todo t
+  alias t="todo.sh"
+  complete -F _todo t
 fi
+
+#########################
+
+# https://code.google.com/p/punch-time-tracking/
+
+# alias p= might be nice, as in p[unch] i[n] and p[unch] o[ut],
+# but my brain is wired to hit 'p' for `pwd`. Ug... but 'c' works,
+# as in clock in clock out.
+
+alias c="${OPT_DLOADS}/punch-time-tracking/Punch.py"
+
+#########################
+
+# git subdirectory statusr
+
+# I maintain a bunch of Vim plugins,
+# published at https://github.com/landonb/dubs_*,
+# that are loaded as submodules in an uber-project
+# that makes it easy to share my plugins and makes
+# it simple to deploy them to a new machine, found
+# at https://github.com/landonb/dubsacks_vim.
+#
+# However, git status doesn't work like, say, svn status:
+# you can't postpend a directory path and have it search
+# that. For example, from the parent directory of the plugins,
+# e.g., from ~/.vim/bundle_/, using git status doesn't
+# work, e.g., running `git status git_ignores_this` no matter
+# what the third token is always reports on the git status of
+# the working directory, which in my case is ~/.vim.
+
+git_status_all () {
+  for subdir in `find . -name ".git"`; do  
+    gitst=$(git --git-dir=$subdir --work-tree=$subdir/.. status --short)
+    if [[ -n $gitst ]]; then
+      echo
+      echo "====================================================="
+      echo "Dirty project: $subdir"
+      echo
+      # We could just echo, but the we've lost any coloring.
+      # Ok: echo $gitst
+      # Better: run git again.
+      #git --git-dir=$subdir --work-tree=$subdir/.. status
+      git --git-dir=$subdir --work-tree=$subdir/.. status --short
+      echo
+    fi
+  done
+}
+
+alias git_st_all='git_status_all'
+# Hrmm... gitstall? I'm not sold on any alias yet...
+alias gitstall='git_status_all'
+
+#########################
+
+# For debugging/tracing Bash scripts using
+#
+#   `set -x` and `set -v`.
+#
+# See:
+#   http://www.rodericksmith.plus.com/outlines/manuals/bashdbOutline.html
+#
+# Also:
+#   http://bashdb.sourceforge.net/
+#   http://www.linuxtopia.org/online_books/advanced_bash_scripting_guide/debugging.html
+#   http://www.cyberciti.biz/tips/debugging-shell-script.html
+
+# Default is: PS4='+'
+
+PS4='(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]} - [${SHLVL},${BASH_SUBSHELL}, $?]
+'
+
+#########################
+
+# MAYBE:
+#source /usr/local/bin/virtualenvwrapper.sh
+
+#########################
+
+# git-flow-completion
+# https://github.com/bobthecow/git-flow-completion
+
+#source /srv/opt/.downloads/git-flow-completion/git-flow-completion.bash
+
+#########################
+
+# 2015.02.20: Fancy find: A linux find command that honors .*ignore,
+#                         like .gitignore and .agignore.
+
+# FIXME: For this to be really effective, you'd have to descend
+#        into directories looking for the ignore files... so,
+#        like, really tedious...
+#        You could either descend into each directory to look
+#        for the ignore file before `find`ing, or you could
+#        `find` first and then cull the results (by going into
+#        directories of each result and walking up the tree
+#        looking for ignore files, which seems extremely teeds).
+#        Ug. For now, I guess a find that honors ignores is still
+#        a pipe dream... though maybe an easy solution is to descend
+#        into all directories looking for ignore files, and then
+#        making a big array of fuller paths of ignore rules, i.e.,
+#        if starting in some/dir then *.pyc in some/dir/this/that/.gitignore
+#        becomes some/dir/this/that/**/*.pyc... oy.
+fffind () {
+
+  HERE_WE_ARE=$(dir_resolve $(pwd -P))
+
+  BIG_IGNORE_LIST=()
+
+  # Go up the hierarchy...
+  while [[ ${HERE_WE_ARE} != '/' ]]; do
+    for ignore_f in ".agignore" ".gitignore" ".findignore"; do
+      if [[ -e "${HERE_WE_ARE}/${ignore_f}" ]]; then
+        # Read line by line from the file.
+        while read fline; do
+          # Bash regular expressions, eh.
+          if [[ ! "${fline}" =~ ^[[:space:]]*# ]]; then
+            # Not a comment line.
+            BIG_IGNORE_LIST+=("-path '${fline}' -prune -o")
+          fi
+        done < "${HERE_WE_ARE}/${ignore_f}"
+      fi
+    done
+    # Keep looping:
+    HERE_WE_ARE=$(dir_resolve ${HERE_WE_ARE}/..)
+  done
+
+  # Go down the hierarchies...
+  # Find all .agignore, .gitignore, and .anythingignore.
+  for ignore_f in `find . -type f -name ".*ignore"`; do
+    ignore_p=$(dirname ${ignore_f})
+    while read fline; do
+      # Bash regular expressions, eh.
+      if [[ ! "${fline}" =~ ^[[:space:]]*# ]]; then
+        # Not a comment line.
+        BIG_IGNORE_LIST+=("-path '${ignore_p}/${fline}' -prune -o")
+      fi
+    done < "${ignore_f}"
+  done
+
+  # So, calling find on its own does not work, probably
+  # because of the globbing. So eval the commmand.
+  # Nope: find . ${BIG_IGNORE_LIST[@]} -name $*
+  # eval "find . ${BIG_IGNORE_LIST[@]} -name $*"
+    eval "find . ${BIG_IGNORE_LIST[@]} -name $* | grep -E $*"
+
+} # fffind
+
+#########################
+
+# Disable the touchpad while typing.
+# 2015.02.20: The T440p is a great laptop but my thumbs keep
+#             *lightly* brushing the touchpad, sending my cursor
+#             (and screen or cursor focus) elsewhere.
+
+# syndaemon is one option... but I always use a mouse, so why not
+#  just disable the touchpad completely?
+#    -i specifies how many seconds after last key press before
+#       enabling the touchpad (default is 2 seconds)
+#    -K allows modifiers such as Shift and Alt
+#    -R uses XRecord for detecting keyboard activity instead of polling
+#    -t only disables tapping and scrolling but allows mouse movement
+#    -d will start syndaemon as a daemon
+#  E.g.,
+#    syndaemon -i 5 -K -R -t -d
+
+if [[ $(command -v xinput > /dev/null) || $? -eq 0 ]]; then
+  DEVICE_NUM=$(xinput --list --id-only "SynPS/2 Synaptics TouchPad" &> /dev/null)
+  if [[ -n ${DEVICE_NUM} ]]; then
+    xinput set-prop ${DEVICE_NUM} "Device Enabled" 0
+  fi
+fi
+
+#########################
+
+# For those (silly) projects that use tabs (I know!) in Bash scripts,
+# you'll want to disable tab autocompletion if you want to copy-and-paste
+# from the script to the terminal, otherwise the autocomplete responses
+# are intertwined with the paste.
+
+#alias tabsoff="bind 'set disable-completion on'"
+#alias tabson="bind 'set disable-completion off'"
+
+alias toff="bind 'set disable-completion on'"
+alias ton="bind 'set disable-completion off'"
+
+#########################
+
+# Vi-style editing.
+
+# MAYBE:
+#  set -o vi
+
+# Use ``bind -P`` to see the current bindings.
+
+# See: http://www.catonmat.net/download/bash-vi-editing-mode-cheat-sheet.txt
+# (from http://www.catonmat.net/blog/bash-vi-editing-mode-cheat-sheet/)
+# (also http://www.catonmat.net/download/bash-vi-editing-mode-cheat-sheet.pdf)
+
+# See: http://vim.wikia.com/wiki/Use_vi_shortcuts_in_terminal
+
+#########################
+
+# Encrypted Filesystem.
+
+mount_sepulcher () {
+  if [[ -z $(/bin/ls -A ~/.fries/sepulcher) ]]; then
+    encfs ~/.fries/.sepulcher ~/.fries/sepulcher
+  fi
+}
+
+umount_sepulcher () {
+  fusermount -u ~/.fries/sepulcher
+}
+
+# To manage the encfs (change pwd, etc.), see: encfsctl
+
+#########################
+
+# Bash command completion.
+
+if [[ -d /home/landon/.fries/bin/completions ]]; then
+  source /home/landon/.fries/bin/completions/*
+fi
+
+#########################
+
+# Special key mapping for ThinkPad X201 laptops.
+
+# HINTS: To reset your keyboard, run:
+#           setxkbmap
+#        To see current settings, run:
+#           xmodmap -pke
+#           xmodmap -pm
+#        To find out your keyboard's key codes, run:
+#           xev
+
+# CAVEAT: This doesn't care if you're using another keyboard.
+
+# OTHER: Super_L is the "Windows" key.
+
+# A sudo way:
+#   sudo dmidecode | \
+#     grep "Version: ThinkPad X201" > /dev/null \
+#     && echo true || echo false
+
+# A non-sudo way.
+# Note: xprop -root just checks that X is running (and we're not sshing in).
+if xprop -root &> /dev/null; then
+  if [[ -e /sys/class/dmi/id/product_version && \
+        $(cat /sys/class/dmi/id/product_version) == "ThinkPad X201" ]] ; then
+    # On Lenovo ThinkPad: Map Browser-back to Delete
+    #   |-------------------------------|
+    #   | Brw Bck | Up Arrow | Brow Fwd |
+    #   |-------------------------------|
+    #   | L Arrow | Down Arr | R Arrow  |
+    #   |-------------------------------|
+    # Here's the view of the bottom row:
+    #  L-Ctrl|Fn|Win|Alt|--Space--|Alt|Menu|Ctrl|Browse-back|Up-arrow|Broforward
+    #                                             Left-Arrow|Down-arw|Right-Arrow
+    xmodmap -e "keycode 166 = Delete" # brobackward
+    # 2015.02.28: At some point, browser-back stopped working, and I used
+    #             right-ctrl instead, but now browser back is remapping again.
+    #               xmodmap -e "keycode 105 = Delete" # right-ctrl
+  fi
+fi
+
+if false; then
+
+  # Not all keyboards arrange their six page keys the same way. Some use 
+  # two rows and three columns, and some use three rows and two columns.
+  # And even when the rows and columns match, not all keyboards use the 
+  # same key combinations within.
+
+  # The 2x3 keyboard layout that I like:
+  #
+  # ||============================||
+  # || Insert || Print  || Pause  ||
+  # ||        || Screen || Break  ||
+  # ||============================||
+  #
+  # ||==================||
+  # || Home   || End    ||
+  # ||        ||        ||
+  # ||==================||
+  # || Insert || Page   ||
+  # ||        || Up     ||
+  # ||        ||========||
+  # ||        || Page   ||
+  # ||        || Down   ||
+  # ||==================||
+
+  # The 2x3 keyboard layout I do not like:
+  # 
+  # ||============================||
+  # || Print  || Scroll || Pause  ||
+  # || Screen || Lock   || Break  ||
+  # ||============================||
+  #
+  # ||==================||
+  # || Home   || Page   ||
+  # ||        || Up     ||
+  # ||==================||
+  # || End    || Page   ||
+  # ||        || Down   ||
+  # ||==================||
+  # || Delete || Insert ||
+  # ||        ||        ||
+  # ||==================||
+
+  # NOTE: To make changes to this list, clear your settings first: $ setxkbmap
+  keysym Home = Home
+  keysym Page_Up = End
+  keysym End = Delete
+  keysym Page_Down = Page_Up
+  keysym Delete = Delete
+  keysym Insert = Page_Down
+
+  # These work (xmodmap takes 'em), but these don't work:
+  #   keysym Print = Insert
+  #   keysym Scroll_Lock = Print
+  #   keysym Sys_Req = Insert
+  # These also do not work:
+  #   $ xmodmap -pke | grep Print
+  #     keycode 107 = Print Sys_Req Print Sys_Req
+  #     keycode 218 = Print NoSymbol Print
+  #   $ xmodmap -pke | grep Print
+  #     keycode  78 = Scroll_Lock NoSymbol Scroll_Lock
+  #   keycode 107 = Insert
+  #   keycode 218 = Insert
+  #   keycode  78 = Print
+  # Instead, go to GNOME > System > Preferences > Keyboard Shortcuts
+  #   under Desktop, change "Take a screenshot" and "Take a screenshot 
+  #   of a window" to Scroll Lock and Alr+Scroll Lock, respectively.
+  #   Now, you can override the Print Screen key.
+  keysym Print = Insert
+
+fi
+
+#########################
+
+# FIXME: Should move this to a personal-file-mgmt-specific bashrc.
+
+function mv_receipts () {
+  /bin/mv -i *.receipt.txt /kit/landonb/finances/receipts/
+}
 
 ############################################################################
 # DONE                              DONE                              DONE #
