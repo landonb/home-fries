@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.03.01
+# Last Modified: 2015.03.06
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -26,15 +26,21 @@ OPT_DLOADS=/srv/opt/.downloads
 # flavor-specific options, like terminal colors and the prompt).
 # See also: `uname -a`, `cat /etc/issue`, `cat /etc/fedora-release`.
 
-if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
-  # echo Ubuntu!
-  : # no-op
-elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
-  # echo Red Hat!
-  : # noop
+if [[ -e /proc/version ]]; then
+  if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
+    # echo Ubuntu!
+    : # no-op
+  elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
+    # echo Red Hat!
+    : # noop
+  else
+    echo "WARNING: Unknown OS flavor: $(cat /proc/version)"
+    echo "Please update this file ($(basename $0)) or comment out this gripe."
+  fi
 else
-  echo "WARNING: Unknown OS flavor."
-  echo "Please update this file ($(basename $0)) or comment out this gripe."
+  # /proc/version does not exist.
+  # echo Chroot!
+  : # nop
 fi
 
 # Update PATH
@@ -396,13 +402,30 @@ alias rmtrash='/bin/rm -rf $trashdir/.trash ; mkdir $trashdir/.trash'
 alias rmrm='/bin/rm -rf'
 
 function rm_safe {
+  # The trash can way:
   if [[ ! -e $trashdir/.trash ]]; then
-    /bin/mkdir $trashdir/.trash
+    /bin/mkdir -p $trashdir/.trash
   fi
-  if [[ -d $trashdir/.trash ]]; then
-    /bin/mv --target-directory $trashdir/.trash $*
+  # You can disable the trash by running
+  #   /bin/rm -rf ~/.trash && touch ~/.trash
+  if [[ ! -d $trashdir/.trash ]]; then
+    echo 'No trash can!'
+    # Ye olde alias, now the unpreferred method.
+    /bin/rm -i "$*"
   else
-    /bin/rm -i $*
+    if true; then
+      # Newer new method.
+      for fpath in $*; do
+        local fname=$(basename ${fpath})
+        if [[ -e $trashdir/.trash/${fname} ]]; then
+          fname="${fname}.$(date +%Y_%m_%d_%Hh%Mm%Ss_%N)"
+        fi
+        /bin/mv ${fpath} $trashdir/.trash/${fname}
+      done
+    else
+      # Older new method.
+      /bin/mv --target-directory $trashdir/.trash "$*"
+    fi
   fi
 }
 
@@ -463,11 +486,14 @@ function dubs_set_terminal_prompt () {
   if [[ "$ssh_host" == "" ]]; then
     if [[ "$DUBS_TERMNAME" != "" ]]; then
       TITLEBAR="\[\e]0;${DUBS_TERMNAME}\a\]"
-    else
+    elif [[ $(stat -c %i /) -eq 2 ]]; then
+      # Not in chroot jail.
       #TITLEBAR='\[\e]0;\u@\h:\w\a\]'
       #TITLEBAR='\[\e]0;\w:(\u@\h)\a\]'
       #TITLEBAR='\[\e]0;\w\a\]'
       TITLEBAR='\[\e]0;\W\a\]'
+    else
+      TITLEBAR='\[\e]0;|-\W-|\a\]'
     fi
   else
     TITLEBAR="\[\e]0;On ${ssh_host}\a\]"
@@ -484,29 +510,56 @@ function dubs_set_terminal_prompt () {
   # NOTE: Using "" below instead of '' so that ${TITLEBAR} is resolved by the
   #       shell first.
   $DUBS_TRACE && echo "Setting prompt"
-  if [[ $EUID -eq 0 ]]; then
-    $DUBS_TRACE && echo "Running as root!"
-    if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
+  if [[ -e /proc/version ]]; then
+    if [[ $EUID -eq 0 ]]; then
+      $DUBS_TRACE && echo "Running as root!"
+      if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
+        $DUBS_TRACE && echo "Ubuntu"
+        PS1="${TITLEBAR}\[\033[01;45m\]\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]\$ "
+      elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
+        $DUBS_TRACE && echo "Red Hat"
+        PS1="${TITLEBAR}\[\033[01;45m\]\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]\$ "
+      else
+        echo "WARNING: Not enough info. to set PS1."
+      fi
+    elif [[ "`cat /proc/version | grep Ubuntu`" ]]; then
       $DUBS_TRACE && echo "Ubuntu"
-      PS1="${TITLEBAR}\[\033[01;45m\]\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]\$ "
+      # 2015.03.04: I need to know when I'm in chroot hell.
+      # NOTE: There's a better way using sudo to check if in chroot jail
+      #       (which is compatible with Mac, BSD, etc.) but we don't want
+      #       to use sudo, and we know we're on Linux. And on Linux,
+      #       the inode of the (outermost) root directory is always 2.
+      # CAVEAT: This check works on Linux but probably not on Mac, BSD, Cygwin, etc.
+      if [[ $(stat -c %i /) -eq 2 ]]; then
+        #PS1="${TITLEBAR}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]\$ "
+        # 2015.03.04: The chroot is Ubuntu 12.04, and it's Bash v4.2 does not
+        #             support Unicode \uXXXX escapes, so use the escape in the
+        #             outer. (Follow the directory path with an anchor symbol
+        #             so I know I'm *not* in the chroot.)
+        PS1="${TITLEBAR}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]"$' \u2693 '"\$ "
+        # 2015.02.26: Add git branch.
+        #             Maybe... not sure I like this...
+        #             maybe change delimiter and make branch name colorful?
+        #PS1="${TITLEBAR}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]"'$(__git_ps1 "-%s" )\$ '
+      else
+        # NOTE: Bash's $'...' sees \uXXXX unicode espace sequences, but not $"..."
+        # See the Unicode character table: http://unicode-table.com/en/
+        # Bash doesn't support all Unicode characters, so see also this list:
+        #   https://mkaz.com/2014/04/17/the-bash-prompt/
+        #PS1="${TITLEBAR}\[\033[01;31m\]"$'\u2605'"\u@"$'\u2605'"\[\033[1;36m\]\h\[\033[00m\]:\[\033[01;33m\]\W\[\033[00m\]"$' \u2693 '
+        # 2015.03.04: As mentioned above, the chroot may be running an old Bash,
+        #             so use the Unicode \uXXXX escape in the outer only.
+        PS1="${TITLEBAR}\[\033[01;31m\]**\u@**\[\033[1;36m\]\h\[\033[00m\]:\[\033[01;33m\]\W\[\033[00m\] "'! '
+      fi
     elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
       $DUBS_TRACE && echo "Red Hat"
-      PS1="${TITLEBAR}\[\033[01;45m\]\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]\$ "
+      PS1="${TITLEBAR}\[\033[01;36m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]\$ "
     else
-      echo "WARNING: Not enough info. to set PS1."
+        echo "WARNING: Not enough info. to set PS1."
     fi
-  elif [[ "`cat /proc/version | grep Ubuntu`" ]]; then
-    $DUBS_TRACE && echo "Ubuntu"
-    PS1="${TITLEBAR}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]\$ "
-    # 2015.02.26: Add git branch.
-    #             Maybe... not sure I like this...
-    #             maybe change delimiter and make branch name colorful?
-    #PS1="${TITLEBAR}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]"'$(__git_ps1 "-%s" )\$ '
-  elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
-    $DUBS_TRACE && echo "Red Hat"
-    PS1="${TITLEBAR}\[\033[01;36m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]\$ "
   else
-      echo "WARNING: Not enough info. to set PS1."
+    # This is a chroot jail without a mounted /proc.
+    : # Just use default prompt.
   fi
 
   # NOTE: There's an alternative to PS1, PROMPT_COMMAND,
@@ -530,14 +583,21 @@ dubs_set_terminal_prompt
 # Use the following commands to generate the export variable on your machine:
 # dircolors --print-database
 # dircolors --sh
-if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
-  # echo Ubuntu!
-  LS_COLORS='no=00:fi=00:di=01;34:ln=01;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:su=37;41:sg=30;43:tw=30;47:ow=34;47:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.svgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.lzma=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.bz2=01;31:*.bz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.rar=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:'
-elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
-  # echo Red Hat!
-  LS_COLORS='rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:su=37;41:sg=30;43:ca=30;41:tw=30;47:ow=34;47:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.xz=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.rar=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.lz=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.axv=01;35:*.anx=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.axa=00;36:*.oga=00;36:*.spx=00;36:*.xspf=00;36:';
-fi;
-export LS_COLORS
+if [[ -e /proc/version ]]; then
+  if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
+    # echo Ubuntu!
+    LS_COLORS='no=00:fi=00:di=01;34:ln=01;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:su=37;41:sg=30;43:tw=30;47:ow=34;47:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.svgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.lzma=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.bz2=01;31:*.bz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.rar=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:'
+  elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
+    # echo Red Hat!
+    LS_COLORS='rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:su=37;41:sg=30;43:ca=30;41:tw=30;47:ow=34;47:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.xz=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.rar=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.lz=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.axv=01;35:*.anx=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.axa=00;36:*.oga=00;36:*.spx=00;36:*.xspf=00;36:';
+  fi
+  if [[ -n ${LS_COLORS} ]]; then
+    export LS_COLORS
+  fi
+else
+  # In an unrigged chroot, so no /proc/version.
+  : # Nada.
+fi
 
 # Cygwin section
 ################
@@ -574,18 +634,23 @@ fi
 
 # Determine the apache user.
 # 'TEVS: CAPITALIZE these, like most exports.
-if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
-  # echo Ubuntu!
-  export httpd_user=www-data
-  export httpd_etc_dir=/etc/apache2
-elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
-  # echo Red Hat!
-  export httpd_user=apache
-  export httpd_etc_dir=/etc/httpd
+if [[ -e /proc/version ]]; then
+  if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
+    # echo Ubuntu!
+    export httpd_user=www-data
+    export httpd_etc_dir=/etc/apache2
+  elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
+    # echo Red Hat!
+    export httpd_user=apache
+    export httpd_etc_dir=/etc/httpd
+  else
+    echo
+    echo "Error: Unexpected OS; cannot set httpd_user/_etc_dir."
+    echo
+  fi
 else
-  echo
-  echo "Error: Unexpected OS; cannot set httpd_user/_etc_dir."
-  echo
+  # If no /proc/version, then this is an unwired chroot jail.
+  : # Meh.
 fi
 
 # Remove SVN directories.
@@ -633,12 +698,15 @@ fi
 # Control and Kill Processes.
 
 # Restart Apache.
-if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
-  alias re='sudo /etc/init.d/apache2 reload'
-  alias res='sudo /etc/init.d/apache2 restart'
-elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
-  alias re='sudo service httpd reload'
-  alias res='sudo service httpd restart'
+if [[ -e /proc/version ]]; then
+  if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
+    alias re='sudo /etc/init.d/apache2 reload'
+    alias res='sudo /etc/init.d/apache2 restart'
+  elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
+    alias re='sudo service httpd reload'
+    alias res='sudo service httpd restart'
+  fi
+# else, in unrigged chroot.
 fi
 
 #########################
@@ -709,32 +777,33 @@ echoerr () { echo "$@" 1>&2; }
 
 # Recursively web-ify a directory hierarchy.
 
-
-
-
-
-
-# FIXME: Copy the webify fcn here.......
 webperms () {
-  if [[ -z $1 || ! -d $1 ]]; then
-    echo "ERROR: Not a directory: $1"
-    return 1
-  else
+	if [[ -z $1 || ! -d $1 ]]; then
+		echo "ERROR: Not a directory: $1"
+		return 1
+	fi
+	LOGGER=false
+	# Recurse through the web directory.
     # The naive `find` approach.
     #   find $1 -type d -exec chmod 2775 {} +
     #   find $1 -type f -exec chmod u+rw,g+rw,o+r {} +
-    # A smarter chmod usage: The 'X' flag only adds the execute
-    # bit to directories or to files that already have execute
-    # permission for some user.
-    #chmod -R o+rX $1
-    chmod -R u+rwX,g+rwX,o+rX $1
-  fi
+    # A smarter approach: use chmod's 'X' flag to only add the
+    # execute bit to directories or to files that already have
+    # execute permission for some user.
+    ##chmod -R o+rX $1
+    #chmod -R u+rwX,g+rwX,o+rX $1
+	${LOGGER} && echo "Web dir.: $1"
+    #chmod -R o+rX $1 &> /dev/null || sudo chmod -R o+rX $1
+    chmod -R u+rwX,g+rwX,o+rX $1 &> /dev/null || sudo chmod -R u+rwX,g+rwX,o+rX $1
+	# Also fix the ancestor permissions.
+	local CUR_DIR=$1
+	while [[ -n ${CUR_DIR} && $(dirname ${CUR_DIR}) != '/' ]]; do
+		${LOGGER} && echo "Ancestor: ${CUR_DIR}"
+		# NOTE: Not giving read access, just execute.
+    	chmod -R o+X ${CUR_DIR} &> /dev/null || sudo chmod -R o+X ${CUR_DIR}
+		local CUR_DIR=$(dirname ${CUR_DIR})
+	done
 }
-
-
-
-
-
 
 # Web-ify a single directory (does not recurse).
 dirperms () {
@@ -1003,6 +1072,12 @@ alias ton="bind 'set disable-completion off'"
 
 # Encrypted Filesystem.
 
+mount_guard () {
+  if [[ -z $(/bin/ls -A ~/.fries/sepulcher) ]]; then
+    encfs ~/.fries/.guard ~/.fries/guard
+  fi
+}
+
 mount_sepulcher () {
   if [[ -z $(/bin/ls -A ~/.fries/sepulcher) ]]; then
     encfs ~/.fries/.sepulcher ~/.fries/sepulcher
@@ -1139,11 +1214,10 @@ fi
 
 #########################
 
-# FIXME: Should move this to a personal-file-mgmt-specific bashrc.
+# For pinentry (for vim-gunpg):
+export GPG_TTY=`tty`
 
-function mv_receipts () {
-  /bin/mv -i *.receipt.txt /kit/landonb/finances/receipts/
-}
+#########################
 
 ############################################################################
 # DONE                              DONE                              DONE #
