@@ -1,6 +1,6 @@
 # File: vendor_cyclopath.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.03.01
+# Last Modified: 2015.02.02
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Cyclopath IDE setup script.
 # License: GPLv3
