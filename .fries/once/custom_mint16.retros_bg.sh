@@ -1,6 +1,6 @@
 # File: custom_mint16.retros.bg.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.03.01
+# Last Modified: 2015.02.02
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Custom Mint16 Login Screen and Desktop Background.
 # License: GPLv3
