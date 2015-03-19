@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.02.26
+# Last Modified: 2015.03.18
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -77,6 +77,7 @@ source ../bin/bash_base.sh
 # it'll just mask anything of the real name out there in the net).
 # Note: In the m4 templates, USE_DOMAIN is MACH_DOMAIN.
 #USE_DOMAIN="localhost"
+# FIXME: Prompt for the domain if not specified in config wrapper.
 USE_DOMAIN="home.fries"
 
 # If you're dual-booted or if you've configured a VirtualBox Shared Folder,
@@ -140,9 +141,11 @@ USE_MINT_MENU_ICON="${script_absbase}/assets/applications-boardgames-21x21.png"
 
 #USE_SETUP_HG=true
 USE_SETUP_HG=false
-HG_USER_NAME="Your Name"
-HG_USER_EMAIL="Your Email"
-HG_DEFAULT_PATH="ssh://hg@bitbucket.org/your_username/your_project"
+if $USE_SETUP_HG; then
+  HG_USER_NAME="Your Name"
+  HG_USER_EMAIL="Your Email"
+  HG_DEFAULT_PATH="ssh://hg@bitbucket.org/your_username/your_project"
+endif
 
 # -- Install proprietary software (namely, just Adobe Reader).
 
@@ -335,6 +338,10 @@ setup_mint_17_stage_1 () {
     #       doesn't seem to stick. So we'll wait 'til a little later in
     #       this function to call determine_window_manager and gsettings.
 
+    # Are we in a virtual machine?
+    sudo apt-get install -y virt-what
+    # FIXME: What about Are we in a chroot? Does it matter?
+
     # *** Make sudo'ing a little easier (just ask once per terminal).
 
     # Tweak sudoers: Instead of a five-minute sudo timeout, disable it.
@@ -353,12 +360,13 @@ setup_mint_17_stage_1 () {
       # - tty_tickets is on by default.
       # - timestamp_timeout defaults to 5 (minutes).
       # Note the sudo tee trick, since you can't run e.g.,
-      # sudo echo "" >> to a write-protected file, since
-      # the append command happens outside the sudo.
+      #       sudo echo "" >> to a write-protected file,
+      #      since the append command happens outside the sudo.
+      # Disable sudo password-entering timeout.
       echo "
-# Added by ${0} at `date +%Y.%m.%d-%T`.
+      # Added by ${0}:${USER} at `date +%Y.%m.%d-%T`.
 Defaults tty_tickets
-Defaults:$USER timestamp_timeout=-1
+Defaults:${USER} timestamp_timeout=-1
 " | sudo tee -a /etc/sudoers &> /dev/null
       sudo chmod 0440 /etc/sudoers
     fi
@@ -419,6 +427,7 @@ Defaults:$USER timestamp_timeout=-1
     #
     # FIXME: You could use `expect` here to send the pwd to the terminal.
     #
+    sudo apt-get install -y pwgen
     if [[ ! -e ${script_absbase}/setup-exc-mysql_pwd ]]; then
       MYSQL_PASSWORD=$(pwgen -n 16 -s -N 1 -y)
       echo "${MYSQL_PASSWORD}" > ${script_absbase}/setup-exc-mysql_pwd
@@ -500,7 +509,7 @@ Defaults:$USER timestamp_timeout=-1
       # Hexadecimal file viewer.
       ghex
       # `most` is pretty lame; author prefers `less`.
-      most
+      #most
 
       # The better grepper.
       silversearcher-ag
@@ -631,7 +640,6 @@ Defaults:$USER timestamp_timeout=-1
       # One would think whois would be standard.
       whois
       # nslookup is... stale, to be polite. Use dig instead.
-      
 
       apt-file
 
@@ -642,7 +650,9 @@ Defaults:$USER timestamp_timeout=-1
       artha
 
       fabric
+      # Know ye also there is a get-pip.py installer, too.
       python-pip
+      python3-pip
       python3-sphinx
 
       curl
@@ -687,9 +697,16 @@ Defaults:$USER timestamp_timeout=-1
       # I thought scrub was a default program, too; guess not.
       # Also, if you're doing it right, you won't need scrub:
       #   on disk, your data should *always* be encrypted;
-      #   it's only in memory or on screen that data should be
+      #   it is only in memory or on screen that data should be
       #   plain.
       scrub
+      #
+      pinentry-gtk2
+      pinentry-doc
+
+      htop
+
+      expect
 
     )
 
@@ -754,79 +771,87 @@ fi
 
 setup_mint_17_stage_2 () {
 
-  set +ex
-  # NOTE: This doesn't work for checking $? (the 2&> replaces it?)
-  #        ll /opt/VBoxGuestAdditions* 2&> /dev/null
-  ls -la /opt/VBoxGuestAdditions* &> /dev/null
-  if [[ $? -eq 0 ]]; then
-    echo
-    echo "Unexpected: VBoxGuestAdditions already installed."
-    echo
-  fi
-  reset_errexit
+  if [[ `sudo virt-what` != 'virtualbox' ]]; then
 
-  echo 
-  echo "Great, so this is your second reboot."
-  echo
-  echo "You've just upgraded and installed packages."
-  echo
-  echo "Now we're ready to install VirtualBox Guest Additions."
-  echo
-  echo "NOTE: The installer will bark at you about an existing version"
-  echo "      of VBoxGuestAdditions software. Type 'yes' to continue."
-  echo
-  echo "I sure hope you're ready"'!'
-  ask_yes_no_default 'Y'
+    echo "ERROR: Skipping Stage 2: Not a VirtualBox."
 
-  if $WM_IS_CINNAMON || $WM_IS_MATE; then
-    not_done=true
-    while $not_done; do
-      if [[ `ls /media/$USER | grep VBOXADDITIONS` ]]; then
-        not_done=false
-      else
-        echo
-        echo "PLEASE: From the VirtualBox menu bar, choose"
-        echo "         Devices > Insert Guest Additions CD Image..."
-        echo "        and hit Enter when you're ready."
-        echo
-        read -n 1 __ignored__
-      fi
-    done
-    if [[ $the_choice != "Y" ]]; then
-      echo "Nice! Catch ya later!!"
-      exit 1
-    fi
-    cd /media/$USER/VBOXADDITIONS_*/
-  elif $WM_IS_XFCE; then
-    sudo /bin/mkdir /media/VBOXADDITIONS
-    sudo mount -r /dev/cdrom /media/VBOXADDITIONS
-    cd /media/VBOXADDITIONS
-  fi
-
-  # You'll see a warning and have to type 'yes': "You appear to have a
-  # version of the VBoxGuestAdditions software on your system which was
-  # installed from a different source or using a different type of
-  # installer." Type 'yes' to continue.
-
-  set +ex
-  sudo sh ./VBoxLinuxAdditions.run
-  echo "Run return code: $?"
-  reset_errexit
-
-  echo "$((${stage_num} + 1))" > ${script_absbase}/setup-exc-stage_num
-
-  print_install_time
-
-  echo
-  echo "All done! Are you ready to reboot?"
-  echo "Hint: Shutdown instead if you want to remove the Guest Additions image"
-  echo "      or just right-click the CD image on the desktop and Eject it"
-  ask_yes_no_default 'Y' 20
-
-  if [[ $the_choice != "Y" ]]; then
-    echo "Ohhhh... kay."
   else
-    SETUP_DO_REBOOT=true
+
+    set +ex
+    # NOTE: This doesn't work for checking $? (the 2&> replaces it?)
+    #        ll /opt/VBoxGuestAdditions* 2&> /dev/null
+    ls -la /opt/VBoxGuestAdditions* &> /dev/null
+    if [[ $? -eq 0 ]]; then
+      echo
+      echo "Unexpected: VBoxGuestAdditions already installed."
+      echo
+    fi
+    reset_errexit
+
+    echo 
+    echo "Great, so this is your second reboot."
+    echo
+    echo "You've just upgraded and installed packages."
+    echo
+    echo "Now we're ready to install VirtualBox Guest Additions."
+    echo
+    echo "NOTE: The installer will bark at you about an existing version"
+    echo "      of VBoxGuestAdditions software. Type 'yes' to continue."
+    echo
+    echo "I sure hope you're ready"'!'
+    ask_yes_no_default 'Y'
+
+    if $WM_IS_CINNAMON || $WM_IS_MATE; then
+      not_done=true
+      while $not_done; do
+        if [[ `ls /media/$USER | grep VBOXADDITIONS` ]]; then
+          not_done=false
+        else
+          echo
+          echo "PLEASE: From the VirtualBox menu bar, choose"
+          echo "         Devices > Insert Guest Additions CD Image..."
+          echo "        and hit Enter when you're ready."
+          echo
+          read -n 1 __ignored__
+        fi
+      done
+      if [[ $the_choice != "Y" ]]; then
+        echo "Nice! Catch ya later!!"
+        exit 1
+      fi
+      cd /media/$USER/VBOXADDITIONS_*/
+    elif $WM_IS_XFCE; then
+      sudo /bin/mkdir /media/VBOXADDITIONS
+      sudo mount -r /dev/cdrom /media/VBOXADDITIONS
+      cd /media/VBOXADDITIONS
+    fi
+
+    # You'll see a warning and have to type 'yes': "You appear to have a
+    # version of the VBoxGuestAdditions software on your system which was
+    # installed from a different source or using a different type of
+    # installer." Type 'yes' to continue.
+
+    set +ex
+    sudo sh ./VBoxLinuxAdditions.run
+    echo "Run return code: $?"
+    reset_errexit
+
+    echo "$((${stage_num} + 1))" > ${script_absbase}/setup-exc-stage_num
+
+    print_install_time
+
+    echo
+    echo "All done! Are you ready to reboot?"
+    echo "Hint: Shutdown instead if you want to remove the Guest Additions image"
+    echo "      or just right-click the CD image on the desktop and Eject it"
+    ask_yes_no_default 'Y' 20
+
+    if [[ $the_choice != "Y" ]]; then
+      echo "Ohhhh... kay."
+    else
+      SETUP_DO_REBOOT=true
+    fi
+
   fi
 
 } # end: setup_mint_17_stage_2
@@ -881,6 +906,8 @@ setup_mint_17_stage_3 () {
       USE_PROJECT_USERGROUPS+=("$USER")
     fi
 
+    # Usually,
+    #  groupname=("$USER")
     for groupname in ${USE_PROJECT_USERGROUPS[@]}; do
 
       # CAVEAT: After adding a user to a group, `groups` won't show the new
@@ -1128,7 +1155,7 @@ setup_mint_17_stage_4 () {
     echo "for help on setting up Pidgin and relaying"
     echo "postix email through gmail, see:"
     echo
-    echo " file://${script_absbase}/Generic_Linux_Dev_Setup_Guide.rst#Optional_Setup_Tasks"
+    echo " file://${script_absbase}/A_General_Linux_Setup_Guide_For_Devs.rst#Optional_Setup_Tasks"
     echo
 
     # All done.
