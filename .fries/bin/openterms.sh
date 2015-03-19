@@ -2,7 +2,7 @@
 
 # File: openterms.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.02.27
+# Last Modified: 2015.03.18
 # Project Page: https://github.com/landonb/home_fries
 # License: GPLv3
 
@@ -45,15 +45,24 @@ function do_sleep () {
 # they'll be used in subsequent commands (if you're running
 # this openterms.sh script from a gnome taskbar shortcut).
 
-# 
-DUBS_TERMNAME="" \
+# 2015.03.04: DUBS_STARTUP is stuck as "mount_sepulcher"??
+#             E.g., when I click the `mate-terminal` panel launcher,
+#             it tries running mount_sepulcher, so weird!
+#             I prefixed the panel launcher terminal commands with
+#               env DUBS_STARTUP=""
+#             and this fixes it, so I'll prefix herein, too, with env.
+
+#
+env \
+  DUBS_TERMNAME="" \
   DUBS_STARTIN=/kit \
   DUBS_STARTUP="mount_sepulcher" \
   $script_path/termdub.py -t lhs \
   &
 do_sleep
 
-DUBS_TERMNAME="" \
+env \
+  DUBS_TERMNAME="" \
   DUBS_STARTIN=/kit \
   DUBS_STARTUP="" \
   $script_path/termdub.py -t lhs \
@@ -61,14 +70,16 @@ DUBS_TERMNAME="" \
 do_sleep
 
 #
-DUBS_TERMNAME="" \
+env \
+  DUBS_TERMNAME="" \
   DUBS_STARTIN="" \
   DUBS_STARTUP="" \
   $script_path/termdub.py -t rhs \
   &
 do_sleep
 
-DUBS_TERMNAME="" \
+env \
+  DUBS_TERMNAME="" \
   DUBS_STARTIN="" \
   DUBS_STARTUP="" \
   $script_path/termdub.py -t rhs \
@@ -76,21 +87,24 @@ DUBS_TERMNAME="" \
 do_sleep
 
 #
-DUBS_TERMNAME="logs" \
+env \
+  DUBS_TERMNAME="logs" \
   DUBS_STARTIN=/srv/excensus \
   DUBS_STARTUP="" \
   $script_path/termdub.py -t logs \
   &
 do_sleep
 
-DUBS_TERMNAME="" \
+env \
+  DUBS_TERMNAME="" \
   DUBS_STARTIN=/srv/excensus \
   DUBS_STARTUP="" \
   $script_path/termdub.py -t bigl \
   &
 do_sleep
 
-DUBS_TERMNAME="" \
+env \
+  DUBS_TERMNAME="" \
   DUBS_STARTIN=~/.fries \
   DUBS_STARTUP="" \
   $script_path/termdub.py -t dbms \
@@ -98,23 +112,26 @@ DUBS_TERMNAME="" \
 do_sleep
 
 #
-DUBS_TERMNAME="" \
+env \
+  DUBS_TERMNAME="" \
   DUBS_STARTIN=/srv/excensus \
   DUBS_STARTUP="" \
   $script_path/termdub.py -t bigc \
   &
 do_sleep
 
-DUBS_TERMNAME="" \
+env \
+  DUBS_TERMNAME="" \
   DUBS_STARTIN=~/.fries \
   DUBS_STARTUP="" \
   $script_path/termdub.py -t rhs \
   &
 do_sleep
 
-DUBS_TERMNAME="" \
+env \
+  DUBS_TERMNAME="" \
   DUBS_STARTIN=/srv/excensus \
-  DUBS_STARTUP="cli_gk12.sh reenter" \
+  DUBS_STARTUP="cli_gk12.sh go" \
   $script_path/termdub.py -t bigr \
   &
 do_sleep
@@ -126,14 +143,16 @@ do_sleep
 if false;
 
   #
-  DUBS_TERMNAME="Psql-v3" \
+  env \
+    DUBS_TERMNAME="Psql-v3" \
     DUBS_STARTIN="" \
     DUBS_STARTUP="psql -U cycling ccpv3_lite" \
     $script_path/termdub.py -t logs \
     &
   do_sleep
 
-  DUBS_TERMNAME="Psql-v2" \
+  env \
+    DUBS_TERMNAME="Psql-v2" \
     DUBS_STARTIN="" \
     DUBS_STARTUP="psql -U cycling ccpv3_lite" \
     $script_path/termdub.py -t logc \
@@ -141,14 +160,16 @@ if false;
   do_sleep
 
   #
-  DUBS_TERMNAME="rLogs" \
+  env \
+    DUBS_TERMNAME="rLogs" \
     DUBS_STARTIN="" \
     DUBS_STARTUP="sss runic" \
     $script_path/termdub.py -t logs \
     &
   do_sleep
 
-  DUBS_TERMNAME="rPsql" \
+  env \
+    DUBS_TERMNAME="rPsql" \
     DUBS_STARTIN="" \
     DUBS_STARTUP="sss runic" \
     $script_path/termdub.py -t logc \
@@ -156,14 +177,16 @@ if false;
   do_sleep
 
   #
-  DUBS_TERMNAME="rLogs_Rd" \
+  env \
+    DUBS_TERMNAME="rLogs_Rd" \
     DUBS_STARTIN="" \
     DUBS_STARTUP="sss runic" \
     $script_path/termdub.py -t logs \
     &
   do_sleep
 
-  DUBS_TERMNAME="rPsql2" \
+  env \
+    DUBS_TERMNAME="rPsql2" \
     DUBS_STARTIN="" \
     DUBS_STARTUP="sss runic" \
     $script_path/termdub.py -t logc \
@@ -171,14 +194,16 @@ if false;
   do_sleep
 
   #
-  DUBS_TERMNAME="" \
+  env \
+    DUBS_TERMNAME="" \
     DUBS_STARTIN="" \
     DUBS_STARTUP="sss runic" \
     $script_path/termdub.py -t dbms \
     &
   do_sleep
 
-  DUBS_TERMNAME="" \
+  env \
+    DUBS_TERMNAME="" \
     DUBS_STARTIN="" \
     DUBS_STARTUP="" \
     $script_path/termdub.py -t dbms \
@@ -186,14 +211,16 @@ if false;
   do_sleep
 
   #
-  DUBS_TERMNAME="" \
+  env \
+    DUBS_TERMNAME="" \
     DUBS_STARTIN="" \
     DUBS_STARTUP="sss runic" \
     $script_path/termdub.py -t dbms \
     &
   do_sleep
 
-  DUBS_TERMNAME="" \
+  env \
+    DUBS_TERMNAME="" \
     DUBS_STARTIN="/ccp/etc/cp_confs" \
     DUBS_STARTUP="" \
     $script_path/termdub.py -t dbms \
@@ -201,14 +228,16 @@ if false;
   do_sleep
 
   #
-  DUBS_TERMNAME="" \
+  env \
+    DUBS_TERMNAME="" \
     DUBS_STARTIN="" \
     DUBS_STARTUP="sss runic" \
     $script_path/termdub.py -t dbms \
     &
   do_sleep
 
-  DUBS_TERMNAME="" \
+  env \
+    DUBS_TERMNAME="" \
     DUBS_STARTIN="" \
     DUBS_STARTUP="" \
     $script_path/termdub.py -t dbms \
@@ -216,14 +245,16 @@ if false;
   do_sleep
 
   #
-  DUBS_TERMNAME="" \
+  env \
+    DUBS_TERMNAME="" \
     DUBS_STARTIN="/ccp/dev/cp/pyserver" \
     DUBS_STARTUP="sss runic" \
     $script_path/termdub.py -t dbms \
     &
   do_sleep
 
-  DUBS_TERMNAME="py" \
+  env \
+    DUBS_TERMNAME="py" \
     DUBS_STARTIN="/ccp/dev/cp/pyserver" \
     DUBS_STARTUP="python" \
     $script_path/termdub.py -t dbms \
