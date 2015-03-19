@@ -69,3 +69,6 @@
 # Ignore tags files.
 tags
 
+# This one guy, created by .fries/once/setup_mint17.sh.
+.fries/once/setup-exc-mysql_pwd
+
