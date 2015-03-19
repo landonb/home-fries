@@ -1,6 +1,6 @@
 # File: bashrc.base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.02.27
+# Last Modified: 2015.03.14
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Smart Bash Startup Script
 # License: GPLv3
@@ -133,8 +133,11 @@ fi
 # Load scripts named like bashrc0.*.base.sh, even for root.
 for f in $(find ${HARD_PATH} -maxdepth 1 -type f -name "bashrc0.*.base.sh" \
                                      -or -type l -name "bashrc0.*.base.sh"); do
-  $DUBS_TRACE && echo "Loading project-specific Bash resource script: $f"
-  source $f
+  # Avoid stderr message if symlink points at naught.
+  if [[ -e $f ]]; then
+    $DUBS_TRACE && echo "Loading project-specific Bash resource script: $f"
+    source $f
+  fi
 done
 
 # Additional Fancy -- Starting Directory and Kickoff Command
