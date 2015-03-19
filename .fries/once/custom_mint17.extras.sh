@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.02.26
+# Last Modified: 2015.03.18
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -308,6 +308,55 @@ stage_4_https_everywhere_install () {
 
 } # end: stage_4_https_everywhere_install
 
+stage_4_virtualbox_install () {
+
+  # I first tried apt-get install virtualbox, but that was not a happy camper:
+  #     * Starting VirtualBox kernel modules
+  #     * No suitable module for running kernel found
+  #                                                    [fail]
+  #
+  # Note also there used to be a pre-4.0 virtualbox-nonfree, but now
+  # it is all rolled into one package. There is also virtualbox-4.3,
+  # but let us not be specific.
+  #
+  # Note also if you frakup, you can always backup:
+  #   sudo apt-get install virtualbox
+  #   sudo apt-get purge virtualbox
+
+  # Headers are needed for VirtualBox but should already be current:
+  sudo apt-get install -y linux-headers-`uname -r`
+
+  # Get the latest Debian package. At least if this script is uptodate.
+  LATEST_VBOX_PKG="virtualbox-4.3_4.3.26-98988~Ubuntu~raring_amd64.deb"
+  LATEST_VBOX_EXTPACK="Oracle_VM_VirtualBox_Extension_Pack-4.3.26-98988.vbox-extpack"
+  cd ${OPT_DLOADS}
+  wget -N \
+    http://download.virtualbox.org/virtualbox/4.3.26/${LATEST_VBOX_PKG}
+  sudo dpkg -i ${LATEST_VBOX_PKG}
+  #/bin/rm ${LATEST_VBOX_PKG}
+
+  # This Guy, for USB 2.
+  wget -N \
+    http://download.virtualbox.org/virtualbox/4.3.26/${LATEST_VBOX_EXTPACK}
+# FIXME: Unless there's a scripty way to add the extension pack,
+#        tell user to run `virtualbox &`, navigate to File > Preferences...,
+#        click Extensions group,
+#        click Icon for Add Package
+#        enter: /srv/opt/.downloads/Oracle_VM_VirtualBox_Extension_Pack-4.3.26-98988.vbox-extpack
+
+  # FIXME/MAYBE: One doc [lb] read says add youruser to 'lp' and 'users' groups,
+  # in addition to obvious 'vboxsf' and 'vboxusers' group. See: /etc/group.
+
+# FIXME: Need this here or in the guest??:
+#      virtualbox-guest-additions-iso
+# Add to vboxusers? and lp and users?
+  #sudo usermod -a -G lp ${USER}
+  #sudo usermod -a -G users ${USER}
+  sudo usermod -a -G vboxsf ${USER}
+  sudo usermod -a -G vboxusers ${USER}
+
+} # end: stage_4_virtualbox_install
+
 stage_4_reader_install () {
 
   # 2014.11.10: On Windows and Mac it's Adobe 11 but on Linux it's still 9.5.5,
@@ -389,6 +438,13 @@ stage_4_dev_testing_expect_install () {
   fi
 
 } # end: stage_4_dev_testing_expect_install
+
+stage_4_restview_install () {
+
+  # Weird. This installs restview with ownership as my ${USER}.
+  sudo su -c "pip install restview"
+
+} # end: stage_4_restview_install
 
 # FIXME: Is there a way to automatically get the latest
 #        packages from SourceForge without hardcoding here?
@@ -557,6 +613,24 @@ stage_4_pencil_install () {
 
 } # end: stage_4_pencil_install
 
+stage_4_jsctags_install () {
+
+  # https://github.com/ramitos/jsctags
+
+  # audit this first.
+  if false; then
+    sudo npm install -g git://github.com/ramitos/jsctags.git
+  fi
+
+  # If you want to add it to package.json instead:
+  #
+  #   "jsctags": "git://github.com/ramitos/jsctags.git"
+
+  # Usage: jsctags [--dir=/path/to] /path/to/file.js [-f]
+  # use -f to make tags file, else it's a json file.
+
+} # end: stage_4_jsctags_install
+
 stage_4_disable_services () {
 
   # 2015.02.22: From /var/log/auth.log, lines like
@@ -574,6 +648,28 @@ stage_4_disable_services () {
   #   sudo update-rc.d -f smbd defaults
 
 } # end: stage_4_disable_services
+
+stage_4_spotify_install () {
+
+  /bin/mkdir -p ${OPT_DLOADS}
+  cd ${OPT_DLOADS}
+
+  # From:
+  #  https://www.spotify.com/us/download/previews/
+  echo "deb http://repository.spotify.com stable non-free" \
+    | sudo tee -a /etc/apt/sources.list &> /dev/null
+  sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 94558F59
+  sudo apt-get update
+
+  # FIXME: More post-install reminders:
+  #         Disable the annoying notification popup when a new track starts.
+  #         (Though I do kinda like it to know when ads are finished playing.)
+  if false; then
+    echo "ui.track_notifications_enabled=false" \
+      >> ~/.config/spotify/Users/*/prefs
+  fi
+
+} # end: stage_4_spotify_install
 
 # ==============================================================
 # Application Main()
@@ -619,6 +715,9 @@ setup_customize_extras_go () {
     stage_4_chrome_install
     stage_4_https_everywhere_install
 
+    # Woop! Woop! for VirtualBox.
+    stage_4_virtualbox_install
+
     # Install Abode Reader.
 
     stage_4_reader_install
@@ -630,6 +729,8 @@ setup_customize_extras_go () {
     # Install expect, so we can do tty tricks.
 
     stage_4_dev_testing_expect_install
+
+    stage_4_restview_install
 
     # 2015.01: [lb] still playing around w/ the RssOwl reader...
     #          its inclusion here is not an endorsement, per se.
@@ -661,7 +762,11 @@ setup_customize_extras_go () {
 
     stage_4_pencil_install
 
+    stage_4_jsctags_install
+
     stage_4_disable_services
+
+    stage_4_spotify_install
 
 } # end: setup_customize_extras_go
 
