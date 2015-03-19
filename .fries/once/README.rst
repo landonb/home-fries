@@ -3,7 +3,7 @@ A General Linux Setup Guide For Developers
 ==========================================
 
 .. Author: Landon Bouma
-.. Last Modified: 2015.02.20
+.. Last Modified: 2015.03.18
 .. Project Page: https://github.com/landonb/home_fries
 
 Overview
@@ -391,6 +391,90 @@ Configure MATE panel(s).
 
  - Or do whatever you want — group windows, use workspaces,
    whatever makes you happiest.
+
+More on MATE
+~~~~~~~~~~~~
+
+This is the author's layout, from left to right in the bottom-most panel.
+
+=====================   =======================================================================
+**Left-justified**
+-----------------------------------------------------------------------------------------------
+mintMenu                (from Add to Panel)
+---------------------   -----------------------------------------------------------------------
+Show Desktop            (from Add to Panel)
+---------------------   -----------------------------------------------------------------------
+Firefox Web Browser     (from Add to Panel > Application Launcher... > Internet)
+---------------------   -----------------------------------------------------------------------
+Google Chrome           (from Add to Panel > Application Launcher... > Internet)
+---------------------   -----------------------------------------------------------------------
+Dubsacks VIM            (from Add to Panel > Application Launcher... > Accessories)
+---------------------   -----------------------------------------------------------------------
+Terminal                (from Add to Panel > Application Launcher... > System Tools)
+---------------------   -----------------------------------------------------------------------
+OpenTerms               (from Add to Panel > Custom Application Launcher)
+---------------------   -----------------------------------------------------------------------
+Termdub Dbms            (from Add to Panel > Custom Application Launcher)
+---------------------   -----------------------------------------------------------------------
+Termdub Logs            (from Add to Panel > Custom Application Launcher)
+---------------------   -----------------------------------------------------------------------
+Termdub Logc            (from Add to Panel > Custom Application Launcher)
+---------------------   -----------------------------------------------------------------------
+Meld                    (from Add to Panel > Application Launcher... > Programming)
+---------------------   -----------------------------------------------------------------------
+Wireshark               (from Add to Panel > Application Launcher... > Internet)
+---------------------   -----------------------------------------------------------------------
+Adobe Reader 9          (from Add to Panel > Application Launcher... > Office)
+---------------------   -----------------------------------------------------------------------
+Oracle VM VirtualBox    (from Add to Panel > Application Launcher... > System Tools)
+---------------------   -----------------------------------------------------------------------
+Spotify                 (from Add to Panel > Application Launcher... > Sound & Music)
+---------------------   -----------------------------------------------------------------------
+Dia                     (from Add to Panel > Application Launcher... > Graphics)
+---------------------   -----------------------------------------------------------------------
+Take Screenshot         (from Add to Panel > Application Launcher... > Accessories)
+---------------------   -----------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------
+**Right-justified**
+-----------------------------------------------------------------------------------------------
+Notification Area       (from Add to Panel)
+---------------------   -----------------------------------------------------------------------
+System Monitor          (from Add to Panel)
+---------------------   -----------------------------------------------------------------------
+Weather Report          (from Add to Panel)
+---------------------   -----------------------------------------------------------------------
+Clock                   (from Add to Panel)
+=====================   =======================================================================
+
+All launchers:
+
+- Clear Comments.
+
+Custom launchers:
+
+- Dubsacks gVim/GVim:
+  - ``gvim --servername SAMPI --remote-silent path/to/notes.rst``
+- OpenTerms:
+  - ``/home/<USERNAME>/.fries/bin/openterms.sh``
+  - Icon: ``/usr/share/icons/Mint-X/apps/48/abrt.png``
+- Termdub Dbms:
+  - ``/home/<USERNAME>/.fries/bin/termdub.py -t dbms``
+- Termdub Logs:
+  - ``/home/<USERNAME>/.fries/bin/termdub.py -t logs``
+- Termdub Logc:
+  - ``/home/<USERNAME>/.fries/bin/termdub.py -t logc``
+
+See also:
+
+.. code-block:: text
+
+    $ dconf dump /org/mate/panel/objects/ | grep launcher-location
+    launcher-location='mate-terminal.desktop'
+    ...
+
+    $ /bin/ls -1 ~/.config/mate/panel2.d/default/launchers
+    firefox.desktop
+    ...
 
 Superuser Bash Profile
 ^^^^^^^^^^^^^^^^^^^^^^
