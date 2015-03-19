@@ -45,12 +45,12 @@ function do_sleep () {
 # they'll be used in subsequent commands (if you're running
 # this openterms.sh script from a gnome taskbar shortcut).
 
-# 2015.03.04: DUBS_STARTUP is stuck as "mount_sepulcher"??
+# 2015.03.04: DUBS_STARTUP is now sticking at "mount_sepulcher".
 #             E.g., when I click the `mate-terminal` panel launcher,
-#             it tries running mount_sepulcher, so weird!
+#             it tries running mount_sepulcher. So weird!
 #             I prefixed the panel launcher terminal commands with
 #               env DUBS_STARTUP=""
-#             and this fixes it, so I'll prefix herein, too, with env.
+#             which fixes it, so I'll prefix herein, too, with env.
 
 #
 env \
