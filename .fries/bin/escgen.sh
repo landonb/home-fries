@@ -7,9 +7,9 @@
 
 function usage {
    echo -e "\033[1;34mescgen\033[0m <lower_octal_value> [<higher_octal_value>]"
-   echo "   Octal escape sequence generator: print all octal escape sequences"
-   echo "   between the lower value and the upper value.  If a second value"
-   echo "   isn't supplied, print eight characters."
+   echo "   Octal escape sequence generator: print all octal escape"
+   echo "   sequences between the lower value and the upper value."
+   echo "   If a second value isn't supplied, print eight characters."
    echo "   1998 - Giles Orr, no warranty."
    exit 1
 }
