@@ -2,7 +2,7 @@
 
 # File: setup.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.03.01
+# Last Modified: 2015.01.27
 # Project Page: https://github.com/landonb/home_fries
 # License: GPLv3
 
