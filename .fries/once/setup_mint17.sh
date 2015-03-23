@@ -364,7 +364,7 @@ setup_mint_17_stage_1 () {
       #      since the append command happens outside the sudo.
       # Disable sudo password-entering timeout.
       echo "
-      # Added by ${0}:${USER} at `date +%Y.%m.%d-%T`.
+# Added by ${0}:${USER} at `date +%Y.%m.%d-%T`.
 Defaults tty_tickets
 Defaults:${USER} timestamp_timeout=-1
 " | sudo tee -a /etc/sudoers &> /dev/null
