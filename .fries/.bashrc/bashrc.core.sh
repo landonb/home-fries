@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.03.06
+# Last Modified: 2015.03.26
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -350,10 +350,16 @@ alias free="free -m"
 # [lb] uses p frequently, just like h and ll.
 alias p='pwd'
 
-# Alias python from py.
-alias py='/usr/bin/env python'
-alias py2='/usr/bin/env python2'
-alias py3='/usr/bin/env python3'
+# Alias python from py, but only if there's not already symlink.
+if [[ ! -e /usr/bin/py ]]; then
+  alias py='/usr/bin/env python'
+fi
+if [[ ! -e /usr/bin/py2 ]]; then
+  alias py2='/usr/bin/env python2'
+fi
+if [[ ! -e /usr/bin/py3 ]]; then
+  alias py3='/usr/bin/env python3'
+fi
 
 # The `whoami` is just `id -un` in disguise.
 # Here are its lesser known sibling commands.
