@@ -1,6 +1,6 @@
 # File: bashrc.cyclopath.base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.02.04
+# Last Modified: 2015.03.26
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Cyclopath bash startup script.
 # License: GPLv3
@@ -22,6 +22,13 @@ source ${HARD_PATH}/bashrc.cyclopath.loc.work.sh
 # share the same user tables, rather than breaking the user
 # tables out into their own db.
 export INSTANCE=minnesota
+
+# DEVs: Set LOAD_PYTHONPATH=true to add to PYTHONPATH.
+# FIXME: This is disabled so as not to conflict with other projects...
+#        Ideally, Cyclopath would run in a chroot and then you could
+#        have this operation performed only in the chroot.
+LOAD_PYTHONPATH=false
+#LOAD_PYTHONPATH=true
 
 # Create the pyserver dump directory and make sure www-data/apache can write to
 # it. NOTE This directory should match what's in the source, in pyserver/CONFIG
@@ -807,7 +814,12 @@ alias cddb='pushd /ccp/var/dbdumps > /dev/null'
 # NOTE: Your scripts are run when you start X, so including $PYTHONPATH at the
 # end just duplicates all the paths you already set up...
 #export PYTHONPATH=$ccp/opt/usr/lib/python:$ccp/opt/usr/lib/$PYTHONVERS/site-packages:$ccp/opt/gdal/lib/$PYTHONVERS/site-packages:$PYTHONPATH
-export PYTHONPATH=$ccp/opt/usr/lib/python:$ccp/opt/usr/lib/$PYTHONVERS/site-packages:$ccp/opt/gdal/lib/$PYTHONVERS/site-packages:$ccp/dev/cp/pyserver/bin/winpdb
+
+# 2015.03.26: FIXME: Figure out a better way to do this... chroot for Cyclopath??!
+if $LOAD_PYTHONPATH; then
+  export PYTHONPATH=$ccp/opt/usr/lib/python:$ccp/opt/usr/lib/$PYTHONVERS/site-packages:$ccp/opt/gdal/lib/$PYTHONVERS/site-packages:$ccp/dev/cp/pyserver/bin/winpdb
+fi
+
 if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
   # Ubuntu
   : 
