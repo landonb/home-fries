@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.03.18
+# Last Modified: 2015.03.25
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -707,6 +707,12 @@ Defaults:${USER} timestamp_timeout=-1
       htop
 
       expect
+
+      # More exo stuff.
+      sqlite3
+      libsqlite3-dev
+      spatialite-bin
+      libspatialite5
 
     )
 
