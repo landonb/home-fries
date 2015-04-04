@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.03.18
+# Last Modified: 2015.04.04
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -671,6 +671,16 @@ stage_4_spotify_install () {
 
 } # end: stage_4_spotify_install
 
+stage_4_all_the_young_pips () {
+
+  # My ~/.vim/bundle_/ contains a dozenish sub-gits. Uncommitted helps.
+  sudo pip install uncommitted
+  sudo chmod 755 /usr/local/bin/uncommitted
+  # Be sure to specify -l to use locate.
+  # E.g., `uncommitted -l ~/.vim`, or `uncommitted -l -v ~/.vim`.
+
+} # end: stage_4_all_the_young_pips
+
 # ==============================================================
 # Application Main()
 
@@ -767,6 +777,8 @@ setup_customize_extras_go () {
     stage_4_disable_services
 
     stage_4_spotify_install
+
+    stage_4_all_the_young_pips
 
 } # end: setup_customize_extras_go
 
