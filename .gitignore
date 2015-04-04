@@ -15,6 +15,7 @@
 !.gitignore
 !.hgrc
 !.psqlrc
+!.sqliterc
 !mm.cfg
 
 # Hrm...
