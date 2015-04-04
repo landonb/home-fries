@@ -1,4 +1,6 @@
 
+SET search_path TO dev, batman, public;
+
 /* Display query times. */
 
 \timing on
