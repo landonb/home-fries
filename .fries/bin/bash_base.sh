@@ -2,7 +2,7 @@
 
 # File: bash_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.02.02
+# Last Modified: 2015.06.19
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bash function library.
 # License: GPLv3
@@ -16,29 +16,47 @@
 
 # Make it easy to reference the script name and relative or absolute path.
 
-# NOTE: The parent `source`d us, so $0 is _its_ name.
+# NOTE: The parent `source`d us, so $0 is _its_ name, usually.
+#       If bash is being loaded via sudo, e.g., `sudo su - some_user`,
+#       and if some bashrc sourced us, then $0 might be '-su' or '-bash'.
 
-script_name=$(basename $0)
-script_relbase=$(dirname $0)
-
-# From our good friends at http://stackoverflow.com
-#   /questions/7126580/expand-a-possible-relative-path-in-bash
+# Note: If sourced from a bash startup script, $0 might be '/bin/bash',
+#       or, if you sudo'd, e.g., `sudo su - some_user`, then
+#       $0 is '-su', i.e., ${0:0:1} = '-', so the bash startup scripts
+#       should not include bash_bash.sh, or we should manually set/hardcode
+#       the paths here. For now, assuming this script _not_ loaded from bashrc.
+#HERE_WE_ARE=$(pwd -P)
+if [[ ${0:0:1} != '-' ]]; then
+  script_name=$(basename $0)
+  script_relbase=$(dirname $0)
+  #script_path=$(readlink -e -- "$0")
+  # This method follows symlinks and is less verbose than dir_resolve.
+  # Usually you'll want the readlink path and not the dir_resolve path,
+  # so you can execute scripts better via symlinks if you need to use
+  # a relative script path.
+  SCRIPT_DIR=$(dirname $(readlink -f $0))
+else
+  echo "UNEXPECTED: \$0: ${0}"
+  # Being sourced. Just hardcode path. <cough> <cough> <hack!>
+  # NOTE: This code path currently not exercised.
+  script_name="bash_base.sh"
+  script_relbase="/home/${USER}/.fries/bin"
+  SCRIPT_DIR="/home/${USER}/.fries/bin"
+fi
 
 dir_resolve () {
-  # Change to the desired directory. Squash error msgs.
-  # But return error status, maybe.
-  cd "$1" 2>/dev/null || return $?
-  # Use pwd's -P to return the full, link-resolved path.
-  echo "`pwd -P`"
+  # Squash error messages but return error status, maybe.
+  pushd "$1" &> /dev/null || return $?
+  # -P returns the full, link-resolved path.
+  dir_resolved="`pwd -P`"
+  popd &> /dev/null
+  echo "$dir_resolved"
 }
 
 script_path=$(dir_resolve $script_relbase)
 
 # EXPLAIN: How is dir_resolve (script_path) better than, e.g.,
 script_absbase=`pwd $script_relbase`
-
-# EXPLAIN: How is dir_resolve or pwd {path} better than, e.g.,
-SCRIPT_DIR=$(dirname $(readlink -f $0))
 
 if [[    "$script_path" != "$script_absbase"
       || "$script_path" != "$SCRIPT_DIR" ]]; then
@@ -474,23 +492,23 @@ arr2_fcn_iter () {
 # ============================================================================
 # *** Llik gnihtemos.
 
+# SYNC_ME: See also fcn. of same name in bash_base.sh/bashrc_core.sh.
 killsomething () {
   something=$1
   # The $2 is the awk way of saying, second column. I.e., ps aux shows
   #   apache 27635 0.0 0.1 238736 3168 ? S 12:51 0:00 /usr/sbin/httpd
   # and awk splits it on whitespace and sets $1..$11 to what was split.
   # You can even {print $99999} but it's just a newline for each match.
-  somethings=`ps aux | grep "${something}" | awk '{print $2}'`
-  # NOTE: This does the same thing.
-  # somethings=`ps aux | grep "${something}" | awk {'print $2'}`
-  count_it=0
+  #somethings=`ps aux | grep "${something}" | awk '{print $2}'`
+  # Let's exclude the grep process that our grep is what is.
+  somethings=`ps aux | grep "${something}" | grep -v "\<grep\>" | awk '{print $2}'`
+  # NOTE: The quotes in awk are loosely placed: similarly: `... | awk {'print $2'}`
   if [[ "$somethings" != "" ]]; then
+    # FIXME: From command, line these two echos make sense; from another script, no.
+    #echo $(ps aux | grep "${something}" | grep -v "\<grep\>")
+    #echo "Killing: $somethings"
     echo $somethings | xargs sudo kill -s 9 >/dev/null 2>&1
-    count_it=$((count_it + 1))
   fi
-  # ?: ps aux | grep routedctl | awk '{print $2}' | xargs sudo kill -s 9
-  #echo "Kill count: ${count_it}."
-  KILL_COUNT=$((${KILL_COUNT} + ${count_it}))
   return 0
 }
 
