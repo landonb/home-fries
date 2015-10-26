@@ -1,6 +1,6 @@
 # File: bashrc.cyclopath.base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.03.26
+# Last Modified: 2015.04.04
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Cyclopath bash startup script.
 # License: GPLv3
@@ -758,7 +758,10 @@ export vp2=${CCP_DEV_DIR}/cp_trunk_v2
 export vp3=${CCP_DEV_DIR}/cp_trunk_v3
 
 # Alias directory-changing shortcuts
-alias cdd='pushd ${CCP_DEV_DIR} > /dev/null'
+#alias cdd='pushd ${CCP_DEV_DIR} > /dev/null'
+# FIXME: Pick an alternative:
+alias cpd='pushd ${CCP_DEV_DIR} > /dev/null'
+#alias ccd='pushd ${CCP_DEV_DIR} > /dev/null'
 
 # Shortcuts for [lb]'s standard working and checkin dirs.
 #
@@ -774,8 +777,10 @@ alias vd2='pushd ${CCP_DEV_DIR}/cp_trunk_v2 > /dev/null'
 alias vd3='pushd ${CCP_DEV_DIR}/cp_trunk_v3 > /dev/null'
 
 # Alias to, e.g., /ccp/bin/ccpdev
-#alias cdc='cd ${CCP_DIR}/bin/ccpdev'
-alias cdc='pushd ${CCP_DIR}/bin/ccpdev > /dev/null'
+##alias cdc='cd ${CCP_DIR}/bin/ccpdev'
+#alias cdc='pushd ${CCP_DIR}/bin/ccpdev > /dev/null'
+alias cpc='pushd ${CCP_DIR}/bin/ccpdev > /dev/null'
+#alias cpb='pushd ${CCP_DIR}/bin/ccpdev > /dev/null'
 
 # Alias to, e.g., /ccp/var/log/daily
 #alias cdl='cd /ccp/var/log'
