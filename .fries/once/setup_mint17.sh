@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.03.25
+# Last Modified: 2015.10.26
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -367,6 +367,8 @@ setup_mint_17_stage_1 () {
 # Added by ${0}:${USER} at `date +%Y.%m.%d-%T`.
 Defaults tty_tickets
 Defaults:${USER} timestamp_timeout=-1
+# Is this safe? Passwordless chroot.
+${USER} ALL= NOPASSWD: /usr/sbin/chroot
 " | sudo tee -a /etc/sudoers &> /dev/null
       sudo chmod 0440 /etc/sudoers
     fi
@@ -508,8 +510,13 @@ Defaults:${USER} timestamp_timeout=-1
       eog
       # Hexadecimal file viewer.
       ghex
+      # Hexadecimal diff.
+      vbindiff
+      #hexdiff
       # `most` is pretty lame; author prefers `less`.
       #most
+      # `less` is made better with color.
+      python-pygments
 
       # The better grepper.
       silversearcher-ag
@@ -519,6 +526,8 @@ Defaults:${USER} timestamp_timeout=-1
       git-core
       subversion
       mercurial
+      # A beautiful, colorful git browser/helper.
+      tig
 
       # Well, when I was your age, we called it Ethereal.
       wireshark
@@ -668,6 +677,7 @@ Defaults:${USER} timestamp_timeout=-1
       #             no longer maintained). And, though I
       #             thought evince was installed by default,
       #             it appears not.
+      #             Ug. use libreoffice to print PDFs.
       evince
 
       akregator
@@ -714,6 +724,54 @@ Defaults:${USER} timestamp_timeout=-1
       spatialite-bin
       libspatialite5
 
+      unison
+
+      # exFAT, MS format used on 32GB+ flash drives.
+      exfat-fuse
+      exfat-utils
+
+      # ogrinfo et al
+      gdal-bin
+      gpx2shp
+
+      unzip
+
+      chromium-browser
+
+      # Symbola font for emojis.
+      ttf-ancient-fonts
+      # All the fonts.
+      fonts-cantarell
+      lmodern
+      ttf-aenigma
+      ttf-georgewilliams
+      ttf-bitstream-vera
+      ttf-sjfonts
+      ttf-tuffy
+      tv-fonts
+      #ubuntustudio-font-meta
+
+      inkscape
+
+      streamripper
+
+      # Ok, the distro version lags and has bugs. We will build later from source.
+      #digikam
+      digikam-doc
+      # hrmmmm / 759 MB / for digikam
+      kde-full
+      cmake
+      qt4-qmake
+      qt5-qmake
+      kde-workspace-dev
+      kdevplatform-dev
+      # Color mgmt.
+      gnome-color-manager
+      #dispcalgui
+
+      # Maybe some day...
+      zsh
+
     )
 
     # One Giant MASSIVE package install.
@@ -726,6 +784,23 @@ Defaults:${USER} timestamp_timeout=-1
     if $WM_IS_MATE; then
       sudo apt-get install -y mate-themes
     fi
+
+
+# FIXME: Fix /etc/default/grub here
+#
+#   #GRUB_HIDDEN_TIMEOUT=0
+#   GRUB_HIDDEN_TIMEOUT=3
+#   #GRUB_HIDDEN_TIMEOUT_QUIET=true
+#   GRUB_HIDDEN_TIMEOUT_QUIET=false
+#   #GRUB_TIMEOUT=10
+#   GRUB_TIMEOUT=0
+#
+# See: cli_gk12.sh
+#                sudo /bin/cp -a /etc/default/grub /etc/default/grub_$(date +%Y_%m_%d_%Hh%Mm%Ss)
+#                sudo /bin/cp -af ${SCRIPT_DIR}/resources/dev-upstart.grub /etc/default/grub
+#                #sudo grub-mkconfig
+#                sudo update-grub
+
 
     # All done.
 
@@ -1411,10 +1486,10 @@ __just_the_basics__ () {
     sudo apt-get update
     sudo apt-get install -y flashplugin-installer
   fi
-  if false; then
-    # Linux Mint 17.1 Adode Flash update:
-    # FIXME: Is this repository still right?:
-    #  sudo add-apt-repository "deb http://archive.canonical.com/ rebecca partner"
+
+  if true; then
+    # Linux Mint 17.1 Adode Flash update.
+    sudo add-apt-repository "deb http://archive.canonical.com/ rebecca partner"
     sudo apt-get update
     sudo apt-get install -y adobe-flashplugin
   fi
