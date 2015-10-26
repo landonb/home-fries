@@ -3,7 +3,7 @@ A General Linux Setup Guide For Developers
 ==========================================
 
 .. Author: Landon Bouma
-.. Last Modified: 2015.03.18
+.. Last Modified: 2015.08.07
 .. Project Page: https://github.com/landonb/home_fries
 
 Overview
@@ -339,6 +339,10 @@ Here's a brief overview of what the script does each time it runs:
 
        - Configure Pidgin to start on boot.
 
+         - Also open Preferences > Themes and choose "none" for "Smiley Theme",
+           otherwise when you copy/paste code to Pidgin, you'll often end up
+           with smilies.
+
        - Download and install Google Chrome.
 
        - Download and install Adobe Reader (alas, an old version, 9.5.5,
@@ -455,7 +459,7 @@ Custom launchers:
 - Dubsacks gVim/GVim:
   - ``gvim --servername SAMPI --remote-silent path/to/notes.rst``
 - OpenTerms:
-  - ``/home/<USERNAME>/.fries/bin/openterms.sh``
+  - ``/home/<USERNAME>/.fries/bin/openterms.sh 1024 0``
   - Icon: ``/usr/share/icons/Mint-X/apps/48/abrt.png``
 - Termdub Dbms:
   - ``/home/<USERNAME>/.fries/bin/termdub.py -t dbms``
@@ -482,7 +486,7 @@ Superuser Bash Profile
 If you want your superuser account to have a similar shell
 setup as your user account, make a link to your profile.
 
-.. code-block:: bash:
+.. code-block:: bash
 
   sudo /bin/ln -s $HOME/.bashrc /root/.bashrc
 
@@ -490,7 +494,7 @@ You could also link you Vim scripts to your root account,
 but this author worries that letting all your Vim plugins
 run as root is dangerous.
 
-.. code-block:: bash:
+.. code-block:: bash
 
   # It seems dangerous to let vendor Vim code run as root...
   #  sudo /bin/ln -s $HOME/.vim /root/.vim
@@ -551,6 +555,25 @@ your browser requests try to use https.
 
    - `HTTPS Everywhere for Chrome
      <https://www.eff.org/https-everywhere>`__
+
+Regular Expression Browser Search plugins.
+
+Note: The Firefox plugin froze my browser for a few seconds while searching
+`the nightly HTML spec
+<http://www.w3.org/html/wg/drafts/html/master/single-page.html>`__`.
+The Chrome plugin works well, though.
+
+- `Regex Find for Firefox
+  <https://addons.mozilla.org/en-us/firefox/addon/regex-find/>`__`
+
+  - ``Ctrl-F`` like you normally would, and
+    click the *Regex* button in the find bar.
+
+- `Regex Search for Chrome
+  <https://chrome.google.com/webstore/detail/regex-search/bcdabfmndggphffkchfdcekcokmbnkjl/related?hl=en>`__`
+
+  - Type ``Alt+Shift+F`` to open the finder, and
+    ``Enter`` and ``Shift-Enter`` to navigate.
 
 If you use Firefox Developer Tools, the
 `Customize (Keyboard) Shortcuts for Firefox
