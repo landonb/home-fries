@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.03.26
+# Last Modified: 2015.10.08
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -15,8 +15,10 @@
 # Vendor paths (see: setup_mint17.sh)
 #####################################
 
-OPT_BIN=/srv/opt/bin
 OPT_DLOADS=/srv/opt/.downloads
+OPT_BIN=/srv/opt/bin
+OPT_SRC=/srv/opt/src
+OPT_DOCS=/srv/opt/docs
 
 # Determine OS Flavor
 #####################
@@ -52,6 +54,8 @@ fi
 #PATH="/home/${LOGNAME}/.fries/bin/vendor:${PATH}"
 PATH="/home/${LOGNAME}/.fries/bin:${PATH}"
 PATH="${OPT_BIN}:${PATH}"
+# ~/.local/bin is where, e.g., `pip install --user blah` installs.
+PATH="${PATH}:${HOME}/.local/bin"
 export PATH
 
 # Umask
@@ -87,7 +91,11 @@ export PATH
 #             I should probably default to no access for other, and
 #             then to deliberately use a fix-perms/web-perms macro to
 #             make htdocs/ directories accessible to the web user.
-umask 0007
+#umask 0007
+# 2015.05.14: On second thought... After 'git pull' I have to fix permissions
+#             on the Excensus web application files, so might as well make life
+#             easier.
+umask 0002
 
 # SVN/gVim
 ##########
@@ -222,7 +230,7 @@ if [[ $EUID -ne 0 \
    && -e "$HOME/.ssh" ]]; then
   # See http://help.github.com/working-with-key-passphrases/
   SSH_ENV="$HOME/.ssh/environment"
-  function start_agent {
+  function start_agent() {
     #echo -n "Initializing new SSH agent... "
     /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
     #echo "ok."
@@ -239,7 +247,7 @@ if [[ $EUID -ne 0 \
     #  find $HOME/.ssh -name "*_rsa" -maxdepth 1 | xargs /usr/bin/ssh-add
     rsa_keys=`ls $HOME/.ssh/*_rsa 2> /dev/null`
     if [[ -n $rsa_keys ]]; then
-      for pvt_key in $(/bin/ls $HOME/.ssh/*_rsa); do
+      for pvt_key in $(/bin/ls $HOME/.ssh/*_rsa $HOME/.ssh/*_dsa 2> /dev/null); do
         # Skip symlinks (I've got ~/.ssh/id_rsa linked to ~/.ssh/id_foo_rsa).
         if [[ ! -h ${pvt_key} ]]; then
           sent_passphrase=false
@@ -291,14 +299,46 @@ fi
 #       `/bin/cp` or `\cp` and not `cp -f` if you want to overwrite files.
 alias cp='cp -i'
 alias mv='mv -i'
+# 2015.04.04: Tray Cray.
+# FIXME: completions... limit to just directories, eh.
+function cdd_() {
+  if [[ -n $2 ]]; then
+    echo 'You wish!' $*
+    return 1
+  fi
+  if [[ -n $1 ]]; then
+    pushd "$1" > /dev/null
+    # Same as:
+    #  pushd -n "$1" > /dev/null
+    #  cd "$1"
+  else
+    pushd ${HOME} > /dev/null
+  fi
+}
+# FIXME: 2015.04.04: Still testing what makes the most sense:
+alias cdd='cdd_'
+#alias ccd='cdd_'
+#alias cdc='cdd_'
+# MAYBE GOES FULL ON:
+##alias cd='cdd_'
+# FIXME: Choose one of:
+#alias ppd='popd > /dev/null'
+#alias pod='popd > /dev/null'
+alias cdc='popd > /dev/null'
 
-# Misc.
+# 2015.08.06: Project directory aliases.
+alias cdfe='pushd ~/.fries/.erectus &> /dev/null'
+
+# Misc. directory aliases.
 alias h='history'         # Nothing special, just convenient.
 alias n='netstat -tulpn'  # --tcp --udp --listening --program (name) --numeric
-alias t='top -c'          # Show full command.
+# See alias t="todo.sh" below. Anyway, htop's better.
+#alias t='top -c'          # Show full command.
+alias ht='htop'           # 
 alias cmd='command -v $1' # Show executable path or alias definition.
 alias grep='grep --color' # Show differences in colour.
-alias less='less -r'      # Raw control characters.
+#alias less='less -r'      # Raw control characters.
+alias less='less -R'      # Better Raw control characters (aka color).
 alias sed='sed -r'        # Use extended regex.
 alias whence='type -a'    # `where`, of a sort.
 
@@ -389,6 +429,14 @@ fi
 # The Silver Search.
 # Always allow lowercase, and, more broadly, all smartcase.
 alias ag='ag --smart-case --hidden'
+# When you use the -m/--max-count option, you'll see a bunch of
+#   ERR: Too many matches in somefile. Skipping the rest of this file.
+# which come on stderr from each process thread and ends up interleaving
+# with the results, making the output messy and unpredicatable.
+# So that Vim can predictably parse the output, we use this shim of a fcn.
+function ag_peek () {
+  ag -A 0 -B 0 --hidden --follow --max-count 1 $* 2> /dev/null
+}
 
 # Fix rm to be a crude trashcan
 ###############################
@@ -407,38 +455,108 @@ alias rmtrash='/bin/rm -rf $trashdir/.trash ; mkdir $trashdir/.trash'
 # DANGER: Will Robinson. Be careful when you repeat yourself, it'll be gone.
 alias rmrm='/bin/rm -rf'
 
-function rm_safe {
-  # The trash can way:
-  if [[ ! -e $trashdir/.trash ]]; then
-    /bin/mkdir -p $trashdir/.trash
-  fi
-  # You can disable the trash by running
-  #   /bin/rm -rf ~/.trash && touch ~/.trash
-  if [[ ! -d $trashdir/.trash ]]; then
-    echo 'No trash can!'
-    # Ye olde alias, now the unpreferred method.
-    /bin/rm -i "$*"
+function device_on_which_file_resides() {
+  if [[ -d "$1" || -f "$1" ]]; then
+    owning_device=$(df "$1" | awk 'NR == 2 {print $1}')
+  elif [[ -h "$1" ]]; then
+    # A symbolic link, so don't use the linked-to file's location, and don't
+    # die if the link is dangling (df says "No such file or directory").
+    owning_device=$(df $(dirname "$1") | awk 'NR == 2 {print $1}')
   else
-    if true; then
-      # Newer new method.
-      for fpath in $*; do
-        local fname=$(basename ${fpath})
-        if [[ -e $trashdir/.trash/${fname} ]]; then
-          fname="${fname}.$(date +%Y_%m_%d_%Hh%Mm%Ss_%N)"
-        fi
-        /bin/mv ${fpath} $trashdir/.trash/${fname}
-      done
-    else
-      # Older new method.
-      /bin/mv --target-directory $trashdir/.trash "$*"
+    owning_device=''
+    echo "ERROR: Not a directory, regular file, or symbolic link: $1."
+    return 1
+  fi
+  echo $owning_device
+}
+
+function device_filepath_for_file() {
+  device_path=$(df "$1" | awk 'NR == 2 {for(i=7;i<=NF;++i) print $i}')
+  echo $device_path
+}
+
+function ensure_trashdir() {
+  device_trashdir="$1"
+  trash_device="$2"
+  if [[ -f ${device_trashdir}/.trash ]]; then
+    ensured=0
+    # MAYBE: Suppress this message, or at least don't show multiple times
+    #        for same ${trash_device}.
+    echo "Trash is disabled on device ${trash_device}."
+  else
+    if [[ ! -e ${device_trashdir}/.trash ]]; then
+      echo "Trash directory not found on ${trash_device}"
+      echo "Create a new trash at ${device_trashdir}/.trash ?"
+      echo -n "Please answer [y/n]: "
+      read the_choice
+      if [[ ${the_choice} != "y" && ${the_choice} != "Y" ]]; then
+        ensured=0
+        echo "To suppress this message, run: touch ${device_trashdir}/.trash"
+      else
+        /bin/mkdir -p ${device_trashdir}/.trash
+      fi
+    fi
+    if [[ -d ${device_trashdir}/.trash ]]; then
+      ensured=1
     fi
   fi
+  return ${ensured}
+}
+
+function rm_safe() {
+  # The trash can way!
+  # You can disable the trash by running
+  #   /bin/rm -rf ~/.trash && touch ~/.trash
+  # You can make the trash with rmtrash or mkdir ~/.trash,
+  #   or run the command and you'll be prompted.
+  OLD_IFS=$IFS
+  IFS=$'\n'
+  for fpath in $*; do
+    local fname=$(basename "${fpath}")
+    # A little trick to make sure to use the trash can on
+    # the right device, to avoid copying files.
+    trash_device=$(device_on_which_file_resides "${trashdir}")
+    if [[ $? -ne 0 ]]; then
+      echo "ERROR: No device for trashdir: ${trashdir}"
+      return 1
+    fi
+    fpath_device=$(device_on_which_file_resides "${fpath}")
+    if [[ $? -ne 0 ]]; then
+      echo "ERROR: No device for fpath: ${fpath}"
+      return 1
+    fi
+    if [[ ${trash_device} = ${fpath_device} ]]; then
+      # MAYBE: Update this fcn. to support specific trash
+      # directories on each device. For now you can specify
+      # one specific dir for one drive (generally /home/$USER/.trash)
+      # and then all other drives it's assumed to be at, e.g.,
+      # /media/XXX/.trash.
+      device_trashdir="${trashdir}"
+    else
+      device_trashdir=$(device_filepath_for_file "${fpath}")
+    fi
+    ensure_trashdir "${device_trashdir}" "${trash_device}"
+    if [[ $? -eq 1 ]]; then
+      if [[ -e "${device_trashdir}/.trash/${fname}" ]]; then
+        fname="${fname}.$(date +%Y_%m_%d_%Hh%Mm%Ss_%N)"
+      fi
+      /bin/mv "${fpath}" "${device_trashdir}/.trash/${fname}"
+    else
+      # Ye olde original rm alias, now the unpreferred method.
+      /bin/rm -i "${fpath}"
+    fi
+  done
+  IFS=$OLD_IFS
+}
+
+function rm_safe_deprecated() {
+  /bin/mv --target-directory ${trashdir}/.trash "$*"
 }
 
 # Terminal Prompt
 #################
 
-function dubs_set_terminal_prompt () {
+function dubs_set_terminal_prompt() {
 
   ssh_host=$1
 
@@ -717,15 +835,18 @@ fi
 
 #########################
 
+# SYNC_ME: See also fcn. of same name in bash_base.sh/bashrc_core.sh.
 killsomething () {
   something=$1
   # The $2 is the awk way of saying, second column. I.e., ps aux shows
   #   apache 27635 0.0 0.1 238736 3168 ? S 12:51 0:00 /usr/sbin/httpd
   # and awk splits it on whitespace and sets $1..$11 to what was split.
   # You can even {print $99999} but it's just a newline for each match.
-  somethings=`ps aux | grep "${something}" | awk '{print $2}'`
+  somethings=`ps aux | grep "${something}" | grep -v "\<grep\>" | awk '{print $2}'`
   # NOTE: awk {'print $2'} is also acceptable.
   if [[ "$somethings" != "" ]]; then
+    echo $(ps aux | grep "${something}" | grep -v "\<grep\>")
+    echo "Killing: $somethings"
     echo $somethings | xargs sudo kill -s 9 >/dev/null 2>&1
   fi
   return 0
@@ -733,12 +854,21 @@ killsomething () {
 
 #########################
 
-# C.f. ~/.fries/bin/ccp_base.sh.
+# C.f. ~/.fries/bin/bash_base.sh.
 dir_resolve () {
-  # Change to desired directory. Squash errors. Return error status, maybe.
-  cd "$1" 2>/dev/null || return $?
-  # Use pwd's -P to return the full, link-resolved path.
-  echo "`pwd -P`"
+  # Squash error messages but return error status, maybe.
+  pushd "$1" &> /dev/null || return $?
+  # -P returns the full, link-resolved path.
+  dir_resolved="`pwd -P`"
+  popd &> /dev/null
+  echo "$dir_resolved"
+}
+
+# symlink_dirname gets the dirname of
+# a filepath after following symlinks;
+# can be used in lieu of dir_resolve.
+symlink_dirname () {
+  echo $(dirname $(readlink -f $1))
 }
 
 #########################
@@ -784,31 +914,31 @@ echoerr () { echo "$@" 1>&2; }
 # Recursively web-ify a directory hierarchy.
 
 webperms () {
-	if [[ -z $1 || ! -d $1 ]]; then
-		echo "ERROR: Not a directory: $1"
-		return 1
-	fi
-	LOGGER=false
-	# Recurse through the web directory.
-    # The naive `find` approach.
-    #   find $1 -type d -exec chmod 2775 {} +
-    #   find $1 -type f -exec chmod u+rw,g+rw,o+r {} +
-    # A smarter approach: use chmod's 'X' flag to only add the
-    # execute bit to directories or to files that already have
-    # execute permission for some user.
-    ##chmod -R o+rX $1
-    #chmod -R u+rwX,g+rwX,o+rX $1
-	${LOGGER} && echo "Web dir.: $1"
-    #chmod -R o+rX $1 &> /dev/null || sudo chmod -R o+rX $1
-    chmod -R u+rwX,g+rwX,o+rX $1 &> /dev/null || sudo chmod -R u+rwX,g+rwX,o+rX $1
-	# Also fix the ancestor permissions.
-	local CUR_DIR=$1
-	while [[ -n ${CUR_DIR} && $(dirname ${CUR_DIR}) != '/' ]]; do
-		${LOGGER} && echo "Ancestor: ${CUR_DIR}"
-		# NOTE: Not giving read access, just execute.
-    	chmod -R o+X ${CUR_DIR} &> /dev/null || sudo chmod -R o+X ${CUR_DIR}
-		local CUR_DIR=$(dirname ${CUR_DIR})
-	done
+  if [[ -z $1 || ! -d $1 ]]; then
+    echo "ERROR: Not a directory: $1"
+    return 1
+  fi
+  LOGGER=false
+  # Recurse through the web directory.
+  # The naive `find` approach.
+  #   find $1 -type d -exec chmod 2775 {} +
+  #   find $1 -type f -exec chmod u+rw,g+rw,o+r {} +
+  # A smarter approach: use chmod's 'X' flag to only add the
+  # execute bit to directories or to files that already have
+  # execute permission for some user.
+  ##chmod -R o+rX $1
+  #chmod -R u+rwX,g+rwX,o+rX $1
+  ${LOGGER} && echo "Web dir.: $1"
+  #chmod -R o+rX $1 &> /dev/null || sudo chmod -R o+rX $1
+  chmod -R u+rwX,g+rwX,o+rX $1 &> /dev/null || sudo chmod -R u+rwX,g+rwX,o+rX $1
+  # Also fix the ancestor permissions.
+  local CUR_DIR=$1
+  while [[ -n ${CUR_DIR} && $(dirname ${CUR_DIR}) != '/' ]]; do
+    ${LOGGER} && echo "Ancestor: ${CUR_DIR}"
+    # NOTE: Not giving read access, just execute.
+      chmod -R o+X ${CUR_DIR} &> /dev/null || sudo chmod -R o+X ${CUR_DIR}
+    local CUR_DIR=$(dirname ${CUR_DIR})
+  done
 }
 
 # Web-ify a single directory (does not recurse).
@@ -848,10 +978,19 @@ reperms () {
 #########################
 
 simpletimeit () {
-  # Python has a great timeit fcn. you could use on a command,
-  # or you could just do it in Bash.
-  time_0=$(date +%s.%N)
-  $*
+  # Python has a great timeit fcn. you could use on a command, or
+  # you could just do it in Bash. Except msg is not as friendly here.
+  if [[ -z ${simpletimeit_0+x} ]]; then
+    if [[ -z $1 ]]; then
+      echo "Nothing took no time."
+      return
+    else
+      time_0=$(date +%s.%N)
+      $*
+    fi
+  else
+    time_0=${simpletimeit_0}
+  fi
   time_1=$(date +%s.%N)
   TM_USED=`printf "%.2F" $(echo "($time_1 - $time_0) / 60.0" | bc -l)`
   echo
@@ -873,6 +1012,19 @@ if [[ -e ${OPT_DLOADS}/todo.txt_cli/todo_completion ]]; then
   #         complete -F _todo t
   alias t="todo.sh"
   complete -F _todo t
+fi
+
+#alias tt="todo.sh traskr"
+#alias tt="traskr.py"
+
+# FIXME: We can do better!
+#PATH="${PATH}:/kit/traskr-time-tracker"
+
+#eval "$(register-python-argcomplete ${HOME}/.todo.actions.d/traskr)"
+#eval "$(register-python-argcomplete /kit/traskr-time-tracker/traskr.py)"
+#eval "$(register-python-argcomplete traskr.py)"
+if [[ -e /usr/local/bin/register-python-argcomplete ]]; then
+  eval "$(register-python-argcomplete tt)"
 fi
 
 #########################
@@ -1040,7 +1192,7 @@ fffind () {
 #    syndaemon -i 5 -K -R -t -d
 
 if [[ $(command -v xinput > /dev/null) || $? -eq 0 ]]; then
-  DEVICE_NUM=$(xinput --list --id-only "SynPS/2 Synaptics TouchPad" &> /dev/null)
+  DEVICE_NUM=$(xinput --list --id-only "SynPS/2 Synaptics TouchPad" 2> /dev/null)
   if [[ -n ${DEVICE_NUM} ]]; then
     xinput set-prop ${DEVICE_NUM} "Device Enabled" 0
   fi
@@ -1100,8 +1252,8 @@ umount_sepulcher () {
 
 # Bash command completion.
 
-if [[ -d /home/landon/.fries/bin/completions ]]; then
-  source /home/landon/.fries/bin/completions/*
+if [[ -d ${HOME}/.fries/bin/completions ]]; then
+  source ${HOME}/.fries/bin/completions/*
 fi
 
 #########################
@@ -1222,6 +1374,54 @@ fi
 
 # For pinentry (for vim-gunpg):
 export GPG_TTY=`tty`
+
+#########################
+
+# From: https://github.com/ginatrapani/todo.txt-cli/wiki/Tips-and-Tricks
+# See also hex-to-xterm converter: http://www.frexx.de/xterm-256-notes/
+
+### === HIGH-COLOR === compatible with most terms including putty
+### for windows... use colors that don't make your eyes bleed :)
+export PINK='\\033[38;5;211m'
+export ORANGE='\\033[38;5;203m'
+export SKYBLUE='\\033[38;5;111m'
+export MEDIUMGREY='\\033[38;5;246m'
+export LAVENDER='\\033[38;5;183m'
+export TAN='\\033[38;5;179m'
+export FOREST='\\033[38;5;22m'
+export MAROON='\\033[38;5;52m'
+export HOTPINK='\\033[38;5;198m'
+export MINTGREEN='\\033[38;5;121m'
+export LIGHTORANGE='\\033[38;5;215m'
+export LIGHTRED='\\033[38;5;203m'
+export JADE='\\033[38;5;35m'
+export LIME='\\033[38;5;154m'
+### background colors
+export PINK_BG='\\033[48;5;211m'
+export ORANGE_BG='\\033[48;5;203m'
+export SKYBLUE_BG='\\033[48;5;111m'
+export MEDIUMGREY_BG='\\033[48;5;246m'
+export LAVENDER_BG='\\033[48;5;183m'
+export TAN_BG='\\033[48;5;179m'
+export FOREST_BG='\\033[48;5;22m'
+export MAROON_BG='\\033[48;5;52m'
+export HOTPINK_BG='\\033[48;5;198m'
+export MINTGREEN_BG='\\033[48;5;121m'
+export LIGHTORANGE_BG='\\033[48;5;215m'
+export LIGHTRED_BG='\\033[48;5;203m'
+export JADE_BG='\\033[48;5;35m'
+export LIME_BG='\\033[48;5;154m'
+### extra attributes
+export UNDERLINE='\\033[4m'
+
+### sample of combining foreground and background
+# export PRI_A=$HOTPINK$MEDIUMGREY_BG$UNDERLINE
+
+#########################
+
+# Show timestamps in bash history.
+
+export HISTTIMEFORMAT="%d/%m/%y %T "
 
 #########################
 
