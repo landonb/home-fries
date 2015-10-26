@@ -1,1 +1,1 @@
-.vim/bundle/dubs_all/.vimrc.bundle_
+.vim/bundle_/dubs_all/.vimrc.bundle_
