@@ -1,5 +1,6 @@
 -- ARGH: If a SELECT fails herein, SQLite won't even start.
 -- So, if you don't have this extension installed, nuts to you,
 -- because you're not even getting into SQLite!
-SELECT load_extension("libspatialite.so.3");
+--SELECT load_extension("libspatialite.so.3");
+SELECT load_extension("libspatialite.so.5");
 
