@@ -1,9 +1,9 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # File: termdub.py
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.02.27
+# Last Modified: 2015.08.11
 # Project Page: https://github.com/landonb/home_fries
 # License: GPLv3
 
@@ -57,11 +57,12 @@ the table above.
 
 """
 
-import optparse
 import os
+import sys
+
+import optparse
 import re
 import subprocess
-import sys
 import time
 
 # env DUBS_TERMNAME="" \
@@ -85,8 +86,28 @@ class Termdub_Parser(optparse.OptionParser):
    def prepare(self):
       self.add_option('-t', '--target', dest='target',
          action='store', default='lhs', type='choice',
-         choices=Termdub.geoms.keys(),
-         help='target: lhs|rhs|logs|logc|dbms|mini|minil|minir|bigl|bigc|bigr')
+         choices=list(Termdub.geoms.keys()),
+         help='target: lhs|rhs|logs|logc|dbms|mini|minil|minir|bigl|bigc|bigr|bign')
+
+      # You can override the position to fine tune window placement.
+      # Hint: `wmctrl -lG` will help you find the coordinates of a
+      #       window on your desktop whose position you like.
+
+      self.add_option('-x', '--x-position', dest='position_x',
+         action='store', default=0, type=int,
+         help='override the target placement and use this x instead')
+
+      self.add_option('-y', '--y-position', dest='position_y',
+         action='store', default=0, type=int,
+         help='override the target placement and use this y instead')
+
+      self.add_option('-W', '--width-offset', dest='offset_width',
+         action='store', default=0, type=int,
+         help='if main display is right of other displays, specify offset')
+
+      self.add_option('-H', '--height-offset', dest='offset_height',
+         action='store', default=0, type=int,
+         help='if main display is below other displays, specify offset')
 
    # FIXME: Add
    # DUBS_TERMNAME="" DUBS_STARTIN="" DUBS_STARTUP="" 
@@ -104,9 +125,6 @@ class Termdub_Parser(optparse.OptionParser):
       self.cli_args = args
 
 class Termdub(object):
-
-   XR_RE = re.compile(
-      r", current (?P<res_w>[0-9]+) x (?P<res_h>[0-9]+), maximum ")
 
    # CAVEAT: This script fails if the monitor size is not programmed herein.
    geoms = {
@@ -198,7 +216,7 @@ class Termdub(object):
             1050: "110x43+515+115",
             },
          1920: {
-            1080: "110x43+515+115",
+            1080: "130x48+315+65",
             },
          },
       "mini": {
@@ -259,6 +277,7 @@ class Termdub(object):
             },
          },
       # Three big windows, cascaded.
+      # NOTE: See the newerish -x and -y argparse args.
       # MAYBE: Add 'cycle' option and open bigl first time,
       #        then bigm, then bigr? Or use math?
       "bigl": {
@@ -315,27 +334,84 @@ class Termdub(object):
             1080: "110x43+765+210",
             },
          },
+      # A largestish size window to be used with -x and -y.
+      # 2015.08.07: So far just 1920x1080 is configured to taste.
+      # Ug, whatever, dbms is just as big.
+      "bign": {
+         1280: {
+            800: "100x38+150+100",
+            1024: "110x43+315+115",
+            },
+         1366: {
+            768: "100x38+150+100",
+            },
+         1600: {
+            1200: "110x43+525+250",
+            },
+         1680: {
+            1050: "110x43+515+115",
+            },
+         1920: {
+            1080: "120x49+500+100",
+            },
+         },
       }
 
    def __init__(self):
       pass
 
    #
-   def go(self, target):
+   def go(self, cli_opts):
+      self.cli_opts = cli_opts
       (width, height) = self.get_monitor_resolution()
       # If the width and height don't match the known monitor sizes,
       # use the next lowest size.
-      (width, height) = self.normalize_resolution(width, height, target)
-      self.open_terminal_window(width, height, target)
+      (width, height) = self.normalize_resolution(width, height, cli_opts.target)
+      self.open_terminal_window(width, height, cli_opts.target)
+
+   # Note that the xrandr-reported current screen size adds together all
+   # the monitor resolutions.
+   #
+   # E.g., an abbreviated xrandr response.
+   #   $ xrandr
+   #   Screen 0: minimum 320 x 200, current 2720 x 1680, maximum 32767 x 32767
+   #   VGA1 connected 800x600+0+1080 (normal left inverted ...) 0mm x 0mm
+   #      1024x768       60.0
+   #      800x600        60.3*    56.2
+   #      848x480        60.0
+   #      ...
+   #   HDMI1 connected 1920x1080+800+0 (normal left inverted ...) 509mm x 286mm
+   #      1920x1080      60.0*+
+   #      1680x1050      59.9
+   #      ...
+   #
+   # [lb] is quite sure what the + symbol means but I've seen it used twice, e.g.,
+   #   Screen 0: minimum 320 x 200, current 3286 x 1080, maximum 32767 x 32767
+   #   eDP1 connected 1366x768+1920+164 (normal left inverted right x axis y axis) 310mm x 174mm
+   #      1366x768       60.0*+
+   #      ...
+   #   VGA1 connected 1920x1080+0+0 (normal left inverted right x axis y axis) 476mm x 268mm
+   #      1920x1080      60.0*+
+   #      ...
+
+   XR_CURRENT_RE = re.compile(
+      r", current (?P<res_w>[0-9]+) x (?P<res_h>[0-9]+), maximum ")
+
+   XR_CONNECTED_RE = re.compile(
+      r"^[a-zA-Z0-9]+ connected (?P<res_w>[0-9]+)x(?P<res_h>[0-9]+)\+(?P<off_w>[0-9]+)\+(?P<off_h>[0-9]+)")
 
    #
    def get_monitor_resolution(self):
-      #width = 1280
-      #height = 1024
-      width = 64
-      height = 64
-      re.compile(r"^WARNING:"),
+      curr_width = None
+      curr_height = None
+      use_width = None
+      use_height = None
+      displays = []
       the_cmd = "xrandr"
+      n_lines_current = 0
+      n_lines_connected = 0
+      topmost_displays = []
+      top_and_leftmost = []
       # Python3.3 adds universal_newlines, which defaults to False and causes
       # raw binary stream to be returned. But we want to read strings.
       try:
@@ -359,18 +435,93 @@ class Termdub(object):
       (sin, sout_err) = (p.stdin, p.stdout)
       while True:
          line = sout_err.readline()
-         matched = self.XR_RE.search(line)
          if not line:
-            print("WARNING: resolution not found!")
+            # End of file
             break
+
+         matched = Termdub.XR_CURRENT_RE.search(line)
          if matched is not None:
-            width = int(matched.group("res_w"))
-            height = int(matched.group("res_h"))
-            break
+            if n_lines_current:
+               print("WARNING: too many currents: %s" % (n_lines_current,))
+            n_lines_current += 1
+            curr_width = int(matched.group("res_w"))
+            curr_height = int(matched.group("res_h"))
+
+         matched = Termdub.XR_CONNECTED_RE.search(line)
+         if matched is not None:
+            if not n_lines_current:
+               print("WARNING: found 'connected' before 'current'?")
+            n_lines_connected += 1
+            if n_lines_connected > 2:
+               print("INTERESTING: you have many monitors: %s" % (n_lines_connected,))
+            new_display = (
+              int(matched.group("res_w")),
+              int(matched.group("res_h")),
+              int(matched.group("off_w")),
+              int(matched.group("off_h")),)
+            displays.append(new_display)
+            # In Mint, there really is no "main" monitor, since you can put
+            # panels wherever.
+            # MAYBE: Figure out from which display this script was launched
+            #        and put the new display there?
+            # MAYBE: Always use the left-most or left- and top-most display?
+            # MEH:   In any case, when you launch a new terminal, it tries
+            #        to place it relative to 0,0, but if 0,0 is offscreen
+            #        because you have one monitor to the upper-right of another,
+            #        then the new terminal moves left until it's displayed, so
+            #        it goes on the left side of the upper monitor. Knowing
+            #        this, we could use the top-most or top- and left-most
+            #        display as the target and compute the display size and
+            #        the offsets using this information....
+            if not new_display[3]:
+               # The y-offset is 0, so the display is topmost.
+               topmost_displays.append(new_display)
+               if not new_display[2]:
+                  # The x-offset is also 0, so the display is also leftmost.
+                  top_and_leftmost.append(new_display)
+
+      # end: while True
+
+      if len(topmost_displays) > 1:
+         # Two or more displays, side-by-side; choose the lefter of them all.
+         assert(len(top_and_leftmost) == 1)
+         use_width = top_and_leftmost[0][0]
+         use_height = top_and_leftmost[0][1]
+
+      else:
+         # One or more displays, but one is the upperest; choose it.
+         assert(len(topmost_displays) == 1)
+         use_width = topmost_displays[0][0]
+         use_height = topmost_displays[0][1]
+
+      if not curr_width or not curr_height:
+         print("WARNING: current resolution not found!")
+         #curr_width = 1280
+         #curr_height = 1024
+         curr_width = 64
+         curr_height = 64
+      else:
+         total_width = sum([x[0] for x in displays])
+         total_height = sum([x[1] for x in displays])
+         # The width and height of the combined display won't necessarily
+         # be the total possible width and height because, e.g., if you
+         # put two monitors side by side, the total height is the larger
+         # of the two monitors' heights.
+         if (total_width < curr_width) or (total_height < curr_height):
+            print(
+               "WARNING: Dimensional Mismatch: current %sx%s > cummulative %sx%s"
+               % (curr_width, curr_height, total_width, total_height,))
+
+      if not use_width or not use_height:
+         print("WARNING: main display resolution not found!")
+         use_width = curr_width
+         use_height = curr_height
+
       sin.close()
       sout_err.close()
       p.wait()
-      return (width, height)
+
+      return (use_width, use_height)
 
    #
    def normalize_resolution(self, width, height, target):
@@ -415,15 +566,15 @@ class Termdub(object):
       os.chdir(os.getenv('HOME'))
 
       # The MATE window manager renames its GNOMEy derivatives.
-      try:
-         wind_mgr = subprocess.check_output(
-                     ['/usr/bin/wmctrl', '-m',],
-                     stderr=subprocess.STDOUT)
-      except TypeError as e:
-         wind_mgr = subprocess.check_output(
-                     ['/usr/bin/wmctrl', '-m',],
-                     stderr=subprocess.STDOUT,
-                     universal_newlines=True)
+
+      # 2015.08.07: There used to be a try-except where we'd try without
+      # univeral_newlines and catch TypeError if it failed, and then we'd
+      # try univeral_newlines=True. But it should always be True because
+      # we want a string, not bytes.
+      wind_mgr = subprocess.check_output(
+                  ['/usr/bin/wmctrl', '-m',],
+                  stderr=subprocess.STDOUT,
+                  universal_newlines=True)
       if re.match(r"^Name: Mutter (Muffin)\n", wind_mgr):
          # Cinnamon
          the_terminal = 'gnome-terminal'
@@ -454,15 +605,37 @@ class Termdub(object):
       else:
          termname = ''
 
-      #
-      print('Opening %s: %s: %d x %d.'
-            % (the_terminal, target, width, height,))
-      #
+      # Get the --geometry option, e.g., "110x43+765+210".
+      geom_opt = Termdub.geoms[target][width][height]
+      # Parse it.
+      comps_geom = geom_opt.split('+')
+      comps_lines = comps_geom[0].split('x')
+      lines_wide = int(comps_lines[0])
+      lines_tall = int(comps_lines[1])
+      offset_w = int(comps_geom[1])
+      offset_h = int(comps_geom[2])
+      # Account for multiple displays.
+      if self.cli_opts.offset_width:
+         offset_w += self.cli_opts.offset_width
+      if self.cli_opts.offset_height:
+         offset_h += self.cli_opts.offset_height
+      # But override if the caller says so.
+      if self.cli_opts.position_x:
+         offset_w = self.cli_opts.position_x
+      if self.cli_opts.position_y:
+         offset_h = self.cli_opts.position_y
+      # Reassemble the option.
+      geom_opt = ("%dx%d+%d+%d" % (lines_wide, lines_tall, offset_w, offset_h,))
+
+      print('Opening %s: %s: %dx%d+%d+%d.'
+            % (the_terminal, target, lines_wide, lines_tall, offset_w, offset_h,))
+
       the_cmd = ('%s %s --geometry %s' 
                  % (the_terminal,
                     termname,
-                    Termdub.geoms[target][width][height],))
-      #
+                    geom_opt,))
+      #print('the_cmd: %s' % (the_cmd,))
+
       try:
          p = subprocess.Popen(the_cmd, shell=True, universal_newlines=True)
       except TypeError as e:
@@ -477,7 +650,7 @@ if (__name__ == "__main__"):
    cli_opts = parser.get_opts()
 
    tdub = Termdub()
-   tdub.go(cli_opts.target)
+   tdub.go(cli_opts)
 
 # vim:tw=0:ts=3:sw=3:et:norl:
 
