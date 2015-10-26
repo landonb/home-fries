@@ -14,6 +14,7 @@
 !.gitconfig.m4
 !.gitignore
 !.hgrc
+!.inputrc
 !.psqlrc
 !.sqliterc
 !mm.cfg
@@ -39,6 +40,7 @@
 .fries/.bashrc/bashrc.cyclopatx.*.sh
 !.fries/.bashrc/bashrc.cyclopatx.sh.template
 .fries/.bashrc/bashrc0.excensus.base.sh
+# Implicitly still ignored: Directories under .fries/.bashrc
 
 # Weird: If just one of the .fries/bin is present,
 # it's ignored, but with two or more, it's not??.
