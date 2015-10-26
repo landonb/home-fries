@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.04.04
+# Last Modified: 2015.10.26
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -15,7 +15,7 @@ stage_4_git_configure () {
   git config --global core.pager "less -R"
 
   # `git mergetool` makes intermediate *.orig files but doesn't delete
-  # them unless we tell it to delete them. 
+  # them unless we tell it to delete them.
   git config --global mergetool.keepBackup false
 
   # Choose meld as the default diff tool.
@@ -55,6 +55,15 @@ stage_4_hg_configure () {
   fi
 
 } # end: stage_4_hg_configure
+
+stage_4_meld_configure () {
+
+# ???
+#
+# File filters:
+# .fries: setup-exc-mysql_pwd
+
+} # end: stage_4_meld_configure
 
 stage_4_psql_configure () {
 
@@ -192,7 +201,7 @@ stage_4_quicktile_install () {
     dest_dir=/usr/local/lib/python2.7/dist-packages/QuickTile-0.2.2-py2.7.egg
     sudo find $dest_dir -type d -exec chmod 2775 {} +
     sudo find $dest_dir -type f -exec chmod u+rw,g+rw,o+r {} +
-    # Hrm. I reinstalled but then had to make my own startup file, since 
+    # Hrm. I reinstalled but then had to make my own startup file, since
     # /etc/xdg/autostart/quicktile.desktop no longer seemed to work (it
     # doesn't appear to be registered; probably a dconf problem). SO
     # just make your own startup file and have it execute:
@@ -327,22 +336,50 @@ stage_4_virtualbox_install () {
   sudo apt-get install -y linux-headers-`uname -r`
 
   # Get the latest Debian package. At least if this script is uptodate.
-  LATEST_VBOX_PKG="virtualbox-4.3_4.3.26-98988~Ubuntu~raring_amd64.deb"
-  LATEST_VBOX_EXTPACK="Oracle_VM_VirtualBox_Extension_Pack-4.3.26-98988.vbox-extpack"
+  # See: https://www.virtualbox.org/wiki/Downloads
+  #LATEST_VBOX_PKG="virtualbox-4.3_4.3.26-98988~Ubuntu~raring_amd64.deb"
+  #LATEST_VBOX_EXTPACK="Oracle_VM_VirtualBox_Extension_Pack-4.3.26-98988.vbox-extpack"
+  #LATEST_VBOX_PKG="virtualbox-4.3_4.3.28-100309~Ubuntu~raring_amd64.deb"
+  #LATEST_VBOX_EXTPACK="Oracle_VM_VirtualBox_Extension_Pack-4.3_4.3.28-100309.vbox-extpack"
+  LATEST_VBOX_PKG="virtualbox-4.3_4.3.30-101610~Ubuntu~raring_amd64.deb"
+  LATEST_VBOX_EXTPACK="Oracle_VM_VirtualBox_Extension_Pack-4.3.30-101610.vbox-extpack"
+# FIXME: Install VBox 5.0
+#        https://www.virtualbox.org/wiki/Linux_Downloads
+#
+#echo "deb http://download.virtualbox.org/virtualbox/debian vivid contrib" \
+#  >> /etc/apt/sources.list
+##wget https://www.virtualbox.org/download/oracle_vbox.asc
+##sudo apt-key add oracle_vbox.asc
+###or more simply:
+#wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo apt-key add -
+##key fingerprint
+#7B0F AB3A 13B9 0743 5925  D9C9 5442 2A4B 98AB 5139
+#Oracle Corporation (VirtualBox archive signing key) <info@virtualbox.org>
+#sudo apt-get update
+#sudo apt-get install virtualbox-5.0
+
   cd ${OPT_DLOADS}
+  #wget -N \
+  #  http://download.virtualbox.org/virtualbox/4.3.26/${LATEST_VBOX_PKG}
+  #wget -N \
+  #  http://download.virtualbox.org/virtualbox/4.3.28/${LATEST_VBOX_PKG}
   wget -N \
-    http://download.virtualbox.org/virtualbox/4.3.26/${LATEST_VBOX_PKG}
+    http://download.virtualbox.org/virtualbox/4.3.30/${LATEST_VBOX_PKG}
   sudo dpkg -i ${LATEST_VBOX_PKG}
   #/bin/rm ${LATEST_VBOX_PKG}
 
   # This Guy, for USB 2.
+  #wget -N \
+  #  http://download.virtualbox.org/virtualbox/4.3.26/${LATEST_VBOX_EXTPACK}
+  #wget -N \
+  #  http://download.virtualbox.org/virtualbox/4.3.28/${LATEST_VBOX_EXTPACK}
   wget -N \
-    http://download.virtualbox.org/virtualbox/4.3.26/${LATEST_VBOX_EXTPACK}
+    http://download.virtualbox.org/virtualbox/4.3.30/${LATEST_VBOX_EXTPACK}
 # FIXME: Unless there's a scripty way to add the extension pack,
 #        tell user to run `virtualbox &`, navigate to File > Preferences...,
 #        click Extensions group,
 #        click Icon for Add Package
-#        enter: /srv/opt/.downloads/Oracle_VM_VirtualBox_Extension_Pack-4.3.26-98988.vbox-extpack
+#        enter: /srv/opt/.downloads/Oracle_VM_VirtualBox_Extension_Pack-4.3.30-101610.vbox-extpack
 
   # FIXME/MAYBE: One doc [lb] read says add youruser to 'lp' and 'users' groups,
   # in addition to obvious 'vboxsf' and 'vboxusers' group. See: /etc/group.
@@ -386,6 +423,52 @@ stage_4_reader_install () {
   # cd /opt/Adobe/Reader9/bin && sudo ./UNINSTALL
 
 } # end: stage_4_reader_install
+
+stage_4_libreoffice_install () {
+
+# FIXME: This fcn. So far I've just done this manually, I think.
+  if false; then
+
+    # FIXME: Download libreoffice
+    #        then unpack, cd inside, and:
+    sudo dpkg -i *.deb
+
+  fi
+
+} # end: stage_4_libreoffice_install
+
+stage_4_modern_ie_install () {
+
+# See: http://dev.modern.ie/
+  if false; then
+
+    # Notes:
+    # - VMs expire after 90 days.
+    # - On first install, set snapshot.
+
+    # IE11 on Win7
+    wget https://az412801.vo.msecnd.net/vhd/VMBuild_20141027/VirtualBox/IE11/Linux/IE11.Win7.For.Linux.VirtualBox.zip
+
+    # IE11 on Win8.1
+    wget https://az412801.vo.msecnd.net/vhd/VMBuild_20141027/VirtualBox/IE11/Linux/IE11.Win8.1.For.Linux.VirtualBox.zip
+
+    # IE10 on Win8
+    wget https://az412801.vo.msecnd.net/vhd/VMBuild_20141027/VirtualBox/IE10/Linux/IE10.Win8.For.Linux.VirtualBox.zip
+
+    # IE10 on Win7
+    wget https://az412801.vo.msecnd.net/vhd/VMBuild_20141027/VirtualBox/IE10/Linux/IE10.Win7.For.Linux.VirtualBox.zip
+
+    # IE9 on Win7
+    wget https://az412801.vo.msecnd.net/vhd/VMBuild_20141027/VirtualBox/IE9/Linux/IE9.Win7.For.Linux.VirtualBox.zip
+
+    # IE8 on Win7
+    wget https://az412801.vo.msecnd.net/vhd/VMBuild_20141027/VirtualBox/IE8/Linux/IE8.Win7.For.Linux.VirtualBox.zip
+
+    # There's also IE8 on XP and IE7 on Vista
+
+  fi
+
+} # end: stage_4_modern_ie_install
 
 stage_4_dropbox_install () {
 
@@ -600,7 +683,7 @@ stage_4_keepassx_install () {
 
   fi
 
-} 
+}
 # end: stage_4_keepassx_install
 
 stage_4_pencil_install () {
@@ -656,10 +739,18 @@ stage_4_spotify_install () {
 
   # From:
   #  https://www.spotify.com/us/download/previews/
+
   echo "deb http://repository.spotify.com stable non-free" \
     | sudo tee -a /etc/apt/sources.list &> /dev/null
+
+  # 2015.05.31: Is adding the key still necessary?
+  #             This step not listed on the spotify page.
   sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 94558F59
+
   sudo apt-get update
+
+  # 2015.05.31: Is this step now necessary?
+  sudo apt-get install spotify-client
 
   # FIXME: More post-install reminders:
   #         Disable the annoying notification popup when a new track starts.
@@ -669,9 +760,66 @@ stage_4_spotify_install () {
       >> ~/.config/spotify/Users/*/prefs
   fi
 
+  # Run it: spotify
+
 } # end: stage_4_spotify_install
 
+stage_4_openjump_install () {
+
+  /bin/mkdir -p ${OPT_DLOADS}
+  cd ${OPT_DLOADS}
+
+  #wget -N http://downloads.sourceforge.net/project/jump-pilot/OpenJUMP/1.8.0/OpenJUMP-Installer-1.8.0-r4164-PLUS.jar
+  #wget -N http://downloads.sourceforge.net/project/jump-pilot/OpenJUMP/1.8.0/OpenJUMP-Installer-1.8.0-r4164-CORE.jar
+  #java -jar OpenJUMP-Installer-1.8.0-r4164-CORE.jar
+  ##java -jar OpenJUMP-Installer-1.8.0-r4164-PLUS.jar
+  wget -N http://downloads.sourceforge.net/project/jump-pilot/OpenJUMP/1.8.0/OpenJUMP-Portable-1.8.0-r4164-CORE.zip
+  wget -N http://downloads.sourceforge.net/project/jump-pilot/OpenJUMP/1.8.0/OpenJUMP-Portable-1.8.0-r4164-PLUS.zip
+  unzip OpenJUMP-Portable-1.8.0-r4164-CORE.zip -d OpenJUMP-1.8.0-r4164-CORE-unzip/
+  mv OpenJUMP-1.8.0-r4164-CORE-unzip/OpenJUMP-1.8.0-r4164-CORE .
+  rmdir OpenJUMP-1.8.0-r4164-CORE-unzip
+  ln -s ${OPT_DLOADS}/OpenJUMP-1.8.0-r4164-CORE/bin/oj_linux.sh ${OPT_BIN}/
+
+} # end: stage_4_openjump_install
+
+stage_4_liclipse_install () {
+
+  /bin/mkdir -p ${OPT_DLOADS}
+  cd ${OPT_DLOADS}
+
+  wget -N "https://googledrive.com/host/0BwwQN8QrgsRpLVlDeHRNemw3S1E/LiClipse%202.0.0/liclipse_2.0.0_linux.gtk.x86_64.tar.gz"
+  tar -xzf liclipse_2.0.0_linux.gtk.x86_64.tar.gz
+  /bin/ln -s /srv/opt/.downloads/liclipse/LiClipse /srv/opt/bin/LiClipse
+
+# and also:
+
+  cd /srv/excensus/gk12_2
+  /bin/cp /srv/opt/.downloads/liclipse_2.0.0_linux.gtk.x86_64.tar.gz /srv/excensus/gk12_2
+  tar -xzf liclipse_2.0.0_linux.gtk.x86_64.tar.gz
+  /bin/rm liclipse_2.0.0_linux.gtk.x86_64.tar.gz
+  #/bin/ln -s /srv/excensus/gk12_2/liclipse/LiClipse /srv/excensus/gk12_2/bin
+
+# or maybe just:
+
+  cd /srv/opt/.downloads
+  wget -N "https://googledrive.com/host/0BwwQN8QrgsRpLVlDeHRNemw3S1E/LiClipse%202.0.0/liclipse_2.0.0_linux.gtk.x86_64.tar.gz"
+  tar -xzf liclipse_2.0.0_linux.gtk.x86_64.tar.gz
+  mv liclipse /srv/excensus/gk12_2
+  /bin/ln -s /srv/excensus/gk12_2/liclipse/LiClipse /srv/opt/bin/LiClipse
+
+} # end: stage_4_liclipse_install
+
 stage_4_all_the_young_pips () {
+
+  /bin/mkdir -p ${OPT_DLOADS}
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  was_umask=$(umask)
+  umask 0002
+
+  wget -N https://bootstrap.pypa.io/get-pip.py
+  sudo python2 get-pip.py
+  sudo python3 get-pip.py
 
   # My ~/.vim/bundle_/ contains a dozenish sub-gits. Uncommitted helps.
   sudo pip install uncommitted
@@ -679,7 +827,543 @@ stage_4_all_the_young_pips () {
   # Be sure to specify -l to use locate.
   # E.g., `uncommitted -l ~/.vim`, or `uncommitted -l -v ~/.vim`.
 
+  # https://argcomplete.readthedocs.org/en/latest/#activating-global-completion%20argcomplete
+  sudo pip install argcomplete
+  sudo pip3 install argcomplete
+  sudo activate-global-python-argcomplete
+  # To upgrade:
+  sudo pip install --upgrade argcomplete
+  sudo pip3 install --upgrade argcomplete
+
+  umask ${was_umask}
+
+  popd &> /dev/null
+
 } # end: stage_4_all_the_young_pips
+
+stage_4_font_mania () {
+
+  mkdir -p ${HOME}/.fonts
+
+  pushd ${HOME}/.fonts &> /dev/null
+
+  wget -N http://dl.1001fonts.com/santos-dumont.zip
+  # Unpack SANTO___.TTF et al
+  unzip -d santos-dumont santos-dumont.zip
+  /bin/mv santos-dumont/SANTO___.TTF .
+
+  wget http://dl.1001fonts.com/pinewood.zip
+  unzip -d pinewood pinewood.zip
+  /bin/mv pinewood/Pinewood.ttf .
+
+  # Google Open Sans by Steve Matteson
+  wget http://dl.1001fonts.com/open-sans.zip
+  unzip -d open-sans open-sans.zip
+
+  popd &> /dev/null
+
+  # Build font information cache files.
+  sudo fc-cache -fv
+
+} # end: stage_4_font_mania
+
+stage_4_font_typeface_hack () {
+
+  /bin/mkdir -p ${OPT_DLOADS}
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  wget https://github.com/chrissimpkins/Hack/releases/download/v2.010/Hack-v2_010-ttf.zip
+  mkdir -p ~/.fonts
+  unzip -d ~/.fonts/Hack-v2_010-ttf Hack-v2_010-ttf.zip
+
+  popd &> /dev/null
+
+  # Build font information cache files.
+  sudo fc-cache -fv
+
+} # end: stage_4_font_typeface_hack
+
+stage_4_sqlite3 () {
+
+  /bin/mkdir -p ${OPT_DLOADS}
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  wget -N https://www.sqlite.org/2015/sqlite-shell-linux-x86-3081101.zip
+  unzip -d sqlite-shell-linux-x86-3081101 sqlite-shell-linux-x86-3081101.zip
+
+  sudo /bin/mv /usr/bin/sqlite3 /usr/bin/sqlite3-$(date +%Y.%m.%d-%T)
+
+  sudo /bin/cp -ar sqlite-shell-linux-x86-3081101/sqlite3 /usr/bin/sqlite3
+  sudo chmod 755 /usr/bin/sqlite3
+  sudo chown root:root /usr/bin/sqlite3
+
+  # What about developer headers? Is what's in apt still okay?
+  #  sudo apt-get install -y libsqlite0-dev
+  # Otherwise we might want to get the source.
+  # https://www.sqlite.org/2015/sqlite-amalgamation-3081101.zip
+
+  popd &> /dev/null
+
+} # end: stage_4_sqlite3
+
+stage_4_opencl () {
+
+  /bin/mkdir -p ${OPT_DLOADS}
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  #https://software.intel.com/en-us/intel-opencl
+
+  # https://software.intel.com/en-us/articles/opencl-drivers#ubuntu64
+  # https://software.intel.com/en-us/articles/intel-code-builder-for-opencl-api
+  # To install both the Code Builder and the OpenCL runtime packages for Linux*, use the following public key: Intel-E901-172E-EF96-900F-B8E1-4184-D7BE-0E73-F789-186F.pub
+
+  wget -N http://registrationcenter.intel.com/irc_nas/5193/intel_code_builder_for_opencl_2015_ubuntu_5.0.0.43_x64.tgz
+
+  # sudo apt-get install -y opencl-headers
+  sudo apt-get install -y rpm alien libnuma1
+
+  tar -xvf intel_code_builder_for_opencl_2015_ubuntu_5.0.0.43_x64.tgz
+  cd intel_sdk_for_ocl_applications_2014_ubuntu_5.0.0.43_x64/
+
+  #sudo rpm --import Intel-E901-172E-EF96-900F-B8E1-4184-D7BE-0E73-F789-186F.pub
+  sudo rpm --import PUBLIC_KEY.PUB
+
+  cd rpm
+
+  fakeroot alien --to-deb opencl-1.2-base-5.0.0.43-1.x86_64.rpm
+  fakeroot alien --to-deb opencl-1.2-intel-cpu-5.0.0.43-1.x86_64.rpm
+
+  sudo dpkg -i opencl-1.2-base_5.0.0.43-2_amd64.deb
+  sudo dpkg -i opencl-1.2-intel-cpu_5.0.0.43-2_amd64.deb
+
+  # The above installs the library files and installable client driver
+  # registration in /opt/intel/opencl-1.2-5.0.0.43.
+  # Two more steps were needed to run an OpenCL program.
+
+  # Add library to search path.
+  if [[ -e /etc/ld.so.conf.d/intelOpenCL.conf ]]; then
+    echo "ERROR: Unexpected: /etc/ld.so.conf.d/intelOpenCL.conf exists."
+    exit 1
+  fi
+  # sudo nano /etc/ld.so.conf.d/intelOpenCL.conf
+  # # Add the line:
+  # /opt/intel/opencl-1.2-5.0.0.43/lib64
+  echo "/opt/intel/opencl-1.2-5.0.0.43/lib64" | sudo tee -a /etc/ld.so.conf.d/intelOpenCL.conf
+
+  # Link to the intel icd file in the expected location:
+  sudo mkdir -p /etc/OpenCL/vendors/
+  sudo ln /opt/intel/opencl-1.2-5.0.0.43/etc/intel64.icd /etc/OpenCL/vendors/intel64.icd
+  sudo ldconfig
+
+  # Now you can run an existing application. Or, if doing developmnent,
+  # install the developer headers and tools.
+  #  fakeroot alien --to-deb opencl-1.2-devel-3.0.67279-1.x86_64.rpm
+  #  fakeroot alien --to-deb opencl-1.2-intel-devel-3.0.67279-1.x86_64.rpm
+  #  sudo dpkg -i opencl-1.2-devel_3.0.67279-2_amd64.deb
+  #  sudo dpkg -i opencl-1.2-intel-devel_3.0.67279-2_amd64.deb
+
+  # Verify.
+  sudo apt-get install -y clinfo
+  sudo clinfo
+
+} # end: stage_4_opencl
+
+stage_4_darktable () {
+
+  # NOTE: pmjdebruijn's builds are generally the latest-greatest.
+  if true; then
+    #deb http://ppa.launchpad.net/pmjdebruijn/darktable-release/ubuntu trusty main
+    #deb-src http://ppa.launchpad.net/pmjdebruijn/darktable-release/ubuntu trusty main
+    sudo add-apt-repository ppa:pmjdebruijn/darktable-release
+    sudo apt-get update
+    sudo apt-get install darktable
+  else
+
+    # From scratch!
+
+    /bin/mkdir -p ${OPT_DLOADS}
+    pushd ${OPT_DLOADS} &> /dev/null
+
+    # Download libgphoto2-2.5.8.tar.bz2 (6.9 MB).
+    # http://sourceforge.net/projects/gphoto/files/latest/download?source=files
+    sudo apt-get install -y gphoto2 libgphoto2-dev libgphoto2-2-dev libgphoto2-6
+
+    sudo apt-get install -y libgtk2.0-dev libcurl4-gnutls-dev
+    # libcurlpp-dev
+
+    # wget -N https://github.com/darktable-org/darktable/archive/release-1.6.9.tar.gz
+    # https://github.com/darktable-org/darktable/releases/download/release-1.6.9/darktable-1.6.9.tar.xz
+    git clone -b release-1.6.9 git@github.com:darktable-org/darktable.git
+    cd darktable
+    # Release build.
+    ./build.sh --prefix /opt/darktable --buildtype Release
+    # Debug build.
+    #  ./build.sh --prefix /opt/darktable --buildtype Debug
+    cd build
+    sudo make install
+    # Installs to: /opt/darktable/bin/darktable
+
+    popd &> /dev/null
+
+  fi
+
+} # end: stage_4_darktable
+
+stage_4_digikam_from_scratch () {
+
+  /bin/mkdir -p ${OPT_DLOADS}
+  pushd ${OPT_DLOADS} &> /dev/null
+
+echo
+echo "FIXME: Nurse this install. You might not need all the packages herein."
+echo
+exit 1
+
+  # The exiv2 on Linux Mint 17.1 is exiv2 0.23 001700 (C) 2004-2012,
+  # but digikam wants 0.24+, so gotta build exiv2 from scratch, eh.
+  #  sudo apt-get install -y exiv2
+  #  #sudo apt-get install -y libexiv2-dev
+  #  sudo apt-get install -y libkexiv2-dev
+  #  sudo apt-get install -y libexiv2-12
+  #  #sudo apt-get remove libexiv2-12
+  # http://www.exiv2.org/download.html
+  EXIV2_LATEST="exiv2-0.25"
+  EXIV2_ARCHIVE="${EXIV2_LATEST}.tar.gz"
+  wget -N http://www.exiv2.org/${EXIV2_ARCHIVE}
+  tar -xvf ${EXIV2_ARCHIVE}
+  cd ${EXIV2_LATEST}
+  ./configure
+  make
+  sudo make install
+
+  # Meh. There's probably a better way to disable/hide the old library.
+  sudo /bin/mv /usr/lib/libexiv2.so.12 /usr/lib/libexiv2.so.12.ORIG
+  sudo /bin/mv /usr/lib/libexiv2.so.12.0.0 /usr/lib/libexiv2.so.12.0.0.ORIG
+
+  LIBRAW_LATEST="LibRaw-0.17.0"
+  LIBRAW_ARCHIVE="${LIBRAW_LATEST}.tar.gz"
+  wget -N http://www.libraw.org/data/${LIBRAW_ARCHIVE}
+  tar -xvf ${LIBRAW_ARCHIVE}
+  cd ${LIBRAW_LATEST}
+  ./configure
+  make
+  sudo make install
+
+  # gpsd is complicated. see build.txt
+  if false; then
+    sudo apt-get install -y scons
+    GPSD_LATEST="gpsd-3.15"
+    GPSD_ARCHIVE="${GPSD_LATEST}.tar.gz"
+    wget -N http://download-mirror.savannah.gnu.org/releases/gpsd/${GPSD_ARCHIVE}
+    tar -xvf ${GPSD_ARCHIVE}
+    cd ${GPSD_LATEST}
+    ./configure
+    make
+    sudo make install
+  fi;
+
+  # 2015.10.22: FIXME/MEH: Cannot get marble to build at work...
+  # dpkg --get-selections | grep -v deinstall
+  # dpkg -l
+  if true; then
+    sudo apt-get install -y \
+      libxslt1-dev \
+      libxslt1.1 \
+      libqtwebkit-dev \
+      libqt5webkit5-dev \
+      libqextserialport-dev \
+      libquazip0-dev \
+      qtmobility-dev \
+      libwlocate-dev \
+      libqt5svg5 \
+      libqt5svg5-dev \
+      qtscript5-dev \
+      cmake
+      #qt-sdk
+      #qt5-default
+    # Optional marble features.
+    sudo apt-get install -y \
+      libphonon-dev \
+      libphonon4qt5-dev \
+      phonon \
+      phonon4qt5 \
+      libqt5designer5 \
+      libqt5designercomponents5 \
+      libqt5location5 \
+      libgps-dev \
+      libshp-dev \
+      libquazip0-dev \
+      libquazip0 \
+      libqextserialport-dev \
+      libqextserialport1 \
+      automoc
+    # Whatever. Trying to build a KDE app on Mint not going so well..
+    #
+    # -- Could NOT find Phonon (missing:  PHONON_LIBRARY)
+    # -- Could NOT find QextSerialPort (missing:  QEXTSERIALPORT_LIBRARIES)
+    # -- Could NOT find quazip (missing:  QUAZIP_LIBRARIES)
+    # -- checking for module 'liblocation>=0.102'
+    # --   package 'liblocation>=0.102' not found
+    #  * QextSerialPort , access to serial ports , <http://code.google.com/p/qextserialport/>
+    #    Reading from serial port in APRS plugin
+    #  * quazip , reading and writing of ZIP archives , <http://quazip.sourceforge.net/>
+    #    reading and displaying .kmz files
+    #  * liblocation , position information on Maemo 5 devices , <http://maemo.org/>
+    #    position information via GPS/WLAN for the Nokia N900 smartphone
+    #
+    # cmake not finding libshp, even after this:
+    #  sudo apt-get install -y libshp1 libshp-dev
+    # cmake not finding libgps, even after this:
+    #  sudo apt-get install -y libgps20
+    #  sudo apt-get install -y libgps-dev
+    #  sudo apt-get install -y libqgpsmm20
+    #  sudo apt-get install -y libqgpsmm-dev
+    #  sudo apt-get install -y gpsd
+    # cmake not finding liblocation, even after this:
+    #  sudo apt-get install -y qtlocation5-dev
+    #  sudo apt-get install -y libwlocate-dev
+    #  sudo apt-get install -y libqt5location5
+    #  But who cares: position information via GPS/WLAN for the Nokia N900 smartphone
+
+    # https://marble.kde.org/sources.php
+    # https://github.com/KDE/marble/releases
+    #git clone -b Applications/15.04 git://anongit.kde.org/marble ./marble/sources
+    git clone -b Applications/15.08 git://anongit.kde.org/marble ./marble/sources
+    mkdir -p ./marble/build
+    cd ./marble/build
+    cmake -DCMAKE_BUILD_TYPE=Debug -DQTONLY=FALSE -DCMAKE_INSTALL_PREFIX=/usr/local ../sources
+    make
+    sudo make install
+    #LD_LIBRARY_PATH=/usr/local/lib /usr/local/bin/marble
+
+    # make fails:
+    #
+    # $ make
+    # ...
+    # [ 50%] Building CXX object src/lib/marble/CMakeFiles/marblewidget-qt5.dir/marblewidget-qt5_automoc.cpp.o
+    # Linking CXX shared library libmarblewidget-qt5.so
+    # [ 50%] Built target marblewidget-qt5
+    # [ 50%] Automoc for target MarbleWidgetPlugin
+    # Generating moc_MarbleWidgetPlugin.cpp
+    # /srv/opt/.downloads/marble/sources/src/plugins/designer/marblewidget/MarbleWidgetPlugin.h:29:
+    #  Error: Undefined interface
+    # AUTOMOC: error: process for
+    #  /srv/opt/.downloads/marble/build/src/plugins/designer/marblewidget/moc_MarbleWidgetPlugin.cpp
+    #  failed:
+    # /srv/opt/.downloads/marble/sources/src/plugins/designer/marblewidget/MarbleWidgetPlugin.h:29:
+    #  Error: Undefined interface
+    #
+    # moc failed...
+    # make[2]: *** [src/plugins/designer/marblewidget/CMakeFiles/MarbleWidgetPlugin_automoc] Error 1
+    # make[1]: *** [src/plugins/designer/marblewidget/CMakeFiles/MarbleWidgetPlugin_automoc.dir/all] Error 2
+    # make: *** [all] Error 2
+  else
+    # For work laptop...
+    sudo apt-get install -y libmarble-dev
+    # Hrmm. Screw building marble if we can just repo it.
+    sudo apt-get install -y marble
+    sudo apt-get install -y marble-qt
+    sudo apt-get install -y libmarble-dev
+    fi
+
+  sudo apt-get install -y \
+    kde-full \
+    cmake \
+    qt4-qmake \
+    qt5-qmake \
+    kde-workspace-dev \
+    kdevplatform-dev
+
+  sudo apt-get install -y libraw-dev
+  #sudo apt-get install -y libraw9
+
+  # Too old
+  #  sudo apt-get install -y libopencv-dev
+
+  #sudo apt-get remove -y libcv-dev
+  sudo apt-get install -y \
+    libsane-dev \
+    libqjson-dev
+
+  sudo apt-get install -y \
+    libmysql++-dev \
+    libmysqld-dev \
+    libboost-graph-dev \
+    libpgf-dev \
+    kdepimlibs5-dev \
+    liblensfun-dev \
+    libeigen3-dev \
+    gphoto2 libgphoto2-dev libgphoto2-2-dev libgphoto2-6 \
+    baloo baloo-dev baloo4 libbaloowidgets-dev \
+    libsqlite0-dev \
+    doxygen
+  #sudo apt-get install -y libmysqlclient-dev
+
+  sudo apt-get install -y libmysql++3 mysql-common mysql-client mysql-server
+
+  # Open Source Computer Vision (and machine learning software library).
+  # http://opencv.org/
+  # https://github.com/Itseez/opencv/releases
+  #OPENCV_LATEST="3.0.0"
+  OPENCV_LATEST="2.4.11"
+  OPENCV_BUILD="opencv-${OPENCV_LATEST}"
+  OPENCV_ARCHIVE="${OPENCV_BUILD}.zip"
+  wget -O ${OPENCV_ARCHIVE} https://github.com/Itseez/opencv/archive/${OPENCV_LATEST}.zip
+  unzip -d ${OPENCV_BUILD} ${OPENCV_ARCHIVE}
+  mkdir ${OPENCV_BUILD}/${OPENCV_BUILD}/release
+  cd ${OPENCV_BUILD}/${OPENCV_BUILD}/release
+  cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local ..
+  make
+  sudo make install
+
+  #sudo apt-get install -y \
+  #  qt4-default qt4-dev-tools qt4-qmake qt4-qtconfig \
+  #  libqt4-opengl \
+  #  libqt4-dev-bin \
+  #  libqt4-dev
+
+  sudo apt-get install -y \
+    libqca2-dev \
+    libqtgstreamer-dev \
+    libgpod-dev \
+    # Not the packages I thought would work, but these are
+    # for optional digikam features so whatever.
+    # libgphoto2-dev
+    # libgphoto2-2-dev
+    # baloo-dev
+    # libhupnp-dev
+    # libbaloowidgets-dev
+    # libqtsolutions-soap-2.7-1
+
+echo
+echo "FIXME: On work laptop: Add include path to ./bootstrap.linux"
+echo
+# Add to ./bootstrap.linux:
+#  -DQT_QT_INCLUDE_DIR=/usr/include/qt4 \
+
+  # http://download.kde.org/stable/digikam
+  #DIGIKAM_LATEST="digikam-4.12.0"
+  DIGIKAM_LATEST="digikam-4.13.0"
+  DIGIKAM_ARCHIVE="${DIGIKAM_LATEST}.tar.bz2"
+  wget -N http://download.kde.org/stable/digikam/${DIGIKAM_ARCHIVE}
+  tar -xvjf ${DIGIKAM_ARCHIVE}
+  cd ${DIGIKAM_LATEST}
+#kde4-config --prefix
+## /usr
+  ./bootstrap.linux
+  cd build
+  #cmake -DCMAKE_BUILD_TYPE=debugfull -DCMAKE_INSTALL_PREFIX=`kde4-config --prefix` ..
+  make
+  sudo make install
+
+  popd &> /dev/null
+
+} # end: stage_4_digikam_from_scratch
+
+stage_4_digikam_from_distro () {
+  # 2015.10.22: Argh. I got digikam to build at home, but at work, 'snot working.
+  #
+  # Install digikam 4.0.0:
+  #  sudo apt-get install digikam
+
+  # Linux Mint 17.1 "rebecca" is Ubuntu 14.04 "trusty".
+
+# Gar, this should work! But it doesn't... bahhhh!
+  sudo add-apt-repository -y ppa:philip5/extra
+  sudo apt-get update
+  sudo apt-get install -y digikam
+  #sudo apt-get install -y showfoto
+
+
+# MAYBE: Install Linux Mint 17.2 KDE????
+# http://www.linuxmint.com/edition.php?id=196
+# wget -N http://reflection.oss.ou.edu/linuxmint/isos/linuxmint.com/stable/17.2/linuxmint-17.2-kde-64bit.iso
+http://torrents.linuxmint.com/torrents/linuxmint-17.2-kde-64bit.iso.torrent
+# MD5 9d702816f8180bcab94d8c1fde317af7
+
+
+
+} # end: stage_4_digikam_from_distro
+
+stage_4_gimp_plugins () {
+
+  # GIMP Export Layers to Directory as PNGs
+  #   http://registry.gimp.org/node/28268
+  #   https://github.com/khalim19/gimp-plugin-export-layers
+
+  /bin/mkdir -p ${OPT_DLOADS}
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  if [[ -e gimp-plugin-export-layers ]]; then
+    echo "WARNING: Already exists: ${OPT_DLOADS}/gimp-plugin-export-layers"
+  elif [[ ! -d ${HOME}/.gimp-2.8/plug-ins ]]; then
+    echo "WARNING: Not Found or Not a Dir: ${HOME}/.gimp-2.8/plug-ins"
+  else
+    git clone https://github.com/khalim19/gimp-plugin-export-layers.git
+    /bin/cp -a ./gimp-plugin-export-layers/export_layers.py ${HOME}/.gimp-2.8/plug-ins
+    /bin/cp -ar ./gimp-plugin-export-layers/export_layers ${HOME}/.gimp-2.8/plug-ins
+  fi
+
+  popd &> /dev/null
+
+  # GIMP docs.
+  /bin/mkdir -p ${OPT_DOCS}/gimp
+  pushd ${OPT_DOCS}/gimp &> /dev/null
+  wget -N http://docs.gimp.org/2.8/quickreference/gimp-keys-en.pdf
+  # Bah, why no PDF of the help for 2.8?
+  # http://docs.gimp.org/2.8/en/
+  wget -N http://docs.gimp.org/2.4/pdf/en.pdf
+  /bin/ln -s gimp-
+  # From 31 Aug 2014:
+  wget -N http://gimp.linux.it/www/meta/gimp-en.pdf
+  # From 1999:
+  #  wget -N ftp://ftp.ccsf.edu/pub/Util/gimp-User_Manual.pdf
+  popd &> /dev/null
+
+} # end: stage_4_gimp_plugins
+
+stage_4_python_source () {
+
+  /bin/mkdir -p ${OPT_DLOADS}
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  wget -N https://www.python.org/ftp/python/2.7.10/Python-2.7.10.tgz
+  wget -N https://www.python.org/ftp/python/3.3.6/Python-3.3.6.tgz
+  wget -N https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tgz
+
+  popd &> /dev/null
+
+  /bin/mkdir -p ${OPT_SRC}
+  pushd ${OPT_SRC} &> /dev/null
+
+  tar xvzf ${OPT_DLOADS}/Python-2.7.10.tgz .
+  tar xvzf ${OPT_DLOADS}/Python-3.3.6.tgz .
+  tar xvzf ${OPT_DLOADS}/Python-3.4.3.tgz .
+
+  popd &> /dev/null
+
+} # end: stage_4_python_source
+
+stage_4_funstuff () {
+
+  if false; then
+
+    # 2015.07.30: Old Notes. Thought I had Euchre working at some point.
+    #
+    # http://downloads.sourceforge.net/project/euchre/euchre/euchre-0.8/euchre-0.8.tar.gz
+    # sudo apt-get install libgtk2.0-dev
+    # ./configure
+    # make
+    # make install
+    #
+    # Game.cpp: In member function ‘virtual void Game::run()’:
+    # Game.cpp:63:71: error: cast from ‘gpointer {aka void*}’ to ‘unsigned int’ loses precision [-fpermissive]
+    #      Event ev = (Event) (unsigned int) g_slist_nth_data(itsEventList, 0);
+    #     Event ev = (Event) (unsigned long) g_slist_nth_data(itsEventList, 0);
+
+  fi
+
+} # end: stage_4_funstuff
 
 # ==============================================================
 # Application Main()
@@ -732,6 +1416,14 @@ setup_customize_extras_go () {
 
     stage_4_reader_install
 
+    # Install LibreOffice.
+
+    stage_4_libreoffice_install
+
+    # Install modern.ie VMs.
+
+    stage_4_modern_ie_install
+
     # Install the dropbox.py script.
 
     stage_4_dropbox_install
@@ -778,7 +1470,29 @@ setup_customize_extras_go () {
 
     stage_4_spotify_install
 
+    stage_4_openjump_install
+
+    #stage_4_liclipse_install
+
     stage_4_all_the_young_pips
+
+    stage_4_font_mania
+
+    stage_4_font_typeface_hack
+
+    stage_4_sqlite3
+
+    stage_4_opencl
+
+    stage_4_darktable
+
+    stage_4_digikam_from_scratch
+    #stage_4_digikam_from_distro
+
+    stage_4_gimp_plugins
+
+    # Games!
+    stage_4_funstuff
 
 } # end: setup_customize_extras_go
 
