@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.10.08
+# Last Modified: 2016.01.07
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -52,7 +52,7 @@ fi
 # Third-party applications are installed to /srv/opt/bin.
 
 #PATH="/home/${LOGNAME}/.fries/bin/vendor:${PATH}"
-PATH="/home/${LOGNAME}/.fries/bin:${PATH}"
+PATH="/home/${LOGNAME}/.fries/.erectus/bin:/home/${LOGNAME}/.fries/bin:${PATH}"
 PATH="${OPT_BIN}:${PATH}"
 # ~/.local/bin is where, e.g., `pip install --user blah` installs.
 PATH="${PATH}:${HOME}/.local/bin"
@@ -268,6 +268,11 @@ if [[ $EUID -ne 0 \
             else
               echo "NOTICE: no expect: ignoring: ${SSH_SECRETS}/${pvt_key}"
             fi
+          else
+            echo "NOTICE: No directory at: $SSH_SECRETS"
+            echo "        Set this up yourself."
+            echo "        To test again: ssh-agent -k"
+            echo "          and then open a new terminal."
           fi
           if ! ${sent_passphrase}; then
             /usr/bin/ssh-add $pvt_key
@@ -280,7 +285,7 @@ if [[ $EUID -ne 0 \
   # Source SSH settings, if applicable
   if [[ -f "${SSH_ENV}" ]]; then
     . "${SSH_ENV}" > /dev/null
-    #ps ${SSH_AGENT_PID} doesn't work under cywgin
+    #ps ${SSH_AGENT_PID} doesn't work under Cygwin.
     ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
       start_agent;
     }
@@ -512,7 +517,7 @@ function rm_safe() {
   OLD_IFS=$IFS
   IFS=$'\n'
   for fpath in $*; do
-    local fname=$(basename "${fpath}")
+    local bname=$(basename "${fpath}")
     # A little trick to make sure to use the trash can on
     # the right device, to avoid copying files.
     trash_device=$(device_on_which_file_resides "${trashdir}")
@@ -537,10 +542,15 @@ function rm_safe() {
     fi
     ensure_trashdir "${device_trashdir}" "${trash_device}"
     if [[ $? -eq 1 ]]; then
+      local fname=${bname}
       if [[ -e "${device_trashdir}/.trash/${fname}" ]]; then
-        fname="${fname}.$(date +%Y_%m_%d_%Hh%Mm%Ss_%N)"
+        fname="${bname}.$(date +%Y_%m_%d_%Hh%Mm%Ss_%N)"
       fi
-      /bin/mv "${fpath}" "${device_trashdir}/.trash/${fname}"
+      # If fpath is a symlink and includes a trailing slash, doing a raw mv:
+      #  /bin/mv "${fpath}" "${device_trashdir}/.trash/${fname}"
+      # causes the response:
+      #  /bin/mv: cannot move ‘symlink/’ to ‘/path/to/.trash/symlink.2015_12_03_14h26m51s_179228194’: Not a directory
+      /bin/mv "$(dirname "${fpath}")/${bname}" "${device_trashdir}/.trash/${fname}"
     else
       # Ye olde original rm alias, now the unpreferred method.
       /bin/rm -i "${fpath}"
