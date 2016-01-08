@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.10.26
+# Last Modified: 2015.12.23
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -341,8 +341,10 @@ stage_4_virtualbox_install () {
   #LATEST_VBOX_EXTPACK="Oracle_VM_VirtualBox_Extension_Pack-4.3.26-98988.vbox-extpack"
   #LATEST_VBOX_PKG="virtualbox-4.3_4.3.28-100309~Ubuntu~raring_amd64.deb"
   #LATEST_VBOX_EXTPACK="Oracle_VM_VirtualBox_Extension_Pack-4.3_4.3.28-100309.vbox-extpack"
-  LATEST_VBOX_PKG="virtualbox-4.3_4.3.30-101610~Ubuntu~raring_amd64.deb"
-  LATEST_VBOX_EXTPACK="Oracle_VM_VirtualBox_Extension_Pack-4.3.30-101610.vbox-extpack"
+  #LATEST_VBOX_PKG="virtualbox-4.3_4.3.30-101610~Ubuntu~raring_amd64.deb"
+  #LATEST_VBOX_EXTPACK="Oracle_VM_VirtualBox_Extension_Pack-4.3.30-101610.vbox-extpack"
+  LATEST_VBOX_PKG="virtualbox-5.0_5.0.10-104061~Ubuntu~trusty_amd64.deb"
+  LATEST_VBOX_EXTPACK="Oracle_VM_VirtualBox_Extension_Pack-5.0.10-104061.vbox-extpack"
 # FIXME: Install VBox 5.0
 #        https://www.virtualbox.org/wiki/Linux_Downloads
 #
@@ -363,8 +365,11 @@ stage_4_virtualbox_install () {
   #  http://download.virtualbox.org/virtualbox/4.3.26/${LATEST_VBOX_PKG}
   #wget -N \
   #  http://download.virtualbox.org/virtualbox/4.3.28/${LATEST_VBOX_PKG}
+  #wget -N \
+  #  http://download.virtualbox.org/virtualbox/4.3.30/${LATEST_VBOX_PKG}
   wget -N \
-    http://download.virtualbox.org/virtualbox/4.3.30/${LATEST_VBOX_PKG}
+    http://download.virtualbox.org/virtualbox/5.0.10/${LATEST_VBOX_PKG}
+# sudo apt-get remove virtualbox-4.3
   sudo dpkg -i ${LATEST_VBOX_PKG}
   #/bin/rm ${LATEST_VBOX_PKG}
 
@@ -373,13 +378,16 @@ stage_4_virtualbox_install () {
   #  http://download.virtualbox.org/virtualbox/4.3.26/${LATEST_VBOX_EXTPACK}
   #wget -N \
   #  http://download.virtualbox.org/virtualbox/4.3.28/${LATEST_VBOX_EXTPACK}
+  #wget -N \
+  #  http://download.virtualbox.org/virtualbox/4.3.30/${LATEST_VBOX_EXTPACK}
   wget -N \
-    http://download.virtualbox.org/virtualbox/4.3.30/${LATEST_VBOX_EXTPACK}
+    http://download.virtualbox.org/virtualbox/5.0.10/${LATEST_VBOX_EXTPACK}
 # FIXME: Unless there's a scripty way to add the extension pack,
 #        tell user to run `virtualbox &`, navigate to File > Preferences...,
 #        click Extensions group,
 #        click Icon for Add Package
 #        enter: /srv/opt/.downloads/Oracle_VM_VirtualBox_Extension_Pack-4.3.30-101610.vbox-extpack
+# 2015.11.19: Actually, just running virtualbox should have it ask you to update the extension pack.
 
   # FIXME/MAYBE: One doc [lb] read says add youruser to 'lp' and 'users' groups,
   # in addition to obvious 'vboxsf' and 'vboxusers' group. See: /etc/group.
@@ -560,6 +568,18 @@ stage_4_cloc_install () {
   chmod +x ${OPT_BIN}/cloc-1.62.pl
 
 } # end: stage_4_cloc_install
+
+stage_4_parT_install () {
+
+  /bin/mkdir -p ${OPT_DLOADS}
+  cd ${OPT_DLOADS}
+  git clone https://github.com/landonb/parT
+  cd parT
+  ./build.sh
+  sudo /bin/cp -af parT /usr/bin
+  sudo chown root:root /usr/bin/parT
+
+} # end: stage_4_parT_install
 
 stage_4_todo_txt_install () {
 
@@ -1365,6 +1385,14 @@ stage_4_funstuff () {
 
 } # end: stage_4_funstuff
 
+stage_4_updatedb_locate_conf () {
+
+  # FIXME: See /etc/updatedb.conf
+  # Exclude backup drives, e.g.,
+  # PRUNEPATHS="/tmp /var/spool /home/.ecryptfs /media/landonb/FREEDUB1 /media/landonb/bubbly"
+
+} # end: stage_4_updatedb_locate_conf
+
 # ==============================================================
 # Application Main()
 
@@ -1443,6 +1471,8 @@ setup_customize_extras_go () {
 
     stage_4_cloc_install
 
+    stage_4_parT_install
+
     # 2015.01.24: The Todo.txt project seems nifty, as does
     #                 ti — A silly simple time tracker, but
     #                 perhaps Ultimate Time Tracker has a few
@@ -1493,6 +1523,8 @@ setup_customize_extras_go () {
 
     # Games!
     stage_4_funstuff
+
+    stage_4_updatedb_locate_conf
 
 } # end: setup_customize_extras_go
 
