@@ -2,12 +2,12 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.10.26
+# Last Modified: 2016.01.08
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
 # -------------------------------------------------------------------
-# Copyright © 2011-2015 Landon Bouma.
+# Copyright © 2011-2016 Landon Bouma.
 # 
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -43,6 +43,14 @@
 #                    the subscripts) and need to test it.
 echo "FIXME: Test this script thoroughly. It's been very much changed."
 exit 1
+
+# FIXME: 2016.01.07: Make source'able script for setting env vars to
+#        make cmd line copy-paste easier.
+# FIXME: 2016.01.07: Setup Vim immediately with Google font
+#        (and is there a way to localize the font source?)
+# FIXME: 2016.01.07: Setup ~/.fries/cheat and other missing doodads...
+#         need to figure out
+
 
 # ------------------------------------------
 # Velcome
@@ -771,6 +779,17 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
       # Maybe some day...
       zsh
+
+# checkgmail - alternative Gmail Notifier for Linux via Atom feeds
+# conduit - synchronization tool for GNOME
+# desktop-webmail - Webmail for Linux Desktops
+# enigmail - GPG support for Thunderbird and Debian Icedove
+# gm-notify - highly Ubuntu integrated GMail notifier
+# gmail-notify - Notify the arrival of new mail on Gmail
+# gnome-do-plugins - Extra functionality for GNOME Do
+# gnome-gmail - support for Gmail as the preferred email application in GNOME
+      # "Sign-in attempt prevented":
+      #  gnome-gmail-notifier - A Gmail Inbox Notifier for the GNOME Desktop
 
     )
 
