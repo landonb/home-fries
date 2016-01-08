@@ -1,6 +1,6 @@
 # File: bashrc.base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.03.14
+# Last Modified: 2015.10.29
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Smart Bash Startup Script
 # License: GPLv3
@@ -171,7 +171,8 @@ if [[ $EUID -ne 0 ]]; then
     # Run the command.
     # FIXME: Does this hang the startup script? I.e., we're running the command
     #        from this script... so this better be the last command we run!
-    $DUBS_STARTUP
+    #$DUBS_STARTUP
+    eval "$DUBS_STARTUP"
   fi
 
   # The variables have served us well; now whack 'em.
