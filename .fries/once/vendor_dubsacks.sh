@@ -1,6 +1,6 @@
 # File: vendor_dubsacks.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.03.01
+# Last Modified: 2015.03.18
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Dubsacks VIM setup script.
 # License: GPLv3
@@ -28,6 +28,21 @@ stage_4_dubsacks_install () {
   fi
 
   git clone ${REMOTE_URI_DUBSACKS_VIM_GIT} ${HOME}/.vim
+
+# FIXME: Setup .fries, .erectus, etc.
+
+if false; then
+
+#implement this:
+
+cd ~
+m4 \
+  --define=YOUR_FULL_NAME_HERE=${YOUR_FULL_NAME_HERE} \
+  --define=YOUR_EMAIL_ADDY_HERE=${YOUR_EMAIL_ADDY_HERE} \
+  --define=YOUR_GITHUB_USERNAME=${YOUR_GITHUB_USERNAME} \
+  .cookiecutterrc.m4
+
+fi
 
 } # end: stage_4_dubsacks_install
 
