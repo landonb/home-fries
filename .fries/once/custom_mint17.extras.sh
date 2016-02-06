@@ -1,9 +1,68 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.12.23
+# Last Modified: 2016.02.06
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
+
+# NOTE: If you're copying and pasting manually, source this guy first!:
+#         source ./mint17_setup_base.sh
+
+stage_4_dropbox_install () {
+
+  /bin/mkdir -p ${OPT_BIN}
+  pushd ${OPT_BIN} &> /dev/null
+
+  if [[ -e ${OPT_BIN}/dropbox.py ]]; then
+    DROPBOX_OLDER="${OPT_BIN}/dropbox.py-`date +%Y.%m.%d-%T`"
+    /bin/mv ${OPT_BIN}/dropbox.py ${DROPBOX_OLDER}
+    chmod -x ${DROPBOX_OLDER}
+  fi
+
+  wget -O ${OPT_BIN}/dropbox.py \
+    "https://www.dropbox.com/download?dl=packages/dropbox.py"
+
+  # Set the permissions so you can execute the CLI interface:
+  chmod +x ${OPT_BIN}/dropbox.py
+
+  # Avoid the warning: "Note: python-gpgme is not installed, we will not
+  # be able to verify binary signatures."
+  sudo apt-get install -y python-gpgme
+
+  # Changing the shebang is unnecessary unless you remap /usr/bin/python.
+  #
+  #  sudo /bin/sed -i.bak \
+  #    "s/^#!\/usr\/bin\/python$/#!\/usr\/bin\/python2/" \
+  #    ${OPT_BIN}/dropbox.py
+
+  # FIXME: Is this step missing?
+  #        Install the daemon: dropbox.py start -i
+  #        except you're prompted to agree to install proprietary daemon
+  echo
+  echo "NOTICE: To finish installing dropbox, run:"
+  echo "          dropbox.py start -i"
+# FIXME: Do we need a startup script to ensure dropbox runs on boot?
+  echo "          dropbox.py autostart y"
+  echo
+
+
+  mkdir -p $HOME/.config/autostart
+
+  echo "[Desktop Entry]
+Type=Application
+Exec=${OPT_BIN}/dropbox.py start
+Hidden=false
+X-MATE-Autostart-enabled=true
+Name[en_US]=Dropbox
+Name=Dropbox
+Comment[en_US]=
+Comment=
+" > $HOME/.config/autostart/dropbox.desktop
+
+
+  popd &> /dev/null
+
+} # end: stage_4_dropbox_install
 
 stage_4_git_configure () {
 
@@ -58,10 +117,9 @@ stage_4_hg_configure () {
 
 stage_4_meld_configure () {
 
-# ???
-#
-# File filters:
-# .fries: setup-exc-mysql_pwd
+  # Take a look at custom_mint17.landon.sh for manual steps to setup meld.
+  # (This script could edit ~/.gconf/apps/meld/%gconf.xml but the file
+  # filters are a little dependent on the user, so make the user do it.)
 
 } # end: stage_4_meld_configure
 
@@ -178,14 +236,15 @@ stage_4_quicktile_install () {
 
   if $WM_IS_MATE; then
     if [[ ! -d ${OPT_DLOADS}/quicktile ]]; then
-      cd ${OPT_DLOADS}
+      pushd ${OPT_DLOADS} &> /dev/null
       # http://github.com/ssokolow/quicktile/tarball/master
       git clone git://github.com/ssokolow/quicktile
     else
-      cd ${OPT_DLOADS}/quicktile
+      pushd ${OPT_DLOADS}/quicktile &> /dev/null
       git pull origin
     fi
-    cd ${OPT_DLOADS}/quicktile
+    popd &> /dev/null
+    pushd ${OPT_DLOADS}/quicktile &> /dev/null
     # ./quicktile.py # Writes: ~/.config/quicktile.cfg
     # It also spits out the help and returns an error code.
     set +ex
@@ -208,6 +267,7 @@ stage_4_quicktile_install () {
     #   /usr/local/bin/quicktile.py --daemonize &
     #
     # See: $HOME/.config/autostart/quicktile.py.desktop
+    popd &> /dev/null
   fi
 
 } # end: stage_4_quicktile_install
@@ -236,6 +296,125 @@ Comment=
 " > $HOME/.config/autostart/pidgin.desktop
 
 } # end: stage_4_pidgin_setup_autostart
+
+stage_4_hamster_time_tracker_setup () {
+
+  # The application at `sudo apt-get install hamster-applet` is from 2010.
+  # But it still seems better than the one on github. Just be sure to
+  # also install hamster-indicator, in addition to hamster-applet.
+  #
+  # https://github.com/projecthamster/hamster
+  if false; then
+    sudo add-apt-repository -y ppa:dylanmccall/hamster-time-tracker-git-daily
+    # NOTE: To remove the repository:
+    #  sudo /bin/rm /etc/apt/sources.list.d/dylanmccall-hamster-time-tracker-git-daily-trusty.list
+    sudo apt-get update
+    sudo apt-get install -y hamster-time-tracker
+    # Dependencies.
+    sudo apt-get install -y gettext intltool python-gconf python-xdg gir1.2-gconf-2.0
+    # Note that the binary is simply /usr/bin/hamster.
+  fi
+  # There's also the package which is the same as from the untrusted repo.
+  if false; then
+    /bin/mkdir -p ${OPT_DLOADS}
+    pushd ${OPT_DLOADS} &> /dev/null
+    wget -N https://github.com/projecthamster/hamster/releases/download/v2.0-rc1/hamster_2.0-rc1-2_all.deb
+    sudo dpkg -i hamster_2.0-rc1-2_all.deb
+    sudo dpkg --remove
+    popd &> /dev/null
+  fi
+
+  # Update hamster to special fork.
+
+  pushd ${OPT_DLOADS} &> /dev/null
+  git clone https://github.com/landonb/hamster-applet
+
+  pkill -f hamster-service
+  pkill -f hamster-windows-service
+
+  sudo /bin/cp -a \
+      /usr/share/pyshared/hamster/overview.py \
+      /usr/share/pyshared/hamster/overview.py.ORIG
+  sudo /bin/cp -a \
+      /usr/share/pyshared/hamster/overview_totals.py \
+      /usr/share/pyshared/hamster/overview_totals.py.ORIG
+
+  sudo /bin/cp -af \
+      hamster-applet/src/hamster/overview.py \
+      /usr/share/pyshared/hamster/overview.py
+  sudo /bin/cp -af \
+      hamster-applet/src/hamster/overview_totals.py \
+      /usr/share/pyshared/hamster/overview_totals.py
+
+  popd &> /dev/null
+
+  # Symlink hamster.db to dropbox version.
+# FIXME: The hamster.db at home hasn't synced in a while -- I bet Dropbox did not restart on boot.
+
+  # FIXME: Make a bash var for this path...
+  if [[ -d ${HOME}/Dropbox/.fries/home/.local/share/hamster-applet/hamster.db ]]; then
+
+    if [[ -e ${HOME}/.local/share/hamster-applet/hamster.db && \
+          ! -L ${HOME}/.local/share/hamster-applet/hamster.db ]]; then
+      /bin/mv \
+        ${HOME}/.local/share/hamster-applet/hamster.db \
+        ${HOME}/.local/share/hamster-applet/hamster.db-`date +%Y.%m.%d-%T`
+    fi
+
+    /bin/ln -sf \
+      ${HOME}/Dropbox/.fries/home/.local/share/hamster-applet/hamster.db \
+      ${HOME}/.local/share/hamster-applet
+
+  fi
+
+  # Auto-start hamster on boot.
+
+  mkdir -p $HOME/.config/autostart
+
+  if false; then
+    echo "[Desktop Entry]
+Type=Application
+Exec=/usr/bin/hamster-time-tracker
+Hidden=false
+X-MATE-Autostart-enabled=true
+Name[en_US]=Hamster
+Name=Hamster
+Comment[en_US]=
+Comment=
+" > $HOME/.config/autostart/hamster-time-tracker.desktop
+  fi
+
+  echo "[Desktop Entry]
+Type=Application
+Exec=/usr/bin/hamster-indicator
+Hidden=false
+X-MATE-Autostart-enabled=true
+Name[en_US]=Hamster
+Name=Hamster
+Comment[en_US]=
+Comment=
+" > $HOME/.config/autostart/hamster-indicator.desktop
+
+  # Start hamster.
+
+  hamster-indicator &
+
+} # end: stage_4_hamster_time_tracker_setup
+
+stage_4_gmail_notifier_setup () {
+
+  echo "[Desktop Entry]
+Type=Application
+Exec=/usr/bin/gnome-gmail-notifier
+Hidden=false
+X-MATE-Autostart-enabled=true
+Name[en_US]=Gmail Notifier
+Name=Gmail Notifier
+Comment[en_US]=
+Comment=
+" > $HOME/.config/autostart/gmail-notifier.desktop
+
+} # end: stage_4_gmail_notifier_setup
 
 stage_4_firefox_configure () {
 
@@ -295,7 +474,7 @@ stage_4_https_everywhere_install () {
   #      mouse gestures in both Firefox and Chrome.
   if false; then
     mkdir -p ${OPT_DLOADS}/https-everywhere
-    cd ${OPT_DLOADS}/https-everywhere
+    pushd ${OPT_DLOADS}/https-everywhere &> /dev/null
     # 2014.01.28: The Firefox version is labeled "stable".
     wget -N https://www.eff.org/files/https-everywhere-latest.xpi
     # Hmmm... can't get cli install to work.
@@ -313,6 +492,7 @@ stage_4_https_everywhere_install () {
     #  dest_dir=/usr/lib/firefox-addons/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9e97384
     #  sudo find $dest_dir -type d -exec chmod 2775 {} +
     #  sudo find $dest_dir -type f -exec chmod u+rw,g+rw,o+r {} +
+    popd &> /dev/null
   fi
 
 } # end: stage_4_https_everywhere_install
@@ -343,8 +523,13 @@ stage_4_virtualbox_install () {
   #LATEST_VBOX_EXTPACK="Oracle_VM_VirtualBox_Extension_Pack-4.3_4.3.28-100309.vbox-extpack"
   #LATEST_VBOX_PKG="virtualbox-4.3_4.3.30-101610~Ubuntu~raring_amd64.deb"
   #LATEST_VBOX_EXTPACK="Oracle_VM_VirtualBox_Extension_Pack-4.3.30-101610.vbox-extpack"
-  LATEST_VBOX_PKG="virtualbox-5.0_5.0.10-104061~Ubuntu~trusty_amd64.deb"
-  LATEST_VBOX_EXTPACK="Oracle_VM_VirtualBox_Extension_Pack-5.0.10-104061.vbox-extpack"
+  #LATEST_VBOX_PKG="virtualbox-5.0_5.0.10-104061~Ubuntu~trusty_amd64.deb"
+  #LATEST_VBOX_EXTPACK="Oracle_VM_VirtualBox_Extension_Pack-5.0.10-104061.vbox-extpack"
+  #LATEST_VBOX_PKG="virtualbox-5.0_5.0.12-104815~Ubuntu~trusty_amd64.deb"
+  #LATEST_VBOX_EXTPACK="Oracle_VM_VirtualBox_Extension_Pack-5.0.12-104815.vbox-extpack"
+  LATEST_VBOX_PKG="virtualbox-5.0_5.0.14-105127~Ubuntu~trusty_amd64.deb"
+  LATEST_VBOX_EXTPACK="Oracle_VM_VirtualBox_Extension_Pack-5.0.14-105127.vbox-extpack"
+
 # FIXME: Install VBox 5.0
 #        https://www.virtualbox.org/wiki/Linux_Downloads
 #
@@ -360,16 +545,22 @@ stage_4_virtualbox_install () {
 #sudo apt-get update
 #sudo apt-get install virtualbox-5.0
 
-  cd ${OPT_DLOADS}
+  pushd ${OPT_DLOADS} &> /dev/null
+
   #wget -N \
   #  http://download.virtualbox.org/virtualbox/4.3.26/${LATEST_VBOX_PKG}
   #wget -N \
   #  http://download.virtualbox.org/virtualbox/4.3.28/${LATEST_VBOX_PKG}
   #wget -N \
   #  http://download.virtualbox.org/virtualbox/4.3.30/${LATEST_VBOX_PKG}
+  #wget -N \
+  #  http://download.virtualbox.org/virtualbox/5.0.10/${LATEST_VBOX_PKG}
+  #wget -N \
+  #  http://download.virtualbox.org/virtualbox/5.0.12/${LATEST_VBOX_PKG}
   wget -N \
-    http://download.virtualbox.org/virtualbox/5.0.10/${LATEST_VBOX_PKG}
-# sudo apt-get remove virtualbox-4.3
+    http://download.virtualbox.org/virtualbox/5.0.14/${LATEST_VBOX_PKG}
+
+  #sudo apt-get remove virtualbox-4.3
   sudo dpkg -i ${LATEST_VBOX_PKG}
   #/bin/rm ${LATEST_VBOX_PKG}
 
@@ -380,8 +571,13 @@ stage_4_virtualbox_install () {
   #  http://download.virtualbox.org/virtualbox/4.3.28/${LATEST_VBOX_EXTPACK}
   #wget -N \
   #  http://download.virtualbox.org/virtualbox/4.3.30/${LATEST_VBOX_EXTPACK}
+  #wget -N \
+  #  http://download.virtualbox.org/virtualbox/5.0.10/${LATEST_VBOX_EXTPACK}
+  #wget -N \
+  #  http://download.virtualbox.org/virtualbox/5.0.12/${LATEST_VBOX_EXTPACK}
   wget -N \
-    http://download.virtualbox.org/virtualbox/5.0.10/${LATEST_VBOX_EXTPACK}
+    http://download.virtualbox.org/virtualbox/5.0.14/${LATEST_VBOX_EXTPACK}
+
 # FIXME: Unless there's a scripty way to add the extension pack,
 #        tell user to run `virtualbox &`, navigate to File > Preferences...,
 #        click Extensions group,
@@ -399,6 +595,8 @@ stage_4_virtualbox_install () {
   #sudo usermod -a -G users ${USER}
   sudo usermod -a -G vboxsf ${USER}
   sudo usermod -a -G vboxusers ${USER}
+
+  popd &> /dev/null
 
 } # end: stage_4_virtualbox_install
 
@@ -478,28 +676,6 @@ stage_4_modern_ie_install () {
 
 } # end: stage_4_modern_ie_install
 
-stage_4_dropbox_install () {
-
-  /bin/mkdir -p ${OPT_BIN}
-  cd ${OPT_BIN}
-  wget -O ${OPT_BIN}/dropbox.py \
-    "https://www.dropbox.com/download?dl=packages/dropbox.py"
-
-  # Set the permissions so you can execute the CLI interface:
-  chmod +x ${OPT_BIN}/dropbox.py
-
-  # Changing the shebang is unnecessary unless you remap /usr/bin/python.
-  #
-  #  sudo /bin/sed -i.bak \
-  #    "s/^#!\/usr\/bin\/python$/#!\/usr\/bin\/python2/" \
-  #    ${OPT_BIN}/dropbox.py
-
-  # FIXME: Is this step missing?
-  #        Install the daemon: dropbox.py start -i
-  #        except you're prompted to agree to install proprietary daemon
-
-} # end: stage_4_dropbox_install
-
 stage_4_dev_testing_expect_install () {
 
   # Unleash this code if you don't want to just `apt-get install -y expect`.
@@ -560,49 +736,69 @@ stage_4_rssowl_install () {
 stage_4_cloc_install () {
 
   /bin/mkdir -p ${OPT_BIN}
-  cd ${OPT_BIN}
+  pushd ${OPT_BIN} &> /dev/null
+
   wget -N \
     http://downloads.sourceforge.net/project/cloc/cloc/v1.62/cloc-1.62.pl
 
   # Set the permissions so you can execute the CLI interface:
   chmod +x ${OPT_BIN}/cloc-1.62.pl
 
+  popd &> /dev/null
+
 } # end: stage_4_cloc_install
 
 stage_4_parT_install () {
 
   /bin/mkdir -p ${OPT_DLOADS}
-  cd ${OPT_DLOADS}
+  pushd ${OPT_DLOADS} &> /dev/null
+
   git clone https://github.com/landonb/parT
-  cd parT
+
+  pushd parT &> /dev/null
+
   ./build.sh
   sudo /bin/cp -af parT /usr/bin
   sudo chown root:root /usr/bin/parT
+
+  popd &> /dev/null
+  popd &> /dev/null
 
 } # end: stage_4_parT_install
 
 stage_4_todo_txt_install () {
 
   /bin/mkdir -p ${OPT_DLOADS}
-  cd ${OPT_DLOADS}
-  wget -N \
-    https://github.com/downloads/ginatrapani/todo.txt-cli/todo.txt_cli-2.9.tar.gz
-  tar xvzf todo.txt_cli-2.9.tar.gz
-
-  chmod +x todo.txt_cli-2.9/todo.sh
-
-  /bin/rm todo.txt_cli-2.9.tar.gz
-
-  /bin/ln -s todo.txt_cli-2.9 todo.txt_cli
-
-  /bin/ln -s ${OPT_DLOADS}/todo.txt_cli-2.9/todo.sh ${OPT_BIN}/todo.sh
-
-  # See: ~/.fries/.bashrc/bashrc.core.sh for
-  #   source ${OPT_DLOADS}/todo.txt_cli/todo_completion
+  pushd ${OPT_DLOADS} &> /dev/null
 
   mkdir $HOME/.todo
-  # FIXME: You may have to edit the config file to add the path to it.
-  cp ${OPT_DLOADS}/todo.txt_cli-2.9/todo.cfg $HOME/.todo/config
+
+  if false; then
+    wget -N \
+      https://github.com/downloads/ginatrapani/todo.txt-cli/todo.txt_cli-2.9.tar.gz
+    tar xvzf todo.txt_cli-2.9.tar.gz
+    chmod +x todo.txt_cli-2.9/todo.sh
+    /bin/rm todo.txt_cli-2.9.tar.gz
+    /bin/ln -s todo.txt_cli-2.9 todo.txt_cli
+    /bin/ln -s ${OPT_DLOADS}/todo.txt_cli-2.9/todo.sh ${OPT_BIN}/todo.sh
+    # See: ~/.fries/.bashrc/bashrc.core.sh for
+    #   source ${OPT_DLOADS}/todo.txt_cli/todo_completion
+    # FIXME: You may have to edit the config file to add the path to it.
+    /bin/cp ${OPT_DLOADS}/todo.txt_cli-2.9/todo.cfg $HOME/.todo/config
+  fi
+
+  if true; then
+    git clone https://github.com/landonb/todo.txt-cli
+    if [[ ! -e $HOME/.todo/config ]]; then
+      /bin/cp ${OPT_DLOADS}/todo.txt_cli/todo.cfg $HOME/.todo/config
+    fi
+    /bin/ln -s ${OPT_DLOADS}/todo.txt_cli/todo.sh ${OPT_BIN}/todo.sh
+    /bin/ln -s ${OPT_BIN}/todo.sh ${OPT_BIN}/to
+    # Install addons to /${HOME}/.todo.actions.d/
+    #  or probably better yet /${HOME}/actions/
+  fi
+
+  popd &> /dev/null
 
 } # end: stage_4_todo_txt_install
 
@@ -709,10 +905,12 @@ stage_4_keepassx_install () {
 stage_4_pencil_install () {
 
   /bin/mkdir -p ${OPT_DLOADS}
-  cd ${OPT_DLOADS}
+  pushd ${OPT_DLOADS} &> /dev/null
   wget -N http://evoluspencil.googlecode.com/files/evoluspencil_2.0.5_all.deb
   sudo dpkg -i evoluspencil_2.0.5_all.deb
   #/bin/rm ${OPT_DLOADS}/evoluspencil_2.0.5_all.deb
+
+  popd &> /dev/null
 
 } # end: stage_4_pencil_install
 
@@ -755,7 +953,7 @@ stage_4_disable_services () {
 stage_4_spotify_install () {
 
   /bin/mkdir -p ${OPT_DLOADS}
-  cd ${OPT_DLOADS}
+  pushd ${OPT_DLOADS} &> /dev/null
 
   # From:
   #  https://www.spotify.com/us/download/previews/
@@ -780,6 +978,8 @@ stage_4_spotify_install () {
       >> ~/.config/spotify/Users/*/prefs
   fi
 
+  popd &> /dev/null
+
   # Run it: spotify
 
 } # end: stage_4_spotify_install
@@ -787,7 +987,7 @@ stage_4_spotify_install () {
 stage_4_openjump_install () {
 
   /bin/mkdir -p ${OPT_DLOADS}
-  cd ${OPT_DLOADS}
+  pushd ${OPT_DLOADS} &> /dev/null
 
   #wget -N http://downloads.sourceforge.net/project/jump-pilot/OpenJUMP/1.8.0/OpenJUMP-Installer-1.8.0-r4164-PLUS.jar
   #wget -N http://downloads.sourceforge.net/project/jump-pilot/OpenJUMP/1.8.0/OpenJUMP-Installer-1.8.0-r4164-CORE.jar
@@ -800,32 +1000,41 @@ stage_4_openjump_install () {
   rmdir OpenJUMP-1.8.0-r4164-CORE-unzip
   ln -s ${OPT_DLOADS}/OpenJUMP-1.8.0-r4164-CORE/bin/oj_linux.sh ${OPT_BIN}/
 
+  popd ${OPT_DLOADS} &> /dev/null
+
 } # end: stage_4_openjump_install
 
 stage_4_liclipse_install () {
 
   /bin/mkdir -p ${OPT_DLOADS}
-  cd ${OPT_DLOADS}
+  pushd ${OPT_DLOADS} &> /dev/null
 
   wget -N "https://googledrive.com/host/0BwwQN8QrgsRpLVlDeHRNemw3S1E/LiClipse%202.0.0/liclipse_2.0.0_linux.gtk.x86_64.tar.gz"
+# FIXME:
+#       https://googledrive.com/host/0BwwQN8QrgsRpLVlDeHRNemw3S1E/LiClipse%202.4.0/liclipse_2.4.0_linux.gtk.x86_64.tar.gz
   tar -xzf liclipse_2.0.0_linux.gtk.x86_64.tar.gz
   /bin/ln -s /srv/opt/.downloads/liclipse/LiClipse /srv/opt/bin/LiClipse
 
+  popd &> /dev/null
+
 # and also:
 
-  cd /srv/excensus/gk12_2
+# FIXME: mkdir gk12_2.......
+  pushd /srv/excensus/gk12_2 &> /dev/null
   /bin/cp /srv/opt/.downloads/liclipse_2.0.0_linux.gtk.x86_64.tar.gz /srv/excensus/gk12_2
   tar -xzf liclipse_2.0.0_linux.gtk.x86_64.tar.gz
   /bin/rm liclipse_2.0.0_linux.gtk.x86_64.tar.gz
   #/bin/ln -s /srv/excensus/gk12_2/liclipse/LiClipse /srv/excensus/gk12_2/bin
+  popd &> /dev/null
 
 # or maybe just:
 
-  cd /srv/opt/.downloads
+  pushd /srv/opt/.downloads &> /dev/null
   wget -N "https://googledrive.com/host/0BwwQN8QrgsRpLVlDeHRNemw3S1E/LiClipse%202.0.0/liclipse_2.0.0_linux.gtk.x86_64.tar.gz"
   tar -xzf liclipse_2.0.0_linux.gtk.x86_64.tar.gz
   mv liclipse /srv/excensus/gk12_2
   /bin/ln -s /srv/excensus/gk12_2/liclipse/LiClipse /srv/opt/bin/LiClipse
+  popd &> /dev/null
 
 } # end: stage_4_liclipse_install
 
@@ -848,6 +1057,8 @@ stage_4_all_the_young_pips () {
   # E.g., `uncommitted -l ~/.vim`, or `uncommitted -l -v ~/.vim`.
 
   # https://argcomplete.readthedocs.org/en/latest/#activating-global-completion%20argcomplete
+# FIXME:
+# The directory '/home/landonb/.cache/pip' or its parent directory is not owned by the current user and caching wheels has been disabled. check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.
   sudo pip install argcomplete
   sudo pip3 install argcomplete
   sudo activate-global-python-argcomplete
@@ -892,9 +1103,10 @@ stage_4_font_typeface_hack () {
   /bin/mkdir -p ${OPT_DLOADS}
   pushd ${OPT_DLOADS} &> /dev/null
 
-  wget https://github.com/chrissimpkins/Hack/releases/download/v2.010/Hack-v2_010-ttf.zip
+  wget -N https://github.com/chrissimpkins/Hack/releases/download/v2.010/Hack-v2_010-ttf.zip
   mkdir -p ~/.fonts
-  unzip -d ~/.fonts/Hack-v2_010-ttf Hack-v2_010-ttf.zip
+  # Use -f to "freshen" only those file that are newer in the archive.
+  unzip -f -d ~/.fonts/Hack-v2_010-ttf Hack-v2_010-ttf.zip
 
   popd &> /dev/null
 
@@ -908,12 +1120,17 @@ stage_4_sqlite3 () {
   /bin/mkdir -p ${OPT_DLOADS}
   pushd ${OPT_DLOADS} &> /dev/null
 
-  wget -N https://www.sqlite.org/2015/sqlite-shell-linux-x86-3081101.zip
-  unzip -d sqlite-shell-linux-x86-3081101 sqlite-shell-linux-x86-3081101.zip
+  #SQLITE_YEAR=2015
+  #SQLITE_BASE=sqlite-shell-linux-x86-3081101
+  #SQLITE_BASE=sqlite-shell-linux-x86-3090200
+  SQLITE_YEAR=2016
+  SQLITE_BASE=sqlite-shell-linux-x86-3100100
+  wget -N https://www.sqlite.org/${SQLITE_YEAR}/${SQLITE_BASE}.zip
+  unzip -d ${SQLITE_BASE} ${SQLITE_BASE}.zip
 
   sudo /bin/mv /usr/bin/sqlite3 /usr/bin/sqlite3-$(date +%Y.%m.%d-%T)
 
-  sudo /bin/cp -ar sqlite-shell-linux-x86-3081101/sqlite3 /usr/bin/sqlite3
+  sudo /bin/cp -ar ${SQLITE_BASE}/sqlite3 /usr/bin/sqlite3
   sudo chmod 755 /usr/bin/sqlite3
   sudo chown root:root /usr/bin/sqlite3
 
@@ -994,7 +1211,9 @@ stage_4_darktable () {
   if true; then
     #deb http://ppa.launchpad.net/pmjdebruijn/darktable-release/ubuntu trusty main
     #deb-src http://ppa.launchpad.net/pmjdebruijn/darktable-release/ubuntu trusty main
-    sudo add-apt-repository ppa:pmjdebruijn/darktable-release
+    sudo add-apt-repository -y ppa:pmjdebruijn/darktable-release
+    # NOTE: To remove the repository:
+    #  sudo /bin/rm /etc/apt/sources.list.d/pmjdebruijn-darktable-release-trusty.list
     sudo apt-get update
     sudo apt-get install darktable
   else
@@ -1034,10 +1253,12 @@ stage_4_digikam_from_scratch () {
   /bin/mkdir -p ${OPT_DLOADS}
   pushd ${OPT_DLOADS} &> /dev/null
 
-echo
-echo "FIXME: Nurse this install. You might not need all the packages herein."
-echo
-exit 1
+  echo
+  echo "NOTICE: 2016-02-04: Building digikam 4.14.0 does not work."
+  echo "        Don't waste your time."
+  echo "        Call stage_4_digikam_from_distro instead."
+  echo
+  exit 1
 
   # The exiv2 on Linux Mint 17.1 is exiv2 0.23 001700 (C) 2004-2012,
   # but digikam wants 0.24+, so gotta build exiv2 from scratch, eh.
@@ -1246,6 +1467,7 @@ exit 1
     libqca2-dev \
     libqtgstreamer-dev \
     libgpod-dev \
+    libkdcraw-dev
     # Not the packages I thought would work, but these are
     # for optional digikam features so whatever.
     # libgphoto2-dev
@@ -1261,9 +1483,21 @@ echo
 # Add to ./bootstrap.linux:
 #  -DQT_QT_INCLUDE_DIR=/usr/include/qt4 \
 
+  # cdd ${OPT_DLOADS}
   # http://download.kde.org/stable/digikam
   #DIGIKAM_LATEST="digikam-4.12.0"
-  DIGIKAM_LATEST="digikam-4.13.0"
+  #DIGIKAM_LATEST="digikam-4.13.0"
+  # 2016.02.04: Tried compiling 4.14.0 but ./bootstrap.linxux dies.
+  #  Apparently, libkdcraw, libkexiv2, libkipi, etc. are no longer
+  #  packed in the source but should be grabbed from KDE directly.
+  #  I tried, e.g., 'sudo apt-get install libkdcraw-dev', but the
+  #  bootstrap.linux still failed. I tried other tricks, too, until
+  #  I finally got getting 4.14 from the philip5 ppa working.
+  DIGIKAM_LATEST="digikam-4.14.0"
+echo
+echo "FIXME: Unable to successfully build digikam-4.14.0 on Linux Mint 17.1 Rebecca Ubuntu trusty 14.04."
+echo
+
   DIGIKAM_ARCHIVE="${DIGIKAM_LATEST}.tar.bz2"
   wget -N http://download.kde.org/stable/digikam/${DIGIKAM_ARCHIVE}
   tar -xvjf ${DIGIKAM_ARCHIVE}
@@ -1282,15 +1516,56 @@ echo
 
 stage_4_digikam_from_distro () {
   # 2015.10.22: Argh. I got digikam to build at home, but at work, 'snot working.
+  # 2016.02.06: Now I cannot get the new 4.14.0 to build at home, so ppa'ing.
   #
   # Install digikam 4.0.0:
   #  sudo apt-get install digikam
 
   # Linux Mint 17.1 "rebecca" is Ubuntu 14.04 "trusty".
 
-# Gar, this should work! But it doesn't... bahhhh!
   sudo add-apt-repository -y ppa:philip5/extra
+  # [lb] not sure why we need kubuntu-backports but without it apt-install
+  # fails and not with a really good explanation.
+  sudo add-apt-repository ppa:philip5/kubuntu-backports
+  #sudo add-apt-repository ppa:kubuntu-ppa/backports
+  # NOTE: To remove the repositories:
+  #  sudo /bin/rm /etc/apt/sources.list.d/philip5-extra-trusty.list
+  #  sudo /bin/rm /etc/apt/sources.list.d/philip5-kubuntu-backports-trusty.list
+  #  #sudo /bin/rm /etc/apt/sources.list.d/kubuntu-ppa-backports-trusty.list
   sudo apt-get update
+
+  # Check the version we want is there:
+  #
+  #   apt-cache show digikam
+
+  # If you look at the policy, aptitude favors the normals repos:
+  #
+  #   apt-cache policy digikam
+  #
+  # so we have to tell it otherwise.
+
+  # WHATEVER: I thought there was a way to tell aptitude which repo/ppa to
+  #           use, but none of these worked:
+  #   sudo apt-get install -t ppa:philip5/extra digikam
+  #   sudo apt-get install digikam/extra
+  #   sudo apt-get install digikam/philip5-extra
+
+  echo 'CODE: SELECT ALL
+Package: *
+Pin: release o=LP-PPA-philip5-extra
+Pin-Priority: 700
+' | sudo tee /etc/apt/preferences.d/philip5-extra-ppa
+
+  echo 'CODE: SELECT ALL
+Package: *
+Pin: release o=LP-PPA-philip5-kubuntu-backports
+Pin-Priority: 700
+' | sudo tee /etc/apt/preferences.d/philip5-kubuntu-backports-ppa
+
+  # And then check your work again:
+  #
+  #   apt-cache policy digikam
+
   sudo apt-get install -y digikam
   #sudo apt-get install -y showfoto
 
@@ -1298,10 +1573,8 @@ stage_4_digikam_from_distro () {
 # MAYBE: Install Linux Mint 17.2 KDE????
 # http://www.linuxmint.com/edition.php?id=196
 # wget -N http://reflection.oss.ou.edu/linuxmint/isos/linuxmint.com/stable/17.2/linuxmint-17.2-kde-64bit.iso
-http://torrents.linuxmint.com/torrents/linuxmint-17.2-kde-64bit.iso.torrent
+#http://torrents.linuxmint.com/torrents/linuxmint-17.2-kde-64bit.iso.torrent
 # MD5 9d702816f8180bcab94d8c1fde317af7
-
-
 
 } # end: stage_4_digikam_from_distro
 
@@ -1317,6 +1590,7 @@ stage_4_gimp_plugins () {
   if [[ -e gimp-plugin-export-layers ]]; then
     echo "WARNING: Already exists: ${OPT_DLOADS}/gimp-plugin-export-layers"
   elif [[ ! -d ${HOME}/.gimp-2.8/plug-ins ]]; then
+# FIXME: This happens if you haven't run gimp ever...
     echo "WARNING: Not Found or Not a Dir: ${HOME}/.gimp-2.8/plug-ins"
   else
     git clone https://github.com/khalim19/gimp-plugin-export-layers.git
@@ -1356,9 +1630,9 @@ stage_4_python_source () {
   /bin/mkdir -p ${OPT_SRC}
   pushd ${OPT_SRC} &> /dev/null
 
-  tar xvzf ${OPT_DLOADS}/Python-2.7.10.tgz .
-  tar xvzf ${OPT_DLOADS}/Python-3.3.6.tgz .
-  tar xvzf ${OPT_DLOADS}/Python-3.4.3.tgz .
+  tar xvzf ${OPT_DLOADS}/Python-2.7.10.tgz
+  tar xvzf ${OPT_DLOADS}/Python-3.3.6.tgz
+  tar xvzf ${OPT_DLOADS}/Python-3.4.3.tgz
 
   popd &> /dev/null
 
@@ -1403,9 +1677,15 @@ setup_customize_extras_go () {
       sudo chmod g+w /srv
     fi
 
+    # Install the dropbox.py script.
+
+    stage_4_dropbox_install
+
     # Configure Git.
 
-    stage_4_git_configure
+    # See ~/.gitconfig. No need to call `git config`.
+    #stage_4_git_configure
+  # FIXME: m4 ... ~/.gitconfig.m4 ...
 
     # Configure Mercurial
 
@@ -1431,6 +1711,14 @@ setup_customize_extras_go () {
 
     stage_4_pidgin_setup_autostart
 
+    # Tell Hamster to start on login.
+
+    stage_4_hamster_time_tracker_setup
+
+    # Tell Gmail Notifier to start on login.
+
+    stage_4_gmail_notifier_setup
+
     # Configure Web browsers.
 
     stage_4_firefox_configure
@@ -1451,10 +1739,6 @@ setup_customize_extras_go () {
     # Install modern.ie VMs.
 
     stage_4_modern_ie_install
-
-    # Install the dropbox.py script.
-
-    stage_4_dropbox_install
 
     # Install expect, so we can do tty tricks.
 
@@ -1516,8 +1800,8 @@ setup_customize_extras_go () {
 
     stage_4_darktable
 
-    stage_4_digikam_from_scratch
-    #stage_4_digikam_from_distro
+    #stage_4_digikam_from_scratch
+    stage_4_digikam_from_distro
 
     stage_4_gimp_plugins
 
@@ -1528,5 +1812,10 @@ setup_customize_extras_go () {
 
 } # end: setup_customize_extras_go
 
-setup_customize_extras_go
+if [[ "$0" == "$BASH_SOURCE" ]]; then
+  # Only call the setup fcns. if this script is being run and not sourced.
+  setup_customize_extras_go
+# else, $BASH_SOURCE is not the name of this script; it's
+#       the name of the script that's sourcing this script.
+fi
 

@@ -53,12 +53,10 @@
 !.fries/once
 !.fries/once/
 !.fries/once/*
-.fries/once/custom_mint17.landon.sh
+.fries/once/custom_mint17.private.*.sh
 # Generated files.
-.fries/once/setup-mwiki_pwd
-.fries/once/setup-mysql_pwd
-.fries/once/setup-stage
-.fries/once/setup-stage_num
+.fries/once/fries-setup-stage.num
+.fries/once/fries-setup-mysql.pwd
 
 # None of your business files.
 .fries/bin/bkuppers/
@@ -71,7 +69,4 @@
 
 # Ignore tags files.
 tags
-
-# This one guy, created by .fries/once/setup_mint17.sh.
-.fries/once/setup-exc-mysql_pwd
 

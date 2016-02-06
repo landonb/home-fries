@@ -2,7 +2,7 @@
 
 # File: bash_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.06.19
+# Last Modified: 2016.01.14
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bash function library.
 # License: GPLv3
@@ -195,18 +195,20 @@ PYVERSABBR=py${PYVERS_RAW}
 # Note that if you alias sed, e.g., sed='sed -r', then you'll get an error if
 # you source this script from the command line (e.g., it expands to sed -r -r).
 # So use /bin/sed to avoid any alias.
-POSTGRESABBR=$( \
-  psql --version \
-  | grep psql \
-  | /bin/sed -r 's/psql \(PostgreSQL\) ([0-9]+\.[0-9]+)\.[0-9]+/\1/')
-POSTGRES_MAJOR=$( \
-  psql --version \
-  | grep psql \
-  | /bin/sed -r 's/psql \(PostgreSQL\) ([0-9]+)\.[0-9]+\.[0-9]+/\1/')
-POSTGRES_MINOR=$( \
-  psql --version \
-  | grep psql \
-  | /bin/sed -r 's/psql \(PostgreSQL\) [0-9]+\.([0-9]+)\.[0-9]+/\1/')
+if [[ `command -v psql` ]]; then
+  POSTGRESABBR=$( \
+    psql --version \
+    | grep psql \
+    | /bin/sed -r 's/psql \(PostgreSQL\) ([0-9]+\.[0-9]+)\.[0-9]+/\1/')
+  POSTGRES_MAJOR=$( \
+    psql --version \
+    | grep psql \
+    | /bin/sed -r 's/psql \(PostgreSQL\) ([0-9]+)\.[0-9]+\.[0-9]+/\1/')
+  POSTGRES_MINOR=$( \
+    psql --version \
+    | grep psql \
+    | /bin/sed -r 's/psql \(PostgreSQL\) [0-9]+\.([0-9]+)\.[0-9]+/\1/')
+fi # else, psql not installed (yet).
 
 # ============================================================================
 # *** Ubuntu-related

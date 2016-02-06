@@ -1,6 +1,6 @@
 # File: vendor_dubsacks.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.03.18
+# Last Modified: 2016.01.14
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Dubsacks VIM setup script.
 # License: GPLv3
@@ -29,20 +29,19 @@ stage_4_dubsacks_install () {
 
   git clone ${REMOTE_URI_DUBSACKS_VIM_GIT} ${HOME}/.vim
 
-# FIXME: Setup .fries, .erectus, etc.
+  # Dubsacks uses the Hack font.
+  source custom_mint17.extras.sh
+  stage_4_font_typeface_hack
 
-if false; then
-
-#implement this:
-
-cd ~
-m4 \
-  --define=YOUR_FULL_NAME_HERE=${YOUR_FULL_NAME_HERE} \
-  --define=YOUR_EMAIL_ADDY_HERE=${YOUR_EMAIL_ADDY_HERE} \
-  --define=YOUR_GITHUB_USERNAME=${YOUR_GITHUB_USERNAME} \
-  .cookiecutterrc.m4
-
-fi
+  if false; then
+    # FIXME/MAYBE: Implement this:
+    cd ${HOME}
+    m4 \
+      --define=YOUR_FULL_NAME_HERE=${YOUR_FULL_NAME_HERE} \
+      --define=YOUR_EMAIL_ADDY_HERE=${YOUR_EMAIL_ADDY_HERE} \
+      --define=YOUR_GITHUB_USERNAME=${YOUR_GITHUB_USERNAME} \
+      .cookiecutterrc.m4
+  fi
 
 } # end: stage_4_dubsacks_install
 
@@ -51,7 +50,7 @@ fi
 
 setup_dubsacks_go () {
 
-  if $DO_INSTALL_DUBSACKS; then
+  if ${DO_INSTALL_DUBSACKS}; then
     stage_4_dubsacks_install
   fi
 

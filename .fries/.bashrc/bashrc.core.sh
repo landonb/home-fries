@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.01.07
+# Last Modified: 2016.01.18
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -268,7 +268,7 @@ if [[ $EUID -ne 0 \
             else
               echo "NOTICE: no expect: ignoring: ${SSH_SECRETS}/${pvt_key}"
             fi
-          else
+          elif [[ ! -d "$SSH_SECRETS" ]]; then
             echo "NOTICE: No directory at: $SSH_SECRETS"
             echo "        Set this up yourself."
             echo "        To test again: ssh-agent -k"
@@ -365,6 +365,7 @@ alias l='/bin/ls -ChFA --color=auto --group-directories-first'
 alias ll='/bin/ls -lhFa --color=auto' # Long listing; includes ./ and ../
                                       #   (so you can check permissions)
 alias lo='ll -rt'                     # Reverse sort by time.
+alias lS='/bin/ls --color=auto -lhFaS' # Sort by size, from largest (show empties last).
 
 # Move a glob of files and include .dotted (hidden) files.
 alias mv_all='mv_dotglob'

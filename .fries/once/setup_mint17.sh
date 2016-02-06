@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.01.08
+# Last Modified: 2016.01.25
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -44,13 +44,46 @@
 echo "FIXME: Test this script thoroughly. It's been very much changed."
 exit 1
 
-# FIXME: 2016.01.07: Make source'able script for setting env vars to
-#        make cmd line copy-paste easier.
+# FIXME: Document git'ing home-fries and setting up that way.
+# FIXME: Document copying over sync-script file and setting up that way.
+# cd ~/Documents/packered_larry_2015_12_30_13h33m45s/home/landonb
+# cp -ari * ~
+# cp -arn * ~
+#         Especially ~/.ssh and cheat/
+# FIXME: /kit and /srv/excensus should link from ${HOME}/Documents if home dir is encrypted...
+#          look for: ${HOME}/.ecryptfs
+#          look in /home/.ecryptfs/$USER/.ecryptfs/Private.mnt
+#                  for home directory path
+#          look for mount point: df ${HOME}
+# Filesystem              1K-blocks Used      Available Use% Mounted on
+# /home/username/.Private 315482376 101351268 198105472  34% /home/username
+#
+# BEST TO USE
+#   ecryptfs-verify --home &> /dev/null
+#   and then check $?
+#
+# Check if swap encrypted:
+#
+# sudo blkid | grep swap
+# and should check for an output similar to
+# /dev/mapper/cryptswap1: UUID="95f3d64d-6c46-411f-92f7-867e92991fd0" TYPE="swap" 
+#
+# sudo cryptsetup status /dev/mapper/cryptswap1
+# and check $?
+# (to see swap name: swapon -s)
+#
+# FIXME: laptop not using encrypted swap!
+#
+
+
 # FIXME: 2016.01.07: Setup Vim immediately with Google font
 #        (and is there a way to localize the font source?)
+sudo apt-get install -y vim-gtk git git-core
+source ${script_absbase}/vendor_dubsacks.sh
+
+# FIXME: Setup .fries, .erectus, etc.
 # FIXME: 2016.01.07: Setup ~/.fries/cheat and other missing doodads...
 #         need to figure out
-
 
 # ------------------------------------------
 # Velcome
@@ -58,7 +91,7 @@ exit 1
 echo
 echo "Too Many Steps Setup Script"
 echo
-echo "- For Linux Mint 17.1 and MATE"
+echo "- For Linux Mint 17.x and MATE"
 echo "- Configures Mint and MATE to a Particular Liking"
 echo "- You already Installed Handy Bash Scripts with This Script, and"
 echo "   This Script Installs Handy Vim Scripts"
@@ -79,109 +112,40 @@ source ../bin/bash_base.sh
 # ------------------------------------------
 # Configuration
 
-# DEVs: Customize these options, maybe. See: custom_mint17.template.sh
-
-# The real or fake machine domain (e.g., "fake_domain.tld" works,
-# it'll just mask anything of the real name out there in the net).
-# Note: In the m4 templates, USE_DOMAIN is MACH_DOMAIN.
-#USE_DOMAIN="localhost"
-# FIXME: Prompt for the domain if not specified in config wrapper.
-USE_DOMAIN="home.fries"
-
-# If you're dual-booted or if you've configured a VirtualBox Shared Folder,
-# you can set the device name here and the script will mount it for you.
-# E.g., for VirtualBox,
-#  USE_MOUNTPT="C_DRIVE"
-# or for a dual-boot,
-#  USE_MOUNTPT="/dev/sda2"
-# Otherwise, just leave it blank.
-USE_MOUNTPT=""
-
-# A few common project group name config options.
-
-# Specify groups to create. The current user will be added to
-# these groups, as will postgres and the www-data/apache user.
-# This is so you can setup a shared development environment.
-# DEVs: Add to this array in custom_mint17.sh. Each group is
-# generally the name of a different project that uses different
-# resources that you want postgres and apache to be able to access,
-# per the specifics of whatever projects on which you're working.
-# I.e., you want to make htdocs files group-readable, and not
-# necessarily world-readable, and you want distinct linux users
-# to all be part of the same development group. This is generally
-# only necessary in a shared work environment and not on a personal
-# development machine.
-USE_PROJECT_USERGROUPS=()
-
-# Some projects also have their own postgres users.
-# MAYBE: Move USE_PROJECT_PSQLGROUPS and USE_PROJECT_USERGROUPS
-#        to project-specific setup scripts.
-# This setting is probably useful even on a personal development
-# machine, as many projects hard-code the name of or use a common
-# convention to name the postgres user used to connect to the db.
-USE_PROJECT_PSQLGROUPS=()
-
-# An old Cyclopath hack: Change postgres and apache config file
-# group ownership so anyone in the Cyclopath group can edit any
-# machine's services' config.
-# Note: On the U of MN's CP network, you'd want to use the group's
-# group name, e.g., `grplens`, but on your own dev machine, using
-# the `staff` built-in is just fine, and it makes sense to use.
-USE_STAFF_GROUP_ASSOCIATION="staff"
-
-# -- Local resources, downloaded. Where they go.
-
-# We could download tarballs and whatnots to ~/Downloads but so many
-# applications use the home directory anyway, it's easier to keep
-# track of our files (what we'll deliberately setup) by using our own
-# location to store downloaded files and their compiled offsprings.
-OPT_BIN=/srv/opt/bin
-OPT_DLOADS=/srv/opt/.downloads
-
-# -- Mate with MATE (If you're gonna be here 60 hours each week, redecoRATE)
-
-# The default Mint "start menu" icon is rather drab, so give it some pazazz.
-# [lb] likes the dice icon that's included with Ubuntu. Poke around
-# the /usr/share/icons/ files and find something you like or add you own.
-USE_MINT_MENU_ICON="${script_absbase}/assets/applications-boardgames-21x21.png"
-
-# -- Mercurial setup.
-
-#USE_SETUP_HG=true
-USE_SETUP_HG=false
-if $USE_SETUP_HG; then
-  HG_USER_NAME="Your Name"
-  HG_USER_EMAIL="Your Email"
-  HG_DEFAULT_PATH="ssh://hg@bitbucket.org/your_username/your_project"
-endif
-
-# -- Install proprietary software (namely, just Adobe Reader).
-
-# One may not distribute Adobe Reader on a virtual machine image
-# per its EULA, so disable this is if you must, or if you're simply
-# satisified with evince, or if you don't trust Adobe, or if you don't
-# like not free as in not free beer software.
-INCLUDE_ADOBE_READER=true
-#INCLUDE_ADOBE_READER=false
-
-# -- Whether or not to install Dubsacks VIM.
-
-DO_INSTALL_DUBSACKS=true
-
-# *** END: Configure these values for your environment.
-########################################################
+if [[ ! -e ./mint17_setup_base.sh ]]; then
+  echo "Error: Expected to find ./mint17_setup_base.sh."
+  exit 1
+fi
+DEBUG_TRACE=false
+source ./mint17_setup_base.sh
+# This sets a bunch of environment variables shared by the setup scripts.
+# E.g.:
+#   USE_DOMAIN
+#   USE_MOUNTPT
+#   USE_PROJECT_USERGROUPS
+#   USE_PROJECT_PSQLGROUPS
+#   USE_STAFF_GROUP_ASSOCIATION
+#   OPT_BIN
+#   OPT_DLOADS
+#   USE_MINT_MENU_ICON
+#   USE_SETUP_HG
+#   HG_USER_NAME
+#   HG_USER_EMAIL
+#   HG_DEFAULT_PATH
+#   INCLUDE_ADOBE_READER
+#   DO_INSTALL_DUBSACKS
 
 # ------------------------------------------
 # Figure out what stage we're on.
 
 # MAGIC_NUMBER: There are four stages (and logouts/reboots between each).
 stages_count=4
-if [[ ! -e ${script_absbase}/setup-exc-stage_num ]]; then
+if [[ ! -e ${script_absbase}/fries-setup-stage.num ]]; then
   # First time here.
   stage_num=1
-  echo "${stage_num}" > ${script_absbase}/setup-exc-stage_num
+  echo "${stage_num}" > ${script_absbase}/fries-setup-stage.num
 else
-  stage_num=`cat setup-exc-stage_num`
+  stage_num=`cat fries-setup-stage.num`
   # Validate the stage number.
   if [[ ${stage_num} -lt 1 || ${stage_num} -gt ${stages_count} ]]; then
     echo "Unexpected stage_num: ${stage_num}"
@@ -438,17 +402,17 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
     # FIXME: You could use `expect` here to send the pwd to the terminal.
     #
     sudo apt-get install -y pwgen
-    if [[ ! -e ${script_absbase}/setup-exc-mysql_pwd ]]; then
+    if [[ ! -e ${script_absbase}/fries-setup-mysql.pwd ]]; then
       MYSQL_PASSWORD=$(pwgen -n 16 -s -N 1 -y)
-      echo "${MYSQL_PASSWORD}" > ${script_absbase}/setup-exc-mysql_pwd
+      echo "${MYSQL_PASSWORD}" > ${script_absbase}/fries-setup-mysql.pwd
     else
-      MYSQL_PASSWORD=`cat ${script_absbase}/setup-exc-mysql_pwd`
+      MYSQL_PASSWORD=`cat ${script_absbase}/fries-setup-mysql.pwd`
     fi
     echo
     echo "*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!"
     echo "Try this for a Mysql password: ${MYSQL_PASSWORD}"
     echo "*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!"
-    echo "Which is saved also to the file: setup-exc-mysql_pwd"
+    echo "Which is saved also to the file: fries-setup-mysql.pwd"
     echo
     sudo apt-get -y install \
       \
@@ -495,7 +459,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       wmctrl
       xdotool
 
-      # Dubsacks Vim.
+      # Vim (See later: Dubsacks Vim.)
       vim-gtk
       # Text columnizer.
       par
@@ -777,19 +741,44 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       gnome-color-manager
       #dispcalgui
 
+      # Time tracking applet.
+      hamster-applet
+      hamster-indicator
+
       # Maybe some day...
       zsh
 
-# checkgmail - alternative Gmail Notifier for Linux via Atom feeds
-# conduit - synchronization tool for GNOME
-# desktop-webmail - Webmail for Linux Desktops
-# enigmail - GPG support for Thunderbird and Debian Icedove
-# gm-notify - highly Ubuntu integrated GMail notifier
-# gmail-notify - Notify the arrival of new mail on Gmail
-# gnome-do-plugins - Extra functionality for GNOME Do
-# gnome-gmail - support for Gmail as the preferred email application in GNOME
-      # "Sign-in attempt prevented":
-      #  gnome-gmail-notifier - A Gmail Inbox Notifier for the GNOME Desktop
+      # NOTE: If you have two-step authentication enabled for Gmail,
+      #       rather than using your normal password, logon to google.com
+      #       and generate a special application password.
+      # checkgmail - alternative Gmail Notifier for Linux via Atom feeds
+      #   sudo perl -MCPAN -e 'install Crypt::SSLeay'
+      #   sudo perl -MCPAN -e 'install Crypt::Simple'
+      #   Needs a patch:
+      #     http://community.linuxmint.com/tutorial/view/1392
+      #     http://sourceforge.net/p/checkgmail/bugs/105/
+      #   but code is no longer maintained....
+      # mailnag
+      #   https://github.com/pulb/mailnag:
+      #   sudo add-apt-repository ppa:pulb/mailnag
+      #   # NOTE: To remove the repository:
+      #   #  sudo /bin/rm /etc/apt/sources.list.d/pulb-mailnag-trusty.list
+      #   sudo apt-get update
+      #   sudo apt-get install mailnag
+      # gmail-notify - Notify the arrival of new mail on Gmail
+      #   Returns: "Login appears to be invalid."
+      # Apps I did not try:
+      #   conduit - synchronization tool for GNOME
+      #   desktop-webmail - Webmail for Linux Desktops
+      #   enigmail - GPG support for Thunderbird and Debian Icedove
+      #   gm-notify - highly Ubuntu integrated GMail notifier
+      #   gnome-do-plugins - Extra functionality for GNOME Do
+      #   gnome-gmail - support for Gmail as the preferred email application in GNOME
+      #   mail-notification - mail notification in system tray
+      #   unity-webapps-gmail - Unity Webapp for Gmail
+      # Works fine:
+      #   gnome-gmail-notifier - A Gmail Inbox Notifier for the GNOME Desktop
+      gnome-gmail-notifier
 
     )
 
@@ -823,7 +812,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
     # All done.
 
-    echo "$((${stage_num} + 1))" > ${script_absbase}/setup-exc-stage_num
+    echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
 
     print_install_time
 
@@ -936,7 +925,7 @@ setup_mint_17_stage_2 () {
     echo "Run return code: $?"
     reset_errexit
 
-    echo "$((${stage_num} + 1))" > ${script_absbase}/setup-exc-stage_num
+    echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
 
     print_install_time
 
@@ -1103,7 +1092,7 @@ setup_mint_17_stage_3 () {
 
     # Finish this stage and logout/reboot.
 
-    echo "$((${stage_num} + 1))" > ${script_absbase}/setup-exc-stage_num
+    echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
 
     print_install_time
 
@@ -1260,7 +1249,7 @@ setup_mint_17_stage_4 () {
 
     # All done.
 
-    echo "$((${stage_num} + 1))" > ${script_absbase}/setup-exc-stage_num
+    echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
 
     print_install_time
 
@@ -1390,6 +1379,11 @@ setup_mint_17_go () {
   SETUP_DO_REBOOT=false
   SETUP_DO_LOGOUT=false
 
+  if [[ ${stage_num} -eq 1 ]]; then
+    # Call `sudo apt-get install -y [lots of packages]`.
+    setup_mint_17_stage_1
+  fi
+
   # There are a number of ways to check if we're running in a virtual machine.
   # You could check PCI and USB devices for their names, or dmesg, e.g.,
   #   lspci | grep VirtualBox
@@ -1397,63 +1391,77 @@ setup_mint_17_go () {
   #   dmesg | grep VirtualBox
   # but those are, well, hacks.
   # The better way is to use a specific utility, like virt-what or imvert.
-  if [[ ${stage_num} -eq 2 && `sudo virt-what` != 'virtualbox' ]]; then
-    echo "Skipping Stage 2: Not a VirtualBox."
-    stage_num=3
-  fi
-
-  if [[ ${stage_num} -eq 1 ]]; then
-    # Call `sudo apt-get install -y [lots of packages]`.
-    setup_mint_17_stage_1
-  elif [[ ${stage_num} -eq 2 ]]; then
-    # Install VBox additions.
-    setup_mint_17_stage_2
-  elif [[ ${stage_num} -eq 3 ]]; then
+  if [[ `sudo virt-what` != 'virtualbox' ]]; then
+    # 2016.01.14: [lb] installed Linux Mint 17.3 MATE on a laptop and did
+    # not reboot or relogon between install steps, so we'll scream through
+    # each step one after another.
+    # SKIPPING: Stage 2, which install VBox additions.
     # Setup usergroups and the user's home directory.
     setup_mint_17_stage_3
-  elif [[ ${stage_num} -eq 4 ]]; then
     # Download, compile, and configure lots of software.
     setup_mint_17_stage_4
+    # C'est ca!
+    echo
+    echo "All done!"
   else
-    echo
-    echo "Unexpected stage_num: ${stage_num}"
-    echo
-    exit 1
-  fi
-
-  # Reboot if we have more setup to go.
-  if $SETUP_DO_REBOOT; then
-    echo "$((${stage_num} + 1))" > ${script_absbase}/setup-exc-stage_num
-    sudo /sbin/shutdown -r now
-  elif $SETUP_DO_LOGOUT; then
-    # The logout commands vary according to distro, so check what's there.
-    # Bash has three built-its that'll tell is if a command exists on
-    # $PATH. The simplest, ``command``, doesn't print anything but returns
-    # 1 if the command is not found, while the other three print a not-found
-    # message and return one. The other two commands are ``type`` and ``hash``.
-    # All commands return 0 is the command was found.
-    #  $ command -v foo >/dev/null 2>&1 || { echo >&2 "Not found."; exit 1; }
-    #  $ type foo       >/dev/null 2>&1 || { echo >&2 "Not found."; exit 1; }
-    #  $ hash foo       2>/dev/null     || { echo >&2 "Not found."; exit 1; }
-    # Thanks to http://stackoverflow.com/questions/592620/
-    #             how-to-check-if-a-program-exists-from-a-bash-script
-    if ``command -v mate-session-save >/dev/null 2>&1``; then
-      mate-session-save --logout
-    elif ``command -v gnome-session-save >/dev/null 2>&1``; then
-      gnome-session-save --logout
+    if [[ ${stage_num} -eq 2 ]]; then
+      # Install VBox additions.
+      setup_mint_17_stage_2
+    elif [[ ${stage_num} -eq 3 ]]; then
+      # Setup usergroups and the user's home directory.
+      setup_mint_17_stage_3
+    elif [[ ${stage_num} -eq 4 ]]; then
+      # Download, compile, and configure lots of software.
+      setup_mint_17_stage_4
     else
-      # This is the most destructive way to logout, so don't do it:
-      #   Kill everything but kill and init using the special -1 PID.
-      #   And don't run this as root or you'll be sorry (like, you'll
-      #   kill kill and init, I suppose). This will cause a logout.
-      #   http://aarklonlinuxinfo.blogspot.com/2008/07/kill-9-1.html
-      #     kill -9 -1
-      # Apparently also this, but less destructive
-      #     sudo pkill -u $USER
       echo
-      echo "WARNING: Logout command not found; cannot logout."
-      echo "FIXME: Hey, dev, please update the install script."
+      echo "Unexpected stage_num: ${stage_num}"
+      echo
       exit 1
+    fi
+    # Reboot if we have more setup to go.
+    if $SETUP_DO_REBOOT; then
+      echo
+      echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
+      echo "NOTICE: Rebooting before running next step."
+      echo "Run this script again after rebooting."
+      sudo /sbin/shutdown -r now
+    elif $SETUP_DO_LOGOUT; then
+      echo
+      echo "NOTICE: Logging out before running next step."
+      echo "Run this script again after logging back on."
+      # The logout commands vary according to distro, so check what's there.
+      # Bash has three built-its that'll tell is if a command exists on
+      # $PATH. The simplest, ``command``, doesn't print anything but returns
+      # 1 if the command is not found, while the other three print a not-found
+      # message and return one. The other two commands are ``type`` and ``hash``.
+      # All commands return 0 is the command was found.
+      #  $ command -v foo >/dev/null 2>&1 || { echo >&2 "Not found."; exit 1; }
+      #  $ type foo       >/dev/null 2>&1 || { echo >&2 "Not found."; exit 1; }
+      #  $ hash foo       2>/dev/null     || { echo >&2 "Not found."; exit 1; }
+      # Thanks to http://stackoverflow.com/questions/592620/
+      #             how-to-check-if-a-program-exists-from-a-bash-script
+      if ``command -v mate-session-save >/dev/null 2>&1``; then
+        mate-session-save --logout
+      elif ``command -v gnome-session-save >/dev/null 2>&1``; then
+        gnome-session-save --logout
+      else
+        # This is the most destructive way to logout, so don't do it:
+        #   Kill everything but kill and init using the special -1 PID.
+        #   And don't run this as root or you'll be sorry (like, you'll
+        #   kill kill and init, I suppose). This will cause a logout.
+        #   http://aarklonlinuxinfo.blogspot.com/2008/07/kill-9-1.html
+        #     kill -9 -1
+        # Apparently also this, but less destructive
+        #     sudo pkill -u $USER
+        echo
+        echo "WARNING: Logout command not found; cannot logout."
+        echo "FIXME: Hey, dev, please update the install script."
+        exit 1
+      fi
+    else
+      echo
+      echo "VirtualBox OS setup is complete!"
     fi
   fi
 
