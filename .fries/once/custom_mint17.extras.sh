@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.02.06
+# Last Modified: 2016.02.08
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -1667,6 +1667,15 @@ stage_4_updatedb_locate_conf () {
 
 } # end: stage_4_updatedb_locate_conf
 
+stage_4_python_35 () {
+
+sudo add-apt-repository -y ppa:fkrull/deadsnakes
+sudo apt-get update -y
+sudo apt-get install -y python3.5
+#python3.3-dev
+
+} # end: stage_4_python_35
+
 # ==============================================================
 # Application Main()
 
@@ -1809,6 +1818,8 @@ setup_customize_extras_go () {
     stage_4_funstuff
 
     stage_4_updatedb_locate_conf
+
+    stage_4_python_35
 
 } # end: setup_customize_extras_go
 
