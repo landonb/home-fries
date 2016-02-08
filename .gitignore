@@ -49,6 +49,10 @@
 !.fries/bin
 !.fries/bin/
 !.fries/bin/*
+!.fries/bin/completions/*
+!.fries/bin/libmypy/*
+.fries/bin/libmypy/__pycache__/
+#!.fries/bin/unison/*
 
 !.fries/once
 !.fries/once/
@@ -57,6 +61,9 @@
 # Generated files.
 .fries/once/fries-setup-stage.num
 .fries/once/fries-setup-mysql.pwd
+#!.fries/once/archive/*
+#!.fries/once/assets/*
+#!.fries/once/target/*
 
 # None of your business files.
 .fries/bin/bkuppers/
