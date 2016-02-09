@@ -466,12 +466,12 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 		self.sql_beg_date = ''
 		self.sql_beg_date_ = ''
 		if self.cli_opts.time_beg:
+			self.sql_params.append(self.cli_opts.time_beg)
 			self.sql_beg_date = "AND facts.start_time >= datetime(?)"
 			self.sql_beg_date_ = (
 				"AND facts.start_time >= datetime('%s')"
 				% (self.cli_opts.time_beg,)
 			)
-			self.sql_params.append(self.cli_opts.time_beg)
 		if not Hamsterer.SQL_EXTERNAL:
 			self.str_params['SQL_BEG_DATE'] = self.sql_beg_date
 		else:
@@ -480,16 +480,47 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 		self.sql_end_date = ''
 		self.sql_end_date_ = ''
 		if self.cli_opts.time_end:
+			self.sql_params.append(self.cli_opts.time_end)
 			self.sql_end_date = "AND facts.start_time < datetime(?)"
 			self.sql_end_date_ = (
 				"AND facts.start_time < datetime('%s')"
 				% (self.cli_opts.time_end,)
 			)
-			self.sql_params.append(self.cli_opts.time_end)
 		if not Hamsterer.SQL_EXTERNAL:
 			self.str_params['SQL_END_DATE'] = self.sql_end_date
 		else:
 			self.str_params['SQL_END_DATE'] = self.sql_end_date_
+
+	def setup_sql_tag_names(self):
+		self.sql_tag_names = ''
+		self.sql_tag_names_ = ''
+		if self.cli_opts.tags:
+			self.sql_params.append(self.cli_opts.tags)
+			qmark_list = ','.join(['?' for x in self.cli_opts.tags])
+			self.sql_tag_names = (
+				"""
+				AND (0
+					%s
+				)
+				"""
+				% (''.join(["OR tags.name LIKE '%%?%%'"
+							for x in self.cli_opts.tags]),
+				)
+			)
+			self.sql_tag_names_ = (
+				"""
+				AND (0
+					%s
+				)
+				"""
+				% (''.join(["OR tags.name LIKE '%%%s%%'" % (x,)
+							for x in self.cli_opts.tags]),
+				)
+			)
+		if not Hamsterer.SQL_EXTERNAL:
+			self.str_params['SQL_TAG_NAMES'] = self.sql_tag_names
+		else:
+			self.str_params['SQL_TAG_NAMES'] = self.sql_tag_names_
 
 	# LATER/#XXX:
 	def setup_sql_week_starts(self):
@@ -499,6 +530,7 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 		self.sql_categories = ''
 		self.sql_categories_ = ''
 		if self.cli_opts.categories:
+			self.sql_params.append(self.cli_opts.categories)
 			qmark_list = ','.join(['?' for x in self.cli_opts.categories])
 			self.sql_categories = (
 				#"AND categories.name in (%s)" % (qmark_list,)
@@ -509,7 +541,6 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 				#" AND categories.name in (%s)" % (name_list,)
 				" AND categories.search_name in (%s)" % (name_list,)
 			)
-			self.sql_params.append(self.cli_opts.categories)
 		if not Hamsterer.SQL_EXTERNAL:
 			self.str_params['REPORT_CATEGORIES'] = self.sql_categories
 		else:
@@ -519,26 +550,28 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 		self.sql_activities = ''
 		self.sql_activities_ = ''
 		if self.cli_opts.activities:
+			self.sql_params.append(self.cli_opts.activities)
 			qmark_list = ','.join(['?' for x in self.cli_opts.activities])
-			self.sql_activities = (
-				"AND activities.name in (%s)" % (qmark_list,)
-				#"AND activities.search_name in (%s)" % (qmark_list,)
-			)
-			name_list = ','.join(["'%s'" % (x,) for x in self.cli_opts.activities])
-			self.sql_activities_ = (
-				" AND activities.name in (%s)" % (name_list,)
-				#" AND activities.search_name in (%s)" % (name_list,)
-			)
 			# We probably don't need/want to be strict:
 			#	self.sql_activities = (
-			#		"""
-			#		AND (0
-			#			%s
-			#		)
-			#		"""
-			#		% (''.join(["OR activities.name LIKE '%%?%%'"
-			#					for x in self.cli_opts.activities]),
-			#		)
+			#		"AND activities.name in (%s)" % (qmark_list,)
+			#		#"AND activities.search_name in (%s)" % (qmark_list,)
+			#	)
+			self.sql_activities = (
+				"""
+				AND (0
+					%s
+				)
+				"""
+				% (''.join(["OR activities.name LIKE '%%?%%'"
+							for x in self.cli_opts.activities]),
+				)
+			)
+			# We probably don't need/want to be strict:
+			#name_list = ','.join(["'%s'" % (x,) for x in self.cli_opts.activities])
+			#	self.sql_activities_ = (
+			#		" AND activities.name in (%s)" % (name_list,)
+			#		#" AND activities.search_name in (%s)" % (name_list,)
 			#	)
 			self.sql_activities_ = (
 				"""
@@ -550,7 +583,6 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 							for x in self.cli_opts.activities]),
 				)
 			)
-			self.sql_params.append(self.cli_opts.activities)
 		if not Hamsterer.SQL_EXTERNAL:
 			self.str_params['SQL_ACTIVITY_NAME'] = self.sql_activities
 		else:
@@ -632,6 +664,7 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 		self.setup_sql_day_of_week()
 		self.setup_sql_categories()
 		self.setup_sql_dates()
+		self.setup_sql_tag_names()
 		self.setup_sql_activities()
 		sql_select = """
 			SELECT
@@ -653,6 +686,7 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 				%(REPORT_CATEGORIES)s
 				%(SQL_BEG_DATE)s
 				%(SQL_END_DATE)s
+				%(SQL_TAG_NAMES)s
 				%(SQL_ACTIVITY_NAME)s
 			ORDER BY facts.start_time, facts.id desc
 		;
@@ -669,6 +703,7 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 		self.setup_sql_week_starts()
 		self.setup_sql_categories()
 		self.setup_sql_dates()
+		self.setup_sql_tag_names()
 		self.setup_sql_activities()
 		# Note: julianday returns a float, so multiple by units you want,
 		#       *24 gives you hours, or *86400 gives you seconds.
@@ -702,6 +737,7 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 				WHERE 1
 					%(SQL_BEG_DATE)s
 					%(SQL_END_DATE)s
+					%(SQL_TAG_NAMES)s
 				GROUP BY start_time, tags.id
 			) AS max
 			JOIN facts ON (max.max_id = facts.id)
