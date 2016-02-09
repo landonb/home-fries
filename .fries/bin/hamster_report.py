@@ -31,9 +31,11 @@
 import os
 import sys
 
+import datetime
 import re
 import sqlite3
 import subprocess
+import time
 
 # MAYBE: Install pyoilerplate to site-packages and treat as 3d party lib.
 sys.path.append('%s/libmypy' % (os.path.abspath(sys.path[0]),))
@@ -159,6 +161,9 @@ class HR_Argparser(argparse_wrap.ArgumentParser_Wrap):
 			action='append', type=str, metavar='QUERY',
 		)
 
+		self.add_argument('-0', '--today', dest='prev_weeks',
+			action='store_const', const=0,
+		)
 		self.add_argument('-1', '--current-week', dest='prev_weeks',
 			action='store_const', const=1,
 		)
@@ -264,6 +269,51 @@ class HR_Argparser(argparse_wrap.ArgumentParser_Wrap):
 				self.cli_opts.do_list_types = self.cli_opts.do_list_types.union(
 					HR_Argparser.sprint_report
 				)
+
+		if self.cli_opts.prev_weeks is not None:
+			# 0: today, 1: this week, 2: this week and last, 4: month, 5: 2 months.
+			#today = time.time()
+			today = datetime.date.today()
+			if self.cli_opts.time_end is not None:
+				log.fatal('Overriding time_end with today because prev_weeks.')
+			# FIXME: This makes -0 return zero results, i.e., nothing hits for
+			#        today. Which probably means < time_end and not <=, is that okay?
+			#self.cli_opts.time_end = today.isoformat()
+			self.cli_opts.time_end = today + datetime.timedelta(1)
+			if self.cli_opts.time_beg is not None:
+				log.fatal('Overriding time_beg with calculated because prev_weeks.')
+			if self.cli_opts.prev_weeks == 0:
+				start_date = today - datetime.timedelta(1)
+				#start_date = today
+				self.cli_opts.time_beg = today.isoformat()
+				#self.cli_opts.time_beg = start_date.isoformat()
+			else:
+				#self.cli_opts.time_end = today.isoformat()
+				# Python says Monday is 0 and Sunday is 6;
+				# Sqlite3 says Sunday 0 and Saturday 6.
+				weekday = (today.weekday() + 1) % 7
+				days_ago = abs(weekday - self.cli_opts.week_starts)
+				if self.cli_opts.prev_weeks == 1:
+					# Calculate back to week start.
+					start_date = today - datetime.timedelta(days_ago)
+				elif self.cli_opts.prev_weeks == 2:
+					# Calculate to two weeks backs ago.
+					start_date = today - datetime.timedelta(7 + days_ago)
+				elif self.cli_opts.prev_weeks == 4:
+					start_date = today.replace(day=1)
+				elif self.cli_opts.prev_weeks == 5:
+					year = today.year
+					month = today.month - 1
+					if not month:
+						year -= 1
+						month = 12
+					start_date = datetime.date(year, month, 1)
+				else:
+					log.fatal(
+						'Precanned time span value should be one of: 0, 1, 2, 4, 5; not %s'
+						% (self.cli_opts.prev_weeks,)
+					)
+				self.cli_opts.time_beg = start_date.isoformat()
 
 		return ok
 
@@ -780,8 +830,8 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 			) AS project_time
 			ORDER BY start_date %(ORDER_BY_EXTRA)s
 			""" % self.str_params
-		#self.print_output_generic_fcn_name(sql_select, use_header=True)
-		self.print_output_generic_fcn_name(sql_select, use_header=False)
+		self.print_output_generic_fcn_name(sql_select, use_header=True)
+		#self.print_output_generic_fcn_name(sql_select, use_header=False)
 
 	SQL_JDOY_OFFSET_SUNSAT = (
 		"""(
