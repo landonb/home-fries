@@ -3,14 +3,6 @@
 # Copyright: © 2016 Landon Bouma.
 #  vim:tw=0:ts=4:sw=4:noet
 
-my_cmds="""
-
-hamster_report.py -c 'excensus' -c 'exo-tickets' -r all -S
-	
-
-
-"""
-
 # LATER/#XXX: day-starts feature.
 # LATER/#XXX: Check for gaps feature.
 # LATER/#XXX: Double-check time math is inclusive and doesn't round down on minutes...
@@ -19,9 +11,27 @@ hamster_report.py -c 'excensus' -c 'exo-tickets' -r all -S
 #             - Which means using list-all with a search query and maybe dates...
 # LATER/#XXX: --only-date or something to specify a 24 hour period?
 
+# FIXME/MAYBE/TRACK: 2016.01.28: [lb] sees the same entry twice -- I corrected
+# and entry but there's the old row and the new row, both with the same
+# start time... so maybe order by reverse start_time and keep the latest one?
+#
+# Note the sqlite3's group by selects an arbitrary row and we want the most
+# recent row, so we gotta figure out the max id first.
+#   select max_id from (
+#     select max(id) as max_id from facts
+#     where start_time > datetime('2016-01-26')
+#       and end_time < datetime('2016-01-27')
+#     group by start_time
+#   ) as max
+#   join facts on (max.max_id = facts.id)
+#   order by start_time desc
+#
+# select * from (  select max(id) as max_id from facts  where start_time > datetime('2016-01-26')    and end_time < datetime('2016-01-27')  group by start_time) as max join facts on (max.max_id = facts.id) order by start_time desc;
+
 import os
 import sys
 
+import re
 import sqlite3
 import subprocess
 
@@ -35,15 +45,50 @@ logging2.init_logging(logging.DEBUG, log_to_console=True)
 log = logging.getLogger('argparse_wrap')
 
 SCRIPT_DESC = 'Hamster.db Reporting Utility'
-SCRIPT_VERS = '0.1'
+SCRIPT_VERS = 'X' # '0.1'
 
 class HR_Argparser(argparse_wrap.ArgumentParser_Wrap):
 
-	summary_report = set([
-		'day', 'cats', 'for', 'the', 'catted', 'offset',
+	all_report_types = set([
+		'all',
+		'summary',
+		'weekly_summary',
+		'sprint_summary',
+		'daily',
+		'weekly',
+		'activity',
+		'category',
+		'totals',
+		'satsun',
+		'sprint',
+		'daily-activity',
+		'daily-category',
+		'daily-totals',
+		'weekly-satsun',
+		'weekly-sprint',
+		'weekly-activity',
+		'weekly-category',
+		'weekly-activity-satsun',
+		'weekly-category-satsun',
+		'weekly-activity-sprint',
+		'weekly-category-sprint',
 	])
 
-	all_report_types = summary_report.union(set(['all',]))
+	weekly_report = set([
+		'daily-activity',
+		'daily-category',
+		'daily-totals',
+		'weekly-activity-satsun',
+		'weekly-category-satsun',
+	])
+
+	sprint_report = set([
+		'daily-activity',
+		'daily-category',
+		'daily-totals',
+		'weekly-activity-sprint',
+		'weekly-category-sprint',
+	])
 
 	# 0 is Sunday; 6 is Saturday.
 	weekday_lookup_1_char = {
@@ -65,8 +110,12 @@ class HR_Argparser(argparse_wrap.ArgumentParser_Wrap):
 		'sa': 6,
 	}
 
-	def __init__(self, description=SCRIPT_DESC, script_version=SCRIPT_VERS, usage=None):
-		argparse_wrap.ArgumentParser_Wrap.__init__(self, description, usage)
+	def __init__(self):
+		argparse_wrap.ArgumentParser_Wrap.__init__(self,
+			description=SCRIPT_DESC,
+			script_name=None,
+			script_version=SCRIPT_VERS,
+			usage=None)
 
 	def prepare(self):
 		argparse_wrap.ArgumentParser_Wrap.prepare(self)
@@ -80,6 +129,9 @@ class HR_Argparser(argparse_wrap.ArgumentParser_Wrap):
 
 		self.add_argument('-w', '--week-starts', dest='week_starts',
 			type=str, metavar='DAY WEEK STARTS', default=None
+		)
+		self.add_argument('-W', '--print-1-week', dest='sprint_1_week',
+			type=int, metavar='SPRINT_1_WEEK', default=0
 		)
 
 		# LATER/#XXX: day-starts feature.
@@ -142,8 +194,17 @@ class HR_Argparser(argparse_wrap.ArgumentParser_Wrap):
 			action='store_true', default=False,
 		)
 
+		self.add_argument('-vv', '--verbose', dest='be_verbose',
+			action='store_true', default=False,
+		)
+
 	def verify(self):
 		ok = argparse_wrap.ArgumentParser_Wrap.verify(self)
+
+		if self.cli_opts.be_verbose:
+			log.setLevel(logging.DEBUG)
+		else:
+			log.setLevel(logging.WARNING)
 
 		if self.cli_opts.week_starts:
 			try:
@@ -192,9 +253,17 @@ class HR_Argparser(argparse_wrap.ArgumentParser_Wrap):
 			)
 
 		if self.cli_opts.do_list_types is None:
-			self.cli_opts.do_list_types = HR_Argparser.summary_report
+			self.cli_opts.do_list_types = HR_Argparser.weekly_report
 		else:
 			self.cli_opts.do_list_types = set(self.cli_opts.do_list_types)
+			if 'weekly_summary' in self.cli_opts.do_list_types:
+				self.cli_opts.do_list_types = self.cli_opts.do_list_types.union(
+					HR_Argparser.weekly_report
+				)
+			if 'sprint_summary' in self.cli_opts.do_list_types:
+				self.cli_opts.do_list_types = self.cli_opts.do_list_types.union(
+					HR_Argparser.sprint_report
+				)
 
 		return ok
 
@@ -213,8 +282,6 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 			log.fatal('Report failed: %s' % (str(err),))
 			sys.exit(1)
 
-#		self.setup_sql_tidbits()
-
 		if ((self.cli_opts.do_list_all)
 			or ('all' in self.cli_opts.do_list_types)
 		):
@@ -224,35 +291,79 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 		if unknown_types:
 			log.warning('Unknown print list display output types: %s' % (unknown_types,))
 
-		if ((self.cli_opts.do_list_types.intersection(HR_Argparser.summary_report))
-			or ('day' in self.cli_opts.do_list_types)
-		):
-			self.list_for_day()
+		# MAYBE: Go through self.cli_opts.do_list_types in order and print in that order.
 
-		if ((self.cli_opts.do_list_types.intersection(HR_Argparser.summary_report))
-			or ('cats' in self.cli_opts.do_list_types)
+		if (('daily' in self.cli_opts.do_list_types)
+			or ('activity' in self.cli_opts.do_list_types)
+			or ('daily-activity' in self.cli_opts.do_list_types)
 		):
-			self.list_for_week_categories()
+			self.list_daily_per_activity()
 
-		if ((self.cli_opts.do_list_types.intersection(HR_Argparser.summary_report))
-			or ('for' in self.cli_opts.do_list_types)
+		if (('daily' in self.cli_opts.do_list_types)
+			or ('category' in self.cli_opts.do_list_types)
+			or ('daily-category' in self.cli_opts.do_list_types)
 		):
-			self.list_for_week()
+			self.list_daily_per_category()
 
-		if ((self.cli_opts.do_list_types.intersection(HR_Argparser.summary_report))
-			or ('the' in self.cli_opts.do_list_types)
+		if (('daily' in self.cli_opts.do_list_types)
+			or ('totals' in self.cli_opts.do_list_types)
+			or ('daily-totals' in self.cli_opts.do_list_types)
 		):
-			self.list_the_week()
+			self.list_daily_totals()
 
-		if ((self.cli_opts.do_list_types.intersection(HR_Argparser.summary_report))
-			or ('catted' in self.cli_opts.do_list_types)
+		if (('weekly' in self.cli_opts.do_list_types)
+			or ('activity' in self.cli_opts.do_list_types)
+			or ('satsun' in self.cli_opts.do_list_types)
+			or ('weekly-activity' in self.cli_opts.do_list_types)
+			or ('weekly-satsun' in self.cli_opts.do_list_types)
+			or ('weekly-activity-satsun' in self.cli_opts.do_list_types)
 		):
-			self.list_week_offset_catted()
+			self.list_satsun_weekly_per_activity()
 
-		if ((self.cli_opts.do_list_types.intersection(HR_Argparser.summary_report))
-			or ('offset' in self.cli_opts.do_list_types)
+		if (('weekly' in self.cli_opts.do_list_types)
+			or ('category' in self.cli_opts.do_list_types)
+			or ('satsun' in self.cli_opts.do_list_types)
+			or ('weekly-category' in self.cli_opts.do_list_types)
+			or ('weekly-satsun' in self.cli_opts.do_list_types)
+			or ('weekly-category-satsun' in self.cli_opts.do_list_types)
 		):
-			self.list_week_offset()
+			self.list_satsun_weekly_per_category()
+
+		if (('weekly' in self.cli_opts.do_list_types)
+			or ('totals' in self.cli_opts.do_list_types)
+			or ('satsun' in self.cli_opts.do_list_types)
+			or ('weekly-totals' in self.cli_opts.do_list_types)
+			or ('weekly-satsun' in self.cli_opts.do_list_types)
+			or ('weekly-totals-satsun' in self.cli_opts.do_list_types)
+		):
+			self.list_satsun_weekly_totals()
+
+		if (('weekly' in self.cli_opts.do_list_types)
+			or ('activity' in self.cli_opts.do_list_types)
+			or ('sprint' in self.cli_opts.do_list_types)
+			or ('weekly-activity' in self.cli_opts.do_list_types)
+			or ('weekly-sprint' in self.cli_opts.do_list_types)
+			or ('weekly-activity-sprint' in self.cli_opts.do_list_types)
+		):
+			self.list_sprint_weekly_per_activity()
+
+		if (('weekly' in self.cli_opts.do_list_types)
+			or ('category' in self.cli_opts.do_list_types)
+			or ('sprint' in self.cli_opts.do_list_types)
+			or ('weekly-category' in self.cli_opts.do_list_types)
+			or ('weekly-sprint' in self.cli_opts.do_list_types)
+			or ('weekly-category-sprint' in self.cli_opts.do_list_types)
+		):
+			self.list_sprint_weekly_per_category()
+
+		if (('weekly' in self.cli_opts.do_list_types)
+			or ('totals' in self.cli_opts.do_list_types)
+			or ('sprint' in self.cli_opts.do_list_types)
+			or ('weekly-totals' in self.cli_opts.do_list_types)
+			or ('weekly-sprint' in self.cli_opts.do_list_types)
+			or ('weekly-totals-sprint' in self.cli_opts.do_list_types)
+		):
+			self.list_sprint_weekly_totals()
 
 		self.conn.close()
 		self.curs = None
@@ -279,20 +390,12 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 	):
 		SQL_EXTERNAL = False
 
-	SQL_DAY_OF_WEEK = (
-		"""
-		CASE CAST(strftime('%w', start_time) AS INTEGER)
-			WHEN 0 THEN 'sun'
-			WHEN 1 THEN 'mon'
-			WHEN 2 THEN 'tue'
-			WHEN 3 THEN 'wed'
-			WHEN 4 THEN 'thu'
-			WHEN 5 THEN 'fri'
-				   ELSE 'sat'
-		END AS day_of_week
-		"""
-	)
-#	def setup_sql_tidbits(self):
+	# A hacky way to add leading spaces/zeros: use substr.
+	# CAVEAT: This hack will strip characters if number of characters exceeds
+	# the substr bounds. So leave one more than expected -- if you don't see
+	# a leading blank, be suspicious.
+	SQL_DURATION="substr('       ' || printf('%.3f', sum(duration)), -8, 8)"
+
 	def setup_sql_day_of_week(self):
 		self.sql_day_of_week = (
 			"""
@@ -307,6 +410,7 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 			END AS day_of_week
 			"""
 		)
+		self.str_params['SQL_DAY_OF_WEEK'] = self.sql_day_of_week
 
 	def setup_sql_dates(self):
 		self.sql_beg_date = ''
@@ -314,7 +418,7 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 		if self.cli_opts.time_beg:
 			self.sql_beg_date = "AND facts.start_time >= datetime(?)"
 			self.sql_beg_date_ = (
-				"AND facts.start_time >= datetime(%s)"
+				"AND facts.start_time >= datetime('%s')"
 				% (self.cli_opts.time_beg,)
 			)
 			self.sql_params.append(self.cli_opts.time_beg)
@@ -328,7 +432,7 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 		if self.cli_opts.time_end:
 			self.sql_end_date = "AND facts.start_time < datetime(?)"
 			self.sql_end_date_ = (
-				"AND facts.start_time < datetime(%s)"
+				"AND facts.start_time < datetime('%s')"
 				% (self.cli_opts.time_end,)
 			)
 			self.sql_params.append(self.cli_opts.time_end)
@@ -339,8 +443,7 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 
 	# LATER/#XXX:
 	def setup_sql_week_starts(self):
-		self.cli_opts.week_starts = ''
-		self.cli_opts.week_starts_ = ''
+		self.str_params['SQL_WEEK_STARTS'] = self.cli_opts.week_starts
 
 	def setup_sql_categories(self):
 		self.sql_categories = ''
@@ -348,10 +451,12 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 		if self.cli_opts.categories:
 			qmark_list = ','.join(['?' for x in self.cli_opts.categories])
 			self.sql_categories = (
+				#"AND categories.name in (%s)" % (qmark_list,)
 				"AND categories.search_name in (%s)" % (qmark_list,)
 			)
 			name_list = ','.join(["'%s'" % (x,) for x in self.cli_opts.categories])
 			self.sql_categories_ = (
+				#" AND categories.name in (%s)" % (name_list,)
 				" AND categories.search_name in (%s)" % (name_list,)
 			)
 			self.sql_params.append(self.cli_opts.categories)
@@ -367,22 +472,24 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 			qmark_list = ','.join(['?' for x in self.cli_opts.activities])
 			self.sql_activities = (
 				"AND activities.name in (%s)" % (qmark_list,)
+				#"AND activities.search_name in (%s)" % (qmark_list,)
 			)
 			name_list = ','.join(["'%s'" % (x,) for x in self.cli_opts.activities])
 			self.sql_activities_ = (
 				" AND activities.name in (%s)" % (name_list,)
+				#" AND activities.search_name in (%s)" % (name_list,)
 			)
-# FIXME: Loose or Strict?
-			self.sql_activities = (
-				"""
-				AND (0
-					%s
-				)
-				"""
-				% (''.join(["OR activities.name LIKE '%%?%%'"
-							for x in self.cli_opts.activities]),
-				)
-			)
+			# We probably don't need/want to be strict:
+			#	self.sql_activities = (
+			#		"""
+			#		AND (0
+			#			%s
+			#		)
+			#		"""
+			#		% (''.join(["OR activities.name LIKE '%%?%%'"
+			#					for x in self.cli_opts.activities]),
+			#		)
+			#	)
 			self.sql_activities_ = (
 				"""
 				AND (0
@@ -399,7 +506,7 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 		else:
 			self.str_params['SQL_ACTIVITY_NAME'] = self.sql_activities_
 
-	def print_output_generic_fcn_name(self, sql_select):
+	def print_output_generic_fcn_name(self, sql_select, use_header=False):
 		if self.cli_opts.show_sql:
 			log.debug(sql_select)
 
@@ -412,17 +519,57 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 				log.fatal('sql_select: %s' % (sql_select,))
 				log.fatal('sql_params: %s' % (self.sql_params,))
 		else:
+			# sqlite3 output options: -column -csv -html -line -list
 			try:
-				sql_args = [
-					'sqlite3',
+				sql_args = ['sqlite3',]
+				if use_header:
+					sql_args.append('-header')
+				sql_args += [
 					self.cli_opts.hamster_db_path,
 					#'"%s;"' % (sql_select,),
 					'%s;' % (sql_select,),
 				]
-				##ret = subprocess.check_output(sql_args)
-				#ret = subprocess.check_output(sql_args, stderr=subprocess.STDOUT)
-				#print('%s' % (str(ret),))
-				ret = subprocess.run(sql_args)
+				# Send stderr to /dev/null to suppress:
+				#   -- Loading resources from /home/landonb/.sqliterc
+				#   Error: near line 11: libspatialite.so.5.so: cannot open shared object file:
+				#    No such file or directory
+				# Hrm, I thought you could capture output in ret to process it
+				# with run(), but shell=True dumps me on the sqlite3 prompt.
+				if False:
+					ret = subprocess.run(sql_args, stderr=subprocess.DEVNULL)
+				if False:
+					# We could use check_output to collect output lines.
+					#ret = subprocess.check_output(sql_args, stderr=subprocess.DEVNULL)
+					# DEBUGGING: Run without stderr redirected.
+					# FIXME: Redirect STDERR so it doesn't print but so can can complain
+					ret = subprocess.check_output(sql_args)
+					ret = ret.decode("utf-8")
+					lines = ret.split('\n')
+					n_facts = 0
+					for line in lines:
+						if line:
+							print(line)
+							n_facts += 1
+					#print('No. facts found: %d' % (n_facts,))
+				if True:
+					ret = subprocess.run(sql_args, stderr=subprocess.PIPE)
+					# ret.stdout is None because everything went to stdout.
+					errlns = ret.stderr.decode("utf-8").split('\n')
+					# These are some stderrs [lb's] .sqliterc trigger...
+					re_loading_resource = re.compile(r'^-- Loading resources from /home/.*/.sqliterc$')
+					re_error_libspatialite = re.compile(
+	r'^Error: near line .*: libspatialite.*: cannot open shared object file: No such file or directory$'
+					)
+					errs_found = False
+					for errln in errlns:
+						if errln and not (
+							re_loading_resource.match(errln)
+							or re_error_libspatialite.match(errln)
+						):
+							errs_found = True
+					if errs_found:
+						print('Errors found!')
+						print(errlns)
 			except subprocess.CalledProcessError as err:
 				log.fatal('Sql no bueno: %s' % (sql_select,))
 				# Why isn't this printing by itself?
@@ -431,9 +578,8 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 
 	def list_all(self):
 		self.sql_params = []
-		self.str_params = {
-			'SQL_DAY_OF_WEEK': Hamsterer.SQL_DAY_OF_WEEK,
-		}
+		self.str_params = {}
+		self.setup_sql_day_of_week()
 		self.setup_sql_categories()
 		self.setup_sql_dates()
 		self.setup_sql_activities()
@@ -444,9 +590,10 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 				, strftime('%%H:%%M', facts.start_time)
 				, strftime('%%H:%%M', facts.end_time)
 				, substr(' ' || printf('%%.3f',
-				  24.0 * (julianday(facts.end_time) - julianday(facts.start_time))
-				  ), -10, 10) AS duration
-				, activities.name
+					24.0 * (julianday(facts.end_time) - julianday(facts.start_time))
+					), -10, 10)
+				AS duration
+				, activities.name AS activity_name
 				, facts.description
 				--, strftime('%%Y-%%j', facts.start_time) AS yrjul
 			FROM facts
@@ -460,340 +607,238 @@ class Hamsterer(argparse_wrap.Simple_Script_Base):
 			ORDER BY facts.start_time, facts.id desc
 		;
 		""" % self.str_params
+		print()
+		print('ALL FACTS')
+		print('=========')
 		self.print_output_generic_fcn_name(sql_select)
 
-	def list_for_day(self):
+	def setup_sql_fact_durations(self):
 		self.sql_params = []
-		pass
+		self.str_params = {}
+		self.setup_sql_day_of_week()
+		self.setup_sql_week_starts()
+		self.setup_sql_categories()
+		self.setup_sql_dates()
+		self.setup_sql_activities()
+		# Note: julianday returns a float, so multiple by units you want,
+		#       *24 gives you hours, or *86400 gives you seconds.
+		self.sql_fact_durations = """
+			SELECT
+				24.0 * (julianday(facts.end_time) - julianday(facts.start_time)) AS duration
+				--, strftime('%%Y-%%m-%%d', facts.start_time) AS yrjul
+				, strftime('%%Y-%%j', facts.start_time) AS yrjul
+-- ??? try day_of_week2
+				, cast(strftime('%%w', facts.start_time) as integer) as day_of_week
+				, cast(julianday(start_time) as integer) as julian_day_group
+				, case when (cast(strftime('%%w', facts.start_time) as integer) - %(SQL_WEEK_STARTS)s) >= 0
+				  then (cast(strftime('%%w', facts.start_time) as integer) - %(SQL_WEEK_STARTS)s)
+				  else (7 - %(SQL_WEEK_STARTS)s + cast(strftime('%%w', facts.start_time) as integer))
+				  end as psuedo_week_offset
+				, categories.search_name AS category_name
+				--, categories.name AS category_name
+				, activities.name AS activity_name
+				--, activities.search_name AS activity_name
+				, facts.activity_id
+				, facts.start_time
+				, tag_names
+			--FROM facts
+			FROM (
+				SELECT
+					max(facts.id) AS max_id
+					, group_concat(tags.name) AS tag_names
+				FROM facts
+				LEFT OUTER JOIN fact_tags ON (facts.id = fact_tags.fact_id)
+				LEFT OUTER JOIN tags ON (fact_tags.tag_id = tags.id)
+				WHERE 1
+					%(SQL_BEG_DATE)s
+					%(SQL_END_DATE)s
+				GROUP BY start_time, tags.id
+			) AS max
+			JOIN facts ON (max.max_id = facts.id)
+			JOIN activities ON (activities.id = facts.activity_id)
+			JOIN categories ON (categories.id = activities.category_id)
+			WHERE 1
+				%(REPORT_CATEGORIES)s
+				%(SQL_BEG_DATE)s
+				%(SQL_END_DATE)s
+				%(SQL_ACTIVITY_NAME)s
+			GROUP BY facts.id
+			ORDER BY facts.start_time
+		""" % self.str_params
+		self.str_params['SQL_FACT_DURATIONS'] = self.sql_fact_durations
+		self.str_params['SQL_DURATION'] = Hamsterer.SQL_DURATION
 
-	def list_for_week_categories(self):
-		self.sql_params = []
-		pass
+	def list_daily_per_activity(self):
+		print()
+		print('DAILY ACTIVITY TOTALS')
+		print('=====================')
+		self.setup_sql_fact_durations()
+		sql_select = """
+			SELECT
+				%(SQL_DAY_OF_WEEK)s
+				, strftime('%%Y-%%m-%%d', min(julianday(start_time)))
+				, %(SQL_DURATION)s as duration
+				--, category_name
+				, substr('            ' || category_name, -12, 12)
+				, activity_name
+				, tag_names
+			FROM (%(SQL_FACT_DURATIONS)s) AS project_time
+			GROUP BY yrjul, activity_id
+			ORDER BY start_time, activity_name
+		""" % self.str_params
+		self.print_output_generic_fcn_name(sql_select)
 
-	def list_for_week(self):
-		self.sql_params = []
-		pass
-
-	def list_the_week(self):
-		self.sql_params = []
-		pass
-
-	def list_week_offset_catted(self):
-		self.sql_params = []
-		pass
-
-	def list_week_offset(self):
-		self.sql_params = []
-		pass
-
-
-juicy="""
-
-# USAGE:
-#
-# ./hamster_report.sh [ YYYY-MM-HH [ YYYY-MM-HH ] ]
-
-
-# FIXME: Double-check time math is inclusive and doesn't round down on minutes...
-#        though this might make a day's activities greater than exactly 24 hours?
-
-
-
-# FIXME: Add cli options to control output.
-
-# FIXME: Complain if gaps in timesheet -- every end should be another's start... except last entry.
-
-
-
-#pushd ${HOME}/.local/share/hamster-applet &> /dev/null
-HAMSTER_DB="${HOME}/.local/share/hamster-applet/hamster.db"
-
-#BEG_DATE="2016-01-01 00:00:00"
-#END_DATE="2016-01-21 00:00:00"
-
-#SQL_WEEK_START="0" # 
-#SQL_WEEK_START="1" # Monday
-#SQL_WEEK_START="2" # 
-#SQL_WEEK_START="3" # 
-SQL_WEEK_START="4" # Thursday
-#SQL_WEEK_START="5" # 
-#SQL_WEEK_START="6" # Saturday
-
-SPRINT_1_WEEK="-2"
-
-REPORT_CATEGORIES="
-AND (
-    0
-    OR categories.search_name = 'excensus'
-    OR categories.search_name = 'exo-tickets'
-)"
-
-# ======================================================
-
-if [[ -n $1 ]]; then
-    BEG_DATE=$1
-fi
-if [[ -n $2 ]]; then
-    END_DATE=$2
-fi
-
-SQL_BEG_DATE=""
-if [[ ${BEG_DATE} != '' ]]; then
-    SQL_BEG_DATE="AND facts.start_time >= datetime('${BEG_DATE}')"
-fi
-
-SQL_END_DATE=""
-if [[ ${END_DATE} != '' ]]; then
-    SQL_END_DATE="AND facts.start_time < datetime('${END_DATE}')"
-fi
-
-ACTIVITY_NAME=""
-#ACTIVITY_NAME="3572: Dashboard Interface Do Over: XY Chart Interface"
-
-SQL_ACTIVITY_NAME=""
-if [[ ${ACTIVITY_NAME} != '' ]]; then
-    #SQL_ACTIVITY_NAME="AND activities.search_name = '${ACTIVITY_NAME}'"
-    SQL_ACTIVITY_NAME="AND activities.name = '${ACTIVITY_NAME}'"
-fi
-
-# ======================================================
-
-# FIXME/MAYBE/TRACK: 2016.01.28: [lb] sees the same entry twice -- I corrected
-# and entry but there's the old row and the new row, both with the same
-# start time... so maybe order by reverse start_time and keep the latest one?
-#
-# Note the sqlite3's group by selects an arbitrary row and we want the most
-# recent row, so we gotta figure out the max id first.
-#   select max_id from (
-#     select max(id) as max_id from facts
-#     where start_time > datetime('2016-01-26')
-#       and end_time < datetime('2016-01-27')
-#     group by start_time
-#   ) as max
-#   join facts on (max.max_id = facts.id)
-#   order by start_time desc
-#
-# select * from (  select max(id) as max_id from facts  where start_time > datetime('2016-01-26')    and end_time < datetime('2016-01-27')  group by start_time) as max join facts on (max.max_id = facts.id) order by start_time desc;
-
-# ======================================================
-
-SQL_DAY_OF_WEEK="
-    case cast(strftime('%w', start_time) as integer)
-        when 0 then 'sun'
-        when 1 then 'mon'
-        when 2 then 'tue'
-        when 3 then 'wed'
-        when 4 then 'thu'
-        when 5 then 'fri'
-            else 'sat'
-    end as day_of_week
-"
-
-# sqlite3 output options: -column -csv -html -line -list
-
-exo_list_all () {
-    echo
-    echo "ALL RECORDS"
-    echo "==========="
-    sqlite3 ${HAMSTER_DB} "
+	def list_daily_per_category(self):
+		print()
+		print('DAILY CATEGORY TOTALS')
+		print('=====================')
+		self.setup_sql_fact_durations()
+		sql_select = """
         SELECT
-            ${SQL_DAY_OF_WEEK}
-            , strftime('%Y-%m-%d', facts.start_time)
-            , strftime('%H:%M', facts.start_time)
-            , strftime('%H:%M', facts.end_time)
-            , substr(' ' || printf('%.3f',
-              24.0 * (julianday(facts.end_time) - julianday(facts.start_time))
-              ), -10, 10) AS duration
-            , activities.name
-            , facts.description
-            --, strftime('%Y-%j', facts.start_time) AS yrjul
-        FROM facts
-        JOIN activities ON (activities.id = facts.activity_id)
-        JOIN categories ON (categories.id = activities.category_id)
-        WHERE 1
-            ${REPORT_CATEGORIES}
-            ${SQL_BEG_DATE}
-            ${SQL_END_DATE}
-            ${SQL_ACTIVITY_NAME}
-        ORDER BY facts.start_time, facts.id desc
-    ;" 2> /dev/null
-}
-#exo_list_all
+			%(SQL_DAY_OF_WEEK)s
+            , strftime('%%Y-%%m-%%d', min(julianday(start_time))) AS start_time
+            , %(SQL_DURATION)s AS duration
+            , category_name
+			, tag_names
+        FROM (%(SQL_FACT_DURATIONS)s) AS project_time
+        GROUP BY yrjul, category_name
+        ORDER BY start_time, category_name
+		""" % self.str_params
+		self.print_output_generic_fcn_name(sql_select)
 
-# Note: julianday returns a float, so multiple by units you want,
-#       *24 gives you hours, or *86400 gives you seconds.
-
-SQL_FACT_DURATIONS="
-    SELECT
-        24.0 * (julianday(facts.end_time) - julianday(facts.start_time)) AS duration
-        --, strftime('%Y-%m-%d', facts.start_time) AS yrjul
-        , strftime('%Y-%j', facts.start_time) AS yrjul
-        , cast(strftime('%w', facts.start_time) as integer) as day_of_week
-        , cast(julianday(start_time) as integer) as julian_day_group
-        , case when (cast(strftime('%w', facts.start_time) as integer) - ${SQL_WEEK_START}) >= 0
-          then (cast(strftime('%w', facts.start_time) as integer) - ${SQL_WEEK_START})
-          else (7 - ${SQL_WEEK_START} + cast(strftime('%w', facts.start_time) as integer))
-          end as psuedo_week_offset
-        , categories.search_name
-        , activities.name
-        , facts.activity_id
-        , facts.start_time
-    --FROM facts
-    FROM (
-        SELECT max(id) AS max_id FROM facts
-        WHERE 1
-            ${SQL_BEG_DATE}
-            ${SQL_END_DATE}
-        GROUP BY start_time
-    ) AS max
-    JOIN facts ON (max.max_id = facts.id)
-    JOIN activities ON (activities.id = facts.activity_id)
-    JOIN categories ON (categories.id = activities.category_id)
-    WHERE 1
-        ${REPORT_CATEGORIES}
-        ${SQL_BEG_DATE}
-        ${SQL_END_DATE}
-        ${SQL_ACTIVITY_NAME}
-    ORDER BY facts.start_time
-"
-
-# A hacky way to add leading spaces/zeros: use substr.
-# CAVEAT: This hack will strip characters if number of characters exceeds
-# the substr bounds. So leave one more than expected -- if you don't see
-# a leading blank, be suspicious.
-SQL_DURATION="substr('       ' || printf('%.3f', sum(duration)), -8, 8)"
-
-exo_list_for_day () {
-    echo
-    echo "DAILY PROJECT TOTALS"
-    echo "===================="
-    sqlite3 ${HAMSTER_DB} "
+	def list_daily_totals(self):
+		print()
+		print('DAILY TOTALS')
+		print('============')
+		self.setup_sql_fact_durations()
+		sql_select = """
         SELECT
-            ${SQL_DAY_OF_WEEK}
-            , strftime('%Y-%m-%d', min(julianday(start_time)))
-            , ${SQL_DURATION} as duration
-            , name
-            , search_name
-        FROM (${SQL_FACT_DURATIONS}) AS project_time
-        GROUP BY yrjul, activity_id
-        ORDER BY start_time, name
-    ;" # 2> /dev/null
-}
-exo_list_for_day
-
-exo_list_for_week_categories () {
-    echo
-    echo "DAILY CATEGORIES"
-    echo "================"
-    sqlite3 ${HAMSTER_DB} "
-        SELECT
-            ${SQL_DAY_OF_WEEK}
-            , strftime('%Y-%m-%d', min(julianday(start_time))) AS start_time
-            , ${SQL_DURATION} as duration
-            , search_name
-        FROM (${SQL_FACT_DURATIONS}) AS project_time
-        GROUP BY yrjul, search_name
-        ORDER BY start_time, search_name
-    ;" # 2> /dev/null
-}
-exo_list_for_week_categories
-
-exo_list_for_week () {
-    echo
-    echo "DAILY TOTALS"
-    echo "============"
-    sqlite3 ${HAMSTER_DB} "
-        SELECT
-            ${SQL_DAY_OF_WEEK}
-            , strftime('%Y-%m-%d', min(julianday(start_time)))
-            , ${SQL_DURATION} as duration
-        FROM (${SQL_FACT_DURATIONS}) AS project_time
+			%(SQL_DAY_OF_WEEK)s
+            , strftime('%%Y-%%m-%%d', min(julianday(start_time)))
+            , %(SQL_DURATION)s AS duration
+			, tag_names
+        FROM (%(SQL_FACT_DURATIONS)s) AS project_time
         GROUP BY yrjul
         ORDER BY start_time
-    ;" # 2> /dev/null
-}
-exo_list_for_week
+		""" % self.str_params
+		self.print_output_generic_fcn_name(sql_select)
 
-exo_list_week () {
-    if [[ -z $1 ]]; then
-        SQL_GROUP_BY="GROUP BY julianweek"
-        SELECT_SEARCH_NAME=""
-    else
-        SQL_GROUP_BY="GROUP BY julianweek, search_name"
-        SELECT_SEARCH_NAME=", search_name"
-    fi
-    sqlite3 -header ${HAMSTER_DB} "
-        SELECT
-            ${SQL_DAY_OF_WEEK}
-            , strftime('%Y-%m-%d', start_time) AS start_date
-            --, julianweek
-            , julianweek - ${SPRINT_1_WEEK} as sprint_num
-            , duration
-            ${SELECT_SEARCH_NAME}
-        FROM (
-            SELECT
-                min(julianday(start_time)) as start_time
-                , ${SQL_JULIAN_WEEK} as julianweek
-                , ${SQL_DURATION} as duration
-                ${SELECT_SEARCH_NAME}
-            FROM (${SQL_FACT_DURATIONS}) as inner
-            ${SQL_GROUP_BY}
-        ) AS project_time
-        ORDER BY start_date ${SELECT_SEARCH_NAME}
-    ;" # 2> /dev/null
-}
+	def list_weekly_wrap(self,
+		sql_julian_day_of_year,
+		group_by_categories=False,
+		group_by_activities=False,
+		week_num_unit='sprint_num',
+	):
+		self.setup_sql_fact_durations()
+		self.str_params['SQL_JULIAN_WEEK'] = "cast(%s / 7 as integer)" % (
+			sql_julian_day_of_year,
+		)
+		group_bys = ['julianweek',]
+		sql_select_extra = ''
+		sql_order_by_extra = ''
+		#if self.cli_opts.categories or self.cli_opts.query:
+		group_bys.append('tag_names')
+		if group_by_categories:
+			group_bys.append('category_name')
+			sql_select_extra += ", substr('            ' || category_name, -12, 12)"
+			sql_order_by_extra += ', category_name'
+		if group_by_activities:
+			group_bys.append('activity_name')
+			sql_select_extra += ', activity_name'
+			sql_order_by_extra += ', activity_name'
+		if False: # Something like this?:
+			if self.cli_opts.activities or self.cli_opts.query:
+				group_bys.append('activity')
+			if self.cli_opts.tags or self.cli_opts.query:
+				group_bys.append('tags')
+			if self.cli_opts.query:
+				group_bys.append('query')
+		sql_select_extra += ', tag_names'
+		sql_group_by = "GROUP BY %s" % (', '.join(group_bys),)
+		self.str_params['SPRINT_1_WEEK'] = self.cli_opts.sprint_1_week
+		self.str_params['WEEK_NUM_UNIT'] = week_num_unit
+		self.str_params['SELECT_EXTRA'] = sql_select_extra
+		self.str_params['ORDER_BY_EXTRA'] = sql_order_by_extra
+		self.str_params['SQL_GROUP_BY'] = sql_group_by
+		sql_select = """
+			SELECT
+				%(SQL_DAY_OF_WEEK)s
+				, strftime('%%Y-%%m-%%d', start_time) AS start_date
+				--, julianweek
+				, julianweek - %(SPRINT_1_WEEK)s AS %(WEEK_NUM_UNIT)s
+				, duration
+				%(SELECT_EXTRA)s
+			FROM (
+				SELECT
+					min(julianday(start_time)) AS start_time
+					, %(SQL_JULIAN_WEEK)s AS julianweek
+					, %(SQL_DURATION)s AS duration
+					, tag_names
+					%(ORDER_BY_EXTRA)s
+				FROM (%(SQL_FACT_DURATIONS)s) AS inner
+				%(SQL_GROUP_BY)s
+			) AS project_time
+			ORDER BY start_date %(ORDER_BY_EXTRA)s
+			""" % self.str_params
+		#self.print_output_generic_fcn_name(sql_select, use_header=True)
+		self.print_output_generic_fcn_name(sql_select, use_header=False)
 
-exo_list_the_week () {
-    echo
-    echo "SUN-SAT WEEKLIES"
-    echo "================"
-    SQL_JULIAN_DAY_OF_YEAR="(
-        julianday(start_time)
-        - julianday(strftime('%Y-01-01', start_time))
-        + cast(strftime('%w', strftime('%Y-01-01', start_time)) as integer)
-    )"
-    SQL_JULIAN_WEEK="cast(${SQL_JULIAN_DAY_OF_YEAR} / 7 as integer)"
-    exo_list_week
-}
-exo_list_the_week
+	SQL_JDOY_OFFSET_SUNSAT = (
+		"""(
+		julianday(start_time)
+		- julianday(strftime('%Y-01-01', start_time))
+		+ cast(strftime('%w', strftime('%Y-01-01', start_time)) AS integer)
+		)"""
+	)
 
-exo_list_week_offset_catted () {
-    echo
-    echo "SPRINT WEEK CATEGORIES"
-    echo "======================"
-    SQL_JULIAN_DAY_OF_YEAR="(
-        julianday(start_time)
-        - psuedo_week_offset
-        + 7
-        - julianday(strftime('%Y-01-01', start_time))
-    )"
-    SQL_JULIAN_WEEK="cast(${SQL_JULIAN_DAY_OF_YEAR} / 7 as integer)"
-    exo_list_week 1
-}
-exo_list_week_offset_catted
+	def list_satsun_weekly_wrap(self, subtitle, cats, acts):
+		print()
+		print('SUN-SAT WEEKLY %s TOTALS' % (subtitle,))
+		print('===============%s=======' % ('=' * len(subtitle),))
+		sql_julian_day_of_year = Hamsterer.SQL_JDOY_OFFSET_SUNSAT
+		self.list_weekly_wrap(sql_julian_day_of_year,
+			group_by_categories=cats,
+			group_by_activities=acts,
+			week_num_unit='week_num'
+		)
 
-exo_list_week_offset () {
-    echo
-    echo "SPRINT WEEKS"
-    echo "============"
-    SQL_JULIAN_DAY_OF_YEAR="(
-        julianday(start_time)
-        - psuedo_week_offset
-        + 7
-        - julianday(strftime('%Y-01-01', start_time))
-    )"
-    SQL_JULIAN_WEEK="cast(${SQL_JULIAN_DAY_OF_YEAR} / 7 as integer)"
-    exo_list_week
-}
-exo_list_week_offset
+	def list_satsun_weekly_per_activity(self):
+		self.list_satsun_weekly_wrap('ACTIVITY', True, True)
 
-#popd &> /dev/null
+	def list_satsun_weekly_per_category(self):
+		self.list_satsun_weekly_wrap('CATEGORY', True, False)
 
-"""
+	def list_satsun_weekly_totals(self):
+		self.list_satsun_weekly_wrap('TOTAL', False, False)
 
+	SQL_JDOY_OFFSET = (
+		"""(
+		julianday(start_time)
+		- psuedo_week_offset
+		+ 7
+		- julianday(strftime('%Y-01-01', start_time))
+		)"""
+	)
 
+	def list_sprint_weekly_wrap(self, subtitle, cats, acts):
+		print()
+		print('SPRINT WEEKLY %s TOTALS' % (subtitle,))
+		print('==============%s=======' % ('=' * len(subtitle),))
+		sql_julian_day_of_year = Hamsterer.SQL_JDOY_OFFSET
+		self.list_weekly_wrap(sql_julian_day_of_year,
+			group_by_categories=cats,
+			group_by_activities=acts,
+			week_num_unit='sprint_num'
+		)
 
+	def list_sprint_weekly_per_activity(self):
+		self.list_sprint_weekly_wrap('ACTIVITY', True, True)
 
+	def list_sprint_weekly_per_category(self):
+		self.list_sprint_weekly_wrap('CATEGORY', True, False)
+
+	def list_sprint_weekly_totals(self):
+		self.list_sprint_weekly_wrap('TOTAL', False, False)
 
 if (__name__ == '__main__'):
 	hr = Hamsterer()
