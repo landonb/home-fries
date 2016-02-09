@@ -3,7 +3,13 @@
 # Copyright: © 2016 Landon Bouma.
 #  vim:tw=0:ts=4:sw=4:noet
 
-# LATER/#XXX: day-starts feature.
+# LATER/#XXX: Add monthlies, yearlies, and foreverlies.
+# LATER/#XXX: Add daily/weekly/monthly charts/reports.
+# LATER/#XXX: Add current activity into reporting
+#               OR (facts.end_time is NULL)
+#               and then set end_time to NOW where it's null.
+# LATER/#XXX: (time-of-)day-starts feature (default now is 12AM).
+# LATER/#XXX: split day-split facts. currently fact is counted for next day?
 # LATER/#XXX: Check for gaps feature.
 # LATER/#XXX: Double-check time math is inclusive and doesn't round down on minutes...
 #             though this might make a day's activities greater than exactly 24 hours?
