@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.02.08
+# Last Modified: 2016.03.23
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -515,21 +515,6 @@ stage_4_virtualbox_install () {
   # Headers are needed for VirtualBox but should already be current:
   sudo apt-get install -y linux-headers-`uname -r`
 
-  # Get the latest Debian package. At least if this script is uptodate.
-  # See: https://www.virtualbox.org/wiki/Downloads
-  #LATEST_VBOX_PKG="virtualbox-4.3_4.3.26-98988~Ubuntu~raring_amd64.deb"
-  #LATEST_VBOX_EXTPACK="Oracle_VM_VirtualBox_Extension_Pack-4.3.26-98988.vbox-extpack"
-  #LATEST_VBOX_PKG="virtualbox-4.3_4.3.28-100309~Ubuntu~raring_amd64.deb"
-  #LATEST_VBOX_EXTPACK="Oracle_VM_VirtualBox_Extension_Pack-4.3_4.3.28-100309.vbox-extpack"
-  #LATEST_VBOX_PKG="virtualbox-4.3_4.3.30-101610~Ubuntu~raring_amd64.deb"
-  #LATEST_VBOX_EXTPACK="Oracle_VM_VirtualBox_Extension_Pack-4.3.30-101610.vbox-extpack"
-  #LATEST_VBOX_PKG="virtualbox-5.0_5.0.10-104061~Ubuntu~trusty_amd64.deb"
-  #LATEST_VBOX_EXTPACK="Oracle_VM_VirtualBox_Extension_Pack-5.0.10-104061.vbox-extpack"
-  #LATEST_VBOX_PKG="virtualbox-5.0_5.0.12-104815~Ubuntu~trusty_amd64.deb"
-  #LATEST_VBOX_EXTPACK="Oracle_VM_VirtualBox_Extension_Pack-5.0.12-104815.vbox-extpack"
-  LATEST_VBOX_PKG="virtualbox-5.0_5.0.14-105127~Ubuntu~trusty_amd64.deb"
-  LATEST_VBOX_EXTPACK="Oracle_VM_VirtualBox_Extension_Pack-5.0.14-105127.vbox-extpack"
-
 # FIXME: Install VBox 5.0
 #        https://www.virtualbox.org/wiki/Linux_Downloads
 #
@@ -545,38 +530,29 @@ stage_4_virtualbox_install () {
 #sudo apt-get update
 #sudo apt-get install virtualbox-5.0
 
-  pushd ${OPT_DLOADS} &> /dev/null
+  # Get the latest Debian package. At least if this script is uptodate.
+  # See: https://www.virtualbox.org/wiki/Downloads
+  #LATEST_VBOX_PKG="virtualbox-4.3_4.3.26-98988~Ubuntu~raring_amd64.deb"
+  #LATEST_VBOX_PKG="virtualbox-4.3_4.3.28-100309~Ubuntu~raring_amd64.deb"
+  #LATEST_VBOX_PKG="virtualbox-4.3_4.3.30-101610~Ubuntu~raring_amd64.deb"
+  #LATEST_VBOX_PKG="virtualbox-5.0_5.0.10-104061~Ubuntu~trusty_amd64.deb"
+  #LATEST_VBOX_PKG="virtualbox-5.0_5.0.12-104815~Ubuntu~trusty_amd64.deb"
+  #LATEST_VBOX_PKG="virtualbox-5.0_5.0.14-105127~Ubuntu~trusty_amd64.deb"
+  LATEST_VBOX_PKG="virtualbox-5.0_5.0.16-105871~Ubuntu~trusty_amd64.deb"
+  LATEST_VBOX_EXTPACK="Oracle_VM_VirtualBox_Extension_Pack-5.0.16-105871.vbox-extpack"
+  LATEST_VBOX_VERSION="5.0.16"
 
-  #wget -N \
-  #  http://download.virtualbox.org/virtualbox/4.3.26/${LATEST_VBOX_PKG}
-  #wget -N \
-  #  http://download.virtualbox.org/virtualbox/4.3.28/${LATEST_VBOX_PKG}
-  #wget -N \
-  #  http://download.virtualbox.org/virtualbox/4.3.30/${LATEST_VBOX_PKG}
-  #wget -N \
-  #  http://download.virtualbox.org/virtualbox/5.0.10/${LATEST_VBOX_PKG}
-  #wget -N \
-  #  http://download.virtualbox.org/virtualbox/5.0.12/${LATEST_VBOX_PKG}
+  pushd ${OPT_DLOADS} &> /dev/null
   wget -N \
-    http://download.virtualbox.org/virtualbox/5.0.14/${LATEST_VBOX_PKG}
+    http://download.virtualbox.org/virtualbox/${LATEST_VBOX_VERSION}/${LATEST_VBOX_PKG}
 
   #sudo apt-get remove virtualbox-4.3
   sudo dpkg -i ${LATEST_VBOX_PKG}
   #/bin/rm ${LATEST_VBOX_PKG}
 
   # This Guy, for USB 2.
-  #wget -N \
-  #  http://download.virtualbox.org/virtualbox/4.3.26/${LATEST_VBOX_EXTPACK}
-  #wget -N \
-  #  http://download.virtualbox.org/virtualbox/4.3.28/${LATEST_VBOX_EXTPACK}
-  #wget -N \
-  #  http://download.virtualbox.org/virtualbox/4.3.30/${LATEST_VBOX_EXTPACK}
-  #wget -N \
-  #  http://download.virtualbox.org/virtualbox/5.0.10/${LATEST_VBOX_EXTPACK}
-  #wget -N \
-  #  http://download.virtualbox.org/virtualbox/5.0.12/${LATEST_VBOX_EXTPACK}
   wget -N \
-    http://download.virtualbox.org/virtualbox/5.0.14/${LATEST_VBOX_EXTPACK}
+    http://download.virtualbox.org/virtualbox/${LATEST_VBOX_VERSION}/${LATEST_VBOX_EXTPACK}
 
 # FIXME: Unless there's a scripty way to add the extension pack,
 #        tell user to run `virtualbox &`, navigate to File > Preferences...,
@@ -1106,7 +1082,12 @@ stage_4_font_typeface_hack () {
   wget -N https://github.com/chrissimpkins/Hack/releases/download/v2.010/Hack-v2_010-ttf.zip
   mkdir -p ~/.fonts
   # Use -f to "freshen" only those file that are newer in the archive.
-  unzip -f -d ~/.fonts/Hack-v2_010-ttf Hack-v2_010-ttf.zip
+  # Hrmm, -f doesn't do anything if the files don't already exist...
+  if [[ ! -e ~/.fonts/Hack-v2_010-ttf ]]; then
+    unzip -d ~/.fonts/Hack-v2_010-ttf Hack-v2_010-ttf.zip
+  else
+    unzip -f -d ~/.fonts/Hack-v2_010-ttf Hack-v2_010-ttf.zip
+  fi
 
   popd &> /dev/null
 

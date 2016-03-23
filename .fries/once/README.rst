@@ -3,7 +3,7 @@ A General Linux Setup Guide For Developers
 ==========================================
 
 .. Author: Landon Bouma
-.. Last Modified: 2015.08.07
+.. Last Modified: 2016.03.23
 .. Project Page: https://github.com/landonb/home_fries
 
 Overview
@@ -68,7 +68,7 @@ and install it on your host machine.
 
 Create a 64-bit Ubuntu machine.
 
-.. todo:: Document VM setup and options.
+.. todo:: Document VM setup and options
 
 If your host OS does not natively support mounting ISO files
 (ahem, Windows), download and install an ISO mounter.

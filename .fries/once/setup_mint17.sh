@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.01.25
+# Last Modified: 2016.03.23
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -565,6 +565,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       #virtualenvwrapper
       # Install via virtualenv and pip:
       #  python-pytest
+      python-pytest
       # FIXME: There are more python modules, like levenshtein,
       #        that should be installed via virtualenv, too.
       # For tox, install multiple Python versions.
@@ -979,6 +980,7 @@ setup_mint_17_stage_3 () {
 
     # Let the user access any mounted VBox drives.
     if [[ `sudo virt-what` == 'virtualbox' ]]; then
+      sudo groupadd vboxsf
       sudo usermod -aG vboxsf $USER
     fi
 
