@@ -1636,6 +1636,7 @@ stage_4_funstuff () {
     # Game.cpp:63:71: error: cast from ‘gpointer {aka void*}’ to ‘unsigned int’ loses precision [-fpermissive]
     #      Event ev = (Event) (unsigned int) g_slist_nth_data(itsEventList, 0);
     #     Event ev = (Event) (unsigned long) g_slist_nth_data(itsEventList, 0);
+    :
 
   fi
 
