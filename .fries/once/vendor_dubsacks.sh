@@ -51,8 +51,7 @@ stage_4_dubsacks_install () {
     # then you got bigger problems.
     git pull
     
-    # So, like, what messes up the ~/.vimrc link and points it at bundle_/?
-    # Anyway, recreate/correct the symlink, and also
+    # Create the ~/.vimrc symlink, and also
     # download all the submodules.
     ./setup.sh
 
