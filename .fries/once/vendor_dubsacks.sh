@@ -17,19 +17,35 @@ stage_4_dubsacks_install () {
 
   pushd ${HOME} &> /dev/null
 
-  if [[ -e ${HOME}/.vimrc ]]; then
+  if [[ ! -h ${HOME}/.vimrc ]]; then
+    echo
+    echo "WARNING: Was expecting .vimrc to be a symlink: moving it aside: ${HOME}/.vimrc"
     mv ${HOME}/.vimrc ${HOME}/BACKUP-vimrc-`date +%Y_%m_%d`-`uuidgen`
   fi
 
   if [[ -e ${HOME}/.vimprojects ]]; then
+    echo
+    echo "WARNING: Not expecting vimprojects: moving it aside: ${HOME}/.vimprojects"
     mv ${HOME}/.vimprojects ${HOME}/BACKUP-vimprojects-`date +%Y_%m_%d`-`uuidgen`
   fi
 
-  if [[ -e ${HOME}/.vim ]]; then
+  if [[ -e ${HOME}/.vim && ! -d ${HOME}/.vim/.git ]]; then
+    echo
+    echo "WARNING: Was expecting vim to be a git repo: moving it aside: ${HOME}/.vim"
     mv ${HOME}/.vim ${HOME}/BACKUP-vim-`date +%Y_%m_%d`-`uuidgen`
   fi
-
-  git clone ${URI_DUBSACKS_VIM_GIT} ${HOME}/.vim
+  if [[ ! -e ${HOME}/.vim ]]; then
+    git clone ${URI_DUBSACKS_VIM_GIT} ${HOME}/.vim
+  else
+    # We'll just assume that *we* setup .vim already,
+    # i.e., that this is our repo and not something else.
+    # We could check that, say, ~/.vim/bundle/dubs_core exists,
+    # but it's unlikely that that'll not be there, and if it isn't,
+    # then you got bigger problems.
+    pushd ${HOME}/.vim &> /dev/null
+    git pull
+    popd &> /dev/null
+  fi
 
   popd &> /dev/null
 
