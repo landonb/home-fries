@@ -259,6 +259,8 @@ and let the setup script install it.
 .. code-block:: bash
 
     sudo apt-get install -y vim-gtk git git-core
+    # 2016.03.23: I was copying locally at first, but really what's on
+    #             github is golden, so don't specify a local git path.
     #export URI_DUBSACKS_VIM_GIT=/media/sf_landonb/.vim
     source ~/.fries/once/vendor_dubsacks.sh
     stage_4_dubsacks_install
