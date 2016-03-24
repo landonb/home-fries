@@ -53,6 +53,7 @@ stage_4_dubsacks_install () {
   # Dubsacks uses the Hack font.
   source custom_mint17.extras.sh
   stage_4_font_typeface_hack
+  stage_4_parT_install
 
   if false; then
     # FIXME/MAYBE: Implement this:

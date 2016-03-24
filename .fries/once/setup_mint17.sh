@@ -1298,7 +1298,10 @@ setup_mint_17_stage_4 () {
 
   # Setup git, mercurial, meld, postgres, apache, quicktile, pidgin,
   # adobe reader, dropbox, expect, rssowl, cloc, todo.txt, ti, utt, etc.
-  source ${script_absbase}/custom_mint17.extras.sh
+  if [[ ${IS_DEV_MACHINE_ANSWER} == "Y" ]]; then
+    source ${script_absbase}/custom_mint17.extras.sh
+  # else, this is a keypass/lite machine; don't do anyextras.
+  fi
 
   # Install "vendor" add-ons, or your personal projects.
 

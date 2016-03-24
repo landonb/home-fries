@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.03.23
+# Last Modified: 2016.03.24
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -8,9 +8,13 @@
 # NOTE: If you're copying and pasting manually, source this guy first!:
 #         source ./mint17_setup_base.sh
 
+# Unless you source bash_base.sh, gotta make sure some things are set.
+if [[ -z ${WM_IS_MATE+x} ]]; then
+  WM_IS_MATE=false
+fi
+
 stage_4_dropbox_install () {
 
-  /bin/mkdir -p ${OPT_BIN}
   pushd ${OPT_BIN} &> /dev/null
 
   if [[ -e ${OPT_BIN}/dropbox.py ]]; then
@@ -45,7 +49,6 @@ stage_4_dropbox_install () {
   echo "          dropbox.py autostart y"
   echo
 
-
   mkdir -p $HOME/.config/autostart
 
   echo "[Desktop Entry]
@@ -58,7 +61,6 @@ Name=Dropbox
 Comment[en_US]=
 Comment=
 " > $HOME/.config/autostart/dropbox.desktop
-
 
   popd &> /dev/null
 
@@ -128,6 +130,12 @@ stage_4_psql_configure () {
 
   # Postgres config. Where POSTGRESABBR is, e.g., "9.1".
 
+  if [[ ! -d /etc/postgresql ]]; then
+    echo
+    echo "WARNING: Postgres is not installed."
+    return
+  fi
+
   if [[ -z ${POSTGRESABBR} ]]; then
     echo
     echo "ERROR: POSTGRESABBR is not set."
@@ -153,12 +161,12 @@ stage_4_psql_configure () {
             /etc/postgresql/${POSTGRESABBR}/main/postgresql.conf.`uuidgen`
   fi
 
-  #
-  sudo /bin/cp \
+# FIXME: Care if overwriting any files?
+
+  sudo /bin/cp -a \
     ${script_absbase}/common/etc/postgresql/${POSTGRESABBR}/main/pg_hba.conf \
     /etc/postgresql/${POSTGRESABBR}/main/pg_hba.conf
 
-  #
   m4 \
     --define=HTTPD_USER=${httpd_user} \
     --define=TARGETUSER=$USER \
@@ -185,6 +193,12 @@ stage_4_psql_configure () {
 
 stage_4_apache_configure () {
 
+  if [[ ! -d /etc/apache2 ]]; then
+    echo
+    echo "WARNING: Apache2 is not installed."
+    return
+  fi
+
   # Make the Apache configs group-writeable.
   if [[ -n ${USE_STAFF_GROUP_ASSOCIATION} ]]; then
     sudo /bin/chgrp -R ${USE_STAFF_GROUP_ASSOCIATION} /etc/apache2/
@@ -194,6 +208,8 @@ stage_4_apache_configure () {
     sudo /bin/chmod 2775 /etc/apache2/sites-enabled
     sudo /bin/chmod 664  /etc/apache2/sites-available/*.conf
   fi
+
+# FIXME: Care if overwriting any files?
 
   # Avoid an apache gripe and set ServerName.
   m4 \
@@ -317,7 +333,6 @@ stage_4_hamster_time_tracker_setup () {
   fi
   # There's also the package which is the same as from the untrusted repo.
   if false; then
-    /bin/mkdir -p ${OPT_DLOADS}
     pushd ${OPT_DLOADS} &> /dev/null
     wget -N https://github.com/projecthamster/hamster/releases/download/v2.0-rc1/hamster_2.0-rc1-2_all.deb
     sudo dpkg -i hamster_2.0-rc1-2_all.deb
@@ -328,7 +343,21 @@ stage_4_hamster_time_tracker_setup () {
   # Update hamster to special fork.
 
   pushd ${OPT_DLOADS} &> /dev/null
-  git clone https://github.com/landonb/hamster-applet
+
+  if [[ ! -e ${OPT_DLOADS}/hamster-applet ]]; then
+    git clone https://github.com/landonb/hamster-applet
+  else
+    pushd ${OPT_DLOADS}/hamster-applet &> /dev/null
+    git pull
+    popd &> /dev/null
+  fi
+
+  if [[    -e /usr/share/pyshared/hamster/overview.py.ORIG \
+        || -e /usr/share/pyshared/hamster/overview_totals.py.ORIG ]]; then
+    echo
+    echo "WARNING: Skipping hamster install -- possibly already done."
+    return
+  fi
 
   pkill -f hamster-service
   pkill -f hamster-windows-service
@@ -350,22 +379,19 @@ stage_4_hamster_time_tracker_setup () {
   popd &> /dev/null
 
   # Symlink hamster.db to dropbox version.
-# FIXME: The hamster.db at home hasn't synced in a while -- I bet Dropbox did not restart on boot.
 
   # FIXME: Make a bash var for this path...
-  if [[ -d ${HOME}/Dropbox/.fries/home/.local/share/hamster-applet/hamster.db ]]; then
-
-    if [[ -e ${HOME}/.local/share/hamster-applet/hamster.db && \
-          ! -L ${HOME}/.local/share/hamster-applet/hamster.db ]]; then
+  HAMSTER_DB_PATH=".local/share/hamster-applet/hamster.db"
+  if [[ -d ${HOME}/Dropbox/.fries/home/${HAMSTER_DB_PATH} ]]; then
+    if [[ -e ${HOME}/${HAMSTER_DB_PATH} && \
+          ! -L ${HOME}/${HAMSTER_DB_PATH} ]]; then
       /bin/mv \
-        ${HOME}/.local/share/hamster-applet/hamster.db \
-        ${HOME}/.local/share/hamster-applet/hamster.db-`date +%Y.%m.%d-%T`
+        ${HOME}/${HAMSTER_DB_PATH} \
+        ${HOME}/${HAMSTER_DB_PATH}-`date +%Y.%m.%d-%T`
     fi
-
     /bin/ln -sf \
       ${HOME}/Dropbox/.fries/home/.local/share/hamster-applet/hamster.db \
       ${HOME}/.local/share/hamster-applet
-
   fi
 
   # Auto-start hamster on boot.
@@ -609,6 +635,9 @@ stage_4_reader_install () {
 
 stage_4_libreoffice_install () {
 
+  # 2016.03.23: There's a libreoffice installed by default, right?
+  #             Just maybe not libreoffice5...
+
 # FIXME: This fcn. So far I've just done this manually, I think.
   if false; then
 
@@ -694,9 +723,11 @@ stage_4_restview_install () {
 #        packages from SourceForge without hardcoding here?
 
 stage_4_rssowl_install () {
+
   echo
   echo "WARNING: Skipping: stage_4_rssowl_install"
   echo
+
   # RSSOwl RSS Client
   # FIXME: Test RSSOwl and decide if this should be excluded.
   if false; then
@@ -708,11 +739,11 @@ stage_4_rssowl_install () {
 #        or add to PATH...
 # ${OPT_DLOADS}/rssowl-2.2.1/rssowl/RSSOwl
   fi
+
 } # end: stage_4_rssowl_install
 
 stage_4_cloc_install () {
 
-  /bin/mkdir -p ${OPT_BIN}
   pushd ${OPT_BIN} &> /dev/null
 
   wget -N \
@@ -727,10 +758,17 @@ stage_4_cloc_install () {
 
 stage_4_parT_install () {
 
-  /bin/mkdir -p ${OPT_DLOADS}
   pushd ${OPT_DLOADS} &> /dev/null
 
-  git clone https://github.com/landonb/parT
+  if [[ ! -e ${OPT_DLOADS}/parT ]]; then
+    git clone https://github.com/landonb/parT
+  else
+    pushd parT &> /dev/null
+    git pull
+    popd &> /dev/null
+  fi
+
+  popd &> /dev/null
 
   pushd parT &> /dev/null
 
@@ -739,13 +777,11 @@ stage_4_parT_install () {
   sudo chown root:root /usr/bin/parT
 
   popd &> /dev/null
-  popd &> /dev/null
 
 } # end: stage_4_parT_install
 
 stage_4_todo_txt_install () {
 
-  /bin/mkdir -p ${OPT_DLOADS}
   pushd ${OPT_DLOADS} &> /dev/null
 
   mkdir $HOME/.todo
@@ -782,7 +818,6 @@ stage_4_todo_txt_install () {
 stage_4_punch_tt_install () {
 
   if false; then
-    /bin/mkdir -p ${OPT_DLOADS}
     cd ${OPT_DLOADS}
     wget -N \
       https://punch-time-tracking.googlecode.com/files/punch-time-tracking-1.3.zip
@@ -796,7 +831,6 @@ stage_4_punch_tt_install () {
 stage_4_ti_time_tracker_install () {
 
   if false; then
-    /bin/mkdir -p ${OPT_BIN}
     cd ${OPT_BIN}
     wget -N \
       https://raw.githubusercontent.com/sharat87/ti/master/bin/ti
@@ -811,7 +845,6 @@ stage_4_utt_time_tracker_install () {
   # Ultimate Time Tracker
 
   if false; then
-    /bin/mkdir -p ${OPT_DLOADS}
     cd ${OPT_DLOADS}
     git clone https://github.com/larose/utt.git
     cd utt
@@ -851,7 +884,6 @@ stage_4_keepassx_install () {
 
   if false; then
 
-    /bin/mkdir -p ${OPT_DLOADS}
     cd ${OPT_DLOADS}
     wget -N http://www.keepassx.org/releases/keepassx-0.4.3.tar.gz
     tar xvzf keepassx-0.4.3.tar.gz
@@ -881,13 +913,19 @@ stage_4_keepassx_install () {
 
 stage_4_pencil_install () {
 
-  /bin/mkdir -p ${OPT_DLOADS}
-  pushd ${OPT_DLOADS} &> /dev/null
-  wget -N http://evoluspencil.googlecode.com/files/evoluspencil_2.0.5_all.deb
-  sudo dpkg -i evoluspencil_2.0.5_all.deb
-  #/bin/rm ${OPT_DLOADS}/evoluspencil_2.0.5_all.deb
+  # 2016.03.23: Disabling this until I find myself needing to use it.
 
-  popd &> /dev/null
+  if false; then
+
+    pushd ${OPT_DLOADS} &> /dev/null
+
+    wget -N http://evoluspencil.googlecode.com/files/evoluspencil_2.0.5_all.deb
+    sudo dpkg -i evoluspencil_2.0.5_all.deb
+    #/bin/rm ${OPT_DLOADS}/evoluspencil_2.0.5_all.deb
+
+    popd &> /dev/null
+
+  fi
 
 } # end: stage_4_pencil_install
 
@@ -917,6 +955,9 @@ stage_4_disable_services () {
   # but no "session started" or "session opened" lines. Whatever.
   # I don't Samba. https://en.wikipedia.org/wiki/Samba_%28software%29
 
+  # 2016.03.23: Samba's not installed by default;
+  #             this is all a no-op, right?
+
   # Stop it now.
   sudo service smbd stop
 
@@ -929,14 +970,16 @@ stage_4_disable_services () {
 
 stage_4_spotify_install () {
 
-  /bin/mkdir -p ${OPT_DLOADS}
   pushd ${OPT_DLOADS} &> /dev/null
 
   # From:
   #  https://www.spotify.com/us/download/previews/
 
-  echo "deb http://repository.spotify.com stable non-free" \
-    | sudo tee -a /etc/apt/sources.list &> /dev/null
+  grep repository.spotify.com /etc/apt/sources.list &> /dev/null
+  if [[ $? -ne 0 ]]; then
+    echo "deb http://repository.spotify.com stable non-free" \
+      | sudo tee -a /etc/apt/sources.list &> /dev/null
+  fi
 
   # 2015.05.31: Is adding the key still necessary?
   #             This step not listed on the spotify page.
@@ -963,7 +1006,6 @@ stage_4_spotify_install () {
 
 stage_4_openjump_install () {
 
-  /bin/mkdir -p ${OPT_DLOADS}
   pushd ${OPT_DLOADS} &> /dev/null
 
   #wget -N http://downloads.sourceforge.net/project/jump-pilot/OpenJUMP/1.8.0/OpenJUMP-Installer-1.8.0-r4164-PLUS.jar
@@ -983,7 +1025,6 @@ stage_4_openjump_install () {
 
 stage_4_liclipse_install () {
 
-  /bin/mkdir -p ${OPT_DLOADS}
   pushd ${OPT_DLOADS} &> /dev/null
 
   wget -N "https://googledrive.com/host/0BwwQN8QrgsRpLVlDeHRNemw3S1E/LiClipse%202.0.0/liclipse_2.0.0_linux.gtk.x86_64.tar.gz"
@@ -1017,7 +1058,6 @@ stage_4_liclipse_install () {
 
 stage_4_all_the_young_pips () {
 
-  /bin/mkdir -p ${OPT_DLOADS}
   pushd ${OPT_DLOADS} &> /dev/null
 
   was_umask=$(umask)
@@ -1060,12 +1100,12 @@ stage_4_font_mania () {
   unzip -d santos-dumont santos-dumont.zip
   /bin/mv santos-dumont/SANTO___.TTF .
 
-  wget http://dl.1001fonts.com/pinewood.zip
+  wget -N http://dl.1001fonts.com/pinewood.zip
   unzip -d pinewood pinewood.zip
   /bin/mv pinewood/Pinewood.ttf .
 
   # Google Open Sans by Steve Matteson
-  wget http://dl.1001fonts.com/open-sans.zip
+  wget -N http://dl.1001fonts.com/open-sans.zip
   unzip -d open-sans open-sans.zip
 
   popd &> /dev/null
@@ -1079,7 +1119,6 @@ stage_4_font_typeface_hack () {
 
   if [[ ! -e ~/.fonts/Hack-v2_010-ttf/Hack-Regular.ttf ]]; then
 
-    /bin/mkdir -p ${OPT_DLOADS}
     pushd ${OPT_DLOADS} &> /dev/null
 
     wget -N https://github.com/chrissimpkins/Hack/releases/download/v2.010/Hack-v2_010-ttf.zip
@@ -1103,14 +1142,16 @@ stage_4_font_typeface_hack () {
 
 stage_4_sqlite3 () {
 
-  /bin/mkdir -p ${OPT_DLOADS}
   pushd ${OPT_DLOADS} &> /dev/null
 
+  # See: https://www.sqlite.org/download.html
   #SQLITE_YEAR=2015
   #SQLITE_BASE=sqlite-shell-linux-x86-3081101
   #SQLITE_BASE=sqlite-shell-linux-x86-3090200
   SQLITE_YEAR=2016
-  SQLITE_BASE=sqlite-shell-linux-x86-3100100
+  #SQLITE_BASE=sqlite-shell-linux-x86-3100100
+  SQLITE_BASE=sqlite-tools-linux-x86-3110100
+
   wget -N https://www.sqlite.org/${SQLITE_YEAR}/${SQLITE_BASE}.zip
   unzip -d ${SQLITE_BASE} ${SQLITE_BASE}.zip
 
@@ -1131,7 +1172,6 @@ stage_4_sqlite3 () {
 
 stage_4_opencl () {
 
-  /bin/mkdir -p ${OPT_DLOADS}
   pushd ${OPT_DLOADS} &> /dev/null
 
   #https://software.intel.com/en-us/intel-opencl
@@ -1206,7 +1246,6 @@ stage_4_darktable () {
 
     # From scratch!
 
-    /bin/mkdir -p ${OPT_DLOADS}
     pushd ${OPT_DLOADS} &> /dev/null
 
     # Download libgphoto2-2.5.8.tar.bz2 (6.9 MB).
@@ -1236,7 +1275,6 @@ stage_4_darktable () {
 
 stage_4_digikam_from_scratch () {
 
-  /bin/mkdir -p ${OPT_DLOADS}
   pushd ${OPT_DLOADS} &> /dev/null
 
   echo
@@ -1536,17 +1574,21 @@ stage_4_digikam_from_distro () {
   #   sudo apt-get install digikam/extra
   #   sudo apt-get install digikam/philip5-extra
 
-  echo 'CODE: SELECT ALL
+  if [[ ! -e /etc/apt/preferences.d/philip5-extra-ppa ]]; then
+    echo 'CODE: SELECT ALL
 Package: *
 Pin: release o=LP-PPA-philip5-extra
 Pin-Priority: 700
 ' | sudo tee /etc/apt/preferences.d/philip5-extra-ppa
+  fi
 
-  echo 'CODE: SELECT ALL
+  if [[ ! -e /etc/apt/preferences.d/philip5-kubuntu-backports-ppa ]]; then
+    echo 'CODE: SELECT ALL
 Package: *
 Pin: release o=LP-PPA-philip5-kubuntu-backports
 Pin-Priority: 700
 ' | sudo tee /etc/apt/preferences.d/philip5-kubuntu-backports-ppa
+  fi
 
   # And then check your work again:
   #
@@ -1570,19 +1612,25 @@ stage_4_gimp_plugins () {
   #   http://registry.gimp.org/node/28268
   #   https://github.com/khalim19/gimp-plugin-export-layers
 
-  /bin/mkdir -p ${OPT_DLOADS}
   pushd ${OPT_DLOADS} &> /dev/null
 
   if [[ -e gimp-plugin-export-layers ]]; then
+    echo
     echo "WARNING: Already exists: ${OPT_DLOADS}/gimp-plugin-export-layers"
-  elif [[ ! -d ${HOME}/.gimp-2.8/plug-ins ]]; then
-# FIXME: This happens if you haven't run gimp ever...
-    echo "WARNING: Not Found or Not a Dir: ${HOME}/.gimp-2.8/plug-ins"
-  else
-    git clone https://github.com/khalim19/gimp-plugin-export-layers.git
-    /bin/cp -a ./gimp-plugin-export-layers/export_layers.py ${HOME}/.gimp-2.8/plug-ins
-    /bin/cp -ar ./gimp-plugin-export-layers/export_layers ${HOME}/.gimp-2.8/plug-ins
+    return
   fi
+
+  if [[ ! -d ${HOME}/.gimp-2.8/plug-ins ]]; then
+    echo
+    echo "WARNING: Not Found or Not a Dir: ${HOME}/.gimp-2.8/plug-ins"
+    # FIXME/TESTME: This happens if you haven't run gimp ever...
+    #               So can we just create the directory?
+    mkdir -p ${HOME}/.gimp-2.8/plug-ins
+  fi
+
+  git clone https://github.com/khalim19/gimp-plugin-export-layers.git
+  /bin/cp -a ./gimp-plugin-export-layers/export_layers.py ${HOME}/.gimp-2.8/plug-ins
+  /bin/cp -ar ./gimp-plugin-export-layers/export_layers ${HOME}/.gimp-2.8/plug-ins
 
   popd &> /dev/null
 
@@ -1604,7 +1652,6 @@ stage_4_gimp_plugins () {
 
 stage_4_python_source () {
 
-  /bin/mkdir -p ${OPT_DLOADS}
   pushd ${OPT_DLOADS} &> /dev/null
 
   wget -N https://www.python.org/ftp/python/2.7.10/Python-2.7.10.tgz
@@ -1613,7 +1660,6 @@ stage_4_python_source () {
 
   popd &> /dev/null
 
-  /bin/mkdir -p ${OPT_SRC}
   pushd ${OPT_SRC} &> /dev/null
 
   tar xvzf ${OPT_DLOADS}/Python-2.7.10.tgz
@@ -1649,6 +1695,11 @@ stage_4_funstuff () {
 stage_4_updatedb_locate_conf () {
 
   # FIXME: See /etc/updatedb.conf
+  #
+  # See:   /home/landonb/.fries/.erectus/dev/larry/etc
+  #  I wonder where the appropriate place to do this is...
+  #  maybe a custom_mint17.private.$HOSTNAME.sh type file.
+  #
   # Exclude backup drives, e.g.,
   # PRUNEPATHS="/tmp /var/spool /home/.ecryptfs /media/landonb/FREEDUB1 /media/landonb/bubbly"
 
@@ -1656,10 +1707,14 @@ stage_4_updatedb_locate_conf () {
 
 stage_4_python_35 () {
 
-sudo add-apt-repository -y ppa:fkrull/deadsnakes
-sudo apt-get update -y
-sudo apt-get install -y python3.5
-#python3.3-dev
+  # Only do this for machines without python3.5.
+  command -v python3.5 &> /dev/null
+  if [[ $? -ne 0 ]]; then
+    sudo add-apt-repository -y ppa:fkrull/deadsnakes
+    sudo apt-get update -y
+    sudo apt-get install -y python3.5
+    #sudo apt-get install -y python3.5-dev
+  fi
 
 } # end: stage_4_python_35
 
@@ -1668,89 +1723,60 @@ sudo apt-get install -y python3.5
 
 setup_customize_extras_go () {
 
+    /bin/mkdir -p ${OPT_BIN}
+    /bin/mkdir -p ${OPT_DLOADS}
+    /bin/mkdir -p ${OPT_SRC}
+
+    # Make the `staff` group owner of root-level /srv/.
     if [[ -n ${USE_STAFF_GROUP_ASSOCIATION} ]]; then
       sudo chgrp ${USE_STAFF_GROUP_ASSOCIATION} /srv
       sudo chmod g+w /srv
     fi
 
-    # Install the dropbox.py script.
+    # Tell Hamster to start on login.
+    stage_4_hamster_time_tracker_setup
 
-    stage_4_dropbox_install
+    # Tell Pidgin to start on login.
+    stage_4_pidgin_setup_autostart
 
-    # Configure Git.
+    # Tell Gmail Notifier to start on login.
+    stage_4_gmail_notifier_setup
 
-    # See ~/.gitconfig. No need to call `git config`.
-    #stage_4_git_configure
-  # FIXME: m4 ... ~/.gitconfig.m4 ...
-
-    # Configure Mercurial
-
-    stage_4_hg_configure
-
-    # Configure Meld.
-
-    stage_4_meld_configure
+    # Quicktile lets you easily resize windows.
+    stage_4_quicktile_install
 
     # Configure Postgresql.
-
     stage_4_psql_configure
 
     # Configure Apache.
-
     stage_4_apache_configure
 
-    # Quicktile lets you easily resize windows.
-
-    stage_4_quicktile_install
-
-    # Tell Pidgin to start on login.
-
-    stage_4_pidgin_setup_autostart
-
-    # Tell Hamster to start on login.
-
-    stage_4_hamster_time_tracker_setup
-
-    # Tell Gmail Notifier to start on login.
-
-    stage_4_gmail_notifier_setup
+    # Install the dropbox.py script.
+    stage_4_dropbox_install
 
     # Configure Web browsers.
-
+    # - Firefox fcn. is a no-op.
     stage_4_firefox_configure
+    # - wget and dpkg Chrome.
     stage_4_chrome_install
+    # - set up plugins manually; this is also a no-op.
     stage_4_https_everywhere_install
 
     # Woop! Woop! for VirtualBox.
     stage_4_virtualbox_install
 
     # Install Abode Reader.
-
     stage_4_reader_install
 
-    # Install LibreOffice.
-
-    stage_4_libreoffice_install
-
-    # Install modern.ie VMs.
-
-    stage_4_modern_ie_install
-
-    # Install expect, so we can do tty tricks.
-
-    stage_4_dev_testing_expect_install
-
+    # Install a simple reST renderer using pip.
     stage_4_restview_install
 
-    # 2015.01: [lb] still playing around w/ the RssOwl reader...
-    #          its inclusion here is not an endorsement, per se.
-
-    stage_4_rssowl_install
-
     # The Worst Metric Ever: Count Lines of Code!
-
+    # - wget to /srv/opt/bin, pretty simple.
     stage_4_cloc_install
 
+    # Install parT for Dubsacks Vim.
+    # - This is probably already installed by vendor_dubsacks.sh.
     stage_4_parT_install
 
     # 2015.01.24: The Todo.txt project seems nifty, as does
@@ -1760,53 +1786,131 @@ setup_customize_extras_go () {
     #                 feel of ti but the features of utt...
     #                 no, wait, punch-time-tracking seems cool).
 
-    stage_4_todo_txt_install
-
-    stage_4_punch_tt_install
-
-    stage_4_ti_time_tracker_install
-
-    stage_4_utt_time_tracker_install
-
+    # Cookiecutter is a boilerplate maker.
+    # - Which I haven't really ever needed to use
+    #   because I really start projects from scratch.
     stage_4_cookiecutter_install
 
-    stage_4_keepassx_install
-
-    stage_4_pencil_install
-
-    stage_4_jsctags_install
-
-    stage_4_disable_services
-
+    # Rock you like a hurricane!
     stage_4_spotify_install
 
+    # Ah, classic open source GIS tools, I honor thee.
     stage_4_openjump_install
 
-    #stage_4_liclipse_install
-
+    # Install pip, and use pip to install uncommitted and argcomplete.
     stage_4_all_the_young_pips
 
+    # Some open source fonts I've found that I include. Unicode and more.
     stage_4_font_mania
 
+    # A very nice font for text editing.
+    # Probably already installed for Dubsacks Vim.
     stage_4_font_typeface_hack
 
+    # Ah, Sqlite. Sometimes you're there, and sometimes
+    # you're not, but if you weren't and I was looking
+    # for you, I'd be distressed.
     stage_4_sqlite3
 
-    stage_4_opencl
-
+    # Dark Table is a sophisticated RAW image editor.
+    # Fortunately we can apt it from a third party repo.
     stage_4_darktable
 
+    # DigiKam is a decent photo organization tool. It's
+    # also a pain to build from scratch.
     #stage_4_digikam_from_scratch
     stage_4_digikam_from_distro
 
+    # Dah Gimp Dah Gimp Dah Gimp!
     stage_4_gimp_plugins
 
-    # Games!
-    stage_4_funstuff
+    # Install Python 3.5 from deadsnakes.
+    # FIXME: This should be distro-dependent.
+    stage_4_python_35
 
+    # FIXME/MAYBE: These commands are stubbed.
+    # ========================================
+
+    # Configure Git.
+    # See ~/.gitconfig. No need to call `git config`.
+    #
+    # FIXME: Do something like
+    #          m4 ... ~/.gitconfig.m4 ...
+    #
+    #stage_4_git_configure
+
+    # Setup /etc/updatedb.conf, except this is machine-specific,
+    # so there's just a FIXME comment therein for now; a no-op.
     stage_4_updatedb_locate_conf
 
-    stage_4_python_35
+    # Install LibreOffice.
+    # FIXME: This is a no-op; how have I been installing libreoffice5?
+    stage_4_libreoffice_install
+
+    # DISABLED/PROBABLY DISABLED SETUPS
+    # =================================
+
+    # Configure Mercurial.
+    # - Only iff $USE_SETUP_HG.
+    stage_4_hg_configure
+
+    # Configure Meld.
+    # - Currently a no-op; not written.
+    stage_4_meld_configure
+
+    # Disables and Uninstalls Samba service,
+    # which probably definitely doesn't exist
+    # in first place.
+    stage_4_disable_services
+
+    # Install modern.ie VMs.
+    # - Disabled. You're better off copying files locally.
+    stage_4_modern_ie_install
+
+    # Install expect, so we can do tty tricks.
+    # - This is a no-op since apt-get can install `expect`.
+    stage_4_dev_testing_expect_install
+
+    # I've wanted to want to try to like password managers
+    # in the past but find myself just using, like, and
+    # trusting my system better...
+    # - so this is a no-op.
+    stage_4_keepassx_install
+
+    # 2016-03-23: Pencil install is disabled since not used.
+    stage_4_pencil_install
+
+    # 2015.01: [lb] still playing around w/ the RssOwl reader...
+    #          its inclusion here is not an endorsement, per se.
+    # - This is disabled.
+    stage_4_rssowl_install
+
+    # Disabled:
+    stage_4_jsctags_install
+
+    # 2016.03.23: Check out hamster and
+    #   https://github.com/landonb/hamster_briefs
+    if false; then
+      stage_4_todo_txt_install
+      stage_4_punch_tt_install
+      stage_4_ti_time_tracker_install
+      stage_4_utt_time_tracker_install
+    fi
+
+    # 2016-03-23: What's LiClipse again? An Eclipse... Flash debugger?
+    #             Python debugger? I can't remembugger.
+    #stage_4_liclipse_install
+
+    # Games!
+    # - Is no longer any fun; a no-op.
+    # Just open Dubsacks Vim and play Tetris(r).
+    stage_4_funstuff
+
+    # Intel OpenCL (Open Computing Language) for heavy algorithms,
+    # I think, like travelling salesperson problem.
+    # 2016-03-23: Disabling; probably just manually install if you
+    # need it or find yourself finally writing the alleycat app.
+    #stage_4_opencl
 
 } # end: setup_customize_extras_go
 
