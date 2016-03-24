@@ -39,10 +39,15 @@
 # script, you'll probably want to double-check the tasks down
 # below to make sure this script will fulfill all your needs.
 
-# FIXME: 2015.01.26: I mucked with the script (created all
-#                    the subscripts) and need to test it.
-echo "FIXME: Test this script thoroughly. It's been very much changed."
-exit 1
+# 2015.01.26: I mucked with the script (created all
+#             the subscripts) and need to test it.
+# 2016.03.23: And away we go. Setting up a keepertrapper.
+
+
+
+
+
+# FIXME: Move following to the laptop setup script:
 
 # FIXME: Document git'ing home-fries and setting up that way.
 # FIXME: Document copying over sync-script file and setting up that way.
@@ -75,15 +80,15 @@ exit 1
 # FIXME: laptop not using encrypted swap!
 #
 
-
-# FIXME: 2016.01.07: Setup Vim immediately with Google font
-#        (and is there a way to localize the font source?)
-sudo apt-get install -y vim-gtk git git-core
-source ${script_absbase}/vendor_dubsacks.sh
-
 # FIXME: Setup .fries, .erectus, etc.
 # FIXME: 2016.01.07: Setup ~/.fries/cheat and other missing doodads...
 #         need to figure out
+
+# FIXME: See below:
+#         Fix /etc/default/grub here for host OS install.
+
+
+
 
 # ------------------------------------------
 # Velcome
@@ -138,19 +143,25 @@ source ./mint17_setup_base.sh
 # ------------------------------------------
 # Figure out what stage we're on.
 
-# MAGIC_NUMBER: There are four stages (and logouts/reboots between each).
-stages_count=4
-if [[ ! -e ${script_absbase}/fries-setup-stage.num ]]; then
-  # First time here.
-  stage_num=1
-  echo "${stage_num}" > ${script_absbase}/fries-setup-stage.num
-else
-  stage_num=`cat fries-setup-stage.num`
-  # Validate the stage number.
-  if [[ ${stage_num} -lt 1 || ${stage_num} -gt ${stages_count} ]]; then
-    echo "Unexpected stage_num: ${stage_num}"
-    exit 1
+DO_STAGE_DANCE=false
+
+if ${DO_STAGE_DANCE}; then
+  # MAGIC_NUMBER: There are four stages (and logouts/reboots between each).
+  stages_count=4
+  if [[ ! -e ${script_absbase}/fries-setup-stage.num ]]; then
+    # First time here.
+    stage_num=1
+    echo "${stage_num}" > ${script_absbase}/fries-setup-stage.num
+  else
+    stage_num=`cat fries-setup-stage.num`
+    # Validate the stage number.
+    if [[ ${stage_num} -lt 1 || ${stage_num} -gt ${stages_count} ]]; then
+      echo "Unexpected stage_num: ${stage_num}"
+      exit 1
+    fi
   fi
+else
+  stage_num=-1
 fi
 
 echo "On stage number ${stage_num} of ${stages_count}"
@@ -273,10 +284,14 @@ echo
 setup_ready_print_env
 echo
 
+REBOOT_WILL_BE_NECESSARY=false
+
 # ------------------------------------------
 # STAGE 1
 
 # *** FIRST/FRESH BOOT: Upgrade and Install Packages
+
+IS_DEV_MACHINE_ANSWER=''
 
 setup_mint_17_stage_1 () {
 
@@ -394,29 +409,31 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
     # -- Install MySQL early, because it's interactive.
 
-    # NOTE: The Mysql package wants you to enter a password.
-    #       [lb] figured all package installers are not interactive,
-    #       but I guess there are some exceptions. Or maybe there's
-    #       an apt-get switch I'm missing.
-    #
-    # FIXME: You could use `expect` here to send the pwd to the terminal.
-    #
-    sudo apt-get install -y pwgen
-    if [[ ! -e ${script_absbase}/fries-setup-mysql.pwd ]]; then
-      MYSQL_PASSWORD=$(pwgen -n 16 -s -N 1 -y)
-      echo "${MYSQL_PASSWORD}" > ${script_absbase}/fries-setup-mysql.pwd
-    else
-      MYSQL_PASSWORD=`cat ${script_absbase}/fries-setup-mysql.pwd`
+    if ${DO_INSTALL_MYSQL}; then
+      # NOTE: The Mysql package wants you to enter a password.
+      #       [lb] figured all package installers are not interactive,
+      #       but I guess there are some exceptions. Or maybe there's
+      #       an apt-get switch I'm missing.
+      #
+      # FIXME: You could use `expect` here to send the pwd to the terminal.
+      #
+      sudo apt-get install -y pwgen
+      if [[ ! -e ${script_absbase}/fries-setup-mysql.pwd ]]; then
+        MYSQL_PASSWORD=$(pwgen -n 16 -s -N 1 -y)
+        echo "${MYSQL_PASSWORD}" > ${script_absbase}/fries-setup-mysql.pwd
+      else
+        MYSQL_PASSWORD=`cat ${script_absbase}/fries-setup-mysql.pwd`
+      fi
+      echo
+      echo "*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!"
+      echo "Try this for a Mysql password: ${MYSQL_PASSWORD}"
+      echo "*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!"
+      echo "Which is saved also to the file: fries-setup-mysql.pwd"
+      echo
+      sudo apt-get -y install \
+        \
+        mysql-server
     fi
-    echo
-    echo "*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!"
-    echo "Try this for a Mysql password: ${MYSQL_PASSWORD}"
-    echo "*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!"
-    echo "Which is saved also to the file: fries-setup-mysql.pwd"
-    echo
-    sudo apt-get -y install \
-      \
-      mysql-server
 
     # -- Install postfix (also interactive).
 
@@ -447,7 +464,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
     #        long list, but at least the list is an array so we
     #        can add comments.
 
-    local BIG_PACKAGE_LIST=(
+    local CORE_PACKAGE_LIST=(
 
       # Kernel goodies.
       dkms
@@ -470,21 +487,17 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
       # Awesomest graphical diff.
       meld
-      # Excellent diagramming.
-      dia
-      # Pencil Project is a prototyping tool that
-      # also support dia-ish diagram drawing.
-      #  http://pencil.evolus.vn
-      # But wait! The pencil package in Ubuntu is a different app.
-      #  No: pencil
-      #  See: stage_4_pencil_install
+
       # Eye of Gnome, a slideshow image viewer.
       eog
+
       # Hexadecimal file viewer.
       ghex
+
       # Hexadecimal diff.
       vbindiff
       #hexdiff
+
       # `most` is pretty lame; author prefers `less`.
       #most
       # `less` is made better with color.
@@ -493,9 +506,71 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       # The better grepper.
       silversearcher-ag
 
+      # Un-Zip-a-Dee-Doo-Dah
+      unzip
+
       # All your repositories are belong to too many managers.
       git
       git-core
+
+      # One would think whois would be standard.
+      whois
+      # nslookup is... stale, to be polite. Use dig instead.
+
+      apt-file
+
+      htop
+
+      # Meh. Keepassx is convenient for people who like GUIs, but I
+      # think gpg or encfs is just as easy for someone comfy on the CLI.
+      #keepassx
+      encfs
+      # I thought scrub was a default program, too; guess not.
+      # Also, if you're doing it right, you won't need scrub:
+      #   on disk, your data should *always* be encrypted;
+      #   it is only in memory or on screen that data should be
+      #   plain.
+      scrub
+      #
+      pinentry-gtk2
+      pinentry-doc
+
+      expect
+
+      gnupg2
+
+      pwgen
+
+    ) # end: CORE_PACKAGE_LIST
+
+    local BIG_PACKAGE_LIST=(
+
+      logcheck
+      logcheck-database
+
+      logtail
+
+      socket
+
+      # 2016-03-23: Should this/these be here or in CORE_PACKAGE_LIST?
+      libpam0g-dev
+      openssh-server
+      signing-party
+
+      # Excellent diagramming.
+      dia
+
+      # SVG editor.
+      inkscape
+
+      # Pencil Project is a prototyping tool that
+      # also support dia-ish diagram drawing.
+      #  http://pencil.evolus.vn
+      # But wait! The pencil package in Ubuntu is a different app.
+      #  No: pencil
+      #  See: stage_4_pencil_install
+
+      # Addition, non-core repo tools.
       subversion
       mercurial
       # A beautiful, colorful git browser/helper.
@@ -575,16 +650,12 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       # See pip (so we can install current version):
       #  cookiecutter
 
-
-
-# FIXME: Can I just pip these in requirements.txt?
+      # FIXME/MAYBE/MIGHT NOT MATTER: Just pip these in requirements.txts?
       python-tox
       python-coverage
       python3-coverage
       python-flake8
       python3-flake8
-
-
       
       libagg-dev
       libedit-dev
@@ -602,34 +673,15 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       ia32-libs
       nspluginwrapper
 
-      logcheck
-      logcheck-database
-
-      logtail
-
-      socket
-
-      libpam0g-dev
-
-      openssh-server
-
-      gnupg2
-      signing-party
-      pwgen
-
-      thunderbird
-
-      # One would think whois would be standard.
-      whois
-      # nslookup is... stale, to be polite. Use dig instead.
-
-      apt-file
-
       python-nltk
       python-matplotlib
       python-tk
 
+      # artha: off-line English thesaurus.
+      # 2016-03-23: What uses this? You, from the command line?
       artha
+
+      thunderbird
 
       fabric
       # Know ye also there is a get-pip.py installer, too.
@@ -673,24 +725,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       # http://bashdb.sourceforge.net/
       bashdb
 
-      # Meh. Keepassx is convenient for people who like GUIs, but I
-      # think gpg or encfs is just as easy for someone comfy on the CLI.
-      #keepassx
-      encfs
-      # I thought scrub was a default program, too; guess not.
-      # Also, if you're doing it right, you won't need scrub:
-      #   on disk, your data should *always* be encrypted;
-      #   it is only in memory or on screen that data should be
-      #   plain.
-      scrub
-      #
-      pinentry-gtk2
-      pinentry-doc
-
-      htop
-
-      expect
-
       # More exo stuff.
       sqlite3
       libsqlite3-dev
@@ -707,8 +741,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       gdal-bin
       gpx2shp
 
-      unzip
-
       chromium-browser
 
       # Symbola font for emojis.
@@ -723,8 +755,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       ttf-tuffy
       tv-fonts
       #ubuntustudio-font-meta
-
-      inkscape
 
       streamripper
 
@@ -781,11 +811,20 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       #   gnome-gmail-notifier - A Gmail Inbox Notifier for the GNOME Desktop
       gnome-gmail-notifier
 
-    )
+    ) # end: BIG_PACKAGE_LIST
 
+    # One core package, and maybe
     # One Giant MASSIVE package install.
 
-    sudo apt-get install -y ${BIG_PACKAGE_LIST[@]}
+    echo
+    echo "Is this a dev machine? Do you want all the packages?"
+    ask_yes_no_default 'N' 20
+    IS_DEV_MACHINE_ANSWER=$the_choice
+
+    sudo apt-get install -y ${CORE_PACKAGE_LIST[@]}
+    if [[ ${IS_DEV_MACHINE_ANSWER} == "Y" ]]; then
+      sudo apt-get install -y ${BIG_PACKAGE_LIST[@]}
+    fi
 
     # Install additional MATE theme, like BlackMATE. We don't change themes,
     # but it's nice to be able to see what the other themes look like.
@@ -795,7 +834,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
     fi
 
 
-# FIXME: Fix /etc/default/grub here
+# FIXME: Fix /etc/default/grub here for host OS install.
 #
 #   #GRUB_HIDDEN_TIMEOUT=0
 #   GRUB_HIDDEN_TIMEOUT=3
@@ -813,21 +852,11 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
     # All done.
 
-    echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
+    if ${DO_STAGE_DANCE}; then
+      echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
+    fi
 
     print_install_time
-
-    # *** The user has to reboot before continuing.
-
-    echo
-    echo "All done! Are you ready to reboot?"
-    ask_yes_no_default 'Y' 20
-
-    if [[ $the_choice != "Y" ]]; then
-      echo "Fine, be that way."
-    else
-      SETUP_DO_REBOOT=true
-    fi
 
   fi # upgrade all packages and install extras that we need
 
@@ -838,26 +867,30 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
 # *** SECOND and SUBSEQUENT BOOTs
 
-if [[ ${stage_num} -gt 1 ]]; then
-
-  set +ex
-  dpkg -s build-essential &> /dev/null
-  if [[ $? -ne 0 ]]; then
-    echo
-    echo "Unexpected: build-essential not installed. Try again."
-    echo
+# 2016-03-23: The way things are called now, this isn't really necessary.
+check_build_essential_installed () {
+  if ${DO_STAGE_DANCE}; then
+    if [[ ${stage_num} -gt 1 ]]; then
+      set +ex
+      dpkg -s build-essential &> /dev/null
+      if [[ $? -ne 0 ]]; then
+        echo
+        echo "Unexpected: build-essential not installed. Try again."
+        echo
+      fi
+      reset_errexit
+      # Now that wmctrl is installed...
+      determine_window_manager
+    fi
   fi
-  reset_errexit
-
-  # Now that wmctrl is installed...
-  determine_window_manager
-
-fi
+} # end:check_build_essential_installed
 
 # ------------------------------------------
 # STAGE 2
 
 # *** SECOND BOOT: Install Guest Additions
+
+DO_EXTRA_UNNECESSARY_VBOX_STUFF=false
 
 setup_mint_17_stage_2 () {
 
@@ -926,7 +959,9 @@ setup_mint_17_stage_2 () {
     echo "Run return code: $?"
     reset_errexit
 
-    echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
+    if ${DO_STAGE_DANCE}; then
+      echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
+    fi
 
     print_install_time
 
@@ -953,8 +988,10 @@ setup_mint_17_stage_2 () {
 
 setup_mint_17_stage_3 () {
 
-  echo
-  echo "Wow, after two or three reboots, you've come back for more"'!'
+  if ${DO_STAGE_DANCE}; then
+    echo
+    echo "Wow, after two or three reboots, you've come back for more"'!'
+  fi
   echo
   echo "Now we're ready to setup some groups and install Bash scripts."
   echo
@@ -979,13 +1016,20 @@ setup_mint_17_stage_3 () {
     set +ex
 
     # Let the user access any mounted VBox drives.
-    if [[ `sudo virt-what` == 'virtualbox' ]]; then
-      sudo groupadd vboxsf
-      sudo usermod -aG vboxsf $USER
+    # 2016-03-23: The group is added by guest additions, and
+    # the user manually added their user to the same group,
+    # so this code should not do anything that's not already
+    # done.
+    if ${DO_EXTRA_UNNECESSARY_VBOX_STUFF}; then
+      if [[ `sudo virt-what` == 'virtualbox' ]]; then
+        sudo groupadd vboxsf
+        sudo usermod -aG vboxsf $USER
+      fi
     fi
 
     # Make the user a member of the staff group, or whatever it's called.
 
+    # 20160323: This is currently just "staff".
     if [[ -n ${USE_STAFF_GROUP_ASSOCIATION} ]]; then
       sudo groupadd ${USE_STAFF_GROUP_ASSOCIATION}
       sudo usermod -a -G ${USE_STAFF_GROUP_ASSOCIATION} $USER
@@ -993,6 +1037,7 @@ setup_mint_17_stage_3 () {
 
     # Always associate current user group with postgres and web server.
 
+    # 2016-03-23: Currently not set.
     if ! `elem_in_arr "$USER" "${USE_PROJECT_USERGROUPS[@]}"`; then
       USE_PROJECT_USERGROUPS+=("$USER")
     fi
@@ -1009,16 +1054,16 @@ setup_mint_17_stage_3 () {
       # Add the group. It's okay if you've already done it manually:
       # the command will just return $? == 9 and complain to stderr,
       # e.g., "groupadd: group '...' already exists".
-      sudo groupadd $groupname
+      sudo groupadd ${groupname}
 
       # Add the active user to the group.
-      sudo usermod -a -G $groupname $USER
+      sudo usermod -a -G ${groupname} ${USER}
 
       # Make postgres a member so its easier to read its logs.
       # E.g., in Cyclopath, the logs are writ to /ccp/var/log/postgresql
       # (which, on the production server, is mapped to different drive
       # that where most of the Linux OS resides).
-      sudo usermod -a -G $groupname postgres
+      sudo usermod -a -G ${groupname} postgres
 
       # Also make apache a member of the group for similar reasons.
       # E.g., in Cyclopath, www-data logs to /ccp/var/log/apache2.
@@ -1027,7 +1072,7 @@ setup_mint_17_stage_3 () {
       #        this group? If someone compromised www-data they could
       #        conceivably access all group files, and not just
       #        what's under htdocs/, right? Hmmm.
-      sudo usermod -a -G $groupname ${httpd_user}
+      sudo usermod -a -G ${groupname} ${httpd_user}
 
     done
 
@@ -1061,30 +1106,36 @@ setup_mint_17_stage_3 () {
     #
     # ANSWER: YES
 
-    sudo dpkg-reconfigure wireshark-common
-    # Add the user to the new group.
-    sudo usermod -a -G wireshark $USER
-    # You need to logout or reboot to see changes.
+    if [[ ${IS_DEV_MACHINE_ANSWER} == "Y" ]]; then
+      sudo dpkg-reconfigure wireshark-common
+      # Add the user to the new group.
+      sudo usermod -a -G wireshark ${USER}
+      # You need to logout or reboot to see changes.
+      REBOOT_WILL_BE_NECESSARY=true
+    fi
 
     # Try to mount the host drive.
 
     # Do this now because the user has to reboot before
     # their new access to the vboxsf group is realized.
-    if [[ -n $USE_MOUNTPT ]]; then
-      sudo /bin/mkdir -p /win
-      sudo chmod 2775 /win
-      if [[ `sudo virt-what` == '' ]]; then
-        sudo mount -t ntfs $USE_MOUNTPT /win
-      elif [[ `sudo virt-what` == 'virtualbox' ]]; then
-        sudo mount -t vboxsf $USE_MOUNTPT /win
-      else
-        echo "WARNING: Unknown Virtual machine type; cannot mount /win."
-        exit 1
-      fi
-      if [[ $? -ne 0 ]]; then
-        echo "WARNING: Could not mount host drive using the command:"
-        echo "         sudo mount -t vboxsf $USE_MOUNTPT /win"
-        exit 1
+    # 2016-03-23: Also no longer necessary and done otherways.
+    if ${DO_EXTRA_UNNECESSARY_VBOX_STUFF}; then
+      if [[ -n ${USE_MOUNTPT} ]]; then
+        sudo /bin/mkdir -p ${DST_MOUNTPT}
+        sudo chmod 2775 ${DST_MOUNTPT}
+        if [[ `sudo virt-what` == '' ]]; then
+          sudo mount -t ntfs ${USE_MOUNTPT} ${DST_MOUNTPT}
+        elif [[ `sudo virt-what` == 'virtualbox' ]]; then
+          sudo mount -t vboxsf ${USE_MOUNTPT} ${DST_MOUNTPT}
+        else
+          echo "WARNING: Unknown Virtual machine type; cannot mount ${DST_MOUNTPT}."
+          exit 1
+        fi
+        if [[ $? -ne 0 ]]; then
+          echo "WARNING: Could not mount host drive using the command:"
+          echo "         sudo mount -t vboxsf ${USE_MOUNTPT} ${DST_MOUNTPT}"
+          exit 1
+        fi
       fi
     fi
 
@@ -1094,22 +1145,24 @@ setup_mint_17_stage_3 () {
 
     # Finish this stage and logout/reboot.
 
-    echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
+    if ${DO_STAGE_DANCE}; then
+      echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
+    fi
 
     print_install_time
 
     # Fix the VBox mount. After the reboot, the user will
     # have access to the auto-mount, so just symlink it.
-    if [[ -n $USE_MOUNTPT ]]; then
+    if [[ -n ${USE_MOUNTPT} ]]; then
       if [[ `sudo virt-what` == '' ]]; then
         #
         # FIXME: Append to /etc/fstab.
         #        See code in Excensus_Developer_Setup_Guide.rst.
         :
       elif [[ `sudo virt-what` == 'virtualbox' ]]; then
-        sudo umount $USE_MOUNTPT
-        sudo /bin/rmdir /win
-        sudo /bin/ln -s /media/sf_$USE_MOUNTPT /win
+        sudo umount ${USE_MOUNTPT}
+        sudo /bin/rmdir ${DST_MOUNTPT}
+        sudo /bin/ln -s /media/sf_${USE_MOUNTPT} ${DST_MOUNTPT}
       fi
     fi
 
@@ -1121,7 +1174,11 @@ setup_mint_17_stage_3 () {
     echo "If you see any error messages, it means it kind of worked."
     echo
     echo "But if you do not get a prompt, you'll want to cancel this script."
-    echo "Then, run: /bin/rm ~/.bashrc*"
+    echo
+    echo "Then, run:"
+    echo
+    echo "   /bin/rm ~/.bashrc"
+    echo
     echo "Finally, open a new new terminal and make sure you get a prompt."
     echo
     echo -en "Were you able to open a new terminal window? (y/n) "
@@ -1133,17 +1190,19 @@ setup_mint_17_stage_3 () {
       echo
       echo "Sweet!"
       echo "You'll have to logout or reboot to realize group changes."
-      bluu=`tput setaf 4; tput smul;`
-      rset=`tput sgr0`
-      echo "Would you like to ${bluu}L${rset}ogout or ${bluu}R${rset}eboot?"
-      ask_yes_no_default 'L' 13 'R'
-      if [[ $the_choice == "R" ]]; then
-        SETUP_DO_REBOOT=true
-      elif [[ $the_choice == "L" ]]; then
-        SETUP_DO_LOGOUT=true
-      else
-        echo "But I was trying to be nice to you!"
-        exit 1
+      if ${DO_STAGE_DANCE}; then
+        bluu=`tput setaf 4; tput smul;`
+        rset=`tput sgr0`
+        echo "Would you like to ${bluu}L${rset}ogout or ${bluu}R${rset}eboot?"
+        ask_yes_no_default 'L' 13 'R'
+        if [[ $the_choice == "R" ]]; then
+          SETUP_DO_REBOOT=true
+        elif [[ $the_choice == "L" ]]; then
+          SETUP_DO_LOGOUT=true
+        else
+          echo "But I was trying to be nice to you!"
+          exit 1
+        fi
       fi
     fi
 
@@ -1158,8 +1217,10 @@ setup_mint_17_stage_3 () {
 
 setup_mint_17_stage_4 () {
 
-  echo 
-  echo "Swizzle, so you've rebooted a bunch already!"
+  if ${DO_STAGE_DANCE}; then
+    echo 
+    echo "Swizzle, so you've rebooted a bunch already!"
+  fi
   echo
   echo "This should be the last step."
   echo
@@ -1178,7 +1239,7 @@ setup_mint_17_stage_4 () {
 
   else
 
-    # *** Make a snapshot of the user's home directory.
+    # *** Make a snapshot of the user's home directory, maybe.
 
     user_home_conf_dump "${script_absbase}/conf_dump/usr_04"
 
@@ -1251,7 +1312,9 @@ setup_mint_17_stage_4 () {
 
     # All done.
 
-    echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
+    if ${DO_STAGE_DANCE}; then
+      echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
+    fi
 
     print_install_time
 
@@ -1286,15 +1349,25 @@ stage_4_sshd_configure () {
 
 stage_4_etc_hosts_setup () {
 
-  # Fake the local domain, and maybe setup cyclopath,
-  # mediawiki, bugzilla, or any other project-specific
-  # mappings defined in the /etc/hosts template.
-
-  m4 \
-    --define=HOSTNAME=$HOSTNAME \
-    --define=MACH_DOMAIN=$USE_DOMAIN \
-      ${script_absbase}/target/common/etc/hosts \
-      | sudo tee /etc/hosts &> /dev/null
+  # 2016-03-23: /etc/hosts has 
+  #                127.0.1.1	localhost
+  #                127.0.1.1	${HOSTNAME}
+  #             so we probably don't need to do anything.
+  #
+  #             On my main dev machine, I have a home domain:
+  #                127.0.1.1	${HOSTNAME}.home.fries ${HOSTNAME}
+  #
+  # the target/ directory is nonstandard and probably not there.
+  if [[ -e ${script_absbase}/target/common/etc/hosts ]]; then
+    # Fake the local domain, and maybe setup cyclopath,
+    # mediawiki, bugzilla, or any other project-specific
+    # mappings defined in the /etc/hosts template.
+    m4 \
+      --define=HOSTNAME=$HOSTNAME \
+      --define=MACH_DOMAIN=$USE_DOMAIN \
+        ${script_absbase}/target/common/etc/hosts \
+        | sudo tee /etc/hosts &> /dev/null
+  fi
 
 } # end: stage_4_etc_hosts_setup
 
@@ -1406,65 +1479,70 @@ setup_mint_17_go () {
     echo
     echo "All done!"
   else
-    if [[ ${stage_num} -eq 2 ]]; then
-      # Install VBox additions.
+    # 2016.03.23: It's best if the user just installs guest additions manually
+    # right after installing an OS, before running this script, so not calling
+    #    setup_mint_17_stage_2
+    #  See: ubuntu_mate_15.10.rst for easy instructions.
+    if ${DO_EXTRA_UNNECESSARY_VBOX_STUFF}; then
       setup_mint_17_stage_2
-    elif [[ ${stage_num} -eq 3 ]]; then
-      # Setup usergroups and the user's home directory.
-      setup_mint_17_stage_3
-    elif [[ ${stage_num} -eq 4 ]]; then
-      # Download, compile, and configure lots of software.
-      setup_mint_17_stage_4
-    else
-      echo
-      echo "Unexpected stage_num: ${stage_num}"
-      echo
-      exit 1
     fi
+    # Setup usergroups and the user's home directory.
+    setup_mint_17_stage_3
+    # Download, compile, and configure lots of software.
+    setup_mint_17_stage_4
+
+    # 2016-03-23: I'm guessing all the DO_STAGE_DANCE is deletable.
     # Reboot if we have more setup to go.
-    if $SETUP_DO_REBOOT; then
-      echo
-      echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
-      echo "NOTICE: Rebooting before running next step."
-      echo "Run this script again after rebooting."
-      sudo /sbin/shutdown -r now
-    elif $SETUP_DO_LOGOUT; then
-      echo
-      echo "NOTICE: Logging out before running next step."
-      echo "Run this script again after logging back on."
-      # The logout commands vary according to distro, so check what's there.
-      # Bash has three built-its that'll tell is if a command exists on
-      # $PATH. The simplest, ``command``, doesn't print anything but returns
-      # 1 if the command is not found, while the other three print a not-found
-      # message and return one. The other two commands are ``type`` and ``hash``.
-      # All commands return 0 is the command was found.
-      #  $ command -v foo >/dev/null 2>&1 || { echo >&2 "Not found."; exit 1; }
-      #  $ type foo       >/dev/null 2>&1 || { echo >&2 "Not found."; exit 1; }
-      #  $ hash foo       2>/dev/null     || { echo >&2 "Not found."; exit 1; }
-      # Thanks to http://stackoverflow.com/questions/592620/
-      #             how-to-check-if-a-program-exists-from-a-bash-script
-      if ``command -v mate-session-save >/dev/null 2>&1``; then
-        mate-session-save --logout
-      elif ``command -v gnome-session-save >/dev/null 2>&1``; then
-        gnome-session-save --logout
-      else
-        # This is the most destructive way to logout, so don't do it:
-        #   Kill everything but kill and init using the special -1 PID.
-        #   And don't run this as root or you'll be sorry (like, you'll
-        #   kill kill and init, I suppose). This will cause a logout.
-        #   http://aarklonlinuxinfo.blogspot.com/2008/07/kill-9-1.html
-        #     kill -9 -1
-        # Apparently also this, but less destructive
-        #     sudo pkill -u $USER
+    if ${DO_STAGE_DANCE}; then
+      if $SETUP_DO_REBOOT; then
         echo
-        echo "WARNING: Logout command not found; cannot logout."
-        echo "FIXME: Hey, dev, please update the install script."
-        exit 1
+        echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
+        echo "NOTICE: Rebooting before running next step."
+        echo "Run this script again after rebooting."
+        sudo /sbin/shutdown -r now
+      elif $SETUP_DO_LOGOUT; then
+        echo
+        echo "NOTICE: Logging out before running next step."
+        echo "Run this script again after logging back on."
+        # The logout commands vary according to distro, so check what's there.
+        # Bash has three built-its that'll tell is if a command exists on
+        # $PATH. The simplest, ``command``, doesn't print anything but returns
+        # 1 if the command is not found, while the other three print a not-found
+        # message and return one. The other two commands are ``type`` and ``hash``.
+        # All commands return 0 is the command was found.
+        #  $ command -v foo >/dev/null 2>&1 || { echo >&2 "Not found."; exit 1; }
+        #  $ type foo       >/dev/null 2>&1 || { echo >&2 "Not found."; exit 1; }
+        #  $ hash foo       2>/dev/null     || { echo >&2 "Not found."; exit 1; }
+        # Thanks to http://stackoverflow.com/questions/592620/
+        #             how-to-check-if-a-program-exists-from-a-bash-script
+        if ``command -v mate-session-save >/dev/null 2>&1``; then
+          mate-session-save --logout
+        elif ``command -v gnome-session-save >/dev/null 2>&1``; then
+          gnome-session-save --logout
+        else
+          # This is the most destructive way to logout, so don't do it:
+          #   Kill everything but kill and init using the special -1 PID.
+          #   And don't run this as root or you'll be sorry (like, you'll
+          #   kill kill and init, I suppose). This will cause a logout.
+          #   http://aarklonlinuxinfo.blogspot.com/2008/07/kill-9-1.html
+          #     kill -9 -1
+          # Apparently also this, but less destructive
+          #     sudo pkill -u $USER
+          echo
+          echo "WARNING: Logout command not found; cannot logout."
+          echo "FIXME: Hey, dev, please update the install script."
+          exit 1
+        fi
       fi
     else
       echo
       echo "VirtualBox OS setup is complete!"
     fi
+  fi
+
+  if ${REBOOT_WILL_BE_NECESSARY}; then
+    echo
+    echo "One or more operations require a reboot before working (e.g., Wireshark)."
   fi
 
 } # end: setup_mint_17_go
