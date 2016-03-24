@@ -13,11 +13,9 @@ if [[ -z ${URI_DUBSACKS_VIM_GIT+x} ]]; then
   URI_DUBSACKS_VIM_GIT="https://github.com/landonb/dubsacks_vim.git"
 fi
 
-echo $URI_DUBSACKS_VIM_GIT
-
 stage_4_dubsacks_install () {
 
-  cd ${HOME}
+  pushd ${HOME} &> /dev/null
 
   if [[ -e ${HOME}/.vimrc ]]; then
     mv ${HOME}/.vimrc ${HOME}/BACKUP-vimrc-`date +%Y_%m_%d`-`uuidgen`
@@ -33,18 +31,21 @@ stage_4_dubsacks_install () {
 
   git clone ${URI_DUBSACKS_VIM_GIT} ${HOME}/.vim
 
+  popd &> /dev/null
+
   # Dubsacks uses the Hack font.
   source custom_mint17.extras.sh
   stage_4_font_typeface_hack
 
   if false; then
     # FIXME/MAYBE: Implement this:
-    cd ${HOME}
+    pushd ${HOME} &> /dev/null
     m4 \
       --define=YOUR_FULL_NAME_HERE=${YOUR_FULL_NAME_HERE} \
       --define=YOUR_EMAIL_ADDY_HERE=${YOUR_EMAIL_ADDY_HERE} \
       --define=YOUR_GITHUB_USERNAME=${YOUR_GITHUB_USERNAME} \
       .cookiecutterrc.m4
+    popd &> /dev/null
   fi
 
 } # end: stage_4_dubsacks_install

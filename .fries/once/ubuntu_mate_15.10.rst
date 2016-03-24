@@ -284,11 +284,14 @@ user's home directory.
 
 .. code-block:: bash
 
-    cdd ~/Downloads/$USER/
-    git pull
-    /bin/rm -rf ~/.git
-    /bin/cp -ar ~/Downloads/landonb/ /home/
-    popd
+    dubspdate () {
+        pushd ~/Downloads/$USER/
+        git pull
+        /bin/rm -rf ~/.git
+        /bin/cp -ar ~/Downloads/landonb/ /home/
+        popd
+    }
+    dubspdate
 
 Post sec ops
 ============
