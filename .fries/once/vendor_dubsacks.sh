@@ -21,6 +21,7 @@ stage_4_dubsacks_install () {
     echo
     echo "WARNING: Was expecting .vimrc to be a symlink: moving it aside: ${HOME}/.vimrc"
     mv ${HOME}/.vimrc ${HOME}/BACKUP-vimrc-`date +%Y_%m_%d`-`uuidgen`
+    /bin/ln -s .vim/bundle/dubs_all/.vimrc.bundle .vimrc
   fi
 
   if [[ -e ${HOME}/.vimprojects ]]; then

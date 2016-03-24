@@ -93,15 +93,23 @@
 # ------------------------------------------
 # Velcome
 
-echo
-echo "Too Many Steps Setup Script"
-echo
-echo "- For Linux Mint 17.x and MATE"
-echo "- Configures Mint and MATE to a Particular Liking"
-echo "- You already Installed Handy Bash Scripts with This Script, and"
-echo "   This Script Installs Handy Vim Scripts"
-echo "- Installs a Bunch of Applications and Tools"
-echo
+if false; then
+  echo
+  echo "Too Many Steps Setup Script"
+  echo
+  echo "- For Linux Mint 17.x and MATE"
+  echo "- Configures Mint and MATE to a Particular Liking"
+  echo "- You already Installed Handy Bash Scripts with This Script, and"
+  echo "   This Script Installs Handy Vim Scripts"
+  echo "- Installs a Bunch of Applications and Tools"
+  echo
+else
+  echo
+  echo "home-fries OS standup script"
+  echo
+  echo ' .. tested on Linux Mint MATE 17.x and Ubuntu MATE 15.10. Good luck!'
+  echo
+fi
 
 # ------------------------------------------
 # Bootstrap
@@ -160,11 +168,10 @@ if ${DO_STAGE_DANCE}; then
       exit 1
     fi
   fi
+  echo "On stage number ${stage_num} of ${stages_count}"
 else
   stage_num=-1
 fi
-
-echo "On stage number ${stage_num} of ${stages_count}"
 
 # ------------------------------------------
 # Let's get started! I mean, let's start a timer!
@@ -259,8 +266,7 @@ user_home_conf_dump() {
 setup_ready_print_env () {
 
   # FIXME: 2015.01.26: This script is probably out-of-sync.
-
-  set | grep \
+  set | grep "=" | grep \
     -e script_relbase \
     -e script_absbase \
     -e script_path \
@@ -278,11 +284,10 @@ setup_ready_print_env () {
     -e INCLUDE_ADOBE_READER
 }
 
-echo
 echo "Here's how the script is configured:"
 echo
+# MEH: For some reason the `set | grep...` command is echoed after it runs...
 setup_ready_print_env
-echo
 
 REBOOT_WILL_BE_NECESSARY=false
 
@@ -298,12 +303,14 @@ setup_mint_17_stage_1 () {
   echo 
   echo "Welcome to the installer!"
   echo
-  echo "We're going to install lots of packages and then reboot."
-  echo
-  echo "NOTE: The Mysql installer will ask you for a new password."
-  echo
+  #echo "We're going to install lots of packages and then reboot."
+  #echo
+  if ${DO_INSTALL_MYSQL}; then
+    echo "NOTE: The Mysql installer will ask you for a new password."
+    echo
+  fi
   echo "Let's get moving, shall we?"
-  ask_yes_no_default 'Y'
+  ask_yes_no_default 'Y' 999999
 
   if [[ $the_choice != "Y" ]]; then
 
@@ -438,6 +445,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
     # -- Install postfix (also interactive).
 
     # FIXME: Which package does this? It's another interactive installer.
+    # 2016.03.23: It's one of: libpam0g-dev openssh-server signing-party.
     # You'll be prompted to "Please select the mail server configuration
     #                        type that best meets your needs."
     # Just choose "Internet Site", or even "Local only".
@@ -517,8 +525,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       whois
       # nslookup is... stale, to be polite. Use dig instead.
 
-      apt-file
-
       htop
 
       # Meh. Keepassx is convenient for people who like GUIs, but I
@@ -541,6 +547,10 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
       pwgen
 
+      libpam0g-dev
+      openssh-server
+      signing-party
+
     ) # end: CORE_PACKAGE_LIST
 
     local BIG_PACKAGE_LIST=(
@@ -551,11 +561,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       logtail
 
       socket
-
-      # 2016-03-23: Should this/these be here or in CORE_PACKAGE_LIST?
-      libpam0g-dev
-      openssh-server
-      signing-party
 
       # Excellent diagramming.
       dia
@@ -818,12 +823,17 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
     echo
     echo "Is this a dev machine? Do you want all the packages?"
-    ask_yes_no_default 'N' 20
+    ask_yes_no_default 'N' 999999
     IS_DEV_MACHINE_ANSWER=$the_choice
 
     sudo apt-get install -y ${CORE_PACKAGE_LIST[@]}
     if [[ ${IS_DEV_MACHINE_ANSWER} == "Y" ]]; then
       sudo apt-get install -y ${BIG_PACKAGE_LIST[@]}
+    fi
+
+    if [[ ${IS_DEV_MACHINE_ANSWER} == "Y" ]]; then
+      sudo apt-get install -y apt-file
+      sudo apt-file update
     fi
 
     # Install additional MATE theme, like BlackMATE. We don't change themes,
@@ -855,8 +865,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
     if ${DO_STAGE_DANCE}; then
       echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
     fi
-
-    print_install_time
 
   fi # upgrade all packages and install extras that we need
 
@@ -894,12 +902,9 @@ DO_EXTRA_UNNECESSARY_VBOX_STUFF=false
 
 setup_mint_17_stage_2 () {
 
-  if [[ `sudo virt-what` != 'virtualbox' ]]; then
-
+  if ! ${IN_VIRTUALBOX_VM}; then
     echo "ERROR: Skipping Stage 2: Not a VirtualBox."
-
   else
-
     set +ex
     # NOTE: This doesn't work for checking $? (the 2&> replaces it?)
     #        ll /opt/VBoxGuestAdditions* 2&> /dev/null
@@ -922,7 +927,7 @@ setup_mint_17_stage_2 () {
     echo "      of VBoxGuestAdditions software. Type 'yes' to continue."
     echo
     echo "I sure hope you're ready"'!'
-    ask_yes_no_default 'Y'
+    ask_yes_no_default 'Y' 999999
 
     if $WM_IS_CINNAMON || $WM_IS_MATE; then
       not_done=true
@@ -963,13 +968,11 @@ setup_mint_17_stage_2 () {
       echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
     fi
 
-    print_install_time
-
     echo
     echo "All done! Are you ready to reboot?"
     echo "Hint: Shutdown instead if you want to remove the Guest Additions image"
     echo "      or just right-click the CD image on the desktop and Eject it"
-    ask_yes_no_default 'Y' 20
+    ask_yes_no_default 'Y' 999999
 
     if [[ $the_choice != "Y" ]]; then
       echo "Ohhhh... kay."
@@ -1001,7 +1004,14 @@ setup_mint_17_stage_3 () {
   echo "works before logging off."
   echo
   echo "Now, are you ready to let 'er rip?"
-  ask_yes_no_default 'Y'
+  # Six digits is max that works for seconds, and 0 is auto-answer,
+  # -1 does nothing, so, yeah, MAYBE: ask_yes_no_default with a no-
+  # timeout option. Or maybe just call `read` directly.
+  ask_yes_no_default 'Y' 999999
+  # Works, but the display is blank:
+  #ask_yes_no_default 'Y' 99999999
+  # Auto-answers 'Y':
+  #ask_yes_no_default 'Y' 9999999999999999999999999999999
 
   if [[ $the_choice != "Y" ]]; then
 
@@ -1021,7 +1031,7 @@ setup_mint_17_stage_3 () {
     # so this code should not do anything that's not already
     # done.
     if ${DO_EXTRA_UNNECESSARY_VBOX_STUFF}; then
-      if [[ `sudo virt-what` == 'virtualbox' ]]; then
+      if ${IN_VIRTUALBOX_VM}; then
         sudo groupadd vboxsf
         sudo usermod -aG vboxsf $USER
       fi
@@ -1038,7 +1048,7 @@ setup_mint_17_stage_3 () {
     # Always associate current user group with postgres and web server.
 
     # 2016-03-23: Currently not set.
-    if ! `elem_in_arr "$USER" "${USE_PROJECT_USERGROUPS[@]}"`; then
+    if ! `array_in "$USER" "${USE_PROJECT_USERGROUPS[@]}"`; then
       USE_PROJECT_USERGROUPS+=("$USER")
     fi
 
@@ -1123,13 +1133,10 @@ setup_mint_17_stage_3 () {
       if [[ -n ${USE_MOUNTPT} ]]; then
         sudo /bin/mkdir -p ${DST_MOUNTPT}
         sudo chmod 2775 ${DST_MOUNTPT}
-        if [[ `sudo virt-what` == '' ]]; then
+        if ! ${IN_VIRTUALBOX_VM}; then
           sudo mount -t ntfs ${USE_MOUNTPT} ${DST_MOUNTPT}
-        elif [[ `sudo virt-what` == 'virtualbox' ]]; then
-          sudo mount -t vboxsf ${USE_MOUNTPT} ${DST_MOUNTPT}
         else
-          echo "WARNING: Unknown Virtual machine type; cannot mount ${DST_MOUNTPT}."
-          exit 1
+          sudo mount -t vboxsf ${USE_MOUNTPT} ${DST_MOUNTPT}
         fi
         if [[ $? -ne 0 ]]; then
           echo "WARNING: Could not mount host drive using the command:"
@@ -1140,7 +1147,8 @@ setup_mint_17_stage_3 () {
     fi
 
     # Install Dubsacks VIM.
-
+    #
+    # 2016-03-23: This is usually done manually during first OS boot.
     source ${script_absbase}/vendor_dubsacks.sh
 
     # Finish this stage and logout/reboot.
@@ -1149,59 +1157,64 @@ setup_mint_17_stage_3 () {
       echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
     fi
 
-    print_install_time
-
     # Fix the VBox mount. After the reboot, the user will
     # have access to the auto-mount, so just symlink it.
     if [[ -n ${USE_MOUNTPT} ]]; then
-      if [[ `sudo virt-what` == '' ]]; then
+      if ! ${IN_VIRTUALBOX_VM}; then
         #
         # FIXME: Append to /etc/fstab.
         #        See code in Excensus_Developer_Setup_Guide.rst.
         :
-      elif [[ `sudo virt-what` == 'virtualbox' ]]; then
+      else
         sudo umount ${USE_MOUNTPT}
         sudo /bin/rmdir ${DST_MOUNTPT}
         sudo /bin/ln -s /media/sf_${USE_MOUNTPT} ${DST_MOUNTPT}
       fi
     fi
 
-    echo
-    echo "NOTE: Open a new terminal window now and test the new bash scripts."
-    echo
-    echo "If you get a shell prompt, it means everything worked."
-    echo
-    echo "If you see any error messages, it means it kind of worked."
-    echo
-    echo "But if you do not get a prompt, you'll want to cancel this script."
-    echo
-    echo "Then, run:"
-    echo
-    echo "   /bin/rm ~/.bashrc"
-    echo
-    echo "Finally, open a new new terminal and make sure you get a prompt."
-    echo
-    echo -en "Were you able to open a new terminal window? (y/n) "
-    read -n 1 the_choice
-    if [[ $the_choice != "y" && $the_choice != "Y" ]]; then
-      echo "Sorry about that! You'll have to take it from here..."
-      exit 1
-    else
+    # 2016-03-23: What was this for? Home-fries is installed manually...
+    #             hasn't it always? For one, this script is part of
+    #             home.fries, and so are the bash scripts. Hrmm.
+    #             Maybe delete this someday and clean up this whole script
+    #             of old fluff that's all false-d-out.
+    if false; then
       echo
-      echo "Sweet!"
-      echo "You'll have to logout or reboot to realize group changes."
-      if ${DO_STAGE_DANCE}; then
-        bluu=`tput setaf 4; tput smul;`
-        rset=`tput sgr0`
-        echo "Would you like to ${bluu}L${rset}ogout or ${bluu}R${rset}eboot?"
-        ask_yes_no_default 'L' 13 'R'
-        if [[ $the_choice == "R" ]]; then
-          SETUP_DO_REBOOT=true
-        elif [[ $the_choice == "L" ]]; then
-          SETUP_DO_LOGOUT=true
-        else
-          echo "But I was trying to be nice to you!"
-          exit 1
+      echo "NOTE: Open a new terminal window now and test the new bash scripts."
+      echo
+      echo "If you get a shell prompt, it means everything worked."
+      echo
+      echo "If you see any error messages, it means it kind of worked."
+      echo
+      echo "But if you do not get a prompt, you'll want to cancel this script."
+      echo
+      echo "Then, run:"
+      echo
+      echo "   /bin/rm ~/.bashrc"
+      echo
+      echo "Finally, open a new new terminal and make sure you get a prompt."
+      echo
+      echo -en "Were you able to open a new terminal window? (y/n) "
+      read -n 1 the_choice
+      if [[ $the_choice != "y" && $the_choice != "Y" ]]; then
+        echo "Sorry about that! You'll have to take it from here..."
+        exit 1
+      else
+        echo
+        echo "Sweet!"
+        echo "You'll have to logout or reboot to realize group changes."
+        if ${DO_STAGE_DANCE}; then
+          bluu=`tput setaf 4; tput smul;`
+          rset=`tput sgr0`
+          echo "Would you like to ${bluu}L${rset}ogout or ${bluu}R${rset}eboot?"
+          ask_yes_no_default 'L' 999999 'R'
+          if [[ $the_choice == "R" ]]; then
+            SETUP_DO_REBOOT=true
+          elif [[ $the_choice == "L" ]]; then
+            SETUP_DO_LOGOUT=true
+          else
+            echo "But I was trying to be nice to you!"
+            exit 1
+          fi
         fi
       fi
     fi
@@ -1221,109 +1234,102 @@ setup_mint_17_stage_4 () {
     echo 
     echo "Swizzle, so you've rebooted a bunch already!"
   fi
-  echo
-  echo "This should be the last step."
-  echo
-  echo "We're going to configure your system, and we're"
-  echo "going to download and compile lots of software."
-  echo
-  echo "NOTE: You might need to perform a few actions throughout."
-  echo
-  echo "Are we golden?"
-  ask_yes_no_default 'Y'
-
-  if [[ $the_choice != "Y" ]]; then
-
-    echo "Obviously not. Ya have a nice day, now."
-    exit 1
-
-  else
-
-    # *** Make a snapshot of the user's home directory, maybe.
-
-    user_home_conf_dump "${script_absbase}/conf_dump/usr_04"
-
-    # *** Tweak the Window Manager Configuration.
-
-    # Disable passwords and require SSH keys.
-
-    stage_4_sshd_configure
-
-    # Configure /etc/hosts with the mock domain
-    # and any project domain aliases.
-
-    stage_4_etc_hosts_setup
-
-    # Customize the distro and window manager.
-
-    stage_4_wm_customize_mint
-
-    # The new hot: MATE on Mint.
-    if $WM_IS_MATE; then
-      source ${script_absbase}/custom_mint17.mate.sh
+  if false; then
+    echo
+    echo "This should be the last step."
+    echo
+    echo "We're going to configure your system, and we're"
+    echo "going to download and compile lots of software."
+    echo
+    echo "NOTE: You might need to perform a few actions throughout."
+    echo
+    echo "Are we golden?"
+    ask_yes_no_default 'Y' 999999
+    if [[ $the_choice != "Y" ]]; then
+      echo "Obviously not. Ya have a nice day, now."
+      exit 1
     fi
+  fi
 
-    # Deprecated: Author prefers Mint to Xfce or Cinnamon.
-    # Note: There once was a custom_mint16.xcfe.sh but not no more.
-    if $WM_IS_CINNAMON; then
-      source ${script_absbase}/custom_mint16.cinnamon.sh
-    fi
+  # *** Make a snapshot of the user's home directory, maybe.
 
-    # Deprecated: Mint 17 login is different than Mint 16's (MDM).
-    if $USE_MINT16_CUSTOM_LOGIN; then
-      source ${script_absbase}/custom_mint16.retros_bg.sh
-    fi
+  user_home_conf_dump "${script_absbase}/conf_dump/usr_04"
 
-    # Setup git, mercurial, meld, postgres, apache, quicktile, pidgin,
-    # adobe reader, dropbox, expect, rssowl, cloc, todo.txt, ti, utt, etc.
+  # *** Tweak the Window Manager Configuration.
 
-    source ${script_absbase}/custom_mint17.extras.sh
+  # Disable passwords and require SSH keys.
 
-    # Install "vendor" add-ons, or your personal projects.
+  stage_4_sshd_configure
 
-    for f in $(find ${script_absbase} \
-                      -maxdepth 1 \
-                      -type f \
-                      -name "vendor_*.sh"); do
-      source ${script_absbase}
-    done
+  # Configure /etc/hosts with the mock domain
+  # and any project domain aliases.
 
-    # Update the `locate` db.
+  stage_4_etc_hosts_setup
 
-    # Be nice and update the user's `locate` database.
-    # (It runs once a day, but run it now because we
-    # might make a virtual machine image next.)
-    sudo updatedb
+  # Customize the distro and window manager.
 
-    # Remind the user about manual steps left to perform.
+  stage_4_wm_customize_mint
 
-    echo
-    echo "NEXT STEPS"
-    echo "=========="
-    echo
-    echo "For help on installing useful browser plugins"
-    echo "(like mouse gestures and HTTPS Everywhere),"
-    echo "for advice on manually configuring MATE,"
-    echo "for help on setting up Pidgin and relaying"
-    echo "postix email through gmail, see:"
-    echo
-    echo " file://${script_absbase}/A_General_Linux_Setup_Guide_For_Devs.rst#Optional_Setup_Tasks"
-    echo
+  # The new hot: MATE on Mint.
+  if $WM_IS_MATE; then
+    source ${script_absbase}/custom_mint17.mate.sh
+  fi
 
-    # All done.
+  # Deprecated: Author prefers Mint to Xfce or Cinnamon.
+  # Note: There once was a custom_mint16.xcfe.sh but not no more.
+  if $WM_IS_CINNAMON; then
+    source ${script_absbase}/custom_mint16.cinnamon.sh
+  fi
 
-    if ${DO_STAGE_DANCE}; then
-      echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
-    fi
+  # Deprecated: Mint 17 login is different than Mint 16's (MDM).
+  if $USE_MINT16_CUSTOM_LOGIN; then
+    source ${script_absbase}/custom_mint16.retros_bg.sh
+  fi
 
-    print_install_time
+  # Setup git, mercurial, meld, postgres, apache, quicktile, pidgin,
+  # adobe reader, dropbox, expect, rssowl, cloc, todo.txt, ti, utt, etc.
 
-    echo
-    echo "Thanks for installing!"
-    echo
 
-    exit 0
 
+#  source ${script_absbase}/custom_mint17.extras.sh
+
+
+
+  # Install "vendor" add-ons, or your personal projects.
+
+  for f in $(find ${script_absbase} \
+                    -maxdepth 1 \
+                    -type f \
+                    -name "vendor_*.sh"); do
+    source ${script_absbase}
+  done
+
+  # Update the `locate` db.
+
+  # Be nice and update the user's `locate` database.
+  # (It runs once a day, but run it now because we
+  # might make a virtual machine image next.)
+  sudo updatedb
+
+  # Remind the user about manual steps left to perform.
+
+  echo
+  echo "NEXT STEPS"
+  echo "=========="
+  echo
+  echo "For help on installing useful browser plugins"
+  echo "(like mouse gestures and HTTPS Everywhere),"
+  echo "for advice on manually configuring MATE,"
+  echo "for help on setting up Pidgin and relaying"
+  echo "postix email through gmail, see:"
+  echo
+  echo " file://${script_absbase}/A_General_Linux_Setup_Guide_For_Devs.rst#Optional_Setup_Tasks"
+  echo
+
+  # All done.
+
+  if ${DO_STAGE_DANCE}; then
+    echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
   fi
 
 } # end: setup_mint_17_stage_4
@@ -1332,6 +1338,8 @@ stage_4_sshd_configure () {
 
   # Setup sshd.
 
+  # If you didn't apt-get install openssh-server, this file isn't there.
+
   # Turn off password auth, so users can only connect with SSH keys.
   # Otherwise, you'll see thousands of attacks on port 21 trying
   #   to get in your machinepants.
@@ -1339,11 +1347,15 @@ stage_4_sshd_configure () {
   # This is also more convenient -- you won't be prompted for a password
   # whenever you try to log into this machine.
 
-  sudo /bin/sed -i.bak \
-    "s/^#PasswordAuthentication yes$/#PasswordAuthentication yes\nPasswordAuthentication no/" \
-    /etc/ssh/sshd_config
+  if [[ -e /etc/ssh/sshd_config ]]; then
 
-  sudo service ssh restart
+    sudo /bin/sed -i.bak \
+      "s/^#PasswordAuthentication yes$/#PasswordAuthentication yes\nPasswordAuthentication no/" \
+      /etc/ssh/sshd_config
+
+    sudo service ssh restart
+
+  fi
 
 } # end: stage_4_sshd_configure
 
@@ -1375,19 +1387,35 @@ stage_4_wm_customize_mint () {
 
   # From the Mint Menu in the lower-left, remove the text and change the
   # icon (to a playing die with five pips showing).
+
+  set +ex
+  GSETTINGS_MENU="com.linuxmint.mintmenu"
+  gsettings list-schemas | grep "${GSETTINGS_MENU}" &> /dev/null
+  if [[ $? -ne 0 ]]; then
+    GSETTINGS_MENU="org.mate.mate-menu"
+    gsettings list-schemas | grep "${GSETTINGS_MENU}" &> /dev/null
+    if [[ $? -ne 0 ]]; then
+      GSETTINGS_MENU=""
+      echo
+      echo "WARNING: Could not determine gsettings schema for menu keys."
+      exit 1
+    fi
+  fi
+  reset_errexit
+
   if [[ -e $USE_MINT_MENU_ICON ]]; then
     USER_BGS=/home/${USER}/Pictures/.backgrounds
     /bin/mkdir -p ${USER_BGS}
     /bin/cp \
       ${USE_MINT_MENU_ICON} \
       ${USER_BGS}/mint_menu_custom.png
-    gsettings set com.linuxmint.mintmenu applet-icon \
+    gsettings set ${GSETTINGS_MENU} applet-icon \
       "${USER_BGS}/mint_menu_custom.png"
   fi
   # The default applet-icon-size is 22.
-  gsettings set com.linuxmint.mintmenu applet-icon-size 22
+  gsettings set ${GSETTINGS_MENU} applet-icon-size 22
   # The default applet-text is 'Menu'.
-  gsettings set com.linuxmint.mintmenu applet-text ''
+  gsettings set ${GSETTINGS_MENU} applet-text ''
 
   # FIXME/MAYBE: Currently, you have to manually setup the panels
   # and panel launchers. Though we could maybe do it programmatically.
@@ -1407,7 +1435,7 @@ stage_4_wm_customize_mint () {
   #
   # The default mapping to open the MATE Menu is the Windows/Super key
   # ('<Super_L'), but I fat-finger it sometimes so add the shift key.
-  gsettings set com.linuxmint.mintmenu hot-key '<Super>Shift_L'
+  gsettings set ${GSETTINGS_MENU} hot-key '<Super>Shift_L'
 
   # MAYBE: Move these thoughts to a reST article, specifically a dead one.
 
@@ -1454,9 +1482,10 @@ setup_mint_17_go () {
   SETUP_DO_REBOOT=false
   SETUP_DO_LOGOUT=false
 
-  if [[ ${stage_num} -eq 1 ]]; then
+  if [[ !${DO_EXTRA_UNNECESSARY_VBOX_STUFF} || ${stage_num} -eq 1 ]]; then
     # Call `sudo apt-get install -y [lots of packages]`.
-    setup_mint_17_stage_1
+#    setup_mint_17_stage_1
+:
   fi
 
   # There are a number of ways to check if we're running in a virtual machine.
@@ -1466,7 +1495,18 @@ setup_mint_17_go () {
   #   dmesg | grep VirtualBox
   # but those are, well, hacks.
   # The better way is to use a specific utility, like virt-what or imvert.
-  if [[ `sudo virt-what` != 'virtualbox' ]]; then
+  # 2016-03-23: Since when did virt-what start giving back more?:
+  #   $ sudo virt-what
+  #   virtualbox
+  #   kvm
+  #if [[ `sudo virt-what` != 'virtualbox' ]]; then ...; fi
+  IN_VIRTUALBOX_VM=false
+  sudo virt-what | grep 'virtualbox' &> /dev/null
+  if [[ $? -eq 0 ]]; then
+    IN_VIRTUALBOX_VM=true
+  fi
+
+  if ! ${IN_VIRTUALBOX_VM}; then
     # 2016.01.14: [lb] installed Linux Mint 17.3 MATE on a laptop and did
     # not reboot or relogon between install steps, so we'll scream through
     # each step one after another.
@@ -1475,9 +1515,6 @@ setup_mint_17_go () {
     setup_mint_17_stage_3
     # Download, compile, and configure lots of software.
     setup_mint_17_stage_4
-    # C'est ca!
-    echo
-    echo "All done!"
   else
     # 2016.03.23: It's best if the user just installs guest additions manually
     # right after installing an OS, before running this script, so not calling
@@ -1540,6 +1577,12 @@ setup_mint_17_go () {
     fi
   fi
 
+  print_install_time
+
+  # C'est ca!
+  echo
+  echo "All done!"
+
   if ${REBOOT_WILL_BE_NECESSARY}; then
     echo
     echo "One or more operations require a reboot before working (e.g., Wireshark)."
@@ -1547,14 +1590,16 @@ setup_mint_17_go () {
 
 } # end: setup_mint_17_go
 
-# If you want to override any options but not checkin the changes to the
-# repository (e.g., add passwords to this script) use a wrapper script.
-# See: setup-exc-mint17-custom.sh.template
-if [[ ! -v SETUP_WRAPPERED ]]; then
-  echo
-  echo "Not being called by wrapper script: installing using default options."
-  echo
-  setup_mint_17_go
+# Only run when not being sourced.
+if [[ "$0" == "$BASH_SOURCE" ]]; then
+  # If you want to override any options but not checkin the changes to the
+  # repository (e.g., add passwords to this script) use a wrapper script.
+  # See: setup-exc-mint17-custom.sh.template
+  if [[ ! -v SETUP_WRAPPERED ]]; then
+    echo
+    echo "Not being called by wrapper script: installing using default options."
+    setup_mint_17_go
+  fi
 fi
 
 # ==================================================================

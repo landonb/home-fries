@@ -263,6 +263,11 @@ and let the setup script install it.
     source ~/.fries/once/vendor_dubsacks.sh
     stage_4_dubsacks_install
 
+    # Note that home-fries uses the developer Dubsacks link
+    # (points to bundle_/). Fix that.
+    cd ~
+    /bin/ln -sf .vim/bundle/dubs_all/.vimrc.bundle .vimrc
+
 If you're replicating your dev machine, copy its privates.
 
 .. code-block:: bash
@@ -271,6 +276,15 @@ If you're replicating your dev machine, copy its privates.
 
     cd ~/.fries/.bashrc
     /bin/cp -L /media/sf_landonb/.fries/.bashrc/bashrx.private.landonb.sh .
+
+Setup Home-Fries
+================
+
+.. code-block:: bash
+
+  cd ~/.fries/once/
+  export INCLUDE_ADOBE_READER=false
+  ./setup_mint17.sh
 
 Dev Hints
 =========
@@ -310,6 +324,23 @@ and cannot otherwise decrypt your home directory.
     # Copy and paste your blah and add the recovery code to your special
     # export.
     echo 'blah' > ~/.fries/.crunch/islandmine.ecryptfs-unwrap-passphrase.txt
+
+Post dev clone
+==============
+
+If you want a real dev machine clone, clone appropriate development directories.
+
+For instance, the Dubsacks Vim instance installed by default is
+the official all-in-one distribution -- where the modules are all
+submodules. Copy the real deal if you expect to edit Vim files and
+want to push them to their appropriate projects and not the master
+project.
+
+.. code-block:: bash
+
+    FIXME: This is untested.
+    cd ~
+    /bin/ln -sf .vim/bundle_/dubs_all/.vimrc.bundle_ .vimrc
 
 Caveats
 =======

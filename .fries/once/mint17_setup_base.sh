@@ -111,12 +111,16 @@ OPT_DLOADS=/srv/opt/.downloads
 # The default Mint "start menu" icon is rather drab, so give it some pazazz.
 # [lb] likes the dice icon that's included with Ubuntu. Poke around
 # the /usr/share/icons/ files and find something you like or add you own.
-USE_MINT_MENU_ICON="${script_absbase}/assets/applications-boardgames-21x21.png"
+if [[ -z ${USE_MINT_MENU_ICON+x} ]]; then
+  USE_MINT_MENU_ICON="${script_absbase}/assets/applications-boardgames-21x21.png"
+fi
 
 # -- Mercurial setup.
 
-#USE_SETUP_HG=true
-USE_SETUP_HG=false
+if [[ -z ${USE_SETUP_HG+x} ]]; then
+  #USE_SETUP_HG=true
+  USE_SETUP_HG=false
+fi
 if $USE_SETUP_HG; then
   HG_USER_NAME="Your Name"
   HG_USER_EMAIL="Your Email"
@@ -129,16 +133,22 @@ fi
 # per its EULA, so disable this is if you must, or if you're simply
 # satisified with evince, or if you don't trust Adobe, or if you don't
 # like not free as in not free beer software.
-INCLUDE_ADOBE_READER=true
-#INCLUDE_ADOBE_READER=false
+if [[ -z ${INCLUDE_ADOBE_READER+x} ]]; then
+  INCLUDE_ADOBE_READER=true
+  #INCLUDE_ADOBE_READER=false
+fi
 
 # -- MySQL, if you want. I needed it for Mediawiki or Redmine but run neither no more.
 
-DO_INSTALL_MYSQL=false
+if [[ -z ${DO_INSTALL_MYSQL+x} ]]; then
+  DO_INSTALL_MYSQL=false
+fi
 
 # -- Whether or not to install Dubsacks VIM.
 
-DO_INSTALL_DUBSACKS=true
+if [[ -z ${DO_INSTALL_DUBSACKS+x} ]]; then
+  DO_INSTALL_DUBSACKS=true
+fi
 
 # *** END: Configure these values for your environment.
 ########################################################

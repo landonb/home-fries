@@ -2,7 +2,7 @@
 
 # File: bash_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.01.14
+# Last Modified: 2016.03.23
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bash function library.
 # License: GPLv3
@@ -379,19 +379,30 @@ test_opts=`echo $SHELLOPTS | grep errexit` >/dev/null 2>&1
 errexit_was_set=$?
 set +e
 
+# 2016.03.23: On a new machine install, young into the standup,
+#             and not having editing /etc/hosts,
+#             host -t a ${HOSTNAME} says:
+#               Host ${HOSTNAME} not found: 3(NXDOMAIN)
+
 MACHINE_IP=`host -t a ${HOSTNAME} | awk '{print $4}' | egrep ^[1-9]`
 if [[ $? != 0 ]]; then
-  MACHINE_IP=`ifconfig eth0 | grep "inet addr" \
+  MACHINE_IP=""
+  IFCFG_DEV=`ifconfig eth0 2> /dev/null`
+  if [[ -z ${IFCFG_DEV} ]]; then
+    # VirtualBox. I'm guessing.
+    IFCFG_DEV=`ifconfig enp0s3 2> /dev/null`
+  fi
+  MACHINE_IP=`echo ${IFCFG_DEV} | grep "inet addr" \
               | sed "s/.*inet addr:([.0-9]+).*/\1/" \
               2> /dev/null`
   if [[ $? != 0 ]]; then
-    MACHINE_IP=`ifconfig eth0 | grep "inet addr" \
+    MACHINE_IP=`echo ${IFCFG_DEV} | grep "inet addr" \
                 | sed "s/.*inet addr:\([.0-9]\+\).*/\1/" \
                 2> /dev/null`
   fi
-  if [[ $? != 0 ]]; then
-    echo -e "\nWARNING: Could not determine the machine's IP address."
-  fi
+fi
+if [[ -z ${MACHINE_IP} ]]; then
+  echo -e "\nWARNING: Could not determine the machine's IP address."
 fi
 
 if [[ $errexit_was_set == 0 ]]; then

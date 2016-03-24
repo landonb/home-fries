@@ -64,6 +64,14 @@
 #!.fries/once/archive/*
 #!.fries/once/assets/*
 !.fries/once/target/*
+.fries/once/target/.agignore
+# I had to add all these just to add the final file...
+# but then commenting them out afterwards is just fine.
+#!.fries/once/target/common/*
+#!.fries/once/target/common/usr/*
+#!.fries/once/target/common/usr/lib/*
+#!.fries/once/target/common/usr/lib/pm-utils/*
+#!.fries/once/target/common/usr/lib/pm-utils/sleep.d/*
 
 # None of your business files.
 .fries/bin/bkuppers/

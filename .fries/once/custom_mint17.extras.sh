@@ -1077,23 +1077,27 @@ stage_4_font_mania () {
 
 stage_4_font_typeface_hack () {
 
-  /bin/mkdir -p ${OPT_DLOADS}
-  pushd ${OPT_DLOADS} &> /dev/null
+  if [[ ! -e ~/.fonts/Hack-v2_010-ttf/Hack-Regular.ttf ]]; then
 
-  wget -N https://github.com/chrissimpkins/Hack/releases/download/v2.010/Hack-v2_010-ttf.zip
-  mkdir -p ~/.fonts
-  # Use -f to "freshen" only those file that are newer in the archive.
-  # Hrmm, -f doesn't do anything if the files don't already exist...
-  if [[ ! -e ~/.fonts/Hack-v2_010-ttf ]]; then
-    unzip -d ~/.fonts/Hack-v2_010-ttf Hack-v2_010-ttf.zip
-  else
-    unzip -f -d ~/.fonts/Hack-v2_010-ttf Hack-v2_010-ttf.zip
+    /bin/mkdir -p ${OPT_DLOADS}
+    pushd ${OPT_DLOADS} &> /dev/null
+
+    wget -N https://github.com/chrissimpkins/Hack/releases/download/v2.010/Hack-v2_010-ttf.zip
+    mkdir -p ~/.fonts
+    # Use -f to "freshen" only those file that are newer in the archive.
+    # Hrmm, -f doesn't do anything if the files don't already exist...
+    if [[ ! -e ~/.fonts/Hack-v2_010-ttf ]]; then
+      unzip -d ~/.fonts/Hack-v2_010-ttf Hack-v2_010-ttf.zip
+    else
+      unzip -f -d ~/.fonts/Hack-v2_010-ttf Hack-v2_010-ttf.zip
+    fi
+
+    popd &> /dev/null
+
+    # Build font information cache files.
+    sudo fc-cache -fv
+
   fi
-
-  popd &> /dev/null
-
-  # Build font information cache files.
-  sudo fc-cache -fv
 
 } # end: stage_4_font_typeface_hack
 
