@@ -1,6 +1,6 @@
 # File: vendor_dubsacks.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.03.23
+# Last Modified: 2016.03.24
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Dubsacks VIM setup script.
 # License: GPLv3
@@ -37,6 +37,11 @@ stage_4_dubsacks_install () {
   fi
   if [[ ! -e ${HOME}/.vim ]]; then
     git clone ${URI_DUBSACKS_VIM_GIT} ${HOME}/.vim
+
+    # The clone doesn't grab the submodules.
+    pushd ${HOME}/.vim &> /dev/null
+    git submodule update --init
+    popd &> /dev/null
   else
     # We'll just assume that *we* setup .vim already,
     # i.e., that this is our repo and not something else.
@@ -45,6 +50,10 @@ stage_4_dubsacks_install () {
     # then you got bigger problems.
     pushd ${HOME}/.vim &> /dev/null
     git pull
+    # Update the submodules.
+    # Note that `git submodule foreach git pull` dies on bundle/AutoAdapt
+    #  and asks for a branch name, but update --init --remote seems to work.
+    git submodule update --init --remote
     popd &> /dev/null
   fi
 
