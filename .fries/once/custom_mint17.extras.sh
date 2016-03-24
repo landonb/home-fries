@@ -768,14 +768,13 @@ stage_4_parT_install () {
     popd &> /dev/null
   fi
 
-  popd &> /dev/null
-
   pushd parT &> /dev/null
 
   ./build.sh
   sudo /bin/cp -af parT /usr/bin
   sudo chown root:root /usr/bin/parT
 
+  popd &> /dev/null
   popd &> /dev/null
 
 } # end: stage_4_parT_install
@@ -1702,6 +1701,7 @@ stage_4_updatedb_locate_conf () {
   #
   # Exclude backup drives, e.g.,
   # PRUNEPATHS="/tmp /var/spool /home/.ecryptfs /media/landonb/FREEDUB1 /media/landonb/bubbly"
+  :
 
 } # end: stage_4_updatedb_locate_conf
 
