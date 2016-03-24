@@ -63,7 +63,7 @@
 .fries/once/fries-setup-mysql.pwd
 #!.fries/once/archive/*
 #!.fries/once/assets/*
-#!.fries/once/target/*
+!.fries/once/target/*
 
 # None of your business files.
 .fries/bin/bkuppers/
