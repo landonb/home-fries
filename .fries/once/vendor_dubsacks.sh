@@ -61,5 +61,8 @@ setup_dubsacks_go () {
 
 } # end: setup_dubsacks_go
 
-setup_dubsacks_go
+if [[ "$0" == "$BASH_SOURCE" ]]; then
+  # Only run when not being sourced.
+  setup_dubsacks_go
+fi
 

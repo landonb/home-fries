@@ -120,6 +120,7 @@ stage_4_meld_configure () {
   # Take a look at custom_mint17.landon.sh for manual steps to setup meld.
   # (This script could edit ~/.gconf/apps/meld/%gconf.xml but the file
   # filters are a little dependent on the user, so make the user do it.)
+  :
 
 } # end: stage_4_meld_configure
 
