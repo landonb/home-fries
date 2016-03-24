@@ -227,7 +227,7 @@ Install Guest Additions and add the `vboxsf` user.
 
 .. code-block:: bash
 
-    cd /media/$USER/VBOXADDITIONS*
+    pushd /media/$USER/VBOXADDITIONS*
     sudo sh ./VBoxLinuxAdditions.run
 
     # Do this now so we don't have to logout/reboot again later.
@@ -246,12 +246,17 @@ Setup home-fries and Dubsacks Vim.
 
     # Grab the goodies!
 
-    #/bin/cp -ar /media/landonb/
-    cd ~/Downloads
-    
-    git clone /media/sf_landonb/ $USER
-    /bin/cp -ari ~/Downloads/landonb/ /home/
-    # /home/landonb/.bashrc should be the only conflict.
+    #/bin/cp -ar /media/$USER/
+    pushd ~/Downloads
+
+    # You could clone from a local source if you prefer.
+    #git clone /media/sf_$USER/ home-fries
+    # But if the github repo is up to date, just use that.
+    git clone https://github.com/landonb/home-fries home-fries
+
+    /bin/cp -ari ~/Downloads/home-fries/ /home/
+    # /home/$USER/.bashrc should be the only conflict.
+
 
 Install Dubsacks Vim immediately, if you want, or don't
 and let the setup script install it.
@@ -261,30 +266,35 @@ and let the setup script install it.
     sudo apt-get install -y vim-gtk git git-core
     # 2016.03.23: I was copying locally at first, but really what's on
     #             github is golden, so don't specify a local git path.
-    #export URI_DUBSACKS_VIM_GIT=/media/sf_landonb/.vim
+    #export URI_DUBSACKS_VIM_GIT=/media/sf_$USER/.vim
     source ~/.fries/once/vendor_dubsacks.sh
     stage_4_dubsacks_install
 
     # Note that home-fries uses the developer Dubsacks link
     # (points to bundle_/). Fix that.
-    cd ~
+    pushd ~
     /bin/ln -sf .vim/bundle/dubs_all/.vimrc.bundle .vimrc
 
 If you're replicating your dev machine, copy its privates.
 
 .. code-block:: bash
 
-    /bin/cp -rn /media/sf_landonb/.gitconfig ~/
+    /bin/cp -rn /media/sf_$USER/.gitconfig ~/
 
-    cd ~/.fries/.bashrc
-    /bin/cp -L /media/sf_landonb/.fries/.bashrc/bashrx.private.landonb.sh .
+    pushd ~/.fries/.bashrc
+    /bin/cp -L /media/sf_$USER/.fries/.bashrc/bashrx.private.$USER.sh .
+
+    # FIXME: Rather than cloning home-fries, maybe just copy it over?
+    pushd ~
+    /bin/rm -rf ~/.fries
+    /bin/cp -ar /media/sf_$USER/.fries .
 
 Setup Home-Fries
 ================
 
 .. code-block:: bash
 
-  cd ~/.fries/once/
+  pushd ~/.fries/once/
   export INCLUDE_ADOBE_READER=false
   ./setup_mint17.sh
 
@@ -301,10 +311,10 @@ user's home directory.
 .. code-block:: bash
 
     dubspdate () {
-        pushd ~/Downloads/$USER/
+        pushd ~/Downloads/home-fries/
         git pull
         /bin/rm -rf ~/.git
-        /bin/cp -ar ~/Downloads/landonb/ /home/
+        /bin/cp -ar ~/Downloads/home-fries/ /home/
         popd
     }
     dubspdate
@@ -340,9 +350,10 @@ project.
 
 .. code-block:: bash
 
-    FIXME: This is untested.
-    cd ~
-    /bin/ln -sf .vim/bundle/dubs_all/.vimrc.bundle .vimrc
+    pushd ~
+    /bin/rm -rf ~/.vim
+    /bin/cp -ar /media/sf_$USER/.vim ~/
+    /bin/ln -sf .vim/bundle_/dubs_all/.vimrc.bundle_ .vimrc
 
 Caveats
 =======
@@ -355,4 +366,24 @@ Caveats
   and can probably be (safely) ignored.
 
   https://bugs.launchpad.net/ubuntu/+source/cryptsetup/+bug/1481536
+
+Laptop Install
+==============
+
+Follow most of the instructions above, with the following modifications:
+
+- Obviously, skip the initial VirtualBox step.
+
+- The easiest way to run the Live CD is to find a big enough USB
+  stick and use that.
+
+  See: A_General_Linux_Setup_Guide_For_Devs.rst
+  Find: "Make a Bootable USB"
+
+- You might want to choose different encryption options,
+  such as just encrypting the home folder and not encrypting
+  everything everything (just make sure all of your sensitive
+  files live under your home directory).
+
+- Otherwise everything's pretty similar....
 
