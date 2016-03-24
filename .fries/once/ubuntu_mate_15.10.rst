@@ -340,7 +340,7 @@ project.
 
     FIXME: This is untested.
     cd ~
-    /bin/ln -sf .vim/bundle_/dubs_all/.vimrc.bundle_ .vimrc
+    /bin/ln -sf .vim/bundle/dubs_all/.vimrc.bundle .vimrc
 
 Caveats
 =======

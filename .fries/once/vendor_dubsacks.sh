@@ -43,17 +43,19 @@ stage_4_dubsacks_install () {
     git submodule update --init
     popd &> /dev/null
   else
+    pushd ${HOME}/.vim &> /dev/null
     # We'll just assume that *we* setup .vim already,
     # i.e., that this is our repo and not something else.
     # We could check that, say, ~/.vim/bundle/dubs_core exists,
     # but it's unlikely that that'll not be there, and if it isn't,
     # then you got bigger problems.
-    pushd ${HOME}/.vim &> /dev/null
     git pull
-    # Update the submodules.
-    # Note that `git submodule foreach git pull` dies on bundle/AutoAdapt
-    #  and asks for a branch name, but update --init --remote seems to work.
-    git submodule update --init --remote
+    
+    # So, like, what messes up the ~/.vimrc link and points it at bundle_/?
+    # Anyway, recreate/correct the symlink, and also
+    # download all the submodules.
+    ./setup.sh
+
     popd &> /dev/null
   fi
 
