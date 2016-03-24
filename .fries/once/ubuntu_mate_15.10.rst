@@ -6,7 +6,8 @@ Or is this a reST file?
 .. 2016-03-13: For a private password keeper trapper machine,
                I did the following.
 
-VirtualBox New Machine:
+VirtualBox New Machine
+======================
 
  - The Wizard setup is simple.
   
@@ -60,7 +61,7 @@ VirtualBox New Machine:
 
        (Later, you'll find these at, e.g., /media/sf_$USER and /media/sf_au_jus)
 
-   - User Interface: Mini Toobar: NO: Show in Full-screen/Seamless
+   - User Interface: Mini Toolbar: NO: Show in Full-screen/Seamless
 
  - A note about Encryption:
 
@@ -88,7 +89,8 @@ VirtualBox New Machine:
 
        So I think VM encryption works if you want to try it next time.
 
-Live Installer:
+Live Installer
+==============
 
  - "Download updates while installing"
 
@@ -139,6 +141,7 @@ Live Installer:
      your life easier and bypass the OS log in prompt.
 
 Reboot.
+-------
 
 - The reboot hangs on an error.
 
@@ -153,6 +156,9 @@ Reboot.
 Resetting the VM machine works.
 
 Notice a few things.
+--------------------
+
+A few things.
 
  - The Live CD should have automatically unmounted.
 
@@ -160,7 +166,14 @@ Notice a few things.
 
  - Shared Clipboard won't work until VBox Additions is installed.
 
-Open a MATE Terminal (via Applications > System Tools).
+Setup Linux
+===========
+
+Terminal
+--------
+
+Open a MATE Terminal (via Applications > System Tools,
+           or right-click desktop and use context menu)
 
  - Turn off Show Menu Bar, if you want.
 
@@ -176,7 +189,11 @@ Open a MATE Terminal (via Applications > System Tools).
 
    Scrollback: Unlimited
 
-Update and Upgrade.
+Pre-Scripted Setup
+------------------
+
+Update and Upgrade the OS
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: bash
 
@@ -199,20 +216,31 @@ Update and Upgrade.
 
 (I rebooted now, but I think you can wait to reboot.)
 
-Install Guest Additions.
+Install Guest Additions
+^^^^^^^^^^^^^^^^^^^^^^^
 
-- Devices > Insert Guest Additions CD Image...
+Insert the Guest Additions CD by selecting its menu item.
+
+ - Devices > Insert Guest Additions CD Image...
+
+Install Guest Additions and add the `vboxsf` user.
 
 .. code-block:: bash
 
     cd /media/$USER/VBOXADDITIONS*
     sudo sh ./VBoxLinuxAdditions.run
 
+    # Do this now so we don't have to logout/reboot again later.
+    sudo usermod -aG vboxsf $USER
+
 Reboot the machine.
 
-We're almost there.
+We're almost there
+^^^^^^^^^^^^^^^^^^
 
-Oh, and now the bidirectional clipboard works!
+Yeah, now the bidirectional clipboard works!
+
+Setup home-fries and Dubsacks Vim.
 
 .. code-block:: bash
 
@@ -220,18 +248,65 @@ Oh, and now the bidirectional clipboard works!
 
     #/bin/cp -ar /media/landonb/
     cd ~/Downloads
-    git clone /media/landonb/
+    
+    git clone /media/sf_landonb/ $USER
+    /bin/cp -ari ~/Downloads/landonb/ /home/
+    # /home/landonb/.bashrc should be the only conflict.
 
-    # cd ~/Documents/packered_larry_2015_12_30_13h33m45s/home/landonb
-    # cp -ari * ~
-    # cp -arn * ~
+Install Dubsacks Vim immediately, if you want, or don't
+and let the setup script install it.
 
+.. code-block:: bash
 
-ecryptfs-unwrap-passphrase
-ad2343d18fd422d5ee8a78f987ce5468
+    sudo apt-get install -y vim-gtk git git-core
+    export URI_DUBSACKS_VIM_GIT=/media/sf_landonb/.vim
+    source ~/.fries/once/vendor_dubsacks.sh
 
+If you're replicating your dev machine, copy its privates.
+
+.. code-block:: bash
+
+    /bin/cp -rn /media/sf_landonb/.gitconfig ~/
+
+    cd ~/.fries/.bashrc
+    /bin/cp -L /media/sf_landonb/.fries/.bashrc/bashrx.private.landonb.sh .
+
+Dev Hints
+=========
+
+When setting up a VirtualBox image, it's easy to update
+the setup scripts on the host and just copy over changes.
+
+However, you'll need to go through git. Trying to avoid
+git would be a pain, since the repo is overlayed atop the
+user's home directory.
+
+.. code-block:: bash
+
+    cd ~/Downloads/$USER/
+    git pull
+    /bin/cp -ar ~/Downloads/landonb/ /home/
+
+Post sec ops
+============
+
+Ubuntu gives you an out if you forget your account password
+and cannot otherwise decrypt your home directory.
+
+.. code-block:: bash
+
+    mkdir ~/.fries/.crunch
+    # I tried to get around passphrase always asking for your password
+    # by using expect, but if a passphrase has $ in it, I couldn't get
+    # bash not to interpolate it, even trying single instead of double
+    # quotes and also trying to escape the dolla dolla sign, yo.
+    ecryptfs-unwrap-passphrase
+    # Copy and paste your blah and add the recovery code to your special
+    # export.
+    echo 'blah' > ~/.fries/.crunch/islandmine.ecryptfs-unwrap-passphrase.txt
 
 Caveats
+=======
 
 - On boot, I see error messages after entering my password.
 
