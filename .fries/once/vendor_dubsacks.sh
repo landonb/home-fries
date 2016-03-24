@@ -1,6 +1,6 @@
 # File: vendor_dubsacks.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.01.14
+# Last Modified: 2016.03.23
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Dubsacks VIM setup script.
 # License: GPLv3
@@ -9,7 +9,12 @@ if [[ -z ${DO_INSTALL_DUBSACKS+x} ]]; then
   DO_INSTALL_DUBSACKS=true
 fi
 
-REMOTE_URI_DUBSACKS_VIM_GIT="https://github.com/landonb/dubsacks_vim.git"
+if [[ -z ${URI_DUBSACKS_VIM_GIT+x} ]]; then
+  URI_DUBSACKS_VIM_GIT="https://github.com/landonb/dubsacks_vim.git"
+fi
+
+echo $URI_DUBSACKS_VIM_GIT
+exit 1
 
 stage_4_dubsacks_install () {
 
@@ -27,7 +32,7 @@ stage_4_dubsacks_install () {
     mv ${HOME}/.vim ${HOME}/BACKUP-vim-`date +%Y_%m_%d`-`uuidgen`
   fi
 
-  git clone ${REMOTE_URI_DUBSACKS_VIM_GIT} ${HOME}/.vim
+  git clone ${URI_DUBSACKS_VIM_GIT} ${HOME}/.vim
 
   # Dubsacks uses the Hack font.
   source custom_mint17.extras.sh

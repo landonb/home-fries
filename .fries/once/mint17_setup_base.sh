@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.01.14
+# Last Modified: 2016.03.23
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -57,10 +57,13 @@ USE_DOMAIN="home.fries"
 # you can set the device name here and the script will mount it for you.
 # E.g., for VirtualBox,
 #  USE_MOUNTPT="C_DRIVE"
+#  DST_MOUNTPT="/win"
 # or for a dual-boot,
 #  USE_MOUNTPT="/dev/sda2"
+#  DST_MOUNTPT="/fsm"
 # Otherwise, just leave it blank.
 USE_MOUNTPT=""
+DST_MOUNTPT=""
 
 # A few common project group name config options.
 
@@ -128,6 +131,10 @@ fi
 # like not free as in not free beer software.
 INCLUDE_ADOBE_READER=true
 #INCLUDE_ADOBE_READER=false
+
+# -- MySQL, if you want. I needed it for Mediawiki or Redmine but run neither no more.
+
+DO_INSTALL_MYSQL=false
 
 # -- Whether or not to install Dubsacks VIM.
 

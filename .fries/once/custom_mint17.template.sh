@@ -31,6 +31,7 @@ if false; then
 
   # Set the name of the shared folder you've setup from your host machine.
   USE_MOUNTPT="C_DRIVE"
+  DST_MOUNTPT="/win"
 
   # To better mimic a deployed server installation, set a domain name.
   # Whatever name you use will obscure any real domain name of the same
