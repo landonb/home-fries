@@ -261,6 +261,7 @@ and let the setup script install it.
     sudo apt-get install -y vim-gtk git git-core
     export URI_DUBSACKS_VIM_GIT=/media/sf_landonb/.vim
     source ~/.fries/once/vendor_dubsacks.sh
+    stage_4_dubsacks_install
 
 If you're replicating your dev machine, copy its privates.
 
@@ -283,9 +284,11 @@ user's home directory.
 
 .. code-block:: bash
 
-    cd ~/Downloads/$USER/
+    cdd ~/Downloads/$USER/
     git pull
+    /bin/rm -rf ~/.git
     /bin/cp -ar ~/Downloads/landonb/ /home/
+    popd
 
 Post sec ops
 ============

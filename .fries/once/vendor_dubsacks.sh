@@ -14,7 +14,6 @@ if [[ -z ${URI_DUBSACKS_VIM_GIT+x} ]]; then
 fi
 
 echo $URI_DUBSACKS_VIM_GIT
-exit 1
 
 stage_4_dubsacks_install () {
 
