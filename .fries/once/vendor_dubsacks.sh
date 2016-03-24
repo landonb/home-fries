@@ -39,8 +39,9 @@ stage_4_dubsacks_install () {
     git clone ${URI_DUBSACKS_VIM_GIT} ${HOME}/.vim
 
     # The clone doesn't grab the submodules.
+    # Also, create the ~/.vimrc symlink.
     pushd ${HOME}/.vim &> /dev/null
-    git submodule update --init
+    ./setup.sh
     popd &> /dev/null
   else
     pushd ${HOME}/.vim &> /dev/null
@@ -50,10 +51,9 @@ stage_4_dubsacks_install () {
     # but it's unlikely that that'll not be there, and if it isn't,
     # then you got bigger problems.
     git pull
-    
-    # Create the ~/.vimrc symlink, and also
-    # download all the submodules.
-    ./setup.sh
+
+    # Update the submodules.
+    git submodule update --init --remote
 
     popd &> /dev/null
   fi
