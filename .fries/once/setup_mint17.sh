@@ -204,11 +204,11 @@ reset_errexit
 # This script runs multiple times and reports its running time each time.
 print_install_time () {
   local setup_time_n=$(date +%s.%N)
+  echo
   echo "Install started at: $setup_time_0"
   echo "Install finishd at: $setup_time_n"
   time_elapsed=$(echo "$setup_time_n - $setup_time_0" | bc -l)
   echo "Elapsed: $time_elapsed secs."
-  echo
 }
 
 ensure_directory_hierarchy_exists ${OPT_DLOADS}
@@ -290,6 +290,16 @@ echo
 setup_ready_print_env
 
 REBOOT_WILL_BE_NECESSARY=false
+
+if [[ -z ${WM_IS_MATE+x} ]]; then
+  WM_IS_MATE=false
+fi
+if [[ -z ${WM_IS_CINNAMON+x} ]]; then
+  WM_IS_CINNAMON=false
+fi
+if [[ -z ${USE_MINT16_CUSTOM_LOGIN+x} ]]; then
+  USE_MINT16_CUSTOM_LOGIN=false
+fi
 
 # ------------------------------------------
 # STAGE 1
@@ -891,7 +901,7 @@ check_build_essential_installed () {
       determine_window_manager
     fi
   fi
-} # end:check_build_essential_installed
+} # end: check_build_essential_installed
 
 # ------------------------------------------
 # STAGE 2
@@ -1288,20 +1298,20 @@ setup_mint_17_stage_4 () {
 
   # Setup git, mercurial, meld, postgres, apache, quicktile, pidgin,
   # adobe reader, dropbox, expect, rssowl, cloc, todo.txt, ti, utt, etc.
-
-
-
-#  source ${script_absbase}/custom_mint17.extras.sh
-
-
+  source ${script_absbase}/custom_mint17.extras.sh
 
   # Install "vendor" add-ons, or your personal projects.
 
-  for f in $(find ${script_absbase} \
+  # 2016.03.23: Disabling for now; not really used except
+  #             vendor_dubsacks.sh which was already called.
+  echo
+  echo "Skipping vendor setup files:"
+  for vfname in $(find ${script_absbase} \
                     -maxdepth 1 \
                     -type f \
                     -name "vendor_*.sh"); do
-    source ${script_absbase}
+    #source ${script_absbase}/${vfname}
+    echo "${script_absbase}/${vfname}"
   done
 
   # Update the `locate` db.
@@ -1323,8 +1333,9 @@ setup_mint_17_stage_4 () {
   echo "for help on setting up Pidgin and relaying"
   echo "postix email through gmail, see:"
   echo
-  echo " file://${script_absbase}/A_General_Linux_Setup_Guide_For_Devs.rst#Optional_Setup_Tasks"
+  echo " ${script_absbase}/A_General_Linux_Setup_Guide_For_Devs.rst"
   echo
+  echo "Look for: Optional Setup Tasks"
 
   # All done.
 
@@ -1506,6 +1517,10 @@ setup_mint_17_go () {
     IN_VIRTUALBOX_VM=true
   fi
 
+  # Now that wmctrl is installed...
+  # Set WM_IS_MATE, etc.
+  determine_window_manager
+
   if ! ${IN_VIRTUALBOX_VM}; then
     # 2016.01.14: [lb] installed Linux Mint 17.3 MATE on a laptop and did
     # not reboot or relogon between install steps, so we'll scream through
@@ -1572,8 +1587,9 @@ setup_mint_17_go () {
         fi
       fi
     else
-      echo
-      echo "VirtualBox OS setup is complete!"
+      #echo
+      #echo "VirtualBox OS setup is complete!"
+      :
     fi
   fi
 
