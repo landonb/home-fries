@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.01.18
+# Last Modified: 2016.03.23
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -257,7 +257,7 @@ if [[ $EUID -ne 0 \
                 && -e "$SSH_SECRETS/$secret_name" ]]; then
             if [[ $(command -v expect > /dev/null && echo true) ]]; then
               pphrase=$(cat ${SSH_SECRETS}/${secret_name})
-              /usr/bin/expect -c "
+              /usr/bin/expect -c " \
               spawn /usr/bin/ssh-add ${pvt_key}; \
               expect \"Enter passphrase for /home/${USER}/.ssh/${secret_name}:\"; \
               send \"${pphrase}\n\"; \
