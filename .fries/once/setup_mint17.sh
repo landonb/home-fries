@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.03.23
+# Last Modified: 2016.04.04
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -42,53 +42,10 @@
 # 2015.01.26: I mucked with the script (created all
 #             the subscripts) and need to test it.
 # 2016.03.23: And away we go. Setting up a keepertrapper.
+# 2016.03.24: It works!
 
-
-
-
-
-# FIXME: Move following to the laptop setup script:
-
-# FIXME: Document git'ing home-fries and setting up that way.
-# FIXME: Document copying over sync-script file and setting up that way.
-# cd ~/Documents/packered_larry_2015_12_30_13h33m45s/home/landonb
-# cp -ari * ~
-# cp -arn * ~
-#         Especially ~/.ssh and cheat/
-# FIXME: /kit and /srv/excensus should link from ${HOME}/Documents if home dir is encrypted...
-#          look for: ${HOME}/.ecryptfs
-#          look in /home/.ecryptfs/$USER/.ecryptfs/Private.mnt
-#                  for home directory path
-#          look for mount point: df ${HOME}
-# Filesystem              1K-blocks Used      Available Use% Mounted on
-# /home/username/.Private 315482376 101351268 198105472  34% /home/username
-#
-# BEST TO USE
-#   ecryptfs-verify --home &> /dev/null
-#   and then check $?
-#
-# Check if swap encrypted:
-#
-# sudo blkid | grep swap
-# and should check for an output similar to
-# /dev/mapper/cryptswap1: UUID="95f3d64d-6c46-411f-92f7-867e92991fd0" TYPE="swap" 
-#
-# sudo cryptsetup status /dev/mapper/cryptswap1
-# and check $?
-# (to see swap name: swapon -s)
-#
-# FIXME: laptop not using encrypted swap!
-#
-
-# FIXME: Setup .fries, .erectus, etc.
-# FIXME: 2016.01.07: Setup ~/.fries/cheat and other missing doodads...
-#         need to figure out
-
-# FIXME: See below:
-#         Fix /etc/default/grub here for host OS install.
-
-
-
+# FIXME/NEXT-TIME: Search for NEXT-TIME for questions to
+#                  answer the next time you run this script.
 
 # ------------------------------------------
 # Velcome
@@ -306,8 +263,6 @@ fi
 
 # *** FIRST/FRESH BOOT: Upgrade and Install Packages
 
-IS_DEV_MACHINE_ANSWER=''
-
 setup_mint_17_stage_1 () {
 
   echo 
@@ -396,6 +351,49 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
     # Update all packages.
     sudo apt-get -y upgrade
+    sudo apt-get -y dist-upgrade
+
+    sudo apt-get -y dkms build-essentials
+    # 2016-04-04: I don't think you need to reboot here... do you??
+    #             There was a comment here earlier that a reboot was
+    #             necessary, but I lost track installing Ubuntu MATE 15.10
+    #             and maybe it's not necessary anymore....
+    #
+    # FIXME/NEXT-TIME: Well, except for this comment from apt-get install nginx, below:
+    #
+    # nginx and nginx-core fail if you don't reboot at some point
+    # i had installed build-essentials and dkms without rebooting
+    # and i ran apt-get dist-upgrade, too...
+    #
+    #Setting up nginx-core (1.9.3-1ubuntu1.1) ...
+    #Job for nginx.service failed because the control process exited with error code. See "systemctl status nginx.service" and "journalctl -xe" for details.
+    #invoke-rc.d: initscript nginx, action "start" failed.
+    #dpkg: error processing package nginx-core (--configure):
+    # subprocess installed post-installation script returned error exit status 1
+    #dpkg: dependency problems prevent configuration of nginx:
+    # nginx depends on nginx-core (>= 1.9.3-1ubuntu1.1) | nginx-full (>= 1.9.3-1ubuntu1.1) | nginx-light (>= 1.9.3-1ubuntu1.1) | nginx-extras (>= 1.9.3-1ubuntu1.1); however:
+    #  Package nginx-core is not configured yet.
+    #  Package nginx-full is not installed.
+    #  Package nginx-light is not installed.
+    #  Package nginx-extras is not installed.
+    # nginx depends on nginx-core (<< 1.9.3-1ubuntu1.1.1~) | nginx-full (<< 1.9.3-1ubuntu1.1.1~) | nginx-light (<< 1.9.3-1ubuntu1.1.1~) | nginx-extras (<< 1.9.3-1ubuntu1.1.1~); however:
+    #  Package nginx-core is not configured yet.
+    #  Package nginx-full is not installed.
+    #  Package nginx-light is not installed.
+    #  Package nginx-extras is not installed.
+    #
+    #dpkg: error processing package nginx (--configure):
+    # dependency problems - leaving unconfigured
+    #Processing triggers for sgml-base (1.26+nmNo apport report written because the error message indicates its a followup error from a previous failure.
+    #                                                 u4ubuntu1) ...
+    #
+    #Errors were encountered while processing:
+    # nginx-core
+    # nginx
+    #E: Sub-process /usr/bin/dpkg returned an error code (1)
+    #
+    #
+    # So, well, you might need to reboot after all.....
 
     # *** Disable screen locking so user can move about the cabin freely.
 
@@ -598,14 +596,12 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
       apache2
       apache2-dev
-      apache2-mpm-worker
       apache2-utils
 
       nginx
 
       postgresql
       postgresql-client
-      postgresql-server-dev-9.3
 
       php5-dev
       php5-mysql
@@ -628,7 +624,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       libgd2-xpm-dev
       libxslt1-dev
       xsltproc
-      libicu52
       libicu-dev
 
       python-dev
@@ -641,6 +636,14 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       python-wnck
       python-xlib
       python-dbus
+
+      # 2016-04-04: I just had this error but I think I figured it out...
+      #     Setting up pylint (1.3.1-3ubuntu1) ...
+      #     ERROR: pylint is broken - called emacs-package-install as a new-style add-on, but has no compat file.
+      # Install pylint for emacs.
+      # QUESTION: Why -for emacs-? I can lint from wherever I want....
+      #           I guess not that I lint, though, in Cyclopath we had a kazillion
+      #           errors and at my current emploer we (currently) do not lint.
       pylint
 
       # FIXME/MAYBE: Can/Should these be virtualenv-installed?
@@ -677,7 +680,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       mime-construct
 
       libproj-dev
-      libproj0
       proj-bin
       proj-data
 
@@ -685,7 +687,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       libmime-types-perl
       libproc-waitstat-perl
 
-      ia32-libs
       nspluginwrapper
 
       python-nltk
@@ -744,7 +745,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       sqlite3
       libsqlite3-dev
       spatialite-bin
-      libspatialite5
 
       unison
 
@@ -767,7 +767,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       ttf-georgewilliams
       ttf-bitstream-vera
       ttf-sjfonts
-      ttf-tuffy
       tv-fonts
       #ubuntustudio-font-meta
 
@@ -777,11 +776,10 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       #digikam
       digikam-doc
       # hrmmmm / 759 MB / for digikam
-      kde-full
+      #kde-full
       cmake
       qt4-qmake
       qt5-qmake
-      kde-workspace-dev
       kdevplatform-dev
       # Color mgmt.
       gnome-color-manager
@@ -793,6 +791,26 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
       # Maybe some day...
       zsh
+
+    ) # end: BIG_PACKAGE_LIST
+
+    local BIG_PACKAGE_LIST_LMINT_17X=(
+
+      postgresql-server-dev-9.3
+
+      apache2-mpm-worker
+
+      libicu52
+
+      ia32-libs
+
+      ttf-tuffy
+
+      libproj0
+      libspatialite5
+
+      kde-full
+      kde-workspace-dev
 
       # NOTE: If you have two-step authentication enabled for Gmail,
       #       rather than using your normal password, logon to google.com
@@ -825,16 +843,32 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       # Works fine:
       #   gnome-gmail-notifier - A Gmail Inbox Notifier for the GNOME Desktop
       gnome-gmail-notifier
+    ) # end: BIG_PACKAGE_LIST_LMINT_17X
 
-    ) # end: BIG_PACKAGE_LIST
+    local BIG_PACKAGE_LIST_UMATE_15X=(
+
+      # MAYBE: Need any of the packages in BIG_PACKAGE_LIST_LMINT_17X?
+
+      # I tried gm-notify first and it works, and it doesn't use a
+      # tray icon, which is fine because my inbox is never empty and
+      # gnome-gmail-notifier's icon only indicates the non-emptiness
+      # of the inbox -- I'd maybe care for an icon if there was a
+      # count of unread email, but really I just want a simple popup;
+      # and gm-nofity works fine. Not great, not bad, just fine; I'd say
+      # I really like it if the desktop popup looked better, but that
+      # might be Gnome's fault, and the simplicity is starting to appeal
+      # to me. [-2016.03.25]
+      #  "gm-notify - highly Ubuntu integrated GMail notifier"
+      gm-notify
+      # I tried "gmail-notify" but it didn't like my creds.
+      #  "gmail-notify - Notify the arrival of new mail on Gmail"
+      # There's also gnome-gmail which I didn't try.
+      # "gnome-gmail - support for Gmail as the preferred email application in GNOME"
+
+    ) # end: BIG_PACKAGE_LIST_UMATE_15X
 
     # One core package, and maybe
     # One Giant MASSIVE package install.
-
-    echo
-    echo "Is this a dev machine? Do you want all the packages?"
-    ask_yes_no_default 'N' 999999
-    IS_DEV_MACHINE_ANSWER=$the_choice
 
     sudo apt-get install -y ${CORE_PACKAGE_LIST[@]}
     if [[ ${IS_DEV_MACHINE_ANSWER} == "Y" ]]; then
@@ -852,23 +886,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
     if $WM_IS_MATE; then
       sudo apt-get install -y mate-themes
     fi
-
-
-# FIXME: Fix /etc/default/grub here for host OS install.
-#
-#   #GRUB_HIDDEN_TIMEOUT=0
-#   GRUB_HIDDEN_TIMEOUT=3
-#   #GRUB_HIDDEN_TIMEOUT_QUIET=true
-#   GRUB_HIDDEN_TIMEOUT_QUIET=false
-#   #GRUB_TIMEOUT=10
-#   GRUB_TIMEOUT=0
-#
-# See: cli_gk12.sh
-#                sudo /bin/cp -a /etc/default/grub /etc/default/grub_$(date +%Y_%m_%d_%Hh%Mm%Ss)
-#                sudo /bin/cp -af ${SCRIPT_DIR}/resources/dev-upstart.grub /etc/default/grub
-#                #sudo grub-mkconfig
-#                sudo update-grub
-
 
     # All done.
 
@@ -1159,7 +1176,9 @@ setup_mint_17_stage_3 () {
     # Install Dubsacks VIM.
     #
     # 2016-03-23: This is usually done manually during first OS boot.
-    source ${script_absbase}/vendor_dubsacks.sh
+    echo
+    echo "Installing Dubsacks Vim..."
+    ${script_absbase}/vendor_dubsacks.sh
 
     # Finish this stage and logout/reboot.
 
@@ -1299,7 +1318,10 @@ setup_mint_17_stage_4 () {
   # Setup git, mercurial, meld, postgres, apache, quicktile, pidgin,
   # adobe reader, dropbox, expect, rssowl, cloc, todo.txt, ti, utt, etc.
   if [[ ${IS_DEV_MACHINE_ANSWER} == "Y" ]]; then
+    echo
+    echo "Installing Extras..."
     source ${script_absbase}/custom_mint17.extras.sh
+    setup_customize_extras_go
   # else, this is a keypass/lite machine; don't do anyextras.
   fi
 
@@ -1362,13 +1384,20 @@ stage_4_sshd_configure () {
   # whenever you try to log into this machine.
 
   if [[ -e /etc/ssh/sshd_config ]]; then
-
-    sudo /bin/sed -i.bak \
-      "s/^#PasswordAuthentication yes$/#PasswordAuthentication yes\nPasswordAuthentication no/" \
-      /etc/ssh/sshd_config
-
-    sudo service ssh restart
-
+    grep "PasswordAuthentication no" /etc/ssh/sshd_config &> /dev/null
+    if [[ $? -ne 0 ]]; then
+      sudo /bin/sed -i.bak \
+        "s/^#PasswordAuthentication yes$/#PasswordAuthentication yes\nPasswordAuthentication no/" \
+        /etc/ssh/sshd_config
+      #sudo service ssh restart
+      sudo service sshd restart
+    fi
+    # You can test logging in with `ssh localhost`.
+    # To debug: `ssh -vvv localhost` but oftentimes the server log
+    # is more useful: `tail -F /var/log/auth.log`, e.g.,
+    #   Mar 25 01:47:41 kalliope sshd[3946]: Authentication refused:
+    #     bad ownership or modes for directory /home/$USER
+    chmod g-w ~
   fi
 
 } # end: stage_4_sshd_configure
@@ -1496,10 +1525,16 @@ setup_mint_17_go () {
   SETUP_DO_REBOOT=false
   SETUP_DO_LOGOUT=false
 
+  if [[ -z ${IS_DEV_MACHINE_ANSWER+x} ]]; then
+    echo
+    echo "Is this a dev machine? Do you want all the packages?"
+    ask_yes_no_default 'N' 999999
+    IS_DEV_MACHINE_ANSWER=$the_choice
+  fi
+
   if [[ !${DO_EXTRA_UNNECESSARY_VBOX_STUFF} || ${stage_num} -eq 1 ]]; then
     # Call `sudo apt-get install -y [lots of packages]`.
-#    setup_mint_17_stage_1
-:
+    setup_mint_17_stage_1
   fi
 
   # There are a number of ways to check if we're running in a virtual machine.
@@ -1514,11 +1549,13 @@ setup_mint_17_go () {
   #   virtualbox
   #   kvm
   #if [[ `sudo virt-what` != 'virtualbox' ]]; then ...; fi
+  set +e
   IN_VIRTUALBOX_VM=false
   sudo virt-what | grep 'virtualbox' &> /dev/null
   if [[ $? -eq 0 ]]; then
     IN_VIRTUALBOX_VM=true
   fi
+  reset_errexit
 
   # Now that wmctrl is installed...
   # Set WM_IS_MATE, etc.

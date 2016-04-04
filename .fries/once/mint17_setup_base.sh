@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.03.23
+# Last Modified: 2016.03.24
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -105,6 +105,7 @@ USE_STAFF_GROUP_ASSOCIATION="staff"
 # location to store downloaded files and their compiled offsprings.
 OPT_BIN=/srv/opt/bin
 OPT_DLOADS=/srv/opt/.downloads
+OPT_SRC=/srv/opt/src
 
 # -- Mate with MATE (If you're gonna be here 60 hours each week, redecoRATE)
 

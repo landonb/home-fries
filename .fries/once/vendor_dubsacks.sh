@@ -13,6 +13,8 @@ if [[ -z ${URI_DUBSACKS_VIM_GIT+x} ]]; then
   URI_DUBSACKS_VIM_GIT="https://github.com/landonb/dubsacks_vim.git"
 fi
 
+source ./mint17_setup_base.sh
+
 stage_4_dubsacks_install () {
 
   pushd ${HOME} &> /dev/null

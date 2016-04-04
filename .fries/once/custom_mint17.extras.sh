@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.03.24
+# Last Modified: 2016.04.04
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -13,7 +13,35 @@ if [[ -z ${WM_IS_MATE+x} ]]; then
   WM_IS_MATE=false
 fi
 
+stage_4_setup_ensure_dirs () {
+  if [[ -z ${OPT_BIN+x} || -z ${OPT_DLOADS+x} || -z ${OPT_SRC+x} ]]; then
+    #echo
+    #echo "ERROR: Cannot proceed unless (OPT_BIN, OPT_DLOADS, OPT_SRC,) defined."
+    #exit 1
+    if [[ ! -e ./mint17_setup_base.sh ]]; then
+      echo "Error: Expected to find ./mint17_setup_base.sh."
+      exit 1
+    fi
+    DEBUG_TRACE=false
+    source ./mint17_setup_base.sh
+  fi
+  /bin/mkdir -p ${OPT_BIN}
+  /bin/mkdir -p ${OPT_DLOADS}
+  /bin/mkdir -p ${OPT_SRC}
+}
+stage_4_setup_ensure_dirs
+
+stage_announcement () {
+  echo
+  echo "===================================================================="
+  echo $1
+  echo
+  echo
+}
+
 stage_4_dropbox_install () {
+
+  stage_announcement "stage_4_dropbox_install"
 
   pushd ${OPT_BIN} &> /dev/null
 
@@ -68,6 +96,8 @@ Comment=
 
 stage_4_git_configure () {
 
+  stage_announcement "stage_4_git_configure"
+
   # Create and configure ~/.gitconfig.
 
   # Configure `git diff|log|mergetool` to use less to display text. With -R,
@@ -94,6 +124,8 @@ stage_4_git_configure () {
 
 stage_4_hg_configure () {
 
+  stage_announcement "stage_4_hg_configure (enabled? $USE_SETUP_HG)"
+
   if $USE_SETUP_HG; then
     source_file="${script_absbase}/target/home/user/.hgrc"
     target_file="/home/$USER/.hgrc"
@@ -119,6 +151,8 @@ stage_4_hg_configure () {
 
 stage_4_meld_configure () {
 
+  stage_announcement "Skipping: stage_4_meld_configure"
+
   # Take a look at custom_mint17.landon.sh for manual steps to setup meld.
   # (This script could edit ~/.gconf/apps/meld/%gconf.xml but the file
   # filters are a little dependent on the user, so make the user do it.)
@@ -127,6 +161,8 @@ stage_4_meld_configure () {
 } # end: stage_4_meld_configure
 
 stage_4_psql_configure () {
+
+  stage_announcement "stage_4_psql_configure"
 
   # Postgres config. Where POSTGRESABBR is, e.g., "9.1".
 
@@ -143,6 +179,7 @@ stage_4_psql_configure () {
   fi
 
   # Add the postgres group(s).
+  # 2016-03-24: Currently an empty () array.
   if [[ -n ${USE_PROJECT_PSQLGROUPS} ]]; then
     for psql_group in ${USE_PROJECT_PSQLGROUPS[@]}; do
       sudo -u postgres createuser \
@@ -161,24 +198,34 @@ stage_4_psql_configure () {
             /etc/postgresql/${POSTGRESABBR}/main/postgresql.conf.`uuidgen`
   fi
 
-# FIXME: Care if overwriting any files?
+  # MEH: If you implement this, be sure to backup pg_hba.conf.
+  if false; then
+    # We usually configure psql on a per-project basis.
+    if [[ -e ${script_absbase}/target/common/etc/postgresql/${POSTGRESABBR}/main/pg_hba.conf ]]; then
+      sudo /bin/cp -a \
+        ${script_absbase}/target/common/etc/postgresql/${POSTGRESABBR}/main/pg_hba.conf \
+        /etc/postgresql/${POSTGRESABBR}/main/pg_hba.conf
+    fi
+  fi
 
-  sudo /bin/cp -a \
-    ${script_absbase}/common/etc/postgresql/${POSTGRESABBR}/main/pg_hba.conf \
-    /etc/postgresql/${POSTGRESABBR}/main/pg_hba.conf
-
-  m4 \
-    --define=HTTPD_USER=${httpd_user} \
-    --define=TARGETUSER=$USER \
-      ${script_absbase}/common/etc/postgresql/${POSTGRESABBR}/main/pg_ident.conf \
-    | sudo tee /etc/postgresql/${POSTGRESABBR}/main/pg_ident.conf \
-    &> /dev/null
+  # MEH: If you implement this, be sure to backup pg_ident.conf.
+  if false; then
+    if [[ -e ${script_absbase}/common/etc/postgresql/${POSTGRESABBR}/main/pg_ident.conf ]]; then
+      m4 \
+        --define=HTTPD_USER=${httpd_user} \
+        --define=TARGETUSER=$USER \
+          ${script_absbase}/common/etc/postgresql/${POSTGRESABBR}/main/pg_ident.conf \
+        | sudo tee /etc/postgresql/${POSTGRESABBR}/main/pg_ident.conf \
+        &> /dev/null
+    fi
+  fi
 
   # NOTE: Deferring installing postgresql.conf until /ccp/var/log
   #       is created (otherwise the server won't start) and until we
   #       configure/install other things so that the server won't not
   #       not start because of some shared memory limit issue.
 
+  # Set group associations, i.e., for the 'staff' group.
   if [[ -n ${USE_STAFF_GROUP_ASSOCIATION} ]]; then
     sudo chown postgres:${USE_STAFF_GROUP_ASSOCIATION} \
       /etc/postgresql/${POSTGRESABBR}/main/*
@@ -193,6 +240,8 @@ stage_4_psql_configure () {
 
 stage_4_apache_configure () {
 
+  stage_announcement "stage_4_apache_configure"
+
   if [[ ! -d /etc/apache2 ]]; then
     echo
     echo "WARNING: Apache2 is not installed."
@@ -200,6 +249,7 @@ stage_4_apache_configure () {
   fi
 
   # Make the Apache configs group-writeable.
+  # Set group associations, i.e., for the 'staff' group.
   if [[ -n ${USE_STAFF_GROUP_ASSOCIATION} ]]; then
     sudo /bin/chgrp -R ${USE_STAFF_GROUP_ASSOCIATION} /etc/apache2/
     sudo /bin/chmod 664  /etc/apache2/apache2.conf
@@ -209,14 +259,17 @@ stage_4_apache_configure () {
     sudo /bin/chmod 664  /etc/apache2/sites-available/*.conf
   fi
 
-# FIXME: Care if overwriting any files?
-
-  # Avoid an apache gripe and set ServerName.
-  m4 \
-    --define=HOSTNAME=${HOSTNAME} \
-    --define=MACH_DOMAIN=${USE_DOMAIN} \
-      ${script_absbase}/target/common/etc/apache2/apache2.conf \
-      > /etc/apache2/apache2.conf
+  # MEH: If you implement this, be sure to backup apache2.conf.
+  if false; then
+    # Avoid an apache gripe and set ServerName.
+    if [[ -e ${script_absbase}/target/common/etc/apache2/apache2.conf ]]; then
+      m4 \
+        --define=HOSTNAME=${HOSTNAME} \
+        --define=MACH_DOMAIN=${USE_DOMAIN} \
+          ${script_absbase}/target/common/etc/apache2/apache2.conf \
+          > /etc/apache2/apache2.conf
+    fi
+  fi
 
   # Enable the virtual hosts module, for VirtualHost.
   sudo a2enmod vhost_alias
@@ -239,6 +292,8 @@ stage_4_apache_configure () {
 } # end: stage_4_apache_configure
 
 stage_4_quicktile_install () {
+
+  stage_announcement "stage_4_quicktile_install"
 
   # QuickTile by ssokolow (similar to WinSplit Revolution) is an edge tiling
   # window feature. It lets you quickly resize and move windows to
@@ -291,6 +346,8 @@ stage_4_quicktile_install () {
 
 stage_4_pidgin_setup_autostart () {
 
+  stage_announcement "stage_4_pidgin_setup_autostart"
+
   # Configure Pidgin to start on login.
 
   # You can setup Pidgin to load on login manually via Mint's Startup
@@ -316,6 +373,8 @@ Comment=
 
 stage_4_hamster_time_tracker_setup () {
 
+  stage_announcement "stage_4_hamster_time_tracker_setup"
+
   # The application at `sudo apt-get install hamster-applet` is from 2010.
   # But it still seems better than the one on github. Just be sure to
   # also install hamster-indicator, in addition to hamster-applet.
@@ -340,6 +399,8 @@ stage_4_hamster_time_tracker_setup () {
     popd &> /dev/null
   fi
 
+  sudo apt-get install -y hamster-applet hamster-indicator
+
   # Update hamster to special fork.
 
   pushd ${OPT_DLOADS} &> /dev/null
@@ -352,8 +413,19 @@ stage_4_hamster_time_tracker_setup () {
     popd &> /dev/null
   fi
 
-  if [[    -e /usr/share/pyshared/hamster/overview.py.ORIG \
-        || -e /usr/share/pyshared/hamster/overview_totals.py.ORIG ]]; then
+  if [[ -f /usr/share/pyshared/hamster/overview.py ]]; then
+    HAMSTER_PKGS=/usr/share/pyshared/hamster
+  elif [[ -f /usr/lib/python2.7/dist-packages/hamster/overview.py ]]; then
+    HAMSTER_PKGS=/usr/lib/python2.7/dist-packages/hamster
+  else
+    echo
+    echo "WARNING: Where's hamster? Try:"
+    echo "    locate overview_totals.py"
+    exit 1
+  fi
+
+  if [[    -e ${HAMSTER_PKGS}/overview.py.ORIG \
+        || -e ${HAMSTER_PKGS}/overview_totals.py.ORIG ]]; then
     echo
     echo "WARNING: Skipping hamster install -- possibly already done."
     return
@@ -363,18 +435,18 @@ stage_4_hamster_time_tracker_setup () {
   pkill -f hamster-windows-service
 
   sudo /bin/cp -a \
-      /usr/share/pyshared/hamster/overview.py \
-      /usr/share/pyshared/hamster/overview.py.ORIG
+      ${HAMSTER_PKGS}/overview.py \
+      ${HAMSTER_PKGS}/overview.py.ORIG
   sudo /bin/cp -a \
-      /usr/share/pyshared/hamster/overview_totals.py \
-      /usr/share/pyshared/hamster/overview_totals.py.ORIG
+      ${HAMSTER_PKGS}/overview_totals.py \
+      ${HAMSTER_PKGS}/overview_totals.py.ORIG
 
   sudo /bin/cp -af \
       hamster-applet/src/hamster/overview.py \
-      /usr/share/pyshared/hamster/overview.py
+      ${HAMSTER_PKGS}/overview.py
   sudo /bin/cp -af \
       hamster-applet/src/hamster/overview_totals.py \
-      /usr/share/pyshared/hamster/overview_totals.py
+      ${HAMSTER_PKGS}/overview_totals.py
 
   popd &> /dev/null
 
@@ -428,9 +500,33 @@ Comment=
 
 } # end: stage_4_hamster_time_tracker_setup
 
+stage_4_hamster_briefs_setup () {
+
+  stage_announcement "stage_4_hamster_briefs_setup"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  if [[ ! -e ${OPT_DLOADS}/hamster_briefs ]]; then
+    git clone https://github.com/landonb/hamster_briefs
+  else
+    pushd ${OPT_DLOADS}/hamster_briefs &> /dev/null
+    git pull
+    popd &> /dev/null
+  fi
+
+  /bin/ln -sf ${OPT_DLOADS}/hamster_briefs/hamster_briefs.py ${OPT_BIN}
+
+  popd &> /dev/null
+
+} # end: stage_4_hamster_briefs_setup
+
 stage_4_gmail_notifier_setup () {
 
-  echo "[Desktop Entry]
+  stage_announcement "stage_4_gmail_notifier_setup"
+
+  # Linux Mint MATE 17.x
+  if [[ -e /usr/bin/gnome-gmail-notifier ]]; then
+    echo "[Desktop Entry]
 Type=Application
 Exec=/usr/bin/gnome-gmail-notifier
 Hidden=false
@@ -439,11 +535,28 @@ Name[en_US]=Gmail Notifier
 Name=Gmail Notifier
 Comment[en_US]=
 Comment=
-" > $HOME/.config/autostart/gmail-notifier.desktop
+" > $HOME/.config/autostart/gnome-gmail-notifier.desktop
+  fi
+
+  # Ubuntu MATE 15.10
+  if [[ -e /usr/bin/gm-notify ]]; then
+    echo "[Desktop Entry]
+Type=Application
+Exec=/usr/bin/gm-notify
+Hidden=false
+X-MATE-Autostart-enabled=true
+Name[en_US]=Gmail Notifier
+Name=Gmail Notifier
+Comment[en_US]=
+Comment=
+" > $HOME/.config/autostart/gm-notify.desktop
+  fi
 
 } # end: stage_4_gmail_notifier_setup
 
 stage_4_firefox_configure () {
+
+  stage_announcement "Nada: stage_4_firefox_configure"
 
   # Configure Firefox.
 
@@ -459,6 +572,8 @@ stage_4_firefox_configure () {
 
 stage_4_chrome_install () {
 
+  stage_announcement "stage_4_chrome_install"
+
   # Install Chrome.
   #
   # NOTE: We should be okay to distribute Chrome. Per:
@@ -473,11 +588,11 @@ stage_4_chrome_install () {
   #  subject to the Terms. ...August 12, 2010"
   #
   cd ${OPT_DLOADS}
+
   wget -N \
     https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+
   sudo dpkg -i google-chrome-stable_current_amd64.deb
-  # Cleanup. We can probably always get this file again, eh?
-  /bin/rm ${OPT_DLOADS}/google-chrome-stable_current_amd64.deb
 
   # Firefox Google Search Add-On
   # Hrm, [lb] thinks the user has to do this themselves...
@@ -489,6 +604,8 @@ stage_4_chrome_install () {
 } # end: stage_4_chrome_install
 
 stage_4_https_everywhere_install () {
+
+  stage_announcement "Skipping: stage_4_https_everywhere_install"
 
   # HTTPS Everywhere.
   #
@@ -526,6 +643,8 @@ stage_4_https_everywhere_install () {
 
 stage_4_virtualbox_install () {
 
+  stage_announcement "stage_4_virtualbox_install"
+
   # I first tried apt-get install virtualbox, but that was not a happy camper:
   #     * Starting VirtualBox kernel modules
   #     * No suitable module for running kernel found
@@ -558,28 +677,59 @@ stage_4_virtualbox_install () {
 #sudo apt-get install virtualbox-5.0
 
   # Get the latest Debian package. At least if this script is uptodate.
-  # See: https://www.virtualbox.org/wiki/Downloads
-  #LATEST_VBOX_PKG="virtualbox-4.3_4.3.26-98988~Ubuntu~raring_amd64.deb"
-  #LATEST_VBOX_PKG="virtualbox-4.3_4.3.28-100309~Ubuntu~raring_amd64.deb"
-  #LATEST_VBOX_PKG="virtualbox-4.3_4.3.30-101610~Ubuntu~raring_amd64.deb"
-  #LATEST_VBOX_PKG="virtualbox-5.0_5.0.10-104061~Ubuntu~trusty_amd64.deb"
-  #LATEST_VBOX_PKG="virtualbox-5.0_5.0.12-104815~Ubuntu~trusty_amd64.deb"
-  #LATEST_VBOX_PKG="virtualbox-5.0_5.0.14-105127~Ubuntu~trusty_amd64.deb"
-  LATEST_VBOX_PKG="virtualbox-5.0_5.0.16-105871~Ubuntu~trusty_amd64.deb"
-  LATEST_VBOX_EXTPACK="Oracle_VM_VirtualBox_Extension_Pack-5.0.16-105871.vbox-extpack"
-  LATEST_VBOX_VERSION="5.0.16"
+  #
+  #   https://www.virtualbox.org/wiki/Downloads
+  #
+  # Major: 4
+  #LATEST_VBOX_VERS_MINOR="26"
+  #LATEST_VBOX_VERS_BUILD="98988"
+  #LATEST_VBOX_VERS_MINOR="28"
+  #LATEST_VBOX_VERS_BUILD="100309"
+  #LATEST_VBOX_VERS_MAJOR="4.3"
+  #LATEST_VBOX_VERS_MINOR="30"
+  #LATEST_VBOX_VERS_BUILD="101610"
+  # Major: 5
+  #LATEST_VBOX_VERS_MINOR="10"
+  #LATEST_VBOX_VERS_BUILD="104061"
+  #LATEST_VBOX_VERS_MINOR="12"
+  #LATEST_VBOX_VERS_BUILD="104815"
+  #LATEST_VBOX_VERS_MINOR="14"
+  #LATEST_VBOX_VERS_BUILD="105127"
+  LATEST_VBOX_VERS_MAJOR="5.0"
+  LATEST_VBOX_VERS_MINOR="16"
+  LATEST_VBOX_VERS_BUILD="105871"
+  LATEST_VBOX_VERSION_BASE="${LATEST_VBOX_VERS_MAJOR}.${LATEST_VBOX_VERS_MINOR}"
+  LATEST_VBOX_VERSION_FULL="${LATEST_VBOX_VERSION_BASE}-${LATEST_VBOX_VERS_BUILD}"
+  # Load the release codename, e.g., raring, trusty, wily, etc.
+  source /etc/lsb-release
+  LATEST_VBOX_DEB_PKG="\
+virtualbox-${LATEST_VBOX_VERS_MAJOR}_${LATEST_VBOX_VERSION_FULL}~Ubuntu~${DISTRIB_CODENAME}_amd64.deb"
+  #LATEST_VBOX_EXTPACK="\
+#Oracle_VM_VirtualBox_Extension_Pack-${LATEST_VBOX_VERS_MAJOR}.${LATEST_VBOX_VERSION_FULL}.vbox-extpack"
+  #https://www.virtualbox.org/download/testcase/VBoxGuestAdditions_5.0.17-106140.iso
+
+  if [[ -e ${OPT_DLOADS}/${LATEST_VBOX_DEB_PKG} ]]; then
+    echo
+    echo "WARNING: Skipping VirtualBox install -- Already downloaded."
+    echo "Remove download if you want to start over: ${OPT_DLOADS}/${LATEST_VBOX_DEB_PKG}"
+    echo
+    return
+  fi
 
   pushd ${OPT_DLOADS} &> /dev/null
+
   wget -N \
-    http://download.virtualbox.org/virtualbox/${LATEST_VBOX_VERSION}/${LATEST_VBOX_PKG}
+    http://download.virtualbox.org/virtualbox/${LATEST_VBOX_VERSION_BASE}/${LATEST_VBOX_DEB_PKG}
 
   #sudo apt-get remove virtualbox-4.3
-  sudo dpkg -i ${LATEST_VBOX_PKG}
-  #/bin/rm ${LATEST_VBOX_PKG}
+  sudo dpkg -i ${LATEST_VBOX_DEB_PKG}
+  #/bin/rm ${LATEST_VBOX_DEB_PKG}
 
-  # This Guy, for USB 2.
-  wget -N \
-    http://download.virtualbox.org/virtualbox/${LATEST_VBOX_VERSION}/${LATEST_VBOX_EXTPACK}
+  if false; then
+    # This Guy, for USB 2.
+    wget -N \
+      http://download.virtualbox.org/virtualbox/${LATEST_VBOX_VERSION_BASE}/${LATEST_VBOX_EXTPACK}
+  fi
 
 # FIXME: Unless there's a scripty way to add the extension pack,
 #        tell user to run `virtualbox &`, navigate to File > Preferences...,
@@ -605,11 +755,17 @@ stage_4_virtualbox_install () {
 
 stage_4_reader_install () {
 
+  stage_announcement "stage_4_reader_install"
+
   # 2014.11.10: On Windows and Mac it's Adobe 11 but on Linux it's still 9.5.5,
   # because Adobe discountinued their Linux work.
 
   # See also other PDF applications, like
   # evince (Ubuntu), atril (Mint fork of evince) and okular.
+
+  if [[ -z ${INCLUDE_ADOBE_READER+x} ]]; then
+    INCLUDE_ADOBE_READER=true
+  fi
 
   # NOTE: We cannot distribute Reader...
   #   cd /opt/Adobe/Reader9/bin
@@ -635,6 +791,8 @@ stage_4_reader_install () {
 
 stage_4_libreoffice_install () {
 
+  stage_announcement "Nope: stage_4_libreoffice_install"
+
   # 2016.03.23: There's a libreoffice installed by default, right?
   #             Just maybe not libreoffice5...
 
@@ -650,6 +808,8 @@ stage_4_libreoffice_install () {
 } # end: stage_4_libreoffice_install
 
 stage_4_modern_ie_install () {
+
+  stage_announcement "Modern is the new ancient: stage_4_modern_ie_install"
 
 # See: http://dev.modern.ie/
   if false; then
@@ -684,6 +844,8 @@ stage_4_modern_ie_install () {
 
 stage_4_dev_testing_expect_install () {
 
+  stage_announcement "Don't expect: stage_4_dev_testing_expect_install"
+
   # Unleash this code if you don't want to just `apt-get install -y expect`.
 
   if false; then
@@ -714,6 +876,8 @@ stage_4_dev_testing_expect_install () {
 
 stage_4_restview_install () {
 
+  stage_announcement "stage_4_restview_install"
+
   # Weird. This installs restview with ownership as my ${USER}.
   sudo su -c "pip install restview"
 
@@ -724,9 +888,7 @@ stage_4_restview_install () {
 
 stage_4_rssowl_install () {
 
-  echo
-  echo "WARNING: Skipping: stage_4_rssowl_install"
-  echo
+  stage_announcement "Skipping: stage_4_rssowl_install"
 
   # RSSOwl RSS Client
   # FIXME: Test RSSOwl and decide if this should be excluded.
@@ -744,6 +906,8 @@ stage_4_rssowl_install () {
 
 stage_4_cloc_install () {
 
+  stage_announcement "stage_4_cloc_install"
+
   pushd ${OPT_BIN} &> /dev/null
 
   wget -N \
@@ -757,6 +921,8 @@ stage_4_cloc_install () {
 } # end: stage_4_cloc_install
 
 stage_4_parT_install () {
+
+  stage_announcement "stage_4_parT_install"
 
   pushd ${OPT_DLOADS} &> /dev/null
 
@@ -780,6 +946,8 @@ stage_4_parT_install () {
 } # end: stage_4_parT_install
 
 stage_4_todo_txt_install () {
+
+  stage_announcement "stage_4_todo_txt_install"
 
   pushd ${OPT_DLOADS} &> /dev/null
 
@@ -816,6 +984,8 @@ stage_4_todo_txt_install () {
 
 stage_4_punch_tt_install () {
 
+  stage_announcement "Skipping: stage_4_punch_tt_install"
+
   if false; then
     cd ${OPT_DLOADS}
     wget -N \
@@ -829,6 +999,8 @@ stage_4_punch_tt_install () {
 
 stage_4_ti_time_tracker_install () {
 
+  stage_announcement "Skipping: stage_4_ti_time_tracker_install"
+
   if false; then
     cd ${OPT_BIN}
     wget -N \
@@ -840,6 +1012,8 @@ stage_4_ti_time_tracker_install () {
 } # end: stage_4_ti_time_tracker_install
 
 stage_4_utt_time_tracker_install () {
+
+  stage_announcement "Skipping: stage_4_utt_time_tracker_install"
 
   # Ultimate Time Tracker
 
@@ -858,6 +1032,8 @@ stage_4_utt_time_tracker_install () {
 
 stage_4_cookiecutter_install () {
 
+  stage_announcement "stage_4_cookiecutter_install"
+
   # 2015.02.06: Cookiecutter in the distro is 0.6.4,
   #             but >= 0.7.0 is where it's at.
 
@@ -871,6 +1047,8 @@ stage_4_cookiecutter_install () {
 } # end: stage_4_cookiecutter_install
 
 stage_4_keepassx_install () {
+
+  stage_announcement "Skipping: stage_4_keepassx_install"
 
   # Funny; there's a build problem in the latest version of the source:
   # a missing include. However, we can also just install keepassx with
@@ -912,6 +1090,8 @@ stage_4_keepassx_install () {
 
 stage_4_pencil_install () {
 
+  stage_announcement "Erased: stage_4_pencil_install"
+
   # 2016.03.23: Disabling this until I find myself needing to use it.
 
   if false; then
@@ -930,6 +1110,8 @@ stage_4_pencil_install () {
 
 stage_4_jsctags_install () {
 
+  stage_announcement "Skipping: stage_4_jsctags_install"
+
   # https://github.com/ramitos/jsctags
 
   # audit this first.
@@ -947,6 +1129,8 @@ stage_4_jsctags_install () {
 } # end: stage_4_jsctags_install
 
 stage_4_disable_services () {
+
+  stage_announcement "Pretend: stage_4_disable_services"
 
   # 2015.02.22: From /var/log/auth.log, lines like
   #   Feb 22 14:55:05 philae smbd[30165]: pam_unix(samba:session):
@@ -968,6 +1152,8 @@ stage_4_disable_services () {
 } # end: stage_4_disable_services
 
 stage_4_spotify_install () {
+
+  stage_announcement "stage_4_spotify_install"
 
   pushd ${OPT_DLOADS} &> /dev/null
 
@@ -1005,24 +1191,35 @@ stage_4_spotify_install () {
 
 stage_4_openjump_install () {
 
+  stage_announcement "stage_4_openjump_install"
+
   pushd ${OPT_DLOADS} &> /dev/null
 
-  #wget -N http://downloads.sourceforge.net/project/jump-pilot/OpenJUMP/1.8.0/OpenJUMP-Installer-1.8.0-r4164-PLUS.jar
-  #wget -N http://downloads.sourceforge.net/project/jump-pilot/OpenJUMP/1.8.0/OpenJUMP-Installer-1.8.0-r4164-CORE.jar
+  #wget -N \
+  #  http://downloads.sourceforge.net/project/jump-pilot/OpenJUMP/1.8.0/OpenJUMP-Installer-1.8.0-r4164-PLUS.jar
+  #wget -N \
+  #  http://downloads.sourceforge.net/project/jump-pilot/OpenJUMP/1.8.0/OpenJUMP-Installer-1.8.0-r4164-CORE.jar
   #java -jar OpenJUMP-Installer-1.8.0-r4164-CORE.jar
   ##java -jar OpenJUMP-Installer-1.8.0-r4164-PLUS.jar
-  wget -N http://downloads.sourceforge.net/project/jump-pilot/OpenJUMP/1.8.0/OpenJUMP-Portable-1.8.0-r4164-CORE.zip
-  wget -N http://downloads.sourceforge.net/project/jump-pilot/OpenJUMP/1.8.0/OpenJUMP-Portable-1.8.0-r4164-PLUS.zip
-  unzip OpenJUMP-Portable-1.8.0-r4164-CORE.zip -d OpenJUMP-1.8.0-r4164-CORE-unzip/
-  mv OpenJUMP-1.8.0-r4164-CORE-unzip/OpenJUMP-1.8.0-r4164-CORE .
-  rmdir OpenJUMP-1.8.0-r4164-CORE-unzip
-  ln -s ${OPT_DLOADS}/OpenJUMP-1.8.0-r4164-CORE/bin/oj_linux.sh ${OPT_BIN}/
+  wget -N \
+    http://downloads.sourceforge.net/project/jump-pilot/OpenJUMP/1.8.0/OpenJUMP-Portable-1.8.0-r4164-CORE.zip
+  wget -N \
+    http://downloads.sourceforge.net/project/jump-pilot/OpenJUMP/1.8.0/OpenJUMP-Portable-1.8.0-r4164-PLUS.zip
+
+  if [[ ! -e ${OPT_DLOADS}/OpenJUMP-1.8.0-r4164-CORE/bin/oj_linux.sh ]]; then
+    unzip OpenJUMP-Portable-1.8.0-r4164-CORE.zip -d OpenJUMP-1.8.0-r4164-CORE-unzip/
+    mv OpenJUMP-1.8.0-r4164-CORE-unzip/OpenJUMP-1.8.0-r4164-CORE .
+    rmdir OpenJUMP-1.8.0-r4164-CORE-unzip
+    ln -sf ${OPT_DLOADS}/OpenJUMP-1.8.0-r4164-CORE/bin/oj_linux.sh ${OPT_BIN}/oj_linux.sh
+  fi
 
   popd ${OPT_DLOADS} &> /dev/null
 
 } # end: stage_4_openjump_install
 
 stage_4_liclipse_install () {
+
+  stage_announcement "stage_4_liclipse_install"
 
   pushd ${OPT_DLOADS} &> /dev/null
 
@@ -1057,6 +1254,8 @@ stage_4_liclipse_install () {
 
 stage_4_all_the_young_pips () {
 
+  stage_announcement "stage_4_all_the_young_pips"
+
   pushd ${OPT_DLOADS} &> /dev/null
 
   was_umask=$(umask)
@@ -1090,22 +1289,24 @@ stage_4_all_the_young_pips () {
 
 stage_4_font_mania () {
 
+  stage_announcement "stage_4_font_mania"
+
   mkdir -p ${HOME}/.fonts
 
   pushd ${HOME}/.fonts &> /dev/null
 
   wget -N http://dl.1001fonts.com/santos-dumont.zip
   # Unpack SANTO___.TTF et al
-  unzip -d santos-dumont santos-dumont.zip
+  unzip -o -d santos-dumont santos-dumont.zip
   /bin/mv santos-dumont/SANTO___.TTF .
 
   wget -N http://dl.1001fonts.com/pinewood.zip
-  unzip -d pinewood pinewood.zip
+  unzip -o -d pinewood pinewood.zip
   /bin/mv pinewood/Pinewood.ttf .
 
   # Google Open Sans by Steve Matteson
   wget -N http://dl.1001fonts.com/open-sans.zip
-  unzip -d open-sans open-sans.zip
+  unzip -o -d open-sans open-sans.zip
 
   popd &> /dev/null
 
@@ -1115,6 +1316,8 @@ stage_4_font_mania () {
 } # end: stage_4_font_mania
 
 stage_4_font_typeface_hack () {
+
+  stage_announcement "stage_4_font_typeface_hack"
 
   if [[ ! -e ~/.fonts/Hack-v2_010-ttf/Hack-Regular.ttf ]]; then
 
@@ -1141,6 +1344,8 @@ stage_4_font_typeface_hack () {
 
 stage_4_sqlite3 () {
 
+  stage_announcement "stage_4_sqlite3"
+
   pushd ${OPT_DLOADS} &> /dev/null
 
   # See: https://www.sqlite.org/download.html
@@ -1152,11 +1357,16 @@ stage_4_sqlite3 () {
   SQLITE_BASE=sqlite-tools-linux-x86-3110100
 
   wget -N https://www.sqlite.org/${SQLITE_YEAR}/${SQLITE_BASE}.zip
-  unzip -d ${SQLITE_BASE} ${SQLITE_BASE}.zip
+  unzip -o -d ${SQLITE_BASE} ${SQLITE_BASE}.zip
 
-  sudo /bin/mv /usr/bin/sqlite3 /usr/bin/sqlite3-$(date +%Y.%m.%d-%T)
+  if [[ -e /usr/bin/sqlite3 ]]; then
+    diff ${SQLITE_BASE}/${SQLITE_BASE}/sqlite3 /usr/bin/sqlite3 &> /dev/null
+    if [[ $? -ne 0 ]]; then
+      sudo /bin/mv /usr/bin/sqlite3 /usr/bin/sqlite3-$(date +%Y.%m.%d-%T)
+    fi
+  fi
 
-  sudo /bin/cp -ar ${SQLITE_BASE}/sqlite3 /usr/bin/sqlite3
+  sudo /bin/cp -ar ${SQLITE_BASE}/${SQLITE_BASE}/sqlite3 /usr/bin/sqlite3
   sudo chmod 755 /usr/bin/sqlite3
   sudo chown root:root /usr/bin/sqlite3
 
@@ -1170,6 +1380,8 @@ stage_4_sqlite3 () {
 } # end: stage_4_sqlite3
 
 stage_4_opencl () {
+
+  stage_announcement "stage_4_opencl"
 
   pushd ${OPT_DLOADS} &> /dev/null
 
@@ -1232,6 +1444,8 @@ stage_4_opencl () {
 
 stage_4_darktable () {
 
+  stage_announcement "stage_4_darktable"
+
   # NOTE: pmjdebruijn's builds are generally the latest-greatest.
   if true; then
     #deb http://ppa.launchpad.net/pmjdebruijn/darktable-release/ubuntu trusty main
@@ -1240,7 +1454,7 @@ stage_4_darktable () {
     # NOTE: To remove the repository:
     #  sudo /bin/rm /etc/apt/sources.list.d/pmjdebruijn-darktable-release-trusty.list
     sudo apt-get update
-    sudo apt-get install darktable
+    sudo apt-get install -y darktable
   else
 
     # From scratch!
@@ -1274,6 +1488,8 @@ stage_4_darktable () {
 
 stage_4_digikam_from_scratch () {
 
+  stage_announcement "stage_4_digikam_from_scratch"
+
   pushd ${OPT_DLOADS} &> /dev/null
 
   echo
@@ -1281,6 +1497,7 @@ stage_4_digikam_from_scratch () {
   echo "        Don't waste your time."
   echo "        Call stage_4_digikam_from_distro instead."
   echo
+
   exit 1
 
   # The exiv2 on Linux Mint 17.1 is exiv2 0.23 001700 (C) 2004-2012,
@@ -1538,74 +1755,80 @@ echo
 } # end: stage_4_digikam_from_scratch
 
 stage_4_digikam_from_distro () {
-  # 2015.10.22: Argh. I got digikam to build at home, but at work, 'snot working.
-  # 2016.02.06: Now I cannot get the new 4.14.0 to build at home, so ppa'ing.
+
+  stage_announcement "stage_4_digikam_from_distro"
+
+  # 2016.03.24: 4.12.0 is on 15.10.
+  #             So the backport code is just for Mint 17.x.
   #
-  # Install digikam 4.0.0:
-  #  sudo apt-get install digikam
+  # Load the release codename, e.g., raring, trusty, wily, etc.
+  source /etc/lsb-release
+  if [[ ${DISTRIB_CODENAME} = 'trusty' ]]; then
 
-  # Linux Mint 17.1 "rebecca" is Ubuntu 14.04 "trusty".
+    # 2016.02.06: Now I cannot get the new 4.14.0 to build at home, so ppa'ing.
+    # 2015.10.22: Argh. I got digikam to build at home, but at work, 'snot working.
+    # Install digikam 4.0.0:
+    #  sudo apt-get install digikam
 
-  sudo add-apt-repository -y ppa:philip5/extra
-  # [lb] not sure why we need kubuntu-backports but without it apt-install
-  # fails and not with a really good explanation.
-  sudo add-apt-repository ppa:philip5/kubuntu-backports
-  #sudo add-apt-repository ppa:kubuntu-ppa/backports
-  # NOTE: To remove the repositories:
-  #  sudo /bin/rm /etc/apt/sources.list.d/philip5-extra-trusty.list
-  #  sudo /bin/rm /etc/apt/sources.list.d/philip5-kubuntu-backports-trusty.list
-  #  #sudo /bin/rm /etc/apt/sources.list.d/kubuntu-ppa-backports-trusty.list
-  sudo apt-get update
+    # Linux Mint 17.1 "rebecca" is Ubuntu 14.04 "trusty".
 
-  # Check the version we want is there:
-  #
-  #   apt-cache show digikam
+    sudo add-apt-repository -y ppa:philip5/extra
+    # [lb] not sure why we need kubuntu-backports but without it apt-install
+    # fails and not with a really good explanation.
+    sudo add-apt-repository ppa:philip5/kubuntu-backports
+    #sudo add-apt-repository ppa:kubuntu-ppa/backports
+    # NOTE: To remove the repositories:
+    #  sudo /bin/rm /etc/apt/sources.list.d/philip5-extra-trusty.list
+    #  sudo /bin/rm /etc/apt/sources.list.d/philip5-kubuntu-backports-trusty.list
+    #  #sudo /bin/rm /etc/apt/sources.list.d/kubuntu-ppa-backports-trusty.list
+    sudo apt-get update
 
-  # If you look at the policy, aptitude favors the normals repos:
-  #
-  #   apt-cache policy digikam
-  #
-  # so we have to tell it otherwise.
+    # Check the version we want is there:
+    #
+    #   apt-cache show digikam
 
-  # WHATEVER: I thought there was a way to tell aptitude which repo/ppa to
-  #           use, but none of these worked:
-  #   sudo apt-get install -t ppa:philip5/extra digikam
-  #   sudo apt-get install digikam/extra
-  #   sudo apt-get install digikam/philip5-extra
+    # If you look at the policy, aptitude favors the normals repos:
+    #
+    #   apt-cache policy digikam
+    #
+    # so we have to tell it otherwise.
 
-  if [[ ! -e /etc/apt/preferences.d/philip5-extra-ppa ]]; then
-    echo 'CODE: SELECT ALL
-Package: *
-Pin: release o=LP-PPA-philip5-extra
-Pin-Priority: 700
-' | sudo tee /etc/apt/preferences.d/philip5-extra-ppa
+    # WHATEVER: I thought there was a way to tell aptitude which repo/ppa to
+    #           use, but none of these worked:
+    #   sudo apt-get install -t ppa:philip5/extra digikam
+    #   sudo apt-get install digikam/extra
+    #   sudo apt-get install digikam/philip5-extra
+
+    if [[ ! -e /etc/apt/preferences.d/philip5-extra-ppa ]]; then
+      echo 'CODE: SELECT ALL
+  Package: *
+  Pin: release o=LP-PPA-philip5-extra
+  Pin-Priority: 700
+  ' | sudo tee /etc/apt/preferences.d/philip5-extra-ppa
+    fi
+
+    if [[ ! -e /etc/apt/preferences.d/philip5-kubuntu-backports-ppa ]]; then
+      echo 'CODE: SELECT ALL
+  Package: *
+  Pin: release o=LP-PPA-philip5-kubuntu-backports
+  Pin-Priority: 700
+  ' | sudo tee /etc/apt/preferences.d/philip5-kubuntu-backports-ppa
+    fi
+
+    # And then check your work again:
+    #
+    #   apt-cache policy digikam
+
   fi
-
-  if [[ ! -e /etc/apt/preferences.d/philip5-kubuntu-backports-ppa ]]; then
-    echo 'CODE: SELECT ALL
-Package: *
-Pin: release o=LP-PPA-philip5-kubuntu-backports
-Pin-Priority: 700
-' | sudo tee /etc/apt/preferences.d/philip5-kubuntu-backports-ppa
-  fi
-
-  # And then check your work again:
-  #
-  #   apt-cache policy digikam
 
   sudo apt-get install -y digikam
   #sudo apt-get install -y showfoto
 
-
-# MAYBE: Install Linux Mint 17.2 KDE????
-# http://www.linuxmint.com/edition.php?id=196
-# wget -N http://reflection.oss.ou.edu/linuxmint/isos/linuxmint.com/stable/17.2/linuxmint-17.2-kde-64bit.iso
-#http://torrents.linuxmint.com/torrents/linuxmint-17.2-kde-64bit.iso.torrent
-# MD5 9d702816f8180bcab94d8c1fde317af7
-
 } # end: stage_4_digikam_from_distro
 
 stage_4_gimp_plugins () {
+
+  stage_announcement "stage_4_gimp_plugins"
 
   # GIMP Export Layers to Directory as PNGs
   #   http://registry.gimp.org/node/28268
@@ -1651,6 +1874,8 @@ stage_4_gimp_plugins () {
 
 stage_4_python_source () {
 
+  stage_announcement "stage_4_python_source"
+
   pushd ${OPT_DLOADS} &> /dev/null
 
   wget -N https://www.python.org/ftp/python/2.7.10/Python-2.7.10.tgz
@@ -1670,6 +1895,8 @@ stage_4_python_source () {
 } # end: stage_4_python_source
 
 stage_4_funstuff () {
+
+  stage_announcement "A bore: stage_4_funstuff"
 
   if false; then
 
@@ -1693,9 +1920,11 @@ stage_4_funstuff () {
 
 stage_4_updatedb_locate_conf () {
 
+  stage_announcement "Noop: stage_4_updatedb_locate_conf"
+
   # FIXME: See /etc/updatedb.conf
   #
-  # See:   /home/landonb/.fries/.erectus/dev/larry/etc
+  # See: ~/.waffle/dev/${HOSTNAME}/etc
   #  I wonder where the appropriate place to do this is...
   #  maybe a custom_mint17.private.$HOSTNAME.sh type file.
   #
@@ -1706,6 +1935,8 @@ stage_4_updatedb_locate_conf () {
 } # end: stage_4_updatedb_locate_conf
 
 stage_4_python_35 () {
+
+  stage_announcement "stage_4_python_35"
 
   # Only do this for machines without python3.5.
   command -v python3.5 &> /dev/null
@@ -1723,194 +1954,199 @@ stage_4_python_35 () {
 
 setup_customize_extras_go () {
 
-    /bin/mkdir -p ${OPT_BIN}
-    /bin/mkdir -p ${OPT_DLOADS}
-    /bin/mkdir -p ${OPT_SRC}
+  echo "-------------------------"
+  echo "setup_customize_extras_go"
+  echo "-------------------------"
 
-    # Make the `staff` group owner of root-level /srv/.
-    if [[ -n ${USE_STAFF_GROUP_ASSOCIATION} ]]; then
-      sudo chgrp ${USE_STAFF_GROUP_ASSOCIATION} /srv
-      sudo chmod g+w /srv
-    fi
+  # Make the `staff` group owner of root-level /srv/.
+  if [[ -n ${USE_STAFF_GROUP_ASSOCIATION} ]]; then
+    sudo chgrp ${USE_STAFF_GROUP_ASSOCIATION} /srv
+    sudo chmod g+w /srv
+  fi
 
-    # Tell Hamster to start on login.
-    stage_4_hamster_time_tracker_setup
+  # Tell Hamster to start on login.
+  stage_4_hamster_time_tracker_setup
+  stage_4_hamster_briefs_setup
 
-    # Tell Pidgin to start on login.
-    stage_4_pidgin_setup_autostart
+  # Tell Pidgin to start on login.
+  stage_4_pidgin_setup_autostart
 
-    # Tell Gmail Notifier to start on login.
-    stage_4_gmail_notifier_setup
+  # Tell Gmail Notifier to start on login.
+  stage_4_gmail_notifier_setup
 
-    # Quicktile lets you easily resize windows.
-    stage_4_quicktile_install
+  # Quicktile lets you easily resize windows.
+  stage_4_quicktile_install
 
-    # Configure Postgresql.
-    stage_4_psql_configure
+  # Configure Postgresql.
+  # This really only sets 'staff' as the group for the config files.
+  stage_4_psql_configure
 
-    # Configure Apache.
-    stage_4_apache_configure
+  # Configure Apache.
+  stage_4_apache_configure
 
-    # Install the dropbox.py script.
-    stage_4_dropbox_install
+  # Install the dropbox.py script.
+  stage_4_dropbox_install
 
-    # Configure Web browsers.
-    # - Firefox fcn. is a no-op.
-    stage_4_firefox_configure
-    # - wget and dpkg Chrome.
-    stage_4_chrome_install
-    # - set up plugins manually; this is also a no-op.
-    stage_4_https_everywhere_install
+  # Configure Web browsers.
+  # - Firefox fcn. is a no-op.
+  stage_4_firefox_configure
+  # - wget and dpkg Chrome.
+  stage_4_chrome_install
+  # - set up plugins manually; this is also a no-op.
+  stage_4_https_everywhere_install
 
-    # Woop! Woop! for VirtualBox.
-    stage_4_virtualbox_install
+  # Woop! Woop! for VirtualBox.
+  stage_4_virtualbox_install
 
-    # Install Abode Reader.
-    stage_4_reader_install
+  # Install Abode Reader.
+  stage_4_reader_install
 
-    # Install a simple reST renderer using pip.
-    stage_4_restview_install
+  # Install a simple reST renderer using pip.
+  stage_4_restview_install
 
-    # The Worst Metric Ever: Count Lines of Code!
-    # - wget to /srv/opt/bin, pretty simple.
-    stage_4_cloc_install
+  # The Worst Metric Ever: Count Lines of Code!
+  # - wget to /srv/opt/bin, pretty simple.
+  stage_4_cloc_install
 
-    # Install parT for Dubsacks Vim.
-    # - This is probably already installed by vendor_dubsacks.sh.
-    stage_4_parT_install
+  # Install parT for Dubsacks Vim.
+  # - This is probably already installed by vendor_dubsacks.sh.
+  stage_4_parT_install
 
-    # 2015.01.24: The Todo.txt project seems nifty, as does
-    #                 ti — A silly simple time tracker, but
-    #                 perhaps Ultimate Time Tracker has a few
-    #                 tricks that ti could learn (I like the
-    #                 feel of ti but the features of utt...
-    #                 no, wait, punch-time-tracking seems cool).
+  # 2015.01.24: The Todo.txt project seems nifty, as does
+  #                 ti — A silly simple time tracker, but
+  #                 perhaps Ultimate Time Tracker has a few
+  #                 tricks that ti could learn (I like the
+  #                 feel of ti but the features of utt...
+  #                 no, wait, punch-time-tracking seems cool).
 
-    # Cookiecutter is a boilerplate maker.
-    # - Which I haven't really ever needed to use
-    #   because I really start projects from scratch.
-    stage_4_cookiecutter_install
+  # Cookiecutter is a boilerplate maker.
+  # - Which I haven't really ever needed to use
+  #   because I really start projects from scratch.
+  stage_4_cookiecutter_install
 
-    # Rock you like a hurricane!
-    stage_4_spotify_install
+  # Rock you like a hurricane!
+  stage_4_spotify_install
 
-    # Ah, classic open source GIS tools, I honor thee.
-    stage_4_openjump_install
+  # Ah, classic open source GIS tools, I honor thee.
+  stage_4_openjump_install
 
-    # Install pip, and use pip to install uncommitted and argcomplete.
-    stage_4_all_the_young_pips
+  # Install pip, and use pip to install uncommitted and argcomplete.
+  stage_4_all_the_young_pips
 
-    # Some open source fonts I've found that I include. Unicode and more.
-    stage_4_font_mania
+  # Some open source fonts I've found that I include. Unicode and more.
+  stage_4_font_mania
 
-    # A very nice font for text editing.
-    # Probably already installed for Dubsacks Vim.
-    stage_4_font_typeface_hack
+  # A very nice font for text editing.
+  # Probably already installed for Dubsacks Vim.
+  stage_4_font_typeface_hack
 
-    # Ah, Sqlite. Sometimes you're there, and sometimes
-    # you're not, but if you weren't and I was looking
-    # for you, I'd be distressed.
-    stage_4_sqlite3
+  # Ah, Sqlite. Sometimes you're there, and sometimes
+  # you're not, but if you weren't and I was looking
+  # for you, I'd be distressed.
+  stage_4_sqlite3
 
-    # Dark Table is a sophisticated RAW image editor.
-    # Fortunately we can apt it from a third party repo.
-    stage_4_darktable
+  # Dark Table is a sophisticated RAW image editor.
+  # Fortunately we can apt it from a third party repo.
+  stage_4_darktable
 
-    # DigiKam is a decent photo organization tool. It's
-    # also a pain to build from scratch.
-    #stage_4_digikam_from_scratch
-    stage_4_digikam_from_distro
+  # DigiKam is a decent photo organization tool. It's
+  # also a pain to build from scratch.
+  #stage_4_digikam_from_scratch
+  stage_4_digikam_from_distro
 
-    # Dah Gimp Dah Gimp Dah Gimp!
-    stage_4_gimp_plugins
+  # Dah Gimp Dah Gimp Dah Gimp!
+  stage_4_gimp_plugins
 
-    # Install Python 3.5 from deadsnakes.
-    # FIXME: This should be distro-dependent.
-    stage_4_python_35
+  # Install Python 3.5 from deadsnakes.
+  # FIXME: This should be distro-dependent.
+  stage_4_python_35
 
-    # FIXME/MAYBE: These commands are stubbed.
-    # ========================================
+  # FIXME/MAYBE: These commands are stubbed.
+  # ========================================
 
-    # Configure Git.
-    # See ~/.gitconfig. No need to call `git config`.
-    #
-    # FIXME: Do something like
-    #          m4 ... ~/.gitconfig.m4 ...
-    #
-    #stage_4_git_configure
+  # Configure Git.
+  # See ~/.gitconfig. No need to call `git config`.
+  #
+  # FIXME: Do something like
+  #          m4 ... ~/.gitconfig.m4 ...
+  #
+  #stage_4_git_configure
 
-    # Setup /etc/updatedb.conf, except this is machine-specific,
-    # so there's just a FIXME comment therein for now; a no-op.
-    stage_4_updatedb_locate_conf
+  # Setup /etc/updatedb.conf, except this is machine-specific,
+  # so there's just a FIXME comment therein for now; a no-op.
+  stage_4_updatedb_locate_conf
 
-    # Install LibreOffice.
-    # FIXME: This is a no-op; how have I been installing libreoffice5?
-    stage_4_libreoffice_install
+  # Install LibreOffice.
+  # FIXME: This is a no-op; how have I been installing libreoffice5?
+  stage_4_libreoffice_install
 
-    # DISABLED/PROBABLY DISABLED SETUPS
-    # =================================
+  # DISABLED/PROBABLY DISABLED SETUPS
+  # =================================
 
-    # Configure Mercurial.
-    # - Only iff $USE_SETUP_HG.
-    stage_4_hg_configure
+  # Configure Mercurial.
+  # - Only iff $USE_SETUP_HG.
+  stage_4_hg_configure
 
-    # Configure Meld.
-    # - Currently a no-op; not written.
-    stage_4_meld_configure
+  # Configure Meld.
+  # - Currently a no-op; not written.
+  stage_4_meld_configure
 
-    # Disables and Uninstalls Samba service,
-    # which probably definitely doesn't exist
-    # in first place.
-    stage_4_disable_services
+  # Disables and Uninstalls Samba service,
+  # which probably definitely doesn't exist
+  # in first place.
+  stage_4_disable_services
 
-    # Install modern.ie VMs.
-    # - Disabled. You're better off copying files locally.
-    stage_4_modern_ie_install
+  # Install modern.ie VMs.
+  # - Disabled. You're better off copying files locally.
+  stage_4_modern_ie_install
 
-    # Install expect, so we can do tty tricks.
-    # - This is a no-op since apt-get can install `expect`.
-    stage_4_dev_testing_expect_install
+  # Install expect, so we can do tty tricks.
+  # - This is a no-op since apt-get can install `expect`.
+  stage_4_dev_testing_expect_install
 
-    # I've wanted to want to try to like password managers
-    # in the past but find myself just using, like, and
-    # trusting my system better...
-    # - so this is a no-op.
-    stage_4_keepassx_install
+  # I've wanted to want to try to like password managers
+  # in the past but find myself just using, like, and
+  # trusting my system better...
+  # - so this is a no-op.
+  stage_4_keepassx_install
 
-    # 2016-03-23: Pencil install is disabled since not used.
-    stage_4_pencil_install
+  # 2016-03-23: Pencil install is disabled since not used.
+  stage_4_pencil_install
 
-    # 2015.01: [lb] still playing around w/ the RssOwl reader...
-    #          its inclusion here is not an endorsement, per se.
-    # - This is disabled.
-    stage_4_rssowl_install
+  # 2015.01: [lb] still playing around w/ the RssOwl reader...
+  #          its inclusion here is not an endorsement, per se.
+  # - This is disabled.
+  stage_4_rssowl_install
 
-    # Disabled:
-    stage_4_jsctags_install
+  # Disabled:
+  stage_4_jsctags_install
 
-    # 2016.03.23: Check out hamster and
-    #   https://github.com/landonb/hamster_briefs
-    if false; then
-      stage_4_todo_txt_install
-      stage_4_punch_tt_install
-      stage_4_ti_time_tracker_install
-      stage_4_utt_time_tracker_install
-    fi
+  # 2016.03.23: Check out hamster and
+  #   https://github.com/landonb/hamster_briefs
+  if false; then
+    stage_4_todo_txt_install
+    stage_4_punch_tt_install
+    stage_4_ti_time_tracker_install
+    stage_4_utt_time_tracker_install
+  fi
 
-    # 2016-03-23: What's LiClipse again? An Eclipse... Flash debugger?
-    #             Python debugger? I can't remembugger.
-    #stage_4_liclipse_install
+  # 2016-03-23: What's LiClipse again? An Eclipse... Flash debugger?
+  #             Python debugger? I can't remembugger.
+  #stage_4_liclipse_install
 
-    # Games!
-    # - Is no longer any fun; a no-op.
-    # Just open Dubsacks Vim and play Tetris(r).
-    stage_4_funstuff
+  # Games!
+  # - Is no longer any fun; a no-op.
+  # Just open Dubsacks Vim and play Tetris(r).
+  stage_4_funstuff
 
-    # Intel OpenCL (Open Computing Language) for heavy algorithms,
-    # I think, like travelling salesperson problem.
-    # 2016-03-23: Disabling; probably just manually install if you
-    # need it or find yourself finally writing the alleycat app.
-    #stage_4_opencl
+  # Intel OpenCL (Open Computing Language) for heavy algorithms,
+  # I think, like travelling salesperson problem.
+  # 2016-03-23: Disabling; probably just manually install if you
+  # need it or find yourself finally writing the alleycat app.
+  #stage_4_opencl
+
+  echo
+  echo "All done."
 
 } # end: setup_customize_extras_go
 

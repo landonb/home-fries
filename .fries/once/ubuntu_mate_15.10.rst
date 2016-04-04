@@ -279,15 +279,10 @@ If you're replicating your dev machine, copy its privates.
 
 .. code-block:: bash
 
-    /bin/cp -rn /media/sf_$USER/.gitconfig ~/
+    /bin/cp -rn ~/.waffle/home/.gitconfig ~/
 
     pushd ~/.fries/.bashrc
-    /bin/cp -L /media/sf_$USER/.fries/.bashrc/bashrx.private.$USER.sh .
-
-    # FIXME: Rather than cloning home-fries, maybe just copy it over?
-    pushd ~
-    /bin/rm -rf ~/.fries
-    /bin/cp -ar /media/sf_$USER/.fries .
+    /bin/cp -L ~/.waffle/home/.fries/.bashrc/bashrx.private.$USER.sh .
 
 Setup Home-Fries
 ================
@@ -380,10 +375,11 @@ Follow most of the instructions above, with the following modifications:
   See: A_General_Linux_Setup_Guide_For_Devs.rst
   Find: "Make a Bootable USB"
 
-- You might want to choose different encryption options,
-  such as just encrypting the home folder and not encrypting
-  everything everything (just make sure all of your sensitive
-  files live under your home directory).
+- Choose to encrypt the user home directory, and then verify
+  that an encrypted swap space was also setup.
+
+  Caveat: Make sure all of your sensitive files live under your
+  home directory.
 
 - Otherwise everything's pretty similar....
 
