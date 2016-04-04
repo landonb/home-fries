@@ -49,7 +49,7 @@
 !.fries/once
 !.fries/once/
 !.fries/once/*
-.fries/once/custom_mint17.private.*.sh
+.fries/once/*.private.*
 # Generated files.
 .fries/once/fries-setup-stage.num
 .fries/once/fries-setup-mysql.pwd
