@@ -8,16 +8,20 @@
 !README.rst
 
 # Simple config files.
-!.Xmodmap
 !.cookiecutterrc.m4
-!.ctags
 !.gitconfig.m4
 !.gitignore
-!.hgrc
-!.inputrc
-!.psqlrc
-!.sqliterc
-!mm.cfg
+# 2016-04-04: Moved to personal, unpublished git repo:
+#!.cookiecutterrc
+#!.ctags
+#!.gitconfig
+#!.inputrc
+#!.psqlrc
+#!.sqliterc
+#!mm.cfg
+# 2016-04-04: These are long gone, aren't they?:
+#!.Xmodmap
+#!.hgrc
 
 # Bash and Vim symlinks.
 !.bashrc
