@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.03.23
+# Last Modified: 2016.03.31
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -52,7 +52,7 @@ fi
 # Third-party applications are installed to /srv/opt/bin.
 
 #PATH="/home/${LOGNAME}/.fries/bin/vendor:${PATH}"
-PATH="/home/${LOGNAME}/.fries/.erectus/bin:/home/${LOGNAME}/.fries/bin:${PATH}"
+PATH="/home/${LOGNAME}/.waffle/bin:/home/${LOGNAME}/.fries/bin:${PATH}"
 PATH="${OPT_BIN}:${PATH}"
 # ~/.local/bin is where, e.g., `pip install --user blah` installs.
 PATH="${PATH}:${HOME}/.local/bin"
@@ -248,35 +248,36 @@ if [[ $EUID -ne 0 \
     rsa_keys=`ls $HOME/.ssh/*_rsa 2> /dev/null`
     if [[ -n $rsa_keys ]]; then
       for pvt_key in $(/bin/ls $HOME/.ssh/*_rsa $HOME/.ssh/*_dsa 2> /dev/null); do
-        # Skip symlinks (I've got ~/.ssh/id_rsa linked to ~/.ssh/id_foo_rsa).
-        if [[ ! -h ${pvt_key} ]]; then
-          sent_passphrase=false
-          secret_name=$(basename $pvt_key)
-          if [[    -n "$SSH_SECRETS" \
-                && -d "$SSH_SECRETS" \
-                && -e "$SSH_SECRETS/$secret_name" ]]; then
-            if [[ $(command -v expect > /dev/null && echo true) ]]; then
-              pphrase=$(cat ${SSH_SECRETS}/${secret_name})
-              /usr/bin/expect -c " \
-              spawn /usr/bin/ssh-add ${pvt_key}; \
-              expect \"Enter passphrase for /home/${USER}/.ssh/${secret_name}:\"; \
-              send \"${pphrase}\n\"; \
-              interact ; \
-              "
-              unset pphrase
-              sent_passphrase=true
-            else
-              echo "NOTICE: no expect: ignoring: ${SSH_SECRETS}/${pvt_key}"
-            fi
-          elif [[ ! -d "$SSH_SECRETS" ]]; then
+        sent_passphrase=false
+        secret_name=$(basename $pvt_key)
+        if [[    -n "$SSH_SECRETS" \
+              && -d "$SSH_SECRETS" \
+              && -e "$SSH_SECRETS/$secret_name" ]]; then
+          if [[ $(command -v expect > /dev/null && echo true) ]]; then
+            pphrase=$(cat ${SSH_SECRETS}/${secret_name})
+            /usr/bin/expect -c " \
+            spawn /usr/bin/ssh-add ${pvt_key}; \
+            expect \"Enter passphrase for /home/${USER}/.ssh/${secret_name}:\"; \
+            send \"${pphrase}\n\"; \
+            interact ; \
+            "
+            unset pphrase
+            sent_passphrase=true
+          else
+            echo "NOTICE: no expect: ignoring: ${SSH_SECRETS}/${pvt_key}"
+          fi
+        elif [[ ! -d "$SSH_SECRETS" ]]; then
+          if [[ -z $SSH_SECRETS ]]; then
+            echo "NOTICE: No SSH_SECRETS directory defined."
+          else
             echo "NOTICE: No directory at: $SSH_SECRETS"
-            echo "        Set this up yourself."
-            echo "        To test again: ssh-agent -k"
-            echo "          and then open a new terminal."
           fi
-          if ! ${sent_passphrase}; then
-            /usr/bin/ssh-add $pvt_key
-          fi
+          echo "        Set this up yourself."
+          echo "        To test again: ssh-agent -k"
+          echo "          and then open a new terminal."
+        fi
+        if ! ${sent_passphrase}; then
+          /usr/bin/ssh-add $pvt_key
         fi
       done
     fi
@@ -332,7 +333,9 @@ alias cdd='cdd_'
 alias cdc='popd > /dev/null'
 
 # 2015.08.06: Project directory aliases.
-alias cdfe='pushd ~/.fries/.erectus &> /dev/null'
+#alias cdfe='pushd ~/.fries/.erectus &> /dev/null'
+alias cdfe='pushd ~/.waffle &> /dev/null'
+alias cdwf='pushd ~/.waffle &> /dev/null'
 
 # Misc. directory aliases.
 alias h='history'         # Nothing special, just convenient.
@@ -492,6 +495,20 @@ function ensure_trashdir() {
   else
     if [[ ! -e ${device_trashdir}/.trash ]]; then
       echo "Trash directory not found on ${trash_device}"
+      sudo_prefix=""
+      if [[ ${device_trashdir} == "/" ]]; then
+        # The file being deleted lives on the root device but the default
+        # trash directory is not on the same device. This could mean the
+        # user has an encrypted home directory. Rather than moving files
+        # to the encryted space, use an unencrypted trash location, but
+        # make the user do it.
+        echo
+        echo "There's no /.trash directory for the root device."
+        echo
+        echo "This probably means you have an encrypted home directory."
+        echo
+        sudo_prefix="sudo"
+      fi
       echo "Create a new trash at ${device_trashdir}/.trash ?"
       echo -n "Please answer [y/n]: "
       read the_choice
@@ -499,7 +516,11 @@ function ensure_trashdir() {
         ensured=0
         echo "To suppress this message, run: touch ${device_trashdir}/.trash"
       else
-        /bin/mkdir -p ${device_trashdir}/.trash
+        ${sudo_prefix} /bin/mkdir -p ${device_trashdir}/.trash
+        if [[ -n ${sudo_prefix} ]]; then
+          sudo chgrp staff /.trash
+          sudo chmod 2775 /.trash
+        fi
       fi
     fi
     if [[ -d ${device_trashdir}/.trash ]]; then
@@ -540,6 +561,7 @@ function rm_safe() {
       device_trashdir="${trashdir}"
     else
       device_trashdir=$(device_filepath_for_file "${fpath}")
+      trash_device=${fpath_device}
     fi
     ensure_trashdir "${device_trashdir}" "${trash_device}"
     if [[ $? -eq 1 ]]; then
@@ -823,9 +845,11 @@ fi
 # 2015.01.25: FIXME: Not sure what best to use...
 VIM_EDITOR=/usr/bin/vim
 if [[ -n $VIM_EDITOR ]]; then
-  alias ct-www='sudo -u $httpd_user \
-                  SELECTED_EDITOR=${VIM_EDITOR} \
-                  crontab -e -u $httpd_user'
+  alias ct-www='\
+    ${$DUBS_TRACE} && echo "ct-www" ; \
+    sudo -u $httpd_user \
+      SELECTED_EDITOR=${VIM_EDITOR} \
+      crontab -e -u $httpd_user'
 fi
 
 #########################
@@ -835,11 +859,19 @@ fi
 # Restart Apache.
 if [[ -e /proc/version ]]; then
   if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
-    alias re='sudo /etc/init.d/apache2 reload'
-    alias res='sudo /etc/init.d/apache2 restart'
+    alias re='\
+      ${$DUBS_TRACE} && echo "re" ; \
+      sudo /etc/init.d/apache2 reload'
+    alias res='\
+      ${$DUBS_TRACE} && echo "res" ; \
+      sudo /etc/init.d/apache2 restart'
   elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
-    alias re='sudo service httpd reload'
-    alias res='sudo service httpd restart'
+    alias re='\
+      ${$DUBS_TRACE} && echo "re" ; \
+      sudo service httpd reload'
+    alias res='\
+      ${$DUBS_TRACE} && echo "res" ; \
+      sudo service httpd restart'
   fi
 # else, in unrigged chroot.
 fi
@@ -929,7 +961,6 @@ webperms () {
     echo "ERROR: Not a directory: $1"
     return 1
   fi
-  LOGGER=false
   # Recurse through the web directory.
   # The naive `find` approach.
   #   find $1 -type d -exec chmod 2775 {} +
@@ -939,13 +970,13 @@ webperms () {
   # execute permission for some user.
   ##chmod -R o+rX $1
   #chmod -R u+rwX,g+rwX,o+rX $1
-  ${LOGGER} && echo "Web dir.: $1"
+  ${$DUBS_TRACE} && echo "Web dir.: $1"
   #chmod -R o+rX $1 &> /dev/null || sudo chmod -R o+rX $1
   chmod -R u+rwX,g+rwX,o+rX $1 &> /dev/null || sudo chmod -R u+rwX,g+rwX,o+rX $1
   # Also fix the ancestor permissions.
   local CUR_DIR=$1
   while [[ -n ${CUR_DIR} && $(dirname ${CUR_DIR}) != '/' ]]; do
-    ${LOGGER} && echo "Ancestor: ${CUR_DIR}"
+    ${$DUBS_TRACE} && echo "Ancestor: ${CUR_DIR}"
     # NOTE: Not giving read access, just execute.
       chmod -R o+X ${CUR_DIR} &> /dev/null || sudo chmod -R o+X ${CUR_DIR}
     local CUR_DIR=$(dirname ${CUR_DIR})
@@ -1242,20 +1273,24 @@ alias ton="bind 'set disable-completion off'"
 # Encrypted Filesystem.
 
 mount_guard () {
-  if [[ -z $(/bin/ls -A ~/.fries/sepulcher) ]]; then
-    encfs ~/.fries/.guard ~/.fries/guard
+  if [[ -n $(/bin/ls -A ~/.waffle/.guard) ]]; then
+    encfs ~/.waffle/.guard ~/.waffle/guard
   fi
 }
 
-mount_sepulcher () {
-  if [[ -z $(/bin/ls -A ~/.fries/sepulcher) ]]; then
-    encfs ~/.fries/.sepulcher ~/.fries/sepulcher
-  fi
+umount_guard () {
+  fusermount -u ~/.waffle/guard
 }
 
-umount_sepulcher () {
-  fusermount -u ~/.fries/sepulcher
-}
+#mount_sepulcher () {
+#  if [[ -z $(/bin/ls -A ~/.fries/sepulcher) ]]; then
+#    encfs ~/.fries/.sepulcher ~/.fries/sepulcher
+#  fi
+#}
+
+#umount_sepulcher () {
+#  fusermount -u ~/.fries/sepulcher
+#}
 
 # To manage the encfs (change pwd, etc.), see: encfsctl
 
@@ -1266,6 +1301,18 @@ umount_sepulcher () {
 if [[ -d ${HOME}/.fries/bin/completions ]]; then
   source ${HOME}/.fries/bin/completions/*
 fi
+
+#########################
+
+# Secure ``locate`` with ``ecryptfs``
+
+# https://askubuntu.com/questions/20821/using-locate-on-an-encrypted-partition
+
+updatedb_ecryptfs () {
+  /bin/mkdir -p ~/.mlocate
+  export LOCATE_PATH="$HOME/.mlocate/mlocate.db"
+  updatedb -l 0 -o $HOME/.mlocate/mlocate.db -U $HOME
+}
 
 #########################
 
@@ -1302,7 +1349,10 @@ if xprop -root &> /dev/null; then
     # Here's the view of the bottom row:
     #  L-Ctrl|Fn|Win|Alt|--Space--|Alt|Menu|Ctrl|Browse-back|Up-arrow|Broforward
     #                                             Left-Arrow|Down-arw|Right-Arrow
-    xmodmap -e "keycode 166 = Delete" # brobackward
+    command -v xmodmap &> /dev/null
+    if [[ $? -eq 0 ]]; then
+      xmodmap -e "keycode 166 = Delete" # brobackward
+    fi
     # 2015.02.28: At some point, browser-back stopped working, and I used
     #             right-ctrl instead, but now browser back is remapping again.
     #               xmodmap -e "keycode 105 = Delete" # right-ctrl
