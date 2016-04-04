@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.03.31
+# Last Modified: 2016.04.04
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -846,7 +846,7 @@ fi
 VIM_EDITOR=/usr/bin/vim
 if [[ -n $VIM_EDITOR ]]; then
   alias ct-www='\
-    ${$DUBS_TRACE} && echo "ct-www" ; \
+    ${DUBS_TRACE} && echo "ct-www" ; \
     sudo -u $httpd_user \
       SELECTED_EDITOR=${VIM_EDITOR} \
       crontab -e -u $httpd_user'
@@ -860,17 +860,17 @@ fi
 if [[ -e /proc/version ]]; then
   if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
     alias re='\
-      ${$DUBS_TRACE} && echo "re" ; \
+      ${DUBS_TRACE} && echo "re" ; \
       sudo /etc/init.d/apache2 reload'
     alias res='\
-      ${$DUBS_TRACE} && echo "res" ; \
+      ${DUBS_TRACE} && echo "res" ; \
       sudo /etc/init.d/apache2 restart'
   elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
     alias re='\
-      ${$DUBS_TRACE} && echo "re" ; \
+      ${DUBS_TRACE} && echo "re" ; \
       sudo service httpd reload'
     alias res='\
-      ${$DUBS_TRACE} && echo "res" ; \
+      ${DUBS_TRACE} && echo "res" ; \
       sudo service httpd restart'
   fi
 # else, in unrigged chroot.
@@ -970,13 +970,13 @@ webperms () {
   # execute permission for some user.
   ##chmod -R o+rX $1
   #chmod -R u+rwX,g+rwX,o+rX $1
-  ${$DUBS_TRACE} && echo "Web dir.: $1"
+  ${DUBS_TRACE} && echo "Web dir.: $1"
   #chmod -R o+rX $1 &> /dev/null || sudo chmod -R o+rX $1
   chmod -R u+rwX,g+rwX,o+rX $1 &> /dev/null || sudo chmod -R u+rwX,g+rwX,o+rX $1
   # Also fix the ancestor permissions.
   local CUR_DIR=$1
   while [[ -n ${CUR_DIR} && $(dirname ${CUR_DIR}) != '/' ]]; do
-    ${$DUBS_TRACE} && echo "Ancestor: ${CUR_DIR}"
+    ${DUBS_TRACE} && echo "Ancestor: ${CUR_DIR}"
     # NOTE: Not giving read access, just execute.
       chmod -R o+X ${CUR_DIR} &> /dev/null || sudo chmod -R o+X ${CUR_DIR}
     local CUR_DIR=$(dirname ${CUR_DIR})
