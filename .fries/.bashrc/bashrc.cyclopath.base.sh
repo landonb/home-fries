@@ -1,6 +1,6 @@
 # File: bashrc.cyclopath.base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.04.04
+# Last Modified: 2016.04.04
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Cyclopath bash startup script.
 # License: GPLv3
@@ -152,6 +152,7 @@ alias flog=`echo fa ~/.macromedia/Flash_Player/Logs/flashlog.txt`
 ### Watch the Server logs
 #
 logs () {
+  ${DUBS_TRACE} && echo "logs"
 	tail_cmd="sudo tail -F"
 	# If you want to confirm what's being tailed, try:
 	#   sudo tail -F -n 0
@@ -248,6 +249,7 @@ killfc () {
          | grep -v grep \
          | awk '{print $2}')
   for pid in $pids; do
+    ${DUBS_TRACE} && echo "killfc: $pid"
      sudo kill -s 9 $pid
   done
   return 0
@@ -316,12 +318,14 @@ killrd () {
 }
 
 killrd2 () {
+  ${DUBS_TRACE} && echo "killrd2"
   ps aux | grep routed_pers=v2 | awk '{print $2}' | xargs sudo kill -s 9
   return 0
 }
 
 ### Kill all processes: Apache
 killre () {
+  ${DUBS_TRACE} && echo "killre"
   ps aux | grep /usr/sbin/apache2 | awk '{print $2}' | xargs sudo kill -s 9
   return 0
 }
@@ -706,8 +710,16 @@ cpconf () {
 
 ## Build shortcuts
 
-alias tua='pushd $cp/pyserver ; sudo -u $httpd_user INSTANCE=minnesota ./tilecache_update.py -a ; popd'
-alias tun='pushd $cp/pyserver ; sudo -u $httpd_user INSTANCE=minnesota ./tilecache_update.py -n ; popd'
+alias tua='\
+  ${DUBS_TRACE} && echo "tua" ; \
+  pushd $cp/pyserver ; \
+  sudo -u $httpd_user INSTANCE=minnesota ./tilecache_update.py -a ; \
+  popd'
+alias tun='\
+  ${DUBS_TRACE} && echo "tun" ; \
+  pushd $cp/pyserver ; \
+  sudo -u $httpd_user INSTANCE=minnesota ./tilecache_update.py -n ; \
+  popd'
 
 # Run routed (from $cp/pyserver)
 #alias rd='pushd $cp/pyserver ; sudo -u $httpd_user INSTANCE=minnesota ./routedctl ; popd'

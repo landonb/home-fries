@@ -1,6 +1,6 @@
 # File: bashrc.cyclopath.loc.work.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.02.23
+# Last Modified: 2016.04.04
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Cyclopath bash startup script for CS machines.
 # License: GPLv3
@@ -107,6 +107,7 @@ fi
 
 ## Kill all processes: SSH clients
 killss () {
+  ${DUBS_TRACE} && echo "killss"
   ps aux | grep ssh | grep \.cs\.umn\.edu | awk '{print $2}' | xargs sudo kill -s 9
   return 0
 }
