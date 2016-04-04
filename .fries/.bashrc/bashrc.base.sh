@@ -1,6 +1,6 @@
 # File: bashrc.base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.10.29
+# Last Modified: 2016.03.30
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Smart Bash Startup Script
 # License: GPLv3
@@ -26,6 +26,7 @@
 # ============
 
 export DUBS_TRACE=false
+#export DUBS_TRACE=true
 
 $DUBS_TRACE && echo "User's EUID is $EUID"
 
