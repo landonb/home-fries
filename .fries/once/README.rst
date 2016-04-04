@@ -3,7 +3,7 @@ A General Linux Setup Guide For Developers
 ==========================================
 
 .. Author: Landon Bouma
-.. Last Modified: 2016.03.23
+.. Last Modified: 2016.04.04
 .. Project Page: https://github.com/landonb/home_fries
 
 Overview
@@ -438,6 +438,8 @@ Dia                     (from Add to Panel > Application Launcher... > Graphics)
 ---------------------   -----------------------------------------------------------------------
 Take Screenshot         (from Add to Panel > Application Launcher... > Accessories)
 ---------------------   -----------------------------------------------------------------------
+Chromium                (from Add to Panel > Application Launcher... > Internet)
+---------------------   -----------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------
 **Right-justified**
 -----------------------------------------------------------------------------------------------
@@ -458,15 +460,20 @@ Custom launchers:
 
 - Dubsacks gVim/GVim:
   - ``gvim --servername SAMPI --remote-silent path/to/notes.rst``
+- Terminal:
+  - ``/bin/bash -c "FORCE_JAILED=false /usr/bin/mate-terminal"``
 - OpenTerms:
-  - ``/home/<USERNAME>/.fries/bin/openterms.sh 1024 0``
+  - ``/home/<USERNAME>/.waffle/bin/openterms.sh 1024 0``
   - Icon: ``/usr/share/icons/Mint-X/apps/48/abrt.png``
+          ``/usr/share/icons/matefaenza/apps/48/abrt.png``
+  - Alternative: See install_openterms_mate_menu.
 - Termdub Dbms:
-  - ``/home/<USERNAME>/.fries/bin/termdub.py -t dbms``
+  - ``/bin/bash -c "FORCE_JAILED=false /home/<USERNAME>/.fries/bin/termdub.py -t dbms"``
+  - Icon: ``/usr/share/icons/Humanity/apps/48/utilities-terminal.svg``
 - Termdub Logs:
-  - ``/home/<USERNAME>/.fries/bin/termdub.py -t logs``
+  - ``/bin/bash -c "FORCE_JAILED=false /home/<USERNAME>/.fries/bin/termdub.py -t logs"``
 - Termdub Logc:
-  - ``/home/<USERNAME>/.fries/bin/termdub.py -t logc``
+  - ``/bin/bash -c "FORCE_JAILED=false /home/<USERNAME>/.fries/bin/termdub.py -t logc"``
 
 See also:
 
@@ -492,7 +499,9 @@ setup as your user account, make a link to your profile.
 
 You could also link you Vim scripts to your root account,
 but this author worries that letting all your Vim plugins
-run as root is dangerous.
+run as root is dangerous. (Though so it probably more so
+letting all your Bash config run, unless you've audited it
+well.)
 
 .. code-block:: bash
 
@@ -528,6 +537,8 @@ You'll probably also want to disable notification popups,
 otherwise you'll be annoyed every time someone comes online.
 
 - Find the menu item, ``Tools > Plugins``, and uncheck *Libnotify Popups*.
+
+See also: Show system tray icon: Always.
 
 Browser Configuration
 ^^^^^^^^^^^^^^^^^^^^^
@@ -575,6 +586,8 @@ The Chrome plugin works well, though.
   - Type ``Alt+Shift+F`` to open the finder, and
     ``Enter`` and ``Shift-Enter`` to navigate.
 
+2016.03.25: The Keyboard Shortcuts extension has been removed.
+            But wasn't some
 If you use Firefox Developer Tools, the
 `Customize (Keyboard) Shortcuts for Firefox
 <https://addons.mozilla.org/en-US/firefox/addon/customizable-shortcuts/>`__
@@ -626,6 +639,12 @@ In ``chrome://settings/``:
 - On startup: [Select] Continue where you left off
   
 - Appearance: [Deselect] Use system title bar and borders
+
+Configure Gmail Notifier
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Run either ``/usr/bin/gnome-gmail-notifier`` or ``/usr/bin/gm-notifier``
+and setup an email notifier.
 
 Relay Postfix Email via smtp.gmail.com
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
