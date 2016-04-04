@@ -2,7 +2,7 @@
 
 # File: bash_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.03.23
+# Last Modified: 2016.04.04
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bash function library.
 # License: GPLv3
@@ -109,6 +109,7 @@ fi;
 
 # Reload the Web server.
 ccp_apache_reload () {
+  ${DUBS_TRACE} && echo "ccp_apache_reload"
   if [[ -z "$1" ]]; then
     COMMAND="reload"
   elif [[ $1 -ne 1 ]]; then
@@ -508,6 +509,7 @@ arr2_fcn_iter () {
 # SYNC_ME: See also fcn. of same name in bash_base.sh/bashrc_core.sh.
 killsomething () {
   something=$1
+  ${DUBS_TRACE} && echo "killsomething: $something"
   # The $2 is the awk way of saying, second column. I.e., ps aux shows
   #   apache 27635 0.0 0.1 238736 3168 ? S 12:51 0:00 /usr/sbin/httpd
   # and awk splits it on whitespace and sets $1..$11 to what was split.
