@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.04.10
+# Last Modified: 2016.04.19
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -51,11 +51,25 @@ fi
 # [lb]'s scripts are in ~/.fries/bin.
 # Third-party applications are installed to /srv/opt/bin.
 
-#PATH="/home/${LOGNAME}/.fries/bin/vendor:${PATH}"
+# Waffle fries.
 PATH="/home/${LOGNAME}/.waffle/bin:/home/${LOGNAME}/.fries/bin:${PATH}"
+
+# /srv/opt/bin
 PATH="${OPT_BIN}:${PATH}"
+
 # ~/.local/bin is where, e.g., `pip install --user blah` installs.
 PATH="${PATH}:${HOME}/.local/bin"
+
+# Android Studio.
+JAVA_HOME=${OPT_BIN}/jdk
+JRE_HOME=$JAVA_HOME/jre
+if [[ -d ${JAVA_HOME} ]]; then
+  PATH="${JAVA_HOME}/bin:${JRE_HOME}/bin:${PATH}"
+fi
+if [[ -d ${OPT_BIN}/android-studio/bin ]]; then
+  PATH="${PATH}:${OPT_BIN}/android-studio/bin"
+fi
+
 export PATH
 
 # Umask
