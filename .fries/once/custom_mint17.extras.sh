@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.04.07
+# Last Modified: 2016.04.19
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -1953,6 +1953,435 @@ stage_4_python_35 () {
 
 } # end: stage_4_python_35
 
+stage_4_garmin_software () {
+
+  stage_announcement "stage_4_garmin_software"
+
+  sudo apt-get install -y qlandkartegt qlandkartegt-garmin
+
+} # end: stage_4_garmin_software
+
+stage_4_android_studio () {
+
+  stage_announcement "stage_4_android_studio"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # https://developer.android.com/sdk/index.html#downloads
+
+  # Version 2.0.0.20 / 278 MB
+  ANDROID_STUDIO_VERS="143.2739321"
+
+  ANDROID_STUDIO_BASE="android-studio-ide-${ANDROID_STUDIO_VERS}-linux"
+  ANDROID_STUDIO_NAME="${ANDROID_STUDIO_BASE}.zip"
+
+  # $ lS
+  # rmrm android-studio-ide-141.2456560-linux.zip
+  # hrmmm... should i automate /bin/rm?
+  OLD_DLS=($(\
+    /bin/ls -1 android-studio-ide-*-linux.zip 2> /dev/null \
+      | /bin/sed -r "s/${ANDROID_STUDIO_NAME}//g" \
+  ))
+  # /bin/rm stderrs on empty lines:
+  #  echo ${OLD_DLS[@]} | xargs /bin/rm
+  for old_file in ${OLD_DLS[@]}; do
+    if [[ -n $old_file ]]; then
+      /bin/rm $old_file
+    fi
+  done
+
+  wget -N \
+    "https://dl.google.com/dl/android/studio/ide-zips/2.0.0.20/${ANDROID_STUDIO_NAME}"
+
+  # https://developer.android.com/sdk/installing/index.html
+
+  # Android Studio needs Java 1.8 or better.
+  #
+  #   $ javac -version
+  #   javac 1.7.0_95
+
+  # Android Studio warns about using OpenJDK, which is this:
+  #
+  #   $ sudo apt-get install -y gcj-4.8-jdk
+  #
+  # and also the open source java is probably installed:
+  #
+  #   $ java -version
+  #   java version "1.7.0_95"
+  #   OpenJDK Runtime Environment (IcedTea 2.6.4) (7u95-2.6.4-0ubuntu0.14.04.2)
+  #   OpenJDK 64-Bit Server VM (build 24.95-b01, mixed mode)
+  #
+  # so remove OpenJDK, and then install proper proprietary Java from Oracle.
+
+  java -version 2>&1 | grep OpenJDK &> /dev/null
+  if [[ $? -eq 0 ]]; then
+    sudo apt-get purge -y openjdk-\*
+    # Make sure the new java comes first in your PATH, else:
+    #   $ java -version
+    #   java version "1.5.0"
+    #   gij (GNU libgcj) version 4.8.4
+    #   $ dpkg -S /usr/bin/gij-4.8
+    #   gcj-4.8-jre-headless: /usr/bin/gij-4.8
+  fi
+
+  # Argh, you have to sign a EULA; use a browser to download for now...
+  if false; then
+    JAVA_SE_DEV_KIT_VERS="8u91"
+    JAVA_SE_DEV_KIT_NAME="jdk-${JAVA_SE_DEV_KIT_VERS}-linux-x64.tar.gz"
+    JAVA_SE_DEV_KIT_PATH="http://download.oracle.com/otn-pub/java/jdk/8u91-b14/${JAVA_SE_DEV_KIT_NAME}"
+    wget -N ${JAVA_SE_DEV_KIT_PATH}
+
+    # DEVs: Download from web: Oracle Java Downloads:
+    #
+    #   http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+    #
+    # Then continue here:
+    #
+    /bin/mv ~/Downloads/jdk-8u91-linux-x64.tar.gz .
+    tar xvzf jdk-8u91-linux-x64.tar.gz
+    /bin/mv jdk1.8.0_91 ${OPT_BIN}
+    pushd ${OPT_BIN} &> /dev/null
+    /bin/ln -sf jdk1.8.0_91 jdk
+    popd &> /dev/null
+
+    #grep "[:\"]\/usr\/local\/games[:\"]" /etc/environment &> /dev/null
+    grep "^JAVA_HOME=${OPT_BIN}/jdk$" /etc/environment &> /dev/null
+    if [[ $? -ne 0 ]]; then
+      echo "JAVA_HOME=${OPT_BIN}/jdk
+JRE_HOME=\$JAVA_HOME/jre
+PATH=\$PATH:\$JAVA_HOME/bin:\$JRE_HOME/bin
+export JAVA_HOME
+export JRE_HOME
+export PATH" | sudo tee -a /etc/environment
+    else
+      echo
+      echo "ALERT: /etc/environment probably already up to date."
+      echo
+    fi
+  else
+    if false; then
+      # From:
+      #  https://www.atlantic.net/community/howto/install-java-ubuntu-14-04/
+      sudo apt-get install -y python-software-properties
+      sudo add-apt-repository -y ppa:webupd8team/java
+      sudo apt-get update
+      sudo apt-get install oracle-java8-installer
+      # If you have multiple versions of Java installed on your server,
+      # then you have the ability to select a default version.
+      # Check your alternatives with the following command:
+      #   sudo update-alternatives --config java
+      # Also something about:
+      #   sudo nano /etc/environment
+      #   JAVA_HOME="/usr/lib/jvm/java-8-oracle"
+      #   source /etc/environment
+      #   echo $JAVA_HOME
+    else
+      echo
+      echo "################################################################"
+      echo
+      echo "WARNING: Please install Oracle JDK yourself."
+      echo
+      echo "Try: http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html"
+      echo "     or thereabouts"
+      echo
+      echo "MAYBE: Fix this script. Is there an oracle repo we can apt-get from?"
+      echo
+      echo "################################################################"
+      echo
+    fi
+  fi
+
+  # MAYBE: Download Oracle Java JDK/JRE Documentation
+  # http://www.oracle.com/technetwork/java/javase/documentation/java-se-7-doc-download-435117.html
+  # jdk-7u40-apidocs.zip
+
+  # Android Studio install docs say to install the following libraries.
+  sudo apt-get install -y lib32z1 lib32ncurses5 lib32bz2-1.0 lib32stdc++6
+
+  UNPACK_PATH="${OPT_BIN}/${ANDROID_STUDIO_BASE}"
+  if [[ ! -e ${UNPACK_PATH} ]]; then
+    #unzip -d ${UNPACK_PATH} ${ANDROID_STUDIO_NAME}
+    if [[ ! -e "android-studio" ]]; then
+      unzip ${ANDROID_STUDIO_NAME}
+      /bin/mv "android-studio" ${UNPACK_PATH}
+    else
+      echo
+      echo "WARNING: Path exists. Remove it you'self."
+      echo
+      echo "         /bin/rm -rf ${OPT_DLOADS}/android-studio"
+      echo
+    fi
+  else
+    echo
+    echo "WARNING: Path exists. Remove it you'self."
+    echo
+    echo "         /bin/rm -rf ${UNPACK_PATH}"
+    echo
+  fi
+
+  pushd ${OPT_BIN} &> /dev/null
+  #/bin/ln -sf ${UNPACK_PATH} ${OPT_BIN}/android-studio-ide-2.x-linux
+  #/bin/ln -sf ${UNPACK_PATH} ${OPT_BIN}/android-studio-ide-linux
+  #/bin/ln -sf ${UNPACK_PATH} ${OPT_BIN}/android-studio-ide
+  /bin/ln -sf ${ANDROID_STUDIO_BASE} ${OPT_BIN}/android-studio
+  popd &> /dev/null
+
+  popd &> /dev/null
+
+  # Then run
+  # $ studio.sh &
+  /bin/mkdir -p ${OPT_BIN}/android-sdk
+
+  wizard_runthrough='
+
+    Virtual Machine Setup
+    =====================
+
+    Android Studio Message
+    ----------------------
+
+    Android Studio tells you during installation if the emulator cannot be run:
+
+      "We have detected that your system can run the Android emulator in an
+       accelerated performance mode.
+
+      Linux-based systems support virtual machine acceleration through the
+      KVM (Kernel-mode Virtual Machine) software package.
+
+      Search for install instructions for your particular Linux configuration
+      (Android KVM Linux Installation [link]) that KVM is enabled for faster
+      Android emulator performance."
+
+      See:
+       https://developer.android.com/tools/devices/emulator.html#vm-linux
+
+    Virtual Machine Packages
+    ------------------------
+
+    From:
+     http://www.howtogeek.com/117635/how-to-install-kvm-and-create-virtual-machines-on-ubuntu/
+
+      egrep -c "(svm|vmx)" /proc/cpuinfo
+
+      "A 0 indicates that your CPU doesn’t support hardware virtualization,
+       while a 1 or more indicates that it does. You may still have to enable
+       hardware virtualization support in your computer’s BIOS, even if this
+       command returns a 1 or more."
+
+      My machine returns a "4" and I think this is just the BIOS switch I
+      long ago enabled for VirtualBox.
+
+      "Use the following command to install KVM and supporting packages.
+      Virt-Manager is a graphical application for managing your virtual
+      machines — you can use the kvm command directly, but libvirt and
+      Virt-Manager simplify the process."
+
+        sudo apt-get install -y qemu-kvm libvirt-bin bridge-utils virt-manager
+
+      "Only the root user and users in the libvirtd group have permission
+      to use KVM virtual machines. Run the following command to add your
+      user account to the libvirtd group:"
+
+        sudo adduser ${USER} libvirtd
+        # Oh, well:
+        #   The user "${USER}" is already a member of "libvirtd".
+        # but still gotta logout for association to be realized.
+
+      "After running this command, log out and log back in.
+      Run this command after logging back in and you should see an empty
+      list of virtual machines. This indicates that everything is working
+      correctly."
+
+        virsh -c qemu:///system list
+
+      Apparently, the Virtual Machine Manager GUI can be used to make
+      virtual machines. Android Studio has its own GUI for making machines.
+
+      Later, you can run the KVM by going to
+
+        Tools > Android > AVD Manager
+
+      or running
+
+        pushd ${OPT_BIN}/android-sdk/tools &> /dev/null
+        ./android avd &
+
+    Android Studio Setup
+    ====================
+
+    Run studio.sh and go through the setup process.
+
+    Reinstall Android Studio
+    ------------------------
+
+    You can reinstall (go through the wizard again) by blasting
+    away your android directories.
+
+    ..  code-block:: bash
+
+        # Kill java processes:
+        ps aux | grep java
+        sudo kill -s 9 ...
+
+        # Argh, this did not help:
+        #   /bin/rm -rf ~/.gradle/
+
+        # Via:
+        #   find . -iname "*android*"
+        /bin/rm -rf ~/.android
+        /bin/rm -rf ~/.AndroidStudio2.0
+        /bin/rm -rf ~/AndroidStudioProjects
+
+    Android Studio Setup Wizard
+    ---------------------------
+
+    Assuming your PATH is setup properly,
+
+    .. code-block:: bash
+
+        studio.sh &
+
+    Then go through the following motions:
+
+      Next
+
+      For whatever reason, hit Detect and it will find /srv/opt/bin/jdk1.8.0_91
+      Next
+
+      x Standard
+      o Custom
+      Next
+
+      o Intellij
+      x Darcula
+      x GTK+
+      Next
+
+      Components:
+        o Android SDK - (265 MB)
+        o Android SDK Platform
+          ? API 24 - (78.4 MB)
+            [Marshmallow is API level 23 so API 24 is probably whatever N is]
+            [I installed API 24 at first but then reinstalled Studio (for
+             another reason) and choose not to install it, just because.
+            See below for reinstall instructions.]
+        o Android Virtual Device (1 GB)
+      Android SDK Location:
+        /srv/opt/bin/android-sdk
+      Next
+
+      [says 615 MB Total Download Size]
+      Next
+
+    2016-04-19: There is a bug in the mainstream build.
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    After downloading and unpacking, the installer says:
+
+    .. code-block:: text
+
+      Android SDK is up to date.
+      Creating Android virtual device
+      Unable to create a virtual device: Missing system image required for an AVD setup
+
+    Click Finish and Android Studio will start.
+
+    Then, select
+
+      Settings -> Appearance & Behavior -> System Settings -> Updates
+
+    Select "Canary Channel" as your update channel, then check for an update.
+
+    Android Studio will quit, update, and restart.
+
+    For more on the bug:
+
+      https://code.google.com/p/android/issues/detail?id=202388
+
+    Fix the JDK path
+    ^^^^^^^^^^^^^^^^
+
+    Studio made me fix the JDK location on first run,
+    which was set to
+
+      /usr/lib/jvm/default-java
+
+    and not to
+
+      /srv/opt/bin/jdk
+
+    Test Project
+    ^^^^^^^^^^^^
+
+    I made a new project with an Empty/Blank Activity.
+
+    You may see a few warnings on startup.
+
+    Note that if there are multiple warnings, apparently clicking
+    "Ignore" on one of them closes all of them (at least it did for
+    with the following two errors):
+
+      "Unregistered VCS root detected"
+        "The directory /home/${USER} is under Git, but it is not
+        registered in the Setting."
+        Ignore? Or configure? I tried Ignore... and it closed the next warning toast.
+
+      "Invalid Project JDK"
+        "Please choose a valid JDK directory"
+        Open JDK Settings
+        Again with the JDK path!
+
+        File > Project Structure > SDK Location
+
+        /srv/opt/bin/jdk
+
+        You will also see Android NDK location.
+          "The NDK is a toolset that allows you to implement parts of your app
+          using native-code languages such as C and C++. Typically, good use
+          cases for the NDK are CPU-intensive applications such as game engines,
+          signal processing, and physics simulation."
+
+      Expect to wait some number of seconds as Gradle builds and indexesd
+      the basic project.
+
+      Click Run.
+
+      Click Create New Emulator...
+
+      I dunno, I chose Nexus 5X.
+      Next
+
+      I guess we gotta download API versions.
+      Which I thought would have been handled by the wizard setup.
+      Might as well download them all, right?
+      Marshmallow API 23 and Lollipop API 22 x86_64 and x86
+      Ok, might as well just do Marshmallow API 23 x86_64 for starters.
+      Next*/Finish
+
+      Back at Choose Emulator.
+      Next.
+
+      Emulated device boots..... this takes a few seconds.
+      Then your Hello World app loads, nice!
+
+    ]
+    Finish
+
+  '
+
+} # end: stage_4_android_studio
+
+stage_4_fcn_template () {
+
+  stage_announcement "stage_4_fcn_template"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  popd &> /dev/null
+
+} # end: stage_4_fcn_template
+# DEVs: CXPX above template for easy-making new function.
+
 # ==============================================================
 # Application Main()
 
@@ -2064,6 +2493,12 @@ setup_customize_extras_go () {
   # Install Python 3.5 from deadsnakes.
   # FIXME: This should be distro-dependent.
   stage_4_python_35
+
+  # Lettuce route please.
+  stage_4_garmin_software
+
+  # Yerp!
+  stage_4_android_studio
 
   # FIXME/MAYBE: These commands are stubbed.
   # ========================================
