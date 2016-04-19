@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.04.04
+# Last Modified: 2016.04.10
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -333,7 +333,7 @@ alias cdd='cdd_'
 alias cdc='popd > /dev/null'
 
 # 2015.08.06: Project directory aliases.
-#alias cdfe='pushd ~/.fries/.erectus &> /dev/null'
+# WAS: alias cdfe='pushd ~/.fries/.erectus &> /dev/null'
 alias cdfe='pushd ~/.waffle &> /dev/null'
 alias cdwf='pushd ~/.waffle &> /dev/null'
 

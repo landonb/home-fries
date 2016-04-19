@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.04.04
+# Last Modified: 2016.04.07
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -702,6 +702,10 @@ stage_4_virtualbox_install () {
   LATEST_VBOX_VERSION_FULL="${LATEST_VBOX_VERSION_BASE}-${LATEST_VBOX_VERS_BUILD}"
   # Load the release codename, e.g., raring, trusty, wily, etc.
   source /etc/lsb-release
+  if [[ $DISTRIB_CODENAME == 'rebecca' ]]; then
+    # Mint 17.X is rebecca is trusty.
+    DISTRIB_CODENAME=trusty
+  fi
   LATEST_VBOX_DEB_PKG="\
 virtualbox-${LATEST_VBOX_VERS_MAJOR}_${LATEST_VBOX_VERSION_FULL}~Ubuntu~${DISTRIB_CODENAME}_amd64.deb"
   #LATEST_VBOX_EXTPACK="\

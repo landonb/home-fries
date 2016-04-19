@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.04.04
+# Last Modified: 2016.04.06
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -351,6 +351,8 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
     # Update all packages.
     sudo apt-get -y upgrade
+
+    # Update distribution packages.
     sudo apt-get -y dist-upgrade
 
     sudo apt-get -y dkms build-essentials

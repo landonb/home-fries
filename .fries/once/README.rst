@@ -3,7 +3,7 @@ A General Linux Setup Guide For Developers
 ==========================================
 
 .. Author: Landon Bouma
-.. Last Modified: 2016.04.04
+.. Last Modified: 2016.04.10
 .. Project Page: https://github.com/landonb/home_fries
 
 Overview
@@ -546,6 +546,9 @@ Browser Configuration
 Useful Browser Plugins
 ~~~~~~~~~~~~~~~~~~~~~~
 
+Gesture
+'''''''
+
 Juice up your mouse control with a gesture plugin.
 
 - Mouse gesture plugins:
@@ -555,6 +558,9 @@ Juice up your mouse control with a gesture plugin.
 
    - `CrxMouse for Google Chrome
      <https://chrome.google.com/webstore/detail/crxmouse/jlgkpaicikihijadgifklkbpdajbkhjo>`__
+
+HTTPS
+'''''
 
 Be assertive and demand HTTPS when available.
 your browser requests try to use https.
@@ -567,47 +573,103 @@ your browser requests try to use https.
    - `HTTPS Everywhere for Chrome
      <https://www.eff.org/https-everywhere>`__
 
+Regex
+'''''
+
 Regular Expression Browser Search plugins.
 
 Note: The Firefox plugin froze my browser for a few seconds while searching
 `the nightly HTML spec
-<http://www.w3.org/html/wg/drafts/html/master/single-page.html>`__`.
+<http://www.w3.org/html/wg/drafts/html/master/single-page.html>`__.
 The Chrome plugin works well, though.
 
 - `Regex Find for Firefox
-  <https://addons.mozilla.org/en-us/firefox/addon/regex-find/>`__`
+  <https://addons.mozilla.org/en-us/firefox/addon/regex-find/>`__
 
   - ``Ctrl-F`` like you normally would, and
     click the *Regex* button in the find bar.
 
 - `Regex Search for Chrome
-  <https://chrome.google.com/webstore/detail/regex-search/bcdabfmndggphffkchfdcekcokmbnkjl/related?hl=en>`__`
+  <https://chrome.google.com/webstore/detail/regex-search/bcdabfmndggphffkchfdcekcokmbnkjl/related?hl=en>`__
 
   - Type ``Alt+Shift+F`` to open the finder, and
     ``Enter`` and ``Shift-Enter`` to navigate.
 
-2016.03.25: The Keyboard Shortcuts extension has been removed.
-            But wasn't some
-If you use Firefox Developer Tools, the
-`Customize (Keyboard) Shortcuts for Firefox
-<https://addons.mozilla.org/en-US/firefox/addon/customizable-shortcuts/>`__
-plugin really lets you fine-tune your IDE.
+Ctrl+Shift+C
+''''''''''''
 
-- Some ideas:
+[lb] often accidentally types Shift+Ctrl+C in the browser because that's
+the copy command in the terminal. But in both Chrome and Firefox, that
+key command is mapped to opening developer tools. To avoid accidentally
+opening or switching to developer tools when you meant to copy the selected
+text, remap the key command.
 
-  - Remap ``Ctrl-Shift-C``.
+- `Keyboard Remapper for Chrome
+  <https://chrome.google.com/webstore/detail/shortkeys-custom-keyboard/logpjaacgmcbpdkdchjiaagddngobkck?hl=en-US>`__
 
-    - By default, it brings up the Firefox Developer Tools Inspector,
-      but you might find yourself typing it by accident, because
-      that's how you copy selected text from the terminal.
+  - NOTE: 2016.04.10: I don't think I found a plugin for Chrome the last
+    time I checked, which was probably last summer, but I found one today.
+    However, copying to clipboard isn't one of the possible commands (maybe
+    because Chrome doesn't let plugins do that?), but at least you can run
+    custom JavaScript.
 
-   - You could, e.g.,
-     change the Inspector shortcut
-     from ``Ctrl+Shift+C`` to ``Ctrl+Shift+D``,
-     and also remap Console
-     from ``Ctrl+Shift+K`` to ``Ctrl+Shift+X``
-    (obscuring Text Switch Directions, which is not a feature
-    you'll probably use if you stick to Latin text).
+  - Keyboard Shortcut: ``shift+ctrl+c``
+
+  - Behavior: "Run JavaScript"
+
+  - Javascript [sic] code to run (note that JS cannot copy to clipboard):
+
+.. code-block:: javascript
+
+    function get_selection_text() {
+        var text = 'ERROR: ctrl+shift+c: could not determine selection';
+        if (window.getSelection) {
+            text = window.getSelection().toString();
+        }
+        else if (document.selection && document.selection.type != 'Control') {
+            text = document.selection.createRange().text;
+        }
+        return text;
+    }
+    var text = get_selection_text();
+    //alert(text);
+    window.prompt('Copy to clipboard: Ctrl+C, Enter', text);
+
+- `Customize (Keyboard) Shortcuts for Firefox
+  <https://addons.mozilla.org/en-US/firefox/addon/customizable-shortcuts/>`__
+
+- Remap ``Ctrl-Shift-C``.
+
+  - By default, it brings up the Firefox Developer Tools Inspector,
+    but you might find yourself typing it by accident, because
+    that's how you copy selected text from the terminal.
+
+  - You could, e.g.,
+    change the Inspector shortcut
+    from ``Ctrl+Shift+C`` to ``Ctrl+Shift+D``,
+    and also remap Console
+    from ``Ctrl+Shift+K`` to ``Ctrl+Shift+X``
+   (obscuring Text Switch Directions, which is not a feature
+   you'll probably use if you stick to Latin text).
+
+Keep Alive
+''''''''''
+
+For financial and other security-forward Web sites, it's annoying when
+you're in a safe place and you're constantly logged out of what you're
+working on because you haven't refreshed a window recently.
+
+- `ReloadEvery for Firefox
+  <https://addons.mozilla.org/en-us/firefox/addon/reloadevery/contribute/roadblock/?src=dp-btn-primary&version=45.0.0>`__
+
+  - Right-click on page to choose a reload frequency for a page.
+
+- `Staying Alive for Chrome
+  <https://chrome.google.com/webstore/detail/staying-alive-for-google/lhobbakbeomfcgjallalccfhfcgleinm/related?hl=en-US>`__
+
+  - Navigate to
+    `chrome-extension://lhobbakbeomfcgjallalccfhfcgleinm/settings.html`
+    and make rules as necessary.
 
 Browser Configuration
 ~~~~~~~~~~~~~~~~~~~~~
@@ -732,6 +794,22 @@ Thanks to: https://rtcamp.com/tutorials/linux/ubuntu-postfix-gmail-smtp/
 
 Miscellaneous Notes
 -------------------
+
+Updates and Upgrades
+^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: bash
+
+    # Update the cache.
+    sudo apt-get -y update
+
+    # Update all packages.
+    sudo apt-get -y upgrade
+
+    # Update distribution packages.
+    sudo apt-get -y dist-upgrade
+
+or just run Update Manager, which usually lives in the notifications panel.
 
 Backups and Syncing
 ^^^^^^^^^^^^^^^^^^^

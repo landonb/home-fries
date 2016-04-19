@@ -2,7 +2,7 @@
 
 # File: bash_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.04.04
+# Last Modified: 2016.04.11
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bash function library.
 # License: GPLv3
@@ -44,6 +44,10 @@ else
   SCRIPT_DIR="/home/${USER}/.fries/bin"
 fi
 
+# When you run a Bash script, generally:
+#  SCRIPT_PATH=$(dirname $0)
+#  CALLED_FROM=$(pwd -P)
+# where SCRIPT_PATH is relative to CALLED_FROM.
 dir_resolve () {
   # Squash error messages but return error status, maybe.
   pushd "$1" &> /dev/null || return $?

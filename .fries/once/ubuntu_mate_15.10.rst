@@ -383,3 +383,62 @@ Follow most of the instructions above, with the following modifications:
 
 - Otherwise everything's pretty similar....
 
+References
+==========
+
+https://en.wikipedia.org/wiki/MATE_(software)#Software_components
+
+OS Diatribe
+===========
+
+Anecdotally: Ubuntu MATE is slower to boot than Linux Mint MATE.
+I've read the Ubuntu is in general a little slower than Mint, but
+I've only noticed this with Ubuntu on my laptop (which is both the
+only placed I've installed Ubuntu MATE so far and also a machine that's
+six years old at this point) -- Mint would literally boot in tens or twenty
+seconds; Ubuntu takes a minute or two. I can't vouch for development
+performance because Ubuntu MATE on my laptop is the first time I've used
+an encrypted home directory.
+
+Funnily enough, I moved from early Mac OS (7x) to middle Mac OS (9x),
+skipped the OS X revolution, jumped to Windows when it was finally
+somewhat tolerable (XP SP2 came out soon after I got a job writing
+Windows device drivers, albeit I still had to support older consumer
+versions, like Windows 98 (actually a decent OS, but only with SPAK2,
+which seemed to be a Microsoft theme -- the first release sucks, wait
+for the right service pack) and Windows ME (a shitshow), and I also had
+to support enterprise versions like Windows NT and Windows 2000 (don't
+get me started; these were horrible beasts), and then I jumped from Windows
+to Linux once Linux had matured and Windows was shooting itself in the foot
+by trying to be "innovative" (Windows XP SP2 was followed by the disastrous
+Windows Vista rollout, but, again, a later service pack (SP1? I think) corrected
+that, and then Windows 7 was a true beauty! But then Windows 8 (a stepping
+stone?) was released, and then Windows 10, and everything went to shit;
+fortunately I had found Linux Mint MATE (around the time of Ubuntu fucking
+itself with GNOME 3/Unity) and later found Ubuntu MATE. Now here's to hoping
+they stop innovating OSes, at least drastically, because all my stand up scripts
+run great and I hate having to figure out how to customize new OSes every time
+they're released and I find myself without other options (such as sticking with
+what works and what I like!).
+
+Also note that with Windows 7, I'm given a year to upgrade for free to Windows 10.
+I did so on my laptop but never run Windows 10. I repartitioned the drive to
+give half to Windows and the other half to Linux (and would have given more to
+Linux if the partition tool let me), and then I upgrade from Windows 7 to Windows 10,
+though now I wish I just overwrote the recovery partition and the ``ntfs`` partition
+and just went all-out-balls-to-the-chassis linux. Anyway, I never run Windows, and
+I choose not to upgrade the other Windows installation on my desktop machine (so I'll
+lost my Windows license there) but I rarely run Windows. Recently, it's just to run
+the Webex application, and I can do that through VirtualBox with one of the free
+Internet Explorer/MS Edge developer images. But even then, VBox runs soooo slow --
+I can run my host OS and two Linux VBoxes at once, but when I run a Windows virtual
+machine, I gotta kill all other virtual machines, and I even have to quit Firefox
+or Chrome in the host to reclaim enough memory to run Windows without grinding to
+a halt, and even then the host CPU usage is so stressed when running Windows;
+seriously, fuck that OS. And fuck Mac OS, too, for locking so many people into
+the "Windows alternative" -- yes, Windows sucks, but Mac OS isn't your only
+retreat. Linux has a steep learning curve, for sure, but once you're there,
+you're there -- in a sense, schools could teach Linux and kids would *quickly*
+get it and then in a generation or two Mac and Windows would lost their monopoly
+(or is it monopolies? they're pretty much in collusion).
+
