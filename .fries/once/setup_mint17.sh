@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.04.06
+# Last Modified: 2016.04.19
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -851,20 +851,20 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
       # MAYBE: Need any of the packages in BIG_PACKAGE_LIST_LMINT_17X?
 
-      # I tried gm-notify first and it works, and it doesn't use a
+      # I tried gm-notify first and it works, and it doesn\'t use a
       # tray icon, which is fine because my inbox is never empty and
-      # gnome-gmail-notifier's icon only indicates the non-emptiness
-      # of the inbox -- I'd maybe care for an icon if there was a
+      # gnome-gmail-notifier\'s icon only indicates the non-emptiness
+      # of the inbox -- I\'d maybe care for an icon if there was a
       # count of unread email, but really I just want a simple popup;
-      # and gm-nofity works fine. Not great, not bad, just fine; I'd say
+      # and gm-nofity works fine. Not great, not bad, just fine; I\'d say
       # I really like it if the desktop popup looked better, but that
-      # might be Gnome's fault, and the simplicity is starting to appeal
+      # might be Gnome\'s fault, and the simplicity is starting to appeal
       # to me. [-2016.03.25]
       #  "gm-notify - highly Ubuntu integrated GMail notifier"
       gm-notify
-      # I tried "gmail-notify" but it didn't like my creds.
+      # I tried "gmail-notify" but it did not like my creds.
       #  "gmail-notify - Notify the arrival of new mail on Gmail"
-      # There's also gnome-gmail which I didn't try.
+      # There iss also gnome-gmail which I did not try.
       # "gnome-gmail - support for Gmail as the preferred email application in GNOME"
 
     ) # end: BIG_PACKAGE_LIST_UMATE_15X
