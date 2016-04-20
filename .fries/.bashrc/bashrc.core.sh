@@ -69,6 +69,9 @@ fi
 if [[ -d ${OPT_BIN}/android-studio/bin ]]; then
   PATH="${PATH}:${OPT_BIN}/android-studio/bin"
 fi
+if [[ -d ${OPT_BIN}/android-sdk/platform-tools ]]; then
+  PATH="${PATH}:${OPT_BIN}/android-sdk/platform-tools"
+fi
 
 export PATH
 

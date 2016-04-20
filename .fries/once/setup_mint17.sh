@@ -794,6 +794,16 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       # Maybe some day...
       zsh
 
+      # For getting at automated emails sent by daemons.
+      #mail
+      #mutt
+      ##mutt-patched
+      #alpine
+      # You can also just do:
+      #  sudo cat /var/spool/mail/root
+      #  sudo tail -n 1000 /var/spool/mail/root
+      #  sudo grep "cron" /var/spool/mail/root
+
     ) # end: BIG_PACKAGE_LIST
 
     local BIG_PACKAGE_LIST_LMINT_17X=(

@@ -33,6 +33,7 @@
 !.fries/.bashrc
 !.fries/.bashrc/
 !.fries/.bashrc/*
+.fries/.bashrc/.agignore
 .fries/.bashrc/bashrx.private.*.sh
 !.fries/.bashrc/bashrx.private.sh.template
 .fries/.bashrc/bashrc0.*.sh
