@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.04.19
+# Last Modified: 2016.04.24
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -1958,6 +1958,21 @@ stage_4_garmin_software () {
   stage_announcement "stage_4_garmin_software"
 
   sudo apt-get install -y qlandkartegt qlandkartegt-garmin
+
+  # For Garmin Connect to work in a Windows 10 VirtualBox.
+
+  sudo apt-get install -y gnome-system-tools
+
+  # NOTE: You can probably run Connect via wine, but I never
+  #       use wine, so I can't vouch for wine.
+
+  echo
+  echo "###################################################################"
+  echo
+  echo "FOLLOW UP: See 'Windows 10 VirtualBox Setup' for setting up Garmin software."
+  echo
+  echo "###################################################################"
+  echo
 
 } # end: stage_4_garmin_software
 

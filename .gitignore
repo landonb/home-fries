@@ -63,3 +63,6 @@
 # Ignore tags files.
 tags
 
+# Sorry, adding this to .git/info/exclude didn't work, so it's here.
+.fries/.bashrc/bashrc.waffle-encfs.base.sh
+

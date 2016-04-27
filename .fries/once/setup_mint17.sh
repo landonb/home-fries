@@ -874,7 +874,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       gm-notify
       # I tried "gmail-notify" but it did not like my creds.
       #  "gmail-notify - Notify the arrival of new mail on Gmail"
-      # There iss also gnome-gmail which I did not try.
+      # There is also gnome-gmail which I did not try.
       # "gnome-gmail - support for Gmail as the preferred email application in GNOME"
 
     ) # end: BIG_PACKAGE_LIST_UMATE_15X

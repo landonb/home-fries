@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.04.19
+# Last Modified: 2016.04.26
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -463,6 +463,9 @@ alias ag='ag --smart-case --hidden'
 function ag_peek () {
   ag -A 0 -B 0 --hidden --follow --max-count 1 $* 2> /dev/null
 }
+
+# Does this help?
+alias findi='find . -iname'
 
 # Fix rm to be a crude trashcan
 ###############################
