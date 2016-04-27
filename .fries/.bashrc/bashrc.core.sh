@@ -470,6 +470,10 @@ alias findi='find . -iname'
 # Fix rm to be a crude trashcan
 ###############################
 
+alias rm='rm_safe'
+# DANGER: Will Robinson. Be careful when you repeat yourself, it'll be gone.
+alias rmrm='/bin/rm -rf'
+
 # Remove aliases (where "Remove" is a noun, not a verb! =)
 $DUBS_TRACE && echo "Setting trashhome"
 if [[ -z "$DUB_TRASHHOME" ]]; then
@@ -478,11 +482,56 @@ if [[ -z "$DUB_TRASHHOME" ]]; then
 else
   trashdir=$DUB_TRASHHOME
 fi;
-
-alias rm='rm_safe'
-alias rmtrash='/bin/rm -rf $trashdir/.trash ; mkdir $trashdir/.trash'
-# DANGER: Will Robinson. Be careful when you repeat yourself, it'll be gone.
-alias rmrm='/bin/rm -rf'
+#
+# 2016-04-26: I added empty_trashes because, while trashes were being
+# created on different devices from rm_safe, rmtrash was only emptying
+# the trash in the user's home.
+#   Also: I find myself feeling more comfortable moving .trash to .trash-TBD
+#   for a while and then deleting the .trash-TBD, just in case I don't, say,
+#   in a week realize I deleted something. So here's a two-step trash:
+#   if you call rmtrash once, it'll temporarily backup the .trash dirs;
+#   when you call rmtrash again, it'll remove the last temporary backups.
+#   In this manner, you can call rmtrash periodically, like once a month
+#   or whatever, and you won't have to worry about accidentally deleting
+#   things.
+#   MAYBE: You could do an anacron check on the timestamp of the .trash-TBD
+#          and call empty_trashes after a certain amount of time has elapsed.
+empty_trashes () {
+  # locate .trash | grep "\/\.trash$"
+  for device_path in `mount \
+    | grep \
+      -e " type fuse.encfs (" \
+      -e " type ext4 (" \
+    | awk '{print $3}'`; \
+  do
+    if [[ "${device_path}" == "/" ]]; then
+      trash_path="$trashdir/.trash"
+    else
+      trash_path="$device_path/.trash"
+    fi
+    YES_OR_NO="N"
+    if [[ -d $trash_path ]]; then
+      # FIXME/MAYBE/LATER: Disable asking if you find this code solid enough.
+      echo -n "Empty trash at: \"$trash_path\"? [y/n] "
+      read -e YES_OR_NO
+      if [[ ${YES_OR_NO^^} == "Y" ]]; then
+        if [[ -d $trash_path-TBD ]]; then
+          /bin/rm -rf $trash_path-TBD
+        fi
+        /bin/mv $trash_path $trash_path-TBD
+        touch $trash_path-TBD
+        mkdir $trash_path
+      else
+        echo "Skipping: User said not to: $trash_path"
+      fi
+    else
+      echo "Skipping: No trash at: $trash_path"
+    fi
+  done
+}
+# 2016-04-26: Beef up your trash takeout with Beefy Brand Disposal.
+#   Too weak: alias rmtrash='/bin/rm -rf $trashdir/.trash ; mkdir $trashdir/.trash'
+alias rmtrash='empty_trashes'
 
 function device_on_which_file_resides() {
   if [[ -d "$1" || -f "$1" ]]; then
