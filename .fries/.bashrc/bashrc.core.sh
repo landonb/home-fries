@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.04.26
+# Last Modified: 2016.04.28
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -72,6 +72,14 @@ fi
 if [[ -d ${OPT_BIN}/android-sdk/platform-tools ]]; then
   PATH="${PATH}:${OPT_BIN}/android-sdk/platform-tools"
 fi
+
+# No whep. 2016.04.28 and this is the first time I've seen this.
+#   $ ifconfig
+#   Command 'ifconfig' is available in '/sbin/ifconfig'
+#   The command could not be located because '/sbin' is not included in the PATH environment variable.
+#   This is most likely caused by the lack of administrative privileges associated with your user account.
+#   ifconfig: command not found
+PATH="${PATH}:/sbin"
 
 export PATH
 
