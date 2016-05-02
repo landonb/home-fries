@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.04.19
+# Last Modified: 2016.04.27
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -1707,7 +1707,9 @@ __just_the_basics__ () {
     sudo apt-get install -y flashplugin-installer
   fi
 
-  if true; then
+  # 2016-04-27: apt-get update is complaining about this repo.
+  #if true; then
+  if false; then
     # Linux Mint 17.1 Adode Flash update.
     sudo add-apt-repository "deb http://archive.canonical.com/ rebecca partner"
     sudo apt-get update
