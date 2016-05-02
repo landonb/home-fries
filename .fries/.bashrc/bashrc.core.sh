@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.04.28
+# Last Modified: 2016.05.02
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -1389,6 +1389,69 @@ updatedb_ecryptfs () {
   /bin/mkdir -p ~/.mlocate
   export LOCATE_PATH="$HOME/.mlocate/mlocate.db"
   updatedb -l 0 -o $HOME/.mlocate/mlocate.db -U $HOME
+}
+
+#########################
+
+# Buggers. Oracle VirtualBox update wrapper.
+#
+# (This would prefer to live in a once/* setup script, but the VirtualBox
+#  app frequently bugs you to update, and you gotta dpkg a deb manually,
+#  so we might as well ease the pain. See also: stage_4_virtualbox_install)
+
+virtualbox_dubs_update () {
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # Load the release codename, e.g., raring, trusty, wily, etc.
+  source /etc/lsb-release
+  if [[ $DISTRIB_CODENAME == 'rebecca' ]]; then
+    # Mint 17.X is rebecca is trusty.
+    DISTRIB_CODENAME=trusty
+  fi
+
+  # The VirtualBox bugs you to update whenever an update is available.
+  # To make this process more seamless, we automate the setup process.
+  wget \
+    -O oracle_virtualbox_download_latest.txt \
+    http://download.virtualbox.org/virtualbox/LATEST.TXT
+  # Contains, e.g., "5.0.20".
+  LATEST_VBOX_VERSION_BASE=$(cat oracle_virtualbox_download_latest.txt)
+  # Figure out the package name.
+  DOWNL_PATH=oracle_virtualbox_download_index_$LATEST_VBOX_VERSION_BASE.html
+  wget -O $DOWNL_PATH http://download.virtualbox.org/virtualbox/$LATEST_VBOX_VERSION_BASE/
+  LATEST_VBOX_DEB_PKG=$(\
+    grep "${DISTRIB_CODENAME}_amd64" $DOWNL_PATH \
+    | /bin/sed -r s/\<[^\>]*\>//g \
+    | /bin/sed -r s/^[\ ]\+\(.*\.deb\).*$/\\1/ \
+  )
+
+  if [[ -z $LATEST_VBOX_DEB_PKG ]]; then
+    echo
+    echo "WARNING: Could not deduce download path from index.html:"
+    echo
+    echo "           $DOWNL_PATH"
+    echo
+    return 2
+  fi
+
+  if [[ -e ${OPT_DLOADS}/${LATEST_VBOX_DEB_PKG} ]]; then
+    echo
+    echo "WARNING: Skipping VirtualBox install -- Already downloaded."
+    echo "Remove download if you want to start over: ${OPT_DLOADS}/${LATEST_VBOX_DEB_PKG}"
+    echo
+    return 1
+  fi
+
+  wget -N \
+    http://download.virtualbox.org/virtualbox/${LATEST_VBOX_VERSION_BASE}/${LATEST_VBOX_DEB_PKG}
+
+  #sudo apt-get remove virtualbox-4.3
+  sudo dpkg -i ${LATEST_VBOX_DEB_PKG}
+  #/bin/rm ${LATEST_VBOX_DEB_PKG}
+
+  popd &> /dev/null
+
 }
 
 #########################

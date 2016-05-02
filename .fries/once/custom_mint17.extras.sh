@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.04.24
+# Last Modified: 2016.05.02
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -679,79 +679,101 @@ stage_4_virtualbox_install () {
   # Get the latest Debian package. At least if this script is uptodate.
   #
   #   https://www.virtualbox.org/wiki/Downloads
-  #
-  # Major: 4
-  #LATEST_VBOX_VERS_MINOR="26"
-  #LATEST_VBOX_VERS_BUILD="98988"
-  #LATEST_VBOX_VERS_MINOR="28"
-  #LATEST_VBOX_VERS_BUILD="100309"
-  #LATEST_VBOX_VERS_MAJOR="4.3"
-  #LATEST_VBOX_VERS_MINOR="30"
-  #LATEST_VBOX_VERS_BUILD="101610"
-  # Major: 5
-  #LATEST_VBOX_VERS_MINOR="10"
-  #LATEST_VBOX_VERS_BUILD="104061"
-  #LATEST_VBOX_VERS_MINOR="12"
-  #LATEST_VBOX_VERS_BUILD="104815"
-  #LATEST_VBOX_VERS_MINOR="14"
-  #LATEST_VBOX_VERS_BUILD="105127"
-  LATEST_VBOX_VERS_MAJOR="5.0"
-  LATEST_VBOX_VERS_MINOR="16"
-  LATEST_VBOX_VERS_BUILD="105871"
-  LATEST_VBOX_VERSION_BASE="${LATEST_VBOX_VERS_MAJOR}.${LATEST_VBOX_VERS_MINOR}"
-  LATEST_VBOX_VERSION_FULL="${LATEST_VBOX_VERSION_BASE}-${LATEST_VBOX_VERS_BUILD}"
-  # Load the release codename, e.g., raring, trusty, wily, etc.
-  source /etc/lsb-release
-  if [[ $DISTRIB_CODENAME == 'rebecca' ]]; then
-    # Mint 17.X is rebecca is trusty.
-    DISTRIB_CODENAME=trusty
-  fi
-  LATEST_VBOX_DEB_PKG="\
-virtualbox-${LATEST_VBOX_VERS_MAJOR}_${LATEST_VBOX_VERSION_FULL}~Ubuntu~${DISTRIB_CODENAME}_amd64.deb"
-  #LATEST_VBOX_EXTPACK="\
-#Oracle_VM_VirtualBox_Extension_Pack-${LATEST_VBOX_VERS_MAJOR}.${LATEST_VBOX_VERSION_FULL}.vbox-extpack"
-  #https://www.virtualbox.org/download/testcase/VBoxGuestAdditions_5.0.17-106140.iso
 
-  if [[ -e ${OPT_DLOADS}/${LATEST_VBOX_DEB_PKG} ]]; then
-    echo
-    echo "WARNING: Skipping VirtualBox install -- Already downloaded."
-    echo "Remove download if you want to start over: ${OPT_DLOADS}/${LATEST_VBOX_DEB_PKG}"
-    echo
-    return
-  fi
 
-  pushd ${OPT_DLOADS} &> /dev/null
-
-  wget -N \
-    http://download.virtualbox.org/virtualbox/${LATEST_VBOX_VERSION_BASE}/${LATEST_VBOX_DEB_PKG}
-
-  #sudo apt-get remove virtualbox-4.3
-  sudo dpkg -i ${LATEST_VBOX_DEB_PKG}
-  #/bin/rm ${LATEST_VBOX_DEB_PKG}
-
+  # 2016-05-02: Here's the old, tedious version-specific install procedure.
   if false; then
-    # This Guy, for USB 2.
+    # Major: 4
+    #LATEST_VBOX_VERS_MINOR="26"
+    #LATEST_VBOX_VERS_BUILD="98988"
+    #LATEST_VBOX_VERS_MINOR="28"
+    #LATEST_VBOX_VERS_BUILD="100309"
+    #LATEST_VBOX_VERS_MAJOR="4.3"
+    #LATEST_VBOX_VERS_MINOR="30"
+    #LATEST_VBOX_VERS_BUILD="101610"
+    # Major: 5
+    #LATEST_VBOX_VERS_MINOR="10"
+    #LATEST_VBOX_VERS_BUILD="104061"
+    #LATEST_VBOX_VERS_MINOR="12"
+    #LATEST_VBOX_VERS_BUILD="104815"
+    #LATEST_VBOX_VERS_MINOR="14"
+    #LATEST_VBOX_VERS_BUILD="105127"
+    #LATEST_VBOX_VERS_MINOR="16"
+    #LATEST_VBOX_VERS_BUILD="105871"
+    LATEST_VBOX_VERS_MAJOR="5.0"
+    LATEST_VBOX_VERS_MINOR="20"
+    LATEST_VBOX_VERS_BUILD="106931"
+
+    LATEST_VBOX_VERSION_BASE="${LATEST_VBOX_VERS_MAJOR}.${LATEST_VBOX_VERS_MINOR}"
+    LATEST_VBOX_VERSION_FULL="${LATEST_VBOX_VERSION_BASE}-${LATEST_VBOX_VERS_BUILD}"
+
+    source /etc/lsb-release
+    if [[ $DISTRIB_CODENAME == 'rebecca' ]]; then
+      # Mint 17.X is rebecca is trusty.
+      DISTRIB_CODENAME=trusty
+    fi
+    LATEST_VBOX_DEB_PKG="\
+virtualbox-${LATEST_VBOX_VERS_MAJOR}_${LATEST_VBOX_VERSION_FULL}~Ubuntu~${DISTRIB_CODENAME}_amd64.deb"
+
+    # We don't worry about the extension pack because the app'll download'll it.
+    #LATEST_VBOX_EXTPACK="\
+    #Oracle_VM_VirtualBox_Extension_Pack-${LATEST_VBOX_VERS_MAJOR}.${LATEST_VBOX_VERSION_FULL}.vbox-extpack"
+    # https://www.virtualbox.org/download/testcase/VBoxGuestAdditions_5.0.17-106140.iso
+
+    pushd ${OPT_DLOADS} &> /dev/null
+
+    if [[ -e ${OPT_DLOADS}/${LATEST_VBOX_DEB_PKG} ]]; then
+      echo
+      echo "WARNING: Skipping VirtualBox install -- Already downloaded."
+      echo "Remove download if you want to start over: ${OPT_DLOADS}/${LATEST_VBOX_DEB_PKG}"
+      echo
+      return
+    fi
+
     wget -N \
-      http://download.virtualbox.org/virtualbox/${LATEST_VBOX_VERSION_BASE}/${LATEST_VBOX_EXTPACK}
+      http://download.virtualbox.org/virtualbox/${LATEST_VBOX_VERSION_BASE}/${LATEST_VBOX_DEB_PKG}
+
+    #sudo apt-get remove virtualbox-4.3
+    sudo dpkg -i ${LATEST_VBOX_DEB_PKG}
+    #/bin/rm ${LATEST_VBOX_DEB_PKG}
+
+    if false; then
+      # This Guy, for USB 2.
+      wget -N \
+        http://download.virtualbox.org/virtualbox/${LATEST_VBOX_VERSION_BASE}/${LATEST_VBOX_EXTPACK}
+    fi
+
+    # The next time you run VirtualBox, it should download the latest extensionl pack.
+    # But if it doesn't you can do it manually:
+    #   File > Preferences...,
+    #     [click] Extensions
+    #     [click icon for] Add Package
+    #     [select, e.g.,] /srv/opt/.downloads/Oracle_VM_VirtualBox_Extension_Pack-4.3.30-101610.vbox-extpack
   fi
 
-# FIXME: Unless there's a scripty way to add the extension pack,
-#        tell user to run `virtualbox &`, navigate to File > Preferences...,
-#        click Extensions group,
-#        click Icon for Add Package
-#        enter: /srv/opt/.downloads/Oracle_VM_VirtualBox_Extension_Pack-4.3.30-101610.vbox-extpack
-# 2015.11.19: Actually, just running virtualbox should have it ask you to update the extension pack.
+  command -v virtualbox_dubs_update
+  if [[ $? -eq 0 ]]; then
+    # See: ~/.fries/.bashrc/bashrc.core.sh
+    virtualbox_dubs_update
 
-  # FIXME/MAYBE: One doc [lb] read says add youruser to 'lp' and 'users' groups,
+    sudo usermod -a -G vboxsf ${USER}
+    sudo usermod -a -G vboxusers ${USER}
+  else
+    echo
+    echo "WARNING: Not found: virtualbox_dubs_update"
+    echo "         You'll want to call this on your own later."
+    echo
+  fi
+
+  # MEH: One doc [lb] read says add youruser to 'lp' and 'users' groups,
   # in addition to obvious 'vboxsf' and 'vboxusers' group. See: /etc/group.
 
-# FIXME: Need this here or in the guest??:
-#      virtualbox-guest-additions-iso
-# Add to vboxusers? and lp and users?
-  #sudo usermod -a -G lp ${USER}
-  #sudo usermod -a -G users ${USER}
-  sudo usermod -a -G vboxsf ${USER}
-  sudo usermod -a -G vboxusers ${USER}
+  # MAYBE: Need this here or in the guest?
+  #        2016-05-02: I don't remember what I added this for...
+  # [apt-get install] virtualbox-guest-additions-iso
+  # Add to vboxusers? and lp and users?
+  # #sudo usermod -a -G lp ${USER}
+  # #sudo usermod -a -G users ${USER}
 
   popd &> /dev/null
 
