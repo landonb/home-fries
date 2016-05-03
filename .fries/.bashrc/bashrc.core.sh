@@ -1176,7 +1176,7 @@ alias c="${OPT_DLOADS}/punch-time-tracking/Punch.py"
 # the working directory, which in my case is ~/.vim.
 
 git_status_all () {
-  for subdir in `find . -name ".git"`; do  
+  for subdir in $(find . -name ".git"); do
     gitst=$(git --git-dir=$subdir --work-tree=$subdir/.. status --short)
     if [[ -n $gitst ]]; then
       echo
