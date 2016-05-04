@@ -1,26 +1,42 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#        vim: ft=python:ts=4:sw=4:et:nospell
 
-# Swizzle! I knew I could gurgle a solution. Thanks to:
-#  https://askubuntu.com/questions/641683/how-can-i-send-commands-to-specific-terminal-windows
-#
-# This is the original copy:
+# File: termdo
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Original Author: Jacob Vlijm [via https://askubuntu.com/questions/641683]
+# Last Modified: 2016.05.04
+# Project Page: https://github.com/landonb/home_fries
+# License: GPLv3
 
-import subprocess
+# PREREQUISITES: sudo apt-get install wmctrl xdotool
+
+# USAGE:
+#  Open three terminals:
+#   termdo -set 3
+#  Run command in 2d of those 3 terminals:
+#   target_term -run 2 echo "Monkey"
+
 import os
 import sys
+
+import subprocess
 import time
-#--- set your terminal below
-application = "gnome-terminal"
-#---
+
+import dubspy_util
+
+# Get name of terminal app, e.g., "gnome-terminal", "mate-terminal", etc.
+application = dubspy_util.Term_Util.get_emulator_app_name()
+assert(application)
 
 option = sys.argv[1]
-data = os.environ["HOME"]+"/.term_list"
+data = os.environ['HOME'] + '/.term_list'
 
 def current_windows():
-    w_list = subprocess.check_output(["wmctrl", "-lp"]).decode("utf-8")
+    w_list = subprocess.check_output(['wmctrl', '-lp']).decode('utf-8')
     w_lines = [l for l in w_list.splitlines()]
     try:
-        pid = subprocess.check_output(["pidof", application]).decode("utf-8").strip()
+        pid = subprocess.check_output(['pidof', application]).decode('utf-8').strip()
         return [l for l in w_lines if str(pid) in l]
     except subprocess.CalledProcessError:
         return []
@@ -39,17 +55,17 @@ def arr_windows(n):
     return called
 
 def run_intterm(w, command):
-    subprocess.call(["xdotool", "windowfocus", "--sync", w])
-    subprocess.call(["xdotool", "type", command+"\n"]) 
+    subprocess.call(['xdotool', 'windowfocus', '--sync', w])
+    subprocess.call(['xdotool', 'type', command + '\n']) 
 
-if option == "-set":
-    open(data, "w").write("")
+if option == '-set':
+    open(data, 'w').write('')
     n = int(sys.argv[2])
     new = arr_windows(n)
     for w in new:
-        open(data, "a").write(w+"\n")
-elif option == "-run":
+        open(data, 'a').write(w + '\n')
+elif option == '-run':
     t_term = open(data).read().splitlines()[int(sys.argv[2])-1]
-    command = (" ").join(sys.argv[3:])
+    command = (' ').join(sys.argv[3:])
     run_intterm(t_term, command)
 

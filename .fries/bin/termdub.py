@@ -567,6 +567,7 @@ class Termdub(object):
       # source our bash startup scripts.
       os.chdir(os.getenv('HOME'))
 
+      # Get name of terminal app, e.g., "gnome-terminal", "mate-terminal", etc.
       the_terminal = dubspy_util.Term_Util.get_emulator_app_name()
       assert(the_terminal)
 
