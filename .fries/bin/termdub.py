@@ -3,7 +3,7 @@
 
 # File: termdub.py
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.08.11
+# Last Modified: 2016.05.04
 # Project Page: https://github.com/landonb/home_fries
 # License: GPLv3
 
@@ -64,6 +64,8 @@ import optparse
 import re
 import subprocess
 import time
+
+import dubspy_util
 
 # env DUBS_TERMNAME="" \
 #  env DUBS_STARTIN="" \
@@ -565,31 +567,8 @@ class Termdub(object):
       # source our bash startup scripts.
       os.chdir(os.getenv('HOME'))
 
-      # The MATE window manager renames its GNOMEy derivatives.
-
-      # 2015.08.07: There used to be a try-except where we'd try without
-      # univeral_newlines and catch TypeError if it failed, and then we'd
-      # try univeral_newlines=True. But it should always be True because
-      # we want a string, not bytes.
-      wind_mgr = subprocess.check_output(
-                  ['/usr/bin/wmctrl', '-m',],
-                  stderr=subprocess.STDOUT,
-                  universal_newlines=True)
-      if re.match(r"^Name: Mutter (Muffin)\n", wind_mgr):
-         # Cinnamon
-         the_terminal = 'gnome-terminal'
-      #elif re.match(r"^Name: Xfwm4\n", wind_mgr):
-      #   # Xfce
-      #   [lb] is not sure this is right...
-      #   the_terminal = 'gnome-terminal'
-      elif (re.match(r"^Name: Marco\n", wind_mgr)
-            or re.match(r"^Name: Metacity \(Marco\)\n", wind_mgr)):
-         # MATE
-         the_terminal = 'mate-terminal'
-      else:
-         print('WARNING: Unknown OS: Is this GNOME or MATE?')
-         #sys.exit(1)
-         the_terminal = 'gnome-terminal'
+      the_terminal = dubspy_util.Term_Util.get_emulator_app_name()
+      assert(the_terminal)
 
       # NOTE: The -e/--command runs a command inside the new terminal, but it's
       #       before bashrc executes, and a Ctrl-C closes the window. So if you
