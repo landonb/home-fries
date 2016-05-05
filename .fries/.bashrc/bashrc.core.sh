@@ -978,6 +978,8 @@ fi
 #########################
 
 # SYNC_ME: See also fcn. of same name in bash_base.sh/bashrc_core.sh.
+# EXPLAIN/FIXME: Why doesn't bash_core.sh just use what's in bash_base.sh
+#                and share like a normal script?
 killsomething () {
   something=$1
   # The $2 is the awk way of saying, second column. I.e., ps aux shows
@@ -1044,6 +1046,110 @@ invoked_from_terminal () {
 
   return $bashed
 }
+
+#########################
+
+# Send commands to all the terminal windows.
+
+# But first,
+#  some xdotool notes...
+#
+# If you don't specify what to search, xdotool adds to stderr,
+#   "Defaulting to search window name, class, and classname"
+# We can search for the app name using --class or --classname.
+#   xdotool search --class "mate-terminal"
+# Translate the window IDs to their terminal titles:
+#   xdotool search --class "mate-terminal" | xargs -d '\n' -n 1 xdotool getwindowname
+# 2016-05-04: Note that the first window in the list is named "Terminal",
+#   but it doesn't correspond to an actual terminal, it doesn't seem.
+#     $ RESPONSE=$(xdotool windowactivate 77594625 2>&1)
+#     $ echo $RESPONSE
+#     XGetWindowProperty[_NET_WM_DESKTOP] failed (code=1)
+#     $ echo $?
+#     0
+#   What's worse is that that window hangs on activate.
+#     $ xdotool search --class mate-terminal -- windowactivate --sync %@ type "echo 'Hello buddy'\n"
+#     XGetWindowProperty[_NET_WM_DESKTOP] failed (code=1)
+#     [hangs...]
+#   Fortunately, like all problems, this one can be solved with bash, by
+#   checking the desktop of the terminal window before sending it keystrokes.
+
+termdo-all () {
+  determine_window_manager
+  THIS_WINDOW_ID=$(xdotool getactivewindow)
+  WINDOW_IDS=$(xdotool search --class "$WM_TERMINAL_APP")
+  for winid in $WINDOW_IDS; do
+    # Don't send the command to this window, at least not yet, since it'll
+    # end up on stdin of this fcn. and won't be honored as a bash command.
+    if [[ $THIS_WINDOW_ID -ne $winid ]]; then
+      # See if this is a legit window or not.
+      DESKTOP_NUM=$(xdotool get_desktop_for_window $winid 2> /dev/null)
+      # For real terminal, the number is 0 or greater;
+      # for the fakey, it's 0, and also xdotool returns 1.
+      if [[ $? -eq 0 ]]; then
+        # This was my first attempt, before realizing the obvious.
+        if false; then
+          xdotool windowactivate --sync $winid
+          sleep .1
+          xdotool type "echo 'Hello buddy'
+#"
+          # Hold on a millisec, otherwise I've seen, e.g., the trailing
+          # character end up in another terminal.
+          sleep .2
+        fi
+        # And then this is the obvious:
+
+        # Oh, wait, the type and key commands take a window argument...
+        xdotool type --window $winid $*
+        # Note that 'type' isn't always good with newlines, so use 'key'.
+        xdotool key --window $winid Return
+      fi
+    fi
+  done
+  # Now we can do what we did to the rest to ourselves.
+  eval $*
+}
+
+# Test:
+if false; then
+  termdo-all "echo Wake up get outta bed
+"
+fi
+
+# SYNC_ME: This is also in excensus-gk12_2/scripts/bashrc_gk12_user.sh
+termdo-reset () {
+  determine_window_manager
+  THIS_WINDOW_ID=$(xdotool getactivewindow)
+  WINDOW_IDS=$(xdotool search --class "$WM_TERMINAL_APP")
+  for winid in $WINDOW_IDS; do
+    if [[ $THIS_WINDOW_ID -ne $winid ]]; then
+      DESKTOP_NUM=$(xdotool get_desktop_for_window $winid 2> /dev/null)
+      if [[ $? -eq 0 ]]; then
+        # Note that the terminal from whence this command is being run
+        # will get the keystrokes -- but since the command is running,
+        # the keystrokes sit on stdin and are ignored. Then along comes
+        # the ctrl-c, killing this fcn., but not until after all the other
+        # terminals also got their fill.
+
+        xdotool key --window $winid ctrl+c
+
+        xdotool type --window $winid "cd $1"
+        # Hrmm. 'Ctrl+c' and 'ctrl+c' are acceptable, but 'return' is not.
+        xdotool key --window $winid Return
+      fi
+    fi
+  done
+  # Now we can act locally after having acted globally.
+  cd $1
+}
+
+termdo-bash-reset () {
+  termdo-all /bin/bash
+}
+
+# FIXME/MAYBE: Add a close-all fcn:
+#               1. Send ctrl-c
+#               2. Send exit one or more times (to exit nested shells)
 
 #########################
 
