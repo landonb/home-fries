@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.04.27
+# Last Modified: 2016.05.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -747,6 +747,8 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       sqlite3
       libsqlite3-dev
       spatialite-bin
+      # Should already be installed:
+      #libspatialite5
 
       unison
 
