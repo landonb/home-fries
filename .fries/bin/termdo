@@ -2,6 +2,10 @@
 # -*- coding: utf-8 -*-
 #        vim: ft=python:ts=4:sw=4:et:nospell
 
+# FIXME: Delete this file.
+#        No sooner did I copy-past from askubuntu to start this file,
+#        then I just added a bash command instead. See: termdo-all.
+
 # File: termdo
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
 # Original Author: Jacob Vlijm [via https://askubuntu.com/questions/641683]
