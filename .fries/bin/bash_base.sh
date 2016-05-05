@@ -2,7 +2,7 @@
 
 # File: bash_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.04.11
+# Last Modified: 2016.05.04
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bash function library.
 # License: GPLv3
@@ -511,6 +511,8 @@ arr2_fcn_iter () {
 # *** Llik gnihtemos.
 
 # SYNC_ME: See also fcn. of same name in bash_base.sh/bashrc_core.sh.
+# EXPLAIN/FIXME: Why doesn't bash_core.sh just use what's in bash_base.sh
+#                and share like a normal script?
 killsomething () {
   something=$1
   ${DUBS_TRACE} && echo "killsomething: $something"
@@ -903,24 +905,29 @@ determine_window_manager () {
   WM_IS_UNKNOWN=false
   if [[ `wmctrl -m | grep -e "^Name: Mutter (Muffin)$"` ]]; then
     WM_IS_CINNAMON=true
+    WM_TERMINAL_APP='gnome-terminal'
   elif [[ `wmctrl -m | grep -e "^Name: Xfwm4$"` ]]; then
     WM_IS_XFCE=true
+    WM_TERMINAL_APP='WHO_CARES'
   elif [[ `wmctrl -m | grep -e "^Name: Metacity (Marco)$"` ]]; then
     # Linux Mint 17.1.
     WM_IS_MATE=true
+    WM_TERMINAL_APP='mate-terminal'
   elif [[ `wmctrl -m | grep -e "^Name: Marco$"` ]]; then
     # Linux Mint 17.
     WM_IS_MATE=true
+    WM_TERMINAL_APP='mate-terminal'
   else
     WM_IS_UNKNOWN=true
     echo
     echo "ERROR: Unknown Window manager."
     exit 1
   fi
-  echo "WM_IS_CINNAMON: $WM_IS_CINNAMON"
-  echo "WM_IS_XFCE: $WM_IS_XFCE"
-  echo "WM_IS_MATE: $WM_IS_MATE"
-  echo "WM_IS_UNKNOWN: $WM_IS_UNKNOWN"
+  #echo "WM_IS_CINNAMON: $WM_IS_CINNAMON"
+  #echo "WM_IS_XFCE: $WM_IS_XFCE"
+  #echo "WM_IS_MATE: $WM_IS_MATE"
+  #echo "WM_IS_UNKNOWN: $WM_IS_UNKNOWN"
+  #echo "WM_TERMINAL_APP: $WM_TERMINAL_APP"
 }
 
 # ============================================================================
