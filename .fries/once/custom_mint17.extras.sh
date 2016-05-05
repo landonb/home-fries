@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.05.02
+# Last Modified: 2016.05.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -1401,9 +1401,75 @@ stage_4_sqlite3 () {
   # Otherwise we might want to get the source.
   # https://www.sqlite.org/2015/sqlite-amalgamation-3081101.zip
 
+  # Here's maybe if you wanted to build from scratch rather than binary-cheat.
+  if false; then
+	  #sudo apt-get install -y libgeos-dev
+    pushd ${OPT_DLOADS} &> /dev/null
+    #RELEASE_YEAR="2015"
+    #SQLITE3_VER="sqlite-autoconf-3080803"
+    RELEASE_YEAR="2016"
+    SQLITE3_VER="sqlite-autoconf-3120200"
+		wget -N https://sqlite.org/${RELEASE_YEAR}/${SQLITE3_VER}.tar.gz
+		tar xzf ${SQLITE3_VER}.tar.gz
+	  cd ${SQLITE3_VER}
+		#source ENV_PATH
+    umask 002
+	  #./configure --enable-dynamic-extensions --prefix=...
+	  ./configure --enable-dynamic-extensions
+		make
+		#make install
+		sudo make install
+    popd &> /dev/null
+  fi
+
   popd &> /dev/null
 
 } # end: stage_4_sqlite3
+
+state_4_mod_spatialite () {
+
+  stage_announcement "stage_4_fcn_template"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+	# NOTE: Skipping `apt-get install -y python-pyspatialite` (not
+	#       available from the Ubuntu 12.04 repository), and skipping
+	#       `pip3 install pyspatialite` (fails on missing libproj-dev, and
+	#       `apt-get install libproj-dev` installs a version too old), but
+	#       that doesn't matter: spatialite is best run as a SQLite extension
+	#       that we can build ourselves, rather than using a shim layer.
+  #
+	# 2016-05-03: Does this no longer work? This used to work. Maybe
+  #             it was on some other Ubuntu flavor and not Linux Mint....
+  #             Anyway, this used to work:
+	#         $ sudo apt-get install -y sqlite3 libsqlite3-dev spatialite-bin libspatialite5
+	#         $ sqlite3
+	#         sqlite> SELECT load_extension("libspatialite.so.5");
+  #             But now I get
+  #         Error: libspatialite.so.5.so: cannot open shared object file: No such file or directory
+
+  # Avoid ./configure complaint: "checking for geos-config... no"
+  sudo apt-get install -y libgeos-dev
+
+	# See: https://www.gaia-gis.it/fossil/libspatialite/index
+  # 2015-09-07: v4.3.0a
+  #LIBSPATIALITE_VERS=libspatialite-4.3.0
+  LIBSPATIALITE_VER=libspatialite-4.3.0a
+  LIBSPATIALITE_PKG=${LIBSPATIALITE_VER}.tar.gz
+  wget -N http://www.gaia-gis.it/gaia-sins/libspatialite-sources/${LIBSPATIALITE_PKG}
+  tar xvf ${LIBSPATIALITE_PKG}
+  cd ${LIBSPATIALITE_VER}
+  # source ENV_PATH...
+  umask 002
+  #./configure --enable-freexl=no --prefix=...
+  ./configure --enable-freexl=no
+  make
+  sudo make install
+
+  popd &> /dev/null
+
+} # end: state_4_mod_spatialite
+
 
 stage_4_opencl () {
 
@@ -2286,6 +2352,9 @@ setup_customize_extras_go () {
   # you're not, but if you weren't and I was looking
   # for you, I'd be distressed.
   stage_4_sqlite3
+
+  # Exoohno.
+  state_4_mod_spatialite
 
   # Dark Table is a sophisticated RAW image editor.
   # Fortunately we can apt it from a third party repo.
