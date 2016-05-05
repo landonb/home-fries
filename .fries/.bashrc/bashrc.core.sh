@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.05.02
+# Last Modified: 2016.05.04
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -165,6 +165,28 @@ fi
 #     cannot open shared object file: No such file or directory
 # Do this before the SSH function, which expects expect.
 export LD_LIBRARY_PATH=/usr/lib/expect5.45:${LD_LIBRARY_PATH}
+
+# SQLITE3 / LD_LIBRARY_PATH / SELECT load_extension()/.load
+
+# 2016-05-03: sqlite3 looks for extensions in the local dir and at
+#             LD_LIBRARY_PATH, but the latter isn't really set up,
+#             e.g., on tribolium, it's "/usr/lib/expect5.45:" and
+#             doesn't include the standard system library directory,
+#             /usr/local/lib.
+#
+# We could set LD_LIBRARY_PATH:
+#
+#   export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
+#
+# but some blogs I saw don't think you should eff with the ell-d path.
+#
+# We can alias sqlite3 instead, which is probably the solution with
+# the least impact:
+#
+alias sqlite3='LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib sqlite3'
+#
+# however, scripts that call sqlite3 (like hamster_briefs) still have the
+# issue. I guess we'll just let them deal...
 
 # Tell psql to use less for large output
 ########################################
