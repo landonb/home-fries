@@ -2,7 +2,7 @@
 
 # File: bash_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.05.04
+# Last Modified: 2016.05.05
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bash function library.
 # License: GPLv3
@@ -36,9 +36,12 @@ if [[ ${0:0:1} != '-' ]]; then
   # a relative script path.
   SCRIPT_DIR=$(dirname $(readlink -f $0))
 else
-  echo "UNEXPECTED: \$0: ${0}"
   # Being sourced. Just hardcode path. <cough> <cough> <hack!>
   # NOTE: This code path currently not exercised.
+  # CORRECTION: 2016-05-05: I added sourcing this file to bashrc, so
+  #             some fcns. can be shared, like determine_window_manager.
+  #             This path should be fine... I think.
+  #echo "UNEXPECTED: \$0: ${0}"
   script_name="bash_base.sh"
   script_relbase="/home/${USER}/.fries/bin"
   SCRIPT_DIR="/home/${USER}/.fries/bin"
@@ -60,13 +63,20 @@ dir_resolve () {
 script_path=$(dir_resolve $script_relbase)
 
 # EXPLAIN: How is dir_resolve (script_path) better than, e.g.,
-script_absbase=`pwd $script_relbase`
+# 2016-05-05: What's up with this? This isn't how pwd works!
+#             pwd ignores the param and just pwds the curdir.
+#             Wrong:
+#               script_absbase=`pwd $script_relbase`
+pushd $script_relbase &> /dev/null
+script_absbase=$(pwd -P)
+popd &> /dev/null
 
 if [[    "$script_path" != "$script_absbase"
       || "$script_path" != "$SCRIPT_DIR" ]]; then
   # You got some 'splain to do.
   echo "WARNING: Unexpected: not all equal:"
   echo "         script_path:     $script_path"
+  echo "         script_relbase:  $script_relbase"
   echo "         script_absbase:  $script_absbase"
   echo "         SCRIPT_DIR:      $SCRIPT_DIR"
 fi
@@ -388,7 +398,9 @@ set +e
 #             and not having editing /etc/hosts,
 #             host -t a ${HOSTNAME} says:
 #               Host ${HOSTNAME} not found: 3(NXDOMAIN)
-
+# 2016.05.05: I don't remember writing that last comment, and it wasn't
+#             that long ago. Anyway, $(host -t a ${HOSTNAME}) still saying
+#             the same thing: not found.
 MACHINE_IP=`host -t a ${HOSTNAME} | awk '{print $4}' | egrep ^[1-9]`
 if [[ $? != 0 ]]; then
   MACHINE_IP=""
@@ -408,6 +420,10 @@ if [[ $? != 0 ]]; then
 fi
 if [[ -z ${MACHINE_IP} ]]; then
   echo -e "\nWARNING: Could not determine the machine's IP address."
+  # 2016.05.05: This path being followed on initial cli_gk12 go, but
+  #             otherwise not just on /bin/bash... so what gives?
+  echo -e "$ host -t a ${HOSTNAME}\n`host -t a ${HOSTNAME}`"
+  echo -e "$ ifconfig eth0\n`ifconfig eth0`"
 fi
 
 if [[ $errexit_was_set == 0 ]]; then
