@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.05.04
+# Last Modified: 2016.05.05
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -11,6 +11,14 @@
 # MAYBE: Cray-cray: None of @ $ ? are mapped in Bash
 #        and are free to be aliased or made into commands.
 #        Can you think of any magical mapping?
+
+#
+#####################
+
+if [[ -f ~/.fries/bin/bash_base.sh ]]; then
+  # 2016.05.05: Cinqo de Mayo. This is cool, right?
+  DEBUG_TRACE=false source ~/.fries/bin/bash_base.sh
+fi
 
 # Vendor paths (see: setup_mint17.sh)
 #####################################
