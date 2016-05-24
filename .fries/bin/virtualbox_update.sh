@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016-05-02
+# Last Modified: 2016-05-20
 #
 # Buggers. Oracle VirtualBox update wrapper.
 
@@ -19,7 +19,7 @@ virtualbox_dubs_update () {
   # Load the release codename, e.g., raring, trusty, wily, etc.
   source /etc/lsb-release
   if [[ $DISTRIB_CODENAME == 'rebecca' ]]; then
-    # Mint 17.X is rebecca is trusty.
+    # Mint 17.X is rebecca is trusty 14.04.
     DISTRIB_CODENAME=trusty
   fi
 
