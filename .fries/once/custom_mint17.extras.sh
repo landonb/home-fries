@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.05.03
+# Last Modified: 2016.05.21
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -2246,6 +2246,22 @@ export PATH" | sudo tee -a /etc/environment
 
 } # end: stage_4_android_studio
 
+stage_4_zoneminder () {
+
+  stage_announcement "stage_4_zoneminder"
+
+  #pushd ${OPT_DLOADS} &> /dev/null
+
+  sudo add-apt-repository -y ppa:iconnor/zoneminder
+  # NOTE: To remove the repository:
+  #  sudo /bin/rm /etc/apt/sources.list.d/iconnor-zoneminder-trusty.list
+
+  sudo apt-get install -y zoneminder
+
+  #popd &> /dev/null
+
+} # end: stage_4_zoneminder
+
 stage_4_fcn_template () {
 
   stage_announcement "stage_4_fcn_template"
@@ -2377,6 +2393,9 @@ setup_customize_extras_go () {
 
   # Yerp!
   stage_4_android_studio
+
+  # Zoinks.
+  stage_4_zoneminder
 
   # FIXME/MAYBE: These commands are stubbed.
   # ========================================
