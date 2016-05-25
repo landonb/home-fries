@@ -2,7 +2,7 @@
 
 # File: bash_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.05.05
+# Last Modified: 2016.05.24
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bash function library.
 # License: GPLv3
@@ -404,10 +404,17 @@ set +e
 MACHINE_IP=`host -t a ${HOSTNAME} | awk '{print $4}' | egrep ^[1-9]`
 if [[ $? != 0 ]]; then
   MACHINE_IP=""
-  IFCFG_DEV=`ifconfig eth0 2> /dev/null`
-  if [[ -z ${IFCFG_DEV} ]]; then
-    # VirtualBox. I'm guessing.
-    IFCFG_DEV=`ifconfig enp0s3 2> /dev/null`
+  ifconfig eth0 | grep "inet addr" &> /dev/null
+  if [[ $? -eq 0 ]]; then
+    IFCFG_DEV=`ifconfig eth0 2> /dev/null`
+  else
+    ifconfig wlan0 | grep "inet addr" &> /dev/null
+    if [[ $? -eq 0 ]]; then
+      IFCFG_DEV=`ifconfig wlan0 2> /dev/null`
+    else
+      # VirtualBox. I'm guessing.
+      IFCFG_DEV=`ifconfig enp0s3 2> /dev/null`
+    fi
   fi
   MACHINE_IP=`echo ${IFCFG_DEV} | grep "inet addr" \
               | sed "s/.*inet addr:([.0-9]+).*/\1/" \
@@ -424,6 +431,7 @@ if [[ -z ${MACHINE_IP} ]]; then
   #             otherwise not just on /bin/bash... so what gives?
   echo -e "$ host -t a ${HOSTNAME}\n`host -t a ${HOSTNAME}`"
   echo -e "$ ifconfig eth0\n`ifconfig eth0`"
+  echo -e "$ ifconfig wlan0\n`ifconfig wlan0`"
 fi
 
 if [[ $errexit_was_set == 0 ]]; then
