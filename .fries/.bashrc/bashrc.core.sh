@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.05.05
+# Last Modified: 2016.07.11
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -259,6 +259,16 @@ set -o notify
 #   *i*) [[ -f /etc/bash_completion ]] && . /etc/bash_completion ;;
 # esac
 
+# 2016-06-28: An article suggested sourcing /etc/bash_completion
+# https://stackoverflow.com/questions/68372/what-is-your-single-most-favorite-command-line-trick-using-bash
+if [ -f /etc/bash_completion ]; then
+  . /etc/bash_completion
+fi
+# Not sure I need it, though. I read the file (/usr/share/bash-completion/bash_completion)
+# and it seems more useful for sysadmins doing typical adminy stuff and less anything I'm
+# missing out on.
+# Anyway, we'll enable it for now and see what happens....................................
+
 # History Options
 #################
 
@@ -435,15 +445,29 @@ alias mv_all='mv_dotglob'
 # This fcn. uses shopt to include dot files.
 # Note: We've aliased `mv` to `/bin/mv -i`, so you'll be asked to
 #       confirm any overwrites, unless you call `mv_all -f` instead.
+#
+# NOTE: You have to escape wildcards so that are not expanded too soon, e.g.,
+#
+#         mv. '*' some/place
+#
 mv_dotglob () {
+  if [[ -z "$1" && -z "$2" ]]; then
+    echo "missing args weirdo"
+  fi
   shopt -s dotglob
+  # or,
+  #  set -f
   if [[ $1 == '-f' ]]; then
     /bin/mv $*
   else
     mv $*
   fi
   shopt -u dotglob
+  # or,
+  #  set +f
 }
+
+alias mv.='mv_dotglob'
 
 # Show resource usage, and default to human readable figures.
 alias df='df -h -T'
@@ -504,6 +528,10 @@ function ag_peek () {
 
 # Does this help?
 alias findi='find . -iname'
+
+# 2016-06-28: Stay in same dir when launching bash.
+# FIXME: Should I make sure just to do this if a gnome/mate terminal?
+alias bash='DUBS_STARTIN=$(dir_resolve $(pwd -P)) /bin/bash'
 
 # Fix rm to be a crude trashcan
 ###############################
@@ -1509,9 +1537,10 @@ umount_guard () {
 
 #########################
 
-# Bash command completion.
+# Bash command completion (for dub's apps).
 
 if [[ -d ${HOME}/.fries/bin/completions ]]; then
+  # 2016-06-28: Currently just ./termdub_completion.
   source ${HOME}/.fries/bin/completions/*
 fi
 
