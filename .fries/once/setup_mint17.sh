@@ -360,7 +360,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
     sudo apt-get -y dist-upgrade
 
     source /etc/lsb-release
-    if [[ $DISTRIB_CODENAME == 'rebecca' ]]; then
+    if [[ $DISTRIB_ID == 'Ubuntu' ]]; then
       # Ubuntu 16.04 LTS xenial
       sudo apt-get install -y dkms build-essential
     else
