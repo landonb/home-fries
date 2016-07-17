@@ -1575,7 +1575,7 @@ setup_mint_17_go () {
     ask_yes_no_default 'N' 999999
     INSTALL_ALL_PACKAGES_ANSWER=$the_choice
   fi
-  if [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
+  if [[ -z ${IS_HEADLESS_MACHINE_ANSWER+x} ]]; then
     echo
     echo "Is this a headless server machine? Skip GUI apps?"
     ask_yes_no_default 'N' 999999
