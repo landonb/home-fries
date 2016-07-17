@@ -1612,10 +1612,13 @@ setup_mint_17_go () {
     IN_VIRTUALBOX_VM=true
   fi
   reset_errexit
+  echo  "XXXXXXXXXXXXXXXXXXXXXXXfsdfsdf"
 
   # Now that wmctrl is installed...
   # Set WM_IS_MATE, etc.
   determine_window_manager
+
+  echo  "XXXXXXXXXXXXXXXXXXXXXXX"
 
   if ! ${IN_VIRTUALBOX_VM}; then
     # 2016.01.14: [lb] installed Linux Mint 17.3 MATE on a laptop and did
