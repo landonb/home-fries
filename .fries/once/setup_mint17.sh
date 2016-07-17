@@ -409,9 +409,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
     # *** Disable screen locking so user can move about the cabin freely.
 
-echo  "1234 XXXXXXXXXXXXXXXXXXXXXXXfsdfsdf"
     determine_window_manager
-echo  "555 6XXXXXXXXXXXXXXXXXXXXXXXfsdfsdf"
 
     if ${WM_IS_MATE} && [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
       # Disable screensaver and lock-out.
@@ -463,6 +461,8 @@ echo  "555 6XXXXXXXXXXXXXXXXXXXXXXXfsdfsdf"
         \
         mysql-server
     fi
+
+    # -- encfs warning (also interactive).
 
     # -- Install postfix (also interactive).
 
@@ -963,9 +963,7 @@ check_build_essential_installed () {
       fi
       reset_errexit
       # Now that wmctrl is installed...
-echo  "XXX567567676XXXXXXXXXXXXXXXXXXXXfsdfsdf"
       determine_window_manager
-echo  "X88888XXXXXXXXXXXXXXXXXXXXXXfsdfsdf"
     fi
   fi
 } # end: check_build_essential_installed
@@ -1073,14 +1071,15 @@ setup_mint_17_stage_3 () {
     echo "Wow, after two or three reboots, you've come back for more"'!'
   fi
   echo
-  echo "Now we're ready to setup some groups and install Bash scripts."
+  #echo "Now we're ready to setup some groups and install Bash scripts."
+  #echo
+  #echo "NOTE: If we mess up your Bash scripts, it could break your"
+  #echo "account so that you cannot logon. So after this script runs,"
+  #echo "be sure to open a new terminal window to test that everything"
+  #echo "works before logging off."
+  echo "Now we're ready to setup some groups and install Vim scripts."
   echo
-  echo "NOTE: If we mess up your Bash scripts, it could break your"
-  echo "account so that you cannot logon. So after this script runs,"
-  echo "be sure to open a new terminal window to test that everything"
-  echo "works before logging off."
-  echo
-  echo "Now, are you ready to let 'er rip?"
+  echo "Are you ready to let 'er rip?"
   # Six digits is max that works for seconds, and 0 is auto-answer,
   # -1 does nothing, so, yeah, MAYBE: ask_yes_no_default with a no-
   # timeout option. Or maybe just call `read` directly.
@@ -1193,7 +1192,8 @@ setup_mint_17_stage_3 () {
     #
     # ANSWER: YES
 
-    if [[ ${INSTALL_ALL_PACKAGES_ANSWER} == "Y" ]]; then
+    if [[ ${INSTALL_ALL_PACKAGES_ANSWER} == "Y" \
+        && ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
       sudo dpkg-reconfigure wireshark-common
       # Add the user to the new group.
       sudo usermod -a -G wireshark ${USER}
@@ -1617,11 +1617,9 @@ setup_mint_17_go () {
   fi
   reset_errexit
 
-echo  "XXXXXXXXXXXXXXXXXXXXXXXfsdfsdf"
   # Now that wmctrl is installed...
   # Set WM_IS_MATE, etc.
   determine_window_manager
-echo  "XXXXXXXXXXXXXXXXXXXXXXX"
 
   if ! ${IN_VIRTUALBOX_VM}; then
     # 2016.01.14: [lb] installed Linux Mint 17.3 MATE on a laptop and did
