@@ -1230,15 +1230,11 @@ setup_mint_17_stage_3 () {
     echo "Installing Dubsacks Vim..."
     ${script_absbase}/vendor_dubsacks.sh
 
-echo "OKAYYYYYYYYYYY"
-
-
     # Finish this stage and logout/reboot.
 
     if ${DO_STAGE_DANCE}; then
       echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
     fi
-echo "1111"
 
     # Fix the VBox mount. After the reboot, the user will
     # have access to the auto-mount, so just symlink it.
@@ -1254,7 +1250,6 @@ echo "1111"
         sudo /bin/ln -s /media/sf_${USE_MOUNTPT} ${DST_MOUNTPT}
       fi
     fi
-echo "2222"
 
     # 2016-03-23: What was this for? Home-fries is installed manually...
     #             hasn't it always? For one, this script is part of
@@ -1305,9 +1300,6 @@ echo "2222"
 
   fi
 
-echo "4455"
-
-
 } # end: setup_mint_17_stage_3
 
 # ------------------------------------------
@@ -1316,6 +1308,8 @@ echo "4455"
 # *** FOURTH BOOT: Configure Window Manager and Compile and Install Apps.
 
 setup_mint_17_stage_4 () {
+
+echo "1111"
 
   if ${DO_STAGE_DANCE}; then
     echo 
@@ -1339,19 +1333,23 @@ setup_mint_17_stage_4 () {
   fi
 
   # *** Make a snapshot of the user's home directory, maybe.
+echo "222"
 
   user_home_conf_dump "${script_absbase}/conf_dump/usr_04"
+echo "333"
 
   # *** Tweak the Window Manager Configuration.
 
   # Disable passwords and require SSH keys.
 
   stage_4_sshd_configure
+echo "444"
 
   # Configure /etc/hosts with the mock domain
   # and any project domain aliases.
 
   stage_4_etc_hosts_setup
+echo "555"
 
   # Customize the distro and window manager.
 
@@ -1360,22 +1358,26 @@ setup_mint_17_stage_4 () {
   if [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
     stage_4_wm_customize_mint
   fi
+echo "666"
 
   # The new hot: MATE on Mint.
   if $WM_IS_MATE; then
     source ${script_absbase}/custom_mint17.mate.sh
   fi
+echo "777"
 
   # Deprecated: Author prefers Mint to Xfce or Cinnamon.
   # Note: There once was a custom_mint16.xcfe.sh but not no more.
   if $WM_IS_CINNAMON; then
     source ${script_absbase}/custom_mint16.cinnamon.sh
   fi
+echo "1111"
 
   # Deprecated: Mint 17 login is different than Mint 16's (MDM).
   if $USE_MINT16_CUSTOM_LOGIN; then
     source ${script_absbase}/custom_mint16.retros_bg.sh
   fi
+echo "1111"
 
   # Setup git, mercurial, meld, postgres, apache, quicktile, pidgin,
   # adobe reader, dropbox, expect, rssowl, cloc, todo.txt, ti, utt, etc.
@@ -1386,6 +1388,7 @@ setup_mint_17_stage_4 () {
     setup_customize_extras_go
   # else, this is a keypass/lite machine; don't do anyextras.
   fi
+echo "1111"
 
   # Install "vendor" add-ons, or your personal projects.
 
@@ -1636,7 +1639,6 @@ setup_mint_17_go () {
     # SKIPPING: Stage 2, which install VBox additions.
     # Setup usergroups and the user's home directory.
     setup_mint_17_stage_3
-echo "666"
     # Download, compile, and configure lots of software.
     setup_mint_17_stage_4
   else
