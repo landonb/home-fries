@@ -932,32 +932,35 @@ determine_window_manager () {
   errexit_was_set=$?
   set +e
   WIN_MGR_INFO=`wmctrl -m`
+  if [[ $? -ne 0 ]]; then
+    # E.g., if you're ssh'ed into a server, returns 1 and "Cannot open display."
+    WM_IS_UNKNOWN=true
+  fi
   if [[ $errexit_was_set == 0 ]]; then
     set -e
   fi
 
-  if [[ $? -ne 0 ]]; then
-    # E.g., if you're ssh'ed into a server, returns 1 and "Cannot open display."
-    WM_IS_UNKNOWN=true
-  elif [[ `wmctrl -m | grep -e "^Name: Mutter (Muffin)$"` ]]; then
-    WM_IS_CINNAMON=true
-    WM_TERMINAL_APP='gnome-terminal'
-  elif [[ `wmctrl -m | grep -e "^Name: Xfwm4$"` ]]; then
-    WM_IS_XFCE=true
-    WM_TERMINAL_APP='WHO_CARES'
-  elif [[ `wmctrl -m | grep -e "^Name: Metacity (Marco)$"` ]]; then
-    # Linux Mint 17.1.
-    WM_IS_MATE=true
-    WM_TERMINAL_APP='mate-terminal'
-  elif [[ `wmctrl -m | grep -e "^Name: Marco$"` ]]; then
-    # Linux Mint 17.
-    WM_IS_MATE=true
-    WM_TERMINAL_APP='mate-terminal'
-  else
-    WM_IS_UNKNOWN=true
-    echo
-    echo "ERROR: Unknown Window manager."
-    exit 1
+  if !${WM_IS_UNKNOWN}; then
+    if [[ `wmctrl -m | grep -e "^Name: Mutter (Muffin)$"` ]]; then
+      WM_IS_CINNAMON=true
+      WM_TERMINAL_APP='gnome-terminal'
+    elif [[ `wmctrl -m | grep -e "^Name: Xfwm4$"` ]]; then
+      WM_IS_XFCE=true
+      WM_TERMINAL_APP='WHO_CARES'
+    elif [[ `wmctrl -m | grep -e "^Name: Metacity (Marco)$"` ]]; then
+      # Linux Mint 17.1.
+      WM_IS_MATE=true
+      WM_TERMINAL_APP='mate-terminal'
+    elif [[ `wmctrl -m | grep -e "^Name: Marco$"` ]]; then
+      # Linux Mint 17.
+      WM_IS_MATE=true
+      WM_TERMINAL_APP='mate-terminal'
+    else
+      WM_IS_UNKNOWN=true
+      echo
+      echo "ERROR: Unknown Window manager."
+      exit 1
+    fi
   fi
   #echo "WM_IS_CINNAMON: $WM_IS_CINNAMON"
   #echo "WM_IS_XFCE: $WM_IS_XFCE"
