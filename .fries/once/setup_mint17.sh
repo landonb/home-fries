@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.06.27
+# Last Modified: 2016.07.17
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -185,7 +185,7 @@ MAKE_CONF_DUMPS=false
 
 user_home_conf_dump() {
 
-  if $MAKE_CONF_DUMPS; then
+  if ${MAKE_CONF_DUMPS} && [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
 
     RELAT=$1
 
@@ -284,18 +284,22 @@ setup_mint_17_stage_1 () {
 
   else
 
-    # *** Make a snapshot of the user's home directory.
+    if [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
 
-    #sudo apt-get install dconf-tools
-    sudo apt-get install -y dconf-cli
-    user_home_conf_dump "${script_absbase}/conf_dump/new_01"
+      # *** Make a snapshot of the user's home directory.
 
-    # *** Install wmctrl so we can determine the window manager.
+      #sudo apt-get install dconf-tools
+      sudo apt-get install -y dconf-cli
+      user_home_conf_dump "${script_absbase}/conf_dump/new_01"
 
-    sudo apt-get install -y wmctrl
-    # NOTE: In Mint MATE, calling gsettings now (before update/upgrade)
-    #       doesn't seem to stick. So we'll wait 'til a little later in
-    #       this function to call determine_window_manager and gsettings.
+      # *** Install wmctrl so we can determine the window manager.
+
+      sudo apt-get install -y wmctrl
+      # NOTE: In Mint MATE, calling gsettings now (before update/upgrade)
+      #       doesn't seem to stick. So we'll wait 'til a little later in
+      #       this function to call determine_window_manager and gsettings.
+
+    fi
 
     # Are we in a virtual machine?
     sudo apt-get install -y virt-what
@@ -401,7 +405,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
     determine_window_manager
 
-    if $WM_IS_MATE; then
+    if ${WM_IS_MATE} && [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
       # Disable screensaver and lock-out.
       # gsettings doesn't seem to stick 'til now.
       #?: sudo gsettings set org.mate.screensaver lock-enabled false
@@ -488,12 +492,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       dkms
       build-essential
 
-      # CLI OS and Window Manager customizers.
-      dconf-cli
-      gconf-editor
-      wmctrl
-      xdotool
-
       # Vim (See later: Dubsacks Vim.)
       vim-gtk
       # Text columnizer.
@@ -502,19 +500,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       exuberant-ctags
       # Ruby dev tools for Command-T.
       ruby-dev
-
-      # Awesomest graphical diff.
-      meld
-
-      # Eye of Gnome, a slideshow image viewer.
-      eog
-
-      # Hexadecimal file viewer.
-      ghex
-
-      # Hexadecimal diff.
-      vbindiff
-      #hexdiff
 
       # `most` is pretty lame; author prefers `less`.
       #most
@@ -563,6 +548,29 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
     ) # end: CORE_PACKAGE_LIST
 
+    local CORE_DESKTOP_LIST=(
+
+      # CLI OS and Window Manager customizers.
+      dconf-cli
+      gconf-editor
+      wmctrl
+      xdotool
+
+      # Awesomest graphical diff.
+      meld
+
+      # Eye of Gnome, a slideshow image viewer.
+      eog
+
+      # Hexadecimal file viewer.
+      ghex
+
+      # Hexadecimal diff.
+      vbindiff
+      #hexdiff
+
+    ) # end: CORE_DESKTOP_LIST
+
     local BIG_PACKAGE_LIST=(
 
       logcheck
@@ -572,29 +580,11 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
       socket
 
-      # Excellent diagramming.
-      dia
-
-      # SVG editor.
-      inkscape
-
-      # Pencil Project is a prototyping tool that
-      # also support dia-ish diagram drawing.
-      #  http://pencil.evolus.vn
-      # But wait! The pencil package in Ubuntu is a different app.
-      #  No: pencil
-      #  See: stage_4_pencil_install
-
       # Addition, non-core repo tools.
       subversion
       mercurial
       # A beautiful, colorful git browser/helper.
       tig
-
-      # Well, when I was your age, we called it Ethereal.
-      wireshark
-      # Woozuh, some funky root-faking mechanism Wireshark uses.
-      fakeroot
 
       apache2
       apache2-dev
@@ -699,8 +689,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       # 2016-03-23: What uses this? You, from the command line?
       artha
 
-      thunderbird
-
       fabric
       # Know ye also there is a get-pip.py installer, too.
       python-pip
@@ -708,22 +696,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       python3-sphinx
 
       curl
-
-      # PDF/Document readers.
-      # 2015.02.26: [lb] cannot get okular to open any PDFs...
-      #             and all menu items but one are disabled,
-      #             and choosing it crashes okular.
-      #okular
-      # 2015.02.26: One PDF I opened with acroread does not
-      #             use the correct fonts... maybe because
-      #             the version is so old (and acroread is
-      #             no longer maintained). And, though I
-      #             thought evince was installed by default,
-      #             it appears not.
-      #             Ug. use libreoffice to print PDFs.
-      evince
-
-      akregator
 
       # Node.js package manager.
       npm
@@ -760,6 +732,61 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       gdal-bin
       gpx2shp
 
+      streamripper
+
+      # Maybe some day...
+      zsh
+
+      # For getting at automated emails sent by daemons.
+      #mail
+      #mutt
+      ##mutt-patched
+      #alpine
+      # You can also just do:
+      #  sudo cat /var/spool/mail/root
+      #  sudo tail -n 1000 /var/spool/mail/root
+      #  sudo grep "cron" /var/spool/mail/root
+
+    ) # end: BIG_PACKAGE_LIST
+
+    local BIG_DESKTOP_LIST=(
+
+      # Excellent diagramming.
+      dia
+
+      # SVG editor.
+      inkscape
+
+      # Pencil Project is a prototyping tool that
+      # also support dia-ish diagram drawing.
+      #  http://pencil.evolus.vn
+      # But wait! The pencil package in Ubuntu is a different app.
+      #  No: pencil
+      #  See: stage_4_pencil_install
+
+      # Well, when I was your age, we called it Ethereal.
+      wireshark
+      # Woozuh, some funky root-faking mechanism Wireshark uses.
+      fakeroot
+
+      thunderbird
+
+      # PDF/Document readers.
+      # 2015.02.26: [lb] cannot get okular to open any PDFs...
+      #             and all menu items but one are disabled,
+      #             and choosing it crashes okular.
+      #okular
+      # 2015.02.26: One PDF I opened with acroread does not
+      #             use the correct fonts... maybe because
+      #             the version is so old (and acroread is
+      #             no longer maintained). And, though I
+      #             thought evince was installed by default,
+      #             it appears not.
+      #             Ug. use libreoffice to print PDFs.
+      evince
+
+      akregator
+
       chromium-browser
 
       # Symbola font for emojis.
@@ -773,8 +800,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       ttf-sjfonts
       tv-fonts
       #ubuntustudio-font-meta
-
-      streamripper
 
       # Ok, the distro version lags and has bugs. We will build later from source.
       #digikam
@@ -793,19 +818,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       hamster-applet
       hamster-indicator
 
-      # Maybe some day...
-      zsh
-
-      # For getting at automated emails sent by daemons.
-      #mail
-      #mutt
-      ##mutt-patched
-      #alpine
-      # You can also just do:
-      #  sudo cat /var/spool/mail/root
-      #  sudo tail -n 1000 /var/spool/mail/root
-      #  sudo grep "cron" /var/spool/mail/root
-
       # DVD burning software.
       # Already installed.
       #brasero
@@ -813,7 +825,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       # wxPython. Widgets! [usually probably already installed]
       python-wxgtk2.8
 
-    ) # end: BIG_PACKAGE_LIST
+    ) # end: BIG_DESKTOP_LIST
 
     local BIG_PACKAGE_LIST_LMINT_17X=(
 
@@ -892,11 +904,18 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
     # One Giant MASSIVE package install.
 
     sudo apt-get install -y ${CORE_PACKAGE_LIST[@]}
-    if [[ ${IS_DEV_MACHINE_ANSWER} == "Y" ]]; then
-      sudo apt-get install -y ${BIG_PACKAGE_LIST[@]}
+    if [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
+      sudo apt-get install -y ${CORE_DESKTOP_LIST[@]}
     fi
 
-    if [[ ${IS_DEV_MACHINE_ANSWER} == "Y" ]]; then
+    if [[ ${INSTALL_ALL_PACKAGES_ANSWER} == "Y" ]]; then
+      sudo apt-get install -y ${BIG_PACKAGE_LIST[@]}
+      if [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
+        sudo apt-get install -y ${BIG_DESKTOP_LIST[@]}
+      fi
+    fi
+
+    if [[ ${INSTALL_ALL_PACKAGES_ANSWER} == "Y" ]]; then
       sudo apt-get install -y apt-file
       sudo apt-file update
     fi
@@ -1164,7 +1183,7 @@ setup_mint_17_stage_3 () {
     #
     # ANSWER: YES
 
-    if [[ ${IS_DEV_MACHINE_ANSWER} == "Y" ]]; then
+    if [[ ${INSTALL_ALL_PACKAGES_ANSWER} == "Y" ]]; then
       sudo dpkg-reconfigure wireshark-common
       # Add the user to the new group.
       sudo usermod -a -G wireshark ${USER}
@@ -1318,7 +1337,11 @@ setup_mint_17_stage_4 () {
 
   # Customize the distro and window manager.
 
-  stage_4_wm_customize_mint
+  # FIXME: Should check we're actually installing on Mint first...
+  #if ${WM_IS_MATE} && [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
+  if [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
+    stage_4_wm_customize_mint
+  fi
 
   # The new hot: MATE on Mint.
   if $WM_IS_MATE; then
@@ -1338,7 +1361,7 @@ setup_mint_17_stage_4 () {
 
   # Setup git, mercurial, meld, postgres, apache, quicktile, pidgin,
   # adobe reader, dropbox, expect, rssowl, cloc, todo.txt, ti, utt, etc.
-  if [[ ${IS_DEV_MACHINE_ANSWER} == "Y" ]]; then
+  if [[ ${INSTALL_ALL_PACKAGES_ANSWER} == "Y" ]]; then
     echo
     echo "Installing Extras..."
     source ${script_absbase}/custom_mint17.extras.sh
@@ -1546,11 +1569,17 @@ setup_mint_17_go () {
   SETUP_DO_REBOOT=false
   SETUP_DO_LOGOUT=false
 
-  if [[ -z ${IS_DEV_MACHINE_ANSWER+x} ]]; then
+  if [[ -z ${INSTALL_ALL_PACKAGES_ANSWER+x} ]]; then
     echo
     echo "Is this a dev machine? Do you want all the packages?"
     ask_yes_no_default 'N' 999999
-    IS_DEV_MACHINE_ANSWER=$the_choice
+    INSTALL_ALL_PACKAGES_ANSWER=$the_choice
+  fi
+  if [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
+    echo
+    echo "Is this a headless server machine? Skip GUI apps?"
+    ask_yes_no_default 'N' 999999
+    IS_HEADLESS_MACHINE_ANSWER=$the_choice
   fi
 
   if [[ !${DO_EXTRA_UNNECESSARY_VBOX_STUFF} || ${stage_num} -eq 1 ]]; then
