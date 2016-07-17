@@ -1333,20 +1333,17 @@ setup_mint_17_stage_4 () {
   # *** Make a snapshot of the user's home directory, maybe.
 
   user_home_conf_dump "${script_absbase}/conf_dump/usr_04"
-echo "333"
 
   # *** Tweak the Window Manager Configuration.
 
   # Disable passwords and require SSH keys.
 
   stage_4_sshd_configure
-echo "444"
 
   # Configure /etc/hosts with the mock domain
   # and any project domain aliases.
 
   stage_4_etc_hosts_setup
-echo "555"
 
   # Customize the distro and window manager.
 
@@ -1355,26 +1352,22 @@ echo "555"
   if [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
     stage_4_wm_customize_mint
   fi
-echo "666"
 
   # The new hot: MATE on Mint.
   if $WM_IS_MATE; then
     source ${script_absbase}/custom_mint17.mate.sh
   fi
-echo "777"
 
   # Deprecated: Author prefers Mint to Xfce or Cinnamon.
   # Note: There once was a custom_mint16.xcfe.sh but not no more.
   if $WM_IS_CINNAMON; then
     source ${script_absbase}/custom_mint16.cinnamon.sh
   fi
-echo "1111"
 
   # Deprecated: Mint 17 login is different than Mint 16's (MDM).
   if $USE_MINT16_CUSTOM_LOGIN; then
     source ${script_absbase}/custom_mint16.retros_bg.sh
   fi
-echo "1111"
 
   # Setup git, mercurial, meld, postgres, apache, quicktile, pidgin,
   # adobe reader, dropbox, expect, rssowl, cloc, todo.txt, ti, utt, etc.
@@ -1382,10 +1375,23 @@ echo "1111"
     echo
     echo "Installing Extras..."
     source ${script_absbase}/custom_mint17.extras.sh
-    setup_customize_extras_go
+    if [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
+      setup_customize_extras_go
+    else
+      :
+      #setup_customize_extras_go
+      stage_4_psql_configure
+      stage_4_apache_configure
+      stage_4_cloc_install
+      stage_4_all_the_young_pips
+      stage_4_sqlite3
+      stage_4_python_35
+      stage_4_updatedb_locate_conf
+      stage_4_disable_services
+      stage_4_dev_testing_expect_install
+    fi
   # else, this is a keypass/lite machine; don't do anyextras.
   fi
-echo "1111"
 
   # Install "vendor" add-ons, or your personal projects.
 
