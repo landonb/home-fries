@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.05.21
+# Last Modified: 2016.07.17
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -1428,7 +1428,7 @@ stage_4_sqlite3 () {
 
 state_4_mod_spatialite () {
 
-  stage_announcement "stage_4_fcn_template"
+  stage_announcement "state_4_mod_spatialite"
 
   pushd ${OPT_DLOADS} &> /dev/null
 
@@ -2262,6 +2262,109 @@ stage_4_zoneminder () {
 
 } # end: stage_4_zoneminder
 
+stage_4_google_drive_drive () {
+
+  stage_announcement "stage_4_google_drive_drive"
+
+  # https://github.com/odeke-em/drive
+
+  # http://www.howtogeek.com/196635/
+  #  an-official-google-drive-for-linux-is-here-sort-of-maybe-this-is-all-well-ever-get/
+
+  # Skip:
+  #  sudo apt-get install golang
+  # you'll want to install manually instead (repo version is 1.2.1).
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  git clone https://github.com/odeke-em/drive
+
+  # FIRST ATTEMPT
+  #
+  # $ go get -u github.com/odeke-em/drive/cmd/drive
+  # package github.com/odeke-em/drive/cmd/drive: cannot download, $GOPATH not set.
+  #  For more details see: go help gopath
+  # Add to bashrc:
+  #  export GOPATH=${HOME}/.gopath
+  #  export PATH=${PATH}:${GOPATH}:${GOPATH}/bin
+
+  # SECOND ATTEMPT
+  #
+  # $ go get -u github.com/odeke-em/drive/cmd/drive
+  # # golang.org/x/sys/unix
+  # src/golang.org/x/sys/unix/syscall_solaris.go:38: clen redeclared in this block
+  #   previous declaration at src/golang.org/x/sys/unix/syscall_linux.go:817
+  # src/golang.org/x/sys/unix/syscall_solaris.go:51: ParseDirent redeclared in this block
+  #   previous declaration at src/golang.org/x/sys/unix/syscall_linux.go:830
+  # src/golang.org/x/sys/unix/syscall_solaris.go:77: Pipe redeclared in this block
+  #   previous declaration at src/golang.org/x/sys/unix/syscall_linux_amd64.go:110
+  # src/golang.org/x/sys/unix/syscall_solaris.go:89: (*SockaddrInet4).sockaddr redeclared in this block
+  #   previous declaration at src/golang.org/x/sys/unix/syscall_linux.go:311
+  # src/golang.org/x/sys/unix/syscall_solaris.go:103: (*SockaddrInet6).sockaddr redeclared in this block
+  #   previous declaration at src/golang.org/x/sys/unix/syscall_linux.go:325
+  # src/golang.org/x/sys/unix/syscall_solaris.go:118: (*SockaddrUnix).sockaddr redeclared in this block
+  #   previous declaration at src/golang.org/x/sys/unix/syscall_linux.go:340
+  # src/golang.org/x/sys/unix/syscall_solaris.go:144: Getsockname redeclared in this block
+  #   previous declaration at src/golang.org/x/sys/unix/syscall_linux.go:525
+  # src/golang.org/x/sys/unix/syscall_solaris.go:153: ImplementsGetwd redeclared in this block
+  #   previous declaration at src/golang.org/x/sys/unix/syscall_linux.go:184
+  # src/golang.org/x/sys/unix/syscall_solaris.go:157: Getwd redeclared in this block
+  #   previous declaration at src/golang.org/x/sys/unix/syscall_linux.go:188
+  # src/golang.org/x/sys/unix/syscall_solaris.go:178: Getgroups redeclared in this block
+  #   previous declaration at src/golang.org/x/sys/unix/syscall_linux.go:201
+  # src/golang.org/x/sys/unix/syscall_solaris.go:178: too many errors
+  # # golang.org/x/net/context/ctxhttp
+  # src/golang.org/x/net/context/ctxhttp/ctxhttp_pre17.go:36: req.Cancel undefined
+  #  (type *http.Request has no field or method Cancel)
+
+  # $ go version
+  # go version go1.2.1 linux/amd64
+  wget -N https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz
+  # Add to bashrc:
+  #  export PATH=$PATH:/usr/local/go/bin
+  sudo tar -C /usr/local -xzf go1.6.2.linux-amd64.tar.gz
+
+  # THIRD ATTEMPT
+  #
+  # CAUTION: This command runs silently for a minute or two. Be patient.
+  go get -u github.com/odeke-em/drive/cmd/drive
+
+  # SWEET! Finally. Installed.
+
+  #mkdir /jus/bkups/bkup-lnb-google.drive
+  drive init /jus/bkups/bkup-lnb-google.drive
+
+  # Visit this URL to get an authorization code
+  # https://accounts.google.com/o/oauth2/auth?...
+  # Paste the authorization code: ...
+
+  # If I ever cared to de-init (perhaps after syncing on laptop, say):
+  #  drive deinit [--no-prompt]
+
+  # For all the gory:
+  #  https://github.com/odeke-em/drive#usage
+
+  __interesting_commands_="
+
+  cd /jus/bkups/bkup-lnb-google.drive
+
+  drive list
+
+  drive quota
+
+  drive pull
+  #drive push
+
+  drive pull -fix-clashes
+  drive pull
+
+  drive trash|untrash|emptytrash|delete
+  "
+
+  popd &> /dev/null
+
+} # end: stage_4_google_drive_drive
+
 stage_4_fcn_template () {
 
   stage_announcement "stage_4_fcn_template"
@@ -2396,6 +2499,11 @@ setup_customize_extras_go () {
 
   # Zoinks.
   stage_4_zoneminder
+
+  # Ballickwad.
+  stage_4_google_drive_drive
+
+  # Add before this'n: stage_4_fcn_template.
 
   # FIXME/MAYBE: These commands are stubbed.
   # ========================================
