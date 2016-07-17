@@ -1168,6 +1168,7 @@ setup_mint_17_stage_3 () {
     if [[ -n ${USE_STAFF_GROUP_ASSOCIATION} ]]; then
       sudo groupadd ${USE_STAFF_GROUP_ASSOCIATION}
       sudo usermod -a -G ${USE_STAFF_GROUP_ASSOCIATION} $USER
+      # NOTE: logout/login required to pick this up...
     fi
 
     # Always associate current user group with postgres and web server.
@@ -1416,6 +1417,19 @@ setup_mint_17_stage_4 () {
   # Deprecated: Mint 17 login is different than Mint 16's (MDM).
   if $USE_MINT16_CUSTOM_LOGIN; then
     source ${script_absbase}/custom_mint16.retros_bg.sh
+  fi
+
+  # Amazingly, you should be able to get this far before the unrealized
+  #  sudo usermod -a -G staff
+  # makes it necessary for you to logoff and log back on.
+  groups | grep staff > /dev/null
+  if [[ $? -ne 0 ]]; then
+    echo
+    echo "STOPPING EARLY: Cannot run extras script until you realize new group associations."
+    echo
+    echo "logoff and log back on and then we'll talk again."
+    echo
+    exit 1
   fi
 
   # Setup git, mercurial, meld, postgres, apache, quicktile, pidgin,
