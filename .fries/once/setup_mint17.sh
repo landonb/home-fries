@@ -943,6 +943,11 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
     ) # end: BIG_PACKAGE_LIST_UBUNTU_16X
 
+    # 2016-07-17: Cyclopath Resuscitation. Why didn't a failed apt-get
+    # cause this script to die? I can't figure out where the errexit
+    # got taken away, but it did!
+    reset_errexit
+
     # One core package, and maybe
     # One Giant MASSIVE package install.
 
