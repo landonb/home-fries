@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.07.11
+# Last Modified: 2016.07.17
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -88,6 +88,19 @@ fi
 #   This is most likely caused by the lack of administrative privileges associated with your user account.
 #   ifconfig: command not found
 PATH="${PATH}:/sbin"
+
+# 2016-07-11: Google Go, for Google Drive `drive`.
+#
+# The latest go binary.
+if [[ -d /usr/local/go/bin ]]; then
+  PATH=/usr/local/go/bin:${PATH}
+fi
+if [[ -d ${HOME}/.gopath ]]; then
+  # Local go projects you install.
+  export GOPATH=${HOME}/.gopath
+  #PATH=${GOPATH}:${GOPATH}/bin:${PATH}
+  PATH=${GOPATH}:${GOPATH}/bin:${PATH}
+fi
 
 export PATH
 
