@@ -928,19 +928,24 @@ determine_window_manager () {
   WM_IS_MATE=false # Pronouced, mah-tay!
   WM_IS_UNKNOWN=false
 
+echo "1111"
   test_opts=`echo $SHELLOPTS | grep errexit` >/dev/null 2>&1
   errexit_was_set=$?
   set +e
+echo "2222"
   WIN_MGR_INFO=`wmctrl -m >/dev/null 2>&1`
   if [[ $? -ne 0 ]]; then
     # E.g., if you're ssh'ed into a server, returns 1 and "Cannot open display."
     WM_IS_UNKNOWN=true
   fi
+echo "444"
   if [[ $errexit_was_set == 0 ]]; then
     set -e
   fi
+echo "5555"
 
   if ! ${WM_IS_UNKNOWN}; then
+echo "666"
     if [[ `wmctrl -m | grep -e "^Name: Mutter (Muffin)$"` ]]; then
       WM_IS_CINNAMON=true
       WM_TERMINAL_APP='gnome-terminal'
@@ -967,6 +972,7 @@ determine_window_manager () {
   #echo "WM_IS_MATE: $WM_IS_MATE"
   #echo "WM_IS_UNKNOWN: $WM_IS_UNKNOWN"
   #echo "WM_TERMINAL_APP: $WM_TERMINAL_APP"
+echo "777"
 }
 
 # ============================================================================
