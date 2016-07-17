@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.03.24
+# Last Modified: 2016.07.17
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -50,8 +50,13 @@ source ../bin/bash_base.sh
 # it'll just mask anything of the real name out there in the net).
 # Note: In the m4 templates, USE_DOMAIN is MACH_DOMAIN.
 #USE_DOMAIN="localhost"
-# FIXME: Prompt for the domain if not specified in config wrapper.
-USE_DOMAIN="home.fries"
+# FIXME: Prompt for the domain if not specified in config wrapper?
+#        Or can we just use hostname's response?
+#        What is hostname's response on a fresh install?
+USE_DOMAIN=$(hostname --domain)
+if [[ -z ${USE_DOMAIN+x} ]]; then
+  USE_DOMAIN="home.fries"
+fi
 
 # If you're dual-booted or if you've configured a VirtualBox Shared Folder,
 # you can set the device name here and the script will mount it for you.
