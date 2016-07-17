@@ -409,7 +409,9 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
     # *** Disable screen locking so user can move about the cabin freely.
 
+echo  "1234 XXXXXXXXXXXXXXXXXXXXXXXfsdfsdf"
     determine_window_manager
+echo  "555 6XXXXXXXXXXXXXXXXXXXXXXXfsdfsdf"
 
     if ${WM_IS_MATE} && [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
       # Disable screensaver and lock-out.
@@ -961,7 +963,9 @@ check_build_essential_installed () {
       fi
       reset_errexit
       # Now that wmctrl is installed...
+echo  "XXX567567676XXXXXXXXXXXXXXXXXXXXfsdfsdf"
       determine_window_manager
+echo  "X88888XXXXXXXXXXXXXXXXXXXXXXfsdfsdf"
     fi
   fi
 } # end: check_build_essential_installed
@@ -1612,13 +1616,12 @@ setup_mint_17_go () {
     IN_VIRTUALBOX_VM=true
   fi
   reset_errexit
-  echo  "XXXXXXXXXXXXXXXXXXXXXXXfsdfsdf"
 
+echo  "XXXXXXXXXXXXXXXXXXXXXXXfsdfsdf"
   # Now that wmctrl is installed...
   # Set WM_IS_MATE, etc.
   determine_window_manager
-
-  echo  "XXXXXXXXXXXXXXXXXXXXXXX"
+echo  "XXXXXXXXXXXXXXXXXXXXXXX"
 
   if ! ${IN_VIRTUALBOX_VM}; then
     # 2016.01.14: [lb] installed Linux Mint 17.3 MATE on a laptop and did
