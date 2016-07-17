@@ -359,7 +359,13 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
     # Update distribution packages.
     sudo apt-get -y dist-upgrade
 
-    sudo apt-get -y dkms build-essentials
+    source /etc/lsb-release
+    if [[ $DISTRIB_CODENAME == 'rebecca' ]]; then
+      # Ubuntu 16.04 LTS xenial
+      sudo apt-get install -y dkms build-essential
+    else
+      sudo apt-get install -y dkms build-essentials
+    fi
     # 2016-04-04: I don't think you need to reboot here... do you??
     #             There was a comment here earlier that a reboot was
     #             necessary, but I lost track installing Ubuntu MATE 15.10
