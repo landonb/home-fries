@@ -931,7 +931,7 @@ determine_window_manager () {
   test_opts=`echo $SHELLOPTS | grep errexit` >/dev/null 2>&1
   errexit_was_set=$?
   set +e
-  WIN_MGR_INFO=`wmctrl -m`
+  WIN_MGR_INFO=`wmctrl -m >/dev/null 2>&1`
   if [[ $? -ne 0 ]]; then
     # E.g., if you're ssh'ed into a server, returns 1 and "Cannot open display."
     WM_IS_UNKNOWN=true
