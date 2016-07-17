@@ -2,7 +2,7 @@
 
 # File: bash_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.05.24
+# Last Modified: 2016.07.17
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bash function library.
 # License: GPLv3
@@ -927,7 +927,11 @@ determine_window_manager () {
   WM_IS_XFCE=false
   WM_IS_MATE=false # Pronouced, mah-tay!
   WM_IS_UNKNOWN=false
-  if [[ `wmctrl -m | grep -e "^Name: Mutter (Muffin)$"` ]]; then
+  WIN_MGR_INFO=`wmctrl -m`
+  if [[ $? -ne 0 ]]; then
+    # E.g., if you're ssh'ed into a server, returns 1 and "Cannot open display."
+    WM_IS_UNKNOWN=true
+  elif [[ `wmctrl -m | grep -e "^Name: Mutter (Muffin)$"` ]]; then
     WM_IS_CINNAMON=true
     WM_TERMINAL_APP='gnome-terminal'
   elif [[ `wmctrl -m | grep -e "^Name: Xfwm4$"` ]]; then
