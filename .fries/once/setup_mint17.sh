@@ -917,7 +917,14 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
     fi
 
     if [[ ${INSTALL_ALL_PACKAGES_ANSWER} == "Y" ]]; then
-      sudo apt-get install -y ${BIG_PACKAGE_LIST[@]}
+
+
+
+
+echo      sudo apt-get install -y ${BIG_PACKAGE_LIST[@]}
+exit 1
+
+
       if [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
         sudo apt-get install -y ${BIG_DESKTOP_LIST[@]}
       fi
@@ -1454,13 +1461,17 @@ stage_4_sshd_configure () {
   if [[ -e /etc/ssh/sshd_config ]]; then
     set +e
 
-    grep "PasswordAuthentication no" /etc/ssh/sshd_config &> /dev/null
-    if [[ $? -ne 0 ]]; then
-      sudo /bin/sed -i.bak \
-        "s/^#PasswordAuthentication yes$/#PasswordAuthentication yes\nPasswordAuthentication no/" \
-        /etc/ssh/sshd_config
-      #sudo service ssh restart
-      sudo service sshd restart
+# FIXME: Set up SSH keys on HEADLESS before requiring them!!
+
+    if [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
+      grep "PasswordAuthentication no" /etc/ssh/sshd_config &> /dev/null
+      if [[ $? -ne 0 ]]; then
+        sudo /bin/sed -i.bak \
+          "s/^#PasswordAuthentication yes$/#PasswordAuthentication yes\nPasswordAuthentication no/" \
+          /etc/ssh/sshd_config
+        #sudo service ssh restart
+        sudo service sshd restart
+      fi
     fi
 
     reset_errexit
