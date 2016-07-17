@@ -1309,8 +1309,6 @@ setup_mint_17_stage_3 () {
 
 setup_mint_17_stage_4 () {
 
-echo "1111"
-
   if ${DO_STAGE_DANCE}; then
     echo 
     echo "Swizzle, so you've rebooted a bunch already!"
@@ -1333,7 +1331,6 @@ echo "1111"
   fi
 
   # *** Make a snapshot of the user's home directory, maybe.
-echo "222"
 
   user_home_conf_dump "${script_absbase}/conf_dump/usr_04"
 echo "333"
@@ -1449,6 +1446,8 @@ stage_4_sshd_configure () {
   # whenever you try to log into this machine.
 
   if [[ -e /etc/ssh/sshd_config ]]; then
+    set +e
+
     grep "PasswordAuthentication no" /etc/ssh/sshd_config &> /dev/null
     if [[ $? -ne 0 ]]; then
       sudo /bin/sed -i.bak \
@@ -1457,6 +1456,9 @@ stage_4_sshd_configure () {
       #sudo service ssh restart
       sudo service sshd restart
     fi
+
+    reset_errexit
+
     # You can test logging in with `ssh localhost`.
     # To debug: `ssh -vvv localhost` but oftentimes the server log
     # is more useful: `tail -F /var/log/auth.log`, e.g.,
