@@ -474,6 +474,15 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
     # For "System mail name" just use... I dunno, whatever, $USE_DOMAIN.
 
+    # -- Stop Apache.
+    #
+    # 2016-07-17: Cyclopath Resuscitation. apt-get install nginx fails
+    # because nginx cannot start because port 80 in use. Huh.
+
+    if [[ -f /etc/init.d/apache2 ]]; then
+      sudo /etc/init.d/apache2 stop
+    fi
+
     # -- Install the rest of the packages.
 
     # This remaining packages will install without need for human interaction.
