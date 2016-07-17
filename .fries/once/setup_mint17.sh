@@ -1230,6 +1230,9 @@ setup_mint_17_stage_3 () {
     echo "Installing Dubsacks Vim..."
     ${script_absbase}/vendor_dubsacks.sh
 
+echo "OKAYYYYYYYYYYY"
+
+
     # Finish this stage and logout/reboot.
 
     if ${DO_STAGE_DANCE}; then
