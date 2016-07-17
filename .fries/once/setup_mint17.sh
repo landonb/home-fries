@@ -958,39 +958,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
     if [[ ${INSTALL_ALL_PACKAGES_ANSWER} == "Y" ]]; then
 
-echo
-echo "XXXXXXXXXXXX"
-echo
       sudo apt-get install -y ${BIG_PACKAGE_LIST[@]}
-echo
-echo "YYYYYYYYYYYYYY"
-echo
-echo      sudo apt-get install -y ${BIG_PACKAGE_LIST[@]}
-echo
-echo "ZZZZZZZZZZZZ"
-echo
-
-
-sudo apt-get install -y buckooooooooo
-echo 
-echo "3333"
-echo
-reset_errexit
-sudo apt-get install -y buckooooooooo
-echo 
-echo "44444"
-echo
-set -e
-sudo apt-get install -y buckooooooooo
-echo 
-echo "77777"
-echo
-reset_errexit
-echo 
-echo "666666"
-echo
-echo "YOU WIN"
-exit 1
 
       source /etc/lsb-release
       if [[ $DISTRIB_ID == 'Ubuntu' ]]; then
