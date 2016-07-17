@@ -284,7 +284,7 @@ setup_mint_17_stage_1 () {
 
   else
 
-    if [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
+    #if [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
 
       # *** Make a snapshot of the user's home directory.
 
@@ -299,7 +299,7 @@ setup_mint_17_stage_1 () {
       #       doesn't seem to stick. So we'll wait 'til a little later in
       #       this function to call determine_window_manager and gsettings.
 
-    fi
+    #fi
 
     # Are we in a virtual machine?
     sudo apt-get install -y virt-what
