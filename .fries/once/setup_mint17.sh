@@ -1289,6 +1289,7 @@ setup_mint_17_stage_3 () {
     # Fix the VBox mount. After the reboot, the user will
     # have access to the auto-mount, so just symlink it.
     if [[ -n ${USE_MOUNTPT} ]]; then
+      echo "Fixing VBox mount."
       if ! ${IN_VIRTUALBOX_VM}; then
         #
         # FIXME: Append to /etc/fstab.
@@ -1514,6 +1515,8 @@ stage_4_sshd_configure () {
   # This is also more convenient -- you won't be prompted for a password
   # whenever you try to log into this machine.
 
+  echo "Setting up sshd"
+
   if [[ -e /etc/ssh/sshd_config ]]; then
     set +e
 
@@ -1543,6 +1546,8 @@ stage_4_sshd_configure () {
 } # end: stage_4_sshd_configure
 
 stage_4_etc_hosts_setup () {
+
+  echo "Setting up /etc/hosts"
 
   # 2016-03-23: /etc/hosts has 
   #                127.0.1.1	localhost

@@ -1,6 +1,6 @@
 # File: vendor_dubsacks.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.03.24
+# Last Modified: 2016.07.17
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Dubsacks VIM setup script.
 # License: GPLv3
@@ -95,4 +95,7 @@ if [[ "$0" == "$BASH_SOURCE" ]]; then
   # Only run when not being sourced.
   setup_dubsacks_go
 fi
+
+# Stupid message for debugging ./setup_mint17.sh.
+echo 'Thank you for dubssacking!'
 

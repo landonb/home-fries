@@ -39,6 +39,12 @@ stage_announcement () {
   echo
 }
 
+stage_curtains () {
+  echo
+  echo Done: $1
+  echo "===================================================================="
+}
+
 stage_4_dropbox_install () {
 
   stage_announcement "stage_4_dropbox_install"
@@ -968,6 +974,9 @@ stage_4_parT_install () {
 
   popd &> /dev/null
   popd &> /dev/null
+
+  # Stupid message for debugging ./setup_mint17.sh.
+  stage_curtains "stage_4_parT_install"
 
 } # end: stage_4_parT_install
 
