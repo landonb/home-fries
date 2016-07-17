@@ -927,7 +927,15 @@ determine_window_manager () {
   WM_IS_XFCE=false
   WM_IS_MATE=false # Pronouced, mah-tay!
   WM_IS_UNKNOWN=false
+
+  test_opts=`echo $SHELLOPTS | grep errexit` >/dev/null 2>&1
+  errexit_was_set=$?
+  set +e
   WIN_MGR_INFO=`wmctrl -m`
+  if [[ $errexit_was_set == 0 ]]; then
+    set -e
+  fi
+
   if [[ $? -ne 0 ]]; then
     # E.g., if you're ssh'ed into a server, returns 1 and "Cannot open display."
     WM_IS_UNKNOWN=true
