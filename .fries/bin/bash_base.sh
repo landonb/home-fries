@@ -940,7 +940,7 @@ determine_window_manager () {
     set -e
   fi
 
-  if !${WM_IS_UNKNOWN}; then
+  if ! ${WM_IS_UNKNOWN}; then
     if [[ `wmctrl -m | grep -e "^Name: Mutter (Muffin)$"` ]]; then
       WM_IS_CINNAMON=true
       WM_TERMINAL_APP='gnome-terminal'
