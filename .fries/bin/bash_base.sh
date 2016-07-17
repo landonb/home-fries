@@ -390,9 +390,12 @@ wait_bg_tasks () {
 #   $ host -t a ${CP_PRODNAME}
 #   ${CS_PRODUCTION} has address 123.456.78.90
 
-test_opts=`echo $SHELLOPTS | grep errexit` >/dev/null 2>&1
-errexit_was_set=$?
+# This FAILS is errexit is set because grep fails. So remember, then parse.
+#test_opts=`echo $SHELLOPTS | grep errexit` >/dev/null 2>&1
+test_opts=$(echo $SHELLOPTS)
 set +e
+`echo $test_opts | grep errexit` >/dev/null 2>&1
+errexit_was_set=$?
 
 # 2016.03.23: On a new machine install, young into the standup,
 #             and not having editing /etc/hosts,
@@ -928,24 +931,23 @@ determine_window_manager () {
   WM_IS_MATE=false # Pronouced, mah-tay!
   WM_IS_UNKNOWN=false
 
-echo "1111"
-  test_opts=`echo $SHELLOPTS | grep errexit` >/dev/null 2>&1
-  errexit_was_set=$?
+  # FIXME: DRY: This check elsewhere in this script.
+  # This FAILS is errexit is set because grep fails. So remember, then parse.
+  #test_opts=`echo $SHELLOPTS | grep errexit` >/dev/null 2>&1
+  test_opts=$(echo $SHELLOPTS)
   set +e
-echo "2222"
+  `echo $test_opts | grep errexit` >/dev/null 2>&1
+  errexit_was_set=$?
   WIN_MGR_INFO=`wmctrl -m >/dev/null 2>&1`
   if [[ $? -ne 0 ]]; then
     # E.g., if you're ssh'ed into a server, returns 1 and "Cannot open display."
     WM_IS_UNKNOWN=true
   fi
-echo "444"
   if [[ $errexit_was_set == 0 ]]; then
     set -e
   fi
-echo "5555"
 
   if ! ${WM_IS_UNKNOWN}; then
-echo "666"
     if [[ `wmctrl -m | grep -e "^Name: Mutter (Muffin)$"` ]]; then
       WM_IS_CINNAMON=true
       WM_TERMINAL_APP='gnome-terminal'
@@ -972,7 +974,6 @@ echo "666"
   #echo "WM_IS_MATE: $WM_IS_MATE"
   #echo "WM_IS_UNKNOWN: $WM_IS_UNKNOWN"
   #echo "WM_TERMINAL_APP: $WM_TERMINAL_APP"
-echo "777"
 }
 
 # ============================================================================
