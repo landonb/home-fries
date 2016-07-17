@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016-05-20
+# Last Modified: 2016-07-16
 #
 # Buggers. Oracle VirtualBox update wrapper.
 
@@ -62,6 +62,21 @@ virtualbox_dubs_update () {
   #sudo apt-get remove virtualbox-4.3
   sudo dpkg -i ${LATEST_VBOX_DEB_PKG}
   #/bin/rm ${LATEST_VBOX_DEB_PKG}
+
+# FIXME: Minor version bumps require uninstall.
+#landonb@larry:.downloads ⚓ $   sudo dpkg -i ${LATEST_VBOX_DEB_PKG}
+#dpkg: regarding virtualbox-5.1_5.1.0-108711~Ubuntu~trusty_amd64.deb containing virtualbox-5.1:
+# virtualbox-5.1 conflicts with virtualbox
+#  virtualbox-5.0 provides virtualbox and is present and installed.
+#
+#dpkg: error processing archive virtualbox-5.1_5.1.0-108711~Ubuntu~trusty_amd64.deb (--install):
+# conflicting packages - not installing virtualbox-5.1
+#Errors were encountered while processing:
+# virtualbox-5.1_5.1.0-108711~Ubuntu~trusty_amd64.deb
+###sudo apt remove virtualbox virtualbox-5.0 virtualbox-4.*
+if false; then
+sudo apt-get remove virtualbox-5.0
+fi
 
   popd &> /dev/null
 
