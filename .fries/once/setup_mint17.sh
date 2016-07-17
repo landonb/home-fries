@@ -1238,6 +1238,7 @@ echo "OKAYYYYYYYYYYY"
     if ${DO_STAGE_DANCE}; then
       echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
     fi
+echo "1111"
 
     # Fix the VBox mount. After the reboot, the user will
     # have access to the auto-mount, so just symlink it.
@@ -1253,6 +1254,7 @@ echo "OKAYYYYYYYYYYY"
         sudo /bin/ln -s /media/sf_${USE_MOUNTPT} ${DST_MOUNTPT}
       fi
     fi
+echo "2222"
 
     # 2016-03-23: What was this for? Home-fries is installed manually...
     #             hasn't it always? For one, this script is part of
@@ -1302,6 +1304,9 @@ echo "OKAYYYYYYYYYYY"
     fi
 
   fi
+
+echo "4455"
+
 
 } # end: setup_mint_17_stage_3
 
@@ -1631,6 +1636,7 @@ setup_mint_17_go () {
     # SKIPPING: Stage 2, which install VBox additions.
     # Setup usergroups and the user's home directory.
     setup_mint_17_stage_3
+echo "666"
     # Download, compile, and configure lots of software.
     setup_mint_17_stage_4
   else
