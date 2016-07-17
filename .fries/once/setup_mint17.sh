@@ -603,15 +603,9 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       postgresql
       postgresql-client
 
-      php5-dev
-      php5-mysql
-      libapache2-mod-php5
-      dh-make-php
-
       libxml2-dev
       libjpeg-dev
       libpng++-dev
-      libgd-dev
       imagemagick
       libmagick++-dev
       texlive
@@ -621,7 +615,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       pcregrep
       gir1.2-gtop-2.0
       libgd-dev
-      libgd2-xpm-dev
       libxslt1-dev
       xsltproc
       libicu-dev
@@ -630,7 +623,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       python-setuptools
       libapache2-mod-python
       python-simplejson
-      python-logilab-astng
       python-logilab-common
       python-gtk2
       python-wnck
@@ -649,8 +641,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       # FIXME/MAYBE: Can/Should these be virtualenv-installed?
       python-egenix-mxdatetime
       python-egenix-mxtools
-      python-logilab-astng
-      python-logilab-common
       python-subversion
       python-levenshtein
 
@@ -686,8 +676,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       libipc-signal-perl
       libmime-types-perl
       libproc-waitstat-perl
-
-      nspluginwrapper
 
       python-nltk
       python-matplotlib
@@ -908,6 +896,44 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
     ) # end: BIG_PACKAGE_LIST_UMATE_15X
 
+    local BIG_PACKAGE_LIST_NOT_UBUNTU_16X=(
+
+      # On Ubuntu: eNote, selecting libgd-dev instead of libgd2-xpm-dev
+      libgd2-xpm-dev
+
+      # Ick. PHP *and* MySQL.
+      #libapache2-mod-php5
+      #php5-dev
+      #php5-mysql
+      #dh-make-php
+
+      python-logilab-astng
+
+      nspluginwrapper
+
+    ) # end: BIG_PACKAGE_LIST_NOT_UBUNTU_16X
+
+    local BIG_PACKAGE_LIST_UBUNTU_16X=(
+
+      libgd-dev
+
+      # I am sure I no longer need anything doing with either php or mysql.
+      #libapache2-mod-php5
+      #php-mysql
+      #php7.0-mysql
+      # Not sure what this is but do not care.
+      #dh-make-php
+
+      # python-logilab-astng is python-astroid
+      python-astroid
+      python3-astroid
+
+      # Do not know nspludinwrapper equivalent but who cares
+      # for a headless server machine if you cannot run flash.
+      #nspluginwrapper
+
+    ) # end: BIG_PACKAGE_LIST_UBUNTU_16X
+
     # One core package, and maybe
     # One Giant MASSIVE package install.
 
@@ -918,12 +944,25 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
     if [[ ${INSTALL_ALL_PACKAGES_ANSWER} == "Y" ]]; then
 
-
-
-
+echo
+echo "XXXXXXXXXXXX"
+echo
+      sudo apt-get install -y ${BIG_PACKAGE_LIST[@]}
+echo
+echo "YYYYYYYYYYYYYY"
+echo
 echo      sudo apt-get install -y ${BIG_PACKAGE_LIST[@]}
+echo
+echo "ZZZZZZZZZZZZ"
+echo
 exit 1
 
+      source /etc/lsb-release
+      if [[ $DISTRIB_ID == 'Ubuntu' ]]; then
+        sudo apt-get install -y ${BIG_PACKAGE_LIST_UBUNTU_16X[@]}
+      else
+        sudo apt-get install -y ${BIG_PACKAGE_LIST_NOT_UBUNTU_16X[@]}
+      fi
 
       if [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
         sudo apt-get install -y ${BIG_DESKTOP_LIST[@]}
