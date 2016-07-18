@@ -930,9 +930,9 @@ fi
 PYVERS_RAW3=`python3 --version \
   |& /usr/bin/awk '{print $2}' \
   | /bin/sed -r 's/^([0-9]+\.[0-9]+)\.[0-9]+\+?/\1/g'`
-if [[ -n $PYVERS3_RAW ]]; then
-  export PYTHONVERS3=python${PYVERS3_RAW}
-  export PYVERSABBR3=py${PYVERS3_RAW}
+if [[ -n $PYVERS_RAW3 ]]; then
+  export PYTHONVERS3=python${PYVERS_RAW3}
+  export PYVERSABBR3=py${PYVERS_RAW3}
 else
   echo
   echo "######################################################################"
@@ -942,6 +942,7 @@ else
   python3 --version
   python3 --version |& /usr/bin/awk '{print $2}'
   python3 --version |& /usr/bin/awk '{print $2}' | /bin/sed -r 's/^([0-9]+\.[0-9]+)\.[0-9]+\+?/\1/g'
+  echo
   echo "######################################################################"
   echo
   # If we exit, you cannot log on the terminal! Because /bin/bash exits...
