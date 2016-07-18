@@ -390,12 +390,7 @@ wait_bg_tasks () {
 #   $ host -t a ${CP_PRODNAME}
 #   ${CS_PRODUCTION} has address 123.456.78.90
 
-# This FAILS is errexit is set because grep fails. So remember, then parse.
-#test_opts=`echo $SHELLOPTS | grep errexit` >/dev/null 2>&1
-test_opts=$(echo $SHELLOPTS)
-set +e
-`echo $test_opts | grep errexit` >/dev/null 2>&1
-errexit_was_set=$?
+shush_errexit
 
 # 2016.03.23: On a new machine install, young into the standup,
 #             and not having editing /etc/hosts,
@@ -437,9 +432,7 @@ if [[ -z ${MACHINE_IP} ]]; then
   echo -e "$ ifconfig wlan0\n`ifconfig wlan0`"
 fi
 
-if [[ $errexit_was_set == 0 ]]; then
-  set -e
-fi
+reset_errexit
 
 # ============================================================================
 # *** Script timering
@@ -804,6 +797,15 @@ reset_errexit () {
   fi
 }
 
+shush_errexit () {
+  # This FAILS is errexit is set because grep fails. So remember, then parse.
+  #test_opts=`echo $SHELLOPTS | grep errexit` >/dev/null 2>&1
+  test_opts=$(echo $SHELLOPTS)
+  set +e
+  `echo $test_opts | grep errexit` >/dev/null 2>&1
+  USING_ERREXIT=$?
+}
+
 # ============================================================================
 # *** Question Asker and Input Taker.
 
@@ -931,21 +933,13 @@ determine_window_manager () {
   WM_IS_MATE=false # Pronouced, mah-tay!
   WM_IS_UNKNOWN=false
 
-  # FIXME: DRY: This check elsewhere in this script.
-  # This FAILS is errexit is set because grep fails. So remember, then parse.
-  #test_opts=`echo $SHELLOPTS | grep errexit` >/dev/null 2>&1
-  test_opts=$(echo $SHELLOPTS)
-  set +e
-  `echo $test_opts | grep errexit` >/dev/null 2>&1
-  errexit_was_set=$?
+  shush_errexit
   WIN_MGR_INFO=`wmctrl -m >/dev/null 2>&1`
   if [[ $? -ne 0 ]]; then
     # E.g., if you're ssh'ed into a server, returns 1 and "Cannot open display."
     WM_IS_UNKNOWN=true
   fi
-  if [[ $errexit_was_set == 0 ]]; then
-    set -e
-  fi
+  reset_errexit
 
   if ! ${WM_IS_UNKNOWN}; then
     if [[ `wmctrl -m | grep -e "^Name: Mutter (Muffin)$"` ]]; then

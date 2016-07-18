@@ -1406,23 +1406,27 @@ setup_mint_17_stage_4 () {
 
   # The new hot: MATE on Mint.
   if $WM_IS_MATE; then
+    echo "Sourcing custom_mint17.mate.sh"
     source ${script_absbase}/custom_mint17.mate.sh
   fi
 
   # Deprecated: Author prefers Mint to Xfce or Cinnamon.
   # Note: There once was a custom_mint16.xcfe.sh but not no more.
   if $WM_IS_CINNAMON; then
+    echo "Sourcing custom_mint16.cinnamon.sh"
     source ${script_absbase}/custom_mint16.cinnamon.sh
   fi
 
   # Deprecated: Mint 17 login is different than Mint 16's (MDM).
   if $USE_MINT16_CUSTOM_LOGIN; then
+    echo "Sourcing custom_mint16.retros_bg.sh"
     source ${script_absbase}/custom_mint16.retros_bg.sh
   fi
 
   # Amazingly, you should be able to get this far before the unrealized
   #  sudo usermod -a -G staff
   # makes it necessary for you to logoff and log back on.
+  shush_errexit
   groups | grep staff > /dev/null
   if [[ $? -ne 0 ]]; then
     echo
@@ -1432,6 +1436,7 @@ setup_mint_17_stage_4 () {
     echo
     exit 1
   fi
+  reset_errexit
 
   # Setup git, mercurial, meld, postgres, apache, quicktile, pidgin,
   # adobe reader, dropbox, expect, rssowl, cloc, todo.txt, ti, utt, etc.
