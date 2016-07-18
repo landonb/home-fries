@@ -366,6 +366,41 @@ wait_bg_tasks () {
 }
 
 # ============================================================================
+# *** errexit wrapper.
+
+# Configure errexit usage. If we're not anticipating an error, make
+# sure this script stops so that the developer can fix it.
+#
+# NOTE: You can determine the current setting from the shell using:
+#
+#        $ set -o | grep errexit | /bin/sed -r 's/^errexit\s+//'
+#
+#       which returns on or off.
+#
+#       However, from within this script, whether we set -e or set +e,
+#       the set -o always returns the value from our terminal -- from
+#       when we started the script -- and doesn't reflect any changes
+#       herein. So use a variable to remember the setting.
+#
+reset_errexit () {
+  if $USING_ERREXIT; then
+    #set -ex
+    set -e
+  else
+    set +ex
+  fi
+}
+
+shush_errexit () {
+  # This FAILS is errexit is set because grep fails. So remember, then parse.
+  #test_opts=`echo $SHELLOPTS | grep errexit` >/dev/null 2>&1
+  test_opts=$(echo $SHELLOPTS)
+  set +e
+  `echo $test_opts | grep errexit` >/dev/null 2>&1
+  USING_ERREXIT=$?
+}
+
+# ============================================================================
 # *** Machine I.P. address
 
 # There are lots of ways to get the machine's IP address:
@@ -769,41 +804,6 @@ logrot_backup_file () {
       gzip -c -9 ${log_path} > ${bkup}
     fi
   fi
-}
-
-# ============================================================================
-# *** errexit wrapper.
-
-# Configure errexit usage. If we're not anticipating an error, make
-# sure this script stops so that the developer can fix it.
-#
-# NOTE: You can determine the current setting from the shell using:
-#
-#        $ set -o | grep errexit | /bin/sed -r 's/^errexit\s+//'
-#
-#       which returns on or off.
-#
-#       However, from within this script, whether we set -e or set +e,
-#       the set -o always returns the value from our terminal -- from
-#       when we started the script -- and doesn't reflect any changes
-#       herein. So use a variable to remember the setting.
-#
-reset_errexit () {
-  if $USING_ERREXIT; then
-    #set -ex
-    set -e
-  else
-    set +ex
-  fi
-}
-
-shush_errexit () {
-  # This FAILS is errexit is set because grep fails. So remember, then parse.
-  #test_opts=`echo $SHELLOPTS | grep errexit` >/dev/null 2>&1
-  test_opts=$(echo $SHELLOPTS)
-  set +e
-  `echo $test_opts | grep errexit` >/dev/null 2>&1
-  USING_ERREXIT=$?
 }
 
 # ============================================================================
