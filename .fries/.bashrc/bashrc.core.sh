@@ -939,7 +939,9 @@ else
   echo
   echo "WARNING: Unexpected: Could not parse Python3 version."
   echo "python3 --version: `python3 --version`"
-  echo
+  python3 --version
+  python3 --version |& /usr/bin/awk '{print $2}'
+  python3 --version |& /usr/bin/awk '{print $2}' | /bin/sed -r 's/^([0-9]+\.[0-9]+)\.[0-9]+\+?/\1/g'
   echo "######################################################################"
   echo
   # If we exit, you cannot log on the terminal! Because /bin/bash exits...
