@@ -1,6 +1,6 @@
 # File: vendor_cyclopath.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.02.02
+# Last Modified: 2016.07.18
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Cyclopath IDE setup script.
 # License: GPLv3
@@ -43,6 +43,22 @@ USE_CCP_DATABASE_SCP=""
 CCP_AUTO_SCRIPTS="/ccp/dev/cp/scripts/setupcp/auto_install"
 echo "WARNING: This script is dated. Please update me!"
 exit 1
+
+if false; then
+  grep "^deb http://us.archive.ubuntu.com/ubuntu xenial main multiverse$" /etc/apt/sources.list &> /dev/null
+  if [[ $? -ne 0 ]]; then
+    # In lieu of sudo add-apt-repository,
+    echo "
+  # Added by ${0}:${USER} at `date +%Y.%m.%d-%T`.
+  deb http://us.archive.ubuntu.com/ubuntu xenial main multiverse" \
+      | sudo tee -a /etc/apt/sources.list &> /dev/null
+  fi
+  # Fruitless!
+  sudo apt-get install -y nspluginwrapper
+  # E: Unable to locate package nspluginwrapper
+  #
+  # So the blog post I read was wrong about the multiverse!
+fi
 
 # Miscellaneous config
 # --------------------
@@ -140,12 +156,14 @@ stage_4_cyclopath_install () {
   isprodserver=0
   reload_databases=0
   svn_update_sources=0
+  git_update_sources=0
   set -- $masterhost \
          $targetuser \
          $isbranchmgr \
          $isprodserver \
          $reload_databases \
-         $svn_update_sources
+         $svn_update_sources \
+         $git_update_sources
   # This script is meant for user-managed machines, i.e., not those
   # on the CS net, where [[ "$MACHINE_DOMAIN" == "cs.umn.edu" ]],
   # targetgroup=grplens.
@@ -245,6 +263,8 @@ setup_cyclopath_go () {
 
     # Make the /ccp hierarcy.
     cd $CCP_AUTO_SCRIPTS
+    #./dir_prepare.sh $HOSTNAME $USER
+    export MACHINE_DOMAIN=$MACHINE_DOMAIN
     ./dir_prepare.sh $HOSTNAME $USER
 
     stage_4_meld_configure
