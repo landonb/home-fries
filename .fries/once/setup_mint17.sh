@@ -565,6 +565,9 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       openssh-server
       signing-party
 
+      # 2016-07-17: Ubuntu missing bc. What a weirdo.
+      bc
+
     ) # end: CORE_PACKAGE_LIST
 
     local CORE_DESKTOP_LIST=(
