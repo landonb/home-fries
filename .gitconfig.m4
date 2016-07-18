@@ -1,7 +1,7 @@
 # BEGIN PERSONALIZABLE
 [user]
-	name = YOUR_FULL_NAME_HERE()
-	email = YOUR_GITHUB_USERNAME()@users.noreply.github.com
+  name = YOUR_FULL_NAME_HERE()
+  email = YOUR_GITHUB_USERNAME()@users.noreply.github.com
 # ENDIN PERSONALIZABLE
 [alias]
   up = pull origin
@@ -52,7 +52,7 @@
   #tool = vimdiff
   tool = diffconflicts
 [mergetool]
-	keepBackup = false
+  keepBackup = false
 # See .gitattributes file:
 #  you'll need, e.g.: *.so diff=hexdiff
 # NOTE: The .gitattributes file only works for [lb]
