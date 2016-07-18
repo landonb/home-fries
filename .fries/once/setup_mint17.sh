@@ -977,6 +977,13 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       #libspatialite5
       libspatialite7
 
+      # Cyclopath needs this to build Mapserver.
+      #  g++ ... -lselinux in is packages libselinux1 libselinux1-dev
+      libselinux1
+      libselinux1-dev
+      #  g++ ... -lgssapi_krb5 in is package libkrb5-dev
+      libkrb5-dev
+
     ) # end: BIG_PACKAGE_LIST_UBUNTU_16X
 
     # 2016-07-17: Cyclopath Resuscitation. Why didn't a failed apt-get

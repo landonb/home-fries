@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.07.17
+# Last Modified: 2016.07.18
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -1642,7 +1642,7 @@ stage_4_digikam_from_scratch () {
     ./configure
     make
     sudo make install
-  fi;
+  fi
 
   # 2015.10.22: FIXME/MEH: Cannot get marble to build at work...
   # dpkg --get-selections | grep -v deinstall

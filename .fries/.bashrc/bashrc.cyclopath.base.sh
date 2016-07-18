@@ -844,8 +844,8 @@ elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
   # Fedora
   if [[ "`uname -m | grep x86_64`" ]]; then
     export PYTHONPATH=$PYTHONPATH:$ccp/opt/usr/lib64/python:$ccp/opt/usr/lib64/$PYTHONVERS2/site-packages
-  fi;
-fi;
+  fi
+fi
 
 # Subversion shortcuts
 

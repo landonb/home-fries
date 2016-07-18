@@ -560,7 +560,7 @@ if [[ -z "$DUB_TRASHHOME" ]]; then
   trashdir=$HOME
 else
   trashdir=$DUB_TRASHHOME
-fi;
+fi
 #
 # 2016-04-26: I added empty_trashes because, while trashes were being
 # created on different devices from rm_safe, rmtrash was only emptying
