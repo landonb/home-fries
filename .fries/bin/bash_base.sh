@@ -397,7 +397,11 @@ shush_errexit () {
   test_opts=$(echo $SHELLOPTS)
   set +e
   `echo $test_opts | grep errexit` >/dev/null 2>&1
-  USING_ERREXIT=$?
+  if [[ $? -eq 0 ]]; then
+    USING_ERREXIT=true
+  else
+    USING_ERREXIT=false
+  fi
 }
 
 # ============================================================================
