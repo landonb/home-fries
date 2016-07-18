@@ -314,7 +314,9 @@ setup_mint_17_stage_1 () {
 
     if sudo grep "Defaults:$USER" /etc/sudoers 1> /dev/null; then
       echo
-      echo "UNEXPECTED: /etc/sudoers already edited."
+      echo "Skipping: /etc/sudoers already edited."
+      echo
+      echo "Sorry you have to run this script again... hahaha, sucker"
       echo
     else
       sudo /bin/cp /etc/sudoers /etc/sudoers-ORIG
