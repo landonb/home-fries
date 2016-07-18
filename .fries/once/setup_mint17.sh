@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.07.17
+# Last Modified: 2016.07.18
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -929,6 +929,9 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
     local BIG_PACKAGE_LIST_UBUNTU_16X=(
 
+      # Cyclopath. apt-get is there, but not the other one.
+      aptitude
+
       libgd-dev
 
       # I am sure I no longer need anything doing with either php or mysql.
@@ -942,8 +945,10 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       python-astroid
       python3-astroid
 
-      # Do not know nspludinwrapper equivalent but who cares
-      # for a headless server machine if you cannot run flash.
+      # Read a blog post that said to pull in the main multiverse
+      # but I still got an Unable to locate package response.
+      #  Add to /etc/apt/sources.list:
+      #   deb http://us.archive.ubuntu.com/ubuntu xenial main multiverse
       #nspluginwrapper
 
     ) # end: BIG_PACKAGE_LIST_UBUNTU_16X
@@ -1536,7 +1541,7 @@ stage_4_sshd_configure () {
       grep "PasswordAuthentication no" /etc/ssh/sshd_config &> /dev/null
       if [[ $? -ne 0 ]]; then
         sudo /bin/sed -i.bak \
-          "s/^#PasswordAuthentication yes$/#PasswordAuthentication yes\nPasswordAuthentication no/" \
+          "s/^#PasswordAuthentication yes$/#PasswordAuthentication yes\n# Added by ${0}:${USER} at `date +%Y.%m.%d-%T`.\nPasswordAuthentication no/" \
           /etc/ssh/sshd_config
         #sudo service ssh restart
         sudo service sshd restart
