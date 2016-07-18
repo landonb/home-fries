@@ -938,6 +938,7 @@ else
   echo "######################################################################"
   echo
   echo "WARNING: Unexpected: Could not parse Python3 version."
+  echo "python3 --version: `python3 --version`"
   echo
   echo "######################################################################"
   echo
