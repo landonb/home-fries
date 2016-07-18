@@ -185,14 +185,20 @@ ccp_apache_reload () {
 #fi
 
 # Convert, e.g., 'Python 2.7.6' to '2.7'.
-PYVERS_RAW2=`python --version \
+PYVERS_RAW2=`python2 --version \
 	|& /usr/bin/awk '{print $2}' \
 	| /bin/sed -r 's/^([0-9]+\.[0-9]+)\.[0-9]+/\1/g'`
-PYVERS2_DOTLESS=`python --version \
+PYVERS2_DOTLESS=`python2 --version \
 	|& /usr/bin/awk '{print $2}' \
 	| /bin/sed -r 's/^([0-9]+)\.([0-9]+)\.[0-9]+/\1\2/g'`
 if [[ -z $PYVERS_RAW2 ]]; then
-	echo "Unexpected: Could not parse Python version."
+  echo
+  echo "######################################################################"
+  echo
+	echo "WARNING: Unexpected: Could not parse Python2 version."
+  echo
+  echo "######################################################################"
+  echo
 	exit 1
 fi
 PYVERS_RAW2=python${PYVERS_RAW2}
