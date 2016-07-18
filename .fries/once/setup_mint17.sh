@@ -929,7 +929,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
     local BIG_PACKAGE_LIST_UBUNTU_16X=(
 
-      # Cyclopath. apt-get is there, but not the other one.
+      # Cyclopath. runic.cs. apt-get is there, but not the other one.
       aptitude
 
       libgd-dev
@@ -950,6 +950,32 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       #  Add to /etc/apt/sources.list:
       #   deb http://us.archive.ubuntu.com/ubuntu xenial main multiverse
       #nspluginwrapper
+
+      #postgresql-server-dev-9.3
+      postgresql-server-dev-9.5
+
+      # Not Ubuntu 16.04:
+      #  apache2-mpm-worker
+      # Maybe?:
+      #  libapache2-mpm-itk
+
+      # Probably already installed:
+      #libicu52
+      libicu55
+
+      # No clue what equivalent(s) is(are) or if needed:
+      #  ia32-libs
+
+      #ttf-tuffy
+      # Maybe it is:
+      fonts-tuffy
+      # though I cannot imagine what it is for. LibreOffice?
+
+      # already installed:
+      #libproj0
+      libproj9
+      #libspatialite5
+      libspatialite7
 
     ) # end: BIG_PACKAGE_LIST_UBUNTU_16X
 
