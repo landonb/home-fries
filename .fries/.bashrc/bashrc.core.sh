@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.07.17
+# Last Modified: 2016.07.18
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -923,19 +923,40 @@ fi
 # SYNC_ME: See $cp/scripts/setupcp/runic/auto_install/check_parms.sh
 
 # Determine the Python version-path.
-#PYS_VER=$(python --version 2>&1)
+#PYTHON_VER=$(python --version 2>&1)
 # Convert, e.g., 'Python 3.4.0' to '3.4'.
 # Note the |&, which is like 2>&1, i.e., send stderr to stdout.
-PYVERS_RAW=`python3 --version \
+PYVERS_RAW3=`python3 --version \
   |& /usr/bin/awk '{print $2}' \
   | /bin/sed -r 's/^([0-9]+\.[0-9]+)\.[0-9]+/\1/g'`
-if [[ -n $PYVERS_RAW ]]; then
-  export PYTHONVERS=python${PYVERS_RAW}
-  export PYVERSABBR=py${PYVERS_RAW}
+if [[ -n $PYVERS3_RAW ]]; then
+  export PYTHONVERS3=python${PYVERS3_RAW}
+  export PYVERSABBR3=py${PYVERS3_RAW}
 else
   echo "Unexpected: Could not parse Python version."
   exit 1
 fi
+
+# Convert, e.g., 'Python 2.7.6' to '2.7'.
+# 2016-07-18: NOTE: Default on Mint 17: Python 2.7.6
+#              Default on Ubuntu 16.04: Python 2.7.12
+PYVERS_RAW2=`python2 --version \
+	|& /usr/bin/awk '{print $2}' \
+	| /bin/sed -r 's/^([0-9]+\.[0-9]+)\.[0-9]+/\1/g'`
+PYVERS_DOTLESS2=`python2 --version \
+	|& /usr/bin/awk '{print $2}' \
+	| /bin/sed -r 's/^([0-9]+)\.([0-9]+)\.[0-9]+/\1\2/g'`
+if [[ -z $PYVERS_RAW2 ]]; then
+	echo "Unexpected: Could not parse Python version."
+	exit 1
+fi
+PYVERS_RAW2=${PYVERS_RAW2}
+PYVERS_RAW2_m=${PYVERS_RAW2}m
+PYTHONVERS2_m=python${PYVERS_RAW2_m}
+PYVERS_CYTHON2=${PYVERS_DOTLESS2}m
+#
+PYTHONVERS2=python${PYVERS_RAW2}
+PYVERSABBR2=py${PYVERS_RAW2}
 
 # Determine the apache user.
 # 'TEVS: CAPITALIZE these, like most exports.

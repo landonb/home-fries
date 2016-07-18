@@ -1,6 +1,6 @@
 # File: bashrc.cyclopath.base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.04.04
+# Last Modified: 2016.07.18
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Cyclopath bash startup script.
 # License: GPLv3
@@ -822,7 +822,7 @@ alias cddb='pushd /ccp/var/dbdumps > /dev/null'
 #                 /ccp/opt/gdal/lib//site-packages:
 #             Which is because the bashrc scripts *do* have a particular load
 #             order... 
-#               $ echo $PYTHONVERS
+#               $ echo $PYTHONVERS2
 #               python2.6
 # MAYBE: See /ccp/dev/cp/scripts/util/bash_base.sh: ccp_python_path does extra
 #        magic: "Oddly, if we don't include the GDAL path,
@@ -830,11 +830,11 @@ alias cddb='pushd /ccp/var/dbdumps > /dev/null'
 #        fine without under Ubuntu 10.04 (Python 2.6)."
 # NOTE: Your scripts are run when you start X, so including $PYTHONPATH at the
 # end just duplicates all the paths you already set up...
-#export PYTHONPATH=$ccp/opt/usr/lib/python:$ccp/opt/usr/lib/$PYTHONVERS/site-packages:$ccp/opt/gdal/lib/$PYTHONVERS/site-packages:$PYTHONPATH
+#export PYTHONPATH=$ccp/opt/usr/lib/python:$ccp/opt/usr/lib/$PYTHONVERS2/site-packages:$ccp/opt/gdal/lib/$PYTHONVERS2/site-packages:$PYTHONPATH
 
 # 2015.03.26: FIXME: Figure out a better way to do this... chroot for Cyclopath??!
 if $LOAD_PYTHONPATH; then
-  export PYTHONPATH=$ccp/opt/usr/lib/python:$ccp/opt/usr/lib/$PYTHONVERS/site-packages:$ccp/opt/gdal/lib/$PYTHONVERS/site-packages:$ccp/dev/cp/pyserver/bin/winpdb
+  export PYTHONPATH=$ccp/opt/usr/lib/python:$ccp/opt/usr/lib/$PYTHONVERS2/site-packages:$ccp/opt/gdal/lib/$PYTHONVERS2/site-packages:$ccp/dev/cp/pyserver/bin/winpdb
 fi
 
 if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
@@ -843,7 +843,7 @@ if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
 elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
   # Fedora
   if [[ "`uname -m | grep x86_64`" ]]; then
-    export PYTHONPATH=$PYTHONPATH:$ccp/opt/usr/lib64/python:$ccp/opt/usr/lib64/$PYTHONVERS/site-packages
+    export PYTHONPATH=$PYTHONPATH:$ccp/opt/usr/lib64/python:$ccp/opt/usr/lib64/$PYTHONVERS2/site-packages
   fi;
 fi;
 
