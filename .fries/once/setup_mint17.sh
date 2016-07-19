@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.07.18
+# Last Modified: 2016.07.19
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -983,6 +983,13 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       libselinux1-dev
       #  g++ ... -lgssapi_krb5 in is package libkrb5-dev
       libkrb5-dev
+
+      # For fiona.
+      libgdal1-dev
+
+      # For Cyclopath flashclient build via fcsh.
+      # Follow symlinks on dpkg -S /usr/bin/java
+      openjdk-8-jre-headless
 
     ) # end: BIG_PACKAGE_LIST_UBUNTU_16X
 
