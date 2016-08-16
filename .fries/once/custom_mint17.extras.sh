@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.07.18
+# Last Modified: 2016.08.15
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -2081,17 +2081,24 @@ stage_4_android_studio () {
 
   # For Kernel Virtual Machine (KVM).
   sudo apt-get install -y qemu-kvm libvirt-bin bridge-utils virt-manager
-  sudo adduser ${USER} libvirtd
-  echo
-  echo "ALERT: You may have to logoff and log back in to enable KVM."
-  echo
+  groups | grep libvirtd &> /dev/null
+  if [[ $? -ne 0 ]]; then
+    sudo adduser ${USER} libvirtd
+    echo
+    echo "ALERT: You may have to logoff and log back in to enable KVM."
+    echo
+  fi
 
   # https://developer.android.com/sdk/index.html#downloads
 
-  # Version 2.0.0.20 / 278 MB
-  ANDROID_STUDIO_VERS="143.2739321"
+  # 2016-04-22: Version 2.0.0.20 / 278 MB
+  #ANDROID_STUDIO_VERS="2.0.0.20"
+  #ANDROID_STUDIO_BUILD="143.2739321"
+  # 2016-07-23: 2.2.0.5 / XXX MB
+  ANDROID_STUDIO_VERS="2.2.0.5"
+  ANDROID_STUDIO_BUILD="145.3070098"
 
-  ANDROID_STUDIO_BASE="android-studio-ide-${ANDROID_STUDIO_VERS}-linux"
+  ANDROID_STUDIO_BASE="android-studio-ide-${ANDROID_STUDIO_BUILD}-linux"
   ANDROID_STUDIO_NAME="${ANDROID_STUDIO_BASE}.zip"
 
   # $ lS
@@ -2105,12 +2112,13 @@ stage_4_android_studio () {
   #  echo ${OLD_DLS[@]} | xargs /bin/rm
   for old_file in ${OLD_DLS[@]}; do
     if [[ -n $old_file ]]; then
+# MAYBE: Ask first before deleting? Or just fcuk it.
       /bin/rm $old_file
     fi
   done
 
   wget -N \
-    "https://dl.google.com/dl/android/studio/ide-zips/2.0.0.20/${ANDROID_STUDIO_NAME}"
+    "https://dl.google.com/dl/android/studio/ide-zips/${ANDROID_STUDIO_VERS}/${ANDROID_STUDIO_NAME}"
 
   # https://developer.android.com/sdk/installing/index.html
 
@@ -2130,8 +2138,8 @@ stage_4_android_studio () {
   #   OpenJDK Runtime Environment (IcedTea 2.6.4) (7u95-2.6.4-0ubuntu0.14.04.2)
   #   OpenJDK 64-Bit Server VM (build 24.95-b01, mixed mode)
   #
-  # so remove OpenJDK, and then install proper proprietary Java from Oracle.
-
+  # So remove OpenJDK,
+  # and install the <cough> *proper* proprietary Java from Oracle.
   java -version 2>&1 | grep OpenJDK &> /dev/null
   if [[ $? -eq 0 ]]; then
     sudo apt-get purge -y openjdk-\*
@@ -2217,6 +2225,7 @@ export PATH" | sudo tee -a /etc/environment
   # Android Studio install docs say to install the following libraries.
   sudo apt-get install -y lib32z1 lib32ncurses5 lib32bz2-1.0 lib32stdc++6
 
+  # We're still in ${OPT_DLOADS}/
   UNPACK_PATH="${OPT_BIN}/${ANDROID_STUDIO_BASE}"
   if [[ ! -e ${UNPACK_PATH} ]]; then
     #unzip -d ${UNPACK_PATH} ${ANDROID_STUDIO_NAME}
@@ -2232,17 +2241,20 @@ export PATH" | sudo tee -a /etc/environment
     fi
   else
     echo
-    echo "WARNING: Path exists. Remove it you'self."
+    echo "WARNING: Path exists. Remove it you'self. If you want a do over."
     echo
     echo "         /bin/rm -rf ${UNPACK_PATH}"
     echo
   fi
 
   pushd ${OPT_BIN} &> /dev/null
-  #/bin/ln -sf ${UNPACK_PATH} ${OPT_BIN}/android-studio-ide-2.x-linux
-  #/bin/ln -sf ${UNPACK_PATH} ${OPT_BIN}/android-studio-ide-linux
-  #/bin/ln -sf ${UNPACK_PATH} ${OPT_BIN}/android-studio-ide
-  /bin/ln -sf ${ANDROID_STUDIO_BASE} ${OPT_BIN}/android-studio
+  if [[ -h ${OPT_BIN}/android-studio ]]; then
+    /bin/rm ${OPT_BIN}/android-studio
+  fi
+  #/bin/ln -s ${UNPACK_PATH} ${OPT_BIN}/android-studio-ide-2.x-linux
+  #/bin/ln -s ${UNPACK_PATH} ${OPT_BIN}/android-studio-ide-linux
+  #/bin/ln -s ${UNPACK_PATH} ${OPT_BIN}/android-studio-ide
+  /bin/ln -s ${ANDROID_STUDIO_BASE} ${OPT_BIN}/android-studio
   popd &> /dev/null
 
   popd &> /dev/null
@@ -2252,6 +2264,19 @@ export PATH" | sudo tee -a /etc/environment
   /bin/mkdir -p ${OPT_BIN}/android-sdk
 
   # For lots more notes, see docacks/the_knowledge/Android_Development.rst
+
+  stage_curtains "stage_4_android_studio"
+
+echo "NEXT STEPS:
+Run studio &
+File > Settings... (Ctrl+Alt+S)
+Settings -> Appearance & Behavior -> System Settings -> Android SDK
+Check box of latest SDK. Apply. [Download commences.]
+"
+
+# Remove old versions, e.g.,
+# /srv/opt/bin/android-studio-ide-143.2739321-linux/
+echo "FIXME: Remove old /srv/opt/bin/android-studio-ide-*-linux/ dirs"
 
 } # end: stage_4_android_studio
 
@@ -2373,6 +2398,45 @@ stage_4_google_drive_drive () {
   popd &> /dev/null
 
 } # end: stage_4_google_drive_drive
+
+stage_4_td_ameritrade_thinkorswim () {
+
+  stage_announcement "stage_4_td_ameritrade_thinkorswim"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  sudo apt-add-repository -y ppa:webupd8team/java
+  sudo apt-get update -y
+  sudo apt-get install -y oracle-java7-installer
+
+  wget -N http://mediaserver.thinkorswim.com/installer/InstFiles/thinkorswim_installer.sh
+
+  sh ./thinkorswim_installer.sh
+
+  popd &> /dev/null
+
+} # end: stage_4_td_ameritrade_thinkorswim
+
+stage_4_optipng () {
+
+  stage_announcement "stage_4_optipng"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  wget -N http://downloads.sourceforge.net/project/optipng/OptiPNG/optipng-0.7.6/optipng-0.7.6.tar.gz
+
+  tar -xvzf optipng-0.7.6.tar.gz
+  cd optipng-0.7.6
+  ./configure
+  make
+  make test
+  sudo make install
+
+  # optipng -h
+
+  popd &> /dev/null
+
+} # end: stage_4_optipng
 
 stage_4_fcn_template () {
 
@@ -2512,6 +2576,12 @@ setup_customize_extras_go () {
   # Ballickwad.
   stage_4_google_drive_drive
 
+  # Invalid selection.
+  stage_4_td_ameritrade_thinkorswim
+
+  # PNG minifimizer.
+  stage_4_optipng
+
   # Add before this'n: stage_4_fcn_template.
 
   # FIXME/MAYBE: These commands are stubbed.
@@ -2610,3 +2680,4 @@ if [[ "$0" == "$BASH_SOURCE" ]]; then
 #       the name of the script that's sourcing this script.
 fi
 
+# See: stage_4_fcn_template

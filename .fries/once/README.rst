@@ -3,7 +3,7 @@ A General Linux Setup Guide For Developers
 ==========================================
 
 .. Author: Landon Bouma
-.. Last Modified: 2016.04.25
+.. Last Modified: 2016.07.30
 .. Project Page: https://github.com/landonb/home_fries
 
 Overview
@@ -600,6 +600,14 @@ your browser requests try to use https.
 
    - `HTTPS Everywhere for Chrome
      <https://www.eff.org/https-everywhere>`__
+
+Center Image
+''''''''''''
+
+- Center image in window.
+
+  - `Image in the center
+    <https://chrome.google.com/webstore/detail/image-in-the-center/kcpejamelebpigblebnbabhndaaffjok?hl=en>`__
 
 Regex
 '''''

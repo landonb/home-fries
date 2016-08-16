@@ -18,13 +18,13 @@ VirtualBox New Machine
 
        E.g., My Ubuntu MATE 17.10
 
-   - For RAM, I chose 3840 (768 was suggested so I just timesed 5).
+   - RAM: Whatever. Probably 3840 minimum, up to 8192 (VB's default is a paltry 768).
 
    - Make a dynamic virtual drive.
 
    - Increase the disk size or you'll cap out.
 
-     The default is 8.00 GB, which is tiny. Go big: 1.00 TB.
+     The default is 8.00 GB, which is tiny. Go big: 1.00 TB+.
 
    - Double check that the image is being saved to the location
      and you want.
@@ -143,6 +143,8 @@ Live Installer
 Reboot.
 -------
 
+2016-07-30: This didn't happen on Ubuntu MATE 16.04:
+
 - The reboot hangs on an error.
 
 .. code-block:: bash
@@ -209,12 +211,16 @@ Update and Upgrade the OS
     # 2016-03-23: `sudo apt-get update` terminates early with an error.
     #               "E: dpkg was interrupted, you must manually run
     #                'sudo dpkg --configure -a' to correct the problem."
-    sudo dpkg --configure -a
+    # 2016-07-30: Didn't need the `dpkg`.
+    #  sudo dpkg --configure -a
     sudo apt-get update
     sudo apt-get upgrade
+    # 2016-07-30: Might as well dist-upgrade, too.
+    sudo apt-get dist-upgrade
     sudo apt-get install dkms build-essential
 
 (I rebooted now, but I think you can wait to reboot.)
+(2016-07-30: I installed Guest Additions and then rebooted.)
 
 Install Guest Additions
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -249,21 +255,27 @@ Setup home-fries and Dubsacks Vim.
     #/bin/cp -ar /media/$USER/
     pushd ~/Downloads
 
+    sudo apt-get install -y vim-gtk git git-core
+
     # You could clone from a local source if you prefer.
     #git clone /media/sf_$USER/ home-fries
     # But if the github repo is up to date, just use that.
     git clone https://github.com/landonb/home-fries home-fries
 
-    /bin/cp -ari ~/Downloads/home-fries/ /home/
+    shopt -s dotglob
+    /bin/cp -ari ~/Downloads/home-fries/* /home/$USER/
+    shopt -u dotglob
     # /home/$USER/.bashrc should be the only conflict.
 
+    # FIXME: 2016-07-30: Thr `cp` missed the .bashrc symlink...
+    /bin/rm ~/.bashrc
+    /bin/cp --no-dereference Downloads/home-fries/.bashrc ~
 
 Install Dubsacks Vim immediately, if you want, or don't
 and let the setup script install it.
 
 .. code-block:: bash
 
-    sudo apt-get install -y vim-gtk git git-core
     # 2016.03.23: I was copying locally at first, but really what's on
     #             github is golden, so don't specify a local git path.
     #export URI_DUBSACKS_VIM_GIT=/media/sf_$USER/.vim
@@ -387,58 +399,4 @@ References
 ==========
 
 https://en.wikipedia.org/wiki/MATE_(software)#Software_components
-
-OS Diatribe
-===========
-
-Anecdotally: Ubuntu MATE is slower to boot than Linux Mint MATE.
-I've read the Ubuntu is in general a little slower than Mint, but
-I've only noticed this with Ubuntu on my laptop (which is both the
-only placed I've installed Ubuntu MATE so far and also a machine that's
-six years old at this point) -- Mint would literally boot in tens or twenty
-seconds; Ubuntu takes a minute or two. I can't vouch for development
-performance because Ubuntu MATE on my laptop is the first time I've used
-an encrypted home directory.
-
-Funnily enough, I moved from early Mac OS (7x) to middle Mac OS (9x),
-skipped the OS X revolution, jumped to Windows when it was finally
-somewhat tolerable (XP SP2 came out soon after I got a job writing
-Windows device drivers, albeit I still had to support older consumer
-versions, like Windows 98 (actually a decent OS, but only with SPAK2,
-which seemed to be a Microsoft theme -- the first release sucks, wait
-for the right service pack) and Windows ME (a shitshow), and I also had
-to support enterprise versions like Windows NT and Windows 2000 (don't
-get me started; these were horrible beasts), and then I jumped from Windows
-to Linux once Linux had matured and Windows was shooting itself in the foot
-by trying to be "innovative" (Windows XP SP2 was followed by the disastrous
-Windows Vista rollout, but, again, a later service pack (SP1? I think) corrected
-that, and then Windows 7 was a true beauty! But then Windows 8 (a stepping
-stone?) was released, and then Windows 10, and everything went to shit;
-fortunately I had found Linux Mint MATE (around the time of Ubuntu fucking
-itself with GNOME 3/Unity) and later found Ubuntu MATE. Now here's to hoping
-they stop innovating OSes, at least drastically, because all my stand up scripts
-run great and I hate having to figure out how to customize new OSes every time
-they're released and I find myself without other options (such as sticking with
-what works and what I like!).
-
-Also note that with Windows 7, I'm given a year to upgrade for free to Windows 10.
-I did so on my laptop but never run Windows 10. I repartitioned the drive to
-give half to Windows and the other half to Linux (and would have given more to
-Linux if the partition tool let me), and then I upgrade from Windows 7 to Windows 10,
-though now I wish I just overwrote the recovery partition and the ``ntfs`` partition
-and just went all-out-balls-to-the-chassis linux. Anyway, I never run Windows, and
-I choose not to upgrade the other Windows installation on my desktop machine (so I'll
-lost my Windows license there) but I rarely run Windows. Recently, it's just to run
-the Webex application, and I can do that through VirtualBox with one of the free
-Internet Explorer/MS Edge developer images. But even then, VBox runs soooo slow --
-I can run my host OS and two Linux VBoxes at once, but when I run a Windows virtual
-machine, I gotta kill all other virtual machines, and I even have to quit Firefox
-or Chrome in the host to reclaim enough memory to run Windows without grinding to
-a halt, and even then the host CPU usage is so stressed when running Windows;
-seriously, fuck that OS. And fuck Mac OS, too, for locking so many people into
-the "Windows alternative" -- yes, Windows sucks, but Mac OS isn't your only
-retreat. Linux has a steep learning curve, for sure, but once you're there,
-you're there -- in a sense, schools could teach Linux and kids would *quickly*
-get it and then in a generation or two Mac and Windows would lost their monopoly
-(or is it monopolies? they're pretty much in collusion).
 
