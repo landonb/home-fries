@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.07.18
+# Last Modified: 2016.08.15
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -243,7 +243,7 @@ set -o notify
 # set -o ignoreeof
 
 # Use case-insensitive filename globbing.
-# shopt -s nocaseglob
+shopt -s nocaseglob
 
 # Make bash append rather than overwrite the history on disk.
 # shopt -s histappend
@@ -545,6 +545,11 @@ alias findi='find . -iname'
 # 2016-06-28: Stay in same dir when launching bash.
 # FIXME: Should I make sure just to do this if a gnome/mate terminal?
 alias bash='DUBS_STARTIN=$(dir_resolve $(pwd -P)) /bin/bash'
+
+# Do it to it git it st'ok it
+alias git-st='git-st.sh'
+alias git-diff='GIT_ST_DIFF=true git-st.sh'
+alias git-add='GIT_ST_ADDP=true git-st.sh'
 
 # Fix rm to be a crude trashcan
 ###############################
@@ -1736,42 +1741,88 @@ export GPG_TTY=`tty`
 # From: https://github.com/ginatrapani/todo.txt-cli/wiki/Tips-and-Tricks
 # See also hex-to-xterm converter: http://www.frexx.de/xterm-256-notes/
 
-### === HIGH-COLOR === compatible with most terms including putty
-### for windows... use colors that don't make your eyes bleed :)
-export PINK='\\033[38;5;211m'
-export ORANGE='\\033[38;5;203m'
-export SKYBLUE='\\033[38;5;111m'
-export MEDIUMGREY='\\033[38;5;246m'
-export LAVENDER='\\033[38;5;183m'
-export TAN='\\033[38;5;179m'
-export FOREST='\\033[38;5;22m'
-export MAROON='\\033[38;5;52m'
-export HOTPINK='\\033[38;5;198m'
-export MINTGREEN='\\033[38;5;121m'
-export LIGHTORANGE='\\033[38;5;215m'
-export LIGHTRED='\\033[38;5;203m'
-export JADE='\\033[38;5;35m'
-export LIME='\\033[38;5;154m'
-### background colors
-export PINK_BG='\\033[48;5;211m'
-export ORANGE_BG='\\033[48;5;203m'
-export SKYBLUE_BG='\\033[48;5;111m'
-export MEDIUMGREY_BG='\\033[48;5;246m'
-export LAVENDER_BG='\\033[48;5;183m'
-export TAN_BG='\\033[48;5;179m'
-export FOREST_BG='\\033[48;5;22m'
-export MAROON_BG='\\033[48;5;52m'
-export HOTPINK_BG='\\033[48;5;198m'
-export MINTGREEN_BG='\\033[48;5;121m'
-export LIGHTORANGE_BG='\\033[48;5;215m'
-export LIGHTRED_BG='\\033[48;5;203m'
-export JADE_BG='\\033[48;5;35m'
-export LIME_BG='\\033[48;5;154m'
-### extra attributes
-export UNDERLINE='\\033[4m'
+if false; then
+  export PINK='\\033[38;5;211m'
+  export ORANGE='\\033[38;5;203m'
+  export SKYBLUE='\\033[38;5;111m'
+  export MEDIUMGREY='\\033[38;5;246m'
+  export LAVENDER='\\033[38;5;183m'
+  export TAN='\\033[38;5;179m'
+  export FOREST='\\033[38;5;22m'
+  export MAROON='\\033[38;5;52m'
+  export HOTPINK='\\033[38;5;198m'
+  export MINTGREEN='\\033[38;5;121m'
+  export LIGHTORANGE='\\033[38;5;215m'
+  export LIGHTRED='\\033[38;5;203m'
+  export JADE='\\033[38;5;35m'
+  export LIME='\\033[38;5;154m'
+  #
+  export PINK_BG='\\033[48;5;211m'
+  export ORANGE_BG='\\033[48;5;203m'
+  export SKYBLUE_BG='\\033[48;5;111m'
+  export MEDIUMGREY_BG='\\033[48;5;246m'
+  export LAVENDER_BG='\\033[48;5;183m'
+  export TAN_BG='\\033[48;5;179m'
+  export FOREST_BG='\\033[48;5;22m'
+  export MAROON_BG='\\033[48;5;52m'
+  export HOTPINK_BG='\\033[48;5;198m'
+  export MINTGREEN_BG='\\033[48;5;121m'
+  export LIGHTORANGE_BG='\\033[48;5;215m'
+  export LIGHTRED_BG='\\033[48;5;203m'
+  export JADE_BG='\\033[48;5;35m'
+  export LIME_BG='\\033[48;5;154m'
+  #
+  export UNDERLINE='\\033[4m'
+else
+  ### === HIGH-COLOR === compatible with most terms including putty
+  ### for windows... use colors that don't make your eyes bleed :)
+  export PINK="\033[38;5;211m"
+  export ORANGE="\033[38;5;203m"
+  export SKYBLUE="\033[38;5;111m"
+  export MEDIUMGREY="\033[38;5;246m"
+  export LAVENDER="\033[38;5;183m"
+  export TAN="\033[38;5;179m"
+  export FOREST="\033[38;5;22m"
+  export MAROON="\033[38;5;52m"
+  export HOTPINK="\033[38;5;198m"
+  export MINTGREEN="\033[38;5;121m"
+  export LIGHTORANGE="\033[38;5;215m"
+  export LIGHTRED="\033[38;5;203m"
+  export JADE="\033[38;5;35m"
+  export LIME="\033[38;5;154m"
+  ### background colors
+  export PINK_BG="\033[48;5;211m"
+  export ORANGE_BG="\033[48;5;203m"
+  export SKYBLUE_BG="\033[48;5;111m"
+  export MEDIUMGREY_BG="\033[48;5;246m"
+  export LAVENDER_BG="\033[48;5;183m"
+  export TAN_BG="\033[48;5;179m"
+  export FOREST_BG="\033[48;5;22m"
+  export MAROON_BG="\033[48;5;52m"
+  export HOTPINK_BG="\033[48;5;198m"
+  export MINTGREEN_BG="\033[48;5;121m"
+  export LIGHTORANGE_BG="\033[48;5;215m"
+  export LIGHTRED_BG="\033[48;5;203m"
+  export JADE_BG="\033[48;5;35m"
+  export LIME_BG="\033[48;5;154m"
+  ### extra attributes
+  export UNDERLINE="\033[4m"
+fi
 
 ### sample of combining foreground and background
 # export PRI_A=$HOTPINK$MEDIUMGREY_BG$UNDERLINE
+
+# 2016-08-15: `tput` discovers the right sequences to send to the terminal:
+export font_bold_tput=$(tput bold)
+export font_normal_tput=$(tput sgr0)
+export font_bold_bash="\033[1m"
+export font_normal_bash="\033[0m"
+export font_underline_bash="\033[4m"
+# E.g.,
+#   echo -e "Some \e[93mCOLOR"
+#   echo -e "Some ${MINTGREEN}COLOR ${font_underline_bash}is ${font_bold_bash}nice ${font_normal_bash}surely."
+# Hints:
+#  tput sgr0 # Reset text attributes to normal without clear.
 
 #########################
 
