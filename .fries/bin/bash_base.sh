@@ -2,7 +2,7 @@
 
 # File: bash_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.07.18
+# Last Modified: 2016.07.30
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bash function library.
 # License: GPLv3
@@ -447,10 +447,16 @@ shush_errexit
 MACHINE_IP=`host -t a ${HOSTNAME} | awk '{print $4}' | egrep ^[1-9]`
 if [[ $? != 0 ]]; then
   MACHINE_IP=""
+  # 2016-07-30: This:
+  #  masterb@masterb:~ ⚓ $ ifconfig eth0
+  #  eth0: error fetching interface information: Device not found
   ifconfig eth0 | grep "inet addr" &> /dev/null
   if [[ $? -eq 0 ]]; then
     IFCFG_DEV=`ifconfig eth0 2> /dev/null`
   else
+    # 2016-07-30: This:
+    #  masterb@masterb:~ ⚓ $ ifconfig wlan0
+    #  wlan0: error fetching interface information: Device not found
     ifconfig wlan0 | grep "inet addr" &> /dev/null
     if [[ $? -eq 0 ]]; then
       IFCFG_DEV=`ifconfig wlan0 2> /dev/null`
