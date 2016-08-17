@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.08.15
+# Last Modified: 2016.08.16
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -1239,6 +1239,18 @@ termdo-reset () {
 
 termdo-bash-reset () {
   termdo-all /bin/bash
+}
+
+termdo-sudo-reset () {
+  # sudo security
+  # -------------
+  # Make all-terminal fcn. to revoke sudo on all terms,
+  # to make up for security hole of leaving terminals sudo-ready.
+  # Then again, real reason against is doing something dumb,
+  # so really you should always be sudo-promted.
+  # But maybe the answer is really a confirm prompt,
+  # not a password prompt (like in Windows, ewwwww!). -summer2016
+  termdo-all sudo -K
 }
 
 # FIXME/MAYBE: Add a close-all fcn:
