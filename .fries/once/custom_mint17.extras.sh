@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.08.15
+# Last Modified: 2016.08.17
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -2394,6 +2394,9 @@ stage_4_google_drive_drive () {
 
   drive trash|untrash|emptytrash|delete
   "
+
+  # ARGH: The `drive pull` features links to google docs (.desktop files)
+  # but doesn't backup docs files -- AFAIK I gotta do that manually....
 
   popd &> /dev/null
 
