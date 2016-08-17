@@ -2030,7 +2030,7 @@ stage_4_updatedb_locate_conf () {
   #  maybe a custom_mint17.private.$HOSTNAME.sh type file.
   #
   # Exclude backup drives, e.g.,
-  # PRUNEPATHS="/tmp /var/spool /home/.ecryptfs /media/landonb/FREEDUB1 /media/landonb/bubbly"
+  # PRUNEPATHS="/tmp /var/spool /home/.ecryptfs /media/${USER}/thingy
   :
 
 } # end: stage_4_updatedb_locate_conf
@@ -2365,8 +2365,8 @@ stage_4_google_drive_drive () {
 
   # SWEET! Finally. Installed.
 
-  #mkdir /jus/bkups/bkup-lnb-google.drive
-  drive init /jus/bkups/bkup-lnb-google.drive
+  #mkdir /jus/bkups/bkup-google.drive
+  drive init /jus/bkups/bkup-google.drive
 
   # Visit this URL to get an authorization code
   # https://accounts.google.com/o/oauth2/auth?...
@@ -2380,7 +2380,7 @@ stage_4_google_drive_drive () {
 
   __interesting_commands_="
 
-  cd /jus/bkups/bkup-lnb-google.drive
+  cd /jus/bkups/bkup-google.drive
 
   drive list
 
