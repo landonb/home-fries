@@ -2707,6 +2707,25 @@ rGUZtDlKYbmNIeMeAJ0UpVsjxpylBcSjsPE8MAki7Hb2Rw==
   make
   make check
   sudo make install
+
+# Crap...
+#
+# $ cmd gpg2
+# /usr/bin/gpg2
+#
+# $ /usr/local/bin/gpg2 --version
+# /usr/local/bin/gpg2: /lib/x86_64-linux-gnu/libgpg-error.so.0: no version information available (required by /usr/local/bin/gpg2)
+# gpg (GnuPG) 2.0.30
+# libgcrypt 1.5.3
+#
+# FIXME: 2016-08-17: I was able to install Password Store, but I did not finish getting gpg2 installed.
+#        Well, it's sort of installed, but
+#        1. it's not the first gpg2 on the path; and
+#        2. it complains about libgpg-error.so.0
+#            which I'm not sure matters, as I haven't tested the binary I just built
+#            and I'm going to drop this task until I care again.
+#            See you in the future!
+
   popd &> /dev/null
 
   # https://github.com/astrand/xclip
