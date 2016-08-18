@@ -2443,7 +2443,13 @@ stage_4_optipng () {
 
 stage_4_password_store () {
 
+  # Password management tool.
+
   # 2016-08-17: Version in aptitude for Linux Mint 17.3 is v1.4.5; current pass is v1.6.5.
+
+  # See also: https://qtpass.org/
+  # Unable to locate package??:
+  #  sudo apt-get install -y qtpass
 
   stage_announcement "stage_4_password_store"
 
