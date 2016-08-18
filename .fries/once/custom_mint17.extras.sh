@@ -2441,6 +2441,339 @@ stage_4_optipng () {
 
 } # end: stage_4_optipng
 
+stage_4_password_store () {
+
+  # 2016-08-17: Version in aptitude for Linux Mint 17.3 is v1.4.5; current pass is v1.6.5.
+
+  stage_announcement "stage_4_password_store"
+
+  # https://www.passwordstore.org/
+  # Says it Depends on:
+  # - bash
+  #   http://www.gnu.org/software/bash/
+  # - GnuPG2
+  #   http://www.gnupg.org/
+  # - git
+  #   http://www.git-scm.com/
+  # - xclip
+  #   http://sourceforge.net/projects/xclip/
+  # - pwgen
+  #   http://sourceforge.net/projects/pwgen/
+  # - tree >= 1.7.0
+  #   http://mama.indstate.edu/users/ice/tree/
+  # - GNU getopt
+  #   http://www.kernel.org/pub/linux/utils/util-linux/
+
+  # $ bash --version
+  # GNU bash, version 4.3.11(1)-release (x86_64-pc-linux-gnu)
+  #
+  # Latest bash is 2016-07-11 bash-4.4-beta2, but not too many before that
+  #                2016-06-17 bash43-046[4.3-patches]
+  #                2016-02-24 bash-4.4-rc1
+  #                2015-10-12 bash-4.4-beta
+  #                2014-11-07 bash-4.2.53
+  #                2014-11-07 bash-4.3.30
+  #                2014-04-10 bash43-011 [4.3-patches]
+  #                2014-02-26 bash-4.3
+  #
+  # so whatever. Not like I want to touch Bash, anyway.
+
+  # For libassuan.
+  # ftp://ftp.gnupg.org/gcrypt/libgpg-error/
+  pushd ${OPT_DLOADS} &> /dev/null
+  wget -N ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.24.tar.gz
+  wget -N ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.24.tar.gz.sig
+  gpg --verify libgpg-error-1.24.tar.gz.sig
+  if [[ $? -ne 0 ]]; then
+    echo "FATAL: Failed to verify downloaded file signature: libgpg-error-1.24.tar.gz"
+    exit 1
+  fi
+  tar xvzf libgpg-error-1.24.tar.gz
+  cd libgpg-error-1.24/
+  ./configure
+  make
+  make check
+  sudo make install
+  popd &> /dev/null
+
+  # For GPG2.
+  # ftp://ftp.gnupg.org/gcrypt/libassuan/
+  pushd ${OPT_DLOADS} &> /dev/null
+  wget -N ftp://ftp.gnupg.org/gcrypt/libassuan/libassuan-2.4.3.tar.bz2
+  wget -N ftp://ftp.gnupg.org/gcrypt/libassuan/libassuan-2.4.3.tar.bz2.sig
+  gpg --verify libassuan-2.4.3.tar.bz2.sig
+  if [[ $? -ne 0 ]]; then
+    echo "FATAL: Failed to verify downloaded file signature: libassuan-2.4.3.tar.bz2"
+    exit 1
+  fi
+  tar xvjf libassuan-2.4.3.tar.bz2
+  cd libassuan-2.4.3/
+  ./configure
+  make
+  make check
+  sudo make install
+  popd &> /dev/null
+
+  # For GPG2.
+  # ftp://ftp.gnupg.org/gcrypt/libksba/
+  pushd ${OPT_DLOADS} &> /dev/null
+  wget -N ftp://ftp.gnupg.org/gcrypt/libksba/libksba-1.3.4.tar.bz2
+  wget -N ftp://ftp.gnupg.org/gcrypt/libksba/libksba-1.3.4.tar.bz2.sig
+  gpg --verify libksba-1.3.4.tar.bz2.sig
+  if [[ $? -ne 0 ]]; then
+    echo "FATAL: Failed to verify downloaded file signature: libksba-1.3.4.tar.bz2"
+    exit 1
+  fi
+  tar xvjf libksba-1.3.4.tar.bz2
+  cd libksba-1.3.4/
+  ./configure
+  make
+  make check
+  sudo make install
+  popd &> /dev/null
+
+  # For GPG2.
+  # ftp://ftp.gnu.org/gnu/pth/
+  # 2016-08-17: I did not try this:
+  #  sudo apt-get install -y libpth-dev
+  pushd ${OPT_DLOADS} &> /dev/null
+  wget -N ftp://ftp.gnu.org/gnu/pth/pth-2.0.7.tar.gz
+  wget -N ftp://ftp.gnu.org/gnu/pth/pth-2.0.7.tar.gz.sig
+  # 2016-08-17: Whhere's their public key?
+  # gpg --verify pth-2.0.7.tar.gz.sig
+  #  gpg: Signature made Thu 08 Jun 2006 01:18:31 PM CDT using DSA key ID A9C09E30
+  #  gpg: Can't check signature: public key not found
+  #if [[ $? -ne 0 ]]; then
+  #  echo "FATAL: Failed to verify downloaded file signature: pth-2.0.7.tar.gz"
+  #  exit 1
+  #fi
+  tar xvzf pth-2.0.7.tar.gz
+  cd pth-2.0.7/
+  ./configure
+  make
+  make test
+  sudo make install
+  popd &> /dev/null
+
+  # Mint 17.3 upstream [2016-08-17]:
+  #
+  #   $ gpg2 --version
+  #   gpg (GnuPG) 2.0.22
+  #   libgcrypt 1.5.3
+  #
+  # https://www.gnupg.org/
+  # "2.1.14 is the modern version with support for ECC and many other new features
+  #  2.0.30 is the stable version which is currently mostly used."
+  pushd ${OPT_DLOADS} &> /dev/null
+  wget -N https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-2.0.30.tar.bz2
+  wget -N https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-2.0.30.tar.bz2.sig
+  # https://www.gnupg.org/signature_key.html
+echo "-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v2
+
+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
+=W3eM
+-----END PGP PUBLIC KEY BLOCK-----" | gpg --import
+  # gpg --verify gnupg-2.0.30.tar.bz2.sig gnupg-2.0.30.tar.bz2
+  gpg --verify gnupg-2.0.30.tar.bz2.sig
+  if [[ $? -ne 0 ]]; then
+    echo "FATAL: Failed to verify downloaded file signature: gnupg-2.0.30.tar.bz2"
+    exit 1
+  fi
+  tar -xvjf gnupg-2.0.30.tar.bz2
+  cd gnupg-2.0.30
+
+  #   $ ./configure
+  #   checking for GPG Error - version >= 1.11... yes (1.24)
+  #   configure: WARNING:
+  #   ***
+  #   *** The config script /usr/local/bin/gpg-error-config was
+  #   *** built for x86_64-pc-linux-gnu and thus may not match the
+  #   *** used host x86_64-unknown-linux-gnu.
+  #   *** You may want to use the configure option --with-gpg-error-prefix
+  #   *** to specify a matching config script or use $SYSROOT.
+  #   ***
+  #   checking for libgcrypt-config... /usr/bin/libgcrypt-config
+  #   checking for LIBGCRYPT - version >= 1.5.0... yes (1.5.3)
+  #   checking LIBGCRYPT API version... okay
+  #   configure: WARNING:
+  #   ***
+  #   *** The config script /usr/bin/libgcrypt-config was
+  #   *** built for x86_64-pc-linux-gnu and thus may not match the
+  #   *** used host x86_64-unknown-linux-gnu.
+  #   *** You may want to use the configure option --with-libgcrypt-prefix
+  #   *** to specify a matching config script or use $SYSROOT.
+  ./configure --build=x86_64-pc-linux-gnu
+  
+  make
+  make check
+  sudo make install
+  popd &> /dev/null
+
+  # https://github.com/astrand/xclip
+  pushd ${OPT_DLOADS} &> /dev/null
+  # ./configure fails without libXmu headers.
+  #   checking for X11/Xmu/Atoms.h... no
+  #   configure: error: *** X11/Xmu/Atoms.h is missing ***
+  sudo apt-get install -y libxmu-dev
+  git clone https://github.com/astrand/xclip
+  cd xclip/
+  # https://github.com/astrand/xclip/blob/master/INSTALL
+  # create configuration files
+  autoreconf
+  # create the Makefile
+  ./configure
+  # build the binary
+  make
+  # install xclip
+  sudo make install
+  # install man page
+  sudo make install.man
+  popd &> /dev/null
+
+  # 2016-08-17: Dern it, Mint 17.3:
+  #
+  #   $ tree --version
+  #   tree v1.6.0 (c) 1996 - 2011 by Steve Baker, Thomas Moore, Francesc Rocher, Kyosuke Tokoro 
+  #
+  # http://mama.indstate.edu/users/ice/tree/
+  pushd ${OPT_DLOADS} &> /dev/null
+  wget -N ftp://mama.indstate.edu/linux/tree/tree-1.7.0.tgz
+  tar xvzf tree-1.7.0.tgz
+  cd tree-1.7.0/
+  make
+  sudo make install
+  popd &> /dev/null
+
+  # 2016-08-17: Linux Mint 17.3:
+  #
+  #   $ getopt --version
+  #   getopt from util-linux 2.20.1
+  #
+  # Latest is 11-Aug-2016 v2.28
+  #
+  #   http://www.kernel.org/pub/linux/utils/util-linux/
+  sudo apt-get install -y libncurses5-dev
+  pushd ${OPT_DLOADS} &> /dev/null
+  wget -N https://www.kernel.org/pub/linux/utils/util-linux/v2.28/util-linux-2.28.1.tar.xz
+  tar -xJvf util-linux-2.28.1.tar.xz
+  cd util-linux-2.28.1/
+  # Just guessing here, as there are no build instructions.
+  ./configure
+  make
+  make test
+  make install
+  popd &> /dev/null
+
+  # Finally.
+  # https://www.passwordstore.org/
+  pushd ${OPT_DLOADS} &> /dev/null
+  wget -N https://git.zx2c4.com/password-store/snapshot/password-store-1.6.5.tar.xz
+  tar xvzf password-store-1.6.5.tar.xz
+  tar --xz -xvf password-store-1.6.5.tar.xz
+  pushd password-store-1.6.5 &> /dev/null
+  sudo make install
+  popd &> /dev/null
+
+  # All done.
+
+  popd &> /dev/null
+
+} # end: stage_4_password_store
+
 stage_4_fcn_template () {
 
   stage_announcement "stage_4_fcn_template"
@@ -2584,6 +2917,8 @@ setup_customize_extras_go () {
 
   # PNG minifimizer.
   stage_4_optipng
+
+  stage_4_password_store
 
   # Add before this'n: stage_4_fcn_template.
 
