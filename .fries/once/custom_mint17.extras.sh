@@ -2450,6 +2450,8 @@ stage_4_password_store () {
   # See also: https://qtpass.org/
   # Unable to locate package??:
   #  sudo apt-get install -y qtpass
+  #
+  # See: https://github.com/IJHack/qtpass
 
   stage_announcement "stage_4_password_store"
 
