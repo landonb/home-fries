@@ -6,6 +6,8 @@ Or is this a reST file?
 .. 2016-03-13: For a private password keeper trapper machine,
                I did the following.
 
+2016-09-01: FIXME: Why 15.10, and not an .04 LTS? Silly. Anyway, try 16.04 next time...
+
 VirtualBox New Machine
 ======================
 
