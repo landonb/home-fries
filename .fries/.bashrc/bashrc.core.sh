@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.08.17
+# Last Modified: 2016.09.02
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -633,7 +633,17 @@ function device_on_which_file_resides() {
 }
 
 function device_filepath_for_file() {
-  device_path=$(df "$1" | awk 'NR == 2 {for(i=7;i<=NF;++i) print $i}')
+  usage_report=$(df "$1")
+  if [[ $? -eq 0 ]]; then
+    device_path=$(echo "$usage_report" | awk 'NR == 2 {for(i=7;i<=NF;++i) print $i}')
+  else
+    if [[ ! -L "$1" ]]; then
+      # df didn't find file, and file not a symlink.
+      echo "WARNING: Using relative path because not a file: $1"
+    # else, df didn't find symlink because it points at non existant file.
+    fi
+    device_path=$(df $(dirname "$1") | awk 'NR == 2 {for(i=7;i<=NF;++i) print $i}')
+  fi
   echo $device_path
 }
 
