@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.09.02
+# Last Modified: 2016.09.22
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -729,7 +729,7 @@ function rm_safe() {
     ensure_trashdir "${device_trashdir}" "${trash_device}"
     if [[ $? -eq 1 ]]; then
       local fname=${bname}
-      if [[ -e "${device_trashdir}/.trash/${fname}" ]]; then
+      if [[ -e "${device_trashdir}/.trash/${fname}" || -h "${device_trashdir}/.trash/${fname}" ]]; then
         fname="${bname}.$(date +%Y_%m_%d_%Hh%Mm%Ss_%N)"
       fi
       # If fpath is a symlink and includes a trailing slash, doing a raw mv:
