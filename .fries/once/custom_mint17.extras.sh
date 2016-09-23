@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.08.17
+# Last Modified: 2016.09.17
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -1596,7 +1596,8 @@ stage_4_digikam_from_scratch () {
   echo
   echo "NOTICE: 2016-02-04: Building digikam 4.14.0 does not work."
   echo "        Don't waste your time."
-  echo "        Call stage_4_digikam_from_distro instead."
+  echo "        Call stage_4_digikam_from_distro"
+  echo "        and stage_4_digikam5_from_distro instead."
   echo
 
   exit 1
@@ -1927,6 +1928,20 @@ stage_4_digikam_from_distro () {
 
 } # end: stage_4_digikam_from_distro
 
+stage_4_digikam5_from_distro () {
+
+  stage_announcement "stage_4_digikam5_from_distro"
+
+  sudo apt-add-repository ppa:philip5/extra
+  sudo apt-get update
+  sudo apt-get install digikam5
+
+# Not supported on trusty/14.04!
+# digikam5	4:5.1.0-xenial~ppa1	Philip Johnsson (2016-08-09)
+# digikam5	4:5.1.0-wily~ppa1
+
+} # end: stage_4_digikam5_from_distro
+
 stage_4_gimp_plugins () {
 
   stage_announcement "stage_4_gimp_plugins"
@@ -2192,7 +2207,12 @@ export PATH" | sudo tee -a /etc/environment
       sudo apt-get install -y python-software-properties
       sudo add-apt-repository -y ppa:webupd8team/java
       sudo apt-get update
+# FIXME/2016-09-15: I just ran this to update Firefox's plugin. Should this just be in package list?
       sudo apt-get install oracle-java8-installer
+# 2016-09-15: To get southpark.cc.com's flash player to work...
+# sudo apt-get install hal-info
+# cd ~/.adobe/Flash_Player
+# /bin/rm -rf NativeCache AssetCache APSPrivateData2
       # If you have multiple versions of Java installed on your server,
       # then you have the ability to select a default version.
       # Check your alternatives with the following command:
@@ -2801,6 +2821,46 @@ rGUZtDlKYbmNIeMeAJ0UpVsjxpylBcSjsPE8MAki7Hb2Rw==
 
 } # end: stage_4_password_store
 
+stage_4_oracle_java_jre () {
+
+  stage_announcement "stage_4_oracle_java_jre"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # $ cmd java
+  # /srv/opt/bin/jdk/bin/java
+  #
+  # $ /srv/opt/bin/jdk/bin/java -version
+  # java version "1.8.0_91"
+  # Java(TM) SE Runtime Environment (build 1.8.0_91-b14)
+  # Java HotSpot(TM) 64-Bit Server VM (build 25.91-b14, mixed mode)
+
+  # This is just the runtime:
+  #  #wget -N http://javadl.oracle.com/webapps/download/AutoDL?BundleId=211989
+  #  wget -O jre-8u101-linux-x64.tar.gz http://javadl.oracle.com/webapps/download/AutoDL?BundleId=211989
+  #  tar xzvf jre-8u101-linux-x64.tar.gz
+
+  # Update the JDK instead.
+
+  # From:
+  #  http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+  # Argh, the link doesn't work. Manually download using broswer.
+  #wget -N http://download.oracle.com/otn-pub/java/jdk/8u101-b13/jdk-8u101-linux-x64.tar.gz
+
+  /bin/mv ~/Downloads/jdk-8u101-linux-x64.tar.gz .
+  tar xvzf jdk-8u101-linux-x64.tar.gz
+  /bin/mv jdk1.8.0_101 ${OPT_BIN}
+  pushd ${OPT_BIN} &> /dev/null
+  if [[ -h jdk ]]; then
+    /bin/rm jdk
+  fi
+  /bin/ln -sf jdk1.8.0_101 jdk
+  popd &> /dev/null
+
+  popd &> /dev/null
+
+} # end: stage_4_oracle_java_jre
+
 stage_4_fcn_template () {
 
   stage_announcement "stage_4_fcn_template"
@@ -2919,6 +2979,8 @@ setup_customize_extras_go () {
   # also a pain to build from scratch.
   #stage_4_digikam_from_scratch
   stage_4_digikam_from_distro
+  # 2016-09-17: Aha!
+  stage_4_digikam5_from_distro
 
   # Dah Gimp Dah Gimp Dah Gimp!
   stage_4_gimp_plugins
