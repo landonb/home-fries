@@ -1,6 +1,6 @@
 # File: bashrc.base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.03.30
+# Last Modified: 2016.09.23
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Smart Bash Startup Script
 # License: GPLv3
@@ -137,7 +137,11 @@ for f in $(find ${HARD_PATH} -maxdepth 1 -type f -name "bashrc0.*.base.sh" \
   # Avoid stderr message if symlink points at naught.
   if [[ -e $f ]]; then
     $DUBS_TRACE && echo "Loading project-specific Bash resource script: $f"
-    source $f
+    # 2016-09-23: I've been mkdir 'ing my way around Dubsacks Gvim `ag` complaints
+    #             on the laptop where not /jus/cache is loaded.
+    if [[ ! -d $f ]]; then
+      source $f
+    fi
   fi
 done
 
