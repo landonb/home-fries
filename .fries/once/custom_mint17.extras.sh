@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.09.23
+# Last Modified: 2016.09.24
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -2892,6 +2892,17 @@ stage_4_py_chjson () {
 
 } # end: stage_4_py_chjson
 
+stage_4_hipchat_client () {
+
+  stage_announcement "stage_4_hipchat_client"
+
+  sudo sh -c 'echo "deb https://atlassian.artifactoryonline.com/atlassian/hipchat-apt-client $(lsb_release -c -s) main" > /etc/apt/sources.list.d/atlassian-hipchat4.list'
+  wget -O - https://atlassian.artifactoryonline.com/atlassian/api/gpg/key/public | sudo apt-key add -
+  sudo apt-get update
+  sudo apt-get install hipchat4
+
+} # end: stage_4_hipchat_client
+
 stage_4_fcn_template () {
 
   stage_announcement "stage_4_fcn_template"
@@ -3041,6 +3052,8 @@ setup_customize_extras_go () {
   stage_4_password_store
 
   stage_4_py_chjson
+
+  stage_4_hipchat_client
 
   # Add before this'n: stage_4_fcn_template.
 
