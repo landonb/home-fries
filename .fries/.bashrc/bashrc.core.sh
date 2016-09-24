@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.09.23
+# Last Modified: 2016.09.24
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -550,6 +550,10 @@ alias bash='DUBS_STARTIN=$(dir_resolve $(pwd -P)) /bin/bash'
 alias git-st='git-st.sh'
 alias git-diff='GIT_ST_DIFF=true git-st.sh'
 alias git-add='GIT_ST_ADDP=true git-st.sh'
+
+# 2016-09-24: Why didn't I think of this 'til now?
+# [Note also that pass can just do it, too.]
+alias pwgen16="pwgen -n 16 -s -N 1 -y"
 
 # Fix rm to be a crude trashcan
 ###############################
