@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.09.22
+# Last Modified: 2016.09.23
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -1220,7 +1220,6 @@ if false; then
 "
 fi
 
-# SYNC_ME: This is also in excensus-gk12_2/scripts/bashrc_gk12_user.sh
 termdo-reset () {
   determine_window_manager
   THIS_WINDOW_ID=$(xdotool getactivewindow)
@@ -1245,6 +1244,26 @@ termdo-reset () {
   done
   # Now we can act locally after having acted globally.
   cd $1
+}
+
+termdo-cmd () {
+    determine_window_manager
+    THIS_WINDOW_ID=$(xdotool getactivewindow)
+    WINDOW_IDS=$(xdotool search --class "$WM_TERMINAL_APP")
+    for winid in $WINDOW_IDS; do
+        if [[ $THIS_WINDOW_ID -ne $winid ]]; then
+            DESKTOP_NUM=$(xdotool get_desktop_for_window $winid 2> /dev/null)
+            if [[ $? -eq 0 ]]; then
+                xdotool key --window $winid ctrl+c
+                xdotool key --window $winid ctrl+d
+                xdotool type --window $winid "$1"
+                # Hrmm. 'Ctrl+c' and 'ctrl+c' are acceptable, but 'return' is not.
+                xdotool key --window $winid Return
+            fi
+        fi
+    done
+    # Now we can act locally after having acted globally.
+    eval $1
 }
 
 termdo-bash-reset () {
@@ -1869,6 +1888,14 @@ man() {
     LESS_TERMCAP_us=$(printf "\e[1;32m") \
     man "$@"
 }
+
+#########################
+
+# 2015.08.30: Well, this is new: [lb] seeing Ctrl-D'ing to get outta
+#             Python propagating to Bash, which didn't usedta happen.
+#             So now force user to type `exit` to close Bash terminal.
+# 2016-09-23: Title better: Prevent Ctrl-D from exiting shell.
+export IGNOREEOF=9999999
 
 ############################################################################
 # DONE                              DONE                              DONE #
