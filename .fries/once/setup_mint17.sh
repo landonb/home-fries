@@ -887,6 +887,11 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       # Works fine:
       #   gnome-gmail-notifier - A Gmail Inbox Notifier for the GNOME Desktop
       gnome-gmail-notifier
+
+      # 2016-09-23: For some reason the desktop stopped being locked after suspend.
+      # For the xss-lock!
+      xscreensaver
+
     ) # end: BIG_PACKAGE_LIST_LMINT_17X
 
     local BIG_PACKAGE_LIST_UMATE_15X=(
