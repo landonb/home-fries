@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.07.30
+# Last Modified: 2016.09.23
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -644,6 +644,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       python-wnck
       python-xlib
       python-dbus
+      libpython3-dev
 
       # 2016-04-04: I just had this error but I think I figured it out...
       #     Setting up pylint (1.3.1-3ubuntu1) ...
