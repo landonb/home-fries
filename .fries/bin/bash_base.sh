@@ -2,7 +2,7 @@
 
 # File: bash_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.07.30
+# Last Modified: 2016.09.23
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bash function library.
 # License: GPLv3
@@ -450,19 +450,43 @@ if [[ $? != 0 ]]; then
   # 2016-07-30: This:
   #  masterb@masterb:~ ⚓ $ ifconfig eth0
   #  eth0: error fetching interface information: Device not found
-  ifconfig eth0 | grep "inet addr" &> /dev/null
+  # 2016-09-23: 
+  #   systemd's Predictable Network Interface naming started in 15.04.
+  #   (predictable as in physically predictable, so devices are
+  #   numbered by their physical position, as opposed to being
+  #   numbered sequentially by the prober on boot)
+  #   http://askubuntu.com/questions/704361/why-is-my-network-interface-named-enp0s25-instead-of-eth0
+  #   On Lenovo ThinkPad X201, enp0s25 is the new eth0; wlp2s0 the new wlan0.
+
+  ifconfig eth0 &> /dev/null
   if [[ $? -eq 0 ]]; then
-    IFCFG_DEV=`ifconfig eth0 2> /dev/null`
-  else
-    # 2016-07-30: This:
-    #  masterb@masterb:~ ⚓ $ ifconfig wlan0
-    #  wlan0: error fetching interface information: Device not found
-    ifconfig wlan0 | grep "inet addr" &> /dev/null
+    ifconfig eth0 | grep "inet addr" &> /dev/null
     if [[ $? -eq 0 ]]; then
-      IFCFG_DEV=`ifconfig wlan0 2> /dev/null`
+      IFCFG_DEV=`ifconfig eth0 2> /dev/null`
     else
-      # VirtualBox. I'm guessing.
-      IFCFG_DEV=`ifconfig enp0s3 2> /dev/null`
+      # 2016-07-30: This:
+      #  masterb@masterb:~ ⚓ $ ifconfig wlan0
+      #  wlan0: error fetching interface information: Device not found
+      ifconfig wlan0 | grep "inet addr" &> /dev/null
+      if [[ $? -eq 0 ]]; then
+        IFCFG_DEV=`ifconfig wlan0 2> /dev/null`
+      else
+        # VirtualBox. I'm guessing.
+        IFCFG_DEV=`ifconfig enp0s3 2> /dev/null`
+      fi
+    fi
+  else
+    ifconfig enp0s25 | grep "inet addr" &> /dev/null
+    if [[ $? -eq 0 ]]; then
+      IFCFG_DEV=`ifconfig enp0s25 2> /dev/null`
+    else
+      ifconfig wlp2s0 | grep "inet addr" &> /dev/null
+      if [[ $? -eq 0 ]]; then
+        IFCFG_DEV=`ifconfig wlp2s0 2> /dev/null`
+      else
+        # VirtualBox. I'm guessing.
+        IFCFG_DEV=`ifconfig enp0s3 2> /dev/null`
+      fi
     fi
   fi
   MACHINE_IP=`echo ${IFCFG_DEV} | grep "inet addr" \
