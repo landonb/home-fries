@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.09.17
+# Last Modified: 2016.09.23
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -2861,6 +2861,37 @@ stage_4_oracle_java_jre () {
 
 } # end: stage_4_oracle_java_jre
 
+stage_4_py_chjson () {
+
+  stage_announcement "stage_4_py_chjson"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  sudo apt-get install -y libpython3-dev
+
+  git clone https://github.com/landonb/chjson
+
+  cd chjson
+
+  /bin/rm -rf build/ dist/ python_chjson.egg-info/
+  python3 ./setup.py clean
+  #CFLAGS='-Wall -O0 -g' python3 ./setup.py build
+  python3 ./setup.py build
+  python3 ./setup.py install
+
+  /bin/rm -rf build/ dist/ python_chjson.egg-info/
+  python2 ./setup.py clean
+  #CFLAGS='-Wall -O0 -g' python2 ./setup.py build
+  python2 ./setup.py build
+  #python2 ./setup.py install
+  sudo python2 ./setup.py install
+
+  /bin/rm -rf build/ dist/ python_chjson.egg-info/
+
+  popd &> /dev/null
+
+} # end: stage_4_py_chjson
+
 stage_4_fcn_template () {
 
   stage_announcement "stage_4_fcn_template"
@@ -3008,6 +3039,8 @@ setup_customize_extras_go () {
   stage_4_optipng
 
   stage_4_password_store
+
+  stage_4_py_chjson
 
   # Add before this'n: stage_4_fcn_template.
 
