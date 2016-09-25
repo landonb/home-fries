@@ -1901,6 +1901,15 @@ man() {
 # 2016-09-23: Title better: Prevent Ctrl-D from exiting shell.
 export IGNOREEOF=9999999
 
+# 2016-09-24: Seriously? This is what's been hounding me forever?
+#             So that, e.g., `echo "!X"` works.
+#             And I _rarely_ use !n to repeat a history command.
+#             Usually, I just up-arrow.
+#             Recently, I've been Ctrl-R'ing.
+#             But I'm always annoyed with a bang in a paragraph
+#             *confuses* the shell.
+set +o histexpand
+
 ############################################################################
 # DONE                              DONE                              DONE #
 ############################################################################
