@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016-07-16
+# Last Modified: 2016-09-25
 #
 # Buggers. Oracle VirtualBox update wrapper.
 
@@ -77,6 +77,20 @@ virtualbox_dubs_update () {
 if false; then
 sudo apt-get remove virtualbox-5.0
 fi
+
+  # Remove old files.
+  #
+  # E.g., ./oracle_virtualbox_download_index_5.1.6.html
+  find . -maxdepth 1 -name "oracle_virtualbox_download_index_[0-9]*\\.[0-9]*\\.[0-9]*\\.html" \
+    -exec echo {} + | \
+    /bin/sed s/\\.\\/${DOWNL_PATH}// | \
+    xargs /bin/rm
+  #
+  # E.g., ./virtualbox-5.1_5.1.6-110634~Ubuntu~trusty_amd64.deb
+  find . -maxdepth 1 -name "virtualbox-[0-9]*\\.[0-9]*_[0-9]*\\.[0-9]*\\.[0-9]*-[0-9]*~Ubuntu~[a-zA-Z0-9]*_[a-zA-Z0-9]*\\.deb" \
+    -exec echo {} + | \
+    /bin/sed s/\\.\\/virtualbox-[0-9]*\\.[0-9]*_${LATEST_VBOX_VERSION_BASE}-[0-9]*~Ubuntu~[a-zA-Z0-9]*_[a-zA-Z0-9]*\\.deb// | \
+    xargs /bin/rm
 
   popd &> /dev/null
 
