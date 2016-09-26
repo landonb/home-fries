@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.09.24
+# Last Modified: 2016.09.26
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -755,18 +755,22 @@ virtualbox-${LATEST_VBOX_VERS_MAJOR}_${LATEST_VBOX_VERSION_FULL}~Ubuntu~${DISTRI
     #     [click] Extensions
     #     [click icon for] Add Package
     #     [select, e.g.,] /srv/opt/.downloads/Oracle_VM_VirtualBox_Extension_Pack-4.3.30-101610.vbox-extpack
-  fi
 
-  command -v virtualbox_dubs_update
+  fi # end: if False
+
+  #command -v virtualbox_dubs_update
+  command -v virtualbox_update.sh
   if [[ $? -eq 0 ]]; then
     # See: ~/.fries/.bashrc/bashrc.core.sh
-    virtualbox_dubs_update
+    #virtualbox_dubs_update
+    virtualbox_update.sh
 
     sudo usermod -a -G vboxsf ${USER}
     sudo usermod -a -G vboxusers ${USER}
   else
     echo
-    echo "WARNING: Not found: virtualbox_dubs_update"
+    #echo "WARNING: Not found: virtualbox_dubs_update"
+    echo "WARNING: Not found: virtualbox_update.sh"
     echo "         You'll want to call this on your own later."
     echo
   fi
