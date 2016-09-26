@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.09.24
+# Last Modified: 2016.09.26
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -332,6 +332,8 @@ if [[ $EUID -ne 0 \
               && -d "$SSH_SECRETS" \
               && -e "$SSH_SECRETS/$secret_name" ]]; then
           if [[ $(command -v expect > /dev/null && echo true) ]]; then
+            # CUTE! If your $pphrase has a bracket in it, e.g., "1234[", expect complains:
+            #        "missing close-bracket while executing send "1234["
             pphrase=$(cat ${SSH_SECRETS}/${secret_name})
             /usr/bin/expect -c " \
             spawn /usr/bin/ssh-add ${pvt_key}; \
