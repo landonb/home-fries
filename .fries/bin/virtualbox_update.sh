@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016-09-25
+# Last Modified: 2016-09-26
 #
 # Buggers. Oracle VirtualBox update wrapper.
 
@@ -18,9 +18,22 @@ virtualbox_dubs_update () {
 
   # Load the release codename, e.g., raring, trusty, wily, etc.
   source /etc/lsb-release
-  if [[ $DISTRIB_CODENAME == 'rebecca' ]]; then
-    # Mint 17.X is rebecca is trusty 14.04.
-    DISTRIB_CODENAME=trusty
+  if [[ $DISTRIB_ID == 'LinuxMint' ]]; then
+    if [[ $DISTRIB_CODENAME == 'rebecca' ]]; then
+      # Mint 17.X is rebecca is trusty 14.04.
+      DISTRIB_CODENAME=trusty
+    elif [[ $DISTRIB_CODENAME == 'sarah' ]]; then
+      # Mint 18 is sarah is xenial 16.04.
+      DISTRIB_CODENAME=xenial
+    else
+      echo
+      echo "WARNING: Unknown LinuxMint distro -- not Rebecca, nor Sarah, but: $DISTRIB_CODENAME"
+      echo
+    fi
+  elif [[ $DISTRIB_ID != 'Ubuntu' ]]; then
+    echo
+    echo "WARNING: Unknown distribution -- not LinuxMint, nor Ubuntu, but: $DISTRIB_ID"
+    echo
   fi
 
   # The VirtualBox bugs you to update whenever an update is available.
