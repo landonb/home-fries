@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.09.23
+# Last Modified: 2016.09.26
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -762,6 +762,27 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
     ) # end: BIG_PACKAGE_LIST
 
+    # 2016-09-26: What? I ran this script last Thursday, but did it not
+    #             do this BIG_DESKTOP_LIST? Wireshark was not installed.
+    #             Nor was dia. Nor anything else in this list! (dia,
+    #             inkscape; fakeroot was fine, as was thunderbird;
+    #             evince was not installed, nor akregator, nor any fonts:
+    #             ttf-ancient-fonts, fonts-cantarell, lmodern, ttf-*
+    #             (except ttf-bitstream-vera was okay), tv-fonts;
+    #             nor digikam-doc, cmake, qt4-qmake, qt5-qmake,
+    #             kdevplatform-dev, gnome-color-manager;
+    #             hamster-applet and hamster-indicator were installed;
+    #             finally, python-wxgtk2.8 IS NOT AVAILABLE!!!
+    #
+    #             HAHAHA, I bet you it failed because wxgtk2.8!!
+    #
+    #             FIXME: Is there not `set +e` set when running this script?
+    #
+    # FIXME: DELETE THIS COMMENT AFTER ANOTHER LINUX MINT 18 INSTALL
+    #        and verifying that, e.g., wireshark installed.
+    #        I'm pretty sure it was because of a package name with
+    #        a version that applied to Mint 17 but not to Mint 18.
+
     local BIG_DESKTOP_LIST=(
 
       # Excellent diagramming.
@@ -778,6 +799,8 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       #  See: stage_4_pencil_install
 
       # Well, when I was your age, we called it Ethereal.
+      # NOTE: You'll be prompted to answer Yes/No to should non-users be
+      #       able to capture packets. Default is No. Answer YES instead.
       wireshark
       # Woozuh, some funky root-faking mechanism Wireshark uses.
       fakeroot
@@ -833,10 +856,16 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       # Already installed.
       #brasero
 
-      # wxPython. Widgets! [usually probably already installed]
-      python-wxgtk2.8
-
     ) # end: BIG_DESKTOP_LIST
+
+    local BIG_DESKTOP_LIST_MINT_17=(
+      # wxPython. Widgets!
+      python-wxgtk2.8
+    ) # end: BIG_DESKTOP_LIST_MINT_17
+
+    local BIG_DESKTOP_LIST_MINT_18=(
+      python-wxgtk3.0
+    ) # end: BIG_DESKTOP_LIST_MINT_18
 
     local BIG_PACKAGE_LIST_LMINT_17X=(
 
@@ -1002,17 +1031,42 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
     ) # end: BIG_PACKAGE_LIST_UBUNTU_16X
 
+    local BIG_PACKAGE_LIST_UBUNTU_1604_AND_BEYOND=(
+      # I.e., Ubuntu 16.04
+
+      digikam
+
+      # 2016-09-23: For some reason the desktop stopped being locked after suspend.
+      # For the xss-lock!
+      xscreensaver
+
+    ) # end: BIG_PACKAGE_LIST_UBUNTU_1604_AND_BEYOND
+
     # 2016-07-17: Cyclopath Resuscitation. Why didn't a failed apt-get
     # cause this script to die? I can't figure out where the errexit
     # got taken away, but it did!
+    # 2016-09-26: I think I had the same issue with BIG_DESKTOP_LIST
+    # because python-wxgtk2.8. So adding USING_ERREXIT. Hrmmmmm.
+    USING_ERREXIT=true
     reset_errexit
 
     # One core package, and maybe
     # One Giant MASSIVE package install.
 
     sudo apt-get install -y ${CORE_PACKAGE_LIST[@]}
+    if [[ $? -ne 0 ]]; then
+      echo
+      echo "WARNING: FAILED: CORE_PACKAGE_LIST"
+      echo
+    fi
+
     if [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
       sudo apt-get install -y ${CORE_DESKTOP_LIST[@]}
+      if [[ $? -ne 0 ]]; then
+        echo
+        echo "WARNING: FAILED: CORE_DESKTOP_LIST"
+        echo
+      fi
     fi
 
     if [[ ${INSTALL_ALL_PACKAGES_ANSWER} == "Y" ]]; then
@@ -1020,14 +1074,68 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       sudo apt-get install -y ${BIG_PACKAGE_LIST[@]}
 
       source /etc/lsb-release
-      if [[ $DISTRIB_ID == 'Ubuntu' ]]; then
+      # 2016-09-26: The Ubuntu 16.04 package list is obviously compatible with Mint 18!
+      if [[ $DISTRIB_ID == 'Ubuntu' || ( $DISTRIB_ID == 'LinuxMint' && $DISTRIB_RELEASE -ge 18 ) ]]; then
         sudo apt-get install -y ${BIG_PACKAGE_LIST_UBUNTU_16X[@]}
+        if [[ $? -ne 0 ]]; then
+          echo
+          echo "WARNING: FAILED: BIG_PACKAGE_LIST_UBUNTU_16X"
+          echo
+        fi
       else
         sudo apt-get install -y ${BIG_PACKAGE_LIST_NOT_UBUNTU_16X[@]}
+        if [[ $? -ne 0 ]]; then
+          echo
+          echo "WARNING: SKIPPING: BIG_PACKAGE_LIST_NOT_UBUNTU_16X"
+          echo
+        fi
       fi
-
+      if [[ $DISTRIB_ID == 'LinuxMint' && $DISTRIB_RELEASE -ge 18 ]]; then
+        # 2016-09-26: FIXME: This won't work forever, will it?
+        #             Or will Mint always increment ordinally to an integer?
+        sudo apt-get install -y ${BIG_PACKAGE_LIST_UBUNTU_1604_AND_BEYOND[@]}
+        if [[ $? -ne 0 ]]; then
+          echo
+          echo "WARNING: FAILED: BIG_PACKAGE_LIST_UBUNTU_1604_AND_BEYOND"
+          echo
+        fi
+      fi
       if [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
+        echo
+        echo "SUCCESS: YES INSTALLING: BIG_DESKTOP_LIST"
+        echo
         sudo apt-get install -y ${BIG_DESKTOP_LIST[@]}
+        if [[ $? -ne 0 ]]; then
+          echo
+          echo "WARNING: FAILED: BIG_DESKTOP_LIST"
+          echo
+        fi
+
+        if [[ $DISTRIB_ID == 'LinuxMint' && $DISTRIB_RELEASE -lt 18 ]]; then
+          sudo apt-get install -y ${BIG_DESKTOP_LIST_MINT_17[@]}
+          if [[ $? -ne 0 ]]; then
+            echo
+            echo "WARNING: FAILED: BIG_DESKTOP_LIST_MINT_17"
+            echo
+          fi
+        else if [[ $DISTRIB_ID == 'LinuxMint' && $DISTRIB_RELEASE -ge 18 ]]; then
+          sudo apt-get install -y ${BIG_DESKTOP_LIST_MINT_18[@]}
+          if [[ $? -ne 0 ]]; then
+            echo
+            echo "WARNING: FAILED: BIG_DESKTOP_LIST_MINT_18"
+            echo
+          fi
+        else
+            echo
+            echo "WARNING: FAILED: NOT MINT: NOT INSTALLING BIG_DESKTOP_LIST_MINT_*"
+            echo
+        fi
+
+      else
+        # FIXME/2016-09-26: Tracking issue not installing BIG_DESKTOP_LIST
+        echo
+        echo "WARNING: NOT INSTALLING: BIG_DESKTOP_LIST"
+        echo
       fi
     fi
 
