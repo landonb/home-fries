@@ -2938,7 +2938,11 @@ setup_customize_extras_go () {
   stage_4_hamster_briefs_setup
 
   # Tell Pidgin to start on login.
-  stage_4_pidgin_setup_autostart
+  # 2016-09-26: Disabling. Using HipChat now.
+  # No one really chats to me on XMPP. At Cyclopath, sure,
+  # and at Excensus, yeah, one guy, but no one personally
+  # really does anymore. It's either SMS or Facebook Messenger.
+  #stage_4_pidgin_setup_autostart
 
   # Tell Gmail Notifier to start on login.
   stage_4_gmail_notifier_setup
