@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.09.26
+# Last Modified: 2016.09.27
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -1869,7 +1869,7 @@ stage_4_digikam_from_distro () {
   #
   # Load the release codename, e.g., raring, trusty, wily, etc.
   source /etc/lsb-release
-  if [[ ${DISTRIB_CODENAME} = 'trusty' ]]; then
+  if [[ ${DISTRIB_CODENAME} = 'trusty' || ${DISTRIB_CODENAME} = 'rebecca' ]]; then
 
     # 2016.02.06: Now I cannot get the new 4.14.0 to build at home, so ppa'ing.
     # 2015.10.22: Argh. I got digikam to build at home, but at work, 'snot working.
