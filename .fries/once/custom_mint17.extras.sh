@@ -2907,6 +2907,119 @@ stage_4_hipchat_client () {
 
 } # end: stage_4_hipchat_client
 
+stage_4_install_docker () {
+
+  stage_announcement "stage_4_install_docker"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # https://docs.docker.com/engine/installation/linux/ubuntulinux/
+
+  sudo apt-get update
+  # These should both already be installed.
+  sudo apt-get install -y apt-transport-https ca-certificates
+
+  sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 \
+    --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+
+  source /etc/lsb-release
+  if [[ ${DISTRIB_CODENAME} = 'trusty' || ${DISTRIB_CODENAME} = 'rebecca' ]]; then
+    echo "deb https://apt.dockerproject.org/repo ubuntu-trusty main" | \
+      sudo tee /etc/apt/sources.list.d/docker.list
+  elif [[ ${DISTRIB_CODENAME} = 'xenial' || ${DISTRIB_CODENAME} = 'sarah' ]]; then
+    echo "deb https://apt.dockerproject.org/repo ubuntu-xenial main" | \
+      sudo tee /etc/apt/sources.list.d/docker.list
+  else
+    echo
+    echo "ERROR: Unknown distro. Cannot install Docker."
+    exit 1
+  fi
+
+  sudo apt-get update
+  # Purge the old repo, if it exists.
+  sudo apt-get purge lxc-docker
+  # Verify that APT is pulling from the right repository.
+  apt-cache policy docker-engine
+
+  # The linux-image-extra-* packages allows you use the aufs storage driver.
+  #sudo apt-get install linux-image-extra-$(uname -r) linux-image-extra-virtual
+  # Should this worry me? 2016-09-27 on Xenial/Sarah.
+  #   landonb@terpsichore:danweaver ⚓ $ sudo apt-get install linux-image-extra-virtual
+  #   Reading package lists... Done
+  #   Building dependency tree
+  #   Reading state information... Done
+  #   Some packages could not be installed. This may mean that you have
+  #   requested an impossible situation or if you are using the unstable
+  #   distribution that some required packages have not yet been created
+  #   or been moved out of Incoming.
+  #   The following information may help to resolve the situation:
+  #
+  #   The following packages have unmet dependencies:
+  #    linux-image-extra-virtual : Depends: linux-image-generic (= 4.4.0.38.40) but it is not going to be installed
+  #   E: Unable to correct problems, you have held broken packages.
+  sudo apt-get install -y linux-image-extra-$(uname -r) linux-image-extra-virtual linux-image-generic
+
+  # Install Docker.
+  sudo apt-get install -y docker-engine
+
+  # Start the docker daemon.
+  sudo service docker start
+
+  # Verify docker is installed correctly.
+  sudo docker run hello-world
+
+  # Create a docker group so your user doesn't have to sudo to docker.
+  # https://docs.docker.com/engine/installation/linux/ubuntulinux/#/create-a-docker-group
+  # This group already exists, at least on xenial after installing docker.
+  sudo groupadd docker
+  sudo usermod -aG docker $USER
+  # After logoff/logon, or sudo su $USER, you can test without sudo:
+  #   docker run hello-world
+  #
+  # Something something unset DOCKER_HOST if docker fails with the message:
+  #  "Cannot connect to the Docker daemon. Is 'docker daemon' running on this host?"
+  if [[ -n ${DOCKER_HOST} ]]; then
+    echo
+    echo "ERROR: Unexpected: DOCKER_HOST is set. Please unset. Forever."
+    exit 1
+  fi
+
+# MAYBE: Adjust memory and swap accounting.
+# Incurs 1% memory overhead and 10% performance degradation.
+# But prevents messages like:
+# "WARNING: Your kernel does not support cgroup swap limit. WARNING: Your
+#  kernel does not support swap limit capabilities. Limitation discarded."
+# https://docs.docker.com/engine/installation/linux/ubuntulinux/#/adjust-memory-and-swap-accounting
+# sudo vim /etc/default/grub
+#  GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1"
+# sudo update-grub
+# sudo /sbin/shutdown -r now
+
+# MAYBE: Configure a DNS server for use by Docker
+# Avoid warning:
+# "WARNING: Local (127.0.0.1) DNS resolver found in resolv.conf and containers
+#  can't use it. Using default external servers : [8.8.8.8 8.8.4.4]"
+# https://docs.docker.com/engine/installation/linux/ubuntulinux/#/configure-a-dns-server-for-use-by-docker
+
+# MAYBE: Start Docker on boot.
+# For 15.04 and up, to configure the docker daemon to start on boot, run
+#  sudo systemctl enable docker
+# For 14.10 and below the above installation method automatically configures upstart to start the docker daemon on boot
+
+  # Upgrade Docker, obv:
+  #  sudo apt-get upgrade docker-engine
+  # Uninstall Docker, not as obv:
+  #  Basic uninstall:
+  #   sudo apt-get purge docker-engine
+  #  Uninstall dependencies, too:
+  #   sudo apt-get autoremove --purge docker-engine
+  #  Delete all images, containers, and volumes:
+  #   rm -rf /var/lib/docker
+
+  popd &> /dev/null
+
+} # end: stage_4_install_docker
+
 stage_4_fcn_template () {
 
   stage_announcement "stage_4_fcn_template"
@@ -3062,6 +3175,8 @@ setup_customize_extras_go () {
   stage_4_py_chjson
 
   stage_4_hipchat_client
+
+  stage_4_install_docker
 
   # Add before this'n: stage_4_fcn_template.
 
