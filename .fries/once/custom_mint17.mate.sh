@@ -1,6 +1,6 @@
 # File: custom_mint17.mate.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.04.04
+# Last Modified: 2016.09.27
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Custom Mint17 MATE Window Manage Customization.
 # License: GPLv3
@@ -85,6 +85,7 @@ stage_4_wm_customize_mate_misc () {
   sudo /bin/cp -f \
     ${script_path}/target/common/usr/lib/pm-utils/sleep.d/33disablewakeups \
     /usr/lib/pm-utils/sleep.d
+  sudo chown root:root /usr/lib/pm-utils/sleep.d/33disablewakeups
   sudo chmod 755 /usr/lib/pm-utils/sleep.d/33disablewakeups
   # TO-TEST:
   #  sudo pm-suspend
