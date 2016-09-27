@@ -1912,6 +1912,18 @@ export IGNOREEOF=9999999
 #             *confuses* the shell.
 set +o histexpand
 
+#########################
+
+# 2016-09-26: This is just a reminder of a good way to iterate over directories.
+# I used to just change IFS, but this trick handles newlines and asterisks in paths,
+# in addition to spaces in file/directory/path names.
+#   http://unix.stackexchange.com/questions/9496/looping-through-files-with-spaces-in-the-names
+printdirsincur() {
+  find . -maxdepth 1 -type d ! -path . -print0 | while IFS= read -r -d '' file; do
+    echo "file = $file"
+  done
+}
+
 ############################################################################
 # DONE                              DONE                              DONE #
 ############################################################################
