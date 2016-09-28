@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.09.27
+# Last Modified: 2016.09.28
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -3020,6 +3020,22 @@ stage_4_install_docker () {
 
 } # end: stage_4_install_docker
 
+stage_4_git_latest () {
+
+  stage_announcement "stage_4_git_latest"
+
+  # 2016-09-28: Stock 16.04 (latest Ubuntu):
+  #    $ git --version
+  #    git version 2.7.4
+  # After installing git maintainers repo:
+  #    git version 2.10.0
+
+  sudo add-apt-repository -y ppa:git-core/ppa
+  sudo apt-get update
+  sudo apt-get install -y git
+
+} # end: stage_4_git_latest
+
 stage_4_fcn_template () {
 
   stage_announcement "stage_4_fcn_template"
@@ -3177,6 +3193,8 @@ setup_customize_extras_go () {
   stage_4_hipchat_client
 
   stage_4_install_docker
+
+  stage_4_git_latest
 
   # Add before this'n: stage_4_fcn_template.
 
