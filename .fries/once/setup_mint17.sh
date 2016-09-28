@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.09.26
+# Last Modified: 2016.09.28
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -759,6 +759,9 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       #  sudo cat /var/spool/mail/root
       #  sudo tail -n 1000 /var/spool/mail/root
       #  sudo grep "cron" /var/spool/mail/root
+
+      # GUI git log tool
+      gitk
 
     ) # end: BIG_PACKAGE_LIST
 
