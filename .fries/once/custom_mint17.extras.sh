@@ -3036,6 +3036,45 @@ stage_4_git_latest () {
 
 } # end: stage_4_git_latest
 
+stage_4_openshift_client () {
+
+  stage_announcement "stage_4_openshift_client"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  #wget -N \
+  #  https://github.com/openshift/origin/releases/download/v1.2.0/openshift-origin-client-tools-v1.2.0-2e62fab-linux-64bit.tar.gz
+  #tar xvzf openshift-origin-client-tools-v1.2.0-2e62fab-linux-64bit.tar.gz
+
+  wget -N \
+    https://github.com/openshift/origin/releases/download/v1.3.0/openshift-origin-client-tools-v1.3.0-3ab7af3d097b57f933eccef684a714f2368804e7-linux-64bit.tar.gz
+  tar xvzf openshift-origin-client-tools-v1.3.0-3ab7af3d097b57f933eccef684a714f2368804e7-linux-64bit.tar.gz
+
+  popd &> /dev/null
+
+  pushd ${OPT_BIN} &> /dev/null
+
+  /bin/ln -sf \
+    ${OPT_DLOADS}/openshift-origin-client-tools-v1.3.0-3ab7af3d097b57f933eccef684a714f2368804e7-linux-64bit/oc
+
+  popd &> /dev/null
+
+} # end: stage_4_openshift_client
+
+stage_4_jq_cli_json_processor () {
+
+  stage_announcement "stage_4_jq_cli_json_processor"
+
+  pushd ${OPT_BIN} &> /dev/null
+
+  wget -N https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64
+
+  /bin/ln -sf jq-linux64 jq
+
+  popd &> /dev/null
+
+} # end: stage_4_jq_cli_json_processor
+
 stage_4_fcn_template () {
 
   stage_announcement "stage_4_fcn_template"
@@ -3195,6 +3234,10 @@ setup_customize_extras_go () {
   stage_4_install_docker
 
   stage_4_git_latest
+
+  stage_4_openshift_client
+
+  stage_4_jq_cli_json_processor
 
   # Add before this'n: stage_4_fcn_template.
 
