@@ -3155,8 +3155,11 @@ stage_4_gnome_encfs_manager () {
   #   -- Build files have been written to: /srv/opt/.downloads/encfs-1.9.1/build
   # but who cares.
 
+  # Install directory defaults to /usr/local, i.e., /usr/local/bin
   #cmake ..
-  cmake .. -DCMAKE_INSTALL_PREFIX=/usr/bin
+  # WRONG: cmake .. -DCMAKE_INSTALL_PREFIX=/usr/bin
+  #  (installs to /usr/bin/bin!)
+  cmake .. -DCMAKE_INSTALL_PREFIX=/usr
 
   make
 
