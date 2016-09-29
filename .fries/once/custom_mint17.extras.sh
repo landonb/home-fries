@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.09.28
+# Last Modified: 2016.09.29
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -3075,6 +3075,113 @@ stage_4_jq_cli_json_processor () {
 
 } # end: stage_4_jq_cli_json_processor
 
+stage_4_gnome_encfs_manager () {
+
+  stage_announcement "stage_4_gnome_encfs_manager"
+
+  if false; then
+    # 2016-09-29
+    #   Before
+    #     $ encfs --version
+    #     encfs version 1.7.4
+    #   After
+    #     same damn thing...
+    #   HAHA This is just a GUI app. Dork!
+    sudo add-apt-repository -y ppa:gencfsm/ppa
+    sudo apt-get update
+    sudo apt-get install -y gnome-encfs-manager
+  fi
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # https://github.com/vgough/encfs/blob/master/INSTALL.md
+
+  # * fuse : the userspace filesystem layer
+  # * openssl : used for cryptographic primitives
+  # * tinyxml2 : for reading and writing XML configuration files
+  # * gettext : internationalization support
+  # * libintl : internationalization support
+  #
+  # While trying to build, I installed these but they didn't help (some
+  # were suggested! just not the correct development headers version):
+  #
+  #  fuse
+  #  libgettextpo-dev - GNU Internationalization library development files
+  #  libgettextpo0 [already installed]
+  #
+  # And these these I never tried:
+  #  libfuse2 \
+  #  libssl-dev
+  #
+  # And I haven't solved the FindIntl.cmake problem but I don't think it matters.
+  sudo apt-get install -y \
+    libfuse-dev \
+    openssl \
+    libtinyxml2-dev \
+    gettext \
+    libintl-perl \
+    libintl-xs-perl
+
+  wget -N https://github.com/vgough/encfs/releases/download/v1.9.1/encfs-1.9.1.tar.gz
+
+  tar xzf encfs-1.9.1.tar.gz
+
+  cd encfs-1.9.1
+
+  mkdir build
+  cd build
+
+  # cmake complains:
+  #   -- Enabled syslog logging support
+  #   CMake Warning at CMakeLists.txt:131 (find_package):
+  #     By not providing "FindIntl.cmake" in CMAKE_MODULE_PATH this project has
+  #     asked CMake to find a package configuration file provided by "Intl", but
+  #     CMake did not find one.
+  #
+  #     Could not find a package configuration file provided by "Intl" with any of
+  #     the following names:
+  #
+  #       IntlConfig.cmake
+  #       intl-config.cmake
+  #
+  #     Add the installation prefix of "Intl" to CMAKE_PREFIX_PATH or set
+  #     "Intl_DIR" to a directory containing one of the above files.  If "Intl"
+  #     provides a separate development package or SDK, be sure it has been
+  #     installed.
+  #
+  #   -- Found Gettext: /usr/bin/msgmerge (found version "0.18.3") 
+  #   -- Configuring done
+  #   -- Generating done
+  #   -- Build files have been written to: /srv/opt/.downloads/encfs-1.9.1/build
+  # but who cares.
+
+  #cmake ..
+  cmake .. -DCMAKE_INSTALL_PREFIX=/usr/bin
+
+  make
+
+  make test
+
+  sudo make install
+
+  # Default path is /usr/local
+  #   $ /usr/local/bin/encfs --version
+  #   encfs version 1.9.1
+  #
+  # One option is redo the cmake above:
+  #
+  #   cmake .. -DCMAKE_INSTALL_PREFIX=/usr/bin
+  #
+  # Another option is to just move the original.
+  #
+  #   if [[ -e /usr/bin/encfs ]]; then
+  #     /bin/mv -i /usr/bin/encfs /usr/bin/encfs-ORIG
+  #   fi
+
+  popd &> /dev/null
+
+} # end: stage_4_gnome_encfs_manager
+
 stage_4_fcn_template () {
 
   stage_announcement "stage_4_fcn_template"
@@ -3238,6 +3345,8 @@ setup_customize_extras_go () {
   stage_4_openshift_client
 
   stage_4_jq_cli_json_processor
+
+  stage_4_gnome_encfs_manager
 
   # Add before this'n: stage_4_fcn_template.
 
