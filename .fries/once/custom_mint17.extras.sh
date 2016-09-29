@@ -3156,8 +3156,37 @@ stage_4_gnome_encfs_manager () {
   # but who cares.
 
   # Default install path is /usr/local, i.e., /usr/local/bin
-  #cmake ..
-  cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+  #
+  # 2016-09-29: Figure this out on another machine.
+  # The PATH thing weirds me out -- something in /usr/local/bin
+  # should be used before /usr/bin.....
+  #
+  cmake ..
+  #cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+
+  # One option is redo the cmake above:
+  #
+  #   cmake .. -DCMAKE_INSTALL_PREFIX=/usr/bin
+  #
+  # Another option is to move the original.
+  #
+  #   if [[ -e /usr/bin/encfs ]]; then
+  #     /bin/mv -i /usr/bin/encfs /usr/bin/encfs-ORIG
+  #   fi
+  #
+  # Another option is to re-order your PATH...
+  #  Wait, what?!
+  #     $ echo $PATH
+  #     ... :/usr/local/bin:/usr/bin:/bin:...
+  #  so /usr/local/bin was already in front?
+  #  Then why was the other encfs picking up?
+  #  Frak.
+  #  2016-09-29: Anyway, at home I blew away
+  #  the system repo's /usr/bin/encfs and installed
+  #  my own. Hope I don't have issues!
+
+# FIXME: On laptop, try to make PATH behave correctly!
+#        /usr/local/bin should override.
 
   make
 
