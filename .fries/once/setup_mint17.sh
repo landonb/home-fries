@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.09.28
+# Last Modified: 2016.09.29
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -802,7 +802,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       #  See: stage_4_pencil_install
 
       # Well, when I was your age, we called it Ethereal.
-      # NOTE: You'll be prompted to answer Yes/No to should non-users be
+      # NOTE: You will be prompted to answer Yes/No to should non-users be
       #       able to capture packets. Default is No. Answer YES instead.
       wireshark
       # Woozuh, some funky root-faking mechanism Wireshark uses.
