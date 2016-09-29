@@ -3155,10 +3155,8 @@ stage_4_gnome_encfs_manager () {
   #   -- Build files have been written to: /srv/opt/.downloads/encfs-1.9.1/build
   # but who cares.
 
-  # Install directory defaults to /usr/local, i.e., /usr/local/bin
+  # Default install path is /usr/local, i.e., /usr/local/bin
   #cmake ..
-  # WRONG: cmake .. -DCMAKE_INSTALL_PREFIX=/usr/bin
-  #  (installs to /usr/bin/bin!)
   cmake .. -DCMAKE_INSTALL_PREFIX=/usr
 
   make
@@ -3167,19 +3165,10 @@ stage_4_gnome_encfs_manager () {
 
   sudo make install
 
-  # Default path is /usr/local
-  #   $ /usr/local/bin/encfs --version
+  # Et voilà!
+  #
+  #   $ encfs --version
   #   encfs version 1.9.1
-  #
-  # One option is redo the cmake above:
-  #
-  #   cmake .. -DCMAKE_INSTALL_PREFIX=/usr/bin
-  #
-  # Another option is to just move the original.
-  #
-  #   if [[ -e /usr/bin/encfs ]]; then
-  #     /bin/mv -i /usr/bin/encfs /usr/bin/encfs-ORIG
-  #   fi
 
   popd &> /dev/null
 
