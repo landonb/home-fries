@@ -3203,6 +3203,18 @@ stage_4_gnome_encfs_manager () {
 
 } # end: stage_4_gnome_encfs_manager
 
+stage_4_exosite_setup () {
+
+  stage_announcement "stage_4_exosite_setup"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  sudo pip install --upgrade exoline
+
+  popd &> /dev/null
+
+} # end: stage_4_exosite_setup
+
 stage_4_fcn_template () {
 
   stage_announcement "stage_4_fcn_template"
@@ -3368,6 +3380,8 @@ setup_customize_extras_go () {
   stage_4_jq_cli_json_processor
 
   stage_4_gnome_encfs_manager
+
+  stage_4_exosite_setup
 
   # Add before this'n: stage_4_fcn_template.
 
