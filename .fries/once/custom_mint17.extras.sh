@@ -3241,6 +3241,8 @@ stage_4_go_delve_debugger () {
   # and it's empty.
 
   git clone ssh://git@github.com/derekparker/delve
+  cd delve
+  make install
 
   # ll gocode
 
