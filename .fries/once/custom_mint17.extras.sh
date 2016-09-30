@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.09.29
+# Last Modified: 2016.09.30
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -3226,6 +3226,28 @@ stage_4_exosite_setup () {
 
 } # end: stage_4_exosite_setup
 
+stage_4_go_delve_debugger () {
+
+  stage_announcement "stage_4_go_delve_debugger"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # `go get` requires one to set GOPATH.
+  #    mkdir -p gocode
+  #    export GOPATH="${OPT_DLOADS}/gocode"
+  # However, this just hangs:
+  #    go get github.com/derekparker/delve/cmd/dlv
+  # and when I ctrl-c, I see gocode/src/github.com/derekparker
+  # and it's empty.
+
+  git clone ssh://git@github.com/derekparker/delve
+
+  # ll gocode
+
+  popd &> /dev/null
+
+} # end: stage_4_go_delve_debugger
+
 stage_4_fcn_template () {
 
   stage_announcement "stage_4_fcn_template"
@@ -3393,6 +3415,8 @@ setup_customize_extras_go () {
   stage_4_gnome_encfs_manager
 
   stage_4_exosite_setup
+
+  stage_4_go_delve_debugger
 
   # Add before this'n: stage_4_fcn_template.
 
