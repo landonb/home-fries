@@ -3209,6 +3209,17 @@ stage_4_exosite_setup () {
 
   pushd ${OPT_DLOADS} &> /dev/null
 
+  # 2016-09-29: So, this worked (at work!) on Linux Mint "Sarah" 16.04,
+  # but not at home, on Mint "Rebecca" 14.04, and they should have the
+  # same everything installed, AFAIK, but pip failed in 14.04 at:
+  #    No package 'libffi' found
+  #    c/_cffi_backend.c:15:17: fatal error: ffi.h: No such file or directory
+  #     #include <ffi.h>
+  # Fortunately, a simple apt-get fixed it.
+  # Making note of it in case this is a common problem,
+  # and not just particular to my machines.
+  sudo apt-get install libffi-dev
+
   sudo pip install --upgrade exoline
 
   popd &> /dev/null
