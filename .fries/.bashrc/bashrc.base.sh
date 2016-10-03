@@ -1,6 +1,6 @@
 # File: bashrc.base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.09.23
+# Last Modified: 2016.10.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Smart Bash Startup Script
 # License: GPLv3
@@ -164,8 +164,8 @@ if [[ $EUID -ne 0 ]]; then
   # Start out in the preferred development directory.
   if [[ -n "$DUBS_STARTIN" ]]; then
     cd $DUBS_STARTIN
-  elif [[ -d "$DS_DEV_DIR" ]]; then
-    cd $DS_DEV_DIR
+  elif [[ -d "$DUBS_STARTIN_DEFAULT" ]]; then
+    cd $DUBS_STARTIN_DEFAULT
   fi
   # See: ${HARD_PATH}/.fries/bin/openterms.sh for usage.
   if [[ -n "$DUBS_STARTUP" ]]; then
