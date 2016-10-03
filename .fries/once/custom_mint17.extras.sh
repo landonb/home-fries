@@ -3240,6 +3240,13 @@ stage_4_go_delve_debugger () {
   # and when I ctrl-c, I see gocode/src/github.com/derekparker
   # and it's empty.
 
+  mkdir ${HOME}/.gopath
+  export GOPATH=${HOME}/.gopath
+
+  mkdir -p ${HOME}/.gopath/src/github.com/derekparker
+
+  pushd ${HOME}/.gopath/src/github.com/derekparker &> /dev/null
+
   git clone ssh://git@github.com/derekparker/delve
   cd delve
   make install
@@ -3271,6 +3278,32 @@ EOF
   popd &> /dev/null
 
 } # end: stage_4_fix_firefox_vertical_scrollbar_warp_to_click
+
+# 2016-10-03: Probably about a month ago my weather applet stopped working.
+#             Gurgling suggests the API service was shut off.
+#             Here's what the github page says, where most commits are "a year ago":
+#             ``libmateweather	iwin: use new server address to fix forecast	27 days ago``
+#             I think the issue is that the distro packagers probably won't rebuild it.
+stage_4_libmateweather () {
+
+  stage_announcement "stage_4_libmateweather"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  git clone https://github.com/mate-desktop/libmateweather
+  # No package 'gtk+-2.0' found
+  sudo apt-get install -y libgtk2.0-dev
+  # No package 'libsoup-2.4' found
+  sudo apt-get install -y libsoup2.4-dev
+  ./autogen.sh
+  make
+  sudo make install
+# 2016-10-03/FIXME: I may need to logoff/on to realize the new applet.
+
+
+  popd &> /dev/null
+
+} # end: stage_4_libmateweather
 
 stage_4_fcn_template () {
 
@@ -3443,6 +3476,8 @@ setup_customize_extras_go () {
   stage_4_go_delve_debugger
 
   stage_4_fix_firefox_vertical_scrollbar_warp_to_click
+
+  stage_4_libmateweather
 
   # Add before this'n: stage_4_fcn_template.
 

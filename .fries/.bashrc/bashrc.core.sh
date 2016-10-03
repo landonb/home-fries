@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.09.28
+# Last Modified: 2016.10.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -95,9 +95,15 @@ PATH="${PATH}:/sbin"
 if [[ -d /usr/local/go/bin ]]; then
   PATH=/usr/local/go/bin:${PATH}
 fi
+if [[ ! -d ${HOME}/.gopath ]]; then
+  # 2016-10-03: Why not?
+  mkdir ${HOME}/.gopath
+fi
 if [[ -d ${HOME}/.gopath ]]; then
   # Local go projects you install.
   export GOPATH=${HOME}/.gopath
+  # Check with: `go env`
+
   #PATH=${GOPATH}:${GOPATH}/bin:${PATH}
   PATH=${GOPATH}:${GOPATH}/bin:${PATH}
 fi
