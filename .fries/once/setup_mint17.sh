@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.09.29
+# Last Modified: 2016.10.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -762,6 +762,12 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
       # GUI git log tool
       gitk
+
+      # 2016-09-30: Weird. I swore this was already part of setup.
+      # 2016-10-03: I installed adb first, then android-tools-adb,
+      # and the latter uninstalled the former. Hmmm.
+      #adb
+      android-tools-adb
 
     ) # end: BIG_PACKAGE_LIST
 
