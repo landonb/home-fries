@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.09.30
+# Last Modified: 2016.10.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -3250,6 +3250,28 @@ stage_4_go_delve_debugger () {
 
 } # end: stage_4_go_delve_debugger
 
+stage_4_fix_firefox_vertical_scrollbar_warp_to_click () {
+
+  stage_announcement "stage_4_fix_firefox_vertical_scrollbar_warp_to_click"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # 2016-10-03: WTF, Google? Or Gnome? Which is it?
+  # Firefox scrollbar jumping to where I click, instead of paging.
+  # You can shift-click to do opposite behavior
+  #
+  # https://support.mozilla.org/en-US/questions/1125603
+  if [[ ! -e ~/.config/gtk-3.0/settings.ini ]]; then
+    cat > ~/.config/gtk-3.0/settings.ini << EOF
+[Settings]
+gtk-primary-button-warps-slider = false
+EOF
+  fi
+
+  popd &> /dev/null
+
+} # end: stage_4_fix_firefox_vertical_scrollbar_warp_to_click
+
 stage_4_fcn_template () {
 
   stage_announcement "stage_4_fcn_template"
@@ -3419,6 +3441,8 @@ setup_customize_extras_go () {
   stage_4_exosite_setup
 
   stage_4_go_delve_debugger
+
+  stage_4_fix_firefox_vertical_scrollbar_warp_to_click
 
   # Add before this'n: stage_4_fcn_template.
 
