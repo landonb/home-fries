@@ -3539,6 +3539,8 @@ setup_customize_extras_go () {
 
   stage_4_libmateweather
 
+  stage_4_open_shift_origin_binary
+
   # Add before this'n: stage_4_fcn_template.
 
   # FIXME/MAYBE: These commands are stubbed.
