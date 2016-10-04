@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.03
+# Last Modified: 2016.10.04
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -3068,6 +3068,7 @@ stage_4_jq_cli_json_processor () {
   pushd ${OPT_BIN} &> /dev/null
 
   wget -N https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64
+  chmod 775 jq-linux64
 
   /bin/ln -sf jq-linux64 jq
 
