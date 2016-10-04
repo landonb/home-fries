@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.03
+# Last Modified: 2016.10.04
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -567,6 +567,10 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
       # 2016-07-17: Ubuntu missing bc. What a weirdo.
       bc
+
+      # 2016-10-04: Missing until now? Not so surprising.
+      # Though surprising I did not face this in 16.04, just 14.04.
+      rake
 
     ) # end: CORE_PACKAGE_LIST
 
