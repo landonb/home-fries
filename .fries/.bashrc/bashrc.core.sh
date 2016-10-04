@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.03
+# Last Modified: 2016.10.04
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -1878,6 +1878,10 @@ export font_underline_bash="\033[4m"
 #   echo -e "Some ${MINTGREEN}COLOR ${font_underline_bash}is ${font_bold_bash}nice ${font_normal_bash}surely."
 # Hints:
 #  tput sgr0 # Reset text attributes to normal without clear.
+
+# To strip color codes from Bash stdout whatever.
+# http://stackoverflow.com/questions/17998978/removing-colors-from-output
+alias stripcolors='/bin/sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"'
 
 #########################
 
