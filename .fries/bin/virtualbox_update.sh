@@ -114,13 +114,13 @@ fi
   find . -maxdepth 1 -name "oracle_virtualbox_download_index_[0-9]*\\.[0-9]*\\.[0-9]*\\.html" \
     -exec echo {} + | \
     /bin/sed s/\\.\\/${DOWNL_PATH}// | \
-    xargs /bin/rm
+    xargs /bin/rm &> /dev/null
   #
   # E.g., ./virtualbox-5.1_5.1.6-110634~Ubuntu~trusty_amd64.deb
   find . -maxdepth 1 -name "virtualbox-[0-9]*\\.[0-9]*_[0-9]*\\.[0-9]*\\.[0-9]*-[0-9]*~Ubuntu~[a-zA-Z0-9]*_[a-zA-Z0-9]*\\.deb" \
     -exec echo {} + | \
     /bin/sed s/\\.\\/virtualbox-[0-9]*\\.[0-9]*_${LATEST_VBOX_VERSION_BASE}-[0-9]*~Ubuntu~[a-zA-Z0-9]*_[a-zA-Z0-9]*\\.deb// | \
-    xargs /bin/rm
+    xargs /bin/rm &> /dev/null
 
   popd &> /dev/null
 
