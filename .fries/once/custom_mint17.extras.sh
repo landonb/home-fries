@@ -3352,6 +3352,9 @@ stage_4_open_shift_origin_binary () {
   wget -N https://github.com/openshift/origin/releases/download/${SERVER_VERSION}/${TARNAME}
   cd ${OPT_BIN}
   tar xzf ${OPT_DLOADS}/${TARNAME}
+  if [[ -h openshift-origin-server ]]; then
+    /bin/rm openshift-origin-server
+  fi
   /bin/ln -sf ${SERVER_BASENAME} openshift-origin-server
   # And then add to PATH... see .bashrc.
 
