@@ -3322,20 +3322,34 @@ stage_4_open_shift_origin_binary () {
   # Find the checksum and releases on github:
   #   https://github.com/openshift/origin/releases
 
-  # Checksums:
+  # OpenShift v1.3.0 checksums:
   #   0d3b632fae9bc2747caee2dae7970865097a4bc1d83b84afb31de1c05b356054
   #     openshift-origin-client-tools-v1.3.0-3ab7af3d097b57f933eccef684a714f2368804e7-linux-64bit.tar.gz
   #   cadb7408c45be8c19dde30c82e59f21cec1ba4f23f07131f9a6c8c20b22c3f73
   #     openshift-origin-server-v1.3.0-3ab7af3d097b57f933eccef684a714f2368804e7-linux-64bit.tar.gz
 
+  # 2016-10-04: Employer is using v1.2.0 still.
+  # OpenShift v1.2.0 checksums:
+  #   8e903e6a81e9a8415532c6d7fbc86ab4c84818a4dad8fcf118776fa90424e95c  openshift-origin-client-tools-v1.2.0-2e62fab-linux-32bit.tar.gz
+  #   62d309592b27e42a84102a950d92a8c1b6b61ea488f7c2f3433bf38f64cea68b  openshift-origin-client-tools-v1.2.0-2e62fab-linux-64bit.tar.gz
+  #   a911c918426fd474330d60c5ec651308385b54fd0f0866e888328f38d8ee7671  openshift-origin-client-tools-v1.2.0-2e62fab-mac.zip
+  #   3df3d7f31d5f50fa49f94312883107ebee1a0877b598eada32dce1b029f6c3f2  openshift-origin-client-tools-v1.2.0-2e62fab-windows.zip
+  #   f6e46dec27f166a7f05554bd6b9364cead8c36a39836f75e16e16ee29b9e1a2f  openshift-origin-server-v1.2.0-2e62fab-linux-64bit.tar.gz
+
+  # LATER: v1.3.0.
   #SERVER_BASENAME="openshift-origin-server-v1.3.0"
   #SERVER_ID=3ab7af3d097b57f933eccef684a714f2368804e7
   #SERVER_ARCH="linux-64bit"
   #SERVER_BASENAME="${SERVER_BASENAME}-${SERVER_ID}-${SERVER_ARCH}"
+  SERVER_VERSION="v1.3.0"
   SERVER_BASENAME="openshift-origin-server-v1.3.0-3ab7af3d097b57f933eccef684a714f2368804e7-linux-64bit"
+  # 2016-10-04: For now...
+  SERVER_VERSION="v1.2.0"
+  SERVER_BASENAME="openshift-origin-server-v1.2.0-2e62fab-linux-64bit"
+
   # E.g., "openshift-origin-server-v1.3.0-3ab7af3d097b57f933eccef684a714f2368804e7-linux-64bit.tar.gz"
   TARNAME="${SERVER_BASENAME}.tar.gz"
-  wget -N https://github.com/openshift/origin/releases/download/v1.3.0/${TARNAME}
+  wget -N https://github.com/openshift/origin/releases/download/${SERVER_VERSION}/${TARNAME}
   cd ${OPT_BIN}
   tar xzf ${OPT_DLOADS}/${TARNAME}
   /bin/ln -sf ${SERVER_BASENAME} openshift-origin-server
