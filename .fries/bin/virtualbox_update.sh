@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016-09-26
+# Last Modified: 2016-10-04
 #
 # Buggers. Oracle VirtualBox update wrapper.
 
@@ -15,6 +15,23 @@ fi
 virtualbox_dubs_update () {
 
   pushd ${OPT_DLOADS} &> /dev/null
+
+  # Avoid:
+  # $ ./virtualbox_update.sh
+  # ...
+  # vboxdrv.sh: failed: Look at /var/log/vbox-install.log to find out what went wrong.
+  # This system is not currently set up to build kernel modules (system extensions).
+  #
+  # You can run vboxconfig for instructions:
+  # $ /sbin/vboxconfig
+  # ...
+  #   apt-get install linux-headers-3.13.0-96-generic
+  # (The last command may fail if your system is not fully updated.)
+  #   apt-get install linux-headers-generic
+  #
+  # Or just do it smartly:
+  sudo apt-get install -y linux-headers-$(uname -r)
+  sudo apt-get install -y linux-headers-generic
 
   # Load the release codename, e.g., raring, trusty, wily, etc.
   source /etc/lsb-release
