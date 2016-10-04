@@ -3290,16 +3290,18 @@ stage_4_libmateweather () {
 
   pushd ${OPT_DLOADS} &> /dev/null
 
-  git clone https://github.com/mate-desktop/libmateweather
   # No package 'gtk+-2.0' found
   sudo apt-get install -y libgtk2.0-dev
   # No package 'libsoup-2.4' found
   sudo apt-get install -y libsoup2.4-dev
+
+  git clone https://github.com/mate-desktop/libmateweather
+  cd libmateweather
   ./autogen.sh
   make
   sudo make install
-# 2016-10-03/FIXME: I may need to logoff/on to realize the new applet.
 
+# FIXME/2016-10-03: I may need to logoff/on to realize the new applet.
 
   popd &> /dev/null
 
