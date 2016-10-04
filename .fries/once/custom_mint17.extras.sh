@@ -3263,6 +3263,11 @@ stage_4_fix_firefox_vertical_scrollbar_warp_to_click () {
 
   pushd ${OPT_DLOADS} &> /dev/null
 
+  # MEH: We could instead add a file at
+  #       ~/.fries/once/target/common/home/.config/gtk-3.0/settings.ini
+  #      and copy it over during chase_and_face
+  #      but this seems just as fine.
+
   # 2016-10-03: WTF, Google? Or Gnome? Which is it?
   # Firefox scrollbar jumping to where I click, instead of paging.
   # You can shift-click to do opposite behavior
