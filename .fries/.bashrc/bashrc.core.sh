@@ -108,6 +108,11 @@ if [[ -d ${HOME}/.gopath ]]; then
   PATH=${GOPATH}:${GOPATH}/bin:${PATH}
 fi
 
+# OpenShift Origin server.
+if [[ -d ${OPT_BIN}/openshift-origin-server ]]; then
+  PATH="${PATH}:${OPT_BIN}/openshift-origin-server"
+fi
+
 export PATH
 
 # Umask

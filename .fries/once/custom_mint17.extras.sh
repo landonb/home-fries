@@ -3313,6 +3313,41 @@ stage_4_libmateweather () {
 
 } # end: stage_4_libmateweather
 
+stage_4_open_shift_origin_binary () {
+
+  stage_announcement "stage_4_open_shift_origin_binary"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # Find the checksum and releases on github:
+  #   https://github.com/openshift/origin/releases
+
+  # Checksums:
+  #   0d3b632fae9bc2747caee2dae7970865097a4bc1d83b84afb31de1c05b356054
+  #     openshift-origin-client-tools-v1.3.0-3ab7af3d097b57f933eccef684a714f2368804e7-linux-64bit.tar.gz
+  #   cadb7408c45be8c19dde30c82e59f21cec1ba4f23f07131f9a6c8c20b22c3f73
+  #     openshift-origin-server-v1.3.0-3ab7af3d097b57f933eccef684a714f2368804e7-linux-64bit.tar.gz
+
+  #SERVER_BASENAME="openshift-origin-server-v1.3.0"
+  #SERVER_ID=3ab7af3d097b57f933eccef684a714f2368804e7
+  #SERVER_ARCH="linux-64bit"
+  #SERVER_BASENAME="${SERVER_BASENAME}-${SERVER_ID}-${SERVER_ARCH}"
+  SERVER_BASENAME="openshift-origin-server-v1.3.0-3ab7af3d097b57f933eccef684a714f2368804e7-linux-64bit"
+  # E.g., "openshift-origin-server-v1.3.0-3ab7af3d097b57f933eccef684a714f2368804e7-linux-64bit.tar.gz"
+  TARNAME="${SERVER_BASENAME}.tar.gz"
+  wget -N https://github.com/openshift/origin/releases/download/v1.3.0/${TARNAME}
+  cd ${OPT_BIN}
+  tar xzf ${OPT_DLOADS}/${TARNAME}
+  /bin/ln -sf ${SERVER_BASENAME} openshift-origin-server
+  # And then add to PATH... see .bashrc.
+
+  # Launch the server:
+  #  sudo ${OPT_BIN}/openshift-origin-server/openshift start
+
+  popd &> /dev/null
+
+} # end: stage_4_open_shift_origin_binary
+
 stage_4_fcn_template () {
 
   stage_announcement "stage_4_fcn_template"
