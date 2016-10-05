@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.04
+# Last Modified: 2016.10.05
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -1940,6 +1940,19 @@ printdirsincur() {
     echo "file = $file"
   done
 }
+
+#########################
+
+# 2016-10-05: [lb] not seeing the disable-wake-on-lid action working, from:
+#
+#     ~/.fries/once/target/common/usr/lib/pm-utils/sleep.d/33disablewakeups
+#
+#             so let's try this here in bashrc.
+
+cat /proc/acpi/wakeup | grep "^LID" | grep disabled &> /dev/null
+if [[ $? -ne 0 ]]; then
+  echo " LID" | sudo tee /proc/acpi/wakeup
+fi
 
 ############################################################################
 # DONE                              DONE                              DONE #
