@@ -2,7 +2,7 @@
 
 # File: 33disablewakeups
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.09.27
+# Last Modified: 2016.10.05
 # Project Page: https://github.com/landonb/home_fries
 # License: GPLv3
 # Summary: Smart Bash Startup Script
@@ -51,8 +51,7 @@ case $1 in
     if [[ $? -ne 0 ]]; then
       echo " LID" | sudo tee /proc/acpi/wakeup
     fi
-# 2016-09-27: Test that this works. After next reboot...
-# another option might be to just set /proc/acpi/wakeup as part of bashrc?
+    # 2016-10-05: [lb] not seeing this working, so adding to bashrc.
 
     # Disable USB devices' wake mechanisms.
     # Though USB wake is apparently broken by default as of Kernel 3.2.
