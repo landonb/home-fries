@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.04
+# Last Modified: 2016.10.06
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -3364,6 +3364,22 @@ stage_4_open_shift_origin_binary () {
   popd &> /dev/null
 
 } # end: stage_4_open_shift_origin_binary
+
+stage_4_prep_home_fries () {
+
+  stage_announcement "stage_4_prep_home_fries"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # So that bashrc.core.sh can
+  #   echo " LID" | sudo tee /proc/acpi/wakeup
+  # but without the sudo.
+  sudo chown root:sudo /proc/acpi/wakeup
+  sudo chmod g+w /proc/acpi/wakeup
+
+  popd &> /dev/null
+
+} # end: stage_4_prep_home_fries
 
 stage_4_fcn_template () {
 
