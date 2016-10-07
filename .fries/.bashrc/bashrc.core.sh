@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.05
+# Last Modified: 2016.10.06
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -1949,9 +1949,13 @@ printdirsincur() {
 #
 #             so let's try this here in bashrc.
 
-cat /proc/acpi/wakeup | grep "^LID" | grep disabled &> /dev/null
-if [[ $? -ne 0 ]]; then
-  echo " LID" | sudo tee /proc/acpi/wakeup
+cat /proc/acpi/wakeup | grep "^LID" &> /dev/null
+if [[ $? -eq 0 ]]; then
+  cat /proc/acpi/wakeup | grep "^LID" | grep disabled &> /dev/null
+  if [[ $? -ne 0 ]]; then
+    #echo " LID" | sudo tee /proc/acpi/wakeup
+    echo " LID" | tee /proc/acpi/wakeup
+  fi
 fi
 
 ############################################################################
