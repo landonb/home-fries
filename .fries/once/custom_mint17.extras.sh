@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.06
+# Last Modified: 2016.10.07
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -2729,7 +2729,7 @@ rGUZtDlKYbmNIeMeAJ0UpVsjxpylBcSjsPE8MAki7Hb2Rw==
   #   *** You may want to use the configure option --with-libgcrypt-prefix
   #   *** to specify a matching config script or use $SYSROOT.
   ./configure --build=x86_64-pc-linux-gnu
-  
+
   make
   make check
   sudo make install
@@ -2778,7 +2778,7 @@ rGUZtDlKYbmNIeMeAJ0UpVsjxpylBcSjsPE8MAki7Hb2Rw==
   # 2016-08-17: Dern it, Mint 17.3:
   #
   #   $ tree --version
-  #   tree v1.6.0 (c) 1996 - 2011 by Steve Baker, Thomas Moore, Francesc Rocher, Kyosuke Tokoro 
+  #   tree v1.6.0 (c) 1996 - 2011 by Steve Baker, Thomas Moore, Francesc Rocher, Kyosuke Tokoro
   #
   # http://mama.indstate.edu/users/ice/tree/
   pushd ${OPT_DLOADS} &> /dev/null
@@ -3150,7 +3150,7 @@ stage_4_gnome_encfs_manager () {
   #     provides a separate development package or SDK, be sure it has been
   #     installed.
   #
-  #   -- Found Gettext: /usr/bin/msgmerge (found version "0.18.3") 
+  #   -- Found Gettext: /usr/bin/msgmerge (found version "0.18.3")
   #   -- Configuring done
   #   -- Generating done
   #   -- Build files have been written to: /srv/opt/.downloads/encfs-1.9.1/build
