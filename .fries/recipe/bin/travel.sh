@@ -1,0 +1,1624 @@
+#!/bin/bash
+# Last Modified: 2016.10.09
+# vim:tw=0:ts=2:sw=2:et:norl:
+
+set -e
+function errexit_cleanup () {
+  echo
+  echo "ERROR: The script failed!!"
+  # No exit necessary, unless we want to specify status.
+  exit 1
+}
+trap errexit_cleanup EXIT
+
+# ***
+
+# Enable a little more echo, if you want.
+# You can also add this to cfg/sync_repos.sh.
+DEBUG=false
+#DEBUG=true
+
+# ***
+
+# ~/.curly/setup.sh makes symlinks in the user's private dotfiles destination,
+# which means this script could be running as a symlink, and we gotta dance.
+SCRIPT_ABS_PATH="$(readlink -f ${BASH_SOURCE[0]})"
+SCRIPT_ABS_DIRN="$(dirname $(readlink -f ${BASH_SOURCE[0]}))"
+# This is nasty. If running after prepare-shim, remove evidence of the directory we're in.
+if [[ $(basename ${SCRIPT_ABS_DIRN}) == "TBD-shim" ]]; then
+  CURLY_ABS_DIRN="$(dirname ${SCRIPT_ABS_DIRN})"
+else
+  CURLY_ABS_DIRN=${SCRIPT_ABS_DIRN}
+fi
+SCRIPT_REL_PATH=${BASH_SOURCE[0]}
+ACTUAL_ABS_DIRN="$(readlink -f $(dirname ${SCRIPT_REL_PATH}))"
+if [[ $(basename ${ACTUAL_ABS_DIRN}) == "TBD-shim" ]]; then
+  ACTUAL_ABS_DIRN="$(dirname ${ACTUAL_ABS_DIRN})"
+fi
+PRIVATE_REPO="$(basename ${ACTUAL_ABS_DIRN})"
+# In case ${PRIVATE_REPO} has a dot prefix, remove it for some friendlier representations.
+PRIVATE_REPO_=${PRIVATE_REPO#.}
+
+# ***
+
+#BAD COMMENT
+# Load fcns. shared with setup.sh and user scripts under cfg/:
+#   setup_users_curly_path
+#
+#
+#
+# FIXME: here and elsewhere: util.sh, now like 3 or 4 places
+source ${SCRIPT_ABS_DIRN}/util.sh
+
+# ***
+
+# Get lists of things for unpack and packme from the machine specs file.
+CRAPWORD=""
+PLAINTEXT_ARCHIVES=()
+ENCFS_GIT_REPOS=()
+ENCFS_GIT_ITERS=()
+SOURCED_SYNC_REPOS=true
+SYNC_REPOS_PATH=""
+if [[ -f "${ACTUAL_ABS_DIRN}/cfg/sync_repos.sh-$(hostname)" ]]; then
+  # You can set up per-hostname sync_repos lists, or you can use
+  # master_chef and probably get away with just one sync_repos.sh.
+  SYNC_REPOS_PATH="${ACTUAL_ABS_DIRN}/cfg/sync_repos.sh-$(hostname)"
+elif [[ -f "${ACTUAL_ABS_DIRN}/cfg/sync_repos.sh" ]]; then
+  # This is what gets sourced when you run from ${ACTUAL_ABS_DIRN}.
+  SYNC_REPOS_PATH="${ACTUAL_ABS_DIRN}/cfg/sync_repos.sh"
+elif [[ -f "${ACTUAL_ABS_DIRN}/sync_repos.sh" ]]; then
+  # This is what gets sourced when unpack does it little dance.
+  SYNC_REPOS_PATH="${ACTUAL_ABS_DIRN}/sync_repos.sh"
+fi
+if [[ -n ${SYNC_REPOS_PATH} ]]; then
+  source "${SYNC_REPOS_PATH}"
+else
+  echo "NOTICE: sync_repos.sh not found"
+  SOURCED_SYNC_REPOS=false
+fi
+echod "SOURCED_SYNC_REPOS: ${SOURCED_SYNC_REPOS}"
+
+# ***
+
+# By default, plaintext archives unpack to, e.g., ~/Documents/${PRIVATE_REPO_}-unpackered
+# You can change this path by setting STAGING_DIR in ${ACTUAL_ABS_DIRN}/cfg/sync_repos.sh.
+if [[ -z ${STAGING_DIR+x} ]]; then
+  STAGING_DIR=/home/${USER}/Documents
+fi
+
+# Unpack plaintext archives to the unpackered directory,
+# under the subdirectory named after the originating
+# machine.
+UNPACKERED_PATH=${STAGING_DIR}/${PRIVATE_REPO_}-unpackered
+UNPACK_TBD=${UNPACKERED_PATH}-TBD-${UNIQUE_TIME}
+
+# ***
+
+# Load packme and unpack hooks to run during packme and unpack, respk.
+SOURCED_TRAVEL_TASKS=true
+TRAVEL_TASKS_PATH=""
+if [[ -f "${ACTUAL_ABS_DIRN}/cfg/travel_tasks.sh-$(hostname)" ]]; then
+  TRAVEL_TASKS_PATH="${ACTUAL_ABS_DIRN}/cfg/travel_tasks.sh-$(hostname)"
+elif [[ -f "${ACTUAL_ABS_DIRN}/cfg/travel_tasks.sh" ]]; then
+  TRAVEL_TASKS_PATH="${ACTUAL_ABS_DIRN}/cfg/travel_tasks.sh"
+elif [[ -f "${ACTUAL_ABS_DIRN}/travel_tasks.sh" ]]; then
+  TRAVEL_TASKS_PATH="${ACTUAL_ABS_DIRN}/travel_tasks.sh"
+fi
+if [[ -n ${TRAVEL_TASKS_PATH} ]]; then
+  source "${TRAVEL_TASKS_PATH}"
+else
+  echo "NOTICE: travel_tasks.sh not found"
+  echo ${ACTUAL_ABS_DIRN}/cfg/travel_tasks.sh
+  SOURCED_TRAVEL_TASKS=false
+fi
+echod "SOURCED_TRAVEL_TASKS: ${SOURCED_TRAVEL_TASKS}"
+
+# ***
+
+HAMSTERING=false
+if [[ -d ${ACTUAL_ABS_DIRN}/home/.local/share/hamster-applet ]]; then
+  HAMSTERING=true
+  echod "Hamster found under: ${ACTUAL_ABS_DIRN}/home/.local/share/hamster-applet"
+fi
+
+# ***
+
+BACKUP_POSTFIX=$(date +%Y.%m.%d.%H.%M.%S)
+echod "This run's BACKUP_POSTFIX: ${BACKUP_POSTFIX}"
+
+# ***
+
+if ${DEBUG}; then                             # E.g., if run from home/user/.theirs/symlink-travel.sh
+  echo "SCRIPT_ABS_PATH: $SCRIPT_ABS_PATH"    #  /home/usernom/.curly/travel.sh [if symlinked], or
+                                              #     /home/usernom/.theirs/TBD-shim/travel_shim.sh
+  echo "SCRIPT_ABS_DIRN: $SCRIPT_ABS_DIRN"    #  /home/usernom/.curly [if symlinked], or
+                                              #     /home/usernom/.theirs/TBD-shim
+  echo " CURLY_ABS_DIRN: $CURLY_ABS_DIRN"     #  /home/usernom/.curly [if symlinked], or
+                                              #     /home/usernom/.theirs
+  echo "SCRIPT_REL_PATH: $SCRIPT_REL_PATH"    #  ./travel.sh, ./TBD-shim/travel_shim.sh
+  echo "ACTUAL_ABS_DIRN: $ACTUAL_ABS_DIRN"    #  /home/user/.theirs, not /home/user/.theirs/TBD-shim
+  echo "  PRIVATE_REPO : $PRIVATE_REPO"       #  .theirs
+  echo "  PRIVATE_REPO_: $PRIVATE_REPO_"      #  theirs
+fi
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+TRAVEL_CMD=""
+
+function set_travel_cmd () {
+  if [[ -z ${TRAVEL_CMD} ]]; then
+    TRAVEL_CMD="$1"
+  else
+    TRAVEL_CMD="too_many_travel_cmds"
+  fi
+}
+
+COPY_PRIVATE_REPO_PLAIN=false
+SKIP_DIRTY_CHECK=false
+SKIP_THIS_DIRTY=false
+SKIP_GIT_DIRTY=false
+AUTO_COMMIT_FILES=false
+SKIP_UNPACK_SHIM=false
+TAR_VERBOSE=""
+UNKNOWN_ARG=false
+
+function soups_on () {
+
+  local ASKED_FOR_HELP=false
+  local DETERMINE_TRAVEL_DIR=false
+  local CAN_IGNORE_TRAVEL_DIR=false
+
+  echod 'Soups on!: ' $*
+
+  while [[ "$1" != "" ]]; do
+    case $1 in
+			-h)
+        ASKED_FOR_HELP=true
+				shift
+				;;
+			--help)
+        ASKED_FOR_HELP=true
+				shift
+				;;
+			-?)
+        ASKED_FOR_HELP=true
+				shift
+				;;
+			help)
+        ASKED_FOR_HELP=true
+				shift
+				;;
+      chase_and_face)
+        set_travel_cmd "chase_and_face"
+        shift
+        ;;
+      init_travel)
+        DETERMINE_TRAVEL_DIR=true
+        REQUIRES_SYNC_REPOS=true
+        set_travel_cmd "init_travel"
+        shift
+        ;;
+      packme)
+        PLEASE_CHOOSE_PART="to which to pack"
+        DETERMINE_TRAVEL_DIR=true
+        REQUIRES_SYNC_REPOS=true
+        set_travel_cmd "packme"
+        shift
+        ;;
+      unpack)
+        PLEASE_CHOOSE_PART="from which to unpack"
+        DETERMINE_TRAVEL_DIR=true
+        REQUIRES_SYNC_REPOS=true
+        set_travel_cmd "unpack"
+        shift
+        ;;
+      prepare-shim)
+        PLEASE_CHOOSE_PART="from which to copy"
+        DETERMINE_TRAVEL_DIR=true
+        REQUIRES_CRAPPDWORD=true
+        set_travel_cmd "prepare_shim"
+        shift
+        ;;
+      mount)
+        PLEASE_CHOOSE_PART="to which to pack"
+        DETERMINE_TRAVEL_DIR=true
+        REQUIRES_CRAPPDWORD=true
+        set_travel_cmd "mount_curly_emissary_gooey"
+        shift
+        ;;
+      umount)
+        PLEASE_CHOOSE_PART="to which to pack"
+        DETERMINE_TRAVEL_DIR=true
+        REQUIRES_CRAPPDWORD=true
+        set_travel_cmd "umount_curly_emissary_gooey"
+        shift
+        ;;
+      -I)
+        COPY_PRIVATE_REPO_PLAIN=true
+        shift
+        ;;
+      -DDD)
+        SKIP_DIRTY_CHECK=true
+        shift
+        ;;
+      -DD)
+        SKIP_THIS_DIRTY=true
+        shift
+        ;;
+      -D)
+        SKIP_GIT_DIRTY=true
+        shift
+        ;;
+      -WW)
+        AUTO_COMMIT_FILES=true
+        shift
+        ;;
+      --no-shim)
+        SKIP_UNPACK_SHIM=true
+        shift
+        ;;
+      -v)
+        TAR_VERBOSE="v"
+        shift
+        ;;
+			-d)
+				STAGING_DIR=$2
+				shift 2
+				;;
+			-d=?*)
+				STAGING_DIR=${1#-d=}
+				shift
+				;;
+			--staging)
+				STAGING_DIR=$2
+				shift 2
+				;;
+			--staging=?*)
+				STAGING_DIR=${1#--staging=}
+				shift
+				;;
+			*)
+        UNKNOWN_ARG=true
+        echo "ERROR: Unrecognized argument: $1"
+        shift
+        ;;
+    esac
+  done
+
+  if [[ ${TRAVEL_CMD} == "too_many_travel_cmds" ]]; then
+    echo
+    echo "FATAL: Please specify just one travel command."
+    echo
+  fi
+  if [[ ${ASKED_FOR_HELP} = true || (${TRAVEL_CMD} == "too_many_travel_cmds") ]]; then
+    echo
+    echo "sync-stick helps you roam amongst dev machines"
+    echo
+    echo "USAGE: $0 [options] {command} [options]"
+    #echo
+    #echo "Commands: packme | unpack | mount | umount | chase_and_face | init_travel"
+    echo
+    TRAVEL_CMD=""
+  fi
+
+  if [[ -z ${TRAVEL_CMD} ]]; then
+    echo "Everyday commands:"
+    #echo
+    # Omitted to avoid confusion:
+    #   On a machine that's not ${ACTUAL_ABS_DIRN}/master_chef, packme tars plaintext stuff.
+    #   And on a machine that is the master_chef, unpack untars that stuff.
+    #   But not anything else otherwise.
+    echo "      packme            rebase the secure travel repos"
+    echo "                          (run when you leave a machine)"
+    #echo "                          * on satellite machines, tars non-repo stuff"
+    echo "      unpack            rebase the local machine repos"
+    echo "                          (run when you enter a machine)"
+    #echo "                          * on master_chef, untars unimportant stuff"
+    #echo
+    echo "One-time commands:"
+    #echo
+    echo "      init_travel       create or update secure travel repos"
+    echo "                          (run on new USB stick or new Dropbox,"
+    echo "                           or after editing cfg/sync_repos.sh)"
+    echo "      update_git        update to the latest git, at least 2.9"
+    echo "                          (else \`git pull --rebase --autostash\` isn't a thing)"
+    #echo
+    echo "Uncommon commands:"
+    #echo
+    echo "      mount             mount encfs at .../gooey/ # for poking around travel repos"
+    echo "      umount            unmount travel encfs at \$TRAVEL_DIR/${PRIVATE_REPO_}-emissary/gooey"
+    echo "                        * mount, then umount, are called on packme and unpack"
+    echo "      chase_and_face    apply private overlays to local machine"
+    echo "                          (maintain symlinks to ${CURLY_ABS_DIRN}/* files)"
+    echo "                        * chase_and_face is called on unpack"
+    #echo ""
+    echo "packme options:"
+    echo "      -D                packme even if dirty/untracked/ahead git conditions detected"
+    echo "      -DD               packme even if this script is dirty [otherwise, yo, check it in]"
+    echo "      -DDD              don't waste time checking if things are git-dirty"
+    echo "      -WW               wait, wait, check in all my files, please"
+    echo "      -I                /bin/cp cfg/sync_repos.sh to travel device [BEWARE: unencrypted!]"
+    echo "                          (to setup a new machine *locally* without worrying about encfs)"
+    #echo
+    echo "unpack options:"
+    echo "      -d STAGING_DIR    specify the unpack path for incoming plaintext tar stuff"
+    echo "      -v                to \`tar v\` (if you have problems detarring)"
+    echo "      --no-shim         use local travel.sh for unpack and not what's on travel"
+    echo "                          (local travel.sh is used always if it's git-dirty)"
+  fi
+
+  if ${DETERMINE_TRAVEL_DIR}; then
+    determine_stick_dir "${PLEASE_CHOOSE_PART}"
+  fi
+
+  if [[ ${REQUIRES_CRAPPDWORD} && -z ${CRAPWORD} ]]; then
+    echo
+    echo "FATAL: Please set CRAPWORD. Maybe in repo_syncs.sh"
+    trap - EXIT
+    exit 1
+  fi
+
+  if [[ ${REQUIRES_SYNC_REPOS} && ! ${SOURCED_SYNC_REPOS} ]]; then
+    echo
+# FIXME: repo_syncs repositioned
+    echo "WARNING: Missing repo_syncs.sh."
+    trap - EXIT
+    exit 1
+  fi
+
+  # Make sure the staging/destination exists.
+  mkdir -p ${STAGING_DIR}
+
+  echod
+  #echo "Two-way travel directory: ${TRAVEL_DIR}"
+  echo "Two-way travel directory: ${EMISSARY}"
+  echo "One-way unpack (staging): ${STAGING_DIR}"
+
+  if [[ -n ${TRAVEL_CMD} && ${UNKNOWN_ARG} = false ]]; then
+    # Run the command.
+    eval "$TRAVEL_CMD"
+    local setup_time_n=$(date +%s.%N)
+    time_elapsed=$(echo "scale=2; ($setup_time_n - $setup_time_0) * 100 / 100" | bc -l)
+    #echo
+    echo "Elapsed: $time_elapsed secs."
+  else
+    echo "Nothing to do!"
+  fi
+
+} # end: soups_on
+
+function determine_stick_dir () {
+
+  local PLEASE_CHOOSE_PART=$1
+
+  shopt -s dotglob
+  shopt -s nullglob
+  local MOUNTED_DIRS=(/media/${USER}/*)
+  shopt -u dotglob
+  shopt -u nullglob
+  if [[ ${#MOUNTED_DIRS[@]} -eq 0 ]]; then
+    echo "Nothing mounted under /media/${USER}/"
+    echo -n "Please specify the dually-accessible sync directory: "
+    read -e TRAVEL_DIR
+  elif [[ ${#MOUNTED_DIRS[@]} -eq 1 ]]; then
+    TRAVEL_DIR=${MOUNTED_DIRS[0]}
+  else
+    CANDIDATES=()
+    for fpath in "${MOUNTED_DIRS[@]}"; do
+      # Use -r to check that path is readable. Just because.
+      if [[ -r ${fpath}/ ]]; then
+        echod "Examining mounted path: ${fpath}"
+        if [[ -d ${fpath}/${PRIVATE_REPO_}-emissary ]]; then
+          echod "Adding candidate: ${fpath}"
+          CANDIDATES+=(${fpath})
+        fi
+      else
+        echod "Skipin' unreadable path: ${fpath}"
+      fi
+    done
+    if [[ ${#CANDIDATES[@]} -eq 1 ]]; then
+      TRAVEL_DIR=${CANDIDATES[0]}
+    else
+      echo "More than one path found under /media/${USER}/"
+      echo "Please choose the correct path ${PLEASE_CHOOSE_PART}."
+      echo "(You also just might need to mount your sync stick.)"
+      for fpath in "${MOUNTED_DIRS[@]}"; do
+        echo -n "Is this your path?: ${fpath} [y/n] "
+        read -n 1 -e YES_OR_NO
+        if [[ ${YES_OR_NO^^} == "Y" ]]; then
+          TRAVEL_DIR=${fpath}
+          break
+        fi
+      done
+    fi
+  fi
+
+  if [[ ! -d ${TRAVEL_DIR} ]]; then
+    if ! ${CAN_IGNORE_TRAVEL_DIR}; then
+      echo 'The specified stick path does not exist. Sorry! Try again!!'
+      exit 1
+    fi
+  fi
+
+  EMISSARY="${TRAVEL_DIR}/${PRIVATE_REPO_}-emissary"
+  PLAINPATH=${EMISSARY}/plain-$(hostname)
+  PLAIN_TBD=${PLAINPATH}-TBD-${UNIQUE_TIME}
+
+} # end: determine_stick_dir
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# chase_and_face
+
+setup_private_fries_bash () {
+
+  if [[ -f ${ACTUAL_ABS_DIRN}/home/.fries/.bashrc/bashrx.private.${USER}.sh ]]; then
+
+    pushd ${HOME}/.fries/.bashrc &> /dev/null
+
+    /bin/ln -sf \
+      ${ACTUAL_ABS_DIRN}/home/.fries/.bashrc/bashrx.private.${USER}.sh \
+      bashrx.private.${USER}.sh
+
+    popd &> /dev/null
+
+  fi
+
+} # end: setup_private_fries_bash
+
+setup_private_curly_work () {
+
+  # This is just a lame hack so Open Terms defaults to your latest
+  # working directory. But that changes so often it makes a function
+  # such as this smell like a joke.
+
+  if [[ -d ${ACTUAL_ABS_DIRN}/work ]]; then
+
+    pushd ${ACTUAL_ABS_DIRN}/work &> /dev/null
+
+    if [[ ! -e user-current-project ]]; then
+      /bin/ln -s ${ACTUAL_ABS_DIRN}/work/oopsidoodle user-current-project
+    fi
+
+    popd &> /dev/null
+
+  fi
+
+} # end: setup_private_curly_work
+
+setup_private_vim_spell () {
+
+  if [[ -e ${ACTUAL_ABS_DIRN}/home/.vim/spell/en.utf-8.add ]]; then
+
+    mkdir -p ${HOME}/.vim/spell
+
+    pushd ${HOME}/.vim/spell &> /dev/null
+
+    # Vim spell file.
+    if [[ ! -h en.utf-8.add ]]; then
+      if [[ -e en.utf-8.add ]]; then
+        echo "BKUPPING: en.utf-8.add"
+        /bin/mv en.utf-8.add en.utf-8.add-${BACKUP_POSTFIX}
+      fi
+      /bin/ln -sf ${ACTUAL_ABS_DIRN}/home/.vim/spell/en.utf-8.add
+    fi
+
+    popd &> /dev/null
+
+  fi
+
+} # end: setup_private_vim_spell
+
+setup_private_vim_bundle () {
+
+  if [[ -e ${HOME}/.vim/bundle/dubs_all ]]; then
+
+    pushd ${HOME}/.vim/bundle &> /dev/null
+
+    if [[ ! -e dubs_core ]]; then
+      /bin/ln -sf dubs_all dubs_core
+    fi
+
+    popd &> /dev/null
+
+  fi
+
+} # end: setup_private_vim_bundle
+
+setup_private_vim_bundle_dubs_all () {
+
+  if [[ -e ${HOME}/.vim/bundle/dubs_all ]]; then
+
+    pushd ${HOME}/.vim/bundle/dubs_all &> /dev/null
+
+    /bin/ln -sf ../../bundle_/dubs_file_finder/cmdt_paths
+    /bin/ln -sf ../../bundle_/dubs_project_tray/dubs_cuts
+
+    /bin/ln -sf ../../bundle_/dubs_edit_juice/dubs_tagpaths.vim
+    /bin/ln -sf ../../bundle_/dubs_grep_steady/dubs_projects.vim
+
+    /bin/ln -sf ${ACTUAL_ABS_DIRN}/home/.vim/bundle/dubs_all/one_time_setup.sh
+    /bin/ln -sf ${ACTUAL_ABS_DIRN}/home/.vim/bundle/dubs_all/plugin-info.json
+    /bin/ln -sf ${ACTUAL_ABS_DIRN}/home/.vim/bundle/dubs_all/.vimprojects
+    /bin/ln -sf ${ACTUAL_ABS_DIRN}/home/.vim/bundle/dubs_all/.vimrc.bundle_
+
+    popd &> /dev/null
+
+  fi
+
+} # end: setup_private_vim_bundle_dubs_all
+
+setup_private_vim_bundle_dubs_edit_juice () {
+
+  if [[ -e ${HOME}/.vim/bundle/dubs_edit_juice ]]; then
+
+    pushd ${HOME}/.vim/bundle/dubs_edit_juice &> /dev/null
+
+    /bin/ln -sf ${ACTUAL_ABS_DIRN}/home/.vim/bundle/dubs_edit_juice/dubs_tagpaths.vim
+
+    popd &> /dev/null
+
+  fi
+
+} # end: setup_private_vim_bundle_dubs_edit_juice
+
+setup_private_vim_bundle_dubs () {
+
+  if [[ -e ${HOME}/.vim/bundle/dubs_all ]]; then
+
+    mkdir -p ${HOME}/.vim/bundle-dubs
+
+    pushd ${HOME}/.vim/bundle-dubs &> /dev/null
+
+    /bin/ln -sf ${ACTUAL_ABS_DIRN}/home/.vim/bundle-dubs/generate.sh
+    /bin/ln -sf ${ACTUAL_ABS_DIRN}/home/.vim/bundle-dubs/git-st-all.sh
+
+    /bin/ln -sf ../.agignore
+
+    ./generate.sh
+
+    popd &> /dev/null
+
+  fi
+
+} # end: setup_private_vim_bundle_dubs
+
+setup_private_dot_files () {
+
+  pushd ${HOME} &> /dev/null
+
+  # Common dotfiles are symlinked below.
+  # Feel free to add to this list; just
+  #  respect the isn't-there-don't-care policy.
+
+  if [[ ! -e .cookiecutterrc ]]; then
+    if [[ -f ${ACTUAL_ABS_DIRN}/home/.cookiecutterrc ]]; then
+      /bin/ln -s ${ACTUAL_ABS_DIRN}/home/.cookiecutterrc
+    fi
+  fi
+
+  if [[ ! -e .ctags ]]; then
+    if [[ -f ${ACTUAL_ABS_DIRN}/home/.ctags ]]; then
+      /bin/ln -s ${ACTUAL_ABS_DIRN}/home/.ctags
+    fi
+  fi
+
+  if [[ ! -e .gitconfig ]]; then
+    NORMALD_GITCONFIG="${ACTUAL_ABS_DIRN}/home/.gitconfig"
+    MACHINE_GITCONFIG="${NORMALD_GITCONFIG}-$(hostname)"
+    if [[ -e ${MACHINE_GITCONFIG} ]]; then
+      /bin/ln -s ${MACHINE_GITCONFIG} .gitconfig
+    elif [[ -e ${NORMALD_GITCONFIG} ]]; then
+      /bin/ln -s ${NORMALD_GITCONFIG}
+    # else, user has not set up their .gitconfig, whatever.
+    fi
+  fi
+
+  if [[ ! -e .inputrc ]]; then
+    if [[ -f ${ACTUAL_ABS_DIRN}/home/.inputrc ]]; then
+      /bin/ln -s ${ACTUAL_ABS_DIRN}/home/.inputrc
+    fi
+  fi
+
+  # Skipping: .local/share/hamster-applet/
+  # See: setup_private_hamster_db
+
+  if [[ ! -e mm.cfg ]]; then
+    if [[ -f ${ACTUAL_ABS_DIRN}/home/mm.cfg ]]; then
+      /bin/ln -s ${ACTUAL_ABS_DIRN}/home/mm.cfg
+    fi
+  fi
+
+  # Skipping: Pictures/
+  #  You could do something like:
+  #    gsettings set org.mate.background picture-filename \
+  #      ${ACTUAL_ABS_DIRN}/home/Pictures/.backgrounds/nice_pic.jpg
+
+  if [[ ! -e .psqlrc ]]; then
+    if [[ -f ${ACTUAL_ABS_DIRN}/home/.psqlrc ]]; then
+      /bin/ln -s ${ACTUAL_ABS_DIRN}/home/.psqlrc
+    fi
+  fi
+
+  if [[ ! -e .sqliterc ]]; then
+    MACHINE_SQLITERC="${ACTUAL_ABS_DIRN}/home/.sqliterc-$(hostname)"
+    if [[ -e ${MACHINE_SQLITERC} ]]; then
+      /bin/ln -s ${MACHINE_SQLITERC} .sqliterc
+    elif [[ -e ${ACTUAL_ABS_DIRN}/home/.sqliterc ]]; then
+      /bin/ln -s ${ACTUAL_ABS_DIRN}/home/.sqliterc
+    # else, same as above, whatever, deal.
+    fi
+  fi
+
+  popd &> /dev/null
+
+} # end: setup_private_dot_files
+
+setup_private_ssh_directory () {
+  if [[ -d ${ACTUAL_ABS_DIRN}/.ssh ]]; then
+    # A symlink works for outgoing conns but not incomms.
+    #/bin/ln -sf ${ACTUAL_ABS_DIRN}/.ssh ~/.ssh
+    # Cannot create hard links on directories.
+    #/bin/ln -f ${ACTUAL_ABS_DIRN}/.ssh ~/.ssh
+    mkdir -p ${HOME}/.ssh
+    pushd ${HOME}/.ssh &> /dev/null
+    # Remove symlinks from ~/.ssh/
+    find . -maxdepth 1 -type l -exec /bin/rm {} +
+    # Replace with symlinks from private repo .ssh/
+    find ${ACTUAL_ABS_DIRN}/.ssh -maxdepth 1 -type f -not -iname "known_hosts-*" -exec /bin/ln -s {} \;
+    if [[ -e ${ACTUAL_ABS_DIRN}/.ssh/known_hosts-$(hostname) ]]; then
+      /bin/ln -s ${ACTUAL_ABS_DIRN}/.ssh/known_hosts-$(hostname) known_hosts
+    # else, you'll get a real file at ~/.ssh/known_hosts
+    fi
+    popd &> /dev/null
+
+    # Ssh is so particular about permissions.
+    chmod g-w ~
+    chmod g-w ${ACTUAL_ABS_DIRN}
+    chmod 700 ~/.ssh
+  fi
+} # end: setup_private_ssh_directory
+
+setup_private_hamster_db () {
+
+  if ${HAMSTERING}; then
+    # Set up the hamster.db -- each machine gets its own database file,
+    # since you'll want to deliberately merge hamster files together.
+    # (2016-04-26: I had earlier tried using Dropbox to manage a single
+    # file, but that approach doesn't make things easier and introduces
+    # its own syncing and merging nuances.)
+    if [[ -e ~/.local/share/hamster-applet/hamster.db \
+          && ! -h ~/.local/share/hamster-applet/hamster.db ]]; then
+      echo "WARNING: hamster.db exists / moving it outta the way"
+      echo "(If you just installed the OS, hamster.db contains 10 example activities.)"
+      /bin/mv -i \
+        ~/.local/share/hamster-applet/hamster.db \
+        ~/.local/share/hamster-applet/hamster.db-${BACKUP_POSTFIX}
+    fi
+    if [[ ! -e ${ACTUAL_ABS_DIRN}/home/.local/share/hamster-applet/hamster-$(hostname).db ]]; then
+      echo "Using the canon hamster.db as a template for this machine."
+      /bin/cp -aL \
+        ${ACTUAL_ABS_DIRN}/home/.local/share/hamster-applet/hamster.db \
+        ${ACTUAL_ABS_DIRN}/home/.local/share/hamster-applet/hamster-$(hostname).db
+    fi
+    if [[ ! -h ~/.local/share/hamster-applet/hamster.db ]]; then
+      /bin/ln -sf \
+        ${ACTUAL_ABS_DIRN}/home/.local/share/hamster-applet/hamster-$(hostname).db \
+        ~/.local/share/hamster-applet/hamster.db
+    fi
+  fi
+
+} # end: setup_private_hamster_db
+
+setup_private_anacron () {
+
+  # Anacron backup script.
+  # The author uses .anacron just to back up data on the main, master_chef, machine.
+  # So just setup anacron on the main development machine, but not on satellites.
+  # NOTE: Only applies to main desktop machine.
+  if [[ -e ${ACTUAL_ABS_DIRN}/master_chef ]]; then
+    if [[ -d ${ACTUAL_ABS_DIRN}/home/.anacron ]]; then
+      if [[ -e ~/.anacron ]]; then
+        echo "Skipping: Already exists: ~/.anacron"
+      else
+        /bin/ln -sf ${ACTUAL_ABS_DIRN}/home/.anacron ~/.anacron
+      fi
+    fi
+  fi
+} # end: setup_private_anacron
+
+setup_private_etc_fstab () {
+  if [[ -f ${ACTUAL_ABS_DIRN}/dev/$(hostname)/etc/fstab ]]; then
+    set +e
+    diff ${ACTUAL_ABS_DIRN}/dev/$(hostname)/etc/fstab /etc/fstab &> /dev/null
+    ECODE=$?
+    set -e
+    if [[ ${ECODE} -ne 0 ]]; then
+      echo "BKUPPING: /etc/fstab"
+      sudo /bin/mv /etc/fstab /etc/fstab-${BACKUP_POSTFIX}
+      sudo /bin/cp -a ${ACTUAL_ABS_DIRN}/dev/$(hostname)/etc/fstab /etc/fstab
+      sudo chmod 644 /etc/fstab
+    fi
+  else
+    echo "Skipping: No fstab for $(hostname)"
+  fi
+} # end: setup_private_etc_fstab
+
+setup_private_update_db_conf () {
+  if [[ -f ${ACTUAL_ABS_DIRN}/dev/$(hostname)/etc/updatedb.conf ]]; then
+    set +e
+    diff ${ACTUAL_ABS_DIRN}/dev/$(hostname)/etc/updatedb.conf /etc/updatedb.conf &> /dev/null
+    ECODE=$?
+    set -e
+    if [[ ${ECODE} -ne 0 ]]; then
+      if [[ -e /etc/updatedb.conf ]]; then
+        echo "BKUPPING: /etc/updatedb.conf"
+        sudo /bin/mv /etc/updatedb.conf /etc/updatedb.conf-${BACKUP_POSTFIX}
+      fi
+      sudo /bin/cp -a ${ACTUAL_ABS_DIRN}/dev/$(hostname)/etc/updatedb.conf /etc/updatedb.conf
+      sudo chmod 644 /etc/updatedb.conf
+    fi
+  else
+    echo "Skipping: No updatedb.conf for $(hostname)"
+  fi
+} # end: setup_private_update_db_conf
+
+function chase_and_face () {
+
+  echo
+  echo "Refacing ~/${PRIVATE_REPO}"
+
+  if ${HAMSTERING}; then
+    echod "  killall_hamsters"
+    set +e
+    sudo killall hamster-service hamster-indicator
+    set -e
+  fi
+
+  echod "  setup_private_fries_bash..."
+  setup_private_fries_bash
+
+  echod "  setup_private_curly_work"
+  setup_private_curly_work
+
+  echod "  setup_private_vim_spell"
+  setup_private_vim_spell
+
+  echod "  setup_private_vim_bundle"
+  setup_private_vim_bundle
+
+  echod "  setup_private_vim_bundle_dubs_all"
+  setup_private_vim_bundle_dubs_all
+
+  echod "  setup_private_vim_bundle_dubs_edit_juice"
+  setup_private_vim_bundle_dubs_edit_juice
+
+  echod "  setup_private_vim_bundle_dubs"
+  setup_private_vim_bundle_dubs
+
+  echod "  setup_private_dot_files"
+  setup_private_dot_files
+
+  echod "  setup_private_ssh_directory"
+  setup_private_ssh_directory
+
+  echod "  setup_private_hamster_db"
+  setup_private_hamster_db
+
+  echod "  setup_private_anacron"
+  setup_private_anacron
+
+  echod "  setup_private_etc_fstab"
+  setup_private_etc_fstab
+
+  echod "  setup_private_update_db_conf"
+  setup_private_update_db_conf
+
+  echod "  user_do_chase_and_face"
+  # Call private fcns. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
+  set +e
+  command -v user_do_chase_and_face &> /dev/null
+  EXIT_CODE=$?
+  set -e
+  if [[ ${EXIT_CODE} -eq 0 ]]; then
+    user_do_chase_and_face
+  fi
+
+  #echo "DONE"
+
+  if ${HAMSTERING}; then
+    echo "Unleashing the hamster"
+    #hamster-indicator &
+    # Blather warning.
+    #   $ hamster-indicator &
+    #   WARNING:root:Could not import gnomeapplet. Defaulting to upper panel
+    #   /usr/lib/python2.7/dist-packages/hamster/lib/graphics.py:1255: PangoWarning:
+    #   pango_layout_set_markup_with_accel: Error on line 1: Entity did not end with
+    #   a semicolon; most likely you used an ampersand character without intending to
+    #   start an entity - escape ampersand as &amp;
+    #    layout.set_markup(text)
+    hamster-indicator &> /dev/null &
+  fi
+
+} # end: chase_and_face
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# init_travel
+
+function mount_curly_emissary_gooey () {
+  # Make the gooey candy center.
+  mkdir -p ${EMISSARY}/gooey
+  mkdir -p ${EMISSARY}/.gooey
+  # Flavor it.
+  if [[ ! -e ${EMISSARY}/.gooey ]]; then
+    /bin/cp -a ${ACTUAL_ABS_DIRN}/.encfs6.xml ${EMISSARY}/.gooey
+  fi
+  set +e
+  mount | grep ${EMISSARY}/gooey &> /dev/null
+  retval=$?
+  set -e
+  # Lick it.
+  if [[ $retval -ne 0 ]]; then
+    echo "${CRAPWORD}" | \
+      encfs -S ${EMISSARY}/.gooey ${EMISSARY}/gooey
+  else
+    # else, already mounted; maybe the last operation failed?
+    echo "Looks like gooey is already mounted."
+  fi
+}
+
+function umount_curly_emissary_gooey () {
+  sleep 0.1 # else umount fails.
+  set +e
+  fusermount -u ${EMISSARY}/gooey
+  if [[ $? -ne 0 ]]; then
+    echo
+    echo "MEH: Could not umount the encfs. Try:"
+    echo "  fuser -c ${EMISSARY}/gooey 2>&1"
+  fi
+  set -e
+}
+
+function init_travel () {
+
+  if [[ -z ${TRAVEL_DIR} ]]; then
+    echo
+    echo "FAIL: TRAVEL_DIR not defined"
+    exit 1
+  fi
+
+  if [[ -d ${EMISSARY} ]]; then
+    echo
+    echo "So, like, EMISSARY already exists at ${EMISSARY}"
+    echo
+    echo "You can use the existing directory or start anew."
+    echo
+    echo -n "Replace it and start over?: [y/N] "
+    read -e YES_OR_NO
+    if [[ ${YES_OR_NO^^} == "Y" ]]; then
+      echo -n "Are you _absolutely_ *SURE*?: [y/N] "
+      read -e YES_OR_NO
+      if [[ ${YES_OR_NO^^} == "Y" ]]; then
+        /bin/rm -rf ${EMISSARY}
+      fi
+    fi
+  elif [[ -e ${EMISSARY} ]]; then
+    echo
+    echo "FAIL: EMISSARY exists and is not a directory: ${EMISSARY}"
+    exit 1
+  fi
+
+  if [[ ! -e ${EMISSARY} ]]; then
+    echo "Creating emissary at ${EMISSARY}"
+    mkdir -p ${EMISSARY}
+  else
+    echo "Found emissary at ${EMISSARY}"
+  fi
+
+  mount_curly_emissary_gooey
+
+  pushd ${EMISSARY}/gooey &> /dev/null
+
+  # Remember that sync_repos.sh file you edited?
+  #   PLAINTEXT_ARCHIVES
+  #   ENCFS_GIT_REPOS
+  #   ENCFS_GIT_ITERS
+
+  # Skipping: PLAINTEXT_ARCHIVES (nothing to preload)
+
+  # 2016-09-28: So, like, Bash 4 seems pretty rad, if not ((kludged)).
+  #             Decades and decades of cruft! I absolutely love it!!!
+  echo "Populating singular git repos..."
+  for ((i = 0; i < ${#ENCFS_GIT_REPOS[@]}; i++)); do
+    ENCFS_REL_PATH=$(echo ${ENCFS_GIT_REPOS[$i]} | /bin/sed s/^.//)
+    if [[ ! -e "${ENCFS_REL_PATH}/.git" ]]; then
+      #echo " ${ENCFS_GIT_REPOS[$i]}"
+      echo " ${ENCFS_REL_PATH}"
+      echo "  \$ git clone ${ENCFS_GIT_REPOS[$i]} ${ENCFS_REL_PATH}"
+      git clone ${ENCFS_GIT_REPOS[$i]} ${ENCFS_REL_PATH}
+    else
+      echo " skipping (already got?): ${ENCFS_REL_PATH}"
+    fi
+  done
+
+  echo "Populating gardened git repos..."
+  for ((i = 0; i < ${#ENCFS_GIT_ITERS[@]}; i++)); do
+    #echo " ${ENCFS_GIT_ITERS[$i]}"
+    ENCFS_REL_PATH=$(echo ${ENCFS_GIT_ITERS[$i]} | /bin/sed s/^.//)
+    echo " ${ENCFS_REL_PATH}"
+    # We don't -type d so that you can use symlinks.
+    find ${ENCFS_GIT_ITERS[$i]} -maxdepth 1 ! -path . -print0 | while IFS= read -r -d '' fpath; do
+      TARGET_PATH="${ENCFS_REL_PATH}/$(basename ${fpath})"
+      if [[ -d ${fpath}/.git ]]; then
+        if [[ ! -e ${TARGET_PATH}/.git ]]; then
+          echo " $fpath"
+          echo "  \$ git clone ${fpath} ${TARGET_PATH}"
+          git clone ${fpath} ${TARGET_PATH}
+        else
+          echo " skipping (got .git?): +${TARGET_PATH}+"
+        fi
+      else
+        echo " skipping (not .git/): -${TARGET_PATH}-"
+      fi
+    done
+  done
+
+  popd &> /dev/null
+
+  set +e
+  command -v user_do_init_travel &> /dev/null
+  EXIT_CODE=$?
+  set -e
+  if [[ ${EXIT_CODE} -eq 0 ]]; then
+    user_do_init_travel
+  fi
+
+  umount_curly_emissary_gooey
+
+} # end: init_travel
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# update_git
+
+function update_git () {
+
+  sudo add-apt-repository -y ppa:git-core/ppa
+  sudo apt-get update
+  sudo apt-get install -y git
+
+} # end: update_git
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# packme
+
+# git_status_porcelain sets GIT_DIRTY_FILES_FOUND accordingly.
+GIT_DIRTY_FILES_FOUND=false
+
+function git_commit_hamster () {
+  if ${HAMSTERING}; then
+    HAMSTER_DB_REL="home/.local/share/hamster-applet/hamster-$(hostname).db"
+    HAMSTER_DB_ABS="${ACTUAL_ABS_DIRN}/${HAMSTER_DB_REL}"
+    if [[ -e ${HAMSTER_DB_ABS} ]]; then
+      echo "Checking Hamster.db..."
+      git_commit_generic_file \
+        "${HAMSTER_DB_ABS}" \
+        "Update hamster-$(hostname).db during packme."
+    else
+      echo
+      echo "WARNING: Skipping hamster.db: No hamster.db at:"
+      echo "  ${HAMSTER_DB_ABS}"
+      echo
+    fi
+  else
+    echo "Not Hamstering."
+  fi
+} # end: git_commit_hamster
+
+function git_commit_vim_spell () {
+  VIM_SPELL_REL="home/.vim/spell/en.utf-8.add"
+  VIM_SPELL_ABS="${ACTUAL_ABS_DIRN}/${VIM_SPELL_REL}"
+  if [[ -e ${VIM_SPELL_ABS} ]]; then
+    echo "Checking Vim spell..."
+
+    # Sort the spell file, for easy diff'ing, meld'ing, or better yet merging.
+    # The .vimrc startup file will remake the .spl file when you restart Vim.
+    # NOTE: cat'ing and sort'ing to the cat'ed file results in a 0-size file!?
+    #       So we use an intermediate file.
+    /bin/cat ${VIM_SPELL_ABS} | /usr/bin/sort > ${VIM_SPELL_ABS}.tmp
+    /bin/mv -f ${VIM_SPELL_ABS}.tmp ${VIM_SPELL_ABS}
+
+    git_commit_generic_file \
+      "${VIM_SPELL_ABS}" \
+      "Commit Vim spell during packme."
+  else
+    echo
+    echo "WARNING: Skipping .vim/spell: No en.utf-8.add at:"
+    echo "  ${VIM_SPELL_ABS}"
+    echo
+  fi
+} # end: git_commit_vim_spell
+
+function git_commit_vimprojects () {
+  VIMPROJECTS_REL="home/.vim/bundle/dubs_all/.vimprojects"
+  VIMPROJECTS_ABS="${ACTUAL_ABS_DIRN}/${VIMPROJECTS_REL}"
+  if [[ -e ${VIMPROJECTS_ABS} ]]; then
+    echo "Checking .vimprojects..."
+      git_commit_generic_file \
+        "${VIMPROJECTS_ABS}" \
+        "Commit .vimprojects during packme."
+  else
+    echo
+    echo "WARNING: Skipping .vimprojects: Nothing at:"
+    echo "  ${VIMPROJECTS_ABS}"
+    echo
+  fi
+} # end: git_commit_vimprojects
+
+function git_commit_dirty_sync_repos () {
+
+  echo "Checking single dirty files..."
+  for ((i = 0; i < ${#AUTO_GIT_ONE[@]}; i++)); do
+    echo " ${AUTO_GIT_ONE[$i]}"
+    DIRTY_BNAME=$(basename ${AUTO_GIT_ONE[$i]})
+    git_commit_generic_file "${AUTO_GIT_ONE[$i]}" "Update just the one: ${DIRTY_BNAME}."
+  done
+
+  echo "Checking all repos' dirty files..."
+  for ((i = 0; i < ${#AUTO_GIT_ALL[@]}; i++)); do
+    echo " ${AUTO_GIT_ALL[$i]}"
+    git_commit_all_dirty_files "${AUTO_GIT_ALL[$i]}" "Update all of ${AUTO_GIT_ALL[$i]}."
+  done
+
+} # end: git_commit_dirty_sync_repos
+
+# *** Git: check 'n fail
+
+function check_repos_statuses () {
+
+  # Skipping: PLAINTEXT_ARCHIVES
+
+  echo "Checking one-level repos..."
+  for ((i = 0; i < ${#ENCFS_GIT_REPOS[@]}; i++)); do
+    echo " ${ENCFS_GIT_REPOS[$i]}"
+    pushd ${ENCFS_GIT_REPOS[$i]} &> /dev/null
+    GREPPERS=''
+    if [[ ${SKIP_THIS_DIRTY} = true && ${ENCFS_GIT_REPOS[$i]} == ${CURLY_ABS_DIRN} ]]; then
+      # Tell git_status_porcelain to ignore this dirty file, travel.sh.
+      THIS_SCRIPT_NAME="$(basename ${SCRIPT_REL_PATH})"
+      #GREPPERS='| grep -v " travel.sh$"'
+      GREPPERS="${GREPPERS} | grep -v \" ${THIS_SCRIPT_NAME}\$\""
+      GREPPERS="${GREPPERS} | grep -v \" util.sh\$\""
+      echo "GREPPERS: ${GREPPERS}"
+    fi
+    git_status_porcelain "$(basename ${ENCFS_GIT_REPOS[$i]})"
+    popd &> /dev/null
+  done
+
+  echo "Checking gardened repos..."
+  for ((i = 0; i < ${#ENCFS_GIT_ITERS[@]}; i++)); do
+    echo " top-level: ${ENCFS_GIT_ITERS[$i]}"
+    find ${ENCFS_GIT_ITERS[$i]} -maxdepth 1 ! -path . -print0 | while IFS= read -r -d '' fpath; do
+      if [[ -d ${fpath}/.git ]]; then
+        echo "  ${fpath}"
+        pushd ${fpath} &> /dev/null
+        git_status_porcelain "${fpath}"
+        popd &> /dev/null
+      else
+        #echo "Skipping non-.git/ ${fpath}"
+        :
+      fi
+    done
+  done
+
+  echo "GIT_ISSUES_DETECTED: ${GIT_ISSUES_DETECTED}"
+  if ${GIT_ISSUES_DETECTED}; then
+    echo "FIZATAL: One or more git issues was detected. See prior log."
+    echo "Could be dirty files, untracted files, and/or behind branches."
+    echo "Please fix. Or run with -D (skip all git warnings)"
+    echo "            or run with -DD (skip warnings about $0)"
+    exit 1
+  fi
+
+}
+
+# *** Git: pull
+
+function git_dir_check () {
+  REPO_PATH=$1
+  if [[ ! -d ${REPO_PATH} ]]; then
+    SKIP_GIT_PULL=true
+    echo
+    echo "WARNING: Not a directory: ${REPO_PATH}"
+  elif [[ ! -d ${REPO_PATH}/.git ]]; then
+    SKIP_GIT_PULL=true
+    echo
+    echo "WARNING: No .git/ found at: ${REPO_PATH}/.git"
+  fi
+}
+
+function pull_git_repos () {
+
+  if [[ $1 == 'emissary' ]]; then
+    TO_EMISSARY=true
+    PREFIX=""
+    pushd ${EMISSARY}/gooey &> /dev/null
+  elif [[ $1 == 'dev-machine' ]]; then
+    TO_EMISSARY=false
+    PREFIX="${EMISSARY}/gooey"
+    pushd / &> /dev/null
+  else
+    echo "WHAT: pull_git_repos excepted argument 'emissary' or 'dev-machine'."
+    exit 1
+  fi
+
+  echo "Pulling singular git repos..."
+  for ((i = 0; i < ${#ENCFS_GIT_REPOS[@]}; i++)); do
+    ABS_PATH="${ENCFS_GIT_REPOS[$i]}"
+    ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
+    echo " ${ENCFS_REL_PATH}"
+    git_pull_hush ${PREFIX}${ABS_PATH} ${ENCFS_REL_PATH}
+  done
+
+  echo "Pulling gardened git repos..."
+  for ((i = 0; i < ${#ENCFS_GIT_ITERS[@]}; i++)); do
+    ABS_PATH="${ENCFS_GIT_ITERS[$i]}"
+    ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
+    echo " ${ENCFS_REL_PATH}"
+    find /${ENCFS_REL_PATH} -maxdepth 1 ! -path . -print0 | while IFS= read -r -d '' fpath; do
+      TARGET_PATH="${ENCFS_REL_PATH}/$(basename ${fpath})"
+      if [[ -d ${TARGET_PATH}/.git ]]; then
+        echo "  $fpath"
+        git_pull_hush ${PREFIX}${ABS_PATH}/$(basename ${fpath}) ${TARGET_PATH}
+      else
+        #echo " skipping (not .git/): $fpath"
+        :
+      fi
+    done
+  done
+
+  popd &> /dev/null
+
+} # end: pull_git_repos 
+
+# *** Plaintext: archive
+
+function make_plaintext () {
+
+  if [[ -e ${PLAINPATH} ]]; then
+    if [[ ! -d ${PLAINPATH} ]]; then
+      echo
+      echo "UNEXPECTED: PLAINPATH not a directory: ${PLAINPATH}"
+      exit 1
+    fi
+    if [[ -e ${PLAIN_TBD} ]]; then
+      echo
+      echo "FATALLY UNEXPECTED: plain intermediate exists at"
+      echo "  ${PLAIN_TBD}"
+      exit 1
+    fi
+    # We'll delete the old archives later.
+    /bin/mv ${PLAINPATH} ${PLAIN_TBD}
+  fi
+
+  mkdir -p ${PLAINPATH}
+  # Plop the hostname in the packedpathwhynot.
+  echo $(hostname) > ${PLAINPATH}/packered_hostname
+  echo ${USER} > ${PLAINPATH}/packered_username
+
+  echo "Packing plainly to: ${PLAINPATH}"
+
+  for ((i = 0; i < ${#PLAINTEXT_ARCHIVES[@]}; i++)); do
+
+    # FIXME/MAYBE: Enforce rule: Starts with leading '/'.
+    ARCHIVE_SRC=${PLAINTEXT_ARCHIVES[$i]}
+    ARCHIVE_NAME=$(basename ${ARCHIVE_SRC})
+
+    # Resolve to real full path, if symlink. (I can't remember why I do this.
+    # And I only ever did it for /ccp/dev/cp.)
+    if [[ -h ${ARCHIVE_SRC} ]]; then
+      ARCHIVE_SRC=$(readlink -f ${ARCHIVE_SRC})
+    fi
+
+    ARCHIVE_REL=$(echo ${ARCHIVE_SRC} | /bin/sed s/^.//)
+
+    if [[ -e ${ARCHIVE_SRC} ]]; then
+      echo -n " tarring: ${ARCHIVE_SRC}"
+      pushd / &> /dev/null
+      # Note: Missing files cause tar errors. If this happens, consider:
+      #         --ignore-failed-read
+
+# FIXME/2016-09-29: Test packing to the encfs -- you're just worried about performance, right?
+#                   Because really everything should be encrypted.
+
+      tar czf ${PLAINPATH}/${ARCHIVE_NAME}.tar.gz \
+        --exclude=".~lock.*.ods#" \
+        --exclude="*/TBD-*" \
+         ${ARCHIVE_REL}
+      popd &> /dev/null
+      echo "ok"
+    else
+      echo
+      echo "FATAL: Indicated plaintext archive not found at: ${ARCHIVE_SRC}"
+      exit 1
+    fi
+  done
+
+} # end: make_plaintext 
+
+function packme () {
+
+  #echo "Let's count"'!'
+  #echo "- # of. PLAINTEXT_ARCHIVES: ${#PLAINTEXT_ARCHIVES[@]}"
+  #echo "- # of.    ENCFS_GIT_REPOS: ${#ENCFS_GIT_REPOS[@]}"
+  #echo "- # of.    ENCFS_GIT_ITERS: ${#ENCFS_GIT_ITERS[@]}"
+
+  # We can be smart about certain files that change often and
+  # don't need meaningful commit messages and automatically
+  # commit them for the user. That's you, chum!
+  git_commit_hamster
+  git_commit_vim_spell
+  git_commit_vimprojects
+
+  if ! ${SKIP_DIRTY_CHECK}; then
+
+    # Commit whatever's listed in user's privatey cfg/sync_repos.sh.
+    git_commit_dirty_sync_repos
+
+    # If any of the repos listed in repo_syncs.sh are dirty, fail
+    # now and force the user to meaningfully commit those changes.
+    # (This is repos like: home-fries, ${PRIVATE_REPO_}, dubsacks vim,
+    #  and other personal- and work-related repositories.)
+    check_repos_statuses
+
+  fi
+
+  if [[ ! -d ${EMISSARY} ]]; then
+    echo
+    echo "FAIL: No \${EMISSARY} defined."
+    echo "Have you run \`$0 init_travel\`?"
+    exit 1
+  fi
+
+  mount_curly_emissary_gooey
+  pull_git_repos 'emissary'
+  umount_curly_emissary_gooey
+
+  make_plaintext
+
+  # Call private fcns. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
+  set +e
+  command -v user_do_packme &> /dev/null
+  EXIT_CODE=$?
+  set -e
+  if [[ ${EXIT_CODE} -eq 0 ]]; then
+    user_do_packme
+  fi
+
+  if [[ -d ${PLAIN_TBD} ]]; then
+    /bin/rm -rf ${PLAIN_TBD}
+  fi
+
+  if ${COPY_PRIVATE_REPO_PLAIN}; then
+    # BEWARE: Enabling COPY_PRIVATE_REPO_PLAIN is dangerous because it exposes
+    #         the ENCFS pwd for the ${ACTUAL_ABS_DIRN} project.
+    #         I.e., this script in plain text can be read to get encfs pwd.
+    echo
+    echo "WARNING: Copying *unencrypted* ${ACTUAL_ABS_DIRN}s."
+    echo
+    echo -n "Copying travel scripts... "
+    mkdir -p ${TRAVEL_DIR}/e-scripts
+    /bin/cp -aLf ${ACTUAL_ABS_DIRN}/*.sh ${TRAVEL_DIR}/e-scripts
+    /bin/cp -arf ${ACTUAL_ABS_DIRN}/cfg ${TRAVEL_DIR}/e-scripts
+  fi
+
+  echo "umount ${TRAVEL_DIR}" > ${ACTUAL_ABS_DIRN}/cleanup.sh
+  chmod 775 ${ACTUAL_ABS_DIRN}/cleanup.sh
+
+  echo
+  echo "Verify your work:"
+  echo
+  echo "  ll ${EMISSARY}"
+  echo "  ll ${PLAINPATH}"
+  echo "  ll ${EMISSARY}/plain-*"
+  echo
+  echo "  $0 mount"
+  echo "  ll ${EMISSARY}/gooey"
+  echo "  $0 umount"
+  echo
+  echo "  ll ${STAGING_DIR}/${PRIVATE_REPO_}-unpackered"
+  echo
+  echo "Unstick the mount"
+  echo
+  echo "  umount ${TRAVEL_DIR}"
+  echo
+  echo " a/k/a"
+  echo
+  echo " ./cleanup.sh"
+  echo
+
+  # WISHFUL_THING: Add to the tail of the Bash history.
+  #                But Bash loads a terminal's history on session
+  #                open and writes it to ~/.bash_history on session
+  #                close, and there's nothing you can do to influence
+  #                it from within a script. Not even exec or eval. AFAIK.
+  # 2016-09-28/TESTME/MAYBE: Could xdotool do this? Hrmm.
+  history -ps "umount ${TRAVEL_DIR}" # unfortunately, a no-op
+
+} # end: packme
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# unpack
+
+function unpack_plaintext_archives () {
+
+  # Gather all plaintext archive dumps.
+  find ${EMISSARY} -maxdepth 1 -path */plain-* ! -path . ! -path */plain-*-TBD-* \
+    -print0 | while IFS= read -r -d '' fpath; \
+  do
+
+    if [[ -f ${fpath}/packered_hostname ]]; then
+      PACKED_DIR_HOSTNAME=$(cat ${fpath}/packered_hostname)
+    else
+      echo "WARNING: Not found: ${fpath}/packered_hostname"
+      PACKED_DIR_HOSTNAME=''
+    fi
+
+    if [[ -f ${fpath}/packered_username ]]; then
+      PACKED_DIR_USERNAME=$(cat ${fpath}/packered_username)
+    else
+      echo "WARNING: Not found: ${fpath}/packered_username"
+      PACKED_DIR_USERNAME=''
+    fi
+
+    # Does the unpack target already exist? If so, move it to delete it.
+    TARGETPATH=${UNPACKERED_PATH}/$(basename ${fpath})
+    if [[ -e ${TARGETPATH} ]]; then
+      /bin/mv ${TARGETPATH} ${UNPACK_TBD}
+    fi
+
+    mkdir -p ${TARGETPATH}
+    pushd ${TARGETPATH} &> /dev/null
+    echo "Unpacking plain to: ${TARGETPATH}"
+
+    # Unpack all plaintext archives.
+    # And include dot-prefixed files.
+    shopt -s dotglob
+
+    for zpath in ${fpath}/*.tar.gz; do
+      if [[ $(basename ${zpath}) != '*.tar.gz' ]]; then
+        echo " tar xzf${TAR_VERBOSE} ${zpath}"
+        tar xzf${TAR_VERBOSE} ${zpath}
+      # else, No such file or directory
+      fi
+    done
+
+    # Reset dotglobbing.
+    shopt -u dotglob
+
+    /bin/rm -rf ${UNPACK_TBD}
+
+    popd &> /dev/null
+  done
+
+} # end: unpack_plaintext_archives
+
+function update_hamster_db () {
+
+  if ${HAMSTERING}; then
+
+    set +e
+    command -v hamster_love.sh > /dev/null
+    RET_VAL=$?
+    set -e
+    if [[ ${RET_VAL} -eq 0 ]]; then
+
+      #pushd ${ACTUAL_ABS_DIRN}/bin &> /dev/null
+
+      # 2016-09-28: I've used Dropbox in the past, but now I just USB stick
+      # FIXME: Make USB vs. Dropbox optionable.
+      #ensure_dropbox_running
+
+      # A simple search procedure for finding the best more recent hamster.db.
+
+      CURLY_PATH=${ACTUAL_ABS_DIRN}/home/.local/share/hamster-applet
+
+      CANDIDATES=()
+
+      # Consider any hamster.dbs in ${ACTUAL_ABS_DIRN}, now that it's been git pull'ed.
+      shopt -s nullglob
+      CANDIDATES+=(${ACTUAL_ABS_DIRN}/home/.local/share/hamster-applet/hamster-*)
+      shopt -u nullglob
+
+      # Consider any hamster.dbs at the root of the travel directory.
+      if [[ -n ${TRAVEL_DIR} && -d ${TRAVEL_DIR} ]]; then
+        shopt -s nullglob
+        CANDIDATES+=(${TRAVEL_DIR}/hamster-*)
+        shopt -u nullglob
+      fi
+
+      # Consider any hamster.dbs in the dropbox.
+      if [[ -d ${HOME}/Dropbox ]]; then
+        while IFS= read -r -d '' file; do
+          CANDIDATES+=("${file}")
+        done < <(find ${HOME}/Dropbox -maxdepth 1 -type f -name 'hamster-*' -print0)
+      fi
+
+      LATEST_HAMMY=''
+      for candidate in "${CANDIDATES[@]}"; do
+        #echo "candidate: ${candidate}"
+        if [[ -z ${LATEST_HAMMY} ]]; then
+          #echo "first candidate: ${candidate}"
+          LATEST_HAMMY="${candidate}"
+        elif [[ ${candidate} -nt ${LATEST_HAMMY} ]]; then
+          #echo "newer candidate: ${candidate}"
+          LATEST_HAMMY="${candidate}"
+        fi
+      done
+
+      if [[ -n ${LATEST_HAMMY} ]]; then
+        echo
+        echo "hamster love says:"
+        echo
+        hamster_love.sh ${LATEST_HAMMY} ${CURLY_PATH}/hamster-$(hostname).db
+        echo
+        echo 'hamstered!'
+      else
+        #echo
+        echo "Skipping hamster-love: did not find appropriately most recent replacement."
+        #echo
+      fi
+
+      #popd &> /dev/null
+
+    fi
+
+  fi
+
+} # end: update_hamster_db
+
+function unpack () {
+
+  if [[ ! -d ${EMISSARY} ]]; then
+    echo "FATAL: The emissary directory was not found at ${EMISSARY}."
+    exit 1
+  fi
+
+  mkdir -p ${UNPACKERED_PATH}
+
+  unpack_plaintext_archives
+
+  mount_curly_emissary_gooey
+  # pull_git_repos knows 'emissary' and 'dev-machine'.
+  pull_git_repos 'dev-machine'
+  umount_curly_emissary_gooey
+
+  update_hamster_db
+
+  # 2016-10-09: Save yourself a step reface automatically on unpack.
+  chase_and_face
+
+  set +e
+  command -v user_do_unpack &> /dev/null
+  EXIT_CODE=$?
+  set -e
+  if [[ ${EXIT_CODE} -eq 0 ]]; then
+    user_do_unpack
+  fi
+
+  echo "umount ${TRAVEL_DIR}" > ${ACTUAL_ABS_DIRN}/cleanup.sh
+  chmod 775 ${ACTUAL_ABS_DIRN}/cleanup.sh
+
+  echo
+  echo "encrypted repos rebased from emissaries."
+  echo
+  echo " throwaway plaintext archives unpacked."
+  echo
+  echo "To locate unpacked plaintext archives:"
+  echo
+  echo " ll ${UNPACKERED_PATH}"
+  echo
+  echo "To unmount the stick when you're done:"
+  echo
+  echo "  umount ${TRAVEL_DIR}"
+  echo
+  echo " a/k/a"
+  echo
+  echo " ./cleanup.sh"
+  echo
+
+} # end: unpack
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# prepare_shim
+
+function prepare_shim () {
+
+  if [[ ! -d ${EMISSARY} ]]; then
+    echo "FATAL: The emissary directory was not found at ${EMISSARY}."
+    exit 1
+  fi
+
+  #echo "Making: ${ACTUAL_ABS_DIRN}/TBD-shim"
+
+  mkdir -p ${ACTUAL_ABS_DIRN}/TBD-shim
+
+  pushd ${ACTUAL_ABS_DIRN}/TBD-shim &> /dev/null
+
+  echo "In: ${ACTUAL_ABS_DIRN}/TBD-shim"
+
+  # git_check_generic_file sets ${git_result} to 0 if file is dirty.
+  git_check_generic_file ${SCRIPT_ABS_PATH}
+
+  USE_GOOEY=true
+  if [[ $git_result -eq 0 ]]; then
+    # travel.sh is dirty; use it and not the travel one.
+    USE_GOOEY=false
+    echo "Using local $(basename ${SCRIPT_REL_PATH})"
+  else
+    echo "Using gooey $(basename ${SCRIPT_REL_PATH})"
+  fi
+
+  PREFIX=""
+  if ${USE_GOOEY}; then
+    PREFIX="${EMISSARY}/gooey"
+    mount_curly_emissary_gooey
+  fi
+
+  echo "Copying: ${PREFIX}/${SCRIPT_ABS_PATH}"
+
+  /bin/cp -aLf ${PREFIX}/${SCRIPT_ABS_PATH} travel_shim.sh
+  chmod 775 travel_shim.sh
+
+  echo "Copying: ${PREFIX}/${CURLY_ABS_DIRN}/util.sh"
+  /bin/cp -aLf ${PREFIX}/${CURLY_ABS_DIRN}/util.sh .
+
+  echo "Copying: ${PREFIX}/${SYNC_REPOS_PATH}"
+  /bin/cp -aLf ${PREFIX}/${SYNC_REPOS_PATH} .
+
+  echo "Copying: ${PREFIX}/${TRAVEL_TASKS_PATH}"
+  /bin/cp -aLf ${PREFIX}/${TRAVEL_TASKS_PATH} .
+
+  if ${USE_GOOEY}; then
+    umount_curly_emissary_gooey
+  fi
+
+  popd &> /dev/null
+
+  set +e
+  command -v user_do_prepare_shim &> /dev/null
+  EXIT_CODE=$?
+  set -e
+  if [[ ${EXIT_CODE} -eq 0 ]]; then
+    user_do_prepare_shim
+  fi
+
+} # end: prepare_shim
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Run the script.
+soups_on $*
+
+#echo
+#echo 'Success!'
+
+# Unhook errexit_cleanup.
+trap - EXIT
+
+exit 0
+

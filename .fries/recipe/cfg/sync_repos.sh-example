@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# USAGE: Declare your plaintext dumps
+#        and encrypted git repos herein.
+
+# NOTE: Use absolute paths herein.
+#       And all your machines' paths should match.
+#       It just makes life/scripting easier.
+
+# NOTE: There are no plaintext git repos,
+#       nor are there any encfs non-git archives.
+#       1. You can archive plaintext directories. 
+#       And 2. you can encfs git repos and dirs of repos.
+
+# This is the password used to secure the encfs mount.
+# You could pass this in other ways (like typing it each time,
+# or setting it as an environment variable) but you already
+# trust the machines on which you have you files, and this file
+# lives on those machines, right? So just come up with something
+# here.
+CRAPWORD='myW1TTYp4ssw0rd'
+
+# If you want to use some other than ~/Documents as the staging
+# directory (perhaps another drive)? specify it here.
+if [[ -e /some/other/path ]]; then
+  STAGING_DIR=/some/other/path
+fi
+
+# Specify directories you'd simply like tarred and gzipped in plaintext.
+PLAINTEXT_ARCHIVES=()
+# This is useful for unimportant files that tend to accumlate in common
+# locations, like the 3 "D" directories, Desktop, Documents, and Downlaods.
+PLAINTEXT_ARCHIVES+=("${HOME}/Desktop")
+PLAINTEXT_ARCHIVES+=("${HOME}/Documents")
+PLAINTEXT_ARCHIVES+=("${HOME}/Downloads")
+
+# Specify top-level .git repositories you'd like to git pull --rebase
+# back and forth between the sync-stick and whatever machine you're on.
+#
+# The clone on the sync-stick lives in the encrypted encfs mount, so
+# you're files are "safe" (as safe can be), and the sync operation is
+# usually quick and painless, allowing you to keep many git repos in
+# sync across machines easily.
+ENCFS_GIT_REPOS=()
+# Sync github.com/landonb/home-fries
+ENCFS_GIT_REPOS+=("${HOME}")
+# Sync github.com/landonb/€µ®£¥
+#  er, github.com/landonb/curly
+ENCFS_GIT_REPOS+=("${HOME}/.curly")
+# Sync github.com/landonb/dubsacks_vim
+ENCFS_GIT_REPOS+=("${HOME}/.vim")
+# And whatever else you got.
+#ENCFS_GIT_REPOS+=("/more/stuff")
+
+# Specify directories of directories of git projects.
+#
+ENCFS_GIT_ITERS=()
+# If you cloned all the Dubsacks Vim projects (and didn't
+# just submodule them), include them all.
+#ENCFS_GIT_ITERS+=("${HOME}/.vim/bundle-dubs")
+# And then whatever else you got.
+#ENCFS_GIT_REPOS+=("/even/more/stuff")
+
