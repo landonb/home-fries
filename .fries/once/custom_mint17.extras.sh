@@ -3432,6 +3432,41 @@ stage_4_prep_home_fries () {
 
 } # end: stage_4_prep_home_fries
 
+stage_4_setup_whiteinge_diffconflicts () {
+
+  stage_announcement "stage_4_setup_whiteinge_diffconflicts"
+
+  # From ~/.fries/bin/diffconflicts-setup.sh, 2016 Mar 24.
+  # Has something to do with resolving merge conflicts.
+  # I've just been doing it raw via text editor....
+
+  if false; then
+
+    pushd ${OPT_DLOADS} &> /dev/null
+
+    # See:
+    #  http://vim.wikia.com/wiki/A_better_Vimdiff_Git_mergetool
+
+    mkdir -p /srv/opt/.downloads/whiteinge
+    pushd /srv/opt/.downloads/whiteinge &> /dev/null
+    git clone https://github.com/whiteinge/dotfiles.git
+    popd &> /dev/null
+
+    pushd ${HOME}/.fries/bin &> /dev/null
+    /bin/ln /srv/opt/.downloads/whiteinge/dotfiles/bin/diffconflicts .
+    popd &> /dev/null
+
+    git config --global merge.tool diffconflicts
+    git config --global mergetool.diffconflicts.cmd 'diffconflicts vim $BASE $LOCAL $REMOTE $MERGED'
+    git config --global mergetool.diffconflicts.trustExitCode true
+    git config --global mergetool.keepBackup false
+
+    popd &> /dev/null
+
+  fi
+
+} # end: stage_4_setup_whiteinge_diffconflicts
+
 stage_4_fcn_template () {
 
   stage_announcement "stage_4_fcn_template"
@@ -3607,6 +3642,9 @@ setup_customize_extras_go () {
   stage_4_libmateweather
 
   stage_4_open_shift_origin_binary
+
+  # Nope!
+  #  stage_4_setup_whiteinge_diffconflicts
 
   # Add before this'n: stage_4_fcn_template.
 
