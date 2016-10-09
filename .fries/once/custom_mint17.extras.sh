@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.07
+# Last Modified: 2016.10.08
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -2818,6 +2818,56 @@ rGUZtDlKYbmNIeMeAJ0UpVsjxpylBcSjsPE8MAki7Hb2Rw==
   pushd password-store-1.6.5 &> /dev/null
   sudo make install
   popd &> /dev/null
+
+  if false; then
+    # 2016-10-07: Make gpg ask for your password more than just once.
+    # https://confluence.clazzes.org/display/KH/Preventing+Gnome-Keyring+from+caching+GPG+keys+forever
+    # "no idea what this means, my XFCE4 desktops have it set to false"
+    #gsettings set org.gnome.crypto.cache gpg-cache-authorize false
+    # values are 'session', 'idle', 'timeout'. Default is 'session'.
+    #gsettings set org.gnome.crypto.cache gpg-cache-method 'session'
+    gsettings set org.gnome.crypto.cache gpg-cache-method 'timeout'
+    # The time-to-live value is in seconds, default is 300.
+    #gsettings set org.gnome.crypto.cache gpg-cache-ttl 300
+  fi
+  # The Gnome Keyring (GKR) plays man-in-the-middle and caches
+  # your pass passwords in its cache, protected by your normal
+  # login credentials! Nuts to that.
+  # https://wiki.gnupg.org/GnomeKeyring
+  # $ pass some/key
+  # gpg: WARNING: The GNOME keyring manager hijacked the GnuPG agent.
+  # gpg: WARNING: GnuPG will not work properly -
+  #  please configure that tool to not interfere with the GnuPG system!
+  sudo dpkg-divert --local --rename \
+    --divert /etc/xdg/autostart/gnome-keyring-gpg.desktop-disable \
+    --add /etc/xdg/autostart/gnome-keyring-gpg.desktop
+  # If you later decide to reenable it, then you can use:
+  #  sudo dpkg-divert --rename --remove /etc/xdg/autostart/gnome-keyring-gpg.desktop
+  # And then do this.
+  mkdir -p ${HOME}/.config/autostart
+  cd ${HOME}/.config/autostart
+  for gk_path in /etc/xdg/autostart/gnome-keyring-*; do
+    gk_file=$(basename ${gk_path})
+    if [[ ! -e ${HOME}/.config/autostart/${gk_file} ]]; then
+      /bin/cp /etc/xdg/autostart/${gk_file} ${HOME}/.config/autostart/
+      echo 'Hidden=true' >> ${HOME}/.config/autostart/${gk_file}
+    fi
+  done
+  # "... but then GPG will use yet another graphical prompt! To finally
+  # stay in your terminal, create the file ~/.gnupg/gpg-agent.conf with
+  # the following content:"
+  sudo apt-get install -y pinentry-curses
+  if [[ ! -e ${HOME}/.gnupg/gpg-agent.conf ]]; then
+    echo 'pinentry-program /usr/bin/pinentry-curses' >> ${HOME}/.gnupg/gpg-agent.conf
+  fi
+  # WHAT!? None of the above worked. This does!
+  # FINALLY
+  # https://gist.github.com/julienfastre/9a91e3116505f6109e84
+  # $ gpg-agent --daemon
+  # GPG_AGENT_INFO=/tmp/gpg-Kd7kIC/S.gpg-agent:4415:1; export GPG_AGENT_INFO; #copy this line below
+  # $ GPG_AGENT_INFO=/tmp/gpg-Kd7kIC/S.gpg-agent:4415:1; export GPG_AGENT_INFO;
+  eff_off_gkr=$(gpg-agent --daemon)
+  eval "$eff_off_gkr"
 
   # All done.
 
