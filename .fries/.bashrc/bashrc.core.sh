@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.06
+# Last Modified: 2016.10.08
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -404,15 +404,27 @@ function cdd_() {
     return 1
   fi
   if [[ -n $1 ]]; then
-    pushd "$1" > /dev/null
+    pushd "$1" &> /dev/null
     # Same as:
-    #  pushd -n "$1" > /dev/null
+    #  pushd -n "$1" &> /dev/null
     #  cd "$1"
+    if [[ $? -ne 0 ]]; then
+      # Maybe the stupid user provided a path to a file.
+      pushd "$(dirname $1)" &> /dev/null
+      if [[ $? -ne 0 ]]; then
+        echo "You're dumb."
+      else
+        # alias errcho='>&2 echo'
+        # echo blah >&2
+        >&2 echo "FYI: We popped you to a file's homedir, home skillet."
+      fi
+    fi
   else
-    pushd ${HOME} > /dev/null
+    pushd ${HOME} &> /dev/null
   fi
 }
 # FIXME: 2015.04.04: Still testing what makes the most sense:
+#        2016-10-07: I just use `cdd`. What's the problem?
 alias cdd='cdd_'
 #alias ccd='cdd_'
 #alias cdc='cdd_'
