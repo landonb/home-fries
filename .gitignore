@@ -50,6 +50,7 @@
 !.fries/once
 !.fries/once/
 !.fries/once/*
+.fries/once/.agignore
 .fries/once/*.private.*
 # Generated files.
 .fries/once/fries-setup-stage.num
