@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.04
+# Last Modified: 2016.10.09
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -71,12 +71,12 @@ fi
 # ------------------------------------------
 # Bootstrap
 
-if [[ ! -e ../bin/bash_base.sh ]]; then
-  echo "Error: Expected to find ../bin/bash_base.sh."
+if [[ ! -e ../lib/bash_base.sh ]]; then
+  echo "Error: Expected to find ../lib/bash_base.sh."
   exit 1
 fi
 DEBUG_TRACE=false
-source ../bin/bash_base.sh
+source ../lib/bash_base.sh
 # ${script_absbase} is now the absolute path to this script's directory.
 
 # ------------------------------------------
@@ -764,7 +764,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       #  sudo tail -n 1000 /var/spool/mail/root
       #  sudo grep "cron" /var/spool/mail/root
 
-      # GUI git log tool
+      # GUI git log tool and commit comparison [visual diff] tool
       gitk
 
       # 2016-09-30: Weird. I swore this was already part of setup.

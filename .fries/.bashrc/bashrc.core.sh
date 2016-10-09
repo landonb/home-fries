@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.08
+# Last Modified: 2016.10.09
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -15,9 +15,9 @@
 #
 #####################
 
-if [[ -f ~/.fries/bin/bash_base.sh ]]; then
+if [[ -f ${HOME}/.fries/lib/bash_base.sh ]]; then
   # 2016.05.05: Cinqo de Mayo. This is cool, right?
-  DEBUG_TRACE=false source ~/.fries/bin/bash_base.sh
+  DEBUG_TRACE=false source ${HOME}/.fries/lib/bash_base.sh
 fi
 
 # Vendor paths (see: setup_mint17.sh)
@@ -1133,7 +1133,7 @@ killsomething () {
 
 #########################
 
-# C.f. ~/.fries/bin/bash_base.sh.
+# C.f. ${HOME}/.fries/lib/bash_base.sh.
 dir_resolve () {
   # Squash error messages but return error status, maybe.
   pushd "$1" &> /dev/null || return $?
@@ -1937,7 +1937,7 @@ export IGNOREEOF=9999999
 #             And I _rarely_ use !n to repeat a history command.
 #             Usually, I just up-arrow.
 #             Recently, I've been Ctrl-R'ing.
-#             But I'm always annoyed with a bang in a paragraph
+#             But I'm always annoyed when a bang in a paragraph
 #             *confuses* the shell.
 set +o histexpand
 

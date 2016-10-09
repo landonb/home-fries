@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.07.17
+# Last Modified: 2016.10.09
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -33,12 +33,12 @@
 # ------------------------------------------
 # Bootstrap
 
-if [[ ! -e ../bin/bash_base.sh ]]; then
-  echo "Error: Expected to find ../bin/bash_base.sh."
+if [[ ! -e ../lib/bash_base.sh ]]; then
+  echo "Error: Expected to find ../lib/bash_base.sh."
   exit 1
 fi
 DEBUG_TRACE=false
-source ../bin/bash_base.sh
+source ../lib/bash_base.sh
 # ${script_absbase} is now the absolute path to this script's directory.
 
 # ------------------------------------------
