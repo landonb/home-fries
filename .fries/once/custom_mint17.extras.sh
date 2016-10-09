@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.08
+# Last Modified: 2016.10.09
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -521,6 +521,7 @@ stage_4_hamster_briefs_setup () {
   fi
 
   /bin/ln -sf ${OPT_DLOADS}/hamster_briefs/hamster_briefs.py ${OPT_BIN}
+  /bin/ln -sf ${OPT_DLOADS}/hamster_briefs/hamster_love.sh ${OPT_BIN}
 
   popd &> /dev/null
 
