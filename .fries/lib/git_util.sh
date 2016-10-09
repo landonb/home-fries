@@ -1,0 +1,459 @@
+# File: .fries/lib/git_util.sh
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Last Modified: 2016.10.09
+# Project Page: https://github.com/landonb/home-fries
+# Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
+# License: GPLv3
+# vim:tw=0:ts=2:sw=2:et:norl:
+
+GIT_ISSUES_DETECTED=false
+
+if [[ -z ${FAIL_ON_GIT_ISSUE+x} ]]; then
+  FAIL_ON_GIT_ISSUE=false
+fi
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# find_git_parent
+
+find_git_parent () {
+  ABS_PATH="$(readlink -f $1)"
+  REPO_PATH=""
+  while [[ ${ABS_PATH} != '/' || ${ABS_PATH} != '.' ]]; do
+    if [[ -d "${ABS_PATH}/.git" ]]; then
+      REPO_PATH=${ABS_PATH}
+      break
+    else
+      # Keep looping.
+      ABS_PATH=$(dirname ${ABS_PATH})
+    fi
+  done
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# git_check_generic_file
+
+function git_check_generic_file () {
+  # git_check_generic_file "file-path"
+
+  REPO_FILE=$1
+  # Set REPO_PATH.
+  find_git_parent ${REPO_FILE}
+  # Strip the git path from the absolute file path.
+  REPO_FILE=${REPO_FILE#${REPO_PATH}/}
+
+  pushd ${REPO_PATH} &> /dev/null
+
+  set +e
+  git status --porcelain ${REPO_FILE} | grep "^\W*M\W*${REPO_FILE}" &> /dev/null
+  git_result=$?
+  set -e
+
+  if [[ $git_result -eq 0 ]]; then
+    # It's dirty.
+    :
+  fi
+
+  popd &> /dev/null
+
+} # end: git_check_generic_file
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# git_commit_generic_file
+
+function git_commit_generic_file () {
+  # git_commit_generic_file "file-path" "commit-msg"
+
+  # MEH: DRY: First part of this fcn is: git_check_generic_file
+
+  REPO_FILE=$1
+  COMMITMSG=$2
+  # Set REPO_PATH.
+  find_git_parent ${REPO_FILE}
+  # Strip the git path from the absolute file path.
+  REPO_FILE=${REPO_FILE#${REPO_PATH}/}
+
+  pushd ${REPO_PATH} &> /dev/null
+
+  set +e
+  git status --porcelain ${REPO_FILE} | grep "^\W*M\W*${REPO_FILE}" &> /dev/null
+  git_result=$?
+  set -e
+
+  if [[ $git_result -eq 0 ]]; then
+    # It's dirty.
+    CUR_DIR=$(basename $(pwd -P))
+    echo
+    if ! ${AUTO_COMMIT_FILES}; then
+      echo -n "HEY, HEY: Your ${CUR_DIR}/${REPO_FILE} is dirty. Wanna check it in? [y/n] "
+      read -e YES_OR_NO
+    else
+      echo "HEY, HEY: Your ${CUR_DIR}/${REPO_FILE} is dirty. Ley's check that in for ya."
+      YES_OR_NO="Y"
+    fi
+    if [[ ${YES_OR_NO^^} == "Y" ]]; then
+      git add ${REPO_FILE}
+      git commit -m "${COMMITMSG}" &> /dev/null
+      echo 'Committed!'
+    fi
+  fi
+
+  popd &> /dev/null
+
+} # end: git_commit_generic_file
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# git_commit_all_dirty_files
+
+function git_commit_all_dirty_files () {
+
+  REPO_PATH=$1
+
+  if [[ -e ${REPO_PATH} ]]; then
+
+    echo "Checking for git dirtiness at: ${REPO_PATH}"
+
+    pushd ${REPO_PATH} &> /dev/null
+    set +e
+
+    # We ignore untracted files here because they cannot be added
+    # by a generic `git add -u` -- in fact, git should complain.
+    #
+    # So auto-commit works on existing git files, but not on new ones.
+
+    # Also, either grep pattern should work:
+    #
+    #   git status --porcelain | grep "^\W*M\W*" &> /dev/null
+    #   git status --porcelain | grep "^[^\?]" &> /dev/null
+    #
+    # but I'm ignorant of anything other than the two codes,
+    # '?? filename', and ' M filename', so let's be inclusive and
+    # just ignore new files, rather than being exclusive and only
+    # looking for modified files. If there are untracted files, a
+    # later call to git_status_porcelain on the same repo will die.
+    #git status --porcelain | grep "^\W*M\W*" &> /dev/null
+    git status --porcelain | grep "^[^\?]" &> /dev/null
+
+    git_result=$?
+    set -e
+
+    if [[ $git_result -eq 0 ]]; then
+      # It's dirty.
+      echo
+      if ! ${AUTO_COMMIT_FILES}; then
+        echo -n "HEY, HEY: Your ${REPO_PATH} is dirty. Wanna check it all in? [y/n] "
+        read -e YES_OR_NO
+      else
+        echo "HEY, HEY: Your ${REPO_PATH} is dirty. Ley's check that in for ya."
+        YES_OR_NO="Y"
+      fi
+      if [[ ${YES_OR_NO^^} == "Y" ]]; then
+        git add -u
+        git commit -m "Auto-commit by Curly." &> /dev/null
+        echo 'Committed!'
+      fi
+    fi
+    popd &> /dev/null
+  else
+    echo
+    echo "WARNING: Skipping ${REPO_PATH}: Not found"
+    echo
+  fi
+
+} # end: git_commit_all_dirty_files
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# git_status_porcelain
+
+# *** Git: check 'n commit, maybe
+
+# NOTE: This fcn. expects to be at the root of the git repo.
+function git_status_porcelain () {
+
+  GIT_REPO=$1
+
+  # Caller can set GREPPERS to ignore specific dirty files, e.g.,
+  #    GREPPERS='| grep -v " travel.sh$"'
+  #echo "GREPPERS: ${GREPPERS}"
+
+  # ***
+
+  # MAYBE: Does this commits of known knowns feel awkward here?
+
+  # Be helpful! We can take care of the known knowns.
+
+  git_commit_generic_file \
+    ".agignore" \
+    "Update .agignore."
+    #"Update .agignore during packme."
+
+  git_commit_generic_file \
+    ".gitignore" \
+    "Update .gitignore."
+    #"Update .gitignore during packme."
+
+  # ***
+
+  #DIRTY_REPO=false
+
+  # Use an eval because of the GREPPERS
+  set +e
+  # ' M' is modified but not added.
+  eval git status --porcelain ${GREPPERS} | grep "^ M " &> /dev/null
+  git_result=$?
+  set -e
+  if [[ $git_result -eq 0 ]]; then
+    #DIRTY_REPO=true
+    echo "WARNING: Unstaged changes found in $GIT_REPO"
+  fi
+
+  set +e
+  # 'M ' is added but not committed!
+  eval git status --porcelain ${GREPPERS} | grep "^M  " &> /dev/null
+  git_result=$?
+  set -e
+  if [[ $git_result -eq 0 ]]; then
+    #DIRTY_REPO=true
+    echo "WARNING: Uncommitted changes found in $GIT_REPO"
+  fi
+
+  set +e
+  eval git status --porcelain ${GREPPERS} | grep "^?? " &> /dev/null
+  git_result=$?
+  set -e
+  if [[ $git_result -eq 0 ]]; then
+    #DIRTY_REPO=true
+    echo "WARNING: Untracked files found in $GIT_REPO"
+  fi
+
+  set +e
+  eval git status --porcelain ${GREPPERS} | grep "" &> /dev/null
+  git_result=$?
+  set -e
+  if [[ $git_result -eq 0 ]]; then
+    echo "STOPPING: Dirty things found in $GIT_REPO"
+    echo
+    echo "  cdd $(pwd) && git add -p"
+    echo
+    if ! ${SKIP_GIT_DIRTY}; then
+      echo "Please fix. Or run with -D (skip all git warnings)"
+      echo "            or run with -DD (skip warnings about $0)"
+      GIT_ISSUES_DETECTED=true
+      if ${FAIL_ON_GIT_ISSUE}; then
+        exit 1
+      fi
+    else
+      echo "Skipping."
+      echo
+    fi
+    GIT_DIRTY_FILES_FOUND=true
+  fi
+
+  # Is this branch behind its remote?
+  # E.g.s,
+  #  Your branch is up-to-date with 'origin/master'.
+  # and
+  #  Your branch is ahead of 'origin/master' by 281 commits.
+
+  # But don't care if not really a remote, i.e., local origin.
+  set +e
+  # Need to use grep's [-P]erl-defined regex that includes the tab character.
+  git remote -v | grep -P "^origin\t\/"
+  git_result=$?
+  set -e
+
+  if [[ $git_result -ne 0 ]]; then
+    # Not a local origin.
+
+    if [[ -n $(git remote -v) ]]; then
+      # Not a remote-less repo.
+
+      branch_name=$(git branch --no-color | head -n 1 | /bin/sed 's/^\* //')
+
+      # git status always compares against origin/master, or at least I
+      # think it's stuck doing that. So this method only works if the
+      # local branch is also master:
+      if false; then
+        set +e
+        git status | grep "^Your branch is up-to-date with" &> /dev/null
+        git_result=$?
+        set -e
+        if [[ $git_result -ne 0 ]]; then
+          echo "WARNING: Branch is behind origin/${branch_name} at $GIT_REPO"
+          echo
+          echo "  cdd $(pwd) && git push origin ${branch_name} && popd"
+          echo
+          if ! ${SKIP_GIT_DIRTY}; then
+            echo "Please fix. Or run with -D (skip all git warnings)"
+            GIT_ISSUES_DETECTED=true
+            if ${FAIL_ON_GIT_ISSUE}; then
+              exit 1
+            fi
+          else
+            echo "Skipping."
+            echo
+          fi
+          GIT_DIRTY_FILES_FOUND=true
+        fi
+      fi
+
+      # So instead we use git remote. E.g.,
+      #
+      # $ git remote show origin
+      # * remote origin
+      #   Fetch URL: ssh://git@github.com/someuser/some-project
+      #   Push  URL: ssh://git@github.com/someuser/some-project
+      #   HEAD branch: master
+      #   Remote branches:
+      #     develop           tracked
+      #     feature/CLIENT-77 tracked
+      #     feature/CLIENT-86 tracked
+      #     master            tracked
+      #   Local branches configured for 'git pull':
+      #     feature/CLIENT-86 merges with remote master
+      #     master            merges with remote master
+      #   Local refs configured for 'git push':
+      #     feature/CLIENT-86 pushes to feature/CLIENT-86 (up to date)
+      #     master            pushes to master            (local out of date)
+      if true; then
+
+        set +e
+        # If we didn't --no-color the branch_name, we'd have to strip-color.
+        #  stripcolors='/bin/sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"'
+        GIT_PUSH_STALENESS=$(git remote show origin \
+          | grep "^\W*${branch_name}\W\+pushes to\W\+${branch_name}\W\+")
+        git_result=$?
+        set -e
+        if [[ $git_result -ne 0 ]]; then
+          echo "ERROR: Unexpected: Could not find \"${branch_name} pushes to ${branch_name}\""
+          echo "                   in the output of"
+          echo "                      git remote show origin"
+          exit 1
+        fi
+
+        set +e
+        echo ${GIT_PUSH_STALENESS} | grep "(up to date)" &> /dev/null
+        git_result=$?
+        set -e
+        if [[ $git_result -ne 0 ]]; then
+
+          set +e
+          echo ${GIT_PUSH_STALENESS} | grep "(local out of date)" &> /dev/null
+          git_result=$?
+          set -e
+          if [[ $git_result -eq 0 ]]; then
+            echo "WHATEVER: Branch is behind origin/${branch_name} at $GIT_REPO"
+            echo "          You can git pull if you want to."
+            echo "          But this script don't care."
+            echo
+          else
+            echo "WARNING: Branch is ahead of origin/${branch_name} at $GIT_REPO"
+            echo
+            echo "  cdd $(pwd) && git push origin ${branch_name} && popd"
+            echo
+            if ! ${SKIP_GIT_DIRTY}; then
+              echo "Please fix. Or run with -D (skip all git warnings)"
+              GIT_ISSUES_DETECTED=true
+              if ${FAIL_ON_GIT_ISSUE}; then
+                exit 1
+              fi
+            else
+              echo "Skipping."
+              echo
+            fi
+          fi
+          GIT_DIRTY_FILES_FOUND=true
+        fi
+      fi
+    fi
+  fi
+
+} # end: git_status_porcelain
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# git_pull_hush
+
+function git_pull_hush () {
+  SOURCE_REPO=$1
+  TARGET_REPO=$2
+
+  SKIP_GIT_PULL=false
+  git_dir_check ${SOURCE_REPO}
+  git_dir_check ${TARGET_REPO}
+  if ${SKIP_GIT_PULL}; then
+    if ${SKIP_GIT_DIRTY}; then
+      echo "Skipping"
+      echo
+      return
+    else
+      exit 1
+    fi
+  fi
+
+  pushd ${SOURCE_REPO} &> /dev/null
+  SOURCE_BRANCH=$(git st | grep "^On branch" | /bin/sed -r "s/^On branch //")
+  popd &> /dev/null
+
+  pushd ${TARGET_REPO} &> /dev/null
+  TARGET_BRANCH=$(git st | grep "^On branch" | /bin/sed -r "s/^On branch //")
+
+  # 2016-09-28: Being extra paranoid because if the branches don't match,
+  #             pull don't care! This is really confusing/worrying to me.
+  if [[ -z ${SOURCE_BRANCH} ]]; then
+    echo "FATAL: What?! No \$SOURCE_BRANCH"
+    exit 1
+  fi
+  if [[ -z ${TARGET_BRANCH} ]]; then
+    echo "FATAL: What?! No \$TARGET_BRANCH"
+    exit 1
+  fi
+  if [[ ${SOURCE_BRANCH} != ${TARGET_BRANCH} ]]; then
+    echo "FATAL: \${SOURCE_BRANCH} != \${TARGET_BRANCH}"
+    echo " SOURCE_BRANCH: ${SOURCE_BRANCH}"
+    echo " TARGET_BRANCH: ${TARGET_BRANCH}"
+    echo "You may need to change branches:"
+    echo " cd ${TARGET_REPO} && git checkout --track origin/${SOURCE_BRANCH}"
+    exit 1
+  fi
+
+  #echo "cd $(pwd) && git pull --rebase --autostash $SOURCE_REPO"
+
+  # Disable the glob (noglob), or the '*' that git prints will
+  # be turned into a directory listing of the current directory. Ha!
+  if false; then
+    # Argh, I wanted to record the output so that I could leave `set -e`
+    # on for the git pull -- IN CASE IT FAILS! -- but want happened to
+    # my newlines? They're gone! Or maybe that's the fault of `set +f`,
+    # but with noglob, the '*' in the git reponse gets expanded. Not funny.
+    set +f
+    GIT_OUTPUT=$(git pull --rebase --autostash $SOURCE_REPO 2>&1)
+    set -f
+    set +e
+    #echo ${GIT_OUTPUT}
+    echo ${GIT_OUTPUT} \
+      | grep -v "^ \* branch            HEAD       -> FETCH_HEAD$" \
+      | grep -v "^Already up-to-date.$" \
+      | grep -v "^Current branch [a-zA-Z0-9]* is up to date.$" \
+      | grep -v "^From .*${TARGET_REPO}$"
+    set -e
+  fi
+
+  if true; then
+    set +e
+    #echo git pull --rebase --autostash $SOURCE_REPO 2>&1
+    # NOTE: The Current branch grep doesn't work if like "feature/topic".
+    #       But I kinda like seeing that.
+    #       I wonder if just ignoring master is ok (normally show branch?).
+    git pull --rebase --autostash $SOURCE_REPO 2>&1 \
+      | grep -v "^ \* branch            HEAD       -> FETCH_HEAD$" \
+      | grep -v "^Already up-to-date.$" \
+      | grep -v "^Current branch [a-zA-Z0-9]* is up to date.$" \
+      | grep -v "^From .*${TARGET_REPO}$"
+    set -e
+  fi
+
+  popd &> /dev/null
+
+} # end: git_pull_hush
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
