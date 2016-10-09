@@ -56,11 +56,11 @@ fi
 # Update PATH
 #############
 
-# [lb]'s scripts are in ~/.fries/bin.
-# Third-party applications are installed to /srv/opt/bin.
+# Home-fries scripts are in ~/.fries/bin. Third-party applications installed
+# by custom_mint17.extras.sh et al are installed to /srv/opt/bin.
 
-# Waffle fries.
-PATH="/home/${LOGNAME}/.waffle/bin:/home/${LOGNAME}/.fries/bin:${PATH}"
+# Binary fries.
+PATH="/home/${LOGNAME}/.fries/bin:${PATH}"
 
 # /srv/opt/bin
 PATH="${OPT_BIN}:${PATH}"
