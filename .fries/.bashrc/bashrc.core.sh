@@ -451,7 +451,7 @@ alias h='history'         # Nothing special, just convenient.
 alias n='netstat -tulpn'  # --tcp --udp --listening --program (name) --numeric
 # See alias t="todo.sh" below. Anyway, htop's better.
 #alias t='top -c'          # Show full command.
-alias ht='htop'           # 
+alias ht='htop'           #
 alias cmd='command -v $1' # Show executable path or alias definition.
 alias grep='grep --color' # Show differences in colour.
 #alias less='less -r'      # Raw control characters.
@@ -1739,9 +1739,9 @@ fi
 
 if false; then
 
-  # Not all keyboards arrange their six page keys the same way. Some use 
+  # Not all keyboards arrange their six page keys the same way. Some use
   # two rows and three columns, and some use three rows and two columns.
-  # And even when the rows and columns match, not all keyboards use the 
+  # And even when the rows and columns match, not all keyboards use the
   # same key combinations within.
 
   # The 2x3 keyboard layout that I like:
@@ -1763,7 +1763,7 @@ if false; then
   # ||==================||
 
   # The 2x3 keyboard layout I do not like:
-  # 
+  #
   # ||============================||
   # || Print  || Scroll || Pause  ||
   # || Screen || Lock   || Break  ||
@@ -1802,7 +1802,7 @@ if false; then
   #   keycode 218 = Insert
   #   keycode  78 = Print
   # Instead, go to GNOME > System > Preferences > Keyboard Shortcuts
-  #   under Desktop, change "Take a screenshot" and "Take a screenshot 
+  #   under Desktop, change "Take a screenshot" and "Take a screenshot
   #   of a window" to Scroll Lock and Alr+Scroll Lock, respectively.
   #   Now, you can override the Print Screen key.
   keysym Print = Insert
@@ -1898,14 +1898,19 @@ array_iterate_example () {
 #
 #             so let's try this here in bashrc.
 
-cat /proc/acpi/wakeup | grep "^LID" &> /dev/null
-if [[ $? -eq 0 ]]; then
-  cat /proc/acpi/wakeup | grep "^LID" | grep disabled &> /dev/null
-  if [[ $? -ne 0 ]]; then
-    #echo " LID" | sudo tee /proc/acpi/wakeup
-    echo " LID" | tee /proc/acpi/wakeup
+disable_wakeup_on_lid () {
+  cat /proc/acpi/wakeup | grep "^LID" &> /dev/null
+  if [[ $? -eq 0 ]]; then
+    cat /proc/acpi/wakeup | grep "^LID" | grep disabled &> /dev/null
+    if [[ $? -ne 0 ]]; then
+      #echo " LID" | sudo tee /proc/acpi/wakeup
+      echo " LID" | tee /proc/acpi/wakeup
+    fi
   fi
-fi
+} # end: disable_wakeup_on_lid
+
+# FIXME: The permissions on /proc/acpi/wakeup get reset every boot, so we need a new strategy.
+#disable_wakeup_on_lid
 
 #########################
 
