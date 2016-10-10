@@ -20,6 +20,11 @@ DEBUG=false
 
 # ***
 
+# Start a timer.
+setup_time_0=$(date +%s.%N)
+
+# ***
+
 # Load: colorful logging
 source ${HOME}/.fries/lib/logger.sh
 
@@ -1351,7 +1356,7 @@ function packme () {
   #                close, and there's nothing you can do to influence
   #                it from within a script. Not even exec or eval. AFAIK.
   # 2016-09-28/TESTME/MAYBE: Could xdotool do this? Hrmm.
-  history -ps "umount ${TRAVEL_DIR}" # unfortunately, a no-op
+  #history -ps "umount ${TRAVEL_DIR}" # unfortunately, a no-op
 
 } # end: packme
 
