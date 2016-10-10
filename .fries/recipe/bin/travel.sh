@@ -187,7 +187,8 @@ function soups_on () {
         ASKED_FOR_HELP=true
 				shift
 				;;
-			-?)
+			-\?)
+        # Need the escape the ? or it hits any single character option.
         ASKED_FOR_HELP=true
 				shift
 				;;
