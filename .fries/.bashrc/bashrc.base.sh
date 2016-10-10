@@ -1,6 +1,6 @@
 # File: bashrc.base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.03
+# Last Modified: 2016.10.10
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Smart Bash Startup Script
 # License: GPLv3
@@ -141,7 +141,11 @@ for f in $(find ${HARD_PATH} -maxdepth 1 -type f -name "bashrc0.*.base.sh" \
     #             on the laptop where not /jus/cache is loaded.
     if [[ ! -d $f ]]; then
       source $f
+    else
+      $DUBS_TRACE && echo "Is a directory: $f"
     fi
+  else
+    $DUBS_TRACE && echo "No such file: $f"
   fi
 done
 
