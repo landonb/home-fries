@@ -780,7 +780,8 @@ function chase_and_face () {
   if ${HAMSTERING}; then
     echod "  killall_hamsters"
     set +e
-    sudo killall hamster-service hamster-indicator
+    #sudo killall hamster-service hamster-indicator
+    killall hamster-service hamster-indicator
     set -e
   fi
 
