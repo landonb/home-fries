@@ -714,6 +714,16 @@ setup_private_ssh_directory () {
     chmod g-w ~
     chmod g-w ${USERS_CURLY}
     chmod 700 ~/.ssh
+    # Also git doesn't store permissions
+    # [3rd party tools do:
+    #  git-cache-meta
+    #   https://gist.github.com/andris9/1978266
+    #  metastore
+    #   https://david.hardeman.nu/software.php#metastore
+    # But we've already got our solution.
+    chmod 400 ~/.ssh/*
+    chmod 440 ~/.ssh/*.pub
+    chmod 600 ~/.ssh/config ~/.ssh/known_hosts* ~/.ssh/authorized_keys ~/.ssh/environment
   fi
 } # end: setup_private_ssh_directory
 
