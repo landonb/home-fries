@@ -17,7 +17,11 @@ fi
 # find_git_parent
 
 find_git_parent () {
-  ABS_PATH="$(readlink -f $1)"
+  #echo "find_git_parent: ABS_PATH/1: ${1}"
+  #ABS_PATH="$(readlink -f $1)"
+  # Crap, if symlink, blows up, because prefix of git status doesn't match.
+  ABS_PATH="$(dirname $1)"
+  #echo "find_git_parent: ABS_PATH/2: ${ABS_PATH}"
   REPO_PATH=""
   while [[ ${ABS_PATH} != '/' || ${ABS_PATH} != '.' ]]; do
     if [[ -d "${ABS_PATH}/.git" ]]; then
@@ -72,6 +76,9 @@ git_commit_generic_file () {
   find_git_parent ${REPO_FILE}
   # Strip the git path from the absolute file path.
   REPO_FILE=${REPO_FILE#${REPO_PATH}/}
+
+  #echo "Repo base: ${REPO_PATH}"
+  #echo "Repo file: ${REPO_FILE}"
 
   pushd ${REPO_PATH} &> /dev/null
 
