@@ -6,8 +6,11 @@ SCRIPT_DIR="$(dirname ${BASH_SOURCE[0]})"
 ${SCRIPT_DIR}/travel prepare-shim $*
 if [[ $? -eq 0 ]]; then
   echo "Shim-town"
-  ${SCRIPT_DIR}/TBD-shim/travel_shim.sh unpack $*
-  /bin/rm -rf ${SCRIPT_DIR}/TBD-shim
+  source ${HOME}/.fries/lib/util.sh
+  # Set USERS_CURLY and USERS_BNAME.
+  setup_users_curly_path
+  ${USERS_CURLY}/TBD-shim/travel_shim.sh unpack $*
+  /bin/rm -rf ${USERS_CURLY}/TBD-shim
 else
   echo "BURN: Something went wrong."
 fi
