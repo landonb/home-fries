@@ -171,7 +171,7 @@ function git_status_porcelain () {
 
   GIT_REPO=$1
 
-  echo "GIT_REPO: ${GIT_REPO}"
+  #echo "GIT_REPO: ${GIT_REPO}"
 
   # Caller can set GREPPERS to ignore specific dirty files, e.g.,
   #    GREPPERS='| grep -v " travel.sh$"'
@@ -269,7 +269,8 @@ function git_status_porcelain () {
     if [[ -n $(git remote -v) ]]; then
       # Not a remote-less repo.
 
-      branch_name=$(git branch --no-color | head -n 1 | /bin/sed 's/^\* //')
+      branch_name=$(git branch --no-color | head -n 1 | /bin/sed 's/^\*\? *//')
+      #echo "branch_name: ${branch_name}"
 
       # git status always compares against origin/master, or at least I
       # think it's stuck doing that. So this method only works if the
@@ -329,6 +330,9 @@ function git_status_porcelain () {
           echo "ERROR: Unexpected: Could not find \"${branch_name} pushes to ${branch_name}\""
           echo "                   in the output of"
           echo "                      git remote show origin"
+          echo
+          echo "branch_name=\"${branch_name}\""
+          echo "git remote show origin | grep \"^\\W*\${branch_name}\\W\\+pushes to\\W\\+\${branch_name}\\W\\+\""
           exit 1
         fi
 
