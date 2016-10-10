@@ -763,6 +763,7 @@ setup_private_update_db_conf () {
         echo "BKUPPING: /etc/updatedb.conf"
         sudo /bin/mv /etc/updatedb.conf /etc/updatedb.conf-${BACKUP_POSTFIX}
       fi
+      echo "Placing: /etc/updatedb.conf"
       sudo /bin/cp -a ${USERS_CURLY}/dev/$(hostname)/etc/updatedb.conf /etc/updatedb.conf
       sudo chmod 644 /etc/updatedb.conf
     fi
@@ -994,6 +995,7 @@ function init_travel () {
 
 function update_git () {
 
+  echo "Installing/Updating git"
   sudo add-apt-repository -y ppa:git-core/ppa
   sudo apt-get update
   sudo apt-get install -y git
@@ -1587,8 +1589,14 @@ function prepare_shim () {
   /bin/cp -aLf ${PREFIX}/${SCRIPT_ABS_PATH} travel_shim.sh
   chmod 775 travel_shim.sh
 
-  echo "Copying: ${PREFIX}/${SCRIPT_ABS_PATH}/.fries/lib/util.sh"
-  /bin/cp -aLf ${PREFIX}/${SCRIPT_ABS_PATH}/.fries/lib/util.sh .
+  echo "Copying: ${PREFIX}/${FRIES_ABS_DIRN}/.fries/lib/util.sh"
+  /bin/cp -aLf ${PREFIX}/${FRIES_ABS_DIRN}/.fries/lib/util.sh .
+
+  echo "Copying: ${PREFIX}/${FRIES_ABS_DIRN}/.fries/lib/logger.sh"
+  /bin/cp -aLf ${PREFIX}/${FRIES_ABS_DIRN}/.fries/lib/logger.sh .
+
+  echo "Copying: ${PREFIX}/${FRIES_ABS_DIRN}/.fries/lib/git_util.sh"
+  /bin/cp -aLf ${PREFIX}/${FRIES_ABS_DIRN}/.fries/lib/git_util.sh .
 
   echo "Copying: ${PREFIX}/${SYNC_REPOS_PATH}"
   /bin/cp -aLf ${PREFIX}/${SYNC_REPOS_PATH} .
@@ -1609,6 +1617,8 @@ function prepare_shim () {
   if [[ ${EXIT_CODE} -eq 0 ]]; then
     user_do_prepare_shim
   fi
+
+  echo ${USERS_CURLY}
 
 } # end: prepare_shim
 
