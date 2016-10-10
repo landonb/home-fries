@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.09
+# Last Modified: 2016.10.10
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -31,6 +31,8 @@ OPT_DLOADS=/srv/opt/.downloads
 OPT_BIN=/srv/opt/bin
 OPT_SRC=/srv/opt/src
 OPT_DOCS=/srv/opt/docs
+# 2016-10-10: Google's NoTo zip is nearly 500 MB, so moving .fonts off home.
+OPT_FONTS=/srv/opt/.fonts
 
 # Determine OS Flavor
 #####################
