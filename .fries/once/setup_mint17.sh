@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.09
+# Last Modified: 2016.10.10
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -169,6 +169,10 @@ print_install_time () {
 }
 
 ensure_directory_hierarchy_exists ${OPT_DLOADS}
+#ensure_directory_hierarchy_exists ${OPT_BIN}
+#ensure_directory_hierarchy_exists ${OPT_SRC}
+#ensure_directory_hierarchy_exists ${OPT_DOCS}
+#ensure_directory_hierarchy_exists ${OPT_FONTS}
 
 # If you'd like to automate future installs, you can compare
 # your home directory before and after setting up the window

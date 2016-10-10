@@ -59,6 +59,10 @@
 #!.fries/once/assets/*
 !.fries/once/assets/applications-boardgames-21x21.png
 !.fries/once/target/*
+!.fries/once/target/common/*
+!.fries/once/target/common/etc/*
+!.fries/once/target/common/etc/init.d/*
+!.fries/once/target/common/*
 .fries/once/target/.agignore
 
 # 2016-10-09: Weird! the lib/ and lib/* syntax both need to be present
