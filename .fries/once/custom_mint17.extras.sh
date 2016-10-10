@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.09
+# Last Modified: 2016.10.10
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -25,9 +25,11 @@ stage_4_setup_ensure_dirs () {
     DEBUG_TRACE=false
     source ./mint17_setup_base.sh
   fi
-  /bin/mkdir -p ${OPT_BIN}
   /bin/mkdir -p ${OPT_DLOADS}
+  /bin/mkdir -p ${OPT_BIN}
   /bin/mkdir -p ${OPT_SRC}
+  /bin/mkdir -p ${OPT_DOCS}
+  /bin/mkdir -p ${OPT_FONTS}
 }
 stage_4_setup_ensure_dirs
 
@@ -1327,6 +1329,28 @@ stage_4_all_the_young_pips () {
 
 } # end: stage_4_all_the_young_pips
 
+stage_4_indirect_user_fonts () {
+
+  stage_announcement "stage_4_indirect_user_fonts"
+
+  pushd ${OPT_FONTS} &> /dev/null
+
+  if [[ ! -e ${HOME}/.fonts ]]; then
+    if [[ -l ${HOME}/.fonts ]]; then
+      echo "Removing and replacing dead link at: ${HOME}/.fonts"
+      /bin/rm ${HOME}/.fonts
+    fi
+    /bin/ln -s ${OPT_FONTS} ${HOME}/.fonts
+  else
+    echo
+    echo "NOTICE: ~/.fonts exists and is *not* symlinked to ${OPT_FONTS}"
+    echo
+  fi
+
+  popd &> /dev/null
+
+} # end: stage_4_indirect_user_fonts
+
 stage_4_font_mania () {
 
   stage_announcement "stage_4_font_mania"
@@ -1381,6 +1405,30 @@ stage_4_font_typeface_hack () {
   fi
 
 } # end: stage_4_font_typeface_hack
+
+stage_4_font_google_noto () {
+
+  stage_announcement "stage_4_font_google_noto"
+
+  stage_4_indirect_user_fonts
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  wget -N https://noto-website.storage.googleapis.com/pkgs/Noto-hinted.zip
+
+  # NOTICE: ~/.fonts should be a symlink to /srv/opt/.fonts
+  mkdir -p ~/.fonts
+  if [[ ! -e ~/.fonts/Noto-fonts ]]; then
+    # -d only works in the directory does not already exist.
+    unzip -d ~/.fonts/Noto-fonts Noto-hinted.zip
+  else
+    # -f freshens an existing expanded archive.
+    unzip -f -d ~/.fonts/Noto-fonts Noto-hinted.zip
+  fi
+
+  popd &> /dev/null
+
+} # end: stage_4_font_google_noto
 
 stage_4_sqlite3 () {
 
@@ -3422,11 +3470,20 @@ stage_4_prep_home_fries () {
 
   pushd ${OPT_DLOADS} &> /dev/null
 
-  # So that bashrc.core.sh can
-  #   echo " LID" | sudo tee /proc/acpi/wakeup
-  # but without the sudo.
-  sudo chown root:sudo /proc/acpi/wakeup
-  sudo chmod g+w /proc/acpi/wakeup
+  if false; then
+
+# FIXME: These permissions get "fixed" on reboot.
+#        You'll need to figure out a better way to do this... via sudoers??
+#        Via a root cronjob?
+#        Could I schedule a service to start on boot that just "fixes" the permissions,
+#          or maybe better yet just disables wake-on-lid??
+    # So that bashrc.core.sh can
+    #   echo " LID" | sudo tee /proc/acpi/wakeup
+    # but without the sudo.
+    sudo chown root:sudo /proc/acpi/wakeup
+    sudo chmod g+w /proc/acpi/wakeup
+
+  fi
 
   popd &> /dev/null
 
@@ -3611,12 +3668,19 @@ setup_customize_extras_go () {
   # Install pip, and use pip to install uncommitted and argcomplete.
   stage_4_all_the_young_pips
 
+  # Put ~/.fonts at /srv/opt/.fonts so we don't incur an SSD or
+  # encrypted home cost.
+  stage_4_indirect_user_fonts
+
   # Some open source fonts I've found that I include. Unicode and more.
   stage_4_font_mania
 
   # A very nice font for text editing.
   # Probably already installed for Dubsacks Vim.
   stage_4_font_typeface_hack
+
+  # 2016-10-10: Today, Google release NoTo -- No Tofu.
+  stage_4_font_google_noto
 
   # Ah, Sqlite. Sometimes you're there, and sometimes
   # you're not, but if you weren't and I was looking
