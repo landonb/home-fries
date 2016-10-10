@@ -11,6 +11,8 @@ set -e
 echo "2016-10-09: This script still under development..."
 exit 1
 
+# FIXME: call setup_users_curly_path and make symlink at ~/.curly?
+
 # FIXME: Build user's curly clone from ground up and point back to this repo.
 # - ask where to install
 # - set it up, including git init
