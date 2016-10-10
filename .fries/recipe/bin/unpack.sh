@@ -1,7 +1,6 @@
 #!/bin/bash
 #SCRIPT_DIR=$(pwd -P)
 SCRIPT_DIR="$(dirname ${BASH_SOURCE[0]})"
-#SCRIPT_ABS_PATH="$(readlink -f ${BASH_SOURCE[0]})"
 # If your travel location from which you're pulling has the new
 # travel.sh, you'll want to use that; do a little copy-run dance.
 ${SCRIPT_DIR}/travel.sh prepare-shim $*

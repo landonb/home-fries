@@ -20,36 +20,29 @@ DEBUG=false
 
 # ***
 
-# ~/.curly/setup.sh makes symlinks in the user's private dotfiles destination,
-# which means this script could be running as a symlink, and we gotta dance.
-SCRIPT_ABS_PATH="$(readlink -f ${BASH_SOURCE[0]})"
-# FIXME: SCRIPT_ABS_DIRN is only needed for CURLY_ABS_DIRN
-SCRIPT_ABS_DIRN="$(dirname $(readlink -f ${BASH_SOURCE[0]}))"
-# This is nasty. If running after prepare-shim, remove evidence of the directory we're in.
-if [[ $(basename ${SCRIPT_ABS_DIRN}) == "TBD-shim" ]]; then
-  CURLY_ABS_DIRN="$(dirname ${SCRIPT_ABS_DIRN})"
-else
-  CURLY_ABS_DIRN=${SCRIPT_ABS_DIRN}
-fi
-SCRIPT_REL_PATH=${BASH_SOURCE[0]}
-ACTUAL_ABS_DIRN="$(readlink -f $(dirname ${SCRIPT_REL_PATH}))"
-if [[ $(basename ${ACTUAL_ABS_DIRN}) == "TBD-shim" ]]; then
-  ACTUAL_ABS_DIRN="$(dirname ${ACTUAL_ABS_DIRN})"
-fi
-PRIVATE_REPO="$(basename ${ACTUAL_ABS_DIRN})"
+# Load: colorful logging
+source ${HOME}/.fries/lib/logger.sh
+
+# Load: setup_users_curly_path
+source ${HOME}/.fries/lib/util.sh
+# Set USERS_CURLY and USERS_BNAME.
+setup_users_curly_path
+PRIVATE_REPO="${USERS_BNAME}"
 # In case ${PRIVATE_REPO} has a dot prefix, remove it for some friendlier representations.
 PRIVATE_REPO_=${PRIVATE_REPO#.}
 
+# Load: git_commit_generic_file, et al
+source ${HOME}/.fries/lib/git_util.sh
+
 # ***
 
-#BAD COMMENT
-# Load fcns. shared with setup.sh and user scripts under cfg/:
-#   setup_users_curly_path
-#
-#
-#
-# FIXME: here and elsewhere: util.sh, now like 3 or 4 places
-source ${SCRIPT_ABS_DIRN}/util.sh
+# ~/.curly/setup.sh makes symlinks in the user's private dotfiles destination,
+# which means this script could be running as a symlink, and we gotta dance.
+
+SCRIPT_ABS_PATH="$(readlink -f ${BASH_SOURCE[0]})"
+
+find_git_parent ${SCRIPT_ABS_PATH}
+FRIES_ABS_DIRN=${REPO_PATH}
 
 # ***
 
@@ -60,16 +53,16 @@ ENCFS_GIT_REPOS=()
 ENCFS_GIT_ITERS=()
 SOURCED_SYNC_REPOS=true
 SYNC_REPOS_PATH=""
-if [[ -f "${ACTUAL_ABS_DIRN}/cfg/sync_repos.sh-$(hostname)" ]]; then
+if [[ -f "${USERS_CURLY}/cfg/sync_repos.sh-$(hostname)" ]]; then
   # You can set up per-hostname sync_repos lists, or you can use
   # master_chef and probably get away with just one sync_repos.sh.
-  SYNC_REPOS_PATH="${ACTUAL_ABS_DIRN}/cfg/sync_repos.sh-$(hostname)"
-elif [[ -f "${ACTUAL_ABS_DIRN}/cfg/sync_repos.sh" ]]; then
-  # This is what gets sourced when you run from ${ACTUAL_ABS_DIRN}.
-  SYNC_REPOS_PATH="${ACTUAL_ABS_DIRN}/cfg/sync_repos.sh"
-elif [[ -f "${ACTUAL_ABS_DIRN}/sync_repos.sh" ]]; then
+  SYNC_REPOS_PATH="${USERS_CURLY}/cfg/sync_repos.sh-$(hostname)"
+elif [[ -f "${USERS_CURLY}/cfg/sync_repos.sh" ]]; then
+  # This is what gets sourced when you run from ${USERS_CURLY}.
+  SYNC_REPOS_PATH="${USERS_CURLY}/cfg/sync_repos.sh"
+elif [[ -f "${USERS_CURLY}/sync_repos.sh" ]]; then
   # This is what gets sourced when unpack does it little dance.
-  SYNC_REPOS_PATH="${ACTUAL_ABS_DIRN}/sync_repos.sh"
+  SYNC_REPOS_PATH="${USERS_CURLY}/sync_repos.sh"
 fi
 if [[ -n ${SYNC_REPOS_PATH} ]]; then
   source "${SYNC_REPOS_PATH}"
@@ -77,12 +70,11 @@ else
   echo "NOTICE: sync_repos.sh not found"
   SOURCED_SYNC_REPOS=false
 fi
-echod "SOURCED_SYNC_REPOS: ${SOURCED_SYNC_REPOS}"
 
 # ***
 
 # By default, plaintext archives unpack to, e.g., ~/Documents/${PRIVATE_REPO_}-unpackered
-# You can change this path by setting STAGING_DIR in ${ACTUAL_ABS_DIRN}/cfg/sync_repos.sh.
+# You can change this path by setting STAGING_DIR in ${USERS_CURLY}/cfg/sync_repos.sh.
 if [[ -z ${STAGING_DIR+x} ]]; then
   STAGING_DIR=/home/${USER}/Documents
 fi
@@ -98,28 +90,39 @@ UNPACK_TBD=${UNPACKERED_PATH}-TBD-${UNIQUE_TIME}
 # Load packme and unpack hooks to run during packme and unpack, respk.
 SOURCED_TRAVEL_TASKS=true
 TRAVEL_TASKS_PATH=""
-if [[ -f "${ACTUAL_ABS_DIRN}/cfg/travel_tasks.sh-$(hostname)" ]]; then
-  TRAVEL_TASKS_PATH="${ACTUAL_ABS_DIRN}/cfg/travel_tasks.sh-$(hostname)"
-elif [[ -f "${ACTUAL_ABS_DIRN}/cfg/travel_tasks.sh" ]]; then
-  TRAVEL_TASKS_PATH="${ACTUAL_ABS_DIRN}/cfg/travel_tasks.sh"
-elif [[ -f "${ACTUAL_ABS_DIRN}/travel_tasks.sh" ]]; then
-  TRAVEL_TASKS_PATH="${ACTUAL_ABS_DIRN}/travel_tasks.sh"
+if [[ -f "${USERS_CURLY}/cfg/travel_tasks.sh-$(hostname)" ]]; then
+  TRAVEL_TASKS_PATH="${USERS_CURLY}/cfg/travel_tasks.sh-$(hostname)"
+elif [[ -f "${USERS_CURLY}/cfg/travel_tasks.sh" ]]; then
+  TRAVEL_TASKS_PATH="${USERS_CURLY}/cfg/travel_tasks.sh"
+elif [[ -f "${USERS_CURLY}/travel_tasks.sh" ]]; then
+  TRAVEL_TASKS_PATH="${USERS_CURLY}/travel_tasks.sh"
 fi
 if [[ -n ${TRAVEL_TASKS_PATH} ]]; then
   source "${TRAVEL_TASKS_PATH}"
 else
   echo "NOTICE: travel_tasks.sh not found"
-  echo ${ACTUAL_ABS_DIRN}/cfg/travel_tasks.sh
+  echo ${USERS_CURLY}/cfg/travel_tasks.sh
   SOURCED_TRAVEL_TASKS=false
 fi
+
+# ***
+
+echod () {
+  set +e
+  ${DEBUG} && echo $*
+  set -e
+}
+
+echod "SOURCED_SYNC_REPOS: ${SOURCED_SYNC_REPOS}"
+
 echod "SOURCED_TRAVEL_TASKS: ${SOURCED_TRAVEL_TASKS}"
 
 # ***
 
 HAMSTERING=false
-if [[ -d ${ACTUAL_ABS_DIRN}/home/.local/share/hamster-applet ]]; then
+if [[ -d ${USERS_CURLY}/home/.local/share/hamster-applet ]]; then
   HAMSTERING=true
-  echod "Hamster found under: ${ACTUAL_ABS_DIRN}/home/.local/share/hamster-applet"
+  echod "Hamster found under: ${USERS_CURLY}/home/.local/share/hamster-applet"
 fi
 
 # ***
@@ -129,15 +132,11 @@ echod "This run's BACKUP_POSTFIX: ${BACKUP_POSTFIX}"
 
 # ***
 
-if ${DEBUG}; then                             # E.g., if run from home/user/.theirs/symlink-travel.sh
-  echo "SCRIPT_ABS_PATH: $SCRIPT_ABS_PATH"    #  /home/usernom/.curly/travel.sh [if symlinked], or
-                                              #     /home/usernom/.theirs/TBD-shim/travel_shim.sh
-  echo "SCRIPT_ABS_DIRN: $SCRIPT_ABS_DIRN"    #  /home/usernom/.curly [if symlinked], or
-                                              #     /home/usernom/.theirs/TBD-shim
-  echo " CURLY_ABS_DIRN: $CURLY_ABS_DIRN"     #  /home/usernom/.curly [if symlinked], or
-                                              #     /home/usernom/.theirs
-  echo "SCRIPT_REL_PATH: $SCRIPT_REL_PATH"    #  ./travel.sh, ./TBD-shim/travel_shim.sh
-  echo "ACTUAL_ABS_DIRN: $ACTUAL_ABS_DIRN"    #  /home/user/.theirs, not /home/user/.theirs/TBD-shim
+if ${DEBUG}; then                             # E.g.,
+  echo "SCRIPT_ABS_PATH: $SCRIPT_ABS_PATH"    #  /home/usernom/.fries/recipe/bin/travel.sh
+  echo " FRIES_ABS_DIRN: $FRIES_ABS_DIRN"     #  /home/usernom
+  echo "    USERS_CURLY: $USERS_CURLY"        #  /home/user/.theirs
+  echo "    USERS_BNAME: $USERS_BNAME"        #  .theirs
   echo "  PRIVATE_REPO : $PRIVATE_REPO"       #  .theirs
   echo "  PRIVATE_REPO_: $PRIVATE_REPO_"      #  theirs
 fi
@@ -308,7 +307,7 @@ function soups_on () {
     echo "Everyday commands:"
     #echo
     # Omitted to avoid confusion:
-    #   On a machine that's not ${ACTUAL_ABS_DIRN}/master_chef, packme tars plaintext stuff.
+    #   On a machine that's not ${USERS_CURLY}/master_chef, packme tars plaintext stuff.
     #   And on a machine that is the master_chef, unpack untars that stuff.
     #   But not anything else otherwise.
     echo "      packme            rebase the secure travel repos"
@@ -332,7 +331,7 @@ function soups_on () {
     echo "      umount            unmount travel encfs at \$TRAVEL_DIR/${PRIVATE_REPO_}-emissary/gooey"
     echo "                        * mount, then umount, are called on packme and unpack"
     echo "      chase_and_face    apply private overlays to local machine"
-    echo "                          (maintain symlinks to ${CURLY_ABS_DIRN}/* files)"
+    echo "                          (maintain symlinks to ${USERS_CURLY}/* files)"
     echo "                        * chase_and_face is called on unpack"
     #echo ""
     echo "packme options:"
@@ -456,12 +455,12 @@ function determine_stick_dir () {
 
 setup_private_fries_bash () {
 
-  if [[ -f ${ACTUAL_ABS_DIRN}/home/.fries/.bashrc/bashrx.private.${USER}.sh ]]; then
+  if [[ -f ${USERS_CURLY}/home/.fries/.bashrc/bashrx.private.${USER}.sh ]]; then
 
     pushd ${HOME}/.fries/.bashrc &> /dev/null
 
     /bin/ln -sf \
-      ${ACTUAL_ABS_DIRN}/home/.fries/.bashrc/bashrx.private.${USER}.sh \
+      ${USERS_CURLY}/home/.fries/.bashrc/bashrx.private.${USER}.sh \
       bashrx.private.${USER}.sh
 
     popd &> /dev/null
@@ -476,12 +475,12 @@ setup_private_curly_work () {
   # working directory. But that changes so often it makes a function
   # such as this smell like a joke.
 
-  if [[ -d ${ACTUAL_ABS_DIRN}/work ]]; then
+  if [[ -d ${USERS_CURLY}/work ]]; then
 
-    pushd ${ACTUAL_ABS_DIRN}/work &> /dev/null
+    pushd ${USERS_CURLY}/work &> /dev/null
 
     if [[ ! -e user-current-project ]]; then
-      /bin/ln -s ${ACTUAL_ABS_DIRN}/work/oopsidoodle user-current-project
+      /bin/ln -s ${USERS_CURLY}/work/oopsidoodle user-current-project
     fi
 
     popd &> /dev/null
@@ -492,7 +491,7 @@ setup_private_curly_work () {
 
 setup_private_vim_spell () {
 
-  if [[ -e ${ACTUAL_ABS_DIRN}/home/.vim/spell/en.utf-8.add ]]; then
+  if [[ -e ${USERS_CURLY}/home/.vim/spell/en.utf-8.add ]]; then
 
     mkdir -p ${HOME}/.vim/spell
 
@@ -504,7 +503,7 @@ setup_private_vim_spell () {
         echo "BKUPPING: en.utf-8.add"
         /bin/mv en.utf-8.add en.utf-8.add-${BACKUP_POSTFIX}
       fi
-      /bin/ln -sf ${ACTUAL_ABS_DIRN}/home/.vim/spell/en.utf-8.add
+      /bin/ln -sf ${USERS_CURLY}/home/.vim/spell/en.utf-8.add
     fi
 
     popd &> /dev/null
@@ -541,10 +540,10 @@ setup_private_vim_bundle_dubs_all () {
     /bin/ln -sf ../../bundle_/dubs_edit_juice/dubs_tagpaths.vim
     /bin/ln -sf ../../bundle_/dubs_grep_steady/dubs_projects.vim
 
-    /bin/ln -sf ${ACTUAL_ABS_DIRN}/home/.vim/bundle/dubs_all/one_time_setup.sh
-    /bin/ln -sf ${ACTUAL_ABS_DIRN}/home/.vim/bundle/dubs_all/plugin-info.json
-    /bin/ln -sf ${ACTUAL_ABS_DIRN}/home/.vim/bundle/dubs_all/.vimprojects
-    /bin/ln -sf ${ACTUAL_ABS_DIRN}/home/.vim/bundle/dubs_all/.vimrc.bundle_
+    /bin/ln -sf ${USERS_CURLY}/home/.vim/bundle/dubs_all/one_time_setup.sh
+    /bin/ln -sf ${USERS_CURLY}/home/.vim/bundle/dubs_all/plugin-info.json
+    /bin/ln -sf ${USERS_CURLY}/home/.vim/bundle/dubs_all/.vimprojects
+    /bin/ln -sf ${USERS_CURLY}/home/.vim/bundle/dubs_all/.vimrc.bundle_
 
     popd &> /dev/null
 
@@ -558,7 +557,7 @@ setup_private_vim_bundle_dubs_edit_juice () {
 
     pushd ${HOME}/.vim/bundle/dubs_edit_juice &> /dev/null
 
-    /bin/ln -sf ${ACTUAL_ABS_DIRN}/home/.vim/bundle/dubs_edit_juice/dubs_tagpaths.vim
+    /bin/ln -sf ${USERS_CURLY}/home/.vim/bundle/dubs_edit_juice/dubs_tagpaths.vim
 
     popd &> /dev/null
 
@@ -574,8 +573,8 @@ setup_private_vim_bundle_dubs () {
 
     pushd ${HOME}/.vim/bundle-dubs &> /dev/null
 
-    /bin/ln -sf ${ACTUAL_ABS_DIRN}/home/.vim/bundle-dubs/generate.sh
-    /bin/ln -sf ${ACTUAL_ABS_DIRN}/home/.vim/bundle-dubs/git-st-all.sh
+    /bin/ln -sf ${USERS_CURLY}/home/.vim/bundle-dubs/generate.sh
+    /bin/ln -sf ${USERS_CURLY}/home/.vim/bundle-dubs/git-st-all.sh
 
     /bin/ln -sf ../.agignore
 
@@ -596,19 +595,19 @@ setup_private_dot_files () {
   #  respect the isn't-there-don't-care policy.
 
   if [[ ! -e .cookiecutterrc ]]; then
-    if [[ -f ${ACTUAL_ABS_DIRN}/home/.cookiecutterrc ]]; then
-      /bin/ln -s ${ACTUAL_ABS_DIRN}/home/.cookiecutterrc
+    if [[ -f ${USERS_CURLY}/home/.cookiecutterrc ]]; then
+      /bin/ln -s ${USERS_CURLY}/home/.cookiecutterrc
     fi
   fi
 
   if [[ ! -e .ctags ]]; then
-    if [[ -f ${ACTUAL_ABS_DIRN}/home/.ctags ]]; then
-      /bin/ln -s ${ACTUAL_ABS_DIRN}/home/.ctags
+    if [[ -f ${USERS_CURLY}/home/.ctags ]]; then
+      /bin/ln -s ${USERS_CURLY}/home/.ctags
     fi
   fi
 
   if [[ ! -e .gitconfig ]]; then
-    NORMALD_GITCONFIG="${ACTUAL_ABS_DIRN}/home/.gitconfig"
+    NORMALD_GITCONFIG="${USERS_CURLY}/home/.gitconfig"
     MACHINE_GITCONFIG="${NORMALD_GITCONFIG}-$(hostname)"
     if [[ -e ${MACHINE_GITCONFIG} ]]; then
       /bin/ln -s ${MACHINE_GITCONFIG} .gitconfig
@@ -619,8 +618,8 @@ setup_private_dot_files () {
   fi
 
   if [[ ! -e .inputrc ]]; then
-    if [[ -f ${ACTUAL_ABS_DIRN}/home/.inputrc ]]; then
-      /bin/ln -s ${ACTUAL_ABS_DIRN}/home/.inputrc
+    if [[ -f ${USERS_CURLY}/home/.inputrc ]]; then
+      /bin/ln -s ${USERS_CURLY}/home/.inputrc
     fi
   fi
 
@@ -628,28 +627,28 @@ setup_private_dot_files () {
   # See: setup_private_hamster_db
 
   if [[ ! -e mm.cfg ]]; then
-    if [[ -f ${ACTUAL_ABS_DIRN}/home/mm.cfg ]]; then
-      /bin/ln -s ${ACTUAL_ABS_DIRN}/home/mm.cfg
+    if [[ -f ${USERS_CURLY}/home/mm.cfg ]]; then
+      /bin/ln -s ${USERS_CURLY}/home/mm.cfg
     fi
   fi
 
   # Skipping: Pictures/
   #  You could do something like:
   #    gsettings set org.mate.background picture-filename \
-  #      ${ACTUAL_ABS_DIRN}/home/Pictures/.backgrounds/nice_pic.jpg
+  #      ${USERS_CURLY}/home/Pictures/.backgrounds/nice_pic.jpg
 
   if [[ ! -e .psqlrc ]]; then
-    if [[ -f ${ACTUAL_ABS_DIRN}/home/.psqlrc ]]; then
-      /bin/ln -s ${ACTUAL_ABS_DIRN}/home/.psqlrc
+    if [[ -f ${USERS_CURLY}/home/.psqlrc ]]; then
+      /bin/ln -s ${USERS_CURLY}/home/.psqlrc
     fi
   fi
 
   if [[ ! -e .sqliterc ]]; then
-    MACHINE_SQLITERC="${ACTUAL_ABS_DIRN}/home/.sqliterc-$(hostname)"
+    MACHINE_SQLITERC="${USERS_CURLY}/home/.sqliterc-$(hostname)"
     if [[ -e ${MACHINE_SQLITERC} ]]; then
       /bin/ln -s ${MACHINE_SQLITERC} .sqliterc
-    elif [[ -e ${ACTUAL_ABS_DIRN}/home/.sqliterc ]]; then
-      /bin/ln -s ${ACTUAL_ABS_DIRN}/home/.sqliterc
+    elif [[ -e ${USERS_CURLY}/home/.sqliterc ]]; then
+      /bin/ln -s ${USERS_CURLY}/home/.sqliterc
     # else, same as above, whatever, deal.
     fi
   fi
@@ -659,26 +658,26 @@ setup_private_dot_files () {
 } # end: setup_private_dot_files
 
 setup_private_ssh_directory () {
-  if [[ -d ${ACTUAL_ABS_DIRN}/.ssh ]]; then
+  if [[ -d ${USERS_CURLY}/.ssh ]]; then
     # A symlink works for outgoing conns but not incomms.
-    #/bin/ln -sf ${ACTUAL_ABS_DIRN}/.ssh ~/.ssh
+    #/bin/ln -sf ${USERS_CURLY}/.ssh ~/.ssh
     # Cannot create hard links on directories.
-    #/bin/ln -f ${ACTUAL_ABS_DIRN}/.ssh ~/.ssh
+    #/bin/ln -f ${USERS_CURLY}/.ssh ~/.ssh
     mkdir -p ${HOME}/.ssh
     pushd ${HOME}/.ssh &> /dev/null
     # Remove symlinks from ~/.ssh/
     find . -maxdepth 1 -type l -exec /bin/rm {} +
     # Replace with symlinks from private repo .ssh/
-    find ${ACTUAL_ABS_DIRN}/.ssh -maxdepth 1 -type f -not -iname "known_hosts-*" -exec /bin/ln -s {} \;
-    if [[ -e ${ACTUAL_ABS_DIRN}/.ssh/known_hosts-$(hostname) ]]; then
-      /bin/ln -s ${ACTUAL_ABS_DIRN}/.ssh/known_hosts-$(hostname) known_hosts
+    find ${USERS_CURLY}/.ssh -maxdepth 1 -type f -not -iname "known_hosts-*" -exec /bin/ln -s {} \;
+    if [[ -e ${USERS_CURLY}/.ssh/known_hosts-$(hostname) ]]; then
+      /bin/ln -s ${USERS_CURLY}/.ssh/known_hosts-$(hostname) known_hosts
     # else, you'll get a real file at ~/.ssh/known_hosts
     fi
     popd &> /dev/null
 
     # Ssh is so particular about permissions.
     chmod g-w ~
-    chmod g-w ${ACTUAL_ABS_DIRN}
+    chmod g-w ${USERS_CURLY}
     chmod 700 ~/.ssh
   fi
 } # end: setup_private_ssh_directory
@@ -699,15 +698,15 @@ setup_private_hamster_db () {
         ~/.local/share/hamster-applet/hamster.db \
         ~/.local/share/hamster-applet/hamster.db-${BACKUP_POSTFIX}
     fi
-    if [[ ! -e ${ACTUAL_ABS_DIRN}/home/.local/share/hamster-applet/hamster-$(hostname).db ]]; then
+    if [[ ! -e ${USERS_CURLY}/home/.local/share/hamster-applet/hamster-$(hostname).db ]]; then
       echo "Using the canon hamster.db as a template for this machine."
       /bin/cp -aL \
-        ${ACTUAL_ABS_DIRN}/home/.local/share/hamster-applet/hamster.db \
-        ${ACTUAL_ABS_DIRN}/home/.local/share/hamster-applet/hamster-$(hostname).db
+        ${USERS_CURLY}/home/.local/share/hamster-applet/hamster.db \
+        ${USERS_CURLY}/home/.local/share/hamster-applet/hamster-$(hostname).db
     fi
     if [[ ! -h ~/.local/share/hamster-applet/hamster.db ]]; then
       /bin/ln -sf \
-        ${ACTUAL_ABS_DIRN}/home/.local/share/hamster-applet/hamster-$(hostname).db \
+        ${USERS_CURLY}/home/.local/share/hamster-applet/hamster-$(hostname).db \
         ~/.local/share/hamster-applet/hamster.db
     fi
   fi
@@ -720,27 +719,27 @@ setup_private_anacron () {
   # The author uses .anacron just to back up data on the main, master_chef, machine.
   # So just setup anacron on the main development machine, but not on satellites.
   # NOTE: Only applies to main desktop machine.
-  if [[ -e ${ACTUAL_ABS_DIRN}/master_chef ]]; then
-    if [[ -d ${ACTUAL_ABS_DIRN}/home/.anacron ]]; then
+  if [[ -e ${USERS_CURLY}/master_chef ]]; then
+    if [[ -d ${USERS_CURLY}/home/.anacron ]]; then
       if [[ -e ~/.anacron ]]; then
         echo "Skipping: Already exists: ~/.anacron"
       else
-        /bin/ln -sf ${ACTUAL_ABS_DIRN}/home/.anacron ~/.anacron
+        /bin/ln -sf ${USERS_CURLY}/home/.anacron ~/.anacron
       fi
     fi
   fi
 } # end: setup_private_anacron
 
 setup_private_etc_fstab () {
-  if [[ -f ${ACTUAL_ABS_DIRN}/dev/$(hostname)/etc/fstab ]]; then
+  if [[ -f ${USERS_CURLY}/dev/$(hostname)/etc/fstab ]]; then
     set +e
-    diff ${ACTUAL_ABS_DIRN}/dev/$(hostname)/etc/fstab /etc/fstab &> /dev/null
+    diff ${USERS_CURLY}/dev/$(hostname)/etc/fstab /etc/fstab &> /dev/null
     ECODE=$?
     set -e
     if [[ ${ECODE} -ne 0 ]]; then
       echo "BKUPPING: /etc/fstab"
       sudo /bin/mv /etc/fstab /etc/fstab-${BACKUP_POSTFIX}
-      sudo /bin/cp -a ${ACTUAL_ABS_DIRN}/dev/$(hostname)/etc/fstab /etc/fstab
+      sudo /bin/cp -a ${USERS_CURLY}/dev/$(hostname)/etc/fstab /etc/fstab
       sudo chmod 644 /etc/fstab
     fi
   else
@@ -749,9 +748,9 @@ setup_private_etc_fstab () {
 } # end: setup_private_etc_fstab
 
 setup_private_update_db_conf () {
-  if [[ -f ${ACTUAL_ABS_DIRN}/dev/$(hostname)/etc/updatedb.conf ]]; then
+  if [[ -f ${USERS_CURLY}/dev/$(hostname)/etc/updatedb.conf ]]; then
     set +e
-    diff ${ACTUAL_ABS_DIRN}/dev/$(hostname)/etc/updatedb.conf /etc/updatedb.conf &> /dev/null
+    diff ${USERS_CURLY}/dev/$(hostname)/etc/updatedb.conf /etc/updatedb.conf &> /dev/null
     ECODE=$?
     set -e
     if [[ ${ECODE} -ne 0 ]]; then
@@ -759,7 +758,7 @@ setup_private_update_db_conf () {
         echo "BKUPPING: /etc/updatedb.conf"
         sudo /bin/mv /etc/updatedb.conf /etc/updatedb.conf-${BACKUP_POSTFIX}
       fi
-      sudo /bin/cp -a ${ACTUAL_ABS_DIRN}/dev/$(hostname)/etc/updatedb.conf /etc/updatedb.conf
+      sudo /bin/cp -a ${USERS_CURLY}/dev/$(hostname)/etc/updatedb.conf /etc/updatedb.conf
       sudo chmod 644 /etc/updatedb.conf
     fi
   else
@@ -857,7 +856,7 @@ function mount_curly_emissary_gooey () {
   mkdir -p ${EMISSARY}/.gooey
   # Flavor it.
   if [[ ! -e ${EMISSARY}/.gooey ]]; then
-    /bin/cp -a ${ACTUAL_ABS_DIRN}/.encfs6.xml ${EMISSARY}/.gooey
+    /bin/cp -a ${USERS_CURLY}/.encfs6.xml ${EMISSARY}/.gooey
   fi
   set +e
   mount | grep ${EMISSARY}/gooey &> /dev/null
@@ -1007,7 +1006,7 @@ GIT_DIRTY_FILES_FOUND=false
 function git_commit_hamster () {
   if ${HAMSTERING}; then
     HAMSTER_DB_REL="home/.local/share/hamster-applet/hamster-$(hostname).db"
-    HAMSTER_DB_ABS="${ACTUAL_ABS_DIRN}/${HAMSTER_DB_REL}"
+    HAMSTER_DB_ABS="${USERS_CURLY}/${HAMSTER_DB_REL}"
     if [[ -e ${HAMSTER_DB_ABS} ]]; then
       echo "Checking Hamster.db..."
       git_commit_generic_file \
@@ -1026,7 +1025,7 @@ function git_commit_hamster () {
 
 function git_commit_vim_spell () {
   VIM_SPELL_REL="home/.vim/spell/en.utf-8.add"
-  VIM_SPELL_ABS="${ACTUAL_ABS_DIRN}/${VIM_SPELL_REL}"
+  VIM_SPELL_ABS="${USERS_CURLY}/${VIM_SPELL_REL}"
   if [[ -e ${VIM_SPELL_ABS} ]]; then
     echo "Checking Vim spell..."
 
@@ -1050,7 +1049,7 @@ function git_commit_vim_spell () {
 
 function git_commit_vimprojects () {
   VIMPROJECTS_REL="home/.vim/bundle/dubs_all/.vimprojects"
-  VIMPROJECTS_ABS="${ACTUAL_ABS_DIRN}/${VIMPROJECTS_REL}"
+  VIMPROJECTS_ABS="${USERS_CURLY}/${VIMPROJECTS_REL}"
   if [[ -e ${VIMPROJECTS_ABS} ]]; then
     echo "Checking .vimprojects..."
       git_commit_generic_file \
@@ -1092,9 +1091,9 @@ function check_repos_statuses () {
     echo " ${ENCFS_GIT_REPOS[$i]}"
     pushd ${ENCFS_GIT_REPOS[$i]} &> /dev/null
     GREPPERS=''
-    if [[ ${SKIP_THIS_DIRTY} = true && ${ENCFS_GIT_REPOS[$i]} == ${CURLY_ABS_DIRN} ]]; then
+    if [[ ${SKIP_THIS_DIRTY} = true && ${ENCFS_GIT_REPOS[$i]} == ${FRIES_ABS_DIRN} ]]; then
       # Tell git_status_porcelain to ignore this dirty file, travel.sh.
-      THIS_SCRIPT_NAME="$(basename ${SCRIPT_REL_PATH})"
+      THIS_SCRIPT_NAME="$(basename ${SCRIPT_ABS_PATH})"
       #GREPPERS='| grep -v " travel.sh$"'
       GREPPERS="${GREPPERS} | grep -v \" ${THIS_SCRIPT_NAME}\$\""
       GREPPERS="${GREPPERS} | grep -v \" util.sh\$\""
@@ -1310,19 +1309,19 @@ function packme () {
 
   if ${COPY_PRIVATE_REPO_PLAIN}; then
     # BEWARE: Enabling COPY_PRIVATE_REPO_PLAIN is dangerous because it exposes
-    #         the ENCFS pwd for the ${ACTUAL_ABS_DIRN} project.
+    #         the ENCFS pwd for the ${USERS_CURLY} project.
     #         I.e., this script in plain text can be read to get encfs pwd.
     echo
-    echo "WARNING: Copying *unencrypted* ${ACTUAL_ABS_DIRN}s."
+    echo "WARNING: Copying *unencrypted* ${USERS_CURLY}s."
     echo
     echo -n "Copying travel scripts... "
     mkdir -p ${TRAVEL_DIR}/e-scripts
-    /bin/cp -aLf ${ACTUAL_ABS_DIRN}/*.sh ${TRAVEL_DIR}/e-scripts
-    /bin/cp -arf ${ACTUAL_ABS_DIRN}/cfg ${TRAVEL_DIR}/e-scripts
+    /bin/cp -aLf ${USERS_CURLY}/*.sh ${TRAVEL_DIR}/e-scripts
+    /bin/cp -arf ${USERS_CURLY}/cfg ${TRAVEL_DIR}/e-scripts
   fi
 
-  echo "umount ${TRAVEL_DIR}" > ${ACTUAL_ABS_DIRN}/cleanup.sh
-  chmod 775 ${ACTUAL_ABS_DIRN}/cleanup.sh
+  echo "umount ${TRAVEL_DIR}" > ${USERS_CURLY}/cleanup.sh
+  chmod 775 ${USERS_CURLY}/cleanup.sh
 
   echo
   echo "Verify your work:"
@@ -1424,7 +1423,7 @@ function update_hamster_db () {
     set -e
     if [[ ${RET_VAL} -eq 0 ]]; then
 
-      #pushd ${ACTUAL_ABS_DIRN}/bin &> /dev/null
+      #pushd ${USERS_CURLY}/bin &> /dev/null
 
       # 2016-09-28: I've used Dropbox in the past, but now I just USB stick
       # FIXME: Make USB vs. Dropbox optionable.
@@ -1432,13 +1431,13 @@ function update_hamster_db () {
 
       # A simple search procedure for finding the best more recent hamster.db.
 
-      CURLY_PATH=${ACTUAL_ABS_DIRN}/home/.local/share/hamster-applet
+      CURLY_PATH=${USERS_CURLY}/home/.local/share/hamster-applet
 
       CANDIDATES=()
 
-      # Consider any hamster.dbs in ${ACTUAL_ABS_DIRN}, now that it's been git pull'ed.
+      # Consider any hamster.dbs in ${USERS_CURLY}, now that it's been git pull'ed.
       shopt -s nullglob
-      CANDIDATES+=(${ACTUAL_ABS_DIRN}/home/.local/share/hamster-applet/hamster-*)
+      CANDIDATES+=(${USERS_CURLY}/home/.local/share/hamster-applet/hamster-*)
       shopt -u nullglob
 
       # Consider any hamster.dbs at the root of the travel directory.
@@ -1517,8 +1516,8 @@ function unpack () {
     user_do_unpack
   fi
 
-  echo "umount ${TRAVEL_DIR}" > ${ACTUAL_ABS_DIRN}/cleanup.sh
-  chmod 775 ${ACTUAL_ABS_DIRN}/cleanup.sh
+  echo "umount ${TRAVEL_DIR}" > ${USERS_CURLY}/cleanup.sh
+  chmod 775 ${USERS_CURLY}/cleanup.sh
 
   echo
   echo "encrypted repos rebased from emissaries."
@@ -1552,13 +1551,13 @@ function prepare_shim () {
     exit 1
   fi
 
-  #echo "Making: ${ACTUAL_ABS_DIRN}/TBD-shim"
+  #echo "Making: ${USERS_CURLY}/TBD-shim"
 
-  mkdir -p ${ACTUAL_ABS_DIRN}/TBD-shim
+  mkdir -p ${USERS_CURLY}/TBD-shim
 
-  pushd ${ACTUAL_ABS_DIRN}/TBD-shim &> /dev/null
+  pushd ${USERS_CURLY}/TBD-shim &> /dev/null
 
-  echo "In: ${ACTUAL_ABS_DIRN}/TBD-shim"
+  echo "In: ${USERS_CURLY}/TBD-shim"
 
   # git_check_generic_file sets ${git_result} to 0 if file is dirty.
   git_check_generic_file ${SCRIPT_ABS_PATH}
@@ -1567,9 +1566,9 @@ function prepare_shim () {
   if [[ $git_result -eq 0 ]]; then
     # travel.sh is dirty; use it and not the travel one.
     USE_GOOEY=false
-    echo "Using local $(basename ${SCRIPT_REL_PATH})"
+    echo "Using local $(basename ${SCRIPT_ABS_PATH})"
   else
-    echo "Using gooey $(basename ${SCRIPT_REL_PATH})"
+    echo "Using gooey $(basename ${SCRIPT_ABS_PATH})"
   fi
 
   PREFIX=""
@@ -1583,8 +1582,8 @@ function prepare_shim () {
   /bin/cp -aLf ${PREFIX}/${SCRIPT_ABS_PATH} travel_shim.sh
   chmod 775 travel_shim.sh
 
-  echo "Copying: ${PREFIX}/${CURLY_ABS_DIRN}/util.sh"
-  /bin/cp -aLf ${PREFIX}/${CURLY_ABS_DIRN}/util.sh .
+  echo "Copying: ${PREFIX}/${SCRIPT_ABS_PATH}/.fries/lib/util.sh"
+  /bin/cp -aLf ${PREFIX}/${SCRIPT_ABS_PATH}/.fries/lib/util.sh .
 
   echo "Copying: ${PREFIX}/${SYNC_REPOS_PATH}"
   /bin/cp -aLf ${PREFIX}/${SYNC_REPOS_PATH} .
