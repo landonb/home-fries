@@ -32,7 +32,7 @@ find_git_parent () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # git_check_generic_file
 
-function git_check_generic_file () {
+git_check_generic_file () {
   # git_check_generic_file "file-path"
 
   REPO_FILE=$1
@@ -60,7 +60,7 @@ function git_check_generic_file () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # git_commit_generic_file
 
-function git_commit_generic_file () {
+git_commit_generic_file () {
   # git_commit_generic_file "file-path" "commit-msg"
 
   # MEH: DRY: First part of this fcn is: git_check_generic_file

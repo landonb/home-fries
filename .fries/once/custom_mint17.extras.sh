@@ -1417,22 +1417,22 @@ stage_4_sqlite3 () {
 
   # Here's maybe if you wanted to build from scratch rather than binary-cheat.
   if false; then
-	  #sudo apt-get install -y libgeos-dev
+    #sudo apt-get install -y libgeos-dev
     pushd ${OPT_DLOADS} &> /dev/null
     #RELEASE_YEAR="2015"
     #SQLITE3_VER="sqlite-autoconf-3080803"
     RELEASE_YEAR="2016"
     SQLITE3_VER="sqlite-autoconf-3120200"
-		wget -N https://sqlite.org/${RELEASE_YEAR}/${SQLITE3_VER}.tar.gz
-		tar xzf ${SQLITE3_VER}.tar.gz
-	  cd ${SQLITE3_VER}
-		#source ENV_PATH
+    wget -N https://sqlite.org/${RELEASE_YEAR}/${SQLITE3_VER}.tar.gz
+    tar xzf ${SQLITE3_VER}.tar.gz
+    cd ${SQLITE3_VER}
+    #source ENV_PATH
     umask 002
-	  #./configure --enable-dynamic-extensions --prefix=...
-	  ./configure --enable-dynamic-extensions
-		make
-		#make install
-		sudo make install
+    #./configure --enable-dynamic-extensions --prefix=...
+    ./configure --enable-dynamic-extensions
+    make
+    #make install
+    sudo make install
     popd &> /dev/null
   fi
 
@@ -1446,26 +1446,26 @@ state_4_mod_spatialite () {
 
   pushd ${OPT_DLOADS} &> /dev/null
 
-	# NOTE: Skipping `apt-get install -y python-pyspatialite` (not
-	#       available from the Ubuntu 12.04 repository), and skipping
-	#       `pip3 install pyspatialite` (fails on missing libproj-dev, and
-	#       `apt-get install libproj-dev` installs a version too old), but
-	#       that doesn't matter: spatialite is best run as a SQLite extension
-	#       that we can build ourselves, rather than using a shim layer.
+  # NOTE: Skipping `apt-get install -y python-pyspatialite` (not
+  #       available from the Ubuntu 12.04 repository), and skipping
+  #       `pip3 install pyspatialite` (fails on missing libproj-dev, and
+  #       `apt-get install libproj-dev` installs a version too old), but
+  #       that doesn't matter: spatialite is best run as a SQLite extension
+  #       that we can build ourselves, rather than using a shim layer.
   #
-	# 2016-05-03: Does this no longer work? This used to work. Maybe
+  # 2016-05-03: Does this no longer work? This used to work. Maybe
   #             it was on some other Ubuntu flavor and not Linux Mint....
   #             Anyway, this used to work:
-	#         $ sudo apt-get install -y sqlite3 libsqlite3-dev spatialite-bin libspatialite5
-	#         $ sqlite3
-	#         sqlite> SELECT load_extension("libspatialite.so.5");
+  #         $ sudo apt-get install -y sqlite3 libsqlite3-dev spatialite-bin libspatialite5
+  #         $ sqlite3
+  #         sqlite> SELECT load_extension("libspatialite.so.5");
   #             But now I get
   #         Error: libspatialite.so.5.so: cannot open shared object file: No such file or directory
 
   # Avoid ./configure complaint: "checking for geos-config... no"
   sudo apt-get install -y libgeos-dev
 
-	# See: https://www.gaia-gis.it/fossil/libspatialite/index
+  # See: https://www.gaia-gis.it/fossil/libspatialite/index
   # 2015-09-07: v4.3.0a
   #LIBSPATIALITE_VERS=libspatialite-4.3.0
   LIBSPATIALITE_VER=libspatialite-4.3.0a
@@ -1942,8 +1942,8 @@ stage_4_digikam5_from_distro () {
   sudo apt-get install digikam5
 
 # Not supported on trusty/14.04!
-# digikam5	4:5.1.0-xenial~ppa1	Philip Johnsson (2016-08-09)
-# digikam5	4:5.1.0-wily~ppa1
+# digikam5  4:5.1.0-xenial~ppa1  Philip Johnsson (2016-08-09)
+# digikam5  4:5.1.0-wily~ppa1
 
 } # end: stage_4_digikam5_from_distro
 
@@ -3339,7 +3339,7 @@ EOF
 # 2016-10-03: Probably about a month ago my weather applet stopped working.
 #             Gurgling suggests the API service was shut off.
 #             Here's what the github page says, where most commits are "a year ago":
-#             ``libmateweather	iwin: use new server address to fix forecast	27 days ago``
+#             ``libmateweather  iwin: use new server address to fix forecast  27 days ago``
 #             I think the issue is that the distro packagers probably won't rebuild it.
 stage_4_libmateweather () {
 
@@ -3466,6 +3466,51 @@ stage_4_setup_whiteinge_diffconflicts () {
   fi
 
 } # end: stage_4_setup_whiteinge_diffconflicts
+
+stage_4_download_log4sh () {
+
+  if false; then
+
+    stage_announcement "stage_4_download_log4sh"
+
+    pushd ${OPT_DLOADS} &> /dev/null
+
+    # https://sites.google.com/a/forestent.com/projects/log4sh
+
+    # 1.4.x Stable — SVN: browse, repository
+    # Version   Date              MD5 Sum
+    # 1.4.2     Sat Jun 02 2007   b2177ab1f84a6cd91faf123bce74c899
+    # 1.4.1     Sun May 06 2007   1f4f3bf9b6c26380a276777e43c27a6e
+    # 1.4.0     Fri Jan 05 2007   b8cf7d33b0aaa0dcc8b0f6a6e4cb7f9c
+    if false; then
+      wget -N http://downloads.sourceforge.net/log4sh/log4sh-1.4.2.tgz
+      tar xzf log4sh-1.4.2.tgz
+      cd log4sh-1.4.2
+      make test-prep
+      cd test
+      if false; then
+        ./hello_world
+        ./test-prop-config
+        ./test-runtime-config
+      fi
+    fi
+
+    # 1.5.x Development — SVN: browse, repository
+    # Version   Date              MD5 Sum
+    #     Comments
+    # 1.5.0     Mon May 07 2007   4fc80cd6eab3b804e28e2ef73c349609
+    #     Known issues. Please use the HEAD version.
+    wget -N http://downloads.sourceforge.net/log4sh/log4sh-1.5.0.tgz
+    if true; then
+      tar xzf log4sh-1.5.0.tgz
+      cd log4sh-1.5.0/
+    fi
+
+    popd &> /dev/null
+
+  fi
+
+} # end: stage_4_download_log4sh
 
 stage_4_fcn_template () {
 
@@ -3644,7 +3689,10 @@ setup_customize_extras_go () {
   stage_4_open_shift_origin_binary
 
   # Nope!
+  #
   #  stage_4_setup_whiteinge_diffconflicts
+  #
+  #  stage_4_download_log4sh
 
   # Add before this'n: stage_4_fcn_template.
 

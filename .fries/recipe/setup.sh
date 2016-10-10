@@ -2,11 +2,14 @@
 # File: setup.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
 # Last Modified: 2016.10.09
-# Project Page: https://github.com/landonb/curly
+# Project Page: https://github.com/landonb/home-fries
 # Summary: Private Dotfiles Recipe
 # License: GPLv3
 # vim:tw=0:ts=2:sw=2:et:norl:
 set -e
+
+echo "2016-10-09: This script still under development..."
+exit 1
 
 # FIXME: Build user's curly clone from ground up and point back to this repo.
 # - ask where to install

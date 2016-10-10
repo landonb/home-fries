@@ -23,6 +23,7 @@ DEBUG=false
 # ~/.curly/setup.sh makes symlinks in the user's private dotfiles destination,
 # which means this script could be running as a symlink, and we gotta dance.
 SCRIPT_ABS_PATH="$(readlink -f ${BASH_SOURCE[0]})"
+# FIXME: SCRIPT_ABS_DIRN is only needed for CURLY_ABS_DIRN
 SCRIPT_ABS_DIRN="$(dirname $(readlink -f ${BASH_SOURCE[0]}))"
 # This is nasty. If running after prepare-shim, remove evidence of the directory we're in.
 if [[ $(basename ${SCRIPT_ABS_DIRN}) == "TBD-shim" ]]; then
