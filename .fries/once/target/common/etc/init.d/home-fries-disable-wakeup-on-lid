@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# This INIT INFO block is required, per
+#   http://wiki.debian.org/LSBInitScripts
+
+### BEGIN INIT INFO
+# Provides:          home-fries-disable-wakeup-on-lid
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start daemon at boot time
+# Description:       Enable service provided by daemon.
+### END INIT INFO
+
+# To install:
+#   sudo mv -f home-fries-disable-wakeup-on-lid /etc/init.d/
+#   sudo chmod 755 /etc/init.d/home-fries-disable-wakeup-on-lid
+#   sudo chown root /etc/init.d/home-fries-disable-wakeup-on-lid
+#   sudo chgrp root /etc/init.d/home-fries-disable-wakeup-on-lid
+#   sudo update-rc.d home-fries-disable-wakeup-on-lid defaults
+
+disable_wakeup_on_lid () {  
+  cat /proc/acpi/wakeup | grep "^LID" &> /dev/null
+  if [[ $? -eq 0 ]]; then
+    cat /proc/acpi/wakeup | grep "^LID" | grep disabled &> /dev/null
+    if [[ $? -ne 0 ]]; then
+      #echo " LID" | sudo tee /proc/acpi/wakeup
+      echo " LID" | tee /proc/acpi/wakeup
+    fi
+  fi
+} # end: disable_wakeup_on_lid
+
+disable_wakeup_on_lid
+
