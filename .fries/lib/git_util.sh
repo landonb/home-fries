@@ -1,12 +1,13 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.09
+# Last Modified: 2016.10.10
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 GIT_ISSUES_DETECTED=false
+export GIT_ISSUES_DETECTED
 
 if [[ -z ${FAIL_ON_GIT_ISSUE+x} ]]; then
   FAIL_ON_GIT_ISSUE=false
@@ -240,6 +241,7 @@ function git_status_porcelain () {
       echo "Please fix. Or run with -D (skip all git warnings)"
       echo "            or run with -DD (skip warnings about $0)"
       GIT_ISSUES_DETECTED=true
+      export GIT_ISSUES_DETECTED
       if ${FAIL_ON_GIT_ISSUE}; then
         exit 1
       fi
@@ -248,6 +250,7 @@ function git_status_porcelain () {
       echo
     fi
     GIT_DIRTY_FILES_FOUND=true
+    export GIT_DIRTY_FILES_FOUND
   fi
 
   # Is this branch behind its remote?
@@ -288,6 +291,7 @@ function git_status_porcelain () {
           if ! ${SKIP_GIT_DIRTY}; then
             echo "Please fix. Or run with -D (skip all git warnings)"
             GIT_ISSUES_DETECTED=true
+            export GIT_ISSUES_DETECTED
             if ${FAIL_ON_GIT_ISSUE}; then
               exit 1
             fi
@@ -296,6 +300,7 @@ function git_status_porcelain () {
             echo
           fi
           GIT_DIRTY_FILES_FOUND=true
+          export GIT_DIRTY_FILES_FOUND
         fi
       fi
 
@@ -359,6 +364,7 @@ function git_status_porcelain () {
             if ! ${SKIP_GIT_DIRTY}; then
               echo "Please fix. Or run with -D (skip all git warnings)"
               GIT_ISSUES_DETECTED=true
+              export GIT_ISSUES_DETECTED
               if ${FAIL_ON_GIT_ISSUE}; then
                 exit 1
               fi
@@ -368,6 +374,7 @@ function git_status_porcelain () {
             fi
           fi
           GIT_DIRTY_FILES_FOUND=true
+          export GIT_DIRTY_FILES_FOUND
         fi
       fi
     fi
