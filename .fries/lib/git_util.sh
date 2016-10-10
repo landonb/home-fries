@@ -171,6 +171,8 @@ function git_status_porcelain () {
 
   GIT_REPO=$1
 
+  echo "GIT_REPO: ${GIT_REPO}"
+
   # Caller can set GREPPERS to ignore specific dirty files, e.g.,
   #    GREPPERS='| grep -v " travel.sh$"'
   #echo "GREPPERS: ${GREPPERS}"
