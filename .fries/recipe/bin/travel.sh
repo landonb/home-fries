@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016.10.09
+# Last Modified: 2016.10.10
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
@@ -26,10 +26,22 @@ setup_time_0=$(date +%s.%N)
 # ***
 
 # Load: colorful logging
-source ${HOME}/.fries/lib/logger.sh
+if [[ -e ${HOME}/.fries/lib/logger.sh ]]; then
+  source ${HOME}/.fries/lib/logger.sh
+elif [[ -e logger.sh ]]; then
+  source logger.sh
+else
+  echo "WARNING: Missing logger.sh"
+fi
 
 # Load: setup_users_curly_path
-source ${HOME}/.fries/lib/util.sh
+if [[ -e ${HOME}/.fries/lib/util.sh ]]; then
+  source ${HOME}/.fries/lib/util.sh
+elif [[ -e util.sh ]]; then
+  source util.sh
+else
+  echo "WARNING: Missing util.sh"
+fi
 # Set USERS_CURLY and USERS_BNAME.
 setup_users_curly_path
 PRIVATE_REPO="${USERS_BNAME}"
@@ -37,7 +49,13 @@ PRIVATE_REPO="${USERS_BNAME}"
 PRIVATE_REPO_=${PRIVATE_REPO#.}
 
 # Load: git_commit_generic_file, et al
-source ${HOME}/.fries/lib/git_util.sh
+if [[ -e ${HOME}/.fries/lib/git_util.sh ]]; then
+  source ${HOME}/.fries/lib/git_util.sh
+elif [[ -e git_util.sh ]]; then
+  source git_util.sh
+else
+  echo "WARNING: Missing git_util.sh"
+fi
 
 # ***
 
@@ -68,6 +86,8 @@ elif [[ -f "${USERS_CURLY}/cfg/sync_repos.sh" ]]; then
 elif [[ -f "${USERS_CURLY}/sync_repos.sh" ]]; then
   # This is what gets sourced when unpack does it little dance.
   SYNC_REPOS_PATH="${USERS_CURLY}/sync_repos.sh"
+elif [[ -f "sync_repos.sh" ]]; then
+  SYNC_REPOS_PATH="sync_repos.sh"
 fi
 if [[ -n ${SYNC_REPOS_PATH} ]]; then
   source "${SYNC_REPOS_PATH}"
@@ -101,6 +121,8 @@ elif [[ -f "${USERS_CURLY}/cfg/travel_tasks.sh" ]]; then
   TRAVEL_TASKS_PATH="${USERS_CURLY}/cfg/travel_tasks.sh"
 elif [[ -f "${USERS_CURLY}/travel_tasks.sh" ]]; then
   TRAVEL_TASKS_PATH="${USERS_CURLY}/travel_tasks.sh"
+elif [[ -f "travel_tasks.sh" ]]; then
+  TRAVEL_TASKS_PATH="travel_tasks.sh"
 fi
 if [[ -n ${TRAVEL_TASKS_PATH} ]]; then
   source "${TRAVEL_TASKS_PATH}"
@@ -127,7 +149,10 @@ echod "SOURCED_TRAVEL_TASKS: ${SOURCED_TRAVEL_TASKS}"
 HAMSTERING=false
 if [[ -d ${USERS_CURLY}/home/.local/share/hamster-applet ]]; then
   HAMSTERING=true
-  echod "Hamster found under: ${USERS_CURLY}/home/.local/share/hamster-applet"
+  echo "Hamster found under: ${USERS_CURLY}/home/.local/share/hamster-applet"
+else
+  #echo "No hamster at: ${USERS_CURLY}/home/.local/share/hamster-applet"
+  :
 fi
 
 # ***
@@ -486,6 +511,10 @@ setup_private_curly_work () {
     pushd ${USERS_CURLY}/work &> /dev/null
 
     if [[ ! -e user-current-project ]]; then
+      if [[ -h user-current-project ]]; then
+        # dead link
+        /bin/rm user-current-project
+      fi
       /bin/ln -s ${USERS_CURLY}/work/oopsidoodle user-current-project
     fi
 
@@ -1426,6 +1455,8 @@ function update_hamster_db () {
 
   if ${HAMSTERING}; then
 
+    echo "update_hamster_db: HAMSTERING"
+
     set +e
     command -v hamster_love.sh > /dev/null
     RET_VAL=$?
@@ -1490,7 +1521,16 @@ function update_hamster_db () {
 
       #popd &> /dev/null
 
+    else
+
+      echo "WARNING: Hamster found but not hamster_love.sh"
+
     fi
+
+  else
+
+    #echo "update_hamster_db: not HAMSTERING"
+    :
 
   fi
 
