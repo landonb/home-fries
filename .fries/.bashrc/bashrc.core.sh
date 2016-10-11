@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.10
+# Last Modified: 2016.10.11
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -22,6 +22,11 @@ fi
 
 if [[ -f ${HOME}/.fries/lib/util.sh ]]; then
   source ${HOME}/.fries/lib/util.sh
+fi
+
+# 2016-10-11: Might as well plop git fcns in the sess', eh?
+if [[ -f ${HOME}/.fries/lib/git_util.sh ]]; then
+  source ${HOME}/.fries/lib/git_util.sh
 fi
 
 # Vendor paths (see: setup_mint17.sh)
@@ -1959,6 +1964,8 @@ lock_screensaver_and_power_suspend () {
 
 # 2016-10-10: Seriously? `qq` isn't a command? Sweet!
 alias qq="lock_screensaver_and_power_suspend"
+
+#########################
 
 ############################################################################
 # DONE                              DONE                              DONE #

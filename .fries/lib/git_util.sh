@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.10
+# Last Modified: 2016.10.11
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -474,6 +474,52 @@ function git_pull_hush () {
   popd &> /dev/null
 
 } # end: git_pull_hush
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+git-flip-master () {
+  # If your scheme is project/ and master+project/, then we got this, boo.
+
+  # Tell Bash to echo command lines, sort of:
+  # -v      Print shell input lines as they are read.
+  # -x      After expanding each simple command, for command, case command, select command,
+  #         or arithmetic for command, display the expanded value of PS4, followed by the
+  #         command and its expanded arguments or associated word list.
+  #  set -x
+  #  set -v
+  # I though -v might work (echo each line) but it doesn't echo the git commands.
+
+  project_name=$(basename $(pwd -P))
+
+  branch_name=$(git branch --no-color | head -n 1 | /bin/sed 's/^\*\? *//')
+
+  master_path="master+${project_name}"
+
+  echo "Merging \"${branch_name}\" into ${master_path} and pushing to origin."
+
+  if [[ ! -d ../${master_path}/.git ]]; then
+      echo "FATAL: Cannot suss paths, ya dingus."
+      return 1
+  fi
+
+  echo git push origin ${branch_name}
+  git push origin ${branch_name}
+
+  echo pushd ../${master_path}
+  pushd ../${master_path} &> /dev/null
+
+  echo git pull
+  git pull
+
+  echo git merge origin/${branch_name}
+  git merge origin/${branch_name}
+
+  echo git push origin master
+  git push origin master
+
+  echo popd
+  popd &> /dev/null
+}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
