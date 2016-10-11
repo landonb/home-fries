@@ -1,9 +1,13 @@
 # File: custom_mint16.retros.bg.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.02.02
+# Last Modified: 2016.10.10
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Custom Mint16 Login Screen and Desktop Background.
 # License: GPLv3
+
+# 2016-10-10
+echo "STALE/DEAD"
+exit 1
 
 # Note: These customizations are for Mint 16.
 #       Mint 17 has a revamped login screen.

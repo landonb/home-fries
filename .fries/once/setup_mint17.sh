@@ -1575,11 +1575,6 @@ setup_mint_17_stage_4 () {
 
   stage_4_sshd_configure
 
-  # Configure /etc/hosts with the mock domain
-  # and any project domain aliases.
-
-  stage_4_etc_hosts_setup
-
   # Customize the distro and window manager.
 
   # FIXME: Should check we're actually installing on Mint first...
@@ -1733,32 +1728,6 @@ stage_4_sshd_configure () {
   fi
 
 } # end: stage_4_sshd_configure
-
-stage_4_etc_hosts_setup () {
-
-  echo "Setting up /etc/hosts"
-
-  # 2016-03-23: /etc/hosts has 
-  #                127.0.1.1	localhost
-  #                127.0.1.1	${HOSTNAME}
-  #             so we probably don't need to do anything.
-  #
-  #             On my main dev machine, I have a home domain:
-  #                127.0.1.1	${HOSTNAME}.home.fries ${HOSTNAME}
-  #
-  # the target/ directory is nonstandard and probably not there.
-  if [[ -e ${script_absbase}/target/common/etc/hosts ]]; then
-    # Fake the local domain, and maybe setup cyclopath,
-    # mediawiki, bugzilla, or any other project-specific
-    # mappings defined in the /etc/hosts template.
-    m4 \
-      --define=HOSTNAME=$HOSTNAME \
-      --define=MACH_DOMAIN=$USE_DOMAIN \
-        ${script_absbase}/target/common/etc/hosts \
-        | sudo tee /etc/hosts &> /dev/null
-  fi
-
-} # end: stage_4_etc_hosts_setup
 
 stage_4_wm_customize_mint () {
 

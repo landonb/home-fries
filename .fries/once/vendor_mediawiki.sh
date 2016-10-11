@@ -1,9 +1,13 @@
 # File: vendor_mediawiki.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.03.01
+# Last Modified: 2016.10.10
 # Project Page: https://github.com/landonb/home_fries
 # Summary: MediaWiki (and PHP, etc.) setup script.
 # License: GPLv3
+
+# 2016-10-10
+echo "STALE/DEAD"
+exit 1
 
 # Configuration
 # -------------

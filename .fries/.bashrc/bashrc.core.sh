@@ -1894,7 +1894,7 @@ array_iterate_example () {
 
 # 2016-10-05: [lb] not seeing the disable-wake-on-lid action working, from:
 #
-#     ~/.fries/once/target/common/usr/lib/pm-utils/sleep.d/33disablewakeups
+#     ~/.fries/once/recipe/usr/lib/pm-utils/sleep.d/33disablewakeups
 #
 #             so let's try this here in bashrc.
 
@@ -1935,9 +1935,13 @@ disable_wakeup_on_lid () {
 # In any case, this is the best I can do so far.
 
 # FIXME: This isn't the right URL but 'natchurally I didn't come up with any
-#        of the gnome-screensaver-command, dbus-send, or systemctl command.
-#        I just found them. 'natchurally.
-#           https://bugs.launchpad.net/linuxmint/+bug/1185681
+#   of the gnome-screensaver-command, dbus-send, or systemctl command.
+#   I just found them. 'natchurally.
+#     https://bugs.launchpad.net/linuxmint/+bug/1185681
+#   Hopeless links:
+#     http://askubuntu.com/questions/22735/disable-locking-the-screen-after-resuming-from-suspend
+#       gsettings get org.gnome.desktop.lockdown disable-lock-screen
+#         is false already!
 lock_screensaver_and_power_suspend () {
   source /etc/lsb-release
   if [[ ${DISTRIB_CODENAME} = 'xenial' || ${DISTRIB_CODENAME} = 'sarah' ]]; then

@@ -135,6 +135,10 @@ stage_4_hg_configure () {
   stage_announcement "stage_4_hg_configure (enabled? $USE_SETUP_HG)"
 
   if $USE_SETUP_HG; then
+
+    echo "DEAD: stage_4_hg_configure"
+    return 1
+
     source_file="${script_absbase}/target/home/user/.hgrc"
     target_file="/home/$USER/.hgrc"
     copy_okay=true
@@ -209,9 +213,9 @@ stage_4_psql_configure () {
   # MEH: If you implement this, be sure to backup pg_hba.conf.
   if false; then
     # We usually configure psql on a per-project basis.
-    if [[ -e ${script_absbase}/target/common/etc/postgresql/${POSTGRESABBR}/main/pg_hba.conf ]]; then
+    if [[ -e ${script_absbase}/recipe/etc/postgresql/${POSTGRESABBR}/main/pg_hba.conf ]]; then
       sudo /bin/cp -a \
-        ${script_absbase}/target/common/etc/postgresql/${POSTGRESABBR}/main/pg_hba.conf \
+        ${script_absbase}/recipe/etc/postgresql/${POSTGRESABBR}/main/pg_hba.conf \
         /etc/postgresql/${POSTGRESABBR}/main/pg_hba.conf
     fi
   fi
@@ -270,11 +274,11 @@ stage_4_apache_configure () {
   # MEH: If you implement this, be sure to backup apache2.conf.
   if false; then
     # Avoid an apache gripe and set ServerName.
-    if [[ -e ${script_absbase}/target/common/etc/apache2/apache2.conf ]]; then
+    if [[ -e ${script_absbase}/recipe/etc/apache2/apache2.conf ]]; then
       m4 \
         --define=HOSTNAME=${HOSTNAME} \
         --define=MACH_DOMAIN=${USE_DOMAIN} \
-          ${script_absbase}/target/common/etc/apache2/apache2.conf \
+          ${script_absbase}/recipe/etc/apache2/apache2.conf \
           > /etc/apache2/apache2.conf
     fi
   fi
@@ -3364,7 +3368,7 @@ stage_4_fix_firefox_vertical_scrollbar_warp_to_click () {
   pushd ${OPT_DLOADS} &> /dev/null
 
   # MEH: We could instead add a file at
-  #       ~/.fries/once/target/common/home/.config/gtk-3.0/settings.ini
+  #       ~/.fries/once/recipe/home/.config/gtk-3.0/settings.ini
   #      and copy it over during chase_and_face
   #      but this seems just as fine.
 
@@ -3784,7 +3788,7 @@ setup_customize_extras_go () {
 
   # Configure Mercurial.
   # - Only iff $USE_SETUP_HG.
-  stage_4_hg_configure
+  #stage_4_hg_configure
 
   # Configure Meld.
   # - Currently a no-op; not written.
