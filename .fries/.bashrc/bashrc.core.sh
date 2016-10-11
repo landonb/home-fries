@@ -1920,6 +1920,42 @@ disable_wakeup_on_lid () {
 #  echo ${UUID:0:8}
 #}
 
+#########################
+
+# 2016-10-10: Starting in September sometime,
+# on both 14.04/rebecca/trusty and 16.04/sarah/xenial,
+# both my laptop and my desktop had stopped asking for
+# a password on resume from suspend.
+#
+# This is a hacky work-around -- using the screen saver.
+# I don't know that the screensaver's lock is as secure as the window manager's lock.
+# FIXME/EXPLAIN: How does a screensaver lock and an encrypted home work?
+#                You can just physically connect to the machine somehow
+#                and read home directory files, can you?
+# In any case, this is the best I can do so far.
+
+# FIXME: This isn't the right URL but 'natchurally I didn't come up with any
+#        of the gnome-screensaver-command, dbus-send, or systemctl command.
+#        I just found them. 'natchurally.
+#           https://bugs.launchpad.net/linuxmint/+bug/1185681
+lock_screensaver_and_power_suspend () {
+  source /etc/lsb-release
+  if [[ ${DISTRIB_CODENAME} = 'xenial' || ${DISTRIB_CODENAME} = 'sarah' ]]; then
+    gnome-screensaver-command --lock && \
+      dbus-send --system --print-reply --dest=org.freedesktop.UPower \
+        /org/freedesktop/UPower org.freedesktop.UPower.Suspend
+  elif [[ ${DISTRIB_CODENAME} = 'trusty' || ${DISTRIB_CODENAME} = 'rebecca' ]]; then
+    gnome-screensaver-command --lock && \
+      systemctl suspend -i
+  else
+    echo "ERROR: Unknown distro to us. Refuse to Lock Screensaver and Power Suspend."
+    return 1
+  fi
+} # end: lock_screensaver_and_power_suspend
+
+# 2016-10-10: Seriously? `qq` isn't a command? Sweet!
+alias qq="lock_screensaver_and_power_suspend"
+
 ############################################################################
 # DONE                              DONE                              DONE #
 ############################################################################
