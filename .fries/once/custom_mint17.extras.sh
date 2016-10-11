@@ -3022,15 +3022,15 @@ stage_4_install_docker () {
     --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
 
   source /etc/lsb-release
-  if [[ ${DISTRIB_CODENAME} = 'trusty' || ${DISTRIB_CODENAME} = 'rebecca' ]]; then
-    echo "deb https://apt.dockerproject.org/repo ubuntu-trusty main" | \
-      sudo tee /etc/apt/sources.list.d/docker.list
-  elif [[ ${DISTRIB_CODENAME} = 'xenial' || ${DISTRIB_CODENAME} = 'sarah' ]]; then
+  if [[ ${DISTRIB_CODENAME} = 'xenial' || ${DISTRIB_CODENAME} = 'sarah' ]]; then
     echo "deb https://apt.dockerproject.org/repo ubuntu-xenial main" | \
+      sudo tee /etc/apt/sources.list.d/docker.list
+  elif [[ ${DISTRIB_CODENAME} = 'trusty' || ${DISTRIB_CODENAME} = 'rebecca' ]]; then
+    echo "deb https://apt.dockerproject.org/repo ubuntu-trusty main" | \
       sudo tee /etc/apt/sources.list.d/docker.list
   else
     echo
-    echo "ERROR: Unknown distro. Cannot install Docker."
+    echo "ERROR: Unknown distro to us. Refuse to install Docker."
     exit 1
   fi
 
