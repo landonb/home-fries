@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.10
+# Last Modified: 2016.10.11
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -3573,6 +3573,25 @@ stage_4_download_log4sh () {
 
 } # end: stage_4_download_log4sh
 
+stage_4_install_disable_wakeup_on_lid () {
+
+  stage_announcement "stage_4_install_disable_wakeup_on_lid"
+
+  PREFIX=${HOME}/.fries/once/recipe/etc/init.d
+
+  if [[ -e ${PREFIX}/home-fries-disable-wakeup-on-lid ]]; then
+    if [[ -e /etc/init.d/home-fries-disable-wakeup-on-lid ]]; then
+      echo "CLOBBERING: Exists: /etc/init.d/home-fries-disable-wakeup-on-lid"
+    fi
+    sudo /bin/cp -f ${PREFIX}/home-fries-disable-wakeup-on-lid /etc/init.d/
+    sudo /bin/chmod 755 /etc/init.d/home-fries-disable-wakeup-on-lid
+    sudo /bin/chown root /etc/init.d/home-fries-disable-wakeup-on-lid
+    sudo /bin/chgrp root /etc/init.d/home-fries-disable-wakeup-on-lid
+    sudo update-rc.d home-fries-disable-wakeup-on-lid defaults
+  fi
+
+} # end: stage_4_install_disable_wakeup_on_lid
+
 stage_4_fcn_template () {
 
   stage_announcement "stage_4_fcn_template"
@@ -3755,6 +3774,8 @@ setup_customize_extras_go () {
   stage_4_libmateweather
 
   stage_4_open_shift_origin_binary
+
+  stage_4_install_disable_wakeup_on_lid
 
   # Nope!
   #

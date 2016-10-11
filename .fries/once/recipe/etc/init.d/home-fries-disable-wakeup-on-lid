@@ -14,10 +14,10 @@
 ### END INIT INFO
 
 # To install:
-#   sudo mv -f home-fries-disable-wakeup-on-lid /etc/init.d/
-#   sudo chmod 755 /etc/init.d/home-fries-disable-wakeup-on-lid
-#   sudo chown root /etc/init.d/home-fries-disable-wakeup-on-lid
-#   sudo chgrp root /etc/init.d/home-fries-disable-wakeup-on-lid
+#   sudo /bin/cp home-fries-disable-wakeup-on-lid /etc/init.d/
+#   sudo /bin/chmod 755 /etc/init.d/home-fries-disable-wakeup-on-lid
+#   sudo /bin/chown root /etc/init.d/home-fries-disable-wakeup-on-lid
+#   sudo /bin/chgrp root /etc/init.d/home-fries-disable-wakeup-on-lid
 #   sudo update-rc.d home-fries-disable-wakeup-on-lid defaults
 
 disable_wakeup_on_lid () {  

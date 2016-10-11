@@ -1,6 +1,6 @@
 # File: custom_mint17.mate.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.10
+# Last Modified: 2016.10.11
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Custom Mint17 MATE Window Manage Customization.
 # License: GPLv3
@@ -49,8 +49,9 @@ stage_4_wm_customize_mate_misc () {
   # [lb] likes to be able to open and close his laptop lid without
   # sleeping or awakening the machine.
 
-# FIXME: On the desktop machine, what are these values?
-#        Should we not write them if they first don't exist?
+  # WAS_ASKED: On the desktop machine, what are these values?
+  #            Should we not write them if they first don't exist?
+  # ANSWERED: On a desktop with a lib, both 'these say 'nothing'.
   dconf write /org/mate/power-manager/button-lid-ac "'nothing'"
   dconf write /org/mate/power-manager/button-lid-battery "'nothing'"
 
@@ -82,14 +83,26 @@ stage_4_wm_customize_mate_misc () {
   # There are a bunch of hooks that run when sleep is activated:
   #   /usr/lib/pm-utils/sleep.d/
   # See: https://wiki.archlinux.org/index.php/Pm-utils
-  sudo /bin/cp -f \
-    ${script_path}/recipe/usr/lib/pm-utils/sleep.d/33disablewakeups \
-    /usr/lib/pm-utils/sleep.d
-  sudo chown root:root /usr/lib/pm-utils/sleep.d/33disablewakeups
-  sudo chmod 755 /usr/lib/pm-utils/sleep.d/33disablewakeups
-  # TO-TEST:
-  #  sudo pm-suspend
-  # then close and reopen the lid a few times.
+
+  # 2016-10-11: 33disablewakeups and the `echo " LID" | sudo tee /proc/acpi/wakeup`
+  #             trick hasn't worked in a long time.
+  if false; then
+    sudo /bin/cp -f \
+      ${script_path}/recipe/usr/lib/pm-utils/sleep.d/33disablewakeups \
+      /usr/lib/pm-utils/sleep.d
+    sudo chown root:root /usr/lib/pm-utils/sleep.d/33disablewakeups
+    sudo chmod 755 /usr/lib/pm-utils/sleep.d/33disablewakeups
+    # TO-TEST:
+    #  sudo pm-suspend
+    # then close and reopen the lid a few times.
+  fi
+  #
+  # 2016-10-11: See custom_mint17.extras.sh for the fer'eal solution.
+  #
+  #             #####################################
+  # HERE ===>>   stage_4_install_disable_wakeup_on_lid
+  #             #####################################
+  #
 
   # 2014.12.08: The no-wake-on-lid-open seems to *mostly* work,
   #             but every once in a while, when [lb] opens the
@@ -102,12 +115,19 @@ stage_4_wm_customize_mate_misc () {
   #
   # Add a keyboard shortcut for bring gVim to the foreground.
   # Hint: Type Alt-` to bring gvim to the foreground.
-  dconf write /org/mate/desktop/keybindings/custom0/action \
-    "'xdotool search --name SAMPI windowactivate'"
-  dconf write /org/mate/desktop/keybindings/custom0/binding \
-    "'<Mod4>grave'"
-  dconf write /org/mate/desktop/keybindings/custom0/name \
-    "'gVim [fs]'"
+  #
+  # 2016-10-11: This isn't working on 14.04, and I just dconf'ed all this.
+  #             DISABLING
+  #             I also haven't used this feature in ages.
+  #             Though I do appreciate it. Bring gVim hEre nOW!
+  if false; then
+    dconf write /org/mate/desktop/keybindings/custom0/action \
+      "'xdotool search --name SAMPI windowactivate'"
+    dconf write /org/mate/desktop/keybindings/custom0/binding \
+      "'<Mod4>grave'"
+    dconf write /org/mate/desktop/keybindings/custom0/name \
+      "'gVim [fs]'"
+  fi
 
   # The quicktile application helps us tile windows but
   # it's also nice to be able to do it by dragging a window

@@ -273,7 +273,7 @@ Setup home-fries and Dubsacks Vim.
     /bin/rm ~/.bashrc
     /bin/cp --no-dereference Downloads/home-fries/.bashrc ~
 
-Install Dubsacks Vim immediately, if you want, or don't
+Install Dubsacks Vim now, if you want, or don't
 and let the setup script install it.
 
 .. code-block:: bash
