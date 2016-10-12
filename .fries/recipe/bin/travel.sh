@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016.10.10
+# Last Modified: 2016.10.11
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
@@ -999,7 +999,7 @@ function init_travel () {
     ENCFS_REL_PATH=$(echo ${ENCFS_GIT_ITERS[$i]} | /bin/sed s/^.//)
     echo " ${ENCFS_REL_PATH}"
     # We don't -type d so that you can use symlinks.
-    find ${ENCFS_GIT_ITERS[$i]} -maxdepth 1 ! -path . -print0 | while IFS= read -r -d '' fpath; do
+    while IFS= read -r -d '' fpath; do
       TARGET_PATH="${ENCFS_REL_PATH}/$(basename ${fpath})"
       if [[ -d ${fpath}/.git ]]; then
         if [[ ! -e ${TARGET_PATH}/.git ]]; then
@@ -1012,7 +1012,7 @@ function init_travel () {
       else
         echo " skipping (not .git/): -${TARGET_PATH}-"
       fi
-    done
+    done < <(find ${ENCFS_GIT_ITERS[$i]} -maxdepth 1 ! -path . -print0)
   done
 
   popd &> /dev/null
@@ -1154,7 +1154,7 @@ function check_repos_statuses () {
   echo "Checking gardened repos..."
   for ((i = 0; i < ${#ENCFS_GIT_ITERS[@]}; i++)); do
     echo " top-level: ${ENCFS_GIT_ITERS[$i]}"
-    find ${ENCFS_GIT_ITERS[$i]} -maxdepth 1 ! -path . -print0 | while IFS= read -r -d '' fpath; do
+    while IFS= read -r -d '' fpath; do
       if [[ -d ${fpath}/.git ]]; then
         echo "  ${fpath}"
         pushd ${fpath} &> /dev/null
@@ -1164,10 +1164,9 @@ function check_repos_statuses () {
         #echo "Skipping non-.git/ ${fpath}"
         :
       fi
-    done
+    done < <(find ${ENCFS_GIT_ITERS[$i]} -maxdepth 1 ! -path . -print0)
   done
 
-  echo "GIT_ISSUES_DETECTED: ${GIT_ISSUES_DETECTED}"
   if ${GIT_ISSUES_DETECTED}; then
     echo "FIZATAL: One or more git issues was detected. See prior log."
     echo "Could be dirty files, untracted files, and/or behind branches."
@@ -1221,7 +1220,7 @@ function pull_git_repos () {
     ABS_PATH="${ENCFS_GIT_ITERS[$i]}"
     ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
     echo " ${ENCFS_REL_PATH}"
-    find /${ENCFS_REL_PATH} -maxdepth 1 ! -path . -print0 | while IFS= read -r -d '' fpath; do
+    while IFS= read -r -d '' fpath; do
       TARGET_PATH="${ENCFS_REL_PATH}/$(basename ${fpath})"
       if [[ -d ${TARGET_PATH}/.git ]]; then
         echo "  $fpath"
@@ -1230,7 +1229,7 @@ function pull_git_repos () {
         #echo " skipping (not .git/): $fpath"
         :
       fi
-    done
+    done < <(find /${ENCFS_REL_PATH} -maxdepth 1 ! -path . -print0)
   done
 
   popd &> /dev/null
@@ -1411,9 +1410,7 @@ function packme () {
 function unpack_plaintext_archives () {
 
   # Gather all plaintext archive dumps.
-  find ${EMISSARY} -maxdepth 1 -path */plain-* ! -path . ! -path */plain-*-TBD-* \
-    -print0 | while IFS= read -r -d '' fpath; \
-  do
+  while IFS= read -r -d '' fpath; do
 
     if [[ -f ${fpath}/packered_hostname ]]; then
       PACKED_DIR_HOSTNAME=$(cat ${fpath}/packered_hostname)
@@ -1457,7 +1454,8 @@ function unpack_plaintext_archives () {
     /bin/rm -rf ${UNPACK_TBD}
 
     popd &> /dev/null
-  done
+
+  done < <(find ${EMISSARY} -maxdepth 1 -path */plain-* ! -path . ! -path */plain-*-TBD-* -print0)
 
 } # end: unpack_plaintext_archives
 
