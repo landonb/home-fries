@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.11
+# Last Modified: 2016.10.12
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -592,6 +592,11 @@ alias git-add='GIT_ST_ADDP=true git-st.sh'
 # 2016-09-24: Why didn't I think of this 'til now?
 # [Note also that pass can just do it, too.]
 alias pwgen16="pwgen -n 16 -s -N 1 -y"
+
+# 2016-10-12: This is temporary? We'll see.
+if [[ -f ~/.fries/bin/packme ]]; then
+  alias pckme="packme"
+fi
 
 # Fix rm to be a crude trashcan
 ###############################
