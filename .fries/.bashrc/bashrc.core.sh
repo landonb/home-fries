@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.12
+# Last Modified: 2016.10.13
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -1956,11 +1956,11 @@ lock_screensaver_and_power_suspend () {
   source /etc/lsb-release
   if [[ ${DISTRIB_CODENAME} = 'xenial' || ${DISTRIB_CODENAME} = 'sarah' ]]; then
     gnome-screensaver-command --lock && \
-      dbus-send --system --print-reply --dest=org.freedesktop.UPower \
-        /org/freedesktop/UPower org.freedesktop.UPower.Suspend
+      systemctl suspend -i
   elif [[ ${DISTRIB_CODENAME} = 'trusty' || ${DISTRIB_CODENAME} = 'rebecca' ]]; then
     gnome-screensaver-command --lock && \
-      systemctl suspend -i
+      dbus-send --system --print-reply --dest=org.freedesktop.UPower \
+        /org/freedesktop/UPower org.freedesktop.UPower.Suspend
   else
     echo "ERROR: Unknown distro to us. Refuse to Lock Screensaver and Power Suspend."
     return 1
