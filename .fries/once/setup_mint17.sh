@@ -2,7 +2,7 @@
 
 # File: setup_mint17.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.10
+# Last Modified: 2016.10.13
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -776,6 +776,14 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       # and the latter uninstalled the former. Hmmm.
       #adb
       android-tools-adb
+
+      # Run `do-release-upgrade` to upgrade from one LTS to the
+      # next LTS [point release], e.g., from 14.04 to 16.04.1.
+      # (You can `do-release-upgrade -d` to upgrade to initial release,
+      # e.g., 16.04.)
+      # https://help.ubuntu.com/lts/serverguide/installing-upgrading.html#do-release-upgrade
+      # https://wiki.ubuntu.com/YakketyYak/ReleaseNotes
+      ubuntu-release-upgrader-core
 
     ) # end: BIG_PACKAGE_LIST
 
