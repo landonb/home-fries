@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.11
+# Last Modified: 2016.10.15
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -3592,6 +3592,20 @@ stage_4_install_disable_wakeup_on_lid () {
 
 } # end: stage_4_install_disable_wakeup_on_lid
 
+stage_4_go_get_crap () {
+
+  stage_announcement "stage_4_go_get_crap"
+
+  #pushd ${OPT_DLOADS} &> /dev/null
+
+  # Installs to:
+  #  ~/.gopath/src/github.com/jmoiron/jsonq/
+  go get github.com/jmoiron/jsonq
+
+  #popd &> /dev/null
+
+} # end: stage_4_go_get_crap
+
 stage_4_fcn_template () {
 
   stage_announcement "stage_4_fcn_template"
@@ -3782,6 +3796,8 @@ setup_customize_extras_go () {
   #  stage_4_setup_whiteinge_diffconflicts
   #
   #  stage_4_download_log4sh
+
+  stage_4_go_get_crap
 
   # Add before this'n: stage_4_fcn_template.
 
