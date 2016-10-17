@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.16
+# Last Modified: 2016.10.17
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -1971,8 +1971,13 @@ lock_screensaver_and_power_suspend () {
   fi
 } # end: lock_screensaver_and_power_suspend
 
+lock_screensaver_and_do_nothing_else () {
+  gnome-screensaver-command --lock
+} # end: lock_screensaver_and_do_nothing_else
+
 # 2016-10-10: Seriously? `qq` isn't a command? Sweet!
-alias qq="lock_screensaver_and_power_suspend"
+alias qq="lock_screensaver_and_do_nothing_else"
+alias qqq="lock_screensaver_and_power_suspend"
 
 #########################
 
