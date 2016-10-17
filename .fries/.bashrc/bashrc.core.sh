@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.13
+# Last Modified: 2016.10.16
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -27,6 +27,10 @@ fi
 # 2016-10-11: Might as well plop git fcns in the sess', eh?
 if [[ -f ${HOME}/.fries/lib/git_util.sh ]]; then
   source ${HOME}/.fries/lib/git_util.sh
+fi
+
+if [[ -f ${HOME}/.fries/lib/openshift_util.sh ]]; then
+  source ${HOME}/.fries/lib/openshift_util.sh
 fi
 
 # Vendor paths (see: setup_mint17.sh)
