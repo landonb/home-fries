@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.11
+# Last Modified: 2016.10.16
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -519,6 +519,45 @@ git-flip-master () {
 
   echo popd
   popd &> /dev/null
+
+  command -v oc &> /dev/null
+  if [[ $? -eq 0 ]]; then
+
+    # Get the remote url to get the project name.
+    # We could get this with `git remote -v` but that
+    # prints multiple lines and is more verbose, e.g.,
+    #
+    #   $ git remote -v
+    #   origin  ssh://git@github.com/user/division-client-project (fetch)
+    #   origin  ssh://git@github.com/user/division-client-project (push)
+    #
+    #   $ git remote get-url origin
+    #   ssh://git@github.com/user/division-client-project
+    #
+    #   $ url_origin=$(git remote get-url origin)
+    #   $ echo ${url_origin#*-}
+    #   client-project
+    #
+    #   $ echo $url_origin | sed s/^.*-\([^-]\+\)/\\1/
+    #   project
+
+    # Get the remote name, usually 'origin'.
+    remote_name=$(git remote)
+    echo "remote_name: ${remote_name}"
+
+    url_origin=$(git remote get-url ${remote_name})
+    echo "url_origin: ${url_origin}"
+
+    project_name=$(echo $(basename $url_origin) | sed s/^.*-\([^-]\+\)/\\1/)
+    echo "project_name: ${project_name}"
+
+    project_pod=$(oc get pods | grep ${project_name} | grep Running | head -n 1 | awk '{print $1}')
+    echo "project_pod: ${project_pod}"
+
+    oc logs -f ${project_pod}
+
+  fi
+
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
