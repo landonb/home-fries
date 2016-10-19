@@ -455,9 +455,9 @@ function git_pull_hush () {
     echo " SOURCE_BRANCH: ${SOURCE_BRANCH}"
     echo " TARGET_BRANCH: ${TARGET_BRANCH}"
     echo "You may need to change branches:"
-    echo "  #pushd ${TARGET_REPO} && git checkout --track origin/${SOURCE_BRANCH}"
-    echo " or you may need to edit sync_repos.sh"
-    echo "  or something else"
+    echo "  #pushd $(pwd -P) && git checkout --track origin/${SOURCE_BRANCH}"
+    echo " or maybe it's the other one"
+    echo "  #pushd ${SOURCE_REPO} && git checkout --track origin/${SOURCE_BRANCH}"
     exit 1
   fi
 
