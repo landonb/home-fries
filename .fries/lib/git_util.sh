@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.18
+# Last Modified: 2016.10.19
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -208,6 +208,12 @@ function git_status_porcelain () {
   # Caller can set GREPPERS to ignore specific dirty files, e.g.,
   #    GREPPERS='| grep -v " travel.sh$"'
   #echo "GREPPERS: ${GREPPERS}"
+
+  if [[ ${#GTSTOK_GIT_REPOS[@]} -gt 0 ]]; then
+    if [[ ${GTSTOK_GIT_REPOS[${GIT_REPO}]} == true ]]; then
+      GREPPERS='| grep -v ".GTSTOK$"'
+    fi
+  fi
 
   # ***
 
@@ -463,6 +469,8 @@ function git_pull_hush () {
     echo "  git remote set-url origin /${SOURCE_REPO}"
     echo "  git pull -a"
     echo "  git checkout -b feature/${SOURCE_BRANCH} --track origin/master"
+    echo "   or maybe just"
+    echo "  git checkout -b ${SOURCE_BRANCH} --track origin/master"
     exit 1
   fi
 
