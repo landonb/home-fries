@@ -2,7 +2,7 @@
 
 # File: git-st.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.08.15
+# Last Modified: 2016.10.19
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Helpful `git st`, `git add -p`, and `git diff` wrapper
 #          used to hide acceptably deviant repository changes.
@@ -31,8 +31,8 @@
 #        ----       or if it's really something you gotta commit.
 #        ----
 #
-#        Instructions for managing working changes in files that
-#        cannot be ignored via .gitignore:
+#        Instructions for managing working changes in
+#        files that cannot be ignored via .gitignore:
 #
 #           1. Make a copy of the edited file and assign it a .GTSTOK extension.
 #              E.g., /bin/cp -a path/to/orig.file path/to/orig.file.GTSTOK
@@ -89,7 +89,7 @@ prepare_grep_exclude () {
   for file_path in **/*.${SPECIAL_EXT}; do
     ref_file=${file_path%%.${SPECIAL_EXT}}
     #echo "file_path: ${file_path} / ref_file: $ref_file"
-
+    #echo "diff ${ref_file} ${file_path}"
     diff ${ref_file} ${file_path} &> /dev/null
     if [[ $? -eq 0 ]]; then
       # The tracked file matches an approved divergent file.
@@ -116,9 +116,10 @@ prepare_grep_exclude () {
 
   # We can remove newlines here, with grep, or later with sed.
   GREP_EXCLUDE="${GREP_EXCLUDE} | grep -v \"^$\""
+
+  #echo "GREP_EXCLUDE: ${GREP_EXCLUDE}"
 }
 prepare_grep_exclude
-#echo "GREP_EXCLUDE: ${GREP_EXCLUDE}"
 
 DIFFABLES=''
 prepare_diffables () {
@@ -136,21 +137,23 @@ prepare_diffables () {
   #       arbitrary subdir, we need to prepend the complete path
   #       (or a relative path, but that seems too hard to figure
   #       out... using $CURRENT_DIR and doing dir math, ew).
-  DIFFABLES=$(\
-    eval "\
-      git status ${GREP_EXCLUDE} \
+  GIT_ST_CMD="\
+    git status ${GREP_EXCLUDE} \
       | /bin/grep 'modified:' \
       | /bin/sed -r "s/\#//" \
       | /bin/sed -r 's/.*modified:\\s*//' \
       | tr '\n' ' ' \
-      | /bin/sed -r 's/[\x01-\x1F\x7F]\[m//g' " \
-  )
+      | /bin/sed -r 's/[\x01-\x1F\x7F]\[m//g' \
+  "
+  #echo "eval \"${GIT_ST_CMD}\""
+  DIFFABLES=$(eval "${GIT_ST_CMD}")
   # Make an array by splitting on the spaces we made from the newlines.
   # CAVEAT: There's probably a way to allow spaces in paths (ew! I know)
   #         but I tried IFS=$'\n' and IFS='\n' but nothing I tried worked.
   #         So we use `tr` to make spaces and then Internal field separator
   #         to split the string into an array of strings.
   IFS=' ' read -ra DIFFABLES <<< "$DIFFABLES"
+  #echo "No. of \$DIFFABLES: ${#DIFFABLES[@]}"
   # 2016-05-27: I fixed a difficult problem, finally!
   #
   #   - I spent, what, this past hour tonight on this? Or maybe even 90 minutes.
@@ -266,11 +269,23 @@ show_extended_git_st () {
   print_divergents
 }
 
-if ${GIT_ST_DIFF}; then
-  git diff ${DIFFABLES[@]}
-elif ${GIT_ST_ADDP}; then
-  git add -p ${DIFFABLES[@]}
+if [[ ${#DIFFABLES[@]} -eq 0 ]]; then
+  echo -n "DUDE: Nothing dirty. "
+  if ${GIT_ST_DIFF}; then
+    echo "Nothing to diff."
+  elif ${GIT_ST_ADDP}; then
+    echo "Nothing to add."
+  else
+    echo "Nothing to stat."
+    show_extended_git_st
+  fi
 else
-  show_extended_git_st
+  if ${GIT_ST_DIFF}; then
+    git diff ${DIFFABLES[@]}
+  elif ${GIT_ST_ADDP}; then
+    git add -p ${DIFFABLES[@]}
+  else
+    show_extended_git_st
+  fi
 fi
 
