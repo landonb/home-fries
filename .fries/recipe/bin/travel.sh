@@ -927,6 +927,7 @@ function umount_curly_emissary_gooey () {
     echo
     echo "MEH: Could not umount the encfs. Try:"
     echo "  fuser -c ${EMISSARY}/gooey 2>&1"
+    echo " and you can get the process ID with: echo \$\$"
   fi
   set -e
 }
