@@ -458,6 +458,11 @@ function git_pull_hush () {
     echo "  #pushd $(pwd -P) && git checkout --track origin/${SOURCE_BRANCH}"
     echo " or maybe it's the other one"
     echo "  #pushd ${SOURCE_REPO} && git checkout --track origin/${SOURCE_BRANCH}"
+    echo " but really it might be this"
+    echo "  pushd $(pwd -P)"
+    echo "  git remote set-url origin /${SOURCE_REPO}"
+    echo "  git pull -a"
+    echo "  git checkout -b feature/${SOURCE_BRANCH} --track origin/master"
     exit 1
   fi
 
