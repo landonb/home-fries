@@ -65,10 +65,10 @@ git_check_generic_file () {
 
   set +e
   git status --porcelain ${REPO_FILE} | grep "^\W*M\W*${REPO_FILE}" &> /dev/null
-  git_result=$?
+  grep_result=$?
   set -e
 
-  if [[ $git_result -eq 0 ]]; then
+  if [[ $grep_result -eq 0 ]]; then
     # It's dirty.
     :
   fi
@@ -103,10 +103,10 @@ git_commit_generic_file () {
 
   set +e
   git status --porcelain ${REPO_FILE} | grep "^\W*M\W*${REPO_FILE}" &> /dev/null
-  git_result=$?
+  grep_result=$?
   set -e
 
-  if [[ $git_result -eq 0 ]]; then
+  if [[ $grep_result -eq 0 ]]; then
     # It's dirty.
     CUR_DIR=$(basename $(pwd -P))
     if ! ${AUTO_COMMIT_FILES}; then
@@ -165,10 +165,10 @@ function git_commit_all_dirty_files () {
     #git status --porcelain | grep "^\W*M\W*" &> /dev/null
     git status --porcelain | grep "^[^\?]" &> /dev/null
 
-    git_result=$?
+    grep_result=$?
     set -e
 
-    if [[ $git_result -eq 0 ]]; then
+    if [[ $grep_result -eq 0 ]]; then
       # It's dirty.
       echo
       if ! ${AUTO_COMMIT_FILES}; then
@@ -209,11 +209,17 @@ function git_status_porcelain () {
   #    GREPPERS='| grep -v " travel.sh$"'
   #echo "GREPPERS: ${GREPPERS}"
 
+  USE_ALT_GIT_ST=false
   if [[ ${#GTSTOK_GIT_REPOS[@]} -gt 0 ]]; then
+    #echo "No. of GTSTOK_GIT_REPOS: ${#GTSTOK_GIT_REPOS[@]}"
+    #echo "Checking for: GIT_REPO: ${GIT_REPO}"
     if [[ ${GTSTOK_GIT_REPOS[${GIT_REPO}]} == true ]]; then
-      GREPPERS='| grep -v ".GTSTOK$"'
+      # Haha, this is so wrong:
+      #   GREPPERS='| grep -v ".GTSTOK$"'
+      USE_ALT_GIT_ST=true
     fi
   fi
+  #echo "GREPPERS: ${GREPPERS}"
 
   # ***
 
@@ -233,43 +239,64 @@ function git_status_porcelain () {
 
   # ***
 
-  #DIRTY_REPO=false
+  DIRTY_REPO=false
 
-  # Use an eval because of the GREPPERS
+  # Use eval's below because of the GREPPERS.
+
+  unstaged_changes_found=false
   set +e
-  # ' M' is modified but not added.
-  eval git status --porcelain ${GREPPERS} | grep "^ M " &> /dev/null
-  git_result=$?
+  if ! ${USE_ALT_GIT_ST}; then
+    # ' M' is modified but not added.
+    eval git status --porcelain ${GREPPERS} | grep "^ M " &> /dev/null
+    if [[ $? -eq 0 ]]; then
+      unstaged_changes_found=true
+    fi
+  else
+    #git-st.sh &> /dev/null
+    git-st.sh
+    if [[ $? -ne 0 ]]; then
+      unstaged_changes_found=true
+    fi
+  fi
   set -e
-  if [[ $git_result -eq 0 ]]; then
-    #DIRTY_REPO=true
+  if ${unstaged_changes_found}; then
+    DIRTY_REPO=true
     echo "WARNING: Unstaged changes found in $GIT_REPO"
   fi
 
   set +e
   # 'M ' is added but not committed!
   eval git status --porcelain ${GREPPERS} | grep "^M  " &> /dev/null
-  git_result=$?
+  grep_result=$?
   set -e
-  if [[ $git_result -eq 0 ]]; then
-    #DIRTY_REPO=true
+  if [[ $grep_result -eq 0 ]]; then
+    DIRTY_REPO=true
     echo "WARNING: Uncommitted changes found in $GIT_REPO"
   fi
 
   set +e
   eval git status --porcelain ${GREPPERS} | grep "^?? " &> /dev/null
-  git_result=$?
+  grep_result=$?
   set -e
-  if [[ $git_result -eq 0 ]]; then
-    #DIRTY_REPO=true
+  if [[ $grep_result -eq 0 ]]; then
+    DIRTY_REPO=true
     echo "WARNING: Untracked files found in $GIT_REPO"
   fi
 
   set +e
-  eval git status --porcelain ${GREPPERS} | grep "" &> /dev/null
-  git_result=$?
+  if ! ${USE_ALT_GIT_ST} && ! ${DIRTY_REPO}; then
+    eval git status --porcelain ${GREPPERS} &> /dev/null
+    if [[ $? -ne 0 ]]; then
+      DIRTY_REPO=true
+    fi
+  else
+    eval git status --porcelain ${GREPPERS} | grep -v "^ M " &> /dev/null
+    if [[ $? -eq 0 ]]; then
+      DIRTY_REPO=true
+    fi
+  fi
   set -e
-  if [[ $git_result -eq 0 ]]; then
+  if ${DIRTY_REPO}; then
     echo "STOPPING: Dirty things found in $GIT_REPO"
     echo
     echo "  cdd $(pwd) && git add -p"
@@ -300,10 +327,10 @@ function git_status_porcelain () {
   set +e
   # Need to use grep's [-P]erl-defined regex that includes the tab character.
   git remote -v | grep -P "^origin\t\/"
-  git_result=$?
+  grep_result=$?
   set -e
 
-  if [[ $git_result -ne 0 ]]; then
+  if [[ $grep_result -ne 0 ]]; then
     # Not a local origin.
 
     if [[ -n $(git remote -v) ]]; then
@@ -318,9 +345,9 @@ function git_status_porcelain () {
       if false; then
         set +e
         git status | grep "^Your branch is up-to-date with" &> /dev/null
-        git_result=$?
+        grep_result=$?
         set -e
-        if [[ $git_result -ne 0 ]]; then
+        if [[ $grep_result -ne 0 ]]; then
           echo "WARNING: Branch is behind origin/${branch_name} at $GIT_REPO"
           echo
           echo "  cdd $(pwd) && git push origin ${branch_name} && popd"
@@ -366,9 +393,9 @@ function git_status_porcelain () {
         #  stripcolors='/bin/sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"'
         GIT_PUSH_STALENESS=$(git remote show origin \
           | grep "^\W*${branch_name}\W\+pushes to\W\+${branch_name}\W\+")
-        git_result=$?
+        grep_result=$?
         set -e
-        if [[ $git_result -ne 0 ]]; then
+        if [[ $grep_result -ne 0 ]]; then
           echo "ERROR: Unexpected: Could not find \"${branch_name} pushes to ${branch_name}\""
           echo "                   in the output of"
           echo "                      git remote show origin"
@@ -380,15 +407,15 @@ function git_status_porcelain () {
 
         set +e
         echo ${GIT_PUSH_STALENESS} | grep "(up to date)" &> /dev/null
-        git_result=$?
+        grep_result=$?
         set -e
-        if [[ $git_result -ne 0 ]]; then
+        if [[ $grep_result -ne 0 ]]; then
 
           set +e
           echo ${GIT_PUSH_STALENESS} | grep "(local out of date)" &> /dev/null
-          git_result=$?
+          grep_result=$?
           set -e
-          if [[ $git_result -eq 0 ]]; then
+          if [[ $grep_result -eq 0 ]]; then
             echo "WHATEVER: Branch is behind origin/${branch_name} at $GIT_REPO"
             echo "          You can git pull if you want to."
             echo "          But this script don't care."
