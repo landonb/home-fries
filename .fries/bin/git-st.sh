@@ -270,16 +270,22 @@ show_extended_git_st () {
 }
 
 if [[ ${#DIFFABLES[@]} -eq 0 ]]; then
+  # Return code is 0 if nothing diffs, but there could be added
+  # (but not committed) and untracked files lurking about.
+  RET_CODE=0
   echo -n "DUDE: Nothing dirty. "
   if ${GIT_ST_DIFF}; then
     echo "Nothing to diff."
+    # MAYBE: Is this okay? What if added-but-not-committed? Untracked?
   elif ${GIT_ST_ADDP}; then
     echo "Nothing to add."
+    # MAYBE: Is this okay? What if added-but-not-committed? Untracked?
   else
     echo "Nothing to stat."
     show_extended_git_st
   fi
 else
+  RET_CODE=1
   if ${GIT_ST_DIFF}; then
     git diff ${DIFFABLES[@]}
   elif ${GIT_ST_ADDP}; then
@@ -288,4 +294,6 @@ else
     show_extended_git_st
   fi
 fi
+
+exit ${RET_CODE}
 
