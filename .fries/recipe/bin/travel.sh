@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016.10.18
+# Last Modified: 2016.10.19
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
@@ -187,9 +187,15 @@ function set_travel_cmd () {
 
 COPY_PRIVATE_REPO_PLAIN=false
 SKIP_DIRTY_CHECK=false
+# -DD
 SKIP_THIS_DIRTY=false
+# -D Argh, this bothers me a little. It's used in git_util.sh.
+#    Like, rather than sending it as a param, it's just part
+#    of the environment. Which works because we source git_util.sh.
+#    It still feels icky though, like a bash hack.
 SKIP_GIT_DIRTY=false
 AUTO_COMMIT_FILES=false
+SKIP_PULL_REPOS=false
 SKIP_UNPACK_SHIM=false
 TAR_VERBOSE=""
 UNKNOWN_ARG=false
@@ -270,6 +276,10 @@ function soups_on () {
         COPY_PRIVATE_REPO_PLAIN=true
         shift
         ;;
+      -DDDD)
+        SKIP_PULL_REPOS=true
+        shift
+        ;;
       -DDD)
         SKIP_DIRTY_CHECK=true
         shift
@@ -280,6 +290,12 @@ function soups_on () {
         ;;
       -D)
         SKIP_GIT_DIRTY=true
+        shift
+        ;;
+      -X)
+        SKIP_DIRTY_CHECK=true
+        #SKIP_GIT_DIRTY=true
+        SKIP_PULL_REPOS=true
         shift
         ;;
       -WW)
@@ -370,6 +386,8 @@ function soups_on () {
     echo "      -DD               packme even if this script is dirty [otherwise, yo, check it in]"
     echo "      -DDD              don't waste time checking if things are git-dirty"
     echo "      -WW               wait, wait, check in all my files, please"
+    echo "      -DDDD             skip git-pull; to auto-commit hamster and git-check repos only"
+    echo "      -X                check in hamster: -DDD [skip dirty check] | -DDDD [skip git pull]"
     echo "      -I                /bin/cp cfg/sync_repos.sh to travel device [BEWARE: unencrypted!]"
     echo "                          (to setup a new machine *locally* without worrying about encfs)"
     #echo
@@ -414,8 +432,8 @@ function soups_on () {
     time_elapsed=$(echo "scale=2; ($setup_time_n - $setup_time_0) * 100 / 100" | bc -l)
     #echo
     echo "Elapsed: $time_elapsed secs."
-  else
-    echo "Nothing to do!"
+  elif ! ${ASKED_FOR_HELP}; then
+    echo 'Nothing to do!'
   fi
 
 } # end: soups_on
@@ -942,7 +960,7 @@ function init_travel () {
 
   if [[ -d ${EMISSARY} ]]; then
     echo
-    echo "So, like, EMISSARY already exists at ${EMISSARY}"
+    echo "EMISSARY already exists at ${EMISSARY}"
     echo
     echo "You can use the existing directory or start anew."
     echo
@@ -1336,36 +1354,49 @@ function packme () {
     exit 1
   fi
 
-  mount_curly_emissary_gooey
-  pull_git_repos 'emissary'
-  umount_curly_emissary_gooey
+  if ${SKIP_PULL_REPOS}; then
 
-  make_plaintext
+    # Just pull ${USERS_CURLY}.
+    mount_curly_emissary_gooey
+    echo "Pulling into: ${EMISSARY}/gooey${USERS_CURLY}"
+    git_pull_hush ${USERS_CURLY} ${EMISSARY}/gooey${USERS_CURLY}
+    umount_curly_emissary_gooey
 
-  # Call private fcns. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
-  set +e
-  command -v user_do_packme &> /dev/null
-  EXIT_CODE=$?
-  set -e
-  if [[ ${EXIT_CODE} -eq 0 ]]; then
-    user_do_packme
-  fi
+  else
 
-  if [[ -d ${PLAIN_TBD} ]]; then
-    /bin/rm -rf ${PLAIN_TBD}
-  fi
+    mount_curly_emissary_gooey
+    pull_git_repos 'emissary'
+    umount_curly_emissary_gooey
 
-  if ${COPY_PRIVATE_REPO_PLAIN}; then
-    # BEWARE: Enabling COPY_PRIVATE_REPO_PLAIN is dangerous because it exposes
-    #         the ENCFS pwd for the ${USERS_CURLY} project.
-    #         I.e., this script in plain text can be read to get encfs pwd.
-    echo
-    echo "WARNING: Copying *unencrypted* ${USERS_CURLY}s."
-    echo
-    echo -n "Copying travel scripts... "
-    mkdir -p ${TRAVEL_DIR}/e-scripts
-    /bin/cp -aLf ${USERS_CURLY}/*.sh ${TRAVEL_DIR}/e-scripts
-    /bin/cp -arf ${USERS_CURLY}/cfg ${TRAVEL_DIR}/e-scripts
+    # Sets: ${PLAIN_TBD}
+    make_plaintext
+
+    # Call private fcns. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
+    set +e
+    command -v user_do_packme &> /dev/null
+    EXIT_CODE=$?
+    set -e
+    if [[ ${EXIT_CODE} -eq 0 ]]; then
+      user_do_packme
+    fi
+
+    if [[ -d ${PLAIN_TBD} ]]; then
+      /bin/rm -rf ${PLAIN_TBD}
+    fi
+
+    if ${COPY_PRIVATE_REPO_PLAIN}; then
+      # BEWARE: Enabling COPY_PRIVATE_REPO_PLAIN is dangerous because it exposes
+      #         the ENCFS pwd for the ${USERS_CURLY} project.
+      #         I.e., this script in plain text can be read to get encfs pwd.
+      echo
+      echo "WARNING: Copying *unencrypted* ${USERS_CURLY}s."
+      echo
+      echo -n "Copying travel scripts... "
+      mkdir -p ${TRAVEL_DIR}/e-scripts
+      /bin/cp -aLf ${USERS_CURLY}/*.sh ${TRAVEL_DIR}/e-scripts
+      /bin/cp -arf ${USERS_CURLY}/cfg ${TRAVEL_DIR}/e-scripts
+    fi
+
   fi
 
   echo "umount ${TRAVEL_DIR}" > ${USERS_CURLY}/cleanup.sh
