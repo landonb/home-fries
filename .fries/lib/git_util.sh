@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.16
+# Last Modified: 2016.10.18
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -17,19 +17,34 @@ fi
 # find_git_parent
 
 find_git_parent () {
-  #echo "find_git_parent: ABS_PATH/1: ${1}"
-  #ABS_PATH="$(readlink -f $1)"
+  FILE_PATH=$1
+  #echo "find_git_parent: FILE_PATH: ${1}"
   # Crap, if symlink, blows up, because prefix of git status doesn't match.
-  ABS_PATH="$(dirname $1)"
-  #echo "find_git_parent: ABS_PATH/2: ${ABS_PATH}"
+  REL_PATH="$(dirname ${FILE_PATH})"
+  #echo "find_git_parent: REL_PATH/2: ${REL_PATH}"
+  DOUBLE_DOWN=false
+  if [[ ${REL_PATH} == '.' ]]; then
+    DOUBLE_DOWN=true
+    #echo "find_git_parent: REL_PATH/2b: ${REL_PATH}"
+    fi
   REPO_PATH=""
-  while [[ ${ABS_PATH} != '/' || ${ABS_PATH} != '.' ]]; do
-    if [[ -d "${ABS_PATH}/.git" ]]; then
-      REPO_PATH=${ABS_PATH}
+  while [[ ${REL_PATH} != '/' || ${REL_PATH} != '.' ]]; do
+    #echo "find_git_parent: REL_PATH/3: ${REL_PATH}"
+    if [[ -d "${REL_PATH}/.git" ]]; then
+      REPO_PATH=${REL_PATH}
       break
     else
       # Keep looping.
-      ABS_PATH=$(dirname ${ABS_PATH})
+      if ! ${DOUBLE_DOWN}; then
+        REL_PATH=$(dirname ${REL_PATH})
+      else
+        ABS_PATH="$(readlink -f ${REL_PATH})"
+        if [[ ${ABS_PATH} == '/' ]]; then
+          echo "WARNING: find_git_parent: No parent found for ${FILE_PATH}"
+          break
+        fi
+        REL_PATH=../${REL_PATH}
+      fi
     fi
   done
 }
