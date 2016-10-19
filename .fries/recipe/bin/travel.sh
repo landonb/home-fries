@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016.10.11
+# Last Modified: 2016.10.18
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
@@ -1117,7 +1117,7 @@ function git_commit_dirty_sync_repos () {
   for ((i = 0; i < ${#AUTO_GIT_ONE[@]}; i++)); do
     echo " ${AUTO_GIT_ONE[$i]}"
     DIRTY_BNAME=$(basename ${AUTO_GIT_ONE[$i]})
-    git_commit_generic_file "${AUTO_GIT_ONE[$i]}" "Update just the one: ${DIRTY_BNAME}."
+    git_commit_generic_file "${AUTO_GIT_ONE[$i]}" "Update ${DIRTY_BNAME}."
   done
 
   echo "Checking all repos' dirty files..."
