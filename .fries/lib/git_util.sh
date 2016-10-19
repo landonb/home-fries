@@ -87,6 +87,10 @@ git_commit_generic_file () {
 
   REPO_FILE=$1
   COMMITMSG=$2
+  if [[ -z ${COMMITMSG} ]]; then
+    echo "WRONG: git_commit_generic_file REPO_FILE COMMITMSG"
+    return 1
+  fi
   # Set REPO_PATH.
   find_git_parent ${REPO_FILE}
   # Strip the git path from the absolute file path.
@@ -105,18 +109,20 @@ git_commit_generic_file () {
   if [[ $git_result -eq 0 ]]; then
     # It's dirty.
     CUR_DIR=$(basename $(pwd -P))
-    echo
     if ! ${AUTO_COMMIT_FILES}; then
+      echo
       echo -n "HEY, HEY: Your ${CUR_DIR}/${REPO_FILE} is dirty. Wanna check it in? [y/n] "
       read -e YES_OR_NO
     else
-      echo "HEY, HEY: Your ${CUR_DIR}/${REPO_FILE} is dirty. Ley's check that in for ya."
+      echo "Committing dirty file: ${CUR_DIR}/${REPO_FILE}"
       YES_OR_NO="Y"
     fi
     if [[ ${YES_OR_NO^^} == "Y" ]]; then
       git add ${REPO_FILE}
       git commit -m "${COMMITMSG}" &> /dev/null
-      echo 'Committed!'
+      if ! ${AUTO_COMMIT_FILES}; then
+        echo 'Committed!'
+      fi
     fi
   fi
 
@@ -128,6 +134,9 @@ git_commit_generic_file () {
 # git_commit_all_dirty_files
 
 function git_commit_all_dirty_files () {
+
+  # 2016-10-18: I considered adding a `git add --all`, but that
+  #             really isn't always desirable...
 
   REPO_PATH=$1
 
@@ -523,6 +532,9 @@ git-flip-master () {
   echo pushd ../${master_path}
   pushd ../${master_path} &> /dev/null
 
+  # If you were to be working in master, you'd want to rebase:
+  #   pull --rebase --autostash
+  # but you don't touch master other than as a hopper repo.
   echo git pull
   git pull
 
@@ -535,41 +547,83 @@ git-flip-master () {
   echo popd
   popd &> /dev/null
 
-  command -v oc &> /dev/null
-  if [[ $? -eq 0 ]]; then
+  # FIXME: You want to log the *new* build, and then that should die, right?
+  #        And then you can log the new deployment.
+  #        Also, none of this works if you're not in the correct `oc project`.
+  if false; then
 
-    # Get the remote url to get the project name.
-    # We could get this with `git remote -v` but that
-    # prints multiple lines and is more verbose, e.g.,
-    #
-    #   $ git remote -v
-    #   origin  ssh://git@github.com/user/division-client-project (fetch)
-    #   origin  ssh://git@github.com/user/division-client-project (push)
-    #
-    #   $ git remote get-url origin
-    #   ssh://git@github.com/user/division-client-project
-    #
-    #   $ url_origin=$(git remote get-url origin)
-    #   $ echo ${url_origin#*-}
-    #   client-project
-    #
-    #   $ echo $url_origin | sed s/^.*-\([^-]\+\)/\\1/
-    #   project
+    command -v oc &> /dev/null
+    if [[ $? -eq 0 ]]; then
 
-    # Get the remote name, usually 'origin'.
-    remote_name=$(git remote)
-    echo "remote_name: ${remote_name}"
+      # Get the remote url to get the project name.
+      # We could get this with `git remote -v` but that
+      # prints multiple lines and is more verbose, e.g.,
+      #
+      #   $ git remote -v
+      #   origin  ssh://git@github.com/user/division-client-project (fetch)
+      #   origin  ssh://git@github.com/user/division-client-project (push)
+      #
+      #   $ git remote get-url origin
+      #   ssh://git@github.com/user/division-client-project
+      #
+      #   $ url_origin=$(git remote get-url origin)
+      #   $ echo ${url_origin#*-}
+      #   client-project
+      #
+      #   $ echo $url_origin | sed s/^.*-\([^-]\+\)/\\1/
+      #   project
 
-    url_origin=$(git remote get-url ${remote_name})
-    echo "url_origin: ${url_origin}"
+      # Get the remote name, usually 'origin'.
+      remote_name=$(git remote)
+      echo "remote_name: ${remote_name}"
 
-    project_name=$(echo $(basename $url_origin) | sed s/^.*-\([^-]\+\)/\\1/)
-    echo "project_name: ${project_name}"
+      url_origin=$(git remote get-url ${remote_name})
+      echo "url_origin: ${url_origin}"
 
-    project_pod=$(oc get pods | grep ${project_name} | grep Running | head -n 1 | awk '{print $1}')
-    echo "project_pod: ${project_pod}"
+      project_name=$(echo $(basename $url_origin) | sed s/^.*-\([^-]\+\)/\\1/)
+      echo "project_name: ${project_name}"
 
-    oc logs -f ${project_pod}
+      project_pod=$(oc get pods | grep ${project_name} | grep Running | head -n 1 | awk '{print $1}')
+      echo "project_pod: ${project_pod}"
+
+      oc logs -f ${project_pod}
+
+    fi
+
+  fi
+
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# git-jockey
+
+git-jockey () {
+
+  find_git_parent .
+
+  #echo "REPO_PATH: $REPO_PATH"
+
+  if [[ -n $REPO_PATH ]]; then
+
+    # Just the basics, I suppose.
+    TOPLEVEL_COMMON_FILE=()
+    TOPLEVEL_COMMON_FILE+=(".agignore")
+    TOPLEVEL_COMMON_FILE+=(".gitignore")
+    TOPLEVEL_COMMON_FILE+=("README.rst")
+
+    #echo "Checking single dirty files..."
+    for ((i = 0; i < ${#TOPLEVEL_COMMON_FILE[@]}; i++)); do
+      DIRTY_BNAME=$(basename ${TOPLEVEL_COMMON_FILE[$i]})
+      if [[ -f $REPO_PATH/.agignore ]]; then
+        echo "Checking ${DIRTY_BNAME}"
+        AUTO_COMMIT_FILES=true \
+          git_commit_generic_file \
+            "${TOPLEVEL_COMMON_FILE[$i]}" \
+            "Update ${DIRTY_BNAME}."
+      else
+        echo "Skipping ${DIRTY_BNAME}"
+      fi
+    done
 
   fi
 
