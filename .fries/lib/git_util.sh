@@ -252,8 +252,7 @@ function git_status_porcelain () {
       unstaged_changes_found=true
     fi
   else
-    #git-st.sh &> /dev/null
-    git-st.sh
+    git-st.sh &> /dev/null
     if [[ $? -ne 0 ]]; then
       unstaged_changes_found=true
     fi
