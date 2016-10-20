@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.17
+# Last Modified: 2016.10.20
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -1901,6 +1901,14 @@ array_iterate_example () {
   for ((i = 0; i < ${#AN_ARR[@]}; i++)); do
     AN_ELEM="${AN_ARR[$i]}"
     echo "AN_ELEM: ${AN_ELEM}"
+  done
+}
+
+associative_array_iterate_example () {
+  declare -A assoc_array
+  for i in "${!assoc_array[@]}"; do
+    echo "key  : $i"
+    echo "value: ${assoc_array[$i]}"
   done
 }
 
