@@ -3,7 +3,7 @@ Manual Linux Distro Onboarding Instructions For Developers
 ##########################################################
 
 .. Author: Landon Bouma
-.. Last Modified: 2016.09.23
+.. Last Modified: 2016.10.19
 .. Project Page: https://github.com/landonb/home_fries
 
 Overview
@@ -142,6 +142,17 @@ Custom launchers:
 
 - Termdub Logc:
   - ``/bin/bash -c "FORCE_JAILED=false /home/<USERNAME>/.fries/bin/termdub.py -t logc"``
+
+.. 2016-10-19: New links.
+
+- Termdub Dbms:
+  - ``/bin/bash -c "FORCE_JAILED=false ${HOME}/.fries/bin/termdub.py -t dbms -x 1486"``
+
+- Termbud Toppers:
+  - ``/bin/bash -c "FORCE_JAILED=false DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 1486"``
+
+- Termdub Bottoms:
+  - ``/bin/bash -c "FORCE_JAILED=false DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 0 -y 1080"``
 
 See also:
 
