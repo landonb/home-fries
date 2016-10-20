@@ -13,7 +13,8 @@
 # Description:       Enable service provided by daemon.
 ### END INIT INFO
 
-# To install:
+# To install [or run stage_4_install_disable_wakeup_on_lid]:
+#   pushd ~/.fries/once/recipe/etc/init.d
 #   sudo /bin/cp home-fries-disable-wakeup-on-lid /etc/init.d/
 #   sudo /bin/chmod 755 /etc/init.d/home-fries-disable-wakeup-on-lid
 #   sudo /bin/chown root /etc/init.d/home-fries-disable-wakeup-on-lid
