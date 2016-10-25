@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.20
+# Last Modified: 2016.10.24
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -31,6 +31,11 @@ fi
 
 if [[ -f ${HOME}/.fries/lib/openshift_util.sh ]]; then
   source ${HOME}/.fries/lib/openshift_util.sh
+fi
+
+# 2016-10-24: Well, the lib/ dir sure is growing.
+if [[ -f ${HOME}/.fries/lib/docker_util.sh ]]; then
+  source ${HOME}/.fries/lib/docker_util.sh
 fi
 
 # Vendor paths (see: setup_mint17.sh)
