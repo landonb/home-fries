@@ -1,8 +1,9 @@
 # File: util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.09
+# Last Modified: 2016.10.24
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Dumping ground for unused Bash functions, apparently.
+#          2016-10-24: I'll throw a useful fcn herein, passtore-ci
 # License: GPLv3
 # vim:tw=0:ts=2:sw=2:et:norl:
 
@@ -239,6 +240,15 @@ function ensure_dropbox_running () {
     done
   fi
 } # end: ensure_dropbox_running
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+function passtore-ci () {
+  pushd ${HOME}/.password-store &> /dev/null
+  git push origin master
+  popd &> /dev/null
+  # And then pull into mobile pass repo.
+} # end: passtore-ci
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
