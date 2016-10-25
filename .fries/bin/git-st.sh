@@ -2,7 +2,7 @@
 
 # File: git-st.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.19
+# Last Modified: 2016.10.24
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Helpful `git st`, `git add -p`, and `git diff` wrapper
 #          used to hide acceptably deviant repository changes.
@@ -93,7 +93,11 @@ prepare_grep_exclude () {
     diff ${ref_file} ${file_path} &> /dev/null
     if [[ $? -eq 0 ]]; then
       # The tracked file matches an approved divergent file.
-      GREP_EXCLUDE="${GREP_EXCLUDE} | grep -v \"${ref_file}\""
+      # 2016-10-24: Because of color, line ends: .[m | 1B 5B 6D 0A
+      # Also need -P to use line termination match$.
+      GREP_EXCLUDE="${GREP_EXCLUDE} |
+        grep -P -v \"${ref_file}$\" |
+        grep -P -v \"${ref_file}\x1B\x5B\x6D$\""
     else
       # The tracked file doesn't match, so make sure it's dirty
       # and that `git status` shows it, otherwise gripe about it.
@@ -258,11 +262,35 @@ show_extended_git_st () {
     echo
     echo "git diff ${DIFFABLES[@]}"
     echo
+    echo "git status \${GREP_EXCLUDE}"
+    echo
+    echo "git status ${GREP_EXCLUDE}"
+    echo
   fi
+  #   On branch feature/blah
+  #   Your branch is ahead of 'origin/master' by 25 commits.
+  #     (use "git push" to publish your local commits)
+  #   Changes not staged for commit:
+  #     (use "git add <file>..." to update what will be committed)
+  #     (use "git checkout -- <file>..." to discard changes in working directory)
+  #
+  #   	modified:   some/file
+  #
+  #   Untracked files:
+  #     (use "git add <file>..." to include in what will be committed)
+  #
+  #   	another/file
+  #
+  #   no changes added to commit (use "git add" and/or "git commit -a")
 
   eval "git status ${GREP_EXCLUDE}"
+
   # We can remove newlines with GREP_EXCLUDE or with sed.
   #eval "git status ${GREP_EXCLUDE}" | /bin/sed '/^\s*$/d'
+
+  # 2016-10-24: Text colors make word and line boundaries harder to detect.
+  #stripcolors='/bin/sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"'
+  #eval "git status | ${stripcolors} ${GREP_EXCLUDE}"
 
   #echo
 
