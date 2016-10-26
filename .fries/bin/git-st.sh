@@ -2,7 +2,7 @@
 
 # File: git-st.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.24
+# Last Modified: 2016.10.26
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Helpful `git st`, `git add -p`, and `git diff` wrapper
 #          used to hide acceptably deviant repository changes.
@@ -71,9 +71,21 @@ if [[ -z ${GIT_ST_ADDP} ]]; then
   GIT_ST_ADDP=false;
 fi
 
+if [[ -f ${HOME}/.fries/lib/git_util.sh ]]; then
+  source ${HOME}/.fries/lib/git_util.sh
+else
+  echo "FATAL: Missing: ${HOME}/.fries/lib/git_util.sh"
+fi
+
 GREP_EXCLUDE=''
 DIVERGENTS=()
 prepare_grep_exclude () {
+
+  # Get the prefix to the parent directory so we can match the
+  # relative path backing-up, so that these fcns. can run from
+  # a repo subdirectory.
+  find_git_parent
+  # sets: REL_PREFIX
 
   # In lieu of fiddling if IFS=$'\n' or IFS=$'\0' or whatever,
   # we could do a find-pipe-read.
@@ -86,10 +98,20 @@ prepare_grep_exclude () {
 
   # But maybe using Bash's globstar is a more-better method.
   shopt -s globstar
-  for file_path in **/*.${SPECIAL_EXT}; do
+  for file_path in ${REL_PREFIX}**/*.${SPECIAL_EXT}; do
+    #echo "GTSTOK file_path: ${file_path}"
+
+    if [[ ${file_path} == "**/*.${SPECIAL_EXT}" ]]; then
+      # Nothing found.
+      echo "Nothing GTSTOK found."
+      break
+    fi
+
     ref_file=${file_path%%.${SPECIAL_EXT}}
     #echo "file_path: ${file_path} / ref_file: $ref_file"
+
     #echo "diff ${ref_file} ${file_path}"
+
     diff ${ref_file} ${file_path} &> /dev/null
     if [[ $? -eq 0 ]]; then
       # The tracked file matches an approved divergent file.
@@ -149,7 +171,7 @@ prepare_diffables () {
       | tr '\n' ' ' \
       | /bin/sed -r 's/[\x01-\x1F\x7F]\[m//g' \
   "
-  #echo "eval \"${GIT_ST_CMD}\""
+  #echo "${GIT_ST_CMD}"
   DIFFABLES=$(eval "${GIT_ST_CMD}")
   # Make an array by splitting on the spaces we made from the newlines.
   # CAVEAT: There's probably a way to allow spaces in paths (ew! I know)

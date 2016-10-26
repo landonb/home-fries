@@ -19,8 +19,13 @@ fi
 find_git_parent () {
   FILE_PATH=$1
   #echo "find_git_parent: FILE_PATH: ${1}"
+  if [[ -z ${FILE_PATH} ]]; then
+    # Assume curdir, I suppose.
+    FILE_PATH="."
+  fi
   # Crap, if symlink, blows up, because prefix of git status doesn't match.
   REL_PATH="$(dirname ${FILE_PATH})"
+  REL_PREFIX=""
   #echo "find_git_parent: REL_PATH/2: ${REL_PATH}"
   DOUBLE_DOWN=false
   if [[ ${REL_PATH} == '.' ]]; then
@@ -40,13 +45,17 @@ find_git_parent () {
       else
         ABS_PATH="$(readlink -f ${REL_PATH})"
         if [[ ${ABS_PATH} == '/' ]]; then
-          echo "WARNING: find_git_parent: No parent found for ${FILE_PATH}"
+          #echo "WARNING: find_git_parent: No parent found for ${FILE_PATH}"
           break
         fi
         REL_PATH=../${REL_PATH}
+        REL_PREFIX=../${REL_PREFIX}
       fi
     fi
   done
+  #echo "find_git_parent: REPO_PATH: ${REPO_PATH}"
+  #echo "find_git_parent: REL_PATH: ${REL_PATH}"
+  #echo "find_git_parent: REL_PREFIX: ${REL_PREFIX}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
