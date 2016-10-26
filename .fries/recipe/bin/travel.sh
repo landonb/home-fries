@@ -210,23 +210,23 @@ function soups_on () {
 
   while [[ "$1" != "" ]]; do
     case $1 in
-			-h)
+      -h)
         ASKED_FOR_HELP=true
-				shift
-				;;
-			--help)
+        shift
+        ;;
+      --help)
         ASKED_FOR_HELP=true
-				shift
-				;;
-			-\?)
+        shift
+        ;;
+      -\?)
         # Need the escape the ? or it hits any single character option.
         ASKED_FOR_HELP=true
-				shift
-				;;
-			help)
+        shift
+        ;;
+      help)
         ASKED_FOR_HELP=true
-				shift
-				;;
+        shift
+        ;;
       chase_and_face)
         set_travel_cmd "chase_and_face"
         shift
@@ -310,23 +310,23 @@ function soups_on () {
         TAR_VERBOSE="v"
         shift
         ;;
-			-d)
-				STAGING_DIR=$2
-				shift 2
-				;;
-			-d=?*)
-				STAGING_DIR=${1#-d=}
-				shift
-				;;
-			--staging)
-				STAGING_DIR=$2
-				shift 2
-				;;
-			--staging=?*)
-				STAGING_DIR=${1#--staging=}
-				shift
-				;;
-			*)
+      -d)
+        STAGING_DIR=$2
+        shift 2
+        ;;
+      -d=?*)
+        STAGING_DIR=${1#-d=}
+        shift
+        ;;
+      --staging)
+        STAGING_DIR=$2
+        shift 2
+        ;;
+      --staging=?*)
+        STAGING_DIR=${1#--staging=}
+        shift
+        ;;
+      *)
         UNKNOWN_ARG=true
         echo "ERROR: Unrecognized argument: $1"
         shift
