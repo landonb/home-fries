@@ -1,6 +1,6 @@
 # File: .fries/lib/docker_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.24
+# Last Modified: 2016.10.25
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Docker Helpers: I'm new to Docker, Fall, 2016. These are my bash.
 # License: GPLv3

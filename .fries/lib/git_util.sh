@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.24
+# Last Modified: 2016.10.26
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -151,6 +151,11 @@ function git_commit_all_dirty_files () {
     # by a generic `git add -u` -- in fact, git should complain.
     #
     # So auto-commit works on existing git files, but not on new ones.
+    #
+    # (However, `git add --all` adds untracked files, but rather than
+    # automate this, don't. Because user might really want to update
+    # .gitignore instead, or might still be considering where an un-
+    # tracked file should reside.)
 
     # Also, either grep pattern should work:
     #
