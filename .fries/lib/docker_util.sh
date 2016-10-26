@@ -62,8 +62,42 @@ docker_ps () {
 
 }
 
-# 2016-10-26: This fcn. probably won't be used.
+docker_kill_tails_jobs () {
+  # Someone else's solution is to use the ``jobs`` command,
+  # which only works from the terminal in which you created
+  # the background tasks. But if that terminal is blasting
+  # away with log info, you won't be able to see what you're
+  # typing, will you?
+  echo
+  echo "Stopping tails $(jobs -p | tr '\n' ' ')"
+  echo "..."
+  # Using `sh -c` so that if some have exited, that error will
+  # not prevent further tails from being killed.
+  jobs -p | tr '\n' ' ' | xargs -I % sh -c "kill % || true"
+  echo "Done"
+}
+
+docker_kill_tails_ps () {
+  # It's better to use `ps` and just kill all `dockers logs` commands.
+  #proc_ids=$(ps aux | grep "docker logs -f" | awk '{print $2}')
+  proc_ids=$(ps aux | grep "docker logs" | awk '{print $2}')
+  echo -e "proc_ids: \n${proc_ids}"
+  if [[ "$proc_ids" != "" ]]; then
+    echo $proc_ids | xargs kill -s 9 >/dev/null 2>&1
+  fi
+}
+
+alias docker_kill_tails_ps="docker_kill_tails"
+
 docker_logs_all () {
+
+  # Wait for user to Ctrl-C the fcn. to stop logging
+  # (otherwise, since we background all the jobs, user
+  # would have to call docker_kill_tails from the same
+  # terminal window, or docker_kill_tails_ps from any
+  # terminal window).
+  # https://en.wikipedia.org/wiki/Unix_signal#SIGINT
+  trap docker_kill_tails_jobs SIGINT
 
   # Here's a nifty trick to background multiple `docker logs -f` commands
   # so that you can interleave messages from multiple containers inside 1
@@ -88,42 +122,17 @@ docker_logs_all () {
     #eval "docker logs -f --tail=5 \"$name\" | sed -e \"s/^/[-- $name --] /\" &"
     eval "docker logs -f --tail=100 \"$name\" | sed -e \"s/^/[-- $name --] /\" &"
   done <<< "$names"
-}
 
-# 2016-10-26: This fcn. probably won't be used.
-docker_kill_tails () {
-  if false; then
-    # Someone else's solution is to use the ``jobs`` command,
-    # which only works from the terminal in which you created
-    # the background tasks. But if that terminal is blasting
-    # away with log info, you won't be able to see what you're
-    # typing, will you?
-    echo
-    echo "Stopping tails $(jobs -p | tr '\n' ' ')"
-    echo "..."
-    # Using `sh -c` so that if some have exited, that error will
-    # not prevent further tails from being killed.
-    jobs -p | tr '\n' ' ' | xargs -I % sh -c "kill % || true"
-    echo "Done"
+  # Don't exit this script until a Ctrl+C or all tails exit.
+  wait
 
-    # Another solution might be to trap Ctrl-C
-    #
-    # E.g., above, do
-    #
-    #   trap docker_kill_tails EXIT
-    #
-    # And then, below, wait.
-    #
-    #   # Don't exit this script until a Ctrl+C or all tails exit.
-    #   wait
-  fi
+  trap - SIGINT
 
-  # It's better to use `ps` and just kill all `dockers logs` commands.
-  #proc_ids=$(ps aux | grep "docker logs -f" | awk '{print $2}')
-  proc_ids=$(ps aux | grep "docker logs" | awk '{print $2}')
-  echo -e "proc_ids: \n${proc_ids}"
-  if [[ "$proc_ids" != "" ]]; then
-    echo $proc_ids | xargs kill -s 9 >/dev/null 2>&1
-  fi
+  # Sleep for a second while the jobs exit.
+  # Each one spits of its death, e.g.,
+  #  [2]   Done    docker logs -f --tail=100 ...
+  # which come after the prompt and clutter up
+  # the terminal unless we sleep and then finish.
+  sleep 1
 }
 
