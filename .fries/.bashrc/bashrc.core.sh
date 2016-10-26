@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.24
+# Last Modified: 2016.10.25
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -1260,7 +1260,10 @@ termdo-all () {
         # And then this is the obvious:
 
         # Oh, wait, the type and key commands take a window argument...
-        xdotool type --window $winid $*
+        # NOTE: Without the quotes, e.g., xdotool type --window $winid $*,
+        #       you'll have issues, e.g., xdotool sudo -K
+        #       shows up in terminals as, sudo-K: command not found
+        xdotool type --window $winid "$*"
         # Note that 'type' isn't always good with newlines, so use 'key'.
         xdotool key --window $winid Return
       fi
