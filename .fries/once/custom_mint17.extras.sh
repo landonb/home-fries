@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.25
+# Last Modified: 2016.10.26
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -3122,6 +3122,31 @@ stage_4_install_docker () {
   popd &> /dev/null
 
 } # end: stage_4_install_docker
+
+stage_4_install_docker_compose () {
+
+  stage_announcement "stage_4_install_docker_compose"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # See first stage_4_install_docker.
+
+  DC_BIN="docker-compose-`uname -s`-`uname -m`"
+  DC_REMOTE="https://github.com/docker/compose/releases/download/1.9.0-rc1/"
+  #curl -L ${DC_REMOTE}/${DC_BIN} | sudo tee /usr/local/bin/docker-compose
+  wget -N ${DC_REMOTE}/${DC_BIN}
+  #sudo cp -a ${DC_BIN} /usr/local/bin/docker-compose
+  #sudo chmod +x /usr/local/bin/docker-compose
+  chmod +x ${DC_BIN}
+  /bin/ln -s ${OPT_DLOADS}/${DC_BIN} ${OPT_BIN}/docker-compose
+
+  # 2016-10-25:
+  docker-compose --version
+  #docker-compose version: 1.8.1
+
+  popd &> /dev/null
+
+} # end: stage_4_install_docker_compose
 
 stage_4_git_latest () {
 
