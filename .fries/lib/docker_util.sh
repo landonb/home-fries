@@ -63,14 +63,9 @@ docker_ps () {
 }
 
 docker_kill_tails_jobs () {
-  # Someone else's solution is to use the ``jobs`` command,
-  # which only works from the terminal in which you created
-  # the background tasks. But if that terminal is blasting
-  # away with log info, you won't be able to see what you're
-  # typing, will you?
-  echo
-  echo "Stopping tails $(jobs -p | tr '\n' ' ')"
-  echo "..."
+  # Kill all background jobs. Works only from terminal/session/shell
+  # in which the jobs were created, naturally.
+  echo "Stopping tails: $(jobs -p | tr '\n' ' ')"
   # Using `sh -c` so that if some have exited, that error will
   # not prevent further tails from being killed.
   jobs -p | tr '\n' ' ' | xargs -I % sh -c "kill % || true"
@@ -78,7 +73,7 @@ docker_kill_tails_jobs () {
 }
 
 docker_kill_tails_ps () {
-  # It's better to use `ps` and just kill all `dockers logs` commands.
+  # Kill all `docker logs` processes.
   #proc_ids=$(ps aux | grep "docker logs -f" | awk '{print $2}')
   proc_ids=$(ps aux | grep "docker logs" | awk '{print $2}')
   echo -e "proc_ids: \n${proc_ids}"
@@ -90,6 +85,13 @@ docker_kill_tails_ps () {
 alias docker_kill_tails_ps="docker_kill_tails"
 
 docker_logs_all () {
+  # Docker default logging is to write application stdout to a file
+  # somewhere (in JSON format, apparently) that you can view using
+  # `docker logs`. This fcn. tails all running containers' logs
+  # until you Ctrl-C to stop it. Note the `trap` trick, since docker
+  # only lets you tail one log per process. So we just shove a bunch
+  # of processes into the background and let their outputs flow up
+  # and interleave in one terminal window.
 
   # Wait for user to Ctrl-C the fcn. to stop logging
   # (otherwise, since we background all the jobs, user
