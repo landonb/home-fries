@@ -1973,6 +1973,10 @@ disable_wakeup_on_lid () {
 #       gsettings get org.gnome.desktop.lockdown disable-lock-screen
 #         is false already!
 lock_screensaver_and_power_suspend () {
+
+  # 2016-10-25: Heck, why not! At least show some semblance of not being a complete idiot.
+  termdo-all sudo -K
+
   source /etc/lsb-release
   if [[ ${DISTRIB_CODENAME} = 'xenial' || ${DISTRIB_CODENAME} = 'sarah' ]]; then
     gnome-screensaver-command --lock && \
