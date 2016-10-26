@@ -2001,6 +2001,22 @@ alias qqq="lock_screensaver_and_power_suspend"
 
 #########################
 
+# 2016-10-25: See stage_4_password_store
+# Apparently not always so sticky.
+# E.g., just now,
+#   $ pass blah/blah
+#   gpg: WARNING: The GNOME keyring manager hijacked the GnuPG agent.
+#   gpg: WARNING: GnuPG will not work properly - please configure that tool
+#                 to not interfere with the GnuPG system!
+#   gpg: problem with the agent: Invalid card
+#   gpg: decryption failed: No secret key
+# and then I got the GUI prompt and not the curses prompt.
+# So maybe we should always give this a go.
+eff_off_gkr=$(gpg-agent --daemon)
+eval "$eff_off_gkr"
+
+#########################
+
 ############################################################################
 # DONE                              DONE                              DONE #
 ############################################################################
