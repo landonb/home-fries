@@ -56,8 +56,8 @@
 .fries/once/fries-setup-stage.num
 .fries/once/fries-setup-mysql.pwd
 #!.fries/once/archive/*
-#!.fries/once/assets/*
-!.fries/once/assets/applications-boardgames-21x21.png
+!.fries/once/assets/*
+#!.fries/once/assets/applications-boardgames-21x21.png
 !.fries/once/target/*
 !.fries/once/target/common/*
 !.fries/once/target/common/etc/*
