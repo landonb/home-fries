@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.25
+# Last Modified: 2016.10.26
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -1866,6 +1866,7 @@ man() {
 #             Python propagating to Bash, which didn't usedta happen.
 #             So now force user to type `exit` to close Bash terminal.
 # 2016-09-23: Title better: Prevent Ctrl-D from exiting shell.
+# When you Ctrl-D, you'll see: `Use "exit" to leave the shell.`
 export IGNOREEOF=9999999
 
 # 2016-09-24: Seriously? This is what's been hounding me forever?
