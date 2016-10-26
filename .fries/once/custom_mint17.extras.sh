@@ -3631,6 +3631,46 @@ stage_4_go_get_crap () {
 
 } # end: stage_4_go_get_crap
 
+stage_4_install_fluentd_er_td_agent () {
+
+  stage_announcement "stage_4_install_fluentd_er_td_agent"
+
+  # http://docs.fluentd.org/articles/install-by-deb
+
+  # 2016-10-25: Following comments and code were cribbed from:
+  #
+  #   curl -L https://toolbelt.treasuredata.com/sh/install-ubuntu-trusty-td-agent2.sh
+  #
+  # - [lb]
+
+  # run inside sudo
+  sudo sh <<SCRIPT
+    curl https://packages.treasuredata.com/GPG-KEY-td-agent | apt-key add -
+
+    # add treasure data repository to apt
+    echo "deb http://packages.treasuredata.com/2/ubuntu/trusty/ trusty contrib" \
+      > /etc/apt/sources.list.d/treasure-data.list
+
+    # update your sources
+    apt-get update
+
+    # install the toolbelt
+    apt-get install -y --force-yes td-agent
+SCRIPT
+
+  # To start the engine:
+  #   sudo /etc/init.d/td-agent restart
+  #   sudo /etc/init.d/td-agent status
+
+  # See logs at:
+  #   tail -f /var/log/td-agent/td-agent.log
+  # and test via http:
+  #   curl -X POST -d 'json={"json":"message"}' http://localhost:8888/debug.test
+
+  popd &> /dev/null
+
+} # end: stage_4_install_fluentd_er_td_agent
+
 stage_4_fcn_template () {
 
   stage_announcement "stage_4_fcn_template"
@@ -3796,6 +3836,8 @@ setup_customize_extras_go () {
 
   stage_4_install_docker
 
+  stage_4_install_docker_compose
+
   stage_4_git_latest
 
   stage_4_openshift_client
@@ -3823,6 +3865,10 @@ setup_customize_extras_go () {
   #  stage_4_download_log4sh
 
   stage_4_go_get_crap
+
+  # Docker container logger collector.
+  # 2016-10-26: I'll stick to the syslog logger for now.
+  #stage_4_install_fluentd_er_td_agent
 
   # Add before this'n: stage_4_fcn_template.
 
