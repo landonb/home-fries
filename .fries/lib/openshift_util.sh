@@ -28,7 +28,7 @@ oc-rsh-mysql () {
 
     # Only call get pods if MYSQL_POD not set, or if connect fails.
     refreshed_pod_name=false
-    if [[ -z ${MYSQL_POD+x} ]]; then
+    if [[ -z ${MYSQL_POD} ]]; then
         MYSQL_POD=$(oc get pods | grep "^mysql-" | awk '{print $1}')
         refreshed_pod_name=true
     fi
@@ -66,7 +66,7 @@ oc-rsh-mysql () {
     fi
 
     if [[ -n ${MYSQL_POD} ]]; then
-        export ${MYSQL_POD}
+        export MYSQL_POD=${MYSQL_POD}
     fi
 
 }
