@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.26
+# Last Modified: 2016.10.27
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -2013,8 +2013,11 @@ alias qqq="lock_screensaver_and_power_suspend"
 #   gpg: decryption failed: No secret key
 # and then I got the GUI prompt and not the curses prompt.
 # So maybe we should always give this a go.
-eff_off_gkr=$(gpg-agent --daemon)
-eval "$eff_off_gkr"
+ps -C gpg-agent &> /dev/null
+if [[ $? -ne 0 ]]; then
+  eff_off_gkr=$(gpg-agent --daemon)
+  eval "$eff_off_gkr"
+fi
 
 #########################
 
