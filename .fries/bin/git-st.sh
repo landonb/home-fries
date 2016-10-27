@@ -2,7 +2,7 @@
 
 # File: git-st.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.26
+# Last Modified: 2016.10.27
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Helpful `git st`, `git add -p`, and `git diff` wrapper
 #          used to hide acceptably deviant repository changes.
@@ -62,6 +62,15 @@
 #
 #                 # assuming the location of git-st.sh is also part of PATH.
 
+# FIXME: git-st not working on files under a subpath (uncles okay, though).
+#        E.g., consider a file at repo/subdir/some_file.GTSTOK, then
+#                cd subdir ; git-st
+#              doesn't work (because our file path is ../subdir/some_file.GTSTOK,
+#                            but the `git status` path is just some_file.GTSTOK.
+#              (This works from a cousin subdir, though, e.g.,
+#                cd different_dir ; git st
+#              works because ../subdir/some_file.GTSTOK is what `git st` says, too.)
+
 SPECIAL_EXT="GTSTOK"
 
 if [[ -z ${GIT_ST_DIFF} ]]; then
@@ -76,6 +85,13 @@ if [[ -f ${HOME}/.fries/lib/git_util.sh ]]; then
 else
   echo "FATAL: Missing: ${HOME}/.fries/lib/git_util.sh"
 fi
+
+# Enable a little more echo, if you want.
+DEBUG=false
+#DEBUG=true
+echod () {
+  ${DEBUG} && echo $*
+}
 
 GREP_EXCLUDE=''
 DIVERGENTS=()
@@ -99,7 +115,7 @@ prepare_grep_exclude () {
   # But maybe using Bash's globstar is a more-better method.
   shopt -s globstar
   for file_path in ${REL_PREFIX}**/*.${SPECIAL_EXT}; do
-    #echo "GTSTOK file_path: ${file_path}"
+    echod "GTSTOK file_path: ${file_path}"
 
     if [[ ${file_path} == "**/*.${SPECIAL_EXT}" ]]; then
       # Nothing found.
@@ -108,9 +124,9 @@ prepare_grep_exclude () {
     fi
 
     ref_file=${file_path%%.${SPECIAL_EXT}}
-    #echo "file_path: ${file_path} / ref_file: $ref_file"
+    echod "file_path: ${file_path} / ref_file: $ref_file"
 
-    #echo "diff ${ref_file} ${file_path}"
+    echod "diff ${ref_file} ${file_path}"
 
     diff ${ref_file} ${file_path} &> /dev/null
     if [[ $? -eq 0 ]]; then
@@ -143,7 +159,7 @@ prepare_grep_exclude () {
   # We can remove newlines here, with grep, or later with sed.
   GREP_EXCLUDE="${GREP_EXCLUDE} | grep -v \"^$\""
 
-  #echo "GREP_EXCLUDE: ${GREP_EXCLUDE}"
+  echod "GREP_EXCLUDE: ${GREP_EXCLUDE}"
 }
 prepare_grep_exclude
 
@@ -171,7 +187,7 @@ prepare_diffables () {
       | tr '\n' ' ' \
       | /bin/sed -r 's/[\x01-\x1F\x7F]\[m//g' \
   "
-  #echo "${GIT_ST_CMD}"
+  echod "${GIT_ST_CMD}"
   DIFFABLES=$(eval "${GIT_ST_CMD}")
   # Make an array by splitting on the spaces we made from the newlines.
   # CAVEAT: There's probably a way to allow spaces in paths (ew! I know)
@@ -179,7 +195,7 @@ prepare_diffables () {
   #         So we use `tr` to make spaces and then Internal field separator
   #         to split the string into an array of strings.
   IFS=' ' read -ra DIFFABLES <<< "$DIFFABLES"
-  #echo "No. of \$DIFFABLES: ${#DIFFABLES[@]}"
+  echod "No. of \$DIFFABLES: ${#DIFFABLES[@]}"
   # 2016-05-27: I fixed a difficult problem, finally!
   #
   #   - I spent, what, this past hour tonight on this? Or maybe even 90 minutes.
@@ -279,7 +295,7 @@ show_extended_git_st () {
   # Given git-diff, printing out the diffables doesn't seem necessary;
   # 2016-08-15: and [lb] has copy-pasted this information in a very,
   # very log time.
-  if false; then
+  if ${DEBUG}; then
     echo "git diff \${DIFFABLES[@]}"
     echo
     echo "git diff ${DIFFABLES[@]}"
@@ -314,7 +330,7 @@ show_extended_git_st () {
   #stripcolors='/bin/sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"'
   #eval "git status | ${stripcolors} ${GREP_EXCLUDE}"
 
-  #echo
+  echod
 
   print_divergents
 }
