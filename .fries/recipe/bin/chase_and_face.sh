@@ -1,5 +1,5 @@
 #!/bin/bash
 #SCRIPT_DIR=$(pwd -P)
 SCRIPT_DIR="$(dirname ${BASH_SOURCE[0]})"
-${SCRIPT_DIR}/travel.sh chase_and_face $*
+${SCRIPT_DIR}/travel chase_and_face $*
 
