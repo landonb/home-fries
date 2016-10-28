@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016.10.25
+# Last Modified: 2016.10.27
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
@@ -1545,6 +1545,9 @@ function update_hamster_db () {
           LATEST_HAMMY="${candidate}"
         fi
       done
+      # FIXME/2016-10-27: Weird. After an unpack at home, the older
+      # hamster-larry.db was touched somehow and shows up newer than. dahfuh?
+      echo "LATEST_HAMMY: ${LATEST_HAMMY}"
 
       if [[ -n ${LATEST_HAMMY} ]]; then
         echo
