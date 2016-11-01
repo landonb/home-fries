@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.27
+# Last Modified: 2016.10.30
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -669,7 +669,7 @@ git-jockey () {
     #echo "Checking single dirty files..."
     for ((i = 0; i < ${#TOPLEVEL_COMMON_FILE[@]}; i++)); do
       DIRTY_BNAME=$(basename ${TOPLEVEL_COMMON_FILE[$i]})
-      if [[ -f $REPO_PATH/.agignore ]]; then
+      if [[ -f $REPO_PATH/${DIRTY_BNAME} ]]; then
         echo "Checking ${DIRTY_BNAME}"
         AUTO_COMMIT_FILES=true \
           git_commit_generic_file \

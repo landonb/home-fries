@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.26
+# Last Modified: 2016.10.29
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -3372,6 +3372,7 @@ stage_4_go_delve_debugger () {
   mkdir ${HOME}/.gopath
   export GOPATH=${HOME}/.gopath
 
+# FIXME/2016-10-29: Is this necessary? Doesn't `make install` do this?
   mkdir -p ${HOME}/.gopath/src/github.com/derekparker
 
   pushd ${HOME}/.gopath/src/github.com/derekparker &> /dev/null

@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.27
+# Last Modified: 2016.10.30
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -1737,6 +1737,7 @@ umount_guard () {
 
 if [[ -d ${HOME}/.fries/bin/completions ]]; then
   # 2016-06-28: Currently just ./termdub_completion.
+  # 2016-10-30: Now with `exo` command completion.
   source ${HOME}/.fries/bin/completions/*
 fi
 
