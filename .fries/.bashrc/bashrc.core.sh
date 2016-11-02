@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.01
+# Last Modified: 2016.11.02
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -1919,49 +1919,6 @@ set +o histexpand
 
 #########################
 
-# 2016-09-26: This is just a reminder of a good way to iterate over directories.
-# I used to just change IFS, but this trick handles newlines and asterisks in paths,
-# in addition to spaces in file/directory/path names.
-#   http://unix.stackexchange.com/questions/9496/looping-through-files-with-spaces-in-the-names
-printdirsincur () {
-  find . -maxdepth 1 -type d ! -path . -print0 | while IFS= read -r -d '' file; do
-    echo "file = $file"
-  done
-}
-
-printdirsincur_better () {
-  # HA. HA. HA!
-  # http://unix.stackexchange.com/questions/272698/why-is-the-array-empty-after-the-while-loop
-  #
-  # This one avoids an issue with the '|' pipe causing a subsheel to run.
-  #
-  # Which means an environment variable you set outside the while loop, such as
-  # an array, will not be affected by whatever happens inside the while loop.
-  # So use <() instead, which causes no subshell.
-  while IFS= read -r -d '' file; do
-    echo "file = $file"
-  done < <(find . -maxdepth 1 -type d ! -path . -print0)
-}
-
-# Also remember: In Bash, to handle spaces when iterating over an array, iterate the indices.
-array_iterate_example () {
-  AN_ARR=$1
-  for ((i = 0; i < ${#AN_ARR[@]}; i++)); do
-    AN_ELEM="${AN_ARR[$i]}"
-    echo "AN_ELEM: ${AN_ELEM}"
-  done
-}
-
-associative_array_iterate_example () {
-  declare -A assoc_array
-  for i in "${!assoc_array[@]}"; do
-    echo "key  : $i"
-    echo "value: ${assoc_array[$i]}"
-  done
-}
-
-#########################
-
 # 2016-10-05: [lb] not seeing the disable-wake-on-lid action working, from:
 #
 #     ~/.fries/once/recipe/usr/lib/pm-utils/sleep.d/33disablewakeups
@@ -2072,6 +2029,49 @@ if [[ $? -ne 0 ]]; then
   eff_off_gkr=$(gpg-agent --daemon)
   eval "$eff_off_gkr"
 fi
+
+#########################
+
+# 2016-09-26: This is just a reminder of a good way to iterate over directories.
+# I used to just change IFS, but this trick handles newlines and asterisks in paths,
+# in addition to spaces in file/directory/path names.
+#   http://unix.stackexchange.com/questions/9496/looping-through-files-with-spaces-in-the-names
+printdirsincur () {
+  find . -maxdepth 1 -type d ! -path . -print0 | while IFS= read -r -d '' file; do
+    echo "file = $file"
+  done
+}
+
+printdirsincur_better () {
+  # HA. HA. HA!
+  # http://unix.stackexchange.com/questions/272698/why-is-the-array-empty-after-the-while-loop
+  #
+  # This one avoids an issue with the '|' pipe causing a subsheel to run.
+  #
+  # Which means an environment variable you set outside the while loop, such as
+  # an array, will not be affected by whatever happens inside the while loop.
+  # So use <() instead, which causes no subshell.
+  while IFS= read -r -d '' file; do
+    echo "file = $file"
+  done < <(find . -maxdepth 1 -type d ! -path . -print0)
+}
+
+# Also remember: In Bash, to handle spaces when iterating over an array, iterate the indices.
+array_iterate_example () {
+  AN_ARR=$1
+  for ((i = 0; i < ${#AN_ARR[@]}; i++)); do
+    AN_ELEM="${AN_ARR[$i]}"
+    echo "AN_ELEM: ${AN_ELEM}"
+  done
+}
+
+associative_array_iterate_example () {
+  declare -A assoc_array
+  for i in "${!assoc_array[@]}"; do
+    echo "key  : $i"
+    echo "value: ${assoc_array[$i]}"
+  done
+}
 
 #########################
 
