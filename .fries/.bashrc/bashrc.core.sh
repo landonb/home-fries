@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.30
+# Last Modified: 2016.11.01
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -2052,6 +2052,21 @@ alias qqq="lock_screensaver_and_power_suspend"
 #   gpg: decryption failed: No secret key
 # and then I got the GUI prompt and not the curses prompt.
 # So maybe we should always give this a go.
+#
+# 2016-11-01: FIXME: Broken again. I see a bunch of gpg-agents running, but GUI still pops...
+#   Didn't work:
+#    sudo dpkg-divert --local --rename \
+#      --divert /etc/xdg/autostart/gnome-keyring-gpg.desktop-disable \
+#      --add /etc/xdg/autostart/gnome-keyring-gpg.desktop\
+#   Didn't work:
+#     killall gpg-agent
+#     gpg-agent --daemon
+# What happened to pinentry-curses?
+#   Didn't work:
+#     gpg-agent --daemon > /home/landonb/.gnupg/gpg-agent-info-larry
+#     ssh-agent -k
+#     bash
+#
 ps -C gpg-agent &> /dev/null
 if [[ $? -ne 0 ]]; then
   eff_off_gkr=$(gpg-agent --daemon)
