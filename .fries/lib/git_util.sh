@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.30
+# Last Modified: 2016.11.02
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -8,6 +8,9 @@
 
 GIT_ISSUES_DETECTED=false
 export GIT_ISSUES_DETECTED
+
+GIT_ISSUES_RESOLUTIONS=()
+export GIT_ISSUES_RESOLUTIONS
 
 if [[ -z ${FAIL_ON_GIT_ISSUE+x} ]]; then
   FAIL_ON_GIT_ISSUE=false
@@ -311,14 +314,18 @@ function git_status_porcelain () {
   set -e
   if ${DIRTY_REPO}; then
     echo "STOPPING: Dirty things found in $GIT_REPO"
+    echo "========================================="
     echo
     echo "  cdd $(pwd) && git add -p"
     echo
+    echo "========================================="
     if ! ${SKIP_GIT_DIRTY}; then
       echo "Please fix. Or run with -D (skip all git warnings)"
       echo "            or run with -DD (skip warnings about $0)"
       GIT_ISSUES_DETECTED=true
       export GIT_ISSUES_DETECTED
+      GIT_ISSUES_RESOLUTIONS+=("cdd $(pwd) && git add -p")
+      export GIT_ISSUES_RESOLUTIONS
       if ${FAIL_ON_GIT_ISSUE}; then
         exit 1
       fi
@@ -362,13 +369,17 @@ function git_status_porcelain () {
         set -e
         if [[ $grep_result -ne 0 ]]; then
           echo "WARNING: Branch is behind origin/${branch_name} at $GIT_REPO"
+          echo "============================================================"
           echo
           echo "  cdd $(pwd) && git push origin ${branch_name} && popd"
           echo
+          echo "============================================================"
           if ! ${SKIP_GIT_DIRTY}; then
             echo "Please fix. Or run with -D (skip all git warnings)"
             GIT_ISSUES_DETECTED=true
             export GIT_ISSUES_DETECTED
+            GIT_ISSUES_RESOLUTIONS+=("cdd $(pwd) && git push origin ${branch_name} && popd")
+            export GIT_ISSUES_RESOLUTIONS
             if ${FAIL_ON_GIT_ISSUE}; then
               exit 1
             fi
@@ -435,13 +446,17 @@ function git_status_porcelain () {
             echo
           else
             echo "WARNING: Branch is ahead of origin/${branch_name} at $GIT_REPO"
+            echo "=============================================================="
             echo
             echo "  cdd $(pwd) && git push origin ${branch_name} && popd"
             echo
+            echo "=============================================================="
             if ! ${SKIP_GIT_DIRTY}; then
               echo "Please fix. Or run with -D (skip all git warnings)"
               GIT_ISSUES_DETECTED=true
               export GIT_ISSUES_DETECTED
+              GIT_ISSUES_RESOLUTIONS+=("cdd $(pwd) && git push origin ${branch_name} && popd")
+              export GIT_ISSUES_RESOLUTIONS
               if ${FAIL_ON_GIT_ISSUE}; then
                 exit 1
               fi

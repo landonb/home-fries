@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016.10.27
+# Last Modified: 2016.11.02
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
@@ -1191,6 +1191,15 @@ function check_repos_statuses () {
     echo "Could be dirty files, untracted files, and/or behind branches."
     echo "Please fix. Or run with -D (skip all git warnings)"
     echo "            or run with -DD (skip warnings about $0)"
+    echo
+    echo "#################"
+    echo " Give this a try "
+    echo "#################"
+    echo
+    for ((i = 0; i < ${#GIT_ISSUES_RESOLUTIONS[@]}; i++)); do
+      RESOLUTION_CMD="  ${GIT_ISSUES_RESOLUTIONS[$i]}"
+      echo "${RESOLUTION_CMD}"
+    done
     exit 1
   fi
 
