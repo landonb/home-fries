@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.29
+# Last Modified: 2016.11.02
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -3672,6 +3672,35 @@ SCRIPT
 
 } # end: stage_4_install_fluentd_er_td_agent
 
+stage_4_install_arduino () {
+
+  stage_announcement "stage_4_install_arduino"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  ARDUINO_VERS="arduino-1.6.12"
+
+  wget http://www.arduino.cc/download.php?f=/${ARDUINO_VERS}-linux64.tar.xz
+
+  /bin/mv -f \
+    "download.php?f=%2F${ARDUINO_VERS}-linux64.tar.xz" \
+    "${ARDUINO_VERS}-linux64.tar.xz"
+
+  tar xvf arduino-1.6.12-linux64.tar.xz
+
+  cd arduino-1.6.12
+
+  ./install.sh
+  # "Adding desktop shortcut, menu item and file associations for Arduino IDE... done!"
+
+  # Fix it so normal users can hook US port (otherwise you have to `sudo arduino`, blech).
+  sudo usermod -a -G dialout $USER
+  sudo chmod a+rw /dev/ttyACM0
+
+  popd &> /dev/null
+
+} # end: stage_4_install_arduino
+
 stage_4_fcn_template () {
 
   stage_announcement "stage_4_fcn_template"
@@ -3870,6 +3899,8 @@ setup_customize_extras_go () {
   # Docker container logger collector.
   # 2016-10-26: I'll stick to the syslog logger for now.
   #stage_4_install_fluentd_er_td_agent
+
+  stage_4_install_arduino
 
   # Add before this'n: stage_4_fcn_template.
 
