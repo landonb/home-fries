@@ -836,6 +836,49 @@ setup_private_update_db_conf () {
   fi
 } # end: setup_private_update_db_conf
 
+locate_and_clone_missing_repo () {
+  check_repo=$1
+  remote_orig=$2
+  echod "  CHECK: ${check_repo}"
+  echod "   REPO: ${remote_orig}"
+  if [[ -d ${check_repo} ]]; then
+    if [[ -d ${check_repo}/.git ]]; then
+      echo "  EXISTS: ${check_repo}"
+    else
+      echo
+      echo "WARNING: Where's .git/ ? at: ${check_repo}"
+      echo "   REPO: ${remote_orig}"
+      echo
+    fi
+  else
+    echo "  MISSING: ${check_repo}"
+    echo "     REPO: ${remote_orig}"
+    parent_dir=$(dirname ${check_repo})
+    if [[ -d ${parent_dir} ]]; then
+      echo "           fetching!"
+      pushd ${parent_dir} &> /dev/null
+      git clone ${remote_orig}
+      popd &> /dev/null
+    else
+      echo
+      echo "WARNING: repo path not ready: ${check_repo} / because not dir: ${parent_dir}"
+      echo
+    fi
+  fi
+} # end: locate_and_clone_missing_repo
+
+locate_and_clone_missing_repos () {
+  if [[ ${#GIT_REPO_SEEDS[@]} -gt 0 ]]; then
+    #echo "No. of GIT_REPO_SEEDS: ${#GIT_REPO_SEEDS[@]}"
+    for key in "${!GIT_REPO_SEEDS[@]}"; do
+      #echo "key  : $key"
+      #echo "value: ${GIT_REPO_SEEDS[$key]}"
+      locate_and_clone_missing_repo $key ${GIT_REPO_SEEDS[$key]}
+    done
+  fi
+
+} # end: locate_and_clone_missing_repos
+
 function chase_and_face () {
 
   #echo
