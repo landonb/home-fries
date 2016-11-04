@@ -424,7 +424,11 @@ function soups_on () {
 
   echod
   #echo "Two-way travel directory: ${TRAVEL_DIR}"
-  echo "Two-way travel directory: ${EMISSARY}"
+  if [[ -z ${EMISSARY} && ${DETERMINE_TRAVEL_DIR} == false ]]; then
+    echo "Two-way travel directory: ${EMISSARY} [not needed for this command]"
+  else
+    echo "Two-way travel directory: ${EMISSARY}"
+  fi
   echo "One-way unpack (staging): ${STAGING_DIR}"
 
   if [[ -n ${TRAVEL_CMD} && ${UNKNOWN_ARG} = false ]]; then
@@ -787,7 +791,7 @@ setup_private_anacron () {
   if [[ -e ${USERS_CURLY}/master_chef ]]; then
     if [[ -d ${USERS_CURLY}/home/.anacron ]]; then
       if [[ -e ~/.anacron ]]; then
-        echo "Skipping: Already exists: ~/.anacron"
+        echo "  Skipping: Already exists: ~/.anacron"
       else
         /bin/ln -sf ${USERS_CURLY}/home/.anacron ~/.anacron
       fi
@@ -834,57 +838,60 @@ setup_private_update_db_conf () {
 
 function chase_and_face () {
 
-  echo
-  echo "Refacing ~/${PRIVATE_REPO}"
+  #echo
+  echo "Refacing ~/${PRIVATE_REPO}..."
 
   if ${HAMSTERING}; then
-    echod "  killall_hamsters"
+    echo " killing hamsters"
     set +e
     #sudo killall hamster-service hamster-indicator
     killall hamster-service hamster-indicator
     set -e
   fi
 
-  echod "  setup_private_fries_bash..."
+  echo " setup_private_fries_bash..."
   setup_private_fries_bash
 
-  echod "  setup_private_curly_work"
+  echo " setup_private_curly_work"
   setup_private_curly_work
 
-  echod "  setup_private_vim_spell"
+  echo " setup_private_vim_spell"
   setup_private_vim_spell
 
-  echod "  setup_private_vim_bundle"
+  echo " setup_private_vim_bundle"
   setup_private_vim_bundle
 
-  echod "  setup_private_vim_bundle_dubs_all"
+  echo " setup_private_vim_bundle_dubs_all"
   setup_private_vim_bundle_dubs_all
 
-  echod "  setup_private_vim_bundle_dubs_edit_juice"
+  echo " setup_private_vim_bundle_dubs_edit_juice"
   setup_private_vim_bundle_dubs_edit_juice
 
-  echod "  setup_private_vim_bundle_dubs"
+  echo " setup_private_vim_bundle_dubs"
   setup_private_vim_bundle_dubs
 
-  echod "  setup_private_dot_files"
+  echo " setup_private_dot_files"
   setup_private_dot_files
 
-  echod "  setup_private_ssh_directory"
+  echo " setup_private_ssh_directory"
   setup_private_ssh_directory
 
-  echod "  setup_private_hamster_db"
+  echo " setup_private_hamster_db"
   setup_private_hamster_db
 
-  echod "  setup_private_anacron"
+  echo " setup_private_anacron"
   setup_private_anacron
 
-  echod "  setup_private_etc_fstab"
+  echo " setup_private_etc_fstab"
   setup_private_etc_fstab
 
-  echod "  setup_private_update_db_conf"
+  echo " setup_private_update_db_conf"
   setup_private_update_db_conf
 
-  echod "  user_do_chase_and_face"
+  echo " locate_and_clone_missing_repos"
+  locate_and_clone_missing_repos
+
+  echo " user_do_chase_and_face"
   # Call private fcns. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
   set +e
   command -v user_do_chase_and_face &> /dev/null
