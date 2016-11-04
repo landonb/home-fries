@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016.11.03
+# Last Modified: 2016.11.04
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
@@ -1119,6 +1119,15 @@ function update_git () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # packme
 
+function create_umount_script () {
+  echo "umount ${TRAVEL_DIR}" > ${USERS_CURLY}/cleanup.sh
+  chmod 775 ${USERS_CURLY}/cleanup.sh
+
+  # 2016-11-04: Oh, yerp.
+  echo "umount ${TRAVEL_DIR}" > ${HOME}/.fries/recipe/bin/packup.sh
+  chmod 775 ${HOME}/.fries/recipe/bin/packup.sh
+}
+
 # git_status_porcelain sets GIT_DIRTY_FILES_FOUND accordingly.
 GIT_DIRTY_FILES_FOUND=false
 
@@ -1460,8 +1469,7 @@ function packme () {
 
   fi
 
-  echo "umount ${TRAVEL_DIR}" > ${USERS_CURLY}/cleanup.sh
-  chmod 775 ${USERS_CURLY}/cleanup.sh
+  create_umount_script
 
   echo
   echo "Verify your work:"
@@ -1478,11 +1486,7 @@ function packme () {
   echo
   echo "Unstick the mount"
   echo
-  echo "  umount ${TRAVEL_DIR}"
-  echo
-  echo " a/k/a"
-  echo
-  echo " ./cleanup.sh"
+  echo "  packup"
   echo
 
   # WISHFUL_THING: Add to the tail of the Bash history.
@@ -1669,25 +1673,20 @@ function unpack () {
     user_do_unpack
   fi
 
-  echo "umount ${TRAVEL_DIR}" > ${USERS_CURLY}/cleanup.sh
-  chmod 775 ${USERS_CURLY}/cleanup.sh
+  create_umount_script
 
-  echo
-  echo "encrypted repos rebased from emissaries."
-  echo
-  echo " throwaway plaintext archives unpacked."
+  #echo
+  #echo "encrypted repos rebased from emissaries."
+  #echo
+  #echo " throwaway plaintext archives unpacked."
   echo
   echo "To locate unpacked plaintext archives:"
   echo
   echo " ll ${UNPACKERED_PATH}"
   echo
-  echo "To unmount the stick when you're done:"
+  echo "To unmount the stick when done:"
   echo
-  echo "  umount ${TRAVEL_DIR}"
-  echo
-  echo " a/k/a"
-  echo
-  echo " ./cleanup.sh"
+  echo "  packup"
   echo
 
 } # end: unpack

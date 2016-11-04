@@ -75,6 +75,7 @@
 #!.fries/recipe
 !.fries/recipe/
 !.fries/recipe/*
+#/.fries/recipe/bin/packup.sh
 
 # Ignore tags files.
 tags
