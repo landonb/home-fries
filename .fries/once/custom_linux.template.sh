@@ -7,7 +7,7 @@
 # Usage: You can either call setup_linux.sh directly
 #        to configure a new guest OS, or you can customize
 #        some options herein and then call this script.
-#        Copy custom_mint17.template.sh and customize,
+#        Copy custom_setup.template.sh and customize,
 #        and then execute it.
 
 ###########################################################

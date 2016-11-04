@@ -44,7 +44,7 @@ source ../lib/bash_base.sh
 # ------------------------------------------
 # Configuration
 
-# DEVs: Customize these options, maybe. See: custom_mint17.template.sh
+# DEVs: Customize these options, maybe. See: custom_setup.template.sh
 
 # The real or fake machine domain (e.g., "fake_domain.tld" works,
 # it'll just mask anything of the real name out there in the net).
@@ -75,7 +75,7 @@ DST_MOUNTPT=""
 # Specify groups to create. The current user will be added to
 # these groups, as will postgres and the www-data/apache user.
 # This is so you can setup a shared development environment.
-# DEVs: Add to this array in custom_mint17.sh. Each group is
+# DEVs: Add to this array in custom_linux.sh. Each group is
 # generally the name of a different project that uses different
 # resources that you want postgres and apache to be able to access,
 # per the specifics of whatever projects on which you're working.

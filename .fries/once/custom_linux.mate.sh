@@ -1,8 +1,8 @@
-# File: custom_mint17.mate.sh
+# File: custom_setup.mate.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.11
+# Last Modified: 2016.11.03
 # Project Page: https://github.com/landonb/home_fries
-# Summary: Custom Mint17 MATE Window Manage Customization.
+# Summary: Custom Linux Mint MATE Window Manage Customization.
 # License: GPLv3
 
 stage_4_wm_terminal_white_on_black () {
@@ -97,7 +97,7 @@ stage_4_wm_customize_mate_misc () {
     # then close and reopen the lid a few times.
   fi
   #
-  # 2016-10-11: See custom_mint17.extras.sh for the fer'eal solution.
+  # 2016-10-11: See custom_setup.extras.sh for the fer'eal solution.
   #
   #             #####################################
   # HERE ===>>   stage_4_install_disable_wakeup_on_lid

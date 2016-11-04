@@ -63,7 +63,7 @@ stage_4_dubsacks_install () {
   popd &> /dev/null
 
   # Dubsacks uses the Hack font.
-  source custom_mint17.extras.sh
+  source custom_linux.extras.sh
   stage_4_font_typeface_hack
   stage_4_parT_install
 
