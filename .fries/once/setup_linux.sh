@@ -1593,8 +1593,8 @@ setup_mint_17_stage_4 () {
 
   # The new hot: MATE on Mint.
   if $WM_IS_MATE; then
-    echo "Sourcing custom_linux.mate.sh"
-    source ${script_absbase}/custom_linux.mate.sh
+    echo "Sourcing custom_setup.mate.sh"
+    source ${script_absbase}/custom_setup.mate.sh
   fi
 
   # Deprecated: Author prefers Mint to Xfce or Cinnamon.
@@ -1630,7 +1630,7 @@ setup_mint_17_stage_4 () {
   if [[ ${INSTALL_ALL_PACKAGES_ANSWER} == "Y" ]]; then
     echo
     echo "Installing Extras..."
-    source ${script_absbase}/custom_linux.extras.sh
+    source ${script_absbase}/custom_setup.extras.sh
     if [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
       setup_customize_extras_go
     else
@@ -1967,7 +1967,7 @@ setup_mint_17_go () {
 if [[ "$0" == "$BASH_SOURCE" ]]; then
   # If you want to override any options but not checkin the changes to the
   # repository (e.g., add passwords to this script) use a wrapper script.
-  # See: custom_linux.template.sh
+  # See: custom_setup.template.sh
   if [[ ! -v SETUP_WRAPPERED ]]; then
     echo
     echo "Not being called by wrapper script: installing using default options."

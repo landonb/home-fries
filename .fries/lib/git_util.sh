@@ -200,6 +200,7 @@ function git_commit_all_dirty_files () {
         git commit -m "Auto-commit by Curly." &> /dev/null
         echo 'Committed!'
       fi
+      echo
     fi
     popd &> /dev/null
   else

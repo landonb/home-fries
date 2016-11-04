@@ -75,7 +75,7 @@ DST_MOUNTPT=""
 # Specify groups to create. The current user will be added to
 # these groups, as will postgres and the www-data/apache user.
 # This is so you can setup a shared development environment.
-# DEVs: Add to this array in custom_linux.sh. Each group is
+# DEVs: Add to this array in custom_setup.sh. Each group is
 # generally the name of a different project that uses different
 # resources that you want postgres and apache to be able to access,
 # per the specifics of whatever projects on which you're working.

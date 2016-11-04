@@ -1,4 +1,4 @@
-# File: custom_linux.extras.sh
+# File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
 # Last Modified: 2016.11.03
 # Project Page: https://github.com/landonb/home_fries
@@ -165,7 +165,7 @@ stage_4_meld_configure () {
 
   stage_announcement "Skipping: stage_4_meld_configure"
 
-  # Take a look at custom_linux.landon.sh for manual steps to setup meld.
+  # Take a look at custom_setup.landon.sh for manual steps to setup meld.
   # (This script could edit ~/.gconf/apps/meld/%gconf.xml but the file
   # filters are a little dependent on the user, so make the user do it.)
   :
@@ -2099,7 +2099,7 @@ stage_4_updatedb_locate_conf () {
   #
   # See: ~/.waffle/dev/${HOSTNAME}/etc
   #  I wonder where the appropriate place to do this is...
-  #  maybe a custom_linux.private.$HOSTNAME.sh type file.
+  #  maybe a custom_setup.private.$HOSTNAME.sh type file.
   #
   # Exclude backup drives, e.g.,
   # PRUNEPATHS="/tmp /var/spool /home/.ecryptfs /media/${USER}/thingy
