@@ -6,7 +6,7 @@
 # License: GPLv3
 
 # NOTE: If you're copying and pasting manually, source this guy first!:
-#         source ./mint17_setup_base.sh
+#         source ./linux_setup_base.sh
 
 # Unless you source bash_base.sh, gotta make sure some things are set.
 if [[ -z ${WM_IS_MATE+x} ]]; then
@@ -18,12 +18,12 @@ stage_4_setup_ensure_dirs () {
     #echo
     #echo "ERROR: Cannot proceed unless (OPT_BIN, OPT_DLOADS, OPT_SRC,) defined."
     #exit 1
-    if [[ ! -e ./mint17_setup_base.sh ]]; then
-      echo "Error: Expected to find ./mint17_setup_base.sh."
+    if [[ ! -e ./linux_setup_base.sh ]]; then
+      echo "Error: Expected to find ./linux_setup_base.sh."
       exit 1
     fi
     DEBUG_TRACE=false
-    source ./mint17_setup_base.sh
+    source ./linux_setup_base.sh
   fi
   /bin/mkdir -p ${OPT_DLOADS}
   /bin/mkdir -p ${OPT_BIN}

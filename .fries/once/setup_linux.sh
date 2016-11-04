@@ -82,12 +82,12 @@ source ../lib/bash_base.sh
 # ------------------------------------------
 # Configuration
 
-if [[ ! -e ./mint17_setup_base.sh ]]; then
-  echo "Error: Expected to find ./mint17_setup_base.sh."
+if [[ ! -e ./linux_setup_base.sh ]]; then
+  echo "Error: Expected to find ./linux_setup_base.sh."
   exit 1
 fi
 DEBUG_TRACE=false
-source ./mint17_setup_base.sh
+source ./linux_setup_base.sh
 # This sets a bunch of environment variables shared by the setup scripts.
 # E.g.:
 #   USE_DOMAIN

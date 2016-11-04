@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# File: mint17_setup_base.sh
+# File: linux_setup_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
 # Last Modified: 2016.11.03
 # Project Page: https://github.com/landonb/home_fries
