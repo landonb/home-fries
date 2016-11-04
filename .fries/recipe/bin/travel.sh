@@ -1472,19 +1472,16 @@ function packme () {
   create_umount_script
 
   echo
-  echo "Verify your work:"
+  echo "Plaintext on the stick:"
   echo
-  echo "  ll ${EMISSARY}"
   echo "  ll ${PLAINPATH}"
-  echo "  ll ${EMISSARY}/plain-*"
   echo
-  echo "  $0 mount"
+  echo "Encfs-git on the stick:"
+  echo
   echo "  ll ${EMISSARY}/gooey"
-  echo "  $0 umount"
   echo
-  echo "  ll ${STAGING_DIR}/${PRIVATE_REPO_}-unpackered"
-  echo
-  echo "Unstick the mount"
+  echo "Unmount by your command:"
+  # The Cylons said it first.
   echo
   echo "  packup"
   echo
