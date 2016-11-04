@@ -1482,8 +1482,8 @@ function packme () {
   echo "  ll ${EMISSARY}/gooey"
   echo "  travel umount"
   echo
-  echo "Unmount by your command:"
   # The Cylons said it first.
+  echo "Unmount by your command:"
   echo
   echo "  packup"
   echo
