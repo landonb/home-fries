@@ -1478,7 +1478,9 @@ function packme () {
   echo
   echo "Encfs-git on the stick:"
   echo
+  echo "  travel mount"
   echo "  ll ${EMISSARY}/gooey"
+  echo "  travel umount"
   echo
   echo "Unmount by your command:"
   # The Cylons said it first.
