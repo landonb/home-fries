@@ -305,7 +305,7 @@ Setup Home-Fries
 
   pushd ~/.fries/once/
   export INCLUDE_ADOBE_READER=false
-  ./setup_mint17.sh
+  ./setup_linux.sh
 
 Dev Hints
 =========

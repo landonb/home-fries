@@ -4,7 +4,7 @@
 ## DO NOT CHECKIN #########################################
 ###########################################################
 
-# Usage: You can either call setup_mint17.sh directly
+# Usage: You can either call setup_linux.sh directly
 #        to configure a new guest OS, or you can customize
 #        some options herein and then call this script.
 #        Copy custom_mint17.template.sh and customize,
@@ -20,7 +20,7 @@ script_absbase=`pwd $script_relbase`
 
 # Tell the setup script not to run the setup process but just to be sourced.
 SETUP_WRAPPERED=true
-source ${script_absbase}/setup_mint17.sh
+source ${script_absbase}/setup_linux.sh
 
 # Customize the setup script variables.
 # -------------------------------------

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# File: setup_mint17.sh
+# File: mint17_setup_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.09
+# Last Modified: 2016.11.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3

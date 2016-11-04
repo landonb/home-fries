@@ -3,7 +3,7 @@ A General Linux Setup Guide For Developers
 ==========================================
 
 .. Author: Landon Bouma
-.. Last Modified: 2016.09.23
+.. Last Modified: 2016.11.03
 .. Project Page: https://github.com/landonb/home_fries
 
 Overview
@@ -18,7 +18,7 @@ You can skip this guide if you've got your own
 methods for installing and configuring Linux.
 
 If you're just looking for the automated goodies,
-check out ``setup_mint17.sh`` in the same directory
+check out ``setup_linux.sh`` in the same directory
 as this file.
 
 Install Linux
@@ -241,7 +241,7 @@ customization that you like. Thankfully, you can automate the process
 with a shell script. Or you can just configure linux manually.
 
 If you'd like to see an example of a Bash script that automates
-setting up linux, see the `setup_mint17.sh <setup_mint17.sh>`__
+setting up linux, see the `setup_linux.sh <setup_linux.sh>`__
 script in the same directory as this document.
 
 - The script installs a lot of software, and it's not tested

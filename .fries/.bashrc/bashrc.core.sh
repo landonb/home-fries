@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.02
+# Last Modified: 2016.11.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -38,7 +38,7 @@ if [[ -f ${HOME}/.fries/lib/docker_util.sh ]]; then
   source ${HOME}/.fries/lib/docker_util.sh
 fi
 
-# Vendor paths (see: setup_mint17.sh)
+# Vendor paths (see: setup_linux.sh)
 #####################################
 
 OPT_DLOADS=/srv/opt/.downloads

@@ -1,6 +1,6 @@
 # File: custom_mint17.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.02
+# Last Modified: 2016.11.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -986,7 +986,7 @@ stage_4_parT_install () {
   popd &> /dev/null
   popd &> /dev/null
 
-  # Stupid message for debugging ./setup_mint17.sh.
+  # Stupid message for debugging ./setup_linux.sh
   stage_curtains "stage_4_parT_install"
 
 } # end: stage_4_parT_install
