@@ -219,6 +219,7 @@ function git_commit_all_dirty_files () {
 function git_status_porcelain () {
 
   GIT_REPO=$1
+# FIXME: Can we send assoc array as arg? For now expecting GTSTOK_GIT_REPOS
 
   #echo "GIT_REPO: ${GIT_REPO}"
 

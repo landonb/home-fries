@@ -269,36 +269,41 @@ Run Linux Configuration Script
           Otherwise, you may be interested in running a script to
           take care of everything for you.
 
-Inspect the file ``setup-mint17.sh`` that's part of this project.
+Take a look at ``once/setup_linux.sh``.
 
-The script is designed to be run three times for native machines,
-or four times for VirtualBox machines.
-There's a reboot or logout/login between each run.
+Run the script on a fresh distro install to ``apt-get``
+a ton of packages and also to ``wget``, build, and install
+a ton of other useful libraries and applications.
 
-The script installs a bunch of packages, compiles some software,
-and personalizes some Mint OS and MATE window manager behaviors.
+You'll have to logout or reboot at least once while running
+the script (because ``groups``), and you'll be asked for your
+root password at least once, but otherwise it'll chug along
+for hours and hours and set everything up.
 
-Here's a brief overview of what the script does each time it runs:
+The setup script also customizes a lot of window manager
+behavior via ``gsettings`` and ``dconf``. For wat it can't
+setup (MATE panels, for one, and web browser plugins, for
+another), refer to somewhere in one of these READMEs.
 
-   - The first time it runs, it calls ``sudo apt-get install ...``
-     and installs a lot of packages.
+Here's a brief overview of what the script does:
+
+   - Calls ``sudo apt-get install ...`` and installs a lot of packages.
      If you want to do this yourself to see what's installed,
      copy and paste from the list of packages in the function
      ``setup_mint_17_stage_1``.
 
-   - The next time it runs, the script may setup
+   - The script may setup
      `VirtualBox Guest Additions
      <https://www.virtualbox.org/manual/ch04.html>`__,
      unless you're running Linux natively.
 
-   - The second time time around (for native, or third time
-     around for virtual), the script adds the local user to some
-     groups, including ``vboxsf`` (so the user can mount
-     virtual box shared folders) if you're running VirtualBox,
-     and to the ``postgres`` and ``www-data`` groups (so the
-     user can read postgres and apache logs and can edit config files).
+   - The script adds the local user to some groups,
+     including ``vboxsf`` (so the user can mount virtual box
+     shared folders) if you're running VirtualBox, and to the
+     ``postgres`` and ``www-data`` groups (so the user can read
+     postgres and apache logs and can edit config files).
 
-   - The final step configures the window manager and some
+   - The script configures the window manager and some
      standard applications and installs additional applications
      that aren't available as aptitude packages.
 
@@ -308,9 +313,9 @@ Here's a brief overview of what the script does each time it runs:
 
      - One of the window manager tweaks, for example, is to disable that
        pesky five-minute no-activity timeout. If you leave your machine,
-       you should lock it if you care, but if you're at home and just
-       happen to take a short break, you shouldn't be bothered to unlock
-       the screen when you return to work.
+       you should lock it if you care (use the Home-fries ``qq`` command),
+       but if you're at home and just happen to take a short break, you
+       shouldn't be bothered to unlock the screen when you return to work.
 
      - Some of the tweaks:
 
@@ -350,6 +355,8 @@ Here's a brief overview of what the script does each time it runs:
 
        - Remove "Menu" text from panel (it's the button in the lower-left
          part of the screen with the Mint logo, of course it's the "Menu").
+
+       - And so much more!
 
 Setup Bash and Vim (or Your Favorite Text Editor)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
