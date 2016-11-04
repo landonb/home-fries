@@ -21,7 +21,7 @@
 #   sudo /bin/chgrp root /etc/init.d/home-fries-disable-wakeup-on-lid
 #   sudo update-rc.d home-fries-disable-wakeup-on-lid defaults
 
-disable_wakeup_on_lid () {  
+disable_wakeup_on_lid () {
   cat /proc/acpi/wakeup | grep "^LID" &> /dev/null
   if [[ $? -eq 0 ]]; then
     cat /proc/acpi/wakeup | grep "^LID" | grep disabled &> /dev/null
