@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016.11.02
+# Last Modified: 2016.11.03
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
@@ -400,6 +400,8 @@ function soups_on () {
 
   if ${DETERMINE_TRAVEL_DIR}; then
     determine_stick_dir "${PLEASE_CHOOSE_PART}"
+    # So that sync_repos.sh can use, e.g., ${EMISSARY}.
+    source "${SYNC_REPOS_PATH}"
   fi
 
   if [[ ${REQUIRES_CRAPPDWORD} && -z ${CRAPWORD} ]]; then
