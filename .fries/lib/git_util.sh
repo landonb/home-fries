@@ -508,8 +508,11 @@ function git_pull_hush () {
   if [[ -z ${SOURCE_BRANCH} ]]; then
     echo "FATAL: What?! No \$SOURCE_BRANCH for SOURCE_REPO: ${SOURCE_REPO}"
     pushd ${SOURCE_REPO} &> /dev/null
-    rebase_in_progress=$(git st | grep "^rebase in progress")
-    if ${rebase_in_progress}; then
+    set +e
+    git -c color.ui=off status | grep "^rebase in progress" > /dev/null
+    rebase_in_progress=$?
+    set -e
+    if [[ ${rebase_in_progress} -eq 0 ]]; then
       echo "Looks like a rebase is in progress"
       echo
       echo "  cdd ${SOURCE_REPO}"
@@ -577,9 +580,10 @@ function git_pull_hush () {
       | grep -v "^From .*${TARGET_REPO}$"
 # FIXME: This is untested:
     # 2016-11-05: Check afterwards to see if there was an unresolved merge conflict.
-    rebase_in_progress=$(git st | grep "^rebase in progress")
+    git -c color.ui=off status | grep "^rebase in progress" > /dev/null
+    rebase_in_progress=$?
     set -e
-    if ${rebase_in_progress}; then
+    if [[ ${rebase_in_progress} -eq 0 ]]; then
       echo
       echo "WARNING: rebase problem in ${TARGET_REPO}"
       echo
