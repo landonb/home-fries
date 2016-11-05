@@ -576,6 +576,19 @@ function git_pull_hush () {
       | grep -v "^Current branch [a-zA-Z0-9]* is up to date.$" \
       | grep -v "^From .*${TARGET_REPO}$"
     set -e
+
+# FIXME: This is untested:
+    # 2016-11-05: Check afterwards to see if there was an unresolved merge conflict.
+    rebase_in_progress=$(git st | grep "^rebase in progress")
+    if ${rebase_in_progress}; then
+      GIT_ISSUES_DETECTED=true
+      export GIT_ISSUES_DETECTED
+      GIT_ISSUES_RESOLUTIONS+=("cdd ${TARGET_REPO}")
+      export GIT_ISSUES_RESOLUTIONS
+      if ${FAIL_ON_GIT_ISSUE}; then
+        exit 1
+      fi
+    fi
   fi
 
   popd &> /dev/null
