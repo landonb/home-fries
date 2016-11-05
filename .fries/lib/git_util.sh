@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.03
+# Last Modified: 2016.11.05
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -506,11 +506,22 @@ function git_pull_hush () {
   # 2016-09-28: Being extra paranoid because if the branches don't match,
   #             pull don't care! This is really confusing/worrying to me.
   if [[ -z ${SOURCE_BRANCH} ]]; then
-    echo "FATAL: What?! No \$SOURCE_BRANCH"
+    echo "FATAL: What?! No \$SOURCE_BRANCH for SOURCE_REPO: ${SOURCE_REPO}"
+    pushd ${SOURCE_REPO} &> /dev/null
+    rebase_in_progress=$(git st | grep "^rebase in progress")
+    if ${rebase_in_progress}; then
+      echo "Looks like a rebase is in progress"
+      echo
+      echo "  cdd ${SOURCE_REPO}"
+      echo "  git rebase --abort"
+    else
+      git st
+    fi
+    popd &> /dev/null
     exit 1
   fi
   if [[ -z ${TARGET_BRANCH} ]]; then
-    echo "FATAL: What?! No \$TARGET_BRANCH"
+    echo "FATAL: What?! No \$TARGET_BRANCH for TARGET_REPO: ${TARGET_REPO}"
     exit 1
   fi
   if [[ ${SOURCE_BRANCH} != ${TARGET_BRANCH} ]]; then
