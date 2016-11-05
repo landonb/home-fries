@@ -580,6 +580,9 @@ function git_pull_hush () {
     rebase_in_progress=$(git st | grep "^rebase in progress")
     set -e
     if ${rebase_in_progress}; then
+      echo
+      echo "WARNING: rebase problem in ${TARGET_REPO}"
+      echo
       GIT_ISSUES_DETECTED=true
       export GIT_ISSUES_DETECTED
       GIT_ISSUES_RESOLUTIONS+=("travel mount && cdd ${TARGET_REPO}")

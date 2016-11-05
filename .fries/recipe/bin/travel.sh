@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016.11.04
+# Last Modified: 2016.11.05
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
@@ -1247,6 +1247,10 @@ function check_repos_statuses () {
     done < <(find ${ENCFS_GIT_ITERS[$i]} -maxdepth 1 ! -path . -print0)
   done
 
+  git_issues_review
+}
+
+function git_issues_review {
   if ${GIT_ISSUES_DETECTED}; then
     echo "FIZATAL: One or more git issues was detected. See prior log."
     echo "Could be dirty files, untracted files, and/or behind branches."
@@ -1263,7 +1267,6 @@ function check_repos_statuses () {
     done
     exit 1
   fi
-
 }
 
 # *** Git: pull
@@ -1323,7 +1326,7 @@ function pull_git_repos () {
 
   popd &> /dev/null
 
-} # end: pull_git_repos 
+} # end: pull_git_repos
 
 # *** Plaintext: archive
 
@@ -1495,6 +1498,8 @@ function packme () {
   #                it from within a script. Not even exec or eval. AFAIK.
   # 2016-09-28/TESTME/MAYBE: Could xdotool do this? Hrmm.
   #history -ps "umount ${TRAVEL_DIR}" # unfortunately, a no-op
+
+  git_issues_review
 
 } # end: packme
 
