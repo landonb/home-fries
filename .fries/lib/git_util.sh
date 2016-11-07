@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.05
+# Last Modified: 2016.11.07
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -475,6 +475,22 @@ function git_status_porcelain () {
   fi
 
 } # end: git_status_porcelain
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# git_dir_check
+
+function git_dir_check () {
+  REPO_PATH=$1
+  if [[ ! -d ${REPO_PATH} ]]; then
+    SKIP_GIT_PULL=true
+    echo
+    echo "WARNING: Not a directory: ${REPO_PATH}"
+  elif [[ ! -d ${REPO_PATH}/.git ]]; then
+    SKIP_GIT_PULL=true
+    echo
+    echo "WARNING: No .git/ found at: ${REPO_PATH}/.git"
+  fi
+}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # git_pull_hush

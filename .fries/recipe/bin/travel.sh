@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016.11.05
+# Last Modified: 2016.11.07
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
@@ -1270,19 +1270,6 @@ function git_issues_review {
 }
 
 # *** Git: pull
-
-function git_dir_check () {
-  REPO_PATH=$1
-  if [[ ! -d ${REPO_PATH} ]]; then
-    SKIP_GIT_PULL=true
-    echo
-    echo "WARNING: Not a directory: ${REPO_PATH}"
-  elif [[ ! -d ${REPO_PATH}/.git ]]; then
-    SKIP_GIT_PULL=true
-    echo
-    echo "WARNING: No .git/ found at: ${REPO_PATH}/.git"
-  fi
-}
 
 function pull_git_repos () {
 
