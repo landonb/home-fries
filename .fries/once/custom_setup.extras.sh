@@ -1,6 +1,6 @@
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.03
+# Last Modified: 2016.11.06
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -951,14 +951,22 @@ stage_4_cloc_install () {
 
   stage_announcement "stage_4_cloc_install"
 
-  pushd ${OPT_BIN} &> /dev/null
+  # 2016-11-06: This is the old way:
+  if false; then
+    pushd ${OPT_BIN} &> /dev/null
+    wget -N \
+      http://downloads.sourceforge.net/project/cloc/cloc/v1.62/cloc-1.62.pl
+    # Set the permissions so you can execute the CLI interface:
+    chmod +x ${OPT_BIN}/cloc-1.62.pl
+    popd &> /dev/null
+  fi
 
-  wget -N \
-    http://downloads.sourceforge.net/project/cloc/cloc/v1.62/cloc-1.62.pl
-
-  # Set the permissions so you can execute the CLI interface:
-  chmod +x ${OPT_BIN}/cloc-1.62.pl
-
+  # And here's the new way:
+  pushd ${OPT_DLOADS} &> /dev/null
+  git clone https://github.com/AlDanial/cloc
+  cd ${OPT_BIN} &> /dev/null
+  /bin/ln -s ${OPT_DLOADS}/cloc/cloc
+  # /bin/rm cloc-1.62.pl
   popd &> /dev/null
 
 } # end: stage_4_cloc_install
@@ -3637,6 +3645,9 @@ stage_4_install_fluentd_er_td_agent () {
   stage_announcement "stage_4_install_fluentd_er_td_agent"
 
   # http://docs.fluentd.org/articles/install-by-deb
+
+  # Fluentd td-agent, used with ELK stack (Elasticsearch, Logstash, Kibana).
+  # 2016-11-06: I don't really need this; don't use it.
 
   # 2016-10-25: Following comments and code were cribbed from:
   #
