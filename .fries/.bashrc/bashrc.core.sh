@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.03
+# Last Modified: 2016.11.08
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -2074,6 +2074,24 @@ associative_array_iterate_example () {
 }
 
 #########################
+
+touchpad_twiddle () {
+  TOUCHPAD_STATE=$1
+  if [[ $(command -v xinput > /dev/null) || $? -eq 0 ]]; then
+    DEVICE_NUM=$(xinput --list --id-only "SynPS/2 Synaptics TouchPad" 2> /dev/null)
+    if [[ -n ${DEVICE_NUM} ]]; then
+      xinput set-prop ${DEVICE_NUM} "Device Enabled" ${TOUCHPAD_STATE}
+    fi
+  fi
+}
+
+touchpad_disable () {
+  touchpad_twiddle 0
+}
+
+touchpad_enable () {
+  touchpad_twiddle 1
+}
 
 ############################################################################
 # DONE                              DONE                              DONE #
