@@ -1,6 +1,6 @@
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.06
+# Last Modified: 2016.11.11
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -1348,7 +1348,7 @@ stage_4_indirect_user_fonts () {
   pushd ${OPT_FONTS} &> /dev/null
 
   if [[ ! -e ${HOME}/.fonts ]]; then
-    if [[ -l ${HOME}/.fonts ]]; then
+    if [[ -h ${HOME}/.fonts ]]; then
       echo "Removing and replacing dead link at: ${HOME}/.fonts"
       /bin/rm ${HOME}/.fonts
     fi
