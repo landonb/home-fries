@@ -1,6 +1,6 @@
 # File: custom_setup.mate.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.03
+# Last Modified: 2016.11.11
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Custom Linux Mint MATE Window Manage Customization.
 # License: GPLv3
@@ -147,7 +147,15 @@ stage_4_wm_customize_mate_misc () {
   #     File "/usr/lib/python2.7/dist-packages/Mozo/MenuEditor.py", line 67, in save
   #       fd = open(getattr(self, menu).path, 'w')
   #   IOError: [Errno 13] Permission denied: '/home/$USER/.config/menus/mate-applications.menu'
-  sudo chown -R $USER:$USER /home/$USER/.config/menus
+  if [[ -d /home/$USER/.config/menus ]]; then
+    sudo chown -R $USER:$USER /home/$USER/.config/menus
+  else
+    # 2016-11-11: There's no ~/.config/menus on new work laptop Lenovo ThinkPad T460
+    #             except I just installed the same Mint MATE 18 Sarah on my old laptop.
+    echo
+    echo "WARNING/EXPLAIN: 2016-11-11: Where's ~/.config/menus at?"
+    echo
+  fi
 
 } # end: stage_4_wm_customize_mate_misc
 
