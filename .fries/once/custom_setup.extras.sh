@@ -5,6 +5,12 @@
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
 
+
+
+# FIXME: Make this file re-entrant!
+
+
+
 # NOTE: If you're copying and pasting manually, source this guy first!:
 #         source ./linux_setup_base.sh
 
