@@ -2,7 +2,7 @@
 
 # File: setup_linux.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.03
+# Last Modified: 2016.11.11
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -366,7 +366,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
     sudo apt-get -y dist-upgrade
 
     source /etc/lsb-release
-    if [[ $DISTRIB_ID == 'Ubuntu' ]]; then
+    if [[ $DISTRIB_ID == 'Ubuntu' || $DISTRIB_ID == 'LinuxMint' ]]; then
       # Ubuntu 16.04 LTS xenial
       sudo apt-get install -y dkms build-essential
     else
@@ -1096,6 +1096,9 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
     if [[ ${INSTALL_ALL_PACKAGES_ANSWER} == "Y" ]]; then
 
+      # 2016-10-28: On mnemosyne, error said nginx and nginx-core
+      # failed to install, and something about a dpkg error.
+      # I rebooted and all is well.
       sudo apt-get install -y ${BIG_PACKAGE_LIST[@]}
 
       source /etc/lsb-release
@@ -1143,7 +1146,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
             echo "WARNING: FAILED: BIG_DESKTOP_LIST_MINT_17"
             echo
           fi
-        else if [[ $DISTRIB_ID == 'LinuxMint' && $DISTRIB_RELEASE -ge 18 ]]; then
+        elif [[ $DISTRIB_ID == 'LinuxMint' && $DISTRIB_RELEASE -ge 18 ]]; then
           sudo apt-get install -y ${BIG_DESKTOP_LIST_MINT_18[@]}
           if [[ $? -ne 0 ]]; then
             echo
