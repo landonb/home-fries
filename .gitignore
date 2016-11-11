@@ -39,6 +39,9 @@
 .fries/.bashrc/bashrc0.*.sh
 # Implicitly still ignored: Directories under .fries/.bashrc
 
+# 2016-11-11: An indicator.
+.fries/.bashrc/disable_trackpad
+
 # EXPLAIN: Why the three path varieties? path, path/, and path/*?
 !.fries/bin
 !.fries/bin/
