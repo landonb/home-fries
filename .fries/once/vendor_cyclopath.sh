@@ -1,6 +1,6 @@
 # File: vendor_cyclopath.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.07.18
+# Last Modified: 2016.11.11
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Cyclopath IDE setup script.
 # License: GPLv3
@@ -227,7 +227,13 @@ stage_4_cyclopath_install () {
 
   # One of the sudo installs must've installed root files in the user's home
   # directory, but not to worry: it's an empty file. But fix its perms.
-  sudo chown -R $USER:$USER /home/$USER/.config/menus
+  if [[ -d /home/$USER/.config/menus ]]; then
+    sudo chown -R $USER:$USER /home/$USER/.config/menus
+  else
+    echo
+    echo "WARNING/EXPLAIN: 2016-11-11: Where's ~/.config/menus at?"
+    echo
+  fi
 
   if $MAKE_CONF_DUMPS; then
     cd ~/Downloads
