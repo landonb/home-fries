@@ -2,7 +2,7 @@
 
 # File: bash_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.09.23
+# Last Modified: 2016.11.12
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bash function library.
 # License: GPLv3
@@ -103,6 +103,25 @@ $DEBUG_TRACE && echo ""
 # Time this script
 
 script_time_0=$(date +%s.%N)
+
+# ============================================================================
+# *** Dubsacks-related
+
+# -- Local resources, downloaded. Where they go.
+
+# We could download tarchives and whatnots to ~/Downloads but so many
+# applications use the home directory anyway, it's easier to keep
+# track of our files (what we'll deliberately setup) by using our own
+# location to store downloaded files and their compiled offsprings.
+# 2016-11-12: Also, keep things off the SSD (where home lives).
+OPT_DLOADS=/srv/opt/.downloads
+OPT_BIN=/srv/opt/bin
+OPT_SRC=/srv/opt/src
+OPT_DOCS=/srv/opt/docs
+# 2016-10-10: Google's NoTo zip is nearly 500 MB, so moving .fonts off home.
+OPT_FONTS=/srv/opt/.fonts
+# 2016-11-12: Keeping stuff off the SSD.
+OPT_LARGE=/srv/opt/LARGE
 
 # ============================================================================
 # *** Apache-related

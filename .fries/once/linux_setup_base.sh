@@ -2,7 +2,7 @@
 
 # File: linux_setup_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.03
+# Last Modified: 2016.11.12
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -102,16 +102,6 @@ USE_PROJECT_PSQLGROUPS=()
 # the `staff` built-in is just fine, and it makes sense to use.
 USE_STAFF_GROUP_ASSOCIATION="staff"
 
-# -- Local resources, downloaded. Where they go.
-
-# We could download tarballs and whatnots to ~/Downloads but so many
-# applications use the home directory anyway, it's easier to keep
-# track of our files (what we'll deliberately setup) by using our own
-# location to store downloaded files and their compiled offsprings.
-OPT_BIN=/srv/opt/bin
-OPT_DLOADS=/srv/opt/.downloads
-OPT_SRC=/srv/opt/src
-
 # -- Mate with MATE (If you're gonna be here 60 hours each week, redecoRATE)
 
 # The default Mint "start menu" icon is rather drab, so give it some pazazz.
@@ -119,18 +109,6 @@ OPT_SRC=/srv/opt/src
 # the /usr/share/icons/ files and find something you like or add you own.
 if [[ -z ${USE_MINT_MENU_ICON+x} ]]; then
   USE_MINT_MENU_ICON="${script_absbase}/assets/applications-boardgames-21x21.png"
-fi
-
-# -- Mercurial setup.
-
-if [[ -z ${USE_SETUP_HG+x} ]]; then
-  #USE_SETUP_HG=true
-  USE_SETUP_HG=false
-fi
-if $USE_SETUP_HG; then
-  HG_USER_NAME="Your Name"
-  HG_USER_EMAIL="Your Email"
-  HG_DEFAULT_PATH="ssh://hg@bitbucket.org/your_username/your_project"
 fi
 
 # -- Install proprietary software (namely, just Adobe Reader).

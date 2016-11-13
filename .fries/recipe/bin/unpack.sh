@@ -6,7 +6,7 @@ SCRIPT_DIR="$(dirname ${BASH_SOURCE[0]})"
 ${SCRIPT_DIR}/travel prepare-shim $*
 if [[ $? -eq 0 ]]; then
   echo "Shim-town"
-  source ${HOME}/.fries/lib/util.sh
+  source ${HOME}/.fries/lib/curly_util.sh
   # Set USERS_CURLY and USERS_BNAME.
   setup_users_curly_path
   ${USERS_CURLY}/TBD-shim/travel_shim.sh unpack $*

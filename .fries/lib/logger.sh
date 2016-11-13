@@ -1,7 +1,7 @@
 #!/bin/bash
 # File: setup.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.09
+# Last Modified: 2016.11.12
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Colorful Bash Logger
 # License: GPLv3
@@ -10,7 +10,7 @@
 SCRIPT_DIR="$(dirname ${BASH_SOURCE[0]})"
 
 # Load colors.
-source ${SCRIPT_DIR}/util.sh
+source ${SCRIPT_DIR}/color_util.sh
 
 # The Python logging library defines the following levels,
 # along with some levels I've slid in.

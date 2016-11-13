@@ -1,57 +1,89 @@
-# File: custom_setup.extras.sh
+/# File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.11
+# Last Modified: 2016.11.12
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
 
+# 2016-11-12: Calling it. Die of error, so we can fix it.
+# set -e
+set -o errexit
+# set -v
+#   Print shell input lines as they are read.
+set -o verbose
+# set -x
+#   After expanding each simple command, for command, case command, select
+#   command, or arithmetic for command, display the expanded value of PS4,
+#   followed by the command and its expanded arguments or associated word list.
+set -o xtrace
 
+# Whether or not to re-install already installed applications.
+FORCE_REINSTALL=false
+REINSTALL_OR_SKIP=$(${FORCE_REINSTALL} && echo "REINSTALLING" || echo "SKIPPING")
 
-# FIXME: Make this file re-entrant!
+# DEVs: If you're copying and pasting manually, source this:
+#
+#   source ${HOME}/.fries/once/linux_setup_base.sh
 
+if [[ ! -e ./linux_setup_base.sh ]]; then
+  echo "Error: Expected to find ./linux_setup_base.sh."
+  exit 1
+fi
+#DEBUG_TRACE=false
+DEBUG_TRACE=true
+source ./linux_setup_base.sh
 
+# *** Don't Repeat Yourself.
 
-# NOTE: If you're copying and pasting manually, source this guy first!:
-#         source ./linux_setup_base.sh
-
-# Unless you source bash_base.sh, gotta make sure some things are set.
-if [[ -z ${WM_IS_MATE+x} ]]; then
-  WM_IS_MATE=false
+if sudo -n true 2>/dev/null; then 
+  # Has sudo already.
+  :
+else
+  echo
+  echo "GET THE PARTY STARTED"
+  sudo -v
 fi
 
+sudo apt-get update
+
+# *** Ensure expected directories exist.
+
 stage_4_setup_ensure_dirs () {
-  if [[ -z ${OPT_BIN+x} || -z ${OPT_DLOADS+x} || -z ${OPT_SRC+x} ]]; then
-    #echo
-    #echo "ERROR: Cannot proceed unless (OPT_BIN, OPT_DLOADS, OPT_SRC,) defined."
-    #exit 1
-    if [[ ! -e ./linux_setup_base.sh ]]; then
-      echo "Error: Expected to find ./linux_setup_base.sh."
+  for dir_path in \
+    ${OPT_DLOADS} \
+    ${OPT_BIN} \
+    ${OPT_SRC} \
+    ${OPT_DOCS} \
+    ${OPT_FONTS} \
+    ${OPT_LARGE} \
+  ; do
+    echo "dir_path: ${dir_path}"
+    if [[ -z ${dir_path} ]]; then
+      echo "ERROR: Missing OPT_* paths."
       exit 1
     fi
-    DEBUG_TRACE=false
-    source ./linux_setup_base.sh
-  fi
-  /bin/mkdir -p ${OPT_DLOADS}
-  /bin/mkdir -p ${OPT_BIN}
-  /bin/mkdir -p ${OPT_SRC}
-  /bin/mkdir -p ${OPT_DOCS}
-  /bin/mkdir -p ${OPT_FONTS}
+    /bin/mkdir -p ${dir_path}
+  done
 }
 stage_4_setup_ensure_dirs
+
+# *** Common installation routines.
 
 stage_announcement () {
   echo
   echo "===================================================================="
-  echo $1
+  echo "$1"
   echo
   echo
 }
 
 stage_curtains () {
   echo
-  echo Done: $1
+  echo "Done: $1"
   echo "===================================================================="
 }
+
+# *** Let the installations begin!
 
 stage_4_dropbox_install () {
 
@@ -60,9 +92,22 @@ stage_4_dropbox_install () {
   pushd ${OPT_BIN} &> /dev/null
 
   if [[ -e ${OPT_BIN}/dropbox.py ]]; then
-    DROPBOX_OLDER="${OPT_BIN}/dropbox.py-`date +%Y.%m.%d-%T`"
-    /bin/mv ${OPT_BIN}/dropbox.py ${DROPBOX_OLDER}
-    chmod -x ${DROPBOX_OLDER}
+    set +e
+    grep "^# This file is part of nautilus-dropbox 2015.10.28.$" ${OPT_BIN}/dropbox.py &> /dev/null
+    exit_code=$?
+    reset_errexit
+    if [[ ${exit_code} -eq 0 ]]; then
+      echo
+      echo "${REINSTALL_OR_SKIP}: Already installed: dropbox.py"
+      echo
+      if ! ${FORCE_REINSTALL}; then
+        return
+      fi
+    then
+      DROPBOX_OLDER="${OPT_BIN}/dropbox.py-`date +%Y.%m.%d-%T`"
+      /bin/mv ${OPT_BIN}/dropbox.py ${DROPBOX_OLDER}
+      chmod -x ${DROPBOX_OLDER}
+    fi
   fi
 
   wget -O ${OPT_BIN}/dropbox.py \
@@ -108,65 +153,6 @@ Comment=
 
 } # end: stage_4_dropbox_install
 
-stage_4_git_configure () {
-
-  stage_announcement "stage_4_git_configure"
-
-  # Create and configure ~/.gitconfig.
-
-  # Configure `git diff|log|mergetool` to use less to display text. With -R,
-  # less interprets ANSI color codes, otherwise they're raw, e.g., [ESCapes234.
-  # See also: bash's export EDITOR= command.
-  git config --global core.pager "less -R"
-
-  # `git mergetool` makes intermediate *.orig files but doesn't delete
-  # them unless we tell it to delete them.
-  git config --global mergetool.keepBackup false
-
-  # Choose meld as the default diff tool.
-  git config --global merge.tool meld
-
-  # MAYBE: Configure your username and email.
-  #
-  # git config --global user.name "Your Name Comes Here"
-  # git config --global user.email you@yourdomain.example.com
-
-  # EXPLAIN: What's cr-at-eol do and why did I copy it here?
-  # git config --global core.whitespace cr-at-eol
-
-} # end: stage_4_git_configure
-
-stage_4_hg_configure () {
-
-  stage_announcement "stage_4_hg_configure (enabled? $USE_SETUP_HG)"
-
-  if $USE_SETUP_HG; then
-
-    echo "DEAD: stage_4_hg_configure"
-    return 1
-
-    source_file="${script_absbase}/target/home/user/.hgrc"
-    target_file="/home/$USER/.hgrc"
-    copy_okay=true
-    if [[ ! -e $source_file ]]; then
-      echo "Source file absent: Skipping: $source_file"
-      copy_okay=false
-    fi
-    if [[ -e $target_file ]]; then
-      echo "Target file exists: Skipping: $target_file"
-      copy_okay=false
-    fi
-    if $copy_okay; then
-      m4 \
-        --define=HG_USER_NAME="$HG_USER_NAME" \
-        --define=HG_USER_EMAIL="$HG_USER_EMAIL" \
-        --define=HG_DEFAULT_PATH="$HG_DEFAULT_PATH" \
-        $source_file > $target_file
-    fi
-  fi
-
-} # end: stage_4_hg_configure
-
 stage_4_meld_configure () {
 
   stage_announcement "Skipping: stage_4_meld_configure"
@@ -186,8 +172,8 @@ stage_4_psql_configure () {
 
   if [[ ! -d /etc/postgresql ]]; then
     echo
-    echo "WARNING: Postgres is not installed."
-    return
+    echo "ERRO: Postgres is not installed."
+    exit 1
   fi
 
   if [[ -z ${POSTGRESABBR} ]]; then
@@ -262,8 +248,8 @@ stage_4_apache_configure () {
 
   if [[ ! -d /etc/apache2 ]]; then
     echo
-    echo "WARNING: Apache2 is not installed."
-    return
+    echo "ERROR: Apache2 is not installed."
+    exit 1
   fi
 
   # Make the Apache configs group-writeable.
@@ -313,12 +299,18 @@ stage_4_quicktile_install () {
 
   stage_announcement "stage_4_quicktile_install"
 
-  # QuickTile by ssokolow (similar to WinSplit Revolution) is an edge tiling
-  # window feature. It lets you quickly resize and move windows to
-  # pre-defined tiles. This is similar to a behavior in Windows 7, GNOME 3,
-  # and Cinnamon, when you drag a window to the top, bottom, left or right
-  # of the screen and it assumes a window size half of the screen).
-  #  See: http://ssokolow.com/quicktile/
+  # QuickTile by ssokolow (similar to WinSplit Revolution)
+  # is an edge tiling window feature.
+  #
+  # It lets you quickly resize and move windows to pre-defined tiles.
+  #
+  # This is similar to a behavior in Windows 7, GNOME 3, and Cinnamon,
+  # when you drag a window to the top, bottom, left or right of the
+  # screen and it assumes a window size half of the screen, except in
+  # MATE when you drag a window to one of the four sides, you cannot
+  # resize it afterwards.
+  #
+  # See: http://ssokolow.com/quicktile/
   #
   # Usage: With the target window active, hold Ctrl + Alt and hit numpad
   # 1 through 9 to tile the window. 1 through 9 map to the relative screen
@@ -337,7 +329,7 @@ stage_4_quicktile_install () {
     pushd ${OPT_DLOADS}/quicktile &> /dev/null
     # ./quicktile.py # Writes: ~/.config/quicktile.cfg
     # It also spits out the help and returns an error code.
-    set +ex
+    set +e
     ./quicktile.py
     reset_errexit
     # ./setup.py build
@@ -365,6 +357,11 @@ stage_4_quicktile_install () {
 stage_4_pidgin_setup_autostart () {
 
   stage_announcement "stage_4_pidgin_setup_autostart"
+
+  echo
+  echo "WARNING: Deprecated: stage_4_pidgin_setup_autostart"
+  echo
+  return
 
   # Configure Pidgin to start on login.
 
@@ -437,27 +434,30 @@ stage_4_hamster_time_tracker_setup () {
     HAMSTER_PKGS=/usr/lib/python2.7/dist-packages/hamster
   else
     echo
-    echo "WARNING: Where's hamster? Try:"
+    echo "ERROR: Where's hamster? Try:"
     echo "    locate overview_totals.py"
     exit 1
-  fi
-
-  if [[    -e ${HAMSTER_PKGS}/overview.py.ORIG \
-        || -e ${HAMSTER_PKGS}/overview_totals.py.ORIG ]]; then
-    echo
-    echo "WARNING: Skipping hamster install -- possibly already done."
-    return
   fi
 
   pkill -f hamster-service
   pkill -f hamster-windows-service
 
-  sudo /bin/cp -a \
-      ${HAMSTER_PKGS}/overview.py \
-      ${HAMSTER_PKGS}/overview.py.ORIG
-  sudo /bin/cp -a \
-      ${HAMSTER_PKGS}/overview_totals.py \
-      ${HAMSTER_PKGS}/overview_totals.py.ORIG
+  if [[    -e ${HAMSTER_PKGS}/overview.py.ORIG \
+        || -e ${HAMSTER_PKGS}/overview_totals.py.ORIG ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: Hamster"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  else
+    sudo /bin/cp -a \
+        ${HAMSTER_PKGS}/overview.py \
+        ${HAMSTER_PKGS}/overview.py.ORIG
+    sudo /bin/cp -a \
+        ${HAMSTER_PKGS}/overview_totals.py \
+        ${HAMSTER_PKGS}/overview_totals.py.ORIG
+  fi
 
   sudo /bin/cp -af \
       hamster-applet/src/hamster/overview.py \
@@ -468,25 +468,9 @@ stage_4_hamster_time_tracker_setup () {
 
   popd &> /dev/null
 
-  # Symlink hamster.db to dropbox version.
-
-  # FIXME: Make a bash var for this path...
-  HAMSTER_DB_PATH=".local/share/hamster-applet/hamster.db"
-  if [[ -d ${HOME}/Dropbox/.fries/home/${HAMSTER_DB_PATH} ]]; then
-    if [[ -e ${HOME}/${HAMSTER_DB_PATH} && \
-          ! -L ${HOME}/${HAMSTER_DB_PATH} ]]; then
-      /bin/mv \
-        ${HOME}/${HAMSTER_DB_PATH} \
-        ${HOME}/${HAMSTER_DB_PATH}-`date +%Y.%m.%d-%T`
-    fi
-    /bin/ln -sf \
-      ${HOME}/Dropbox/.fries/home/.local/share/hamster-applet/hamster.db \
-      ${HOME}/.local/share/hamster-applet
-  fi
-
   # Auto-start hamster on boot.
 
-  mkdir -p $HOME/.config/autostart
+  mkdir -p ${HOME}/.config/autostart
 
   if false; then
     echo "[Desktop Entry]
@@ -498,7 +482,7 @@ Name[en_US]=Hamster
 Name=Hamster
 Comment[en_US]=
 Comment=
-" > $HOME/.config/autostart/hamster-time-tracker.desktop
+" > ${HOME}/.config/autostart/hamster-time-tracker.desktop
   fi
 
   echo "[Desktop Entry]
@@ -510,7 +494,7 @@ Name[en_US]=Hamster
 Name=Hamster
 Comment[en_US]=
 Comment=
-" > $HOME/.config/autostart/hamster-indicator.desktop
+" > ${HOME}/.config/autostart/hamster-indicator.desktop
 
   # Start hamster.
 
@@ -606,7 +590,7 @@ stage_4_chrome_install () {
   #  entity, and provided that their use of Google Chrome will be
   #  subject to the Terms. ...August 12, 2010"
   #
-  cd ${OPT_DLOADS}
+  pushd ${OPT_DLOADS} &> /dev/null
 
   wget -N \
     https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
@@ -619,6 +603,8 @@ stage_4_chrome_install () {
   #cd ${OPT_DLOADS}/firefox-google-search-add_on
   #wget -N \
   #  https://addons.mozilla.org/firefox/downloads/file/157593/google_default-20120704.xml?src=search
+
+  popd &> /dev/null
 
 } # end: stage_4_chrome_install
 
@@ -743,10 +729,13 @@ virtualbox-${LATEST_VBOX_VERS_MAJOR}_${LATEST_VBOX_VERSION_FULL}~Ubuntu~${DISTRI
 
     if [[ -e ${OPT_DLOADS}/${LATEST_VBOX_DEB_PKG} ]]; then
       echo
-      echo "WARNING: Skipping VirtualBox install -- Already downloaded."
-      echo "Remove download if you want to start over: ${OPT_DLOADS}/${LATEST_VBOX_DEB_PKG}"
+      echo "${REINSTALL_OR_SKIP}: Already installed: VirtualBox"
       echo
-      return
+      if ! ${FORCE_REINSTALL}; then
+        return
+      else
+        /bin/rm ${OPT_DLOADS}/${LATEST_VBOX_DEB_PKG}
+      fi
     fi
 
     wget -N \
@@ -771,18 +760,17 @@ virtualbox-${LATEST_VBOX_VERS_MAJOR}_${LATEST_VBOX_VERSION_FULL}~Ubuntu~${DISTRI
 
   fi # end: if False
 
-  #command -v virtualbox_dubs_update
+  set +e
   command -v virtualbox_update.sh
-  if [[ $? -eq 0 ]]; then
-    # See: ~/.fries/.bashrc/bashrc.core.sh
-    #virtualbox_dubs_update
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -eq 0 ]]; then
     virtualbox_update.sh
 
     sudo usermod -a -G vboxsf ${USER}
     sudo usermod -a -G vboxusers ${USER}
   else
     echo
-    #echo "WARNING: Not found: virtualbox_dubs_update"
     echo "WARNING: Not found: virtualbox_update.sh"
     echo "         You'll want to call this on your own later."
     echo
@@ -820,7 +808,7 @@ stage_4_reader_install () {
   #   cd /opt/Adobe/Reader9/bin
   #   sudo ./UNINSTALL
   if ${INCLUDE_ADOBE_READER}; then
-    cd ${OPT_DLOADS}
+    pushd ${OPT_DLOADS} &> /dev/null
     wget -N \
       http://ardownload.adobe.com/pub/adobe/reader/unix/9.x/9.5.5/enu/AdbeRdr9.5.5-1_i486linux_enu.bin
     chmod a+x ./Adbe*.bin
@@ -831,30 +819,13 @@ stage_4_reader_install () {
     # Note that we could remove the binary, but Reader is discontinued on
     # Linux, so might as well hold onto it, in case Adobe ever purges.
     #  /bin/rm ${OPT_DLOADS}/AdbeRdr9.5.5-1_i486linux_enu.bin
+    popd &> /dev/null
   fi
 
   # Here's how to uninstall it:
-  # cd /opt/Adobe/Reader9/bin && sudo ./UNINSTALL
+  #  pushd /opt/Adobe/Reader9/bin && sudo ./UNINSTALL
 
 } # end: stage_4_reader_install
-
-stage_4_libreoffice_install () {
-
-  stage_announcement "Nope: stage_4_libreoffice_install"
-
-  # 2016.03.23: There's a libreoffice installed by default, right?
-  #             Just maybe not libreoffice5...
-
-# FIXME: This fcn. So far I've just done this manually, I think.
-  if false; then
-
-    # FIXME: Download libreoffice
-    #        then unpack, cd inside, and:
-    sudo dpkg -i *.deb
-
-  fi
-
-} # end: stage_4_libreoffice_install
 
 stage_4_modern_ie_install () {
 
@@ -899,11 +870,12 @@ stage_4_dev_testing_expect_install () {
 
   if false; then
 
+    pushd ${OPT_DLOADS} &> /dev/null
+
     # FIXME: Move all the apt-get installs from the big list above
     #        to the setup function that needs them?
     sudo apt-get install -y tcl tcl-dev
 
-    cd ${OPT_DLOADS}
     wget -N http://downloads.sourceforge.net/project/expect/Expect/5.45/expect5.45.tar.gz
     tar xvzf expect5.45.tar.gz
     cd expect5.45
@@ -918,6 +890,8 @@ stage_4_dev_testing_expect_install () {
     #
     #   LD_LIBRARY_PATH=/usr/lib/expect5.45
     #   export LD_LIBRARY_PATH
+
+    popd &> /dev/null
 
   fi
 
@@ -942,13 +916,14 @@ stage_4_rssowl_install () {
   # RSSOwl RSS Client
   # FIXME: Test RSSOwl and decide if this should be excluded.
   if false; then
-    cd ${OPT_DLOADS}
+    pushd ${OPT_DLOADS} &> /dev/null
     wget "http://downloads.sourceforge.net/project/rssowl/rssowl%202/2.2.1/rssowl-2.2.1.linux.x86_64.zip"
     unzip rssowl-2.2.1.linux.x86_64.zip -d rssowl-2.2.1
     cd rssowl-2.2.1/rssowl/
 # FIXME: Move the installation folder somewhere...
 #        or add to PATH...
 # ${OPT_DLOADS}/rssowl-2.2.1/rssowl/RSSOwl
+    popd &> /dev/null
   fi
 
 } # end: stage_4_rssowl_install
@@ -969,10 +944,19 @@ stage_4_cloc_install () {
 
   # And here's the new way:
   pushd ${OPT_DLOADS} &> /dev/null
-  git clone https://github.com/AlDanial/cloc
+
+  if [[ ! -e ${OPT_DLOADS}/cloc ]]; then
+    git clone https://github.com/AlDanial/cloc
+  else
+    pushd cloc &> /dev/null
+    git pull
+    popd &> /dev/null
+  fi
+
   cd ${OPT_BIN} &> /dev/null
-  /bin/ln -s ${OPT_DLOADS}/cloc/cloc
+  /bin/ln -sf ${OPT_DLOADS}/cloc/cloc
   # /bin/rm cloc-1.62.pl
+
   popd &> /dev/null
 
 } # end: stage_4_cloc_install
@@ -980,6 +964,15 @@ stage_4_cloc_install () {
 stage_4_parT_install () {
 
   stage_announcement "stage_4_parT_install"
+
+  if [[ -f /usr/bin/parT ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: parT"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
 
   pushd ${OPT_DLOADS} &> /dev/null
 
@@ -991,104 +984,18 @@ stage_4_parT_install () {
     popd &> /dev/null
   fi
 
-  pushd parT &> /dev/null
+  cd parT &> /dev/null
 
   ./build.sh
   sudo /bin/cp -af parT /usr/bin
   sudo chown root:root /usr/bin/parT
 
   popd &> /dev/null
-  popd &> /dev/null
 
   # Stupid message for debugging ./setup_linux.sh
   stage_curtains "stage_4_parT_install"
 
 } # end: stage_4_parT_install
-
-stage_4_todo_txt_install () {
-
-  stage_announcement "stage_4_todo_txt_install"
-
-  pushd ${OPT_DLOADS} &> /dev/null
-
-  mkdir $HOME/.todo
-
-  if false; then
-    wget -N \
-      https://github.com/downloads/ginatrapani/todo.txt-cli/todo.txt_cli-2.9.tar.gz
-    tar xvzf todo.txt_cli-2.9.tar.gz
-    chmod +x todo.txt_cli-2.9/todo.sh
-    /bin/rm todo.txt_cli-2.9.tar.gz
-    /bin/ln -s todo.txt_cli-2.9 todo.txt_cli
-    /bin/ln -s ${OPT_DLOADS}/todo.txt_cli-2.9/todo.sh ${OPT_BIN}/todo.sh
-    # See: ~/.fries/.bashrc/bashrc.core.sh for
-    #   source ${OPT_DLOADS}/todo.txt_cli/todo_completion
-    # FIXME: You may have to edit the config file to add the path to it.
-    /bin/cp ${OPT_DLOADS}/todo.txt_cli-2.9/todo.cfg $HOME/.todo/config
-  fi
-
-  if true; then
-    git clone https://github.com/landonb/todo.txt-cli
-    if [[ ! -e $HOME/.todo/config ]]; then
-      /bin/cp ${OPT_DLOADS}/todo.txt_cli/todo.cfg $HOME/.todo/config
-    fi
-    /bin/ln -s ${OPT_DLOADS}/todo.txt_cli/todo.sh ${OPT_BIN}/todo.sh
-    /bin/ln -s ${OPT_BIN}/todo.sh ${OPT_BIN}/to
-    # Install addons to /${HOME}/.todo.actions.d/
-    #  or probably better yet /${HOME}/actions/
-  fi
-
-  popd &> /dev/null
-
-} # end: stage_4_todo_txt_install
-
-stage_4_punch_tt_install () {
-
-  stage_announcement "Skipping: stage_4_punch_tt_install"
-
-  if false; then
-    cd ${OPT_DLOADS}
-    wget -N \
-      https://punch-time-tracking.googlecode.com/files/punch-time-tracking-1.3.zip
-    unzip -d punch-time-tracking punch-time-tracking-1.3.zip
-    chmod +x punch-time-tracking/Punch.py
-    /bin/ln -s ${OPT_DLOADS}/punch-time-tracking/Punch.py ${OPT_BIN}/Punch.py
-  fi
-
-} # end: stage_4_punch_tt_install
-
-stage_4_ti_time_tracker_install () {
-
-  stage_announcement "Skipping: stage_4_ti_time_tracker_install"
-
-  if false; then
-    cd ${OPT_BIN}
-    wget -N \
-      https://raw.githubusercontent.com/sharat87/ti/master/bin/ti
-
-    chmod +x ti
-  fi
-
-} # end: stage_4_ti_time_tracker_install
-
-stage_4_utt_time_tracker_install () {
-
-  stage_announcement "Skipping: stage_4_utt_time_tracker_install"
-
-  # Ultimate Time Tracker
-
-  if false; then
-    cd ${OPT_DLOADS}
-    git clone https://github.com/larose/utt.git
-    cd utt
-    # Untested, but I think it'd be:
-    #  python setup.py build
-    #  python setup.py install
-  fi
-
-  sudo pip install utt
-
-} # end: stage_4_utt_time_tracker_install
 
 stage_4_cookiecutter_install () {
 
@@ -1105,48 +1012,6 @@ stage_4_cookiecutter_install () {
   sudo chmod 755 /usr/local/bin/cookiecutter
 
 } # end: stage_4_cookiecutter_install
-
-stage_4_keepassx_install () {
-
-  stage_announcement "Skipping: stage_4_keepassx_install"
-
-  # Funny; there's a build problem in the latest version of the source:
-  # a missing include. However, we can also just install keepassx with
-  # apt-get... though I think a text file and encfs or gpg is probably
-  # simpler to use than keepassx. The only security difference is that
-  # keepassx automatically clears the clipboard for you; if you use an
-  # encrypted file, you'll have to remember to clear the clipboard, or
-  # at least to not accidentally paste your password to, say, a web
-  # browser search field.
-
-  if false; then
-
-    cd ${OPT_DLOADS}
-    wget -N http://www.keepassx.org/releases/keepassx-0.4.3.tar.gz
-    tar xvzf keepassx-0.4.3.tar.gz
-
-    cd keepassx-0.4.3
-
-    # This list contains extraneous pacakges.
-    # I'm not sure which ones are required; I experimented to find the ones.
-    sudo apt-get install -y qt4-qmake qt4-dev-tools qt4-bin-dbg
-    # I'm pretty sure these two are required. I know the second one is.
-    sudo apt-get install -y libqt4-dev libxtst-dev
-
-    # Fix: lib/random.cpp:98:19: error: ‘getpid’ was not declared in this scope
-    # See: https://www.keepassx.org/forum/viewtopic.php?f=4&t=3177
-    /bin/sed -i.bak \
-      "s/#include \"random.h\"/#include \"random.h\"\n#include <unistd.h>/" \
-      src/lib/random.cpp
-
-    qmake
-    make
-    sudo make install
-
-  fi
-
-}
-# end: stage_4_keepassx_install
 
 stage_4_pencil_install () {
 
@@ -1201,6 +1066,8 @@ stage_4_disable_services () {
   # 2016.03.23: Samba's not installed by default;
   #             this is all a no-op, right?
 
+  set +e
+
   # Stop it now.
   sudo service smbd stop
 
@@ -1208,6 +1075,8 @@ stage_4_disable_services () {
   sudo update-rc.d -f smbd remove
   # Restore with:
   #   sudo update-rc.d -f smbd defaults
+
+  reset_errexit
 
 } # end: stage_4_disable_services
 
@@ -1220,8 +1089,13 @@ stage_4_spotify_install () {
   # From:
   #  https://www.spotify.com/us/download/previews/
 
-  grep repository.spotify.com /etc/apt/sources.list &> /dev/null
-  if [[ $? -ne 0 ]]; then
+  set +e
+  grep "repository.spotify.com" /etc/apt/sources.list &> /dev/null
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -ne 0 ]]; then
+    # FIXME: Is there a way to use Aptitude instead? Like,
+    #           sudo add-apt-repository -y ppa:dylanmccall/hamster-time-tracker-git-daily
     echo "deb http://repository.spotify.com stable non-free" \
       | sudo tee -a /etc/apt/sources.list &> /dev/null
   fi
@@ -1249,9 +1123,45 @@ stage_4_spotify_install () {
 
 } # end: stage_4_spotify_install
 
+stage_4_relocate_spotify_cache () {
+
+  stage_announcement "stage_4_relocate_spotify_cache"
+
+  # 2016-11-12: News reports of Spotify writing lots to user's local space,
+  # and my local space is an SSD, so stop that! spotify.
+  #
+  #  $ du -m -d 1 ~/.cache | sort -nr
+  #  5328	 ~/.cache
+  #  4275	 ~/.cache/spotify
+  #  631	 ~/.cache/google-chrome
+  #  176	 ~/.cache/chromium
+  #  146	 ~/.cache/thumbnails
+  #  66	   ~/.cache/apt-file
+  #  17	   ~/.cache/Atlassian
+  #  12	   ~/.cache/mozilla
+
+  if [[ -e ${HOME}/.cache/spotify ]]; then
+    if [[ ! -h ${HOME}/.cache/spotify ]]; then
+      /bin/cp -ar ${HOME}/.cache/spotify ${OPT_LARGE}
+      /bin/rm -rf ${HOME}/.cache/spotify
+      /bin/ln -s ${OPT_LARGE}/spotify ${HOME}/.cache/spotify
+    fi
+  fi
+
+} # end: stage_4_relocate_spotify_cache
+
 stage_4_openjump_install () {
 
   stage_announcement "stage_4_openjump_install"
+
+  if [[ -f ${OPT_DLOADS}/OpenJUMP-1.8.0-r4164-CORE/bin/oj_linux.sh ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: OpenJUMP"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
 
   pushd ${OPT_DLOADS} &> /dev/null
 
@@ -1266,12 +1176,11 @@ stage_4_openjump_install () {
   wget -N \
     http://downloads.sourceforge.net/project/jump-pilot/OpenJUMP/1.8.0/OpenJUMP-Portable-1.8.0-r4164-PLUS.zip
 
-  if [[ ! -e ${OPT_DLOADS}/OpenJUMP-1.8.0-r4164-CORE/bin/oj_linux.sh ]]; then
-    unzip OpenJUMP-Portable-1.8.0-r4164-CORE.zip -d OpenJUMP-1.8.0-r4164-CORE-unzip/
-    mv OpenJUMP-1.8.0-r4164-CORE-unzip/OpenJUMP-1.8.0-r4164-CORE .
-    rmdir OpenJUMP-1.8.0-r4164-CORE-unzip
-    ln -sf ${OPT_DLOADS}/OpenJUMP-1.8.0-r4164-CORE/bin/oj_linux.sh ${OPT_BIN}/oj_linux.sh
-  fi
+  unzip OpenJUMP-Portable-1.8.0-r4164-CORE.zip -d OpenJUMP-1.8.0-r4164-CORE-unzip/
+  mv OpenJUMP-1.8.0-r4164-CORE-unzip/OpenJUMP-1.8.0-r4164-CORE .
+  rmdir OpenJUMP-1.8.0-r4164-CORE-unzip
+
+  /bin/ln -sf ${OPT_DLOADS}/OpenJUMP-1.8.0-r4164-CORE/bin/oj_linux.sh ${OPT_BIN}/oj_linux.sh
 
   popd ${OPT_DLOADS} &> /dev/null
 
@@ -1280,6 +1189,11 @@ stage_4_openjump_install () {
 stage_4_liclipse_install () {
 
   stage_announcement "stage_4_liclipse_install"
+
+  echo
+  echo "WARNING: Deprecated: stage_4_liclipse_install"
+  echo
+  return
 
   pushd ${OPT_DLOADS} &> /dev/null
 
@@ -1325,11 +1239,14 @@ stage_4_all_the_young_pips () {
   sudo python2 get-pip.py
   sudo python3 get-pip.py
 
-  # My ~/.vim/bundle_/ contains a dozenish sub-gits. Uncommitted helps.
-  sudo pip install uncommitted
-  sudo chmod 755 /usr/local/bin/uncommitted
-  # Be sure to specify -l to use locate.
-  # E.g., `uncommitted -l ~/.vim`, or `uncommitted -l -v ~/.vim`.
+  # 2016-11-12: Meh. I got my own uncommitted script now.
+  if false; then
+    # My ~/.vim/bundle_/ contains a dozenish sub-gits. Uncommitted helps.
+    sudo pip install uncommitted
+    sudo chmod 755 /usr/local/bin/uncommitted
+    # Be sure to specify -l to use locate.
+    # E.g., `uncommitted -l ~/.vim`, or `uncommitted -l -v ~/.vim`.
+  fi
 
   # https://argcomplete.readthedocs.org/en/latest/#activating-global-completion%20argcomplete
 # FIXME:
@@ -1373,22 +1290,30 @@ stage_4_font_mania () {
 
   stage_announcement "stage_4_font_mania"
 
+  stage_4_indirect_user_fonts
+
   mkdir -p ${HOME}/.fonts
 
   pushd ${HOME}/.fonts &> /dev/null
 
-  wget -N http://dl.1001fonts.com/santos-dumont.zip
-  # Unpack SANTO___.TTF et al
-  unzip -o -d santos-dumont santos-dumont.zip
-  /bin/mv santos-dumont/SANTO___.TTF .
+  if [[ ! -d santos-dumont ]]; then
+    wget -N http://dl.1001fonts.com/santos-dumont.zip
+    # Unpack SANTO___.TTF et al
+    unzip -o -d santos-dumont santos-dumont.zip
+    /bin/mv santos-dumont/SANTO___.TTF .
+  fi
 
-  wget -N http://dl.1001fonts.com/pinewood.zip
-  unzip -o -d pinewood pinewood.zip
-  /bin/mv pinewood/Pinewood.ttf .
+  if [[ ! -d pinewood ]]; then
+    wget -N http://dl.1001fonts.com/pinewood.zip
+    unzip -o -d pinewood pinewood.zip
+    /bin/mv pinewood/Pinewood.ttf .
+  fi
 
   # Google Open Sans by Steve Matteson
-  wget -N http://dl.1001fonts.com/open-sans.zip
-  unzip -o -d open-sans open-sans.zip
+  if [[ ! -d open-sans ]]; then
+    wget -N http://dl.1001fonts.com/open-sans.zip
+    unzip -o -d open-sans open-sans.zip
+  fi
 
   popd &> /dev/null
 
@@ -1400,6 +1325,8 @@ stage_4_font_mania () {
 stage_4_font_typeface_hack () {
 
   stage_announcement "stage_4_font_typeface_hack"
+
+  stage_4_indirect_user_fonts
 
   if [[ ! -e ~/.fonts/Hack-v2_010-ttf/Hack-Regular.ttf ]]; then
 
@@ -1466,8 +1393,11 @@ stage_4_sqlite3 () {
   unzip -o -d ${SQLITE_BASE} ${SQLITE_BASE}.zip
 
   if [[ -e /usr/bin/sqlite3 ]]; then
+    set +e
     diff ${SQLITE_BASE}/${SQLITE_BASE}/sqlite3 /usr/bin/sqlite3 &> /dev/null
-    if [[ $? -ne 0 ]]; then
+    exit_code=$?
+    reset_errexit
+    if [[ ${exit_code} -ne 0 ]]; then
       sudo /bin/mv /usr/bin/sqlite3 /usr/bin/sqlite3-$(date +%Y.%m.%d-%T)
     fi
   fi
@@ -1510,6 +1440,15 @@ state_4_mod_spatialite () {
 
   stage_announcement "state_4_mod_spatialite"
 
+  if [[ -f /usr/local/lib/libspatialite.so.7.1.0 ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: libspatialite"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
+
   pushd ${OPT_DLOADS} &> /dev/null
 
   # NOTE: Skipping `apt-get install -y python-pyspatialite` (not
@@ -1531,7 +1470,8 @@ state_4_mod_spatialite () {
   # Avoid ./configure complaint: "checking for geos-config... no"
   sudo apt-get install -y libgeos-dev
 
-  # See: https://www.gaia-gis.it/fossil/libspatialite/index
+  # See:
+  #   https://www.gaia-gis.it/fossil/libspatialite/index
   # 2015-09-07: v4.3.0a
   #LIBSPATIALITE_VERS=libspatialite-4.3.0
   LIBSPATIALITE_VER=libspatialite-4.3.0a
@@ -1555,6 +1495,11 @@ stage_4_opencl () {
 
   stage_announcement "stage_4_opencl"
 
+  echo
+  echo "WARNING: Deprecated: stage_4_opencl"
+  echo
+  return
+
   pushd ${OPT_DLOADS} &> /dev/null
 
   #https://software.intel.com/en-us/intel-opencl
@@ -1563,7 +1508,8 @@ stage_4_opencl () {
   # https://software.intel.com/en-us/articles/intel-code-builder-for-opencl-api
   # To install both the Code Builder and the OpenCL runtime packages for Linux*, use the following public key: Intel-E901-172E-EF96-900F-B8E1-4184-D7BE-0E73-F789-186F.pub
 
-  wget -N http://registrationcenter.intel.com/irc_nas/5193/intel_code_builder_for_opencl_2015_ubuntu_5.0.0.43_x64.tgz
+  wget -N \
+    http://registrationcenter.intel.com/irc_nas/5193/intel_code_builder_for_opencl_2015_ubuntu_5.0.0.43_x64.tgz
 
   # sudo apt-get install -y opencl-headers
   sudo apt-get install -y rpm alien libnuma1
@@ -1631,6 +1577,15 @@ stage_4_darktable () {
 
     # From scratch!
 
+    if [[ -f /usr/bin/darktable ]]; then
+      echo
+      echo "${REINSTALL_OR_SKIP}: Already installed: darktable"
+      echo
+      if ! ${FORCE_REINSTALL}; then
+        return
+      fi
+    fi
+
     pushd ${OPT_DLOADS} &> /dev/null
 
     # Download libgphoto2-2.5.8.tar.bz2 (6.9 MB).
@@ -1642,8 +1597,13 @@ stage_4_darktable () {
 
     # wget -N https://github.com/darktable-org/darktable/archive/release-1.6.9.tar.gz
     # https://github.com/darktable-org/darktable/releases/download/release-1.6.9/darktable-1.6.9.tar.xz
-    git clone -b release-1.6.9 git@github.com:darktable-org/darktable.git
-    cd darktable
+    if [[ ! -d darktable ]]; then
+      git clone -b release-1.6.9 git@github.com:darktable-org/darktable.git
+      cd darktable
+    else
+      cd darktable
+      git pull
+    fi
     # Release build.
     ./build.sh --prefix /opt/darktable --buildtype Release
     # Debug build.
@@ -1662,16 +1622,17 @@ stage_4_digikam_from_scratch () {
 
   stage_announcement "stage_4_digikam_from_scratch"
 
-  pushd ${OPT_DLOADS} &> /dev/null
-
+  echo
+  echo "WARNING: Broken install (at least in 14.04): stage_4_digikam_from_scratch"
   echo
   echo "NOTICE: 2016-02-04: Building digikam 4.14.0 does not work."
   echo "        Don't waste your time."
   echo "        Call stage_4_digikam_from_distro"
   echo "        and stage_4_digikam5_from_distro instead."
   echo
+  return
 
-  exit 1
+  pushd ${OPT_DLOADS} &> /dev/null
 
   # The exiv2 on Linux Mint 17.1 is exiv2 0.23 001700 (C) 2004-2012,
   # but digikam wants 0.24+, so gotta build exiv2 from scratch, eh.
@@ -1931,6 +1892,11 @@ stage_4_digikam_from_distro () {
 
   stage_announcement "stage_4_digikam_from_distro"
 
+  echo
+  echo "WARNING: Deprecated: stage_4_digikam_from_distro"
+  echo
+  return
+
   # 2016.03.24: 4.12.0 is on 15.10.
   #             So the backport code is just for Mint 17.x.
   #
@@ -2003,9 +1969,22 @@ stage_4_digikam5_from_distro () {
 
   stage_announcement "stage_4_digikam5_from_distro"
 
+  set +e
+  command -v digikam5
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -eq 0 ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: \`digikam5\` command"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
+
   sudo apt-add-repository ppa:philip5/extra
   sudo apt-get update
-  sudo apt-get install digikam5
+  sudo apt-get install -y digikam5
 
 # Not supported on trusty/14.04!
 # digikam5  4:5.1.0-xenial~ppa1  Philip Johnsson (2016-08-09)
@@ -2025,39 +2004,64 @@ stage_4_gimp_plugins () {
 
   if [[ -e gimp-plugin-export-layers ]]; then
     echo
-    echo "WARNING: Already exists: ${OPT_DLOADS}/gimp-plugin-export-layers"
-    return
+    echo "${REINSTALL_OR_SKIP}: Already installed: ${OPT_DLOADS}/gimp-plugin-export-layers"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
   fi
 
   if [[ ! -d ${HOME}/.gimp-2.8/plug-ins ]]; then
     echo
-    echo "WARNING: Not Found or Not a Dir: ${HOME}/.gimp-2.8/plug-ins"
+    echo "=============================================="
+    echo "WARNING: Not Found: ${HOME}/.gimp-2.8/plug-ins"
+    echo "=============================================="
+    echo
+    # 2016-11-12: Does this ever happen? Maybe on a new version of Gimp....
+    exit 1
     # FIXME/TESTME: This happens if you haven't run gimp ever...
     #               So can we just create the directory?
     mkdir -p ${HOME}/.gimp-2.8/plug-ins
   fi
 
-  git clone https://github.com/khalim19/gimp-plugin-export-layers.git
-  /bin/cp -a ./gimp-plugin-export-layers/export_layers.py ${HOME}/.gimp-2.8/plug-ins
-  /bin/cp -ar ./gimp-plugin-export-layers/export_layers ${HOME}/.gimp-2.8/plug-ins
+  if [[ ! -d gimp-plugin-export-layers ]]; then
+    git clone https://github.com/khalim19/gimp-plugin-export-layers.git
+    cd gimp-plugin-export-layers
+  else
+    cd gimp-plugin-export-layers
+    git pull
+  fi
+  /bin/cp -a export_layers.py ${HOME}/.gimp-2.8/plug-ins/
+  /bin/cp -ar export_layers ${HOME}/.gimp-2.8/plug-ins/
 
   popd &> /dev/null
+
+} # end: stage_4_gimp_plugins
+
+stage_4_gimp_docs () {
+
+  stage_announcement "stage_4_gimp_docs"
 
   # GIMP docs.
   /bin/mkdir -p ${OPT_DOCS}/gimp
   pushd ${OPT_DOCS}/gimp &> /dev/null
+
   wget -N http://docs.gimp.org/2.8/quickreference/gimp-keys-en.pdf
+
   # Bah, why no PDF of the help for 2.8?
   # http://docs.gimp.org/2.8/en/
   wget -N http://docs.gimp.org/2.4/pdf/en.pdf
   /bin/ln -s gimp-
+
   # From 31 Aug 2014:
   wget -N http://gimp.linux.it/www/meta/gimp-en.pdf
+
   # From 1999:
   #  wget -N ftp://ftp.ccsf.edu/pub/Util/gimp-User_Manual.pdf
+
   popd &> /dev/null
 
-} # end: stage_4_gimp_plugins
+} # end: stage_4_gimp_docs
 
 stage_4_python_source () {
 
@@ -2065,17 +2069,26 @@ stage_4_python_source () {
 
   pushd ${OPT_DLOADS} &> /dev/null
 
-  wget -N https://www.python.org/ftp/python/2.7.10/Python-2.7.10.tgz
-  wget -N https://www.python.org/ftp/python/3.3.6/Python-3.3.6.tgz
-  wget -N https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tgz
+  if [[ ! -d ${OPT_SRC}/Python-2.7.10 ]]; then
+    cd ${OPT_DLOADS}
+    wget -N https://www.python.org/ftp/python/2.7.10/Python-2.7.10.tgz
+    cd ${OPT_SRC}
+    tar xvzf ${OPT_DLOADS}/Python-2.7.10.tgz
+  fi
 
-  popd &> /dev/null
+  if [[ ! -d ${OPT_SRC}/Python-3.3.6 ]]; then
+    cd ${OPT_DLOADS}
+    wget -N https://www.python.org/ftp/python/3.3.6/Python-3.3.6.tgz
+    cd ${OPT_SRC}
+    tar xvzf ${OPT_DLOADS}/Python-3.3.6.tgz
+  fi
 
-  pushd ${OPT_SRC} &> /dev/null
-
-  tar xvzf ${OPT_DLOADS}/Python-2.7.10.tgz
-  tar xvzf ${OPT_DLOADS}/Python-3.3.6.tgz
-  tar xvzf ${OPT_DLOADS}/Python-3.4.3.tgz
+  if [[ ! -d ${OPT_SRC}/Python-3.4.3 ]]; then
+    cd ${OPT_DLOADS}
+    wget -N https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tgz
+    cd ${OPT_SRC}
+    tar xvzf ${OPT_DLOADS}/Python-3.4.3.tgz
+  fi
 
   popd &> /dev/null
 
@@ -2126,13 +2139,23 @@ stage_4_python_35 () {
   stage_announcement "stage_4_python_35"
 
   # Only do this for machines without python3.5.
+  set +e
   command -v python3.5 &> /dev/null
-  if [[ $? -ne 0 ]]; then
-    sudo add-apt-repository -y ppa:fkrull/deadsnakes
-    sudo apt-get update -y
-    sudo apt-get install -y python3.5
-    #sudo apt-get install -y python3.5-dev
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -eq 0 ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: python3.5"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
   fi
+
+  sudo add-apt-repository -y ppa:fkrull/deadsnakes
+  sudo apt-get update -y
+  sudo apt-get install -y python3.5
+  #sudo apt-get install -y python3.5-dev
 
 } # end: stage_4_python_35
 
@@ -2167,11 +2190,14 @@ stage_4_android_studio () {
 
   # For Kernel Virtual Machine (KVM).
   sudo apt-get install -y qemu-kvm libvirt-bin bridge-utils virt-manager
+  set +e
   groups | grep libvirtd &> /dev/null
-  if [[ $? -ne 0 ]]; then
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -ne 0 ]]; then
     sudo adduser ${USER} libvirtd
     echo
-    echo "ALERT: You may have to logoff and log back in to enable KVM."
+    echo "ALERT: You have to logoff and log back in to enable Android Studio KVM."
     echo
   fi
 
@@ -2187,6 +2213,15 @@ stage_4_android_studio () {
   ANDROID_STUDIO_BASE="android-studio-ide-${ANDROID_STUDIO_BUILD}-linux"
   ANDROID_STUDIO_NAME="${ANDROID_STUDIO_BASE}.zip"
 
+  if [[ -f ${ANDROID_STUDIO_NAME} ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already downloaded: ${ANDROID_STUDIO_NAME}"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
+
   # $ lS
   # rmrm android-studio-ide-141.2456560-linux.zip
   # hrmmm... should i automate /bin/rm?
@@ -2198,8 +2233,12 @@ stage_4_android_studio () {
   #  echo ${OLD_DLS[@]} | xargs /bin/rm
   for old_file in ${OLD_DLS[@]}; do
     if [[ -n $old_file ]]; then
-# MAYBE: Ask first before deleting? Or just fcuk it.
       /bin/rm $old_file
+      old_unpacked=$(dirname $old_file)
+      if [[ -d ${old_unpacked} ]]; then
+        echo "Removing old_unpacked: ${old_unpacked}"
+        /bin/rm -rf ${old_unpacked}
+      fi
     fi
   done
 
@@ -2226,8 +2265,11 @@ stage_4_android_studio () {
   #
   # So remove OpenJDK,
   # and install the <cough> *proper* proprietary Java from Oracle.
+  set +e
   java -version 2>&1 | grep OpenJDK &> /dev/null
-  if [[ $? -eq 0 ]]; then
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -eq 0 ]]; then
     sudo apt-get purge -y openjdk-\*
     # Make sure the new java comes first in your PATH, else:
     #   $ java -version
@@ -2258,8 +2300,11 @@ stage_4_android_studio () {
     popd &> /dev/null
 
     #grep "[:\"]\/usr\/local\/games[:\"]" /etc/environment &> /dev/null
+    set +e
     grep "^JAVA_HOME=${OPT_BIN}/jdk$" /etc/environment &> /dev/null
-    if [[ $? -ne 0 ]]; then
+    exit_code=$?
+    reset_errexit
+    if [[ ${exit_code} -ne 0 ]]; then
       echo "JAVA_HOME=${OPT_BIN}/jdk
 JRE_HOME=\$JAVA_HOME/jre
 PATH=\$PATH:\$JAVA_HOME/bin:\$JRE_HOME/bin
@@ -2365,15 +2410,20 @@ Settings -> Appearance & Behavior -> System Settings -> Android SDK
 Check box of latest SDK. Apply. [Download commences.]
 "
 
-# Remove old versions, e.g.,
-# /srv/opt/bin/android-studio-ide-143.2739321-linux/
-echo "FIXME: Remove old /srv/opt/bin/android-studio-ide-*-linux/ dirs"
-
 } # end: stage_4_android_studio
 
 stage_4_zoneminder () {
 
   stage_announcement "stage_4_zoneminder"
+
+  if [[ -f /etc/init.d/zoneminder ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: zoneminder"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
 
   #pushd ${OPT_DLOADS} &> /dev/null
 
@@ -2391,6 +2441,19 @@ stage_4_google_drive_drive () {
 
   stage_announcement "stage_4_google_drive_drive"
 
+  set +e
+  command -v drive
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -eq 0 ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: Google Drive \`drive\` command"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
+
   # https://github.com/odeke-em/drive
 
   # http://www.howtogeek.com/196635/
@@ -2402,7 +2465,13 @@ stage_4_google_drive_drive () {
 
   pushd ${OPT_DLOADS} &> /dev/null
 
-  git clone https://github.com/odeke-em/drive
+  # FIXME/EXPLAIN/2016-11-12: I don't think I use this github repo.
+  if [[ ! -d drive ]]; then
+    git clone https://github.com/odeke-em/drive
+  else
+    cd drive
+    git pull
+  fi
 
   # FIRST ATTEMPT
   #
@@ -2451,11 +2520,14 @@ stage_4_google_drive_drive () {
 
   # THIRD ATTEMPT
   #
-  # CAUTION: This command runs silently for a minute or two. Be patient.
+  # CAUTION: This command runs silently for a half minute or so. Be patient.
   go get -u github.com/odeke-em/drive/cmd/drive
 
   # SWEET! Finally. Installed.
 
+  echo
+  echo "ALERT: Mandatory User Interaction Required"
+  echo
   #mkdir /jus/bkups/bkup-google.drive
   drive init /jus/bkups/bkup-google.drive
 
@@ -2497,6 +2569,15 @@ stage_4_td_ameritrade_thinkorswim () {
 
   stage_announcement "stage_4_td_ameritrade_thinkorswim"
 
+  if [[ -f ${HOME}/thinkorswim/thinkorswim ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: thinkorswim"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
+
   pushd ${OPT_DLOADS} &> /dev/null
 
   sudo apt-add-repository -y ppa:webupd8team/java
@@ -2505,6 +2586,9 @@ stage_4_td_ameritrade_thinkorswim () {
 
   wget -N http://mediaserver.thinkorswim.com/installer/InstFiles/thinkorswim_installer.sh
 
+  echo
+  echo "ALERT: Mandatory User Interaction Required"
+  echo
   sh ./thinkorswim_installer.sh
 
   popd &> /dev/null
@@ -2514,6 +2598,19 @@ stage_4_td_ameritrade_thinkorswim () {
 stage_4_optipng () {
 
   stage_announcement "stage_4_optipng"
+
+  set +e
+  command -v optipng
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -eq 0 ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: \`optipng\` command"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
 
   pushd ${OPT_DLOADS} &> /dev/null
 
@@ -2532,58 +2629,34 @@ stage_4_optipng () {
 
 } # end: stage_4_optipng
 
-stage_4_password_store () {
+# *** Password Store and lots of subcomponents.
 
-  # Password management tool.
+stage_4_pass__libgpg_error () {
 
-  # 2016-08-17: Version in aptitude for Linux Mint 17.3 is v1.4.5; current pass is v1.6.5.
+  stage_announcement "stage_4_pass__libgpg_error"
 
-  # See also: https://qtpass.org/
-  # Unable to locate package??:
-  #  sudo apt-get install -y qtpass
-  #
-  # See: https://github.com/IJHack/qtpass
+  libgpg_path="/usr/local/lib/libgpg-error.so.0.19.1"
+  if [[ -f ${libgpg_path} ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: ${libgpg_path}"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
 
-  stage_announcement "stage_4_password_store"
-
-  # https://www.passwordstore.org/
-  # Says it Depends on:
-  # - bash
-  #   http://www.gnu.org/software/bash/
-  # - GnuPG2
-  #   http://www.gnupg.org/
-  # - git
-  #   http://www.git-scm.com/
-  # - xclip
-  #   http://sourceforge.net/projects/xclip/
-  # - pwgen
-  #   http://sourceforge.net/projects/pwgen/
-  # - tree >= 1.7.0
-  #   http://mama.indstate.edu/users/ice/tree/
-  # - GNU getopt
-  #   http://www.kernel.org/pub/linux/utils/util-linux/
-
-  # $ bash --version
-  # GNU bash, version 4.3.11(1)-release (x86_64-pc-linux-gnu)
-  #
-  # Latest bash is 2016-07-11 bash-4.4-beta2, but not too many before that
-  #                2016-06-17 bash43-046[4.3-patches]
-  #                2016-02-24 bash-4.4-rc1
-  #                2015-10-12 bash-4.4-beta
-  #                2014-11-07 bash-4.2.53
-  #                2014-11-07 bash-4.3.30
-  #                2014-04-10 bash43-011 [4.3-patches]
-  #                2014-02-26 bash-4.3
-  #
-  # so whatever. Not like I want to touch Bash, anyway.
+  pushd ${OPT_DLOADS} &> /dev/null
 
   # For libassuan.
   # ftp://ftp.gnupg.org/gcrypt/libgpg-error/
-  pushd ${OPT_DLOADS} &> /dev/null
+
   wget -N ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.24.tar.gz
   wget -N ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.24.tar.gz.sig
+  set +e
   gpg --verify libgpg-error-1.24.tar.gz.sig
-  if [[ $? -ne 0 ]]; then
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -ne 0 ]]; then
     echo "FATAL: Failed to verify downloaded file signature: libgpg-error-1.24.tar.gz"
     exit 1
   fi
@@ -2593,15 +2666,37 @@ stage_4_password_store () {
   make
   make check
   sudo make install
+
   popd &> /dev/null
+  
+} # end: stage_4_pass__libgpg_error
+
+stage_4_pass__libassuan () {
+
+  stage_announcement "stage_4_pass__libassuan"
+
+  libassuan_path="/usr/local/lib/libassuan.so.0.7.3"
+  if [[ -f ${libassuan_path} ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: ${libassuan_path}"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
+
+  pushd ${OPT_DLOADS} &> /dev/null
 
   # For GPG2.
   # ftp://ftp.gnupg.org/gcrypt/libassuan/
-  pushd ${OPT_DLOADS} &> /dev/null
+
   wget -N ftp://ftp.gnupg.org/gcrypt/libassuan/libassuan-2.4.3.tar.bz2
   wget -N ftp://ftp.gnupg.org/gcrypt/libassuan/libassuan-2.4.3.tar.bz2.sig
+  set +e
   gpg --verify libassuan-2.4.3.tar.bz2.sig
-  if [[ $? -ne 0 ]]; then
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -ne 0 ]]; then
     echo "FATAL: Failed to verify downloaded file signature: libassuan-2.4.3.tar.bz2"
     exit 1
   fi
@@ -2611,15 +2706,37 @@ stage_4_password_store () {
   make
   make check
   sudo make install
+
   popd &> /dev/null
+
+} # end: stage_4_pass__libassuan
+
+stage_4_pass__libksba () {
+
+  stage_announcement "stage_4_pass__libksba"
+
+  libksba_path="/usr/local/lib/libksba.so.8.11.5"
+  if [[ -f ${libksba_path} ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: ${libksba_path}"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
+
+  pushd ${OPT_DLOADS} &> /dev/null
 
   # For GPG2.
   # ftp://ftp.gnupg.org/gcrypt/libksba/
-  pushd ${OPT_DLOADS} &> /dev/null
+
   wget -N ftp://ftp.gnupg.org/gcrypt/libksba/libksba-1.3.4.tar.bz2
   wget -N ftp://ftp.gnupg.org/gcrypt/libksba/libksba-1.3.4.tar.bz2.sig
+  set +e
   gpg --verify libksba-1.3.4.tar.bz2.sig
-  if [[ $? -ne 0 ]]; then
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -ne 0 ]]; then
     echo "FATAL: Failed to verify downloaded file signature: libksba-1.3.4.tar.bz2"
     exit 1
   fi
@@ -2629,13 +2746,31 @@ stage_4_password_store () {
   make
   make check
   sudo make install
+
   popd &> /dev/null
+
+} # end: stage_4_pass__libksba
+
+stage_4_pass__libpth () {
+
+  stage_announcement "stage_4_pass__libpth"
+
+  libpth_path="/usr/local/lib/libpth.so.20.0.27"
+  if [[ -f ${libpth_path} ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: ${libpth_path}"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
+
+  pushd ${OPT_DLOADS} &> /dev/null
 
   # For GPG2.
   # ftp://ftp.gnu.org/gnu/pth/
   # 2016-08-17: I did not try this:
   #  sudo apt-get install -y libpth-dev
-  pushd ${OPT_DLOADS} &> /dev/null
   wget -N ftp://ftp.gnu.org/gnu/pth/pth-2.0.7.tar.gz
   wget -N ftp://ftp.gnu.org/gnu/pth/pth-2.0.7.tar.gz.sig
   # 2016-08-17: Whhere's their public key?
@@ -2652,7 +2787,33 @@ stage_4_password_store () {
   make
   make test
   sudo make install
+
   popd &> /dev/null
+
+} # end: stage_4_pass__libpth
+
+stage_4_pass__gnupg_2 () {
+
+  stage_announcement "stage_4_pass__gnupg_2"
+
+  gpg2_path="/usr/local/bin/gpg2"
+  if [[ -f ${gpg2_path} ]]; then
+    gpg2_version=$(/usr/local/bin/gpg2 --version | head -1)
+    if [[ ${gpg2_version} == "gpg (GnuPG) 2.0.30" ]]; then
+      echo
+      echo "${REINSTALL_OR_SKIP}: Already installed: ${gpg2_path}"
+      echo
+      if ! ${FORCE_REINSTALL}; then
+        return
+      fi
+    else
+      echo
+      echo "Detected different version of GnuPG: ${gpg2_version}"
+      echo
+    fi
+  fi
+
+  pushd ${OPT_DLOADS} &> /dev/null
 
   # Mint 17.3 upstream [2016-08-17]:
   #
@@ -2663,7 +2824,7 @@ stage_4_password_store () {
   # https://www.gnupg.org/
   # "2.1.14 is the modern version with support for ECC and many other new features
   #  2.0.30 is the stable version which is currently mostly used."
-  pushd ${OPT_DLOADS} &> /dev/null
+
   wget -N https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-2.0.30.tar.bz2
   wget -N https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-2.0.30.tar.bz2.sig
   # https://www.gnupg.org/signature_key.html
@@ -2765,16 +2926,22 @@ b2NoIChnbnVwZyBzaWcpIDxkZDlqbkBnbnUub3JnPohhBBMRAgAhAheABQkOFIf9
 BQJBvGheBgsJCAcDAgMVAgMDFgIBAh4BAAoJEGi3q4lXVI3NBJMAn01313ag0tgj
 rGUZtDlKYbmNIeMeAJ0UpVsjxpylBcSjsPE8MAki7Hb2Rw==
 =W3eM
------END PGP PUBLIC KEY BLOCK-----" | gpg --import
+-----END PGP PUBLIC KEY BLOCK-----" \
+  | gpg --import
+
+  set +e
   # gpg --verify gnupg-2.0.30.tar.bz2.sig gnupg-2.0.30.tar.bz2
   gpg --verify gnupg-2.0.30.tar.bz2.sig
-  if [[ $? -ne 0 ]]; then
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -ne 0 ]]; then
     echo "FATAL: Failed to verify downloaded file signature: gnupg-2.0.30.tar.bz2"
     exit 1
   fi
-  tar -xvjf gnupg-2.0.30.tar.bz2
-  cd gnupg-2.0.30
 
+  tar -xvjf gnupg-2.0.30.tar.bz2
+
+  cd gnupg-2.0.30
   #   $ ./configure
   #   checking for GPG Error - version >= 1.11... yes (1.24)
   #   configure: WARNING:
@@ -2821,8 +2988,26 @@ rGUZtDlKYbmNIeMeAJ0UpVsjxpylBcSjsPE8MAki7Hb2Rw==
 
   popd &> /dev/null
 
-  # https://github.com/astrand/xclip
+} # end: stage_4_pass__gnupg_2
+
+stage_4_pass__xclip () {
+
+  stage_announcement "stage_4_pass__xclip"
+
+  xclip_path="/usr/local/bin/xclip-copyfile"
+  if [[ -f ${xclip_path} ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: ${xclip_path}"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
+
   pushd ${OPT_DLOADS} &> /dev/null
+
+  # https://github.com/astrand/xclip
+
   # ./configure fails without libXmu headers.
   #   checking for X11/Xmu/Atoms.h... no
   #   configure: error: *** X11/Xmu/Atoms.h is missing ***
@@ -2840,7 +3025,26 @@ rGUZtDlKYbmNIeMeAJ0UpVsjxpylBcSjsPE8MAki7Hb2Rw==
   sudo make install
   # install man page
   sudo make install.man
+
   popd &> /dev/null
+
+} # end: stage_4_pass__xclip
+
+stage_4_pass__tree () {
+
+  stage_announcement "stage_4_pass__tree"
+
+  tree_path="/usr/bin/tree"
+  if [[ -f ${tree_path} ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: ${tree_path}"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
+
+  pushd ${OPT_DLOADS} &> /dev/null
 
   # 2016-08-17: Dern it, Mint 17.3:
   #
@@ -2848,43 +3052,179 @@ rGUZtDlKYbmNIeMeAJ0UpVsjxpylBcSjsPE8MAki7Hb2Rw==
   #   tree v1.6.0 (c) 1996 - 2011 by Steve Baker, Thomas Moore, Francesc Rocher, Kyosuke Tokoro
   #
   # http://mama.indstate.edu/users/ice/tree/
-  pushd ${OPT_DLOADS} &> /dev/null
+
   wget -N ftp://mama.indstate.edu/linux/tree/tree-1.7.0.tgz
   tar xvzf tree-1.7.0.tgz
   cd tree-1.7.0/
   make
   sudo make install
+
   popd &> /dev/null
+
+} # end: stage_4_pass__tree
+
+stage_4_pass__util_linux () {
+
+  stage_announcement "stage_4_pass__util_linux"
+
+  echo
+  echo "WARNING: Do not build util-linux and install it!"
+  echo
+  return
+
+  # 2016-11-12/WHATEVER:
+  #   You don't need util-linux (it's already installed),
+  #   and if you build and install it anew,
+  #
+  #     You'll BORK Your SYSTEM!
+  #
+  # At least building works:
+  #
+  #   ~ $ cd ..
+  #   .downloads $ wipefs --version
+  #   wipefs from util-linux 2.20.1
+  #
+  #   util-linux-2.28.1 $ ./wipefs --version
+  #   lt-wipefs from util-linux 2.28.1
+  #
+  # But `sudo make install` DOOMS you:
+  #
+  #   $ wipefs --version
+  #   wipefs: /lib/x86_64-linux-gnu/libblkid.so.1: version `BLKID_2.21' not found (required by wipefs)
+  #
+  #   $ mount
+  #   mount: /lib/x86_64-linux-gnu/libmount.so.1: version `MOUNT_2.25' not found (required by mount)
+  #   mount: /lib/x86_64-linux-gnu/libmount.so.1: version `MOUNT_2.23' not found (required by mount)
+  #   mount: /lib/x86_64-linux-gnu/libmount.so.1: version `MOUNT_2.21' not found (required by mount)
+  #   mount: /lib/x86_64-linux-gnu/libmount.so.1: version `MOUNT_2.24' not found (required by mount)
+  #   mount: /lib/x86_64-linux-gnu/libmount.so.1: version `MOUNT_2.22' not found (required by mount)
+  #
+  # I was able to recover wipefs, but still not mount.
+  #
+  #   ~ $ wipefs --version
+  #   wipefs from util-linux 2.20.1
+  #
+  #   # http://packages.ubuntu.com/trusty/amd64/util-linux/download
+  #   wget -N http://mirrors.kernel.org/ubuntu/pool/main/u/util-linux/util-linux_2.20.1-5.1ubuntu20_amd64.deb
+  #   sudo dpkg -i util-linux_2.20.1-5.1ubuntu20_amd64.deb
+  #
+  #   wget -N http://mirrors.kernel.org/ubuntu/pool/main/u/util-linux/libblkid1_2.20.1-5.1ubuntu20_amd64.deb
+  #   sudo dpkg -i libblkid1_2.20.1-5.1ubuntu20_amd64.deb
+  #
+  #   # THIS WORKED! mount is restored!
+  #   wget -N http://mirrors.kernel.org/ubuntu/pool/main/u/util-linux/mount_2.20.1-5.1ubuntu20_amd64.deb
+  #   sudo dpkg -i mount_2.20.1-5.1ubuntu20_amd64.deb
+  #
+  # I'm trying all the commands under /srv/opt/.downloads/util-linux-2.28.1 to see what works.
+  #
+  #   Broken:
+  #     eject
+  #     lslocks
+  #     mountpoint
+  #
+  #   # Fix eject:
+  #   wget -N http://mirrors.kernel.org/ubuntu/pool/main/e/eject/eject_2.1.5+deb1+cvs20081104-13.1_amd64.deb
+  #   sudo dpkg -i eject_2.1.5+deb1+cvs20081104-13.1_amd64.deb
+  #
+  #   # Fix mountpoint:
+  #   wget -N http://mirrors.kernel.org/ubuntu/pool/main/s/sysvinit/initscripts_2.88dsf-41ubuntu6_amd64.deb
+  #   sudo dpkg -i initscripts_2.88dsf-41ubuntu6_amd64.deb
+  #
+  # I GIVE UP: `lslocks` is borked on my desktop in Mint 17.
+  #            I wonder if the machine will reboot...
+
+  #UTILL_VERS="2.28.1"
+  #UTILL_VERS="2.28.2"
+  UTILL_VERS="2.29"
+
+  pushd ${OPT_DLOADS} &> /dev/null
 
   # 2016-08-17: Linux Mint 17.3:
   #
   #   $ getopt --version
   #   getopt from util-linux 2.20.1
   #
-  # Latest is 11-Aug-2016 v2.28
+  # Latest archive:
   #
   #   http://www.kernel.org/pub/linux/utils/util-linux/
+
   sudo apt-get install -y libncurses5-dev
-  pushd ${OPT_DLOADS} &> /dev/null
-  wget -N https://www.kernel.org/pub/linux/utils/util-linux/v2.28/util-linux-2.28.1.tar.xz
-  tar -xJvf util-linux-2.28.1.tar.xz
-  cd util-linux-2.28.1/
+  # Avoid: /usr/bin/ld: cannot find -lncursesw
+  sudo apt-get install -y libncursesw5-dev
+
+  wget -N \
+    https://www.kernel.org/pub/linux/utils/util-linux/v${UTILL_VERS}/util-linux-${UTILL_VERS}.tar.xz
+  tar -xJvf util-linux-${UTILL_VERS}.tar.xz
+  cd util-linux-${UTILL_VERS}
   # Just guessing here, as there are no build instructions.
   ./configure
   make
-  make test
-  make install
+  # No `make test`?
+  # ARGH:
+  #  This fails (obviously):
+  #    make test
+  #  And this overwrites basic commands but leaves you with a library problem!
+  #  DO NOT DO THIS:
+  #    sudo make install
+
+  # YIKES!/2016-11-12: I probably shouldn't have install util-linux!
+
+  # FRAK! Didn't help:
+  #
+  #   sudo apt-get install --reinstall util-linux
+  #   sudo apt-get install -f util-linux --reinstall
+  #
+  #   sudo apt-get update && sudo apt-get install -f
+
   popd &> /dev/null
+
+} # end: stage_4_pass__util_linux
+
+stage_4_pass__password_store () {
+
+  stage_announcement "stage_4_pass__password_store"
+
+  PASS_VERS="1.6.5"
+
+  set +e
+  command -v pass
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -eq 0 ]]; then
+    set +e
+    pass --version | grep "${PASS_VERS}"
+    exit_code=$?
+    reset_errexit
+    if [[ ${exit_code} -ne 0 ]]; then
+      echo
+      echo "${REINSTALL_OR_SKIP}: Already installed: \`pass\` v${PASS_VERS} command"
+      echo
+      if ! ${FORCE_REINSTALL}; then
+        return
+      fi
+    fi
+  fi
+
+  pushd ${OPT_DLOADS} &> /dev/null
 
   # Finally.
   # https://www.passwordstore.org/
-  pushd ${OPT_DLOADS} &> /dev/null
-  wget -N https://git.zx2c4.com/password-store/snapshot/password-store-1.6.5.tar.xz
-  tar xvzf password-store-1.6.5.tar.xz
-  tar --xz -xvf password-store-1.6.5.tar.xz
-  pushd password-store-1.6.5 &> /dev/null
+
+  wget -N https://git.zx2c4.com/password-store/snapshot/password-store-${PASS_VERS}.tar.xz
+  tar xvzf password-store-${PASS_VERS}.tar.xz
+  tar --xz -xvf password-store-${PASS_VERS}.tar.xz
+  cd password-store-${PASS_VERS}
   sudo make install
+
   popd &> /dev/null
+
+} # end: stage_4_pass__password_store
+
+stage_4_pass__fix_gnome_keyring_hijack () {
+
+  stage_announcement "stage_4_pass__fix_gnome_keyring_hijack"
+
+  pushd ${OPT_DLOADS} &> /dev/null
 
   if false; then
     # 2016-10-07: Make gpg ask for your password more than just once.
@@ -2897,6 +3237,7 @@ rGUZtDlKYbmNIeMeAJ0UpVsjxpylBcSjsPE8MAki7Hb2Rw==
     # The time-to-live value is in seconds, default is 300.
     #gsettings set org.gnome.crypto.cache gpg-cache-ttl 300
   fi
+
   # The Gnome Keyring (GKR) plays man-in-the-middle and caches
   # your pass passwords in its cache, protected by your normal
   # login credentials! Nuts to that.
@@ -2936,15 +3277,97 @@ rGUZtDlKYbmNIeMeAJ0UpVsjxpylBcSjsPE8MAki7Hb2Rw==
   eff_off_gkr=$(gpg-agent --daemon)
   eval "$eff_off_gkr"
 
-  # All done.
-
   popd &> /dev/null
+
+} # end: stage_4_pass__fix_gnome_keyring_hijack
+
+stage_4_password_store () {
+
+  # Password management tool.
+
+  # 2016-08-17: Version in aptitude for Linux Mint 17.3 is v1.4.5; current pass is v1.6.5.
+
+  # See also: https://qtpass.org/
+  # Unable to locate package??:
+  #  sudo apt-get install -y qtpass
+  #
+  # See: https://github.com/IJHack/qtpass
+
+  stage_announcement "stage_4_password_store"
+
+  # https://www.passwordstore.org/
+  # Says it Depends on:
+  # - bash
+  #   http://www.gnu.org/software/bash/
+  # - GnuPG2
+  #   http://www.gnupg.org/
+  # - git
+  #   http://www.git-scm.com/
+  # - xclip
+  #   http://sourceforge.net/projects/xclip/
+  # - pwgen
+  #   http://sourceforge.net/projects/pwgen/
+  # - tree >= 1.7.0
+  #   http://mama.indstate.edu/users/ice/tree/
+  # - GNU getopt
+  #   http://www.kernel.org/pub/linux/utils/util-linux/
+
+  # $ bash --version
+  # GNU bash, version 4.3.11(1)-release (x86_64-pc-linux-gnu)
+  #
+  # Latest bash is 2016-07-11 bash-4.4-beta2, but not too many before that
+  #                2016-06-17 bash43-046[4.3-patches]
+  #                2016-02-24 bash-4.4-rc1
+  #                2015-10-12 bash-4.4-beta
+  #                2014-11-07 bash-4.2.53
+  #                2014-11-07 bash-4.3.30
+  #                2014-04-10 bash43-011 [4.3-patches]
+  #                2014-02-26 bash-4.3
+  #
+  # so whatever. Not like I want to touch Bash, anyway.
+
+  stage_4_pass__libgpg_error
+
+  stage_4_pass__libassuan
+
+  stage_4_pass__libksba
+
+  stage_4_pass__libpth
+
+  stage_4_pass__gnupg_2
+
+  stage_4_pass__xclip
+
+  stage_4_pass__tree
+
+  # We shouldn't need util-linux (already installed) and building it
+  # and installing it yourself just fucks everything up (see fcn.).
+  #stage_4_pass__util_linux
+
+  stage_4_pass__password_store
+
+  stage_4_pass__fix_gnome_keyring_hijack
 
 } # end: stage_4_password_store
 
+# *** Continuing along.
+
+# 2016-11-12: NOT CALLED.
 stage_4_oracle_java_jre () {
 
   stage_announcement "stage_4_oracle_java_jre"
+
+  JDK_TAR="jdk-8u101-linux-x64.tar.gz"
+
+  jdk_path="${OPT_DLOADS}/${JDK_TAR}"
+  if [[ -f ${JDK_TAR} ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: ${JDK_TAR}"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
 
   pushd ${OPT_DLOADS} &> /dev/null
 
@@ -2966,10 +3389,20 @@ stage_4_oracle_java_jre () {
   # From:
   #  http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
   # Argh, the link doesn't work. Manually download using broswer.
-  #wget -N http://download.oracle.com/otn-pub/java/jdk/8u101-b13/jdk-8u101-linux-x64.tar.gz
+  #wget -N http://download.oracle.com/otn-pub/java/jdk/8u101-b13/${JDK_TAR}
 
-  /bin/mv ~/Downloads/jdk-8u101-linux-x64.tar.gz .
-  tar xvzf jdk-8u101-linux-x64.tar.gz
+  echo
+  echo "USER INTERACTION REQUIRED"
+  echo
+  echo "DOWNLOAD JDK FROM:"
+  echo
+  echo "   http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html"
+  echo
+  echo -n "Press any key to continue "
+  read -n 1 -t 1 ignored
+
+  /bin/mv -f ~/Downloads/${JDK_TAR} ${OPT_DLOADS}
+  tar xvzf ${JDK_TAR}
   /bin/mv jdk1.8.0_101 ${OPT_BIN}
   pushd ${OPT_BIN} &> /dev/null
   if [[ -h jdk ]]; then
@@ -2986,13 +3419,29 @@ stage_4_py_chjson () {
 
   stage_announcement "stage_4_py_chjson"
 
+  chjson2_7_path="/usr/local/lib/python2.7/dist-packages/python_chjson-1.2.0-py2.7-linux-x86_64.egg"
+  chjson3_4_path="/usr/local/lib/python3.4/dist-packages/python_chjson-1.2.0-py3.4-linux-x86_64.egg"
+  if [[ -f ${chjson2_7_path} && -f ${chjson3_4_path} ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: ${chjson2_7_path}"
+    echo "${REINSTALL_OR_SKIP}: Already installed: ${chjson3_4_path}"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
+
   pushd ${OPT_DLOADS} &> /dev/null
 
   sudo apt-get install -y libpython3-dev
 
-  git clone https://github.com/landonb/chjson
-
-  cd chjson
+  if [[ ! -d chjson ]]; then
+    git clone https://github.com/landonb/chjson
+    cd chjson
+  else
+    cd chjson
+    git pull -a
+  fi
 
   /bin/rm -rf build/ dist/ python_chjson.egg-info/
   python3 ./setup.py clean
@@ -3017,7 +3466,23 @@ stage_4_hipchat_client () {
 
   stage_announcement "stage_4_hipchat_client"
 
-  sudo sh -c 'echo "deb https://atlassian.artifactoryonline.com/atlassian/hipchat-apt-client $(lsb_release -c -s) main" > /etc/apt/sources.list.d/atlassian-hipchat4.list'
+  set +e
+  command -v hipchat4
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -eq 0 ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: \`hipchat4\` command"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
+
+  if [[ ! -f /etc/apt/sources.list.d/docker.list ]]; then
+    sudo sh -c 'echo "deb https://atlassian.artifactoryonline.com/atlassian/hipchat-apt-client $(lsb_release -c -s) main" > /etc/apt/sources.list.d/atlassian-hipchat4.list'
+  fi
+  # sudo apt-key list
   wget -O - https://atlassian.artifactoryonline.com/atlassian/api/gpg/key/public | sudo apt-key add -
   sudo apt-get update
   sudo apt-get install hipchat4
@@ -3028,28 +3493,42 @@ stage_4_install_docker () {
 
   stage_announcement "stage_4_install_docker"
 
+  set +e
+  command -v docker
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -eq 0 ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: \`docker\` command"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
+
   pushd ${OPT_DLOADS} &> /dev/null
 
   # https://docs.docker.com/engine/installation/linux/ubuntulinux/
 
-  sudo apt-get update
   # These should both already be installed.
   sudo apt-get install -y apt-transport-https ca-certificates
 
   sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 \
     --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
 
-  source /etc/lsb-release
-  if [[ ${DISTRIB_CODENAME} = 'xenial' || ${DISTRIB_CODENAME} = 'sarah' ]]; then
-    echo "deb https://apt.dockerproject.org/repo ubuntu-xenial main" | \
-      sudo tee /etc/apt/sources.list.d/docker.list
-  elif [[ ${DISTRIB_CODENAME} = 'trusty' || ${DISTRIB_CODENAME} = 'rebecca' ]]; then
-    echo "deb https://apt.dockerproject.org/repo ubuntu-trusty main" | \
-      sudo tee /etc/apt/sources.list.d/docker.list
-  else
-    echo
-    echo "ERROR: Unknown distro to us. Refuse to install Docker."
-    exit 1
+  if [[ ! -f /etc/apt/sources.list.d/docker.list ]]; then
+    source /etc/lsb-release
+    if [[ ${DISTRIB_CODENAME} = 'xenial' || ${DISTRIB_CODENAME} = 'sarah' ]]; then
+      echo "deb https://apt.dockerproject.org/repo ubuntu-xenial main" | \
+        sudo tee /etc/apt/sources.list.d/docker.list
+    elif [[ ${DISTRIB_CODENAME} = 'trusty' || ${DISTRIB_CODENAME} = 'rebecca' ]]; then
+      echo "deb https://apt.dockerproject.org/repo ubuntu-trusty main" | \
+        sudo tee /etc/apt/sources.list.d/docker.list
+    else
+      echo
+      echo "ERROR: Unknown distro to us. Refuse to install Docker."
+      exit 1
+    fi
   fi
 
   sudo apt-get update
@@ -3088,7 +3567,9 @@ stage_4_install_docker () {
   # Create a docker group so your user doesn't have to sudo to docker.
   # https://docs.docker.com/engine/installation/linux/ubuntulinux/#/create-a-docker-group
   # This group already exists, at least on xenial after installing docker.
+  set +e
   sudo groupadd docker
+  reset_errexit
   sudo usermod -aG docker $USER
   # After logoff/logon, or sudo su $USER, you can test without sudo:
   #   docker run hello-world
@@ -3141,12 +3622,34 @@ stage_4_install_docker_compose () {
 
   stage_announcement "stage_4_install_docker_compose"
 
+  #DKRCPS_VERS="1.8.1"
+  DKRCPS_VERS="1.9.0-rc1"
+
+  set +e
+  command -v docker-compose
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -eq 0 ]]; then
+    set +e
+    docker-compose --version | grep "${DKRCPS_VERS}"
+    exit_code=$?
+    reset_errexit
+    if [[ ${exit_code} -ne 0 ]]; then
+      echo
+      echo "${REINSTALL_OR_SKIP}: Already installed: \`pass\` v${DKRCPS_VERS} command"
+      echo
+      if ! ${FORCE_REINSTALL}; then
+        return
+      fi
+    fi
+  fi
+
   pushd ${OPT_DLOADS} &> /dev/null
 
   # See first stage_4_install_docker.
 
   DC_BIN="docker-compose-`uname -s`-`uname -m`"
-  DC_REMOTE="https://github.com/docker/compose/releases/download/1.9.0-rc1/"
+  DC_REMOTE="https://github.com/docker/compose/releases/download/${DKRCPS_VERS}"
   #curl -L ${DC_REMOTE}/${DC_BIN} | sudo tee /usr/local/bin/docker-compose
   wget -N ${DC_REMOTE}/${DC_BIN}
   #sudo cp -a ${DC_BIN} /usr/local/bin/docker-compose
@@ -3156,7 +3659,8 @@ stage_4_install_docker_compose () {
 
   # 2016-10-25:
   docker-compose --version
-  #docker-compose version: 1.8.1
+  ##docker-compose version: 1.8.1
+  #docker-compose version: 1.9.0-rc1
 
   popd &> /dev/null
 
@@ -3181,6 +3685,19 @@ stage_4_git_latest () {
 stage_4_openshift_client () {
 
   stage_announcement "stage_4_openshift_client"
+
+  set +e
+  command -v oc
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -eq 0 ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: \`oc\` command"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
 
   pushd ${OPT_DLOADS} &> /dev/null
 
@@ -3207,9 +3724,30 @@ stage_4_jq_cli_json_processor () {
 
   stage_announcement "stage_4_jq_cli_json_processor"
 
+  JQ_VERS="jq-1.5"
+
+  set +e
+  command -v jq
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -eq 0 ]]; then
+    set +e
+    jq --version | grep "^${JQ_VERS}$"
+    exit_code=$?
+    reset_errexit
+    if [[ ${exit_code} -ne 0 ]]; then
+      echo
+      echo "${REINSTALL_OR_SKIP}: Already installed: \`jq\` v${JQ_VERS} command"
+      echo
+      if ! ${FORCE_REINSTALL}; then
+        return
+      fi
+    fi
+  fi
+
   pushd ${OPT_BIN} &> /dev/null
 
-  wget -N https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64
+  wget -N https://github.com/stedolan/jq/releases/download/${JQ_VERS}/jq-linux64
   chmod 775 jq-linux64
 
   /bin/ln -sf jq-linux64 jq
@@ -3221,6 +3759,27 @@ stage_4_jq_cli_json_processor () {
 stage_4_gnome_encfs_manager () {
 
   stage_announcement "stage_4_gnome_encfs_manager"
+
+  ENCFS_VERS="1.9.1"
+
+  set +e
+  command -v encfs
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -eq 0 ]]; then
+    set +e
+    encfs --version | grep "^encfs version ${ENCFS_VERS}$"
+    exit_code=$?
+    reset_errexit
+    if [[ ${exit_code} -ne 0 ]]; then
+      echo
+      echo "${REINSTALL_OR_SKIP}: Already installed: \`encfs\` v${ENCFS_VERS} command"
+      echo
+      if ! ${FORCE_REINSTALL}; then
+        return
+      fi
+    fi
+  fi
 
   if false; then
     # 2016-09-29
@@ -3265,11 +3824,11 @@ stage_4_gnome_encfs_manager () {
     libintl-perl \
     libintl-xs-perl
 
-  wget -N https://github.com/vgough/encfs/releases/download/v1.9.1/encfs-1.9.1.tar.gz
+  wget -N https://github.com/vgough/encfs/releases/download/v${ENCFS_VERS}/encfs-${ENCFS_VERS}.tar.gz
 
-  tar xzf encfs-1.9.1.tar.gz
+  tar xzf encfs-${ENCFS_VERS}.tar.gz
 
-  cd encfs-1.9.1
+  cd encfs-${ENCFS_VERS}
 
   mkdir build
   cd build
@@ -3350,6 +3909,31 @@ stage_4_exosite_setup () {
 
   stage_announcement "stage_4_exosite_setup"
 
+  if false;
+
+    EXOLINE_VERS="0.10.0"
+
+    set +e
+    command -v exo
+    exit_code=$?
+    reset_errexit
+    if [[ ${exit_code} -eq 0 ]]; then
+      set +e
+      exo --version | grep "^Exosite Command Line ${EXOLINE_VERS}$"
+      exit_code=$?
+      reset_errexit
+      if [[ ${exit_code} -ne 0 ]]; then
+        echo
+        echo "${REINSTALL_OR_SKIP}: Already installed: \`exo\` v${EXOLINE_VERS} command"
+        echo
+        if ! ${FORCE_REINSTALL}; then
+          return
+        fi
+      fi
+    fi
+
+  fi
+
   pushd ${OPT_DLOADS} &> /dev/null
 
   # 2016-09-29: So, this worked (at work!) on Linux Mint "Sarah" 16.04,
@@ -3383,7 +3967,7 @@ stage_4_go_delve_debugger () {
   # and when I ctrl-c, I see gocode/src/github.com/derekparker
   # and it's empty.
 
-  mkdir ${HOME}/.gopath
+  mkdir -p ${HOME}/.gopath
   export GOPATH=${HOME}/.gopath
 
 # FIXME/2016-10-29: Is this necessary? Doesn't `make install` do this?
@@ -3391,8 +3975,14 @@ stage_4_go_delve_debugger () {
 
   pushd ${HOME}/.gopath/src/github.com/derekparker &> /dev/null
 
-  git clone ssh://git@github.com/derekparker/delve
-  cd delve
+  if [[ ! -d delve ]]; then
+    git clone ssh://git@github.com/derekparker/delve
+    cd delve
+  else
+    cd delve
+    git pull
+  fi
+
   make install
 
   # ll gocode
@@ -3444,8 +4034,14 @@ stage_4_libmateweather () {
   # No package 'libsoup-2.4' found
   sudo apt-get install -y libsoup2.4-dev
 
-  git clone https://github.com/mate-desktop/libmateweather
-  cd libmateweather
+  if [[ ! -d libmateweather ]]; then
+    git clone https://github.com/mate-desktop/libmateweather
+    cd libmateweather
+  else
+    cd libmateweather
+    git pull
+  fi
+
   ./autogen.sh
   make
   sudo make install
@@ -3459,8 +4055,6 @@ stage_4_libmateweather () {
 stage_4_open_shift_origin_binary () {
 
   stage_announcement "stage_4_open_shift_origin_binary"
-
-  pushd ${OPT_DLOADS} &> /dev/null
 
   # Find the checksum and releases on github:
   #   https://github.com/openshift/origin/releases
@@ -3492,6 +4086,18 @@ stage_4_open_shift_origin_binary () {
 
   # E.g., "openshift-origin-server-v1.3.0-3ab7af3d097b57f933eccef684a714f2368804e7-linux-64bit.tar.gz"
   TARNAME="${SERVER_BASENAME}.tar.gz"
+
+  if [[ -f ${TARNAME} ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: ${TARNAME}"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
   wget -N https://github.com/openshift/origin/releases/download/${SERVER_VERSION}/${TARNAME}
   cd ${OPT_BIN}
   tar xzf ${OPT_DLOADS}/${TARNAME}
@@ -3537,6 +4143,11 @@ stage_4_setup_whiteinge_diffconflicts () {
 
   stage_announcement "stage_4_setup_whiteinge_diffconflicts"
 
+  echo
+  echo "WARNING: Deprecated: stage_4_setup_whiteinge_diffconflicts"
+  echo
+  return
+
   # From ~/.fries/bin/diffconflicts-setup.sh, 2016 Mar 24.
   # Has something to do with resolving merge conflicts.
   # I've just been doing it raw via text editor....
@@ -3569,6 +4180,11 @@ stage_4_setup_whiteinge_diffconflicts () {
 } # end: stage_4_setup_whiteinge_diffconflicts
 
 stage_4_download_log4sh () {
+
+  echo
+  echo "WARNING: Deprecated: stage_4_download_log4sh"
+  echo
+  return
 
   if false; then
 
@@ -3636,6 +4252,17 @@ stage_4_go_get_crap () {
 
   stage_announcement "stage_4_go_get_crap"
 
+  JSONQ_SRC="${HOME}/.gopath/src/github.com/jmoiron/jsonq/"
+
+  if [[ -d ${JSONQ_SRC} ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: ${JSONQ_SRC}"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
+
   #pushd ${OPT_DLOADS} &> /dev/null
 
   # Installs to:
@@ -3650,6 +4277,11 @@ stage_4_install_fluentd_er_td_agent () {
 
   stage_announcement "stage_4_install_fluentd_er_td_agent"
 
+  echo
+  echo "WARNING: Deprecated: stage_4_install_fluentd_er_td_agent"
+  echo
+  return
+
   # http://docs.fluentd.org/articles/install-by-deb
 
   # Fluentd td-agent, used with ELK stack (Elasticsearch, Logstash, Kibana).
@@ -3661,20 +4293,23 @@ stage_4_install_fluentd_er_td_agent () {
   #
   # - [lb]
 
-  # run inside sudo
-  sudo sh <<SCRIPT
-    curl https://packages.treasuredata.com/GPG-KEY-td-agent | apt-key add -
+  if [[ ! -f /etc/apt/sources.list.d/treasure-data.list ]]; then
+    # run inside sudo
+    sudo sh <<SCRIPT
+      curl https://packages.treasuredata.com/GPG-KEY-td-agent | apt-key add -
 
-    # add treasure data repository to apt
-    echo "deb http://packages.treasuredata.com/2/ubuntu/trusty/ trusty contrib" \
-      > /etc/apt/sources.list.d/treasure-data.list
+      # add treasure data repository to apt
+        echo "deb http://packages.treasuredata.com/2/ubuntu/trusty/ trusty contrib" \
+          > /etc/apt/sources.list.d/treasure-data.list
 
-    # update your sources
-    apt-get update
+      # update your sources
+      apt-get update
 
-    # install the toolbelt
-    apt-get install -y --force-yes td-agent
+      # install the toolbelt
+      apt-get install -y --force-yes td-agent
 SCRIPT
+
+  fi
 
   # To start the engine:
   #   sudo /etc/init.d/td-agent restart
@@ -3692,6 +4327,17 @@ SCRIPT
 stage_4_install_arduino () {
 
   stage_announcement "stage_4_install_arduino"
+
+  ARDUINO_IDE="${OPT_DLOADS}/arduino-1.6.12/arduino"
+
+  if [[ -d ${ARDUINO_IDE} ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: ${ARDUINO_IDE}"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
 
   pushd ${OPT_DLOADS} &> /dev/null
 
@@ -3743,6 +4389,18 @@ setup_customize_extras_go () {
     sudo chgrp ${USE_STAFF_GROUP_ASSOCIATION} /srv
     sudo chmod g+w /srv
   fi
+
+  # *** Interactive installers. Get 'em done first.
+
+  # Ballickwad.
+  stage_4_google_drive_drive
+
+  # Invalid selection.
+  stage_4_td_ameritrade_thinkorswim
+
+  stage_4_oracle_java_jre
+
+  # *** Non-interactive installers.
 
   # Tell Hamster to start on login.
   stage_4_hamster_time_tracker_setup
@@ -3810,6 +4468,7 @@ setup_customize_extras_go () {
 
   # Rock you like a hurricane!
   stage_4_spotify_install
+  stage_4_relocate_spotify_cache
 
   # Ah, classic open source GIS tools, I honor thee.
   stage_4_openjump_install
@@ -3845,13 +4504,14 @@ setup_customize_extras_go () {
 
   # DigiKam is a decent photo organization tool. It's
   # also a pain to build from scratch.
-  #stage_4_digikam_from_scratch
-  stage_4_digikam_from_distro
+  ##stage_4_digikam_from_scratch
+  #stage_4_digikam_from_distro
   # 2016-09-17: Aha!
   stage_4_digikam5_from_distro
 
   # Dah Gimp Dah Gimp Dah Gimp!
   stage_4_gimp_plugins
+  stage_4_gimp_docs
 
   # Install Python 3.5 from deadsnakes.
   # FIXME: This should be distro-dependent.
@@ -3865,12 +4525,6 @@ setup_customize_extras_go () {
 
   # Zoinks.
   stage_4_zoneminder
-
-  # Ballickwad.
-  stage_4_google_drive_drive
-
-  # Invalid selection.
-  stage_4_td_ameritrade_thinkorswim
 
   # PNG minifimizer.
   stage_4_optipng
@@ -3924,28 +4578,12 @@ setup_customize_extras_go () {
   # FIXME/MAYBE: These commands are stubbed.
   # ========================================
 
-  # Configure Git.
-  # See ~/.gitconfig. No need to call `git config`.
-  #
-  # FIXME: Do something like
-  #          m4 ... ~/.gitconfig.m4 ...
-  #
-  #stage_4_git_configure
-
   # Setup /etc/updatedb.conf, except this is machine-specific,
   # so there's just a FIXME comment therein for now; a no-op.
   stage_4_updatedb_locate_conf
 
-  # Install LibreOffice.
-  # FIXME: This is a no-op; how have I been installing libreoffice5?
-  stage_4_libreoffice_install
-
   # DISABLED/PROBABLY DISABLED SETUPS
   # =================================
-
-  # Configure Mercurial.
-  # - Only iff $USE_SETUP_HG.
-  #stage_4_hg_configure
 
   # Configure Meld.
   # - Currently a no-op; not written.
@@ -3964,12 +4602,6 @@ setup_customize_extras_go () {
   # - This is a no-op since apt-get can install `expect`.
   stage_4_dev_testing_expect_install
 
-  # I've wanted to want to try to like password managers
-  # in the past but find myself just using, like, and
-  # trusting my system better...
-  # - so this is a no-op.
-  stage_4_keepassx_install
-
   # 2016-03-23: Pencil install is disabled since not used.
   stage_4_pencil_install
 
@@ -3980,15 +4612,6 @@ setup_customize_extras_go () {
 
   # Disabled:
   stage_4_jsctags_install
-
-  # 2016.03.23: Check out hamster and
-  #   https://github.com/landonb/hamster_briefs
-  if false; then
-    stage_4_todo_txt_install
-    stage_4_punch_tt_install
-    stage_4_ti_time_tracker_install
-    stage_4_utt_time_tracker_install
-  fi
 
   # 2016-03-23: What's LiClipse again? An Eclipse... Flash debugger?
   #             Python debugger? I can't remembugger.
@@ -4010,9 +4633,26 @@ setup_customize_extras_go () {
 
 } # end: setup_customize_extras_go
 
+setup_catching_up () {
+
+  echo "-----------------"
+  echo "setup_catching_up"
+  echo "-----------------"
+
+  stage_4_relocate_spotify_cache
+
+} # end: setup_catching_up
+
 if [[ "$0" == "$BASH_SOURCE" ]]; then
   # Only call the setup fcns. if this script is being run and not sourced.
-  setup_customize_extras_go
+
+
+# FIXME: just testing.
+  #setup_customize_extras_go
+setup_catching_up
+
+
+
 # else, $BASH_SOURCE is not the name of this script; it's
 #       the name of the script that's sourcing this script.
 fi

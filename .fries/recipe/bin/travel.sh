@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016.11.07
+# Last Modified: 2016.11.12
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
@@ -35,12 +35,12 @@ else
 fi
 
 # Load: setup_users_curly_path
-if [[ -e ${HOME}/.fries/lib/util.sh ]]; then
-  source ${HOME}/.fries/lib/util.sh
-elif [[ -e util.sh ]]; then
-  source util.sh
+if [[ -e ${HOME}/.fries/lib/curly_util.sh ]]; then
+  source ${HOME}/.fries/lib/curly_util.sh
+elif [[ -e curly_util.sh ]]; then
+  source curly_util.sh
 else
-  echo "WARNING: Missing util.sh"
+  echo "WARNING: Missing curly_util.sh"
 fi
 # Set USERS_CURLY and USERS_BNAME.
 setup_users_curly_path
@@ -1224,7 +1224,7 @@ function check_repos_statuses () {
       THIS_SCRIPT_NAME="$(basename ${SCRIPT_ABS_PATH})"
       #GREPPERS='| grep -v " travel.sh$"'
       GREPPERS="${GREPPERS} | grep -v \" ${THIS_SCRIPT_NAME}\$\""
-      GREPPERS="${GREPPERS} | grep -v \" util.sh\$\""
+      GREPPERS="${GREPPERS} | grep -v \" curly_util.sh\$\""
       echo "GREPPERS: ${GREPPERS}"
     fi
     git_status_porcelain "$(basename ${ENCFS_GIT_REPOS[$i]})"
@@ -1725,8 +1725,8 @@ function prepare_shim () {
   /bin/cp -aLf ${PREFIX}/${SCRIPT_ABS_PATH} travel_shim.sh
   chmod 775 travel_shim.sh
 
-  echo "Copying: ${PREFIX}/${FRIES_ABS_DIRN}/.fries/lib/util.sh"
-  /bin/cp -aLf ${PREFIX}/${FRIES_ABS_DIRN}/.fries/lib/util.sh .
+  echo "Copying: ${PREFIX}/${FRIES_ABS_DIRN}/.fries/lib/curly_util.sh"
+  /bin/cp -aLf ${PREFIX}/${FRIES_ABS_DIRN}/.fries/lib/curly_util.sh .
 
   echo "Copying: ${PREFIX}/${FRIES_ABS_DIRN}/.fries/lib/logger.sh"
   /bin/cp -aLf ${PREFIX}/${FRIES_ABS_DIRN}/.fries/lib/logger.sh .

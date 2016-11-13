@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.11
+# Last Modified: 2016.11.12
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -20,17 +20,12 @@ if [[ -f ${HOME}/.fries/lib/bash_base.sh ]]; then
   DEBUG_TRACE=false source ${HOME}/.fries/lib/bash_base.sh
 fi
 
-if [[ -f ${HOME}/.fries/lib/util.sh ]]; then
-  source ${HOME}/.fries/lib/util.sh
+if [[ -f ${HOME}/.fries/lib/color_util.sh ]]; then
+  source ${HOME}/.fries/lib/color_util.sh
 fi
 
-# 2016-10-11: Might as well plop git fcns in the sess', eh?
-if [[ -f ${HOME}/.fries/lib/git_util.sh ]]; then
-  source ${HOME}/.fries/lib/git_util.sh
-fi
-
-if [[ -f ${HOME}/.fries/lib/openshift_util.sh ]]; then
-  source ${HOME}/.fries/lib/openshift_util.sh
+if [[ -f ${HOME}/.fries/lib/curly_util.sh ]]; then
+  source ${HOME}/.fries/lib/curly_util.sh
 fi
 
 # 2016-10-24: Well, the lib/ dir sure is growing.
@@ -38,15 +33,19 @@ if [[ -f ${HOME}/.fries/lib/docker_util.sh ]]; then
   source ${HOME}/.fries/lib/docker_util.sh
 fi
 
-# Vendor paths (see: setup_linux.sh)
-#####################################
+# 2016-10-11: Might as well plop git fcns in the sess', eh?
+if [[ -f ${HOME}/.fries/lib/git_util.sh ]]; then
+  source ${HOME}/.fries/lib/git_util.sh
+fi
 
-OPT_DLOADS=/srv/opt/.downloads
-OPT_BIN=/srv/opt/bin
-OPT_SRC=/srv/opt/src
-OPT_DOCS=/srv/opt/docs
-# 2016-10-10: Google's NoTo zip is nearly 500 MB, so moving .fonts off home.
-OPT_FONTS=/srv/opt/.fonts
+# 2016-11-12: What about this guy?
+#if [[ -f ${HOME}/.fries/lib/logger.sh ]]; then
+#  source ${HOME}/.fries/lib/logger.sh
+#fi
+
+if [[ -f ${HOME}/.fries/lib/openshift_util.sh ]]; then
+  source ${HOME}/.fries/lib/openshift_util.sh
+fi
 
 # Determine OS Flavor
 #####################
@@ -2035,6 +2034,37 @@ fi
 
 #########################
 
+has_sudo () {
+  sudo -n true &> /dev/null && echo YES || echo NOPE
+  #if sudo -n true 2>/dev/null; then 
+  #  echo "I got sudo"
+  #else
+  #  echo "I don't have sudo"
+  #fi
+}
+
+#########################
+
+touchpad_twiddle () {
+  TOUCHPAD_STATE=$1
+  if [[ $(command -v xinput > /dev/null) || $? -eq 0 ]]; then
+    DEVICE_NUM=$(xinput --list --id-only "SynPS/2 Synaptics TouchPad" 2> /dev/null)
+    if [[ -n ${DEVICE_NUM} ]]; then
+      xinput set-prop ${DEVICE_NUM} "Device Enabled" ${TOUCHPAD_STATE}
+    fi
+  fi
+}
+
+touchpad_disable () {
+  touchpad_twiddle 0
+}
+
+touchpad_enable () {
+  touchpad_twiddle 1
+}
+
+#########################
+
 # 2016-09-26: This is just a reminder of a good way to iterate over directories.
 # I used to just change IFS, but this trick handles newlines and asterisks in paths,
 # in addition to spaces in file/directory/path names.
@@ -2074,26 +2104,6 @@ associative_array_iterate_example () {
     echo "key  : $i"
     echo "value: ${assoc_array[$i]}"
   done
-}
-
-#########################
-
-touchpad_twiddle () {
-  TOUCHPAD_STATE=$1
-  if [[ $(command -v xinput > /dev/null) || $? -eq 0 ]]; then
-    DEVICE_NUM=$(xinput --list --id-only "SynPS/2 Synaptics TouchPad" 2> /dev/null)
-    if [[ -n ${DEVICE_NUM} ]]; then
-      xinput set-prop ${DEVICE_NUM} "Device Enabled" ${TOUCHPAD_STATE}
-    fi
-  fi
-}
-
-touchpad_disable () {
-  touchpad_twiddle 0
-}
-
-touchpad_enable () {
-  touchpad_twiddle 1
 }
 
 ############################################################################

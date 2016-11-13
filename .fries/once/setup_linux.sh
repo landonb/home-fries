@@ -2,7 +2,7 @@
 
 # File: setup_linux.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.11
+# Last Modified: 2016.11.12
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -238,7 +238,6 @@ setup_ready_print_env () {
     -e USE_STAFF_GROUP_ASSOCIATION \
     -e OPT_BIN \
     -e OPT_DLOADS \
-    -e USE_SETUP_HG \
     -e HG_USER_NAME \
     -e HG_USER_EMAIL \
     -e HG_DEFAULT_PATH \
@@ -545,9 +544,9 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
       htop
 
-      # Meh. Keepassx is convenient for people who like GUIs, but I
-      # think gpg or encfs is just as easy for someone comfy on the CLI.
+      # I like the build-in pass cmd better.
       #keepassx
+
       encfs
       # I thought scrub was a default program, too; guess not.
       # Also, if you're doing it right, you won't need scrub:
