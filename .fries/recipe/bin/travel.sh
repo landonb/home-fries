@@ -23,7 +23,7 @@ DEBUG=false
 # Start a timer.
 setup_time_0=$(date +%s.%N)
 
-UNIQUE_TIME=$(date +%Y-%m-%d_%T)
+UNIQUE_TIME=$(date +%Y%m%d-%Hh%Mm%Ss)
 
 # ***
 
@@ -1275,9 +1275,17 @@ function check_repos_statuses () {
       # Tell git_status_porcelain to ignore this dirty file, travel.sh.
       THIS_SCRIPT_NAME="$(basename ${SCRIPT_ABS_PATH})"
       #GREPPERS='| grep -v " travel.sh$"'
+      #
       GREPPERS="${GREPPERS} | grep -v \" ${THIS_SCRIPT_NAME}\$\""
+      GREPPERS="${GREPPERS} | grep -v \" .fries/recipe/bin/travel.sh$\""
+      #
       GREPPERS="${GREPPERS} | grep -v \" curly_util.sh\$\""
-      echo "GREPPERS: ${GREPPERS}"
+      GREPPERS="${GREPPERS} | grep -v \" .fries/lib/curly_util.sh\$\""
+      #
+      GREPPERS="${GREPPERS} | grep -v \" git_util.sh\$\""
+      GREPPERS="${GREPPERS} | grep -v \" .fries/lib/git_util.sh\$\""
+      #
+      #echo "GREPPERS: ${GREPPERS}"
     fi
     #git_status_porcelain "$(basename ${ENCFS_GIT_REPOS[$i]})"
     git_status_porcelain "${ENCFS_GIT_REPOS[$i]}"
