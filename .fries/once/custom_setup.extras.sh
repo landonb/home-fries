@@ -1,6 +1,8 @@
-/# File: custom_setup.extras.sh
+#!/bin/bash
+
+# File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.12
+# Last Modified: 2016.11.13
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -8,14 +10,19 @@
 # 2016-11-12: Calling it. Die of error, so we can fix it.
 # set -e
 set -o errexit
+USING_ERREXIT=true
 # set -v
 #   Print shell input lines as they are read.
-set -o verbose
+#set -o verbose
 # set -x
 #   After expanding each simple command, for command, case command, select
 #   command, or arithmetic for command, display the expanded value of PS4,
 #   followed by the command and its expanded arguments or associated word list.
-set -o xtrace
+#set -o xtrace
+
+# DEVs: For you:
+SKIP_APT_GET_UPDATE=false
+SKIP_APT_GET_UPDATE=true
 
 # Whether or not to re-install already installed applications.
 FORCE_REINSTALL=false
@@ -39,12 +46,14 @@ if sudo -n true 2>/dev/null; then
   # Has sudo already.
   :
 else
-  echo
-  echo "GET THE PARTY STARTED"
+  #echo
+  echo "LET'S GET THE PARTY STARTED"
   sudo -v
 fi
 
-sudo apt-get update
+if ! ${SKIP_APT_GET_UPDATE}; then
+  sudo apt-get update
+fi
 
 # *** Ensure expected directories exist.
 
@@ -57,7 +66,7 @@ stage_4_setup_ensure_dirs () {
     ${OPT_FONTS} \
     ${OPT_LARGE} \
   ; do
-    echo "dir_path: ${dir_path}"
+    #echo "dir_path: ${dir_path}"
     if [[ -z ${dir_path} ]]; then
       echo "ERROR: Missing OPT_* paths."
       exit 1
@@ -103,7 +112,7 @@ stage_4_dropbox_install () {
       if ! ${FORCE_REINSTALL}; then
         return
       fi
-    then
+    else
       DROPBOX_OLDER="${OPT_BIN}/dropbox.py-`date +%Y.%m.%d-%T`"
       /bin/mv ${OPT_BIN}/dropbox.py ${DROPBOX_OLDER}
       chmod -x ${DROPBOX_OLDER}
@@ -245,6 +254,10 @@ stage_4_psql_configure () {
 stage_4_apache_configure () {
 
   stage_announcement "stage_4_apache_configure"
+
+  echo
+  echo "FIXME: 2016-11-13: stage_4_apache_configure not called in a long time"
+  return
 
   if [[ ! -d /etc/apache2 ]]; then
     echo
@@ -399,7 +412,9 @@ stage_4_hamster_time_tracker_setup () {
     sudo add-apt-repository -y ppa:dylanmccall/hamster-time-tracker-git-daily
     # NOTE: To remove the repository:
     #  sudo /bin/rm /etc/apt/sources.list.d/dylanmccall-hamster-time-tracker-git-daily-trusty.list
-    sudo apt-get update
+    if ! ${SKIP_APT_GET_UPDATE}; then
+      sudo apt-get update
+    fi
     sudo apt-get install -y hamster-time-tracker
     # Dependencies.
     sudo apt-get install -y gettext intltool python-gconf python-xdg gir1.2-gconf-2.0
@@ -678,7 +693,9 @@ stage_4_virtualbox_install () {
 ##key fingerprint
 #7B0F AB3A 13B9 0743 5925  D9C9 5442 2A4B 98AB 5139
 #Oracle Corporation (VirtualBox archive signing key) <info@virtualbox.org>
-#sudo apt-get update
+#if ! ${SKIP_APT_GET_UPDATE}; then
+#  sudo apt-get update
+#fi
 #sudo apt-get install virtualbox-5.0
 
   # Get the latest Debian package. At least if this script is uptodate.
@@ -713,12 +730,17 @@ stage_4_virtualbox_install () {
     LATEST_VBOX_VERSION_FULL="${LATEST_VBOX_VERSION_BASE}-${LATEST_VBOX_VERS_BUILD}"
 
     source /etc/lsb-release
-    if [[ $DISTRIB_CODENAME == 'rebecca' ]]; then
+    if [[ $DISTRIB_CODENAME == 'sarah' ]]; then
+      # Mint 18.X is sarah is xenial.
+      UBUNTU_CODENAME=xenial
+    elif [[ $DISTRIB_CODENAME == 'rebecca' ]]; then
       # Mint 17.X is rebecca is trusty.
-      DISTRIB_CODENAME=trusty
+      UBUNTU_CODENAME=trusty
+    else
+      UBUNTU_CODENAME=$DISTRIB_CODENAME
     fi
     LATEST_VBOX_DEB_PKG="\
-virtualbox-${LATEST_VBOX_VERS_MAJOR}_${LATEST_VBOX_VERSION_FULL}~Ubuntu~${DISTRIB_CODENAME}_amd64.deb"
+virtualbox-${LATEST_VBOX_VERS_MAJOR}_${LATEST_VBOX_VERSION_FULL}~Ubuntu~${UBUNTU_CODENAME}_amd64.deb"
 
     # We don't worry about the extension pack because the app'll download'll it.
     #LATEST_VBOX_EXTPACK="\
@@ -758,6 +780,8 @@ virtualbox-${LATEST_VBOX_VERS_MAJOR}_${LATEST_VBOX_VERSION_FULL}~Ubuntu~${DISTRI
     #     [click icon for] Add Package
     #     [select, e.g.,] /srv/opt/.downloads/Oracle_VM_VirtualBox_Extension_Pack-4.3.30-101610.vbox-extpack
 
+    popd &> /dev/null
+
   fi # end: if False
 
   set +e
@@ -765,6 +789,9 @@ virtualbox-${LATEST_VBOX_VERS_MAJOR}_${LATEST_VBOX_VERSION_FULL}~Ubuntu~${DISTRI
   exit_code=$?
   reset_errexit
   if [[ ${exit_code} -eq 0 ]]; then
+    echo
+    echo "Running virtualbox_update.sh"
+    echo
     virtualbox_update.sh
 
     sudo usermod -a -G vboxsf ${USER}
@@ -786,13 +813,20 @@ virtualbox-${LATEST_VBOX_VERS_MAJOR}_${LATEST_VBOX_VERSION_FULL}~Ubuntu~${DISTRI
   # #sudo usermod -a -G lp ${USER}
   # #sudo usermod -a -G users ${USER}
 
-  popd &> /dev/null
-
 } # end: stage_4_virtualbox_install
 
 stage_4_reader_install () {
 
   stage_announcement "stage_4_reader_install"
+
+  if [[ -e /opt/Adobe/Reader9/Reader/intellinux/bin/acroread ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: acroread"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
 
   # 2014.11.10: On Windows and Mac it's Adobe 11 but on Linux it's still 9.5.5,
   # because Adobe discountinued their Linux work.
@@ -1067,15 +1101,12 @@ stage_4_disable_services () {
   #             this is all a no-op, right?
 
   set +e
-
   # Stop it now.
   sudo service smbd stop
-
   # Have it not start in the future.
   sudo update-rc.d -f smbd remove
   # Restore with:
   #   sudo update-rc.d -f smbd defaults
-
   reset_errexit
 
 } # end: stage_4_disable_services
@@ -1104,7 +1135,9 @@ stage_4_spotify_install () {
   #             This step not listed on the spotify page.
   sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 94558F59
 
-  sudo apt-get update
+  if ! ${SKIP_APT_GET_UPDATE}; then
+    sudo apt-get update
+  fi
 
   # 2015.05.31: Is this step now necessary?
   sudo apt-get install spotify-client
@@ -1277,9 +1310,11 @@ stage_4_indirect_user_fonts () {
     fi
     /bin/ln -s ${OPT_FONTS} ${HOME}/.fonts
   else
-    echo
-    echo "NOTICE: ~/.fonts exists and is *not* symlinked to ${OPT_FONTS}"
-    echo
+    if [[ ! -h ${HOME}/.fonts ]]; then
+      echo
+      echo "NOTICE: ~/.fonts exists but is not symlink (to ${OPT_FONTS})"
+      echo
+    fi
   fi
 
   popd &> /dev/null
@@ -1292,6 +1327,8 @@ stage_4_font_mania () {
 
   stage_4_indirect_user_fonts
 
+  do_update_cache=false
+
   mkdir -p ${HOME}/.fonts
 
   pushd ${HOME}/.fonts &> /dev/null
@@ -1301,24 +1338,29 @@ stage_4_font_mania () {
     # Unpack SANTO___.TTF et al
     unzip -o -d santos-dumont santos-dumont.zip
     /bin/mv santos-dumont/SANTO___.TTF .
+    do_update_cache=true
   fi
 
   if [[ ! -d pinewood ]]; then
     wget -N http://dl.1001fonts.com/pinewood.zip
     unzip -o -d pinewood pinewood.zip
     /bin/mv pinewood/Pinewood.ttf .
+    do_update_cache=true
   fi
 
   # Google Open Sans by Steve Matteson
   if [[ ! -d open-sans ]]; then
     wget -N http://dl.1001fonts.com/open-sans.zip
     unzip -o -d open-sans open-sans.zip
+    do_update_cache=true
   fi
 
   popd &> /dev/null
 
   # Build font information cache files.
-  sudo fc-cache -fv
+  if ${do_update_cache}; then
+    sudo fc-cache -fv
+  fi
 
 } # end: stage_4_font_mania
 
@@ -1359,16 +1401,24 @@ stage_4_font_google_noto () {
 
   pushd ${OPT_DLOADS} &> /dev/null
 
-  wget -N https://noto-website.storage.googleapis.com/pkgs/Noto-hinted.zip
+  wget_resp=$(wget -N https://noto-website.storage.googleapis.com/pkgs/Noto-hinted.zip 2>&1)
 
-  # NOTICE: ~/.fonts should be a symlink to /srv/opt/.fonts
-  mkdir -p ~/.fonts
-  if [[ ! -e ~/.fonts/Noto-fonts ]]; then
-    # -d only works in the directory does not already exist.
-    unzip -d ~/.fonts/Noto-fonts Noto-hinted.zip
-  else
-    # -f freshens an existing expanded archive.
-    unzip -f -d ~/.fonts/Noto-fonts Noto-hinted.zip
+  set +e
+  echo $wget_resp | grep "no newer than.*not retrieving" > /dev/null
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -ne 0 ]]; then
+    # NOTICE: ~/.fonts should be a symlink to /srv/opt/.fonts
+    mkdir -p ~/.fonts
+    if [[ ! -e ~/.fonts/Noto-fonts ]]; then
+      # -d only works in the directory does not already exist.
+      unzip -d ~/.fonts/Noto-fonts Noto-hinted.zip
+    else
+      # -f freshens an existing expanded archive.
+      unzip -f -d ~/.fonts/Noto-fonts Noto-hinted.zip
+    fi
+
+    sudo fc-cache -fv
   fi
 
   popd &> /dev/null
@@ -1571,7 +1621,9 @@ stage_4_darktable () {
     sudo add-apt-repository -y ppa:pmjdebruijn/darktable-release
     # NOTE: To remove the repository:
     #  sudo /bin/rm /etc/apt/sources.list.d/pmjdebruijn-darktable-release-trusty.list
-    sudo apt-get update
+    if ! ${SKIP_APT_GET_UPDATE}; then
+      sudo apt-get update
+    fi
     sudo apt-get install -y darktable
   else
 
@@ -1920,7 +1972,9 @@ stage_4_digikam_from_distro () {
     #  sudo /bin/rm /etc/apt/sources.list.d/philip5-extra-trusty.list
     #  sudo /bin/rm /etc/apt/sources.list.d/philip5-kubuntu-backports-trusty.list
     #  #sudo /bin/rm /etc/apt/sources.list.d/kubuntu-ppa-backports-trusty.list
-    sudo apt-get update
+    if ! ${SKIP_APT_GET_UPDATE}; then
+      sudo apt-get update
+    fi
 
     # Check the version we want is there:
     #
@@ -1969,6 +2023,11 @@ stage_4_digikam5_from_distro () {
 
   stage_announcement "stage_4_digikam5_from_distro"
 
+  echo
+  echo "FIXME: doesn't work on trusty: stage_4_digikam5_from_distro"
+  echo
+  return
+
   set +e
   command -v digikam5
   exit_code=$?
@@ -1983,7 +2042,9 @@ stage_4_digikam5_from_distro () {
   fi
 
   sudo apt-add-repository ppa:philip5/extra
-  sudo apt-get update
+  if ! ${SKIP_APT_GET_UPDATE}; then
+    sudo apt-get update
+  fi
   sudo apt-get install -y digikam5
 
 # Not supported on trusty/14.04!
@@ -2051,7 +2112,6 @@ stage_4_gimp_docs () {
   # Bah, why no PDF of the help for 2.8?
   # http://docs.gimp.org/2.8/en/
   wget -N http://docs.gimp.org/2.4/pdf/en.pdf
-  /bin/ln -s gimp-
 
   # From 31 Aug 2014:
   wget -N http://gimp.linux.it/www/meta/gimp-en.pdf
@@ -2153,7 +2213,9 @@ stage_4_python_35 () {
   fi
 
   sudo add-apt-repository -y ppa:fkrull/deadsnakes
-  sudo apt-get update -y
+  if ! ${SKIP_APT_GET_UPDATE}; then
+    sudo apt-get update -y
+  fi
   sudo apt-get install -y python3.5
   #sudo apt-get install -y python3.5-dev
 
@@ -2322,7 +2384,9 @@ export PATH" | sudo tee -a /etc/environment
       #  https://www.atlantic.net/community/howto/install-java-ubuntu-14-04/
       sudo apt-get install -y python-software-properties
       sudo add-apt-repository -y ppa:webupd8team/java
-      sudo apt-get update
+      if ! ${SKIP_APT_GET_UPDATE}; then
+        sudo apt-get update
+      fi
 # FIXME/2016-09-15: I just ran this to update Firefox's plugin. Should this just be in package list?
       sudo apt-get install oracle-java8-installer
 # 2016-09-15: To get southpark.cc.com's flash player to work...
@@ -2581,7 +2645,9 @@ stage_4_td_ameritrade_thinkorswim () {
   pushd ${OPT_DLOADS} &> /dev/null
 
   sudo apt-add-repository -y ppa:webupd8team/java
-  sudo apt-get update -y
+  if ! ${SKIP_APT_GET_UPDATE}; then
+    sudo apt-get update -y
+  fi
   sudo apt-get install -y oracle-java7-installer
 
   wget -N http://mediaserver.thinkorswim.com/installer/InstFiles/thinkorswim_installer.sh
@@ -3132,6 +3198,9 @@ stage_4_pass__util_linux () {
   #
   # I GIVE UP: `lslocks` is borked on my desktop in Mint 17.
   #            I wonder if the machine will reboot...
+  #
+  #   # Still nothing.
+  #   sudo apt-get -f install
 
   #UTILL_VERS="2.28.1"
   #UTILL_VERS="2.28.2"
@@ -3195,7 +3264,7 @@ stage_4_pass__password_store () {
     pass --version | grep "${PASS_VERS}"
     exit_code=$?
     reset_errexit
-    if [[ ${exit_code} -ne 0 ]]; then
+    if [[ ${exit_code} -eq 0 ]]; then
       echo
       echo "${REINSTALL_OR_SKIP}: Already installed: \`pass\` v${PASS_VERS} command"
       echo
@@ -3211,7 +3280,7 @@ stage_4_pass__password_store () {
   # https://www.passwordstore.org/
 
   wget -N https://git.zx2c4.com/password-store/snapshot/password-store-${PASS_VERS}.tar.xz
-  tar xvzf password-store-${PASS_VERS}.tar.xz
+  #tar xvzf password-store-${PASS_VERS}.tar.xz
   tar --xz -xvf password-store-${PASS_VERS}.tar.xz
   cd password-store-${PASS_VERS}
   sudo make install
@@ -3352,17 +3421,16 @@ stage_4_password_store () {
 
 # *** Continuing along.
 
-# 2016-11-12: NOT CALLED.
 stage_4_oracle_java_jre () {
 
   stage_announcement "stage_4_oracle_java_jre"
 
   JDK_TAR="jdk-8u101-linux-x64.tar.gz"
 
-  jdk_path="${OPT_DLOADS}/${JDK_TAR}"
-  if [[ -f ${JDK_TAR} ]]; then
+  JDK_DLOAD="${OPT_DLOADS}/${JDK_TAR}"
+  if [[ -f ${JDK_DLOAD} ]]; then
     echo
-    echo "${REINSTALL_OR_SKIP}: Already installed: ${JDK_TAR}"
+    echo "${REINSTALL_OR_SKIP}: Already installed: ${JDK_DLOAD}"
     echo
     if ! ${FORCE_REINSTALL}; then
       return
@@ -3399,9 +3467,17 @@ stage_4_oracle_java_jre () {
   echo "   http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html"
   echo
   echo -n "Press any key to continue "
-  read -n 1 -t 1 ignored
+  read -n 1 ignored
 
+  if [[ ! -e ~/Downloads/${JDK_TAR} ]]; then
+    echo
+    echo "ERROR: No JDK"
+    echo
+    # Just let the mv die.
+    #exit 1
+  fi
   /bin/mv -f ~/Downloads/${JDK_TAR} ${OPT_DLOADS}
+
   tar xvzf ${JDK_TAR}
   /bin/mv jdk1.8.0_101 ${OPT_BIN}
   pushd ${OPT_BIN} &> /dev/null
@@ -3443,19 +3519,26 @@ stage_4_py_chjson () {
     git pull -a
   fi
 
+  sudo chown -R ${USER}:${USER} ${OPT_DLOADS}/chjson
   /bin/rm -rf build/ dist/ python_chjson.egg-info/
+
   python3 ./setup.py clean
   #CFLAGS='-Wall -O0 -g' python3 ./setup.py build
   python3 ./setup.py build
-  python3 ./setup.py install
+  # 2016-11-13: So now I gotta sudo?
+  #python3 ./setup.py install
+  sudo python3 ./setup.py install
 
+  sudo chown -R ${USER}:${USER} ${OPT_DLOADS}/chjson
   /bin/rm -rf build/ dist/ python_chjson.egg-info/
+
   python2 ./setup.py clean
   #CFLAGS='-Wall -O0 -g' python2 ./setup.py build
   python2 ./setup.py build
   #python2 ./setup.py install
   sudo python2 ./setup.py install
 
+  sudo chown -R ${USER}:${USER} ${OPT_DLOADS}/chjson
   /bin/rm -rf build/ dist/ python_chjson.egg-info/
 
   popd &> /dev/null
@@ -3484,7 +3567,9 @@ stage_4_hipchat_client () {
   fi
   # sudo apt-key list
   wget -O - https://atlassian.artifactoryonline.com/atlassian/api/gpg/key/public | sudo apt-key add -
-  sudo apt-get update
+  if ! ${SKIP_APT_GET_UPDATE}; then
+    sudo apt-get update
+  fi
   sudo apt-get install hipchat4
 
 } # end: stage_4_hipchat_client
@@ -3531,7 +3616,9 @@ stage_4_install_docker () {
     fi
   fi
 
-  sudo apt-get update
+  if ! ${SKIP_APT_GET_UPDATE}; then
+    sudo apt-get update
+  fi
   # Purge the old repo, if it exists.
   sudo apt-get purge lxc-docker
   # Verify that APT is pulling from the right repository.
@@ -3622,8 +3709,12 @@ stage_4_install_docker_compose () {
 
   stage_announcement "stage_4_install_docker_compose"
 
+# FIXME/MAYBE: 2016-11-13: Getting 403 on the wget.
+# 2016-11-13 06:36:57 ERROR 403: Forbidden.
+
   #DKRCPS_VERS="1.8.1"
-  DKRCPS_VERS="1.9.0-rc1"
+  #DKRCPS_VERS="1.9.0-rc1"
+  DKRCPS_VERS="1.9.0-rc4"
 
   set +e
   command -v docker-compose
@@ -3631,12 +3722,12 @@ stage_4_install_docker_compose () {
   reset_errexit
   if [[ ${exit_code} -eq 0 ]]; then
     set +e
-    docker-compose --version | grep "${DKRCPS_VERS}"
+    docker-compose --version | grep "docker-compose version ${DKRCPS_VERS}, build"
     exit_code=$?
     reset_errexit
-    if [[ ${exit_code} -ne 0 ]]; then
+    if [[ ${exit_code} -eq 0 ]]; then
       echo
-      echo "${REINSTALL_OR_SKIP}: Already installed: \`pass\` v${DKRCPS_VERS} command"
+      echo "${REINSTALL_OR_SKIP}: Already installed: \`docker-compose\` v${DKRCPS_VERS} command"
       echo
       if ! ${FORCE_REINSTALL}; then
         return
@@ -3677,7 +3768,9 @@ stage_4_git_latest () {
   #    git version 2.10.0
 
   sudo add-apt-repository -y ppa:git-core/ppa
-  sudo apt-get update
+  if ! ${SKIP_APT_GET_UPDATE}; then
+    sudo apt-get update
+  fi
   sudo apt-get install -y git
 
 } # end: stage_4_git_latest
@@ -3724,6 +3817,9 @@ stage_4_jq_cli_json_processor () {
 
   stage_announcement "stage_4_jq_cli_json_processor"
 
+# FIXME/MAYBE: 2016-11-13: Getting 403 on the wget.
+# 2016-11-13 06:36:57 ERROR 403: Forbidden.
+
   JQ_VERS="jq-1.5"
 
   set +e
@@ -3735,7 +3831,7 @@ stage_4_jq_cli_json_processor () {
     jq --version | grep "^${JQ_VERS}$"
     exit_code=$?
     reset_errexit
-    if [[ ${exit_code} -ne 0 ]]; then
+    if [[ ${exit_code} -eq 0 ]]; then
       echo
       echo "${REINSTALL_OR_SKIP}: Already installed: \`jq\` v${JQ_VERS} command"
       echo
@@ -3760,6 +3856,9 @@ stage_4_gnome_encfs_manager () {
 
   stage_announcement "stage_4_gnome_encfs_manager"
 
+# FIXME/MAYBE: 2016-11-13: Getting 403 on the wget.
+# 2016-11-13 06:36:57 ERROR 403: Forbidden.
+
   ENCFS_VERS="1.9.1"
 
   set +e
@@ -3768,10 +3867,11 @@ stage_4_gnome_encfs_manager () {
   reset_errexit
   if [[ ${exit_code} -eq 0 ]]; then
     set +e
-    encfs --version | grep "^encfs version ${ENCFS_VERS}$"
+    # encfs --version prints to stderr.
+    encfs --version 2>&1 | grep "^encfs version ${ENCFS_VERS}$"
     exit_code=$?
     reset_errexit
-    if [[ ${exit_code} -ne 0 ]]; then
+    if [[ ${exit_code} -eq 0 ]]; then
       echo
       echo "${REINSTALL_OR_SKIP}: Already installed: \`encfs\` v${ENCFS_VERS} command"
       echo
@@ -3790,7 +3890,9 @@ stage_4_gnome_encfs_manager () {
     #     same damn thing...
     #   HAHA This is just a GUI app. Dork!
     sudo add-apt-repository -y ppa:gencfsm/ppa
-    sudo apt-get update
+    if ! ${SKIP_APT_GET_UPDATE}; then
+      sudo apt-get update
+    fi
     sudo apt-get install -y gnome-encfs-manager
   fi
 
@@ -3909,10 +4011,8 @@ stage_4_exosite_setup () {
 
   stage_announcement "stage_4_exosite_setup"
 
-  if false;
-
+  if false; then
     EXOLINE_VERS="0.10.0"
-
     set +e
     command -v exo
     exit_code=$?
@@ -3922,7 +4022,7 @@ stage_4_exosite_setup () {
       exo --version | grep "^Exosite Command Line ${EXOLINE_VERS}$"
       exit_code=$?
       reset_errexit
-      if [[ ${exit_code} -ne 0 ]]; then
+      if [[ ${exit_code} -eq 0 ]]; then
         echo
         echo "${REINSTALL_OR_SKIP}: Already installed: \`exo\` v${EXOLINE_VERS} command"
         echo
@@ -3931,7 +4031,6 @@ stage_4_exosite_setup () {
         fi
       fi
     fi
-
   fi
 
   pushd ${OPT_DLOADS} &> /dev/null
@@ -4027,6 +4126,15 @@ stage_4_libmateweather () {
 
   stage_announcement "stage_4_libmateweather"
 
+  if [[ -e /usr/local/lib/libmateweather.so.1.6.9 ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: \`libmateweather.so.1.6.9\`"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
+
   pushd ${OPT_DLOADS} &> /dev/null
 
   # No package 'gtk+-2.0' found
@@ -4055,6 +4163,9 @@ stage_4_libmateweather () {
 stage_4_open_shift_origin_binary () {
 
   stage_announcement "stage_4_open_shift_origin_binary"
+
+# FIXME/MAYBE: 2016-11-13: Getting 403 on the wget.
+# 2016-11-13 06:36:57 ERROR 403: Forbidden.
 
   # Find the checksum and releases on github:
   #   https://github.com/openshift/origin/releases
@@ -4087,6 +4198,8 @@ stage_4_open_shift_origin_binary () {
   # E.g., "openshift-origin-server-v1.3.0-3ab7af3d097b57f933eccef684a714f2368804e7-linux-64bit.tar.gz"
   TARNAME="${SERVER_BASENAME}.tar.gz"
 
+  pushd ${OPT_DLOADS} &> /dev/null
+
   if [[ -f ${TARNAME} ]]; then
     echo
     echo "${REINSTALL_OR_SKIP}: Already installed: ${TARNAME}"
@@ -4095,8 +4208,6 @@ stage_4_open_shift_origin_binary () {
       return
     fi
   fi
-
-  pushd ${OPT_DLOADS} &> /dev/null
 
   wget -N https://github.com/openshift/origin/releases/download/${SERVER_VERSION}/${TARNAME}
   cd ${OPT_BIN}
@@ -4330,7 +4441,7 @@ stage_4_install_arduino () {
 
   ARDUINO_IDE="${OPT_DLOADS}/arduino-1.6.12/arduino"
 
-  if [[ -d ${ARDUINO_IDE} ]]; then
+  if [[ -f ${ARDUINO_IDE} ]]; then
     echo
     echo "${REINSTALL_OR_SKIP}: Already installed: ${ARDUINO_IDE}"
     echo
@@ -4358,7 +4469,7 @@ stage_4_install_arduino () {
 
   # Fix it so normal users can hook US port (otherwise you have to `sudo arduino`, blech).
   sudo usermod -a -G dialout $USER
-  sudo chmod a+rw /dev/ttyACM0
+  #sudo chmod a+rw /dev/ttyACM0
 
   popd &> /dev/null
 
@@ -4424,7 +4535,7 @@ setup_customize_extras_go () {
   stage_4_psql_configure
 
   # Configure Apache.
-  stage_4_apache_configure
+  #stage_4_apache_configure
 
   # Install the dropbox.py script.
   stage_4_dropbox_install
@@ -4507,7 +4618,9 @@ setup_customize_extras_go () {
   ##stage_4_digikam_from_scratch
   #stage_4_digikam_from_distro
   # 2016-09-17: Aha!
-  stage_4_digikam5_from_distro
+  # 2016-11-13: Wait, not on trusty?
+  # FIXME: See if this works on xenial.
+  #stage_4_digikam5_from_distro
 
   # Dah Gimp Dah Gimp Dah Gimp!
   stage_4_gimp_plugins
@@ -4633,26 +4746,9 @@ setup_customize_extras_go () {
 
 } # end: setup_customize_extras_go
 
-setup_catching_up () {
-
-  echo "-----------------"
-  echo "setup_catching_up"
-  echo "-----------------"
-
-  stage_4_relocate_spotify_cache
-
-} # end: setup_catching_up
-
 if [[ "$0" == "$BASH_SOURCE" ]]; then
   # Only call the setup fcns. if this script is being run and not sourced.
-
-
-# FIXME: just testing.
-  #setup_customize_extras_go
-setup_catching_up
-
-
-
+  setup_customize_extras_go
 # else, $BASH_SOURCE is not the name of this script; it's
 #       the name of the script that's sourcing this script.
 fi

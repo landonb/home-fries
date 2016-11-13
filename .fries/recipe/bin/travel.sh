@@ -1612,6 +1612,7 @@ function update_hamster_db () {
 
   if ${HAMSTERING}; then
 
+    echo
     echo "update_hamster_db: HAMSTERING"
 
     set +e
@@ -1674,10 +1675,10 @@ function update_hamster_db () {
         echo
         echo 'hamstered!'
       else
-        #echo
         echo "Skipping hamster-love: did not find appropriately most recent replacement."
-        #echo
       fi
+
+      echo
 
       #popd &> /dev/null
 
@@ -1755,13 +1756,11 @@ function prepare_shim () {
     exit 1
   fi
 
-  #echo "Making: ${USERS_CURLY}/TBD-shim"
+  echo "Making: ${USERS_CURLY}/TBD-shim"
 
   mkdir -p ${USERS_CURLY}/TBD-shim
 
   pushd ${USERS_CURLY}/TBD-shim &> /dev/null
-
-  echo "In: ${USERS_CURLY}/TBD-shim"
 
   # git_check_generic_file sets ${git_result} to 0 if file is dirty.
   git_check_generic_file ${SCRIPT_ABS_PATH}
@@ -1770,36 +1769,36 @@ function prepare_shim () {
   if [[ $git_result -eq 0 ]]; then
     # travel.sh is dirty; use it and not the travel one.
     USE_GOOEY=false
-    echo "Using local $(basename ${SCRIPT_ABS_PATH})"
+    echo " Using local $(basename ${SCRIPT_ABS_PATH})"
   else
-    echo "Using gooey $(basename ${SCRIPT_ABS_PATH})"
+    echo " Using gooey $(basename ${SCRIPT_ABS_PATH})"
   fi
 
   PREFIX=""
   if ${USE_GOOEY}; then
-    PREFIX="${EMISSARY}/gooey"
+    PREFIX="${EMISSARY}/gooey/"
     mount_curly_emissary_gooey
   fi
 
-  echo "Copying: ${PREFIX}/${SCRIPT_ABS_PATH}"
+  echo "  Copying: ${PREFIX}${SCRIPT_ABS_PATH}"
 
-  /bin/cp -aLf ${PREFIX}/${SCRIPT_ABS_PATH} travel_shim.sh
+  /bin/cp -aLf ${PREFIX}${SCRIPT_ABS_PATH} travel_shim.sh
   chmod 775 travel_shim.sh
 
-  echo "Copying: ${PREFIX}/${FRIES_ABS_DIRN}/.fries/lib/curly_util.sh"
-  /bin/cp -aLf ${PREFIX}/${FRIES_ABS_DIRN}/.fries/lib/curly_util.sh .
+  echo "  Copying: ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/curly_util.sh"
+  /bin/cp -aLf ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/curly_util.sh .
 
-  echo "Copying: ${PREFIX}/${FRIES_ABS_DIRN}/.fries/lib/logger.sh"
-  /bin/cp -aLf ${PREFIX}/${FRIES_ABS_DIRN}/.fries/lib/logger.sh .
+  echo "  Copying: ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/logger.sh"
+  /bin/cp -aLf ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/logger.sh .
 
-  echo "Copying: ${PREFIX}/${FRIES_ABS_DIRN}/.fries/lib/git_util.sh"
-  /bin/cp -aLf ${PREFIX}/${FRIES_ABS_DIRN}/.fries/lib/git_util.sh .
+  echo "  Copying: ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/git_util.sh"
+  /bin/cp -aLf ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/git_util.sh .
 
-  echo "Copying: ${PREFIX}/${SYNC_REPOS_PATH}"
-  /bin/cp -aLf ${PREFIX}/${SYNC_REPOS_PATH} .
+  echo "  Copying: ${PREFIX}${SYNC_REPOS_PATH}"
+  /bin/cp -aLf ${PREFIX}${SYNC_REPOS_PATH} .
 
-  echo "Copying: ${PREFIX}/${TRAVEL_TASKS_PATH}"
-  /bin/cp -aLf ${PREFIX}/${TRAVEL_TASKS_PATH} .
+  echo "  Copying: ${PREFIX}${TRAVEL_TASKS_PATH}"
+  /bin/cp -aLf ${PREFIX}${TRAVEL_TASKS_PATH} .
 
   if ${USE_GOOEY}; then
     umount_curly_emissary_gooey

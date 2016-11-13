@@ -132,9 +132,6 @@ fi
 # ------------------------------------------
 # Helper fcns. and setup.
 
-USING_ERREXIT=true
-reset_errexit
-
 # This script runs multiple times and reports its running time each time.
 print_install_time () {
   local setup_time_n=$(date +%s.%N)
