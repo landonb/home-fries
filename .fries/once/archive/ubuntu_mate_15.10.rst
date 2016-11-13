@@ -305,7 +305,7 @@ Setup Home-Fries
 
   pushd ~/.fries/once/
   export INCLUDE_ADOBE_READER=false
-  ./setup_linux.sh
+  ./setup_ubuntu.sh
 
 Dev Hints
 =========

@@ -3,7 +3,7 @@ A General Linux Setup Guide For Developers
 ==========================================
 
 .. Author: Landon Bouma
-.. Last Modified: 2016.11.03
+.. Last Modified: 2016.11.12
 .. Project Page: https://github.com/landonb/home_fries
 
 Overview
@@ -18,7 +18,7 @@ You can skip this guide if you've got your own
 methods for installing and configuring Linux.
 
 If you're just looking for the automated goodies,
-check out ``setup_linux.sh`` in the same directory
+check out ``setup_ubuntu.sh`` in the same directory
 as this file.
 
 Install Linux
@@ -241,7 +241,7 @@ customization that you like. Thankfully, you can automate the process
 with a shell script. Or you can just configure linux manually.
 
 If you'd like to see an example of a Bash script that automates
-setting up linux, see the `setup_linux.sh <setup_linux.sh>`__
+setting up linux, see the `setup_ubuntu.sh <setup_ubuntu.sh>`__
 script in the same directory as this document.
 
 - The script installs a lot of software, and it's not tested
@@ -269,7 +269,7 @@ Run Linux Configuration Script
           Otherwise, you may be interested in running a script to
           take care of everything for you.
 
-Take a look at ``once/setup_linux.sh``.
+Take a look at ``once/setup_ubuntu.sh``.
 
 Run the script on a fresh distro install to ``apt-get``
 a ton of packages and also to ``wget``, build, and install
@@ -290,7 +290,7 @@ Here's a brief overview of what the script does:
    - Calls ``sudo apt-get install ...`` and installs a lot of packages.
      If you want to do this yourself to see what's installed,
      copy and paste from the list of packages in the function
-     ``setup_mint_17_stage_1``.
+     ``setup_mint_17_stage_1_apt_get_install``.
 
    - The script may setup
      `VirtualBox Guest Additions
@@ -309,7 +309,7 @@ Here's a brief overview of what the script does:
 
      - You can skip this step if you want to setup your desktop manually.
        But if you just want to get it over with, take a look at the
-       function, ``setup_mint_17_stage_4``.
+       function, ``setup_mint_17_stage_4_extras``.
 
      - One of the window manager tweaks, for example, is to disable that
        pesky five-minute no-activity timeout. If you leave your machine,

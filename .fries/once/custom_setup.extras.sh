@@ -992,7 +992,7 @@ stage_4_parT_install () {
 
   popd &> /dev/null
 
-  # Stupid message for debugging ./setup_linux.sh
+  # Stupid message for debugging ./setup_ubuntu.sh
   stage_curtains "stage_4_parT_install"
 
 } # end: stage_4_parT_install

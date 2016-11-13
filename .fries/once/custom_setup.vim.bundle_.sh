@@ -7,9 +7,7 @@ clone_repos() {
 
 	git clone ssh://git@github.com/landonb/dubs_appearance.git
 	git clone ssh://git@github.com/landonb/dubs_buffer_fun.git
-	git clone ssh://git@github.com/landonb/dubsacks_vim.git
 	git clone ssh://git@github.com/landonb/dubs_edit_juice.git
-	git clone ssh://git@github.com/landonb/dubsacks_vim.git
 	git clone ssh://git@github.com/landonb/dubs_file_finder.git
 	git clone ssh://git@github.com/landonb/dubs_ftype_mess.git
 	git clone ssh://git@github.com/landonb/dubs_grep_steady.git

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# File: setup_linux.sh
+# File: setup_ubuntu.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.12
+# Last Modified: 2016.11.13
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -24,6 +24,8 @@
 # or write Free Software Foundation, Inc., 51 Franklin Street,
 #                     Fifth Floor, Boston, MA 02110-1301, USA.
 # ===================================================================
+
+set -e
 
 # ------------------------------------------
 # About
@@ -104,31 +106,6 @@ source ./linux_setup_base.sh
 #   HG_DEFAULT_PATH
 #   INCLUDE_ADOBE_READER
 #   DO_INSTALL_DUBSACKS
-
-# ------------------------------------------
-# Figure out what stage we're on.
-
-DO_STAGE_DANCE=false
-
-if ${DO_STAGE_DANCE}; then
-  # MAGIC_NUMBER: There are four stages (and logouts/reboots between each).
-  stages_count=4
-  if [[ ! -e ${script_absbase}/fries-setup-stage.num ]]; then
-    # First time here.
-    stage_num=1
-    echo "${stage_num}" > ${script_absbase}/fries-setup-stage.num
-  else
-    stage_num=`cat fries-setup-stage.num`
-    # Validate the stage number.
-    if [[ ${stage_num} -lt 1 || ${stage_num} -gt ${stages_count} ]]; then
-      echo "Unexpected stage_num: ${stage_num}"
-      exit 1
-    fi
-  fi
-  echo "On stage number ${stage_num} of ${stages_count}"
-else
-  stage_num=-1
-fi
 
 # ------------------------------------------
 # Let's get started! I mean, let's start a timer!
@@ -249,7 +226,8 @@ echo
 # MEH: For some reason the `set | grep...` command is echoed after it runs...
 setup_ready_print_env
 
-REBOOT_WILL_BE_NECESSARY=false
+LOGOUT_NECESSARY=false
+REBOOT_NECESSARY=false
 
 if [[ -z ${WM_IS_MATE+x} ]]; then
   WM_IS_MATE=false
@@ -266,7 +244,7 @@ fi
 
 # *** FIRST/FRESH BOOT: Upgrade and Install Packages
 
-setup_mint_17_stage_1 () {
+setup_mint_17_stage_1_apt_get_install () {
 
   echo 
   echo "Welcome to the installer!"
@@ -278,7 +256,15 @@ setup_mint_17_stage_1 () {
     echo
   fi
   echo "Let's get moving, shall we?"
+
+  # Six digits is max that works for seconds, and 0 is auto-answer,
+  # -1 does nothing, so, yeah, MAYBE: ask_yes_no_default with a no-
+  # timeout option. Or maybe just call `read` directly.
   ask_yes_no_default 'Y' 999999
+  # Works, but the display is blank:
+  #ask_yes_no_default 'Y' 99999999
+  # Auto-answers 'Y':
+  #ask_yes_no_default 'Y' 9999999999999999999999999999999
 
   if [[ $the_choice != "Y" ]]; then
 
@@ -287,22 +273,18 @@ setup_mint_17_stage_1 () {
 
   else
 
-    #if [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
+    # *** Make a snapshot of the user's home directory.
 
-      # *** Make a snapshot of the user's home directory.
+    #sudo apt-get install dconf-tools
+    sudo apt-get install -y dconf-cli
+    user_home_conf_dump "${script_absbase}/conf_dump/new_01"
 
-      #sudo apt-get install dconf-tools
-      sudo apt-get install -y dconf-cli
-      user_home_conf_dump "${script_absbase}/conf_dump/new_01"
+    # *** Install wmctrl so we can determine the window manager.
 
-      # *** Install wmctrl so we can determine the window manager.
-
-      sudo apt-get install -y wmctrl
-      # NOTE: In Mint MATE, calling gsettings now (before update/upgrade)
-      #       doesn't seem to stick. So we'll wait 'til a little later in
-      #       this function to call determine_window_manager and gsettings.
-
-    #fi
+    sudo apt-get install -y wmctrl
+    # NOTE: In Mint MATE, calling gsettings now (before update/upgrade)
+    #       doesn't seem to stick. So we'll wait 'til a little later in
+    #       this function to call determine_window_manager and gsettings.
 
     # Are we in a virtual machine?
     sudo apt-get install -y virt-what
@@ -383,17 +365,20 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
     # and i ran apt-get dist-upgrade, too...
     #
     #Setting up nginx-core (1.9.3-1ubuntu1.1) ...
-    #Job for nginx.service failed because the control process exited with error code. See "systemctl status nginx.service" and "journalctl -xe" for details.
+    #Job for nginx.service failed because the control process exited with error code.
+    # See "systemctl status nginx.service" and "journalctl -xe" for details.
     #invoke-rc.d: initscript nginx, action "start" failed.
     #dpkg: error processing package nginx-core (--configure):
     # subprocess installed post-installation script returned error exit status 1
     #dpkg: dependency problems prevent configuration of nginx:
-    # nginx depends on nginx-core (>= 1.9.3-1ubuntu1.1) | nginx-full (>= 1.9.3-1ubuntu1.1) | nginx-light (>= 1.9.3-1ubuntu1.1) | nginx-extras (>= 1.9.3-1ubuntu1.1); however:
+    # nginx depends on nginx-core (>= 1.9.3-1ubuntu1.1) | nginx-full (>= 1.9.3-1ubuntu1.1)
+    #   | nginx-light (>= 1.9.3-1ubuntu1.1) | nginx-extras (>= 1.9.3-1ubuntu1.1); however:
     #  Package nginx-core is not configured yet.
     #  Package nginx-full is not installed.
     #  Package nginx-light is not installed.
     #  Package nginx-extras is not installed.
-    # nginx depends on nginx-core (<< 1.9.3-1ubuntu1.1.1~) | nginx-full (<< 1.9.3-1ubuntu1.1.1~) | nginx-light (<< 1.9.3-1ubuntu1.1.1~) | nginx-extras (<< 1.9.3-1ubuntu1.1.1~); however:
+    # nginx depends on nginx-core (<< 1.9.3-1ubuntu1.1.1~) | nginx-full (<< 1.9.3-1ubuntu1.1.1~)
+    #   | nginx-light (<< 1.9.3-1ubuntu1.1.1~) | nginx-extras (<< 1.9.3-1ubuntu1.1.1~); however:
     #  Package nginx-core is not configured yet.
     #  Package nginx-full is not installed.
     #  Package nginx-light is not installed.
@@ -401,7 +386,8 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
     #
     #dpkg: error processing package nginx (--configure):
     # dependency problems - leaving unconfigured
-    #Processing triggers for sgml-base (1.26+nmNo apport report written because the error message indicates its a followup error from a previous failure.
+    #Processing triggers for sgml-base (1.26+nmNo apport report written because
+    #the error message indicates its a followup error from a previous failure.
     #                                                 u4ubuntu1) ...
     #
     #Errors were encountered while processing:
@@ -655,7 +641,8 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
       # 2016-04-04: I just had this error but I think I figured it out...
       #     Setting up pylint (1.3.1-3ubuntu1) ...
-      #     ERROR: pylint is broken - called emacs-package-install as a new-style add-on, but has no compat file.
+      #     ERROR: pylint is broken - called emacs-package-install
+      #            as a new-style add-on, but has no compat file.
       # Install pylint for emacs.
       # QUESTION: Why -for emacs-? I can lint from wherever I want....
       #           I guess not that I lint, though, in Cyclopath we had a kazillion
@@ -1180,211 +1167,155 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
     # All done.
 
-    if ${DO_STAGE_DANCE}; then
-      echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
-    fi
-
   fi # upgrade all packages and install extras that we need
 
-} # end: setup_mint_17_stage_1
-
-# ------------------------------------------
-# STAGEs 2 through 4
-
-# *** SECOND and SUBSEQUENT BOOTs
-
-# 2016-03-23: The way things are called now, this isn't really necessary.
-check_build_essential_installed () {
-  if ${DO_STAGE_DANCE}; then
-    if [[ ${stage_num} -gt 1 ]]; then
-      set +ex
-      dpkg -s build-essential &> /dev/null
-      if [[ $? -ne 0 ]]; then
-        echo
-        echo "Unexpected: build-essential not installed. Try again."
-        echo
-      fi
-      reset_errexit
-      # Now that wmctrl is installed...
-      determine_window_manager
-    fi
-  fi
-} # end: check_build_essential_installed
+} # end: setup_mint_17_stage_1_apt_get_install
 
 # ------------------------------------------
 # STAGE 2
 
 # *** SECOND BOOT: Install Guest Additions
 
-DO_EXTRA_UNNECESSARY_VBOX_STUFF=false
-
-setup_mint_17_stage_2 () {
+setup_mint_17_stage_2_virtualbox_guest_additions () {
 
   if ! ${IN_VIRTUALBOX_VM}; then
-    echo "ERROR: Skipping Stage 2: Not a VirtualBox."
-  else
-    set +ex
-    # NOTE: This doesn't work for checking $? (the 2&> replaces it?)
-    #        ll /opt/VBoxGuestAdditions* 2&> /dev/null
-    ls -la /opt/VBoxGuestAdditions* &> /dev/null
-    if [[ $? -eq 0 ]]; then
-      echo
-      echo "Unexpected: VBoxGuestAdditions already installed."
-      echo
-    fi
-    reset_errexit
-
-    echo 
-    echo "Great, so this is your second reboot."
     echo
-    echo "You've just upgraded and installed packages."
+    echo "ERROR: VBoxGuestAddition: Skipping Stage 2: Not a VirtualBox."
     echo
-    echo "Now we're ready to install VirtualBox Guest Additions."
-    echo
-    echo "NOTE: The installer will bark at you about an existing version"
-    echo "      of VBoxGuestAdditions software. Type 'yes' to continue."
-    echo
-    echo "I sure hope you're ready"'!'
-    ask_yes_no_default 'Y' 999999
-
-    if $WM_IS_CINNAMON || $WM_IS_MATE; then
-      not_done=true
-      while $not_done; do
-        if [[ `ls /media/$USER | grep VBOXADDITIONS` ]]; then
-          not_done=false
-        else
-          echo
-          echo "PLEASE: From the VirtualBox menu bar, choose"
-          echo "         Devices > Insert Guest Additions CD Image..."
-          echo "        and hit Enter when you're ready."
-          echo
-          read -n 1 __ignored__
-        fi
-      done
-      if [[ $the_choice != "Y" ]]; then
-        echo "Nice! Catch ya later!!"
-        exit 1
-      fi
-      cd /media/$USER/VBOXADDITIONS_*/
-    elif $WM_IS_XFCE; then
-      sudo /bin/mkdir /media/VBOXADDITIONS
-      sudo mount -r /dev/cdrom /media/VBOXADDITIONS
-      cd /media/VBOXADDITIONS
-    fi
-
-    # You'll see a warning and have to type 'yes': "You appear to have a
-    # version of the VBoxGuestAdditions software on your system which was
-    # installed from a different source or using a different type of
-    # installer." Type 'yes' to continue.
-
-    set +ex
-    sudo sh ./VBoxLinuxAdditions.run
-    echo "Run return code: $?"
-    reset_errexit
-
-    if ${DO_STAGE_DANCE}; then
-      echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
-    fi
-
-    echo
-    echo "All done! Are you ready to reboot?"
-    echo "Hint: Shutdown instead if you want to remove the Guest Additions image"
-    echo "      or just right-click the CD image on the desktop and Eject it"
-    ask_yes_no_default 'Y' 999999
-
-    if [[ $the_choice != "Y" ]]; then
-      echo "Ohhhh... kay."
-    else
-      SETUP_DO_REBOOT=true
-    fi
-
+    return
   fi
 
-} # end: setup_mint_17_stage_2
+  set +e
+  # NOTE: This doesn't work for checking $? (the 2&> replaces it?)
+  #        ll /opt/VBoxGuestAdditions* 2&> /dev/null
+  ls -la /opt/VBoxGuestAdditions* &> /dev/null
+  exit_code=$?
+  reset_errexit
+  if [[ $exit_code -eq 0 ]]; then
+    echo
+    echo "SKIPPING: VBoxGuestAddition: Already installed."
+    echo
+    return
+  fi
+
+  if $WM_IS_CINNAMON || $WM_IS_MATE; then
+    not_done=true
+    while $not_done; do
+      if [[ `ls /media/$USER | grep VBOXADDITIONS` ]]; then
+        not_done=false
+      else
+        echo
+        echo "PLEASE: From the VirtualBox menu bar, choose"
+        echo "         Devices > Insert Guest Additions CD Image..."
+        echo "        and then press any key to continue."
+        echo
+        read -n 1 __ignored__
+      fi
+    done
+    cd /media/$USER/VBOXADDITIONS_*/
+  elif $WM_IS_XFCE; then
+    echo
+    echo "PLEASE: Insert the Guest Additions CD Image"
+    echo "        and then press any key to continue."
+    echo
+    read -n 1 __ignored__
+    sudo /bin/mkdir /media/VBOXADDITIONS
+    sudo mount -r /dev/cdrom /media/VBOXADDITIONS
+    cd /media/VBOXADDITIONS
+  fi
+
+  # You'll see a warning and have to type 'yes': "You appear to have a
+  # version of the VBoxGuestAdditions software on your system which was
+  # installed from a different source or using a different type of
+  # installer." Type 'yes' to continue.
+
+  set +e
+  sudo sh ./VBoxLinuxAdditions.run
+  echo "Run return code: $?"
+  reset_errexit
+
+  echo
+  echo "All done! You should reboot now."
+  echo
+  echo "Are you ready to reboot?"
+  #echo
+  #echo "Hint: Shutdown instead if you want to remove the Guest Additions image"
+  #echo "      or just right-click the CD image on the desktop and Eject it"
+  ask_yes_no_default 'Y' 999999
+
+  if [[ $the_choice != "Y" ]]; then
+    echo "Ohhhh... kay."
+    exit 1
+  else
+    echo "Swizzle! See you on the other side!!"
+    /sbin/shutdown -r now
+    exit 0
+  fi
+
+} # end: setup_mint_17_stage_2_virtualbox_guest_additions
 
 # ------------------------------------------
 # STAGE 3
 
 # *** THIRD BOOT: Setup Bash and Home Scripts and User Groups
 
-setup_mint_17_stage_3 () {
+setup_mint_17_stage_3_groups_etc () {
 
-  if ${DO_STAGE_DANCE}; then
-    echo
-    echo "Wow, after two or three reboots, you've come back for more"'!'
-  fi
-  echo
-  #echo "Now we're ready to setup some groups and install Bash scripts."
-  #echo
-  #echo "NOTE: If we mess up your Bash scripts, it could break your"
-  #echo "account so that you cannot logon. So after this script runs,"
-  #echo "be sure to open a new terminal window to test that everything"
-  #echo "works before logging off."
-  echo "Now we're ready to setup some groups and install Vim scripts."
-  echo
-  echo "Are you ready to let 'er rip?"
-  # Six digits is max that works for seconds, and 0 is auto-answer,
-  # -1 does nothing, so, yeah, MAYBE: ask_yes_no_default with a no-
-  # timeout option. Or maybe just call `read` directly.
-  ask_yes_no_default 'Y' 999999
-  # Works, but the display is blank:
-  #ask_yes_no_default 'Y' 99999999
-  # Auto-answers 'Y':
-  #ask_yes_no_default 'Y' 9999999999999999999999999999999
+  # Setup user group(s) and user-group associations.
 
-  if [[ $the_choice != "Y" ]]; then
-
-    echo "Great! Peace, ya'll"'!!'
-    exit 1
-
-  else
-
-    # Setup user group(s) and user-group associations.
-
-    # In case any of these have been run before, let 'em fail.
-    set +ex
-
-    # Let the user access any mounted VBox drives.
-    # 2016-03-23: The group is added by guest additions, and
-    # the user manually added their user to the same group,
-    # so this code should not do anything that's not already
-    # done.
-    if ${DO_EXTRA_UNNECESSARY_VBOX_STUFF}; then
-      if ${IN_VIRTUALBOX_VM}; then
-        sudo groupadd vboxsf
-        sudo usermod -aG vboxsf $USER
-      fi
+  # Let the user access any mounted VBox drives.
+  # 2016-03-23: The group is added by guest additions, and
+  # the user manually added their user to the same group,
+  # so this code should not do anything that's not already
+  # done.
+  if ${IN_VIRTUALBOX_VM}; then
+    set +e
+    groups | grep vboxsf
+    exit_code=$?
+    set -e
+    if [[ $exit_code -ne 0 ]]; then
+      sudo groupadd vboxsf
+      sudo usermod -aG vboxsf $USER
+      LOGOUT_NECESSARY=true
     fi
+  fi
 
-    # Make the user a member of the staff group, or whatever it's called.
+  # Make the user a member of the staff group, or whatever it's called.
 
-    # 20160323: This is currently just "staff".
-    if [[ -n ${USE_STAFF_GROUP_ASSOCIATION} ]]; then
+  # 20160323: This is currently just "staff".
+  if [[ -n ${USE_STAFF_GROUP_ASSOCIATION} ]]; then
+    set +e
+    groups | grep ${USE_STAFF_GROUP_ASSOCIATION}
+    exit_code=$?
+    set -e
+    if [[ $exit_code -ne 0 ]]; then
       sudo groupadd ${USE_STAFF_GROUP_ASSOCIATION}
       sudo usermod -a -G ${USE_STAFF_GROUP_ASSOCIATION} $USER
-      # NOTE: logout/login required to pick this up...
+      LOGOUT_NECESSARY=true
     fi
+  fi
 
-    # Always associate current user group with postgres and web server.
+  # Always associate current user group with postgres and web server.
 
-    # 2016-03-23: Currently not set.
-    if ! `array_in "$USER" "${USE_PROJECT_USERGROUPS[@]}"`; then
-      USE_PROJECT_USERGROUPS+=("$USER")
-    fi
+  # 2016-03-23: Currently not set.
+  if ! `array_in "$USER" "${USE_PROJECT_USERGROUPS[@]}"`; then
+    USE_PROJECT_USERGROUPS+=("$USER")
+  fi
 
-    # Usually,
-    #  groupname=("$USER")
-    for groupname in ${USE_PROJECT_USERGROUPS[@]}; do
-
-      # CAVEAT: After adding a user to a group, `groups` won't show the new
-      #         association until after a reboot... or probably until at
-      #         least an X log-out/-backin. This script asks the user to
-      #         reboot a few times, so we stick with the reboot approach.
-
-      # Add the group. It's okay if you've already done it manually:
-      # the command will just return $? == 9 and complain to stderr,
-      # e.g., "groupadd: group '...' already exists".
+  # Usually,
+  #  groupname=("$USER")
+  for groupname in ${USE_PROJECT_USERGROUPS[@]}; do
+    set +e
+    groups | grep ${groupname}
+    exit_code=$?
+    set -e
+    if [[ $exit_code -ne 0 ]]; then
+      # Add the ${groupname} group. It's okay if you've already done it
+      # manually: the command will just return $? == 9 and complain to
+      # stderr, e.g., "groupadd: group '...' already exists".
+      set +e
       sudo groupadd ${groupname}
+      set -e
 
       # Add the active user to the group.
       sudo usermod -a -G ${groupname} ${USER}
@@ -1404,180 +1335,107 @@ setup_mint_17_stage_3 () {
       #        what's under htdocs/, right? Hmmm.
       sudo usermod -a -G ${groupname} ${httpd_user}
 
-    done
+      LOGOUT_NECESSARY=true
+    fi
+  done
 
-    reset_errexit
+  # Configure Wireshark so that it can be run unprivileged.
 
-    # Configure Wireshark so that it can be run unprivileged.
+  # Add the wireshark group and tell dumpcap to run privileged.
+  # References:
+  #  http://ask.wireshark.org/questions/7523/ubuntu-machine-no-interfaces-listedn
+  #  http://wiki.wireshark.org/CaptureSetup/CapturePrivileges
 
-    # Add the wireshark group and tell dumpcap to run privileged.
-    # References:
-    #  http://ask.wireshark.org/questions/7523/ubuntu-machine-no-interfaces-listedn
-    #  http://wiki.wireshark.org/CaptureSetup/CapturePrivileges
+  #   ┌────────────────┤ Configuring wireshark-common ├─────────────────┐
+  #   │                                                                 │
+  #   │ Dumpcap can be installed in a way that allows members of        │
+  #   │ the "wireshark" system group to capture packets. This is        │
+  #   │ recommended over the alternative of running Wireshark/Tshark    │
+  #   │ directly as root, because less of the code will run with        │
+  #   │ elevated privileges.                                            │
+  #   │                                                                 │
+  #   │ For more detailed information please see                        │
+  #   │ /usr/share/doc/wireshark-common/README.Debian.                  │
+  #   │                                                                 │
+  #   │ Enabling this feature may be a security risk, so it is          │
+  #   │ disabled by default. If in doubt, it is suggested to            │
+  #   │ leave it disabled.                                              │
+  #   │                                                                 │
+  #   │ Should non-superusers be able to capture packets?               │
+  #   │                                                                 │
+  #   │                  <Yes>                 <No>                     │
+  #
+  # ANSWER: YES
 
-    #   ┌────────────────┤ Configuring wireshark-common ├─────────────────┐
-    #   │                                                                 │
-    #   │ Dumpcap can be installed in a way that allows members of        │
-    #   │ the "wireshark" system group to capture packets. This is        │
-    #   │ recommended over the alternative of running Wireshark/Tshark    │
-    #   │ directly as root, because less of the code will run with        │
-    #   │ elevated privileges.                                            │
-    #   │                                                                 │
-    #   │ For more detailed information please see                        │
-    #   │ /usr/share/doc/wireshark-common/README.Debian.                  │
-    #   │                                                                 │
-    #   │ Enabling this feature may be a security risk, so it is          │
-    #   │ disabled by default. If in doubt, it is suggested to            │
-    #   │ leave it disabled.                                              │
-    #   │                                                                 │
-    #   │ Should non-superusers be able to capture packets?               │
-    #   │                                                                 │
-    #   │                  <Yes>                 <No>                     │
-    #
-    # ANSWER: YES
-
-    if [[ ${INSTALL_ALL_PACKAGES_ANSWER} == "Y" \
-        && ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
-      sudo dpkg-reconfigure wireshark-common
-      # Add the user to the new group.
+  if [[ ${INSTALL_ALL_PACKAGES_ANSWER} == "Y" \
+      && ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
+    sudo dpkg-reconfigure wireshark-common
+    # Add the user to the new group.
+    set +e
+    groups | grep wireshark
+    exit_code=$?
+    set -e
+    if [[ $exit_code -ne 0 ]]; then
       sudo usermod -a -G wireshark ${USER}
       # You need to logout or reboot to see changes.
-      REBOOT_WILL_BE_NECESSARY=true
+      LOGOUT_NECESSARY=true
     fi
+  fi
 
-    # Try to mount the host drive.
-
-    # Do this now because the user has to reboot before
-    # their new access to the vboxsf group is realized.
-    # 2016-03-23: Also no longer necessary and done otherways.
-    if ${DO_EXTRA_UNNECESSARY_VBOX_STUFF}; then
-      if [[ -n ${USE_MOUNTPT} ]]; then
-        sudo /bin/mkdir -p ${DST_MOUNTPT}
-        sudo chmod 2775 ${DST_MOUNTPT}
-        if ! ${IN_VIRTUALBOX_VM}; then
-          sudo mount -t ntfs ${USE_MOUNTPT} ${DST_MOUNTPT}
-        else
-          sudo mount -t vboxsf ${USE_MOUNTPT} ${DST_MOUNTPT}
-        fi
-        if [[ $? -ne 0 ]]; then
-          echo "WARNING: Could not mount host drive using the command:"
-          echo "         sudo mount -t vboxsf ${USE_MOUNTPT} ${DST_MOUNTPT}"
-          exit 1
-        fi
-      fi
+  # Try to mount the host drive.
+  #
+  # Do this now because the user has to reboot before
+  # their new access to the vboxsf group is realized.
+  #
+  # 2016-03-23: Also no longer necessary and done otherways.
+  if [[ -n ${USE_MOUNTPT} && -n ${DST_MOUNTPT} ]]; then
+    sudo /bin/mkdir -p ${DST_MOUNTPT}
+    sudo chmod 2775 ${DST_MOUNTPT}
+    if ! ${IN_VIRTUALBOX_VM}; then
+      sudo mount -t ntfs ${USE_MOUNTPT} ${DST_MOUNTPT}
+    else
+      sudo mount -t vboxsf ${USE_MOUNTPT} ${DST_MOUNTPT}
     fi
-
-    # Install Dubsacks VIM.
-    #
-    # 2016-03-23: This is usually done manually during first OS boot.
-    echo
-    echo "Installing Dubsacks Vim..."
-    ${script_absbase}/vendor_dubsacks.sh
-
-    # Finish this stage and logout/reboot.
-
-    if ${DO_STAGE_DANCE}; then
-      echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
+    if [[ $? -ne 0 ]]; then
+      echo "WARNING: Could not mount host drive using the command:"
+      echo "         sudo mount -t vboxsf ${USE_MOUNTPT} ${DST_MOUNTPT}"
+      exit 1
     fi
 
     # Fix the VBox mount. After the reboot, the user will
     # have access to the auto-mount, so just symlink it.
-    if [[ -n ${USE_MOUNTPT} ]]; then
-      echo "Fixing VBox mount."
-      if ! ${IN_VIRTUALBOX_VM}; then
-        #
-        # FIXME: Append to /etc/fstab.
-        #        See code in Excensus_Developer_Setup_Guide.rst.
-        :
-      else
-        sudo umount ${USE_MOUNTPT}
-        sudo /bin/rmdir ${DST_MOUNTPT}
-        sudo /bin/ln -s /media/sf_${USE_MOUNTPT} ${DST_MOUNTPT}
-      fi
+    echo "Fixing VBox mount."
+    if ! ${IN_VIRTUALBOX_VM}; then
+      #
+      # FIXME: Append to /etc/fstab.
+      #        See code in Excensus_Developer_Setup_Guide.rst.
+      :
+    else
+      sudo umount ${USE_MOUNTPT}
+      sudo /bin/rmdir ${DST_MOUNTPT}
+      sudo /bin/ln -s /media/sf_${USE_MOUNTPT} ${DST_MOUNTPT}
     fi
-
-    # 2016-03-23: What was this for? Home-fries is installed manually...
-    #             hasn't it always? For one, this script is part of
-    #             home.fries, and so are the bash scripts. Hrmm.
-    #             Maybe delete this someday and clean up this whole script
-    #             of old fluff that's all false-d-out.
-    if false; then
-      echo
-      echo "NOTE: Open a new terminal window now and test the new bash scripts."
-      echo
-      echo "If you get a shell prompt, it means everything worked."
-      echo
-      echo "If you see any error messages, it means it kind of worked."
-      echo
-      echo "But if you do not get a prompt, you'll want to cancel this script."
-      echo
-      echo "Then, run:"
-      echo
-      echo "   /bin/rm ~/.bashrc"
-      echo
-      echo "Finally, open a new new terminal and make sure you get a prompt."
-      echo
-      echo -en "Were you able to open a new terminal window? (y/n) "
-      read -n 1 the_choice
-      if [[ $the_choice != "y" && $the_choice != "Y" ]]; then
-        echo "Sorry about that! You'll have to take it from here..."
-        exit 1
-      else
-        echo
-        echo "Sweet!"
-        echo "You'll have to logout or reboot to realize group changes."
-        if ${DO_STAGE_DANCE}; then
-          bluu=`tput setaf 4; tput smul;`
-          rset=`tput sgr0`
-          echo "Would you like to ${bluu}L${rset}ogout or ${bluu}R${rset}eboot?"
-          ask_yes_no_default 'L' 999999 'R'
-          if [[ $the_choice == "R" ]]; then
-            SETUP_DO_REBOOT=true
-          elif [[ $the_choice == "L" ]]; then
-            SETUP_DO_LOGOUT=true
-          else
-            echo "But I was trying to be nice to you!"
-            exit 1
-          fi
-        fi
-      fi
-    fi
-
   fi
 
-} # end: setup_mint_17_stage_3
+} # end: setup_mint_17_stage_3_groups_etc
 
 # ------------------------------------------
 # STAGE 4
 
 # *** FOURTH BOOT: Configure Window Manager and Compile and Install Apps.
 
-setup_mint_17_stage_4 () {
-
-  if ${DO_STAGE_DANCE}; then
-    echo 
-    echo "Swizzle, so you've rebooted a bunch already!"
-  fi
-  if false; then
-    echo
-    echo "This should be the last step."
-    echo
-    echo "We're going to configure your system, and we're"
-    echo "going to download and compile lots of software."
-    echo
-    echo "NOTE: You might need to perform a few actions throughout."
-    echo
-    echo "Are we golden?"
-    ask_yes_no_default 'Y' 999999
-    if [[ $the_choice != "Y" ]]; then
-      echo "Obviously not. Ya have a nice day, now."
-      exit 1
-    fi
-  fi
+setup_mint_17_stage_4_extras () {
 
   # *** Make a snapshot of the user's home directory, maybe.
 
   user_home_conf_dump "${script_absbase}/conf_dump/usr_04"
+
+  # *** Install Dubsacks VIM.
+
+  echo
+  echo "Installing Dubsacks Vim..."
+  echo
+  ${script_absbase}/vendor_dubsacks.sh
 
   # *** Tweak the Window Manager Configuration.
 
@@ -1585,7 +1443,7 @@ setup_mint_17_stage_4 () {
 
   stage_4_sshd_configure
 
-  # Customize the distro and window manager.
+  # *** Customize the distro and window manager.
 
   # FIXME: Should check we're actually installing on Mint first...
   #if ${WM_IS_MATE} && [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
@@ -1599,36 +1457,9 @@ setup_mint_17_stage_4 () {
     source ${script_absbase}/custom_setup.mate.sh
   fi
 
-  # Deprecated: Author prefers Mint to Xfce or Cinnamon.
-  # Note: There once was a custom_mint16.xcfe.sh but not no more.
-  if $WM_IS_CINNAMON; then
-    echo "Sourcing custom_mint16.cinnamon.sh"
-    source ${script_absbase}/custom_mint16.cinnamon.sh
-  fi
-
-  # Deprecated: Mint 17 login is different than Mint 16's (MDM).
-  if $USE_MINT16_CUSTOM_LOGIN; then
-    echo "Sourcing custom_mint16.retros_bg.sh"
-    source ${script_absbase}/custom_mint16.retros_bg.sh
-  fi
-
-  # Amazingly, you should be able to get this far before the unrealized
-  #  sudo usermod -a -G staff
-  # makes it necessary for you to logoff and log back on.
-  shush_errexit
-  groups | grep staff > /dev/null
-  if [[ $? -ne 0 ]]; then
-    echo
-    echo "STOPPING EARLY: Cannot run extras script until you realize new group associations."
-    echo
-    echo "logoff and log back on and then we'll talk again."
-    echo
-    exit 1
-  fi
-  reset_errexit
-
-  # Setup git, mercurial, meld, postgres, apache, quicktile, pidgin,
-  # adobe reader, dropbox, expect, rssowl, cloc, todo.txt, ti, utt, etc.
+  # Setup third-party apps that are not found in the official repos.
+  # We'll find them in third-party repos, or by downloading and compiling
+  # source.
   if [[ ${INSTALL_ALL_PACKAGES_ANSWER} == "Y" ]]; then
     echo
     echo "Installing Extras..."
@@ -1670,31 +1501,37 @@ setup_mint_17_stage_4 () {
   # Be nice and update the user's `locate` database.
   # (It runs once a day, but run it now because we
   # might make a virtual machine image next.)
+  echo
+  echo "Updating locatedb..."
   sudo updatedb
 
   # Remind the user about manual steps left to perform.
 
-  echo
-  echo "NEXT STEPS"
-  echo "=========="
-  echo
-  echo "For help on installing useful browser plugins"
-  echo "(like mouse gestures and HTTPS Everywhere),"
-  echo "for advice on manually configuring MATE,"
-  echo "for help on setting up Pidgin and relaying"
-  echo "postix email through gmail, see:"
-  echo
-  echo " ${script_absbase}/A_General_Linux_Setup_Guide_For_Devs.rst"
-  echo
-  echo "Look for: Optional Setup Tasks"
+  echo "#######################################################"
+  echo "#                                                     #"
+  echo "#  ============                                       #"
+  echo "#  MANUAL STEPS                                       #"
+  echo "#  ============                                       #"
+  echo "#                                                     #"
+  echo "#  This scripts automated what it could.              #"
+  echo "#                                                     #"
+  echo "#  You'll have to do some things manually, like:      #"
+  echo "#                                                     #"
+  echo "#    - Customize MATE panels.                         #"
+  echo "#                                                     #"
+  echo "#    - Install web browser plugins.                   #"
+  echo "#                                                     #"
+  echo "#    - And a few other things...                      #"
+  echo "#                                                     #"
+  echo "#  Refer to the helpful manual steps readme:          #"
+  echo "#                                                     #"
+  echo "#   A_Manual_MATE_Setup_Guide.rst                     #"
+  echo "#                                                     #"
+  echo "#######################################################"
 
   # All done.
 
-  if ${DO_STAGE_DANCE}; then
-    echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
-  fi
-
-} # end: setup_mint_17_stage_4
+} # end: setup_mint_17_stage_4_extras
 
 stage_4_sshd_configure () {
 
@@ -1712,22 +1549,30 @@ stage_4_sshd_configure () {
   echo "Setting up sshd"
 
   if [[ -e /etc/ssh/sshd_config ]]; then
-    set +e
-
-# FIXME: Set up SSH keys on HEADLESS before requiring them!!
-
     if [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
+      set +e
       grep "PasswordAuthentication no" /etc/ssh/sshd_config &> /dev/null
-      if [[ $? -ne 0 ]]; then
+      exit_code=$?
+      reset_errexit
+      if [[ $exit_code -ne 0 ]]; then
         sudo /bin/sed -i.bak \
           "s/^#PasswordAuthentication yes$/#PasswordAuthentication yes\n# Added by ${0}:${USER} at `date +%Y.%m.%d-%T`.\nPasswordAuthentication no/" \
           /etc/ssh/sshd_config
         #sudo service ssh restart
         sudo service sshd restart
+      else
+        # FIXME: Set up SSH keys on HEADLESS before requiring them.
+        #        MAYBE: See travel.sh. It complains if PasswordAuthentication
+        #        is not disabled. Will that be enough of a reminder when
+        #        I set up a headless machine?
+        :
+        echo
+        echo "CAVEAT: This is a HEADLESS machine."
+        echo
+        echo "  Set up your SSH keys and then disable SSH PasswordAuthentication"
+        echo
       fi
     fi
-
-    reset_errexit
 
     # You can test logging in with `ssh localhost`.
     # To debug: `ssh -vvv localhost` but oftentimes the server log
@@ -1741,8 +1586,8 @@ stage_4_sshd_configure () {
 
 stage_4_wm_customize_mint () {
 
-  # From the Mint Menu in the lower-left, remove the text and change the
-  # icon (to a playing die with five pips showing).
+  # From the Mint Menu in the lower-left, remove the text and
+  # change the icon (e.g., to a playing die with five pips showing).
 
   set +ex
   GSETTINGS_MENU="com.linuxmint.mintmenu"
@@ -1759,7 +1604,7 @@ stage_4_wm_customize_mint () {
   fi
   reset_errexit
 
-  if [[ -e $USE_MINT_MENU_ICON ]]; then
+  if [[ -e ${USE_MINT_MENU_ICON} ]]; then
     USER_BGS=/home/${USER}/Pictures/.backgrounds
     /bin/mkdir -p ${USER_BGS}
     /bin/cp \
@@ -1790,7 +1635,7 @@ stage_4_wm_customize_mint () {
   # FIXME/MAYBE: Maybe move this to a Vim install/setup script?
   #
   # The default mapping to open the MATE Menu is the Windows/Super key
-  # ('<Super_L'), but I fat-finger it sometimes so add the shift key.
+  # ('<Super>'), but I fat-finger it sometimes so add the shift key.
   gsettings set ${GSETTINGS_MENU} hot-key '<Super>Shift_L'
 
   # MAYBE: Move these thoughts to a reST article, specifically a dead one.
@@ -1833,10 +1678,7 @@ stage_4_wm_customize_mint () {
 # *** Call this fcn. from a wrapper script.
 #     Or source this script and run it yourself.
 
-setup_mint_17_go () {
-
-  SETUP_DO_REBOOT=false
-  SETUP_DO_LOGOUT=false
+setup_ubuntu_go () {
 
   if [[ -z ${INSTALL_ALL_PACKAGES_ANSWER+x} ]]; then
     echo
@@ -1851,10 +1693,8 @@ setup_mint_17_go () {
     IS_HEADLESS_MACHINE_ANSWER=$the_choice
   fi
 
-  if [[ !${DO_EXTRA_UNNECESSARY_VBOX_STUFF} || ${stage_num} -eq 1 ]]; then
-    # Call `sudo apt-get install -y [lots of packages]`.
-    setup_mint_17_stage_1
-  fi
+  # Call `sudo apt-get install -y [lots of packages]`.
+  setup_mint_17_stage_1_apt_get_install
 
   # There are a number of ways to check if we're running in a virtual machine.
   # You could check PCI and USB devices for their names, or dmesg, e.g.,
@@ -1880,154 +1720,68 @@ setup_mint_17_go () {
   # Set WM_IS_MATE, etc.
   determine_window_manager
 
-  if ! ${IN_VIRTUALBOX_VM}; then
-    # 2016.01.14: [lb] installed Linux Mint 17.3 MATE on a laptop and did
-    # not reboot or relogon between install steps, so we'll scream through
-    # each step one after another.
-    # SKIPPING: Stage 2, which install VBox additions.
-    # Setup usergroups and the user's home directory.
-    setup_mint_17_stage_3
-    # Download, compile, and configure lots of software.
-    setup_mint_17_stage_4
-  else
+  if ${IN_VIRTUALBOX_VM}; then
     # 2016.03.23: It's best if the user just installs guest additions manually
     # right after installing an OS, before running this script, so not calling
-    #    setup_mint_17_stage_2
+    #    setup_mint_17_stage_2_virtualbox_guest_additions
     #  See: ubuntu_mate_15.10.rst for easy instructions.
-    if ${DO_EXTRA_UNNECESSARY_VBOX_STUFF}; then
-      setup_mint_17_stage_2
-    fi
-    # Setup usergroups and the user's home directory.
-    setup_mint_17_stage_3
-    # Download, compile, and configure lots of software.
-    setup_mint_17_stage_4
-
-    # 2016-03-23: I'm guessing all the DO_STAGE_DANCE is deletable.
-    # Reboot if we have more setup to go.
-    if ${DO_STAGE_DANCE}; then
-      if $SETUP_DO_REBOOT; then
-        echo
-        echo "$((${stage_num} + 1))" > ${script_absbase}/fries-setup-stage.num
-        echo "NOTICE: Rebooting before running next step."
-        echo "Run this script again after rebooting."
-        sudo /sbin/shutdown -r now
-      elif $SETUP_DO_LOGOUT; then
-        echo
-        echo "NOTICE: Logging out before running next step."
-        echo "Run this script again after logging back on."
-        # The logout commands vary according to distro, so check what's there.
-        # Bash has three built-its that'll tell is if a command exists on
-        # $PATH. The simplest, ``command``, doesn't print anything but returns
-        # 1 if the command is not found, while the other three print a not-found
-        # message and return one. The other two commands are ``type`` and ``hash``.
-        # All commands return 0 is the command was found.
-        #  $ command -v foo >/dev/null 2>&1 || { echo >&2 "Not found."; exit 1; }
-        #  $ type foo       >/dev/null 2>&1 || { echo >&2 "Not found."; exit 1; }
-        #  $ hash foo       2>/dev/null     || { echo >&2 "Not found."; exit 1; }
-        # Thanks to http://stackoverflow.com/questions/592620/
-        #             how-to-check-if-a-program-exists-from-a-bash-script
-        if ``command -v mate-session-save >/dev/null 2>&1``; then
-          mate-session-save --logout
-        elif ``command -v gnome-session-save >/dev/null 2>&1``; then
-          gnome-session-save --logout
-        else
-          # This is the most destructive way to logout, so don't do it:
-          #   Kill everything but kill and init using the special -1 PID.
-          #   And don't run this as root or you'll be sorry (like, you'll
-          #   kill kill and init, I suppose). This will cause a logout.
-          #   http://aarklonlinuxinfo.blogspot.com/2008/07/kill-9-1.html
-          #     kill -9 -1
-          # Apparently also this, but less destructive
-          #     sudo pkill -u $USER
-          echo
-          echo "WARNING: Logout command not found; cannot logout."
-          echo "FIXME: Hey, dev, please update the install script."
-          exit 1
-        fi
-      fi
-    else
-      #echo
-      #echo "VirtualBox OS setup is complete!"
-      :
-    fi
+    setup_mint_17_stage_2_virtualbox_guest_additions
   fi
 
+  # Setup usergroups and the user's home directory.
+  setup_mint_17_stage_3_groups_etc
+
+  # Download, compile, and configure lots of software.
+  setup_mint_17_stage_4_extras
+
   print_install_time
+
+  echo
+  echo "TESTING: /bin/bash"
+  echo
+  /bin/bash -c "echo HELLO"
 
   # C'est ca!
   echo
   echo "All done!"
 
-  if ${REBOOT_WILL_BE_NECESSARY}; then
-    echo
-    echo "One or more operations require a reboot before working (e.g., Wireshark)."
+  if ${LOGOUT_NECESSARY} || ${REBOOT_NECESSARY}; then
+    echo "You'll have to logout or reboot to realize group or other changes."
+    bluu=`tput setaf 4; tput smul;`
+    rset=`tput sgr0`
+    echo "Would you like to ${bluu}L${rset}ogout or ${bluu}R${rset}eboot?"
+    ask_yes_no_default 'L' 999999 'R'
+    if [[ $the_choice == "R" ]]; then
+      /sbin/shutdown -r now
+      exit 0
+    elif [[ $the_choice == "L" ]]; then
+      if ``command -v mate-session-save >/dev/null 2>&1``; then
+        mate-session-save --logout
+      elif ``command -v gnome-session-save >/dev/null 2>&1``; then
+        gnome-session-save --logout
+      else
+        echo
+        echo "ERROR: Unknown window manager. Don't know how to logout."
+        echo
+        exit 1
+      fi
+    else
+      echo "But I was trying to be nice to you!"
+      exit 1
+    fi
   fi
 
-} # end: setup_mint_17_go
+  exit 0
+
+} # end: setup_ubuntu_go
 
 # Only run when not being sourced.
 if [[ "$0" == "$BASH_SOURCE" ]]; then
-  # If you want to override any options but not checkin the changes to the
-  # repository (e.g., add passwords to this script) use a wrapper script.
-  # See: custom_setup.template.sh
-  if [[ ! -v SETUP_WRAPPERED ]]; then
-    echo
-    echo "Not being called by wrapper script: installing using default options."
-    setup_mint_17_go
-  fi
+  setup_ubuntu_go
+else
+  echo "WARNING: setup_ubuntu.sh was sourced."
+  echo "BEWARE the \`exit\`s"
 fi
-
-# ==================================================================
-# Copy-n-paste Convenience! Some commands to run on Very Fresh Mint.
-
-# The basics: you might want to run this quick after first installing:
-__just_the_basics__ () {
-  gsettings set org.mate.caja.desktop computer-icon-visible false
-  gsettings set org.mate.caja.desktop home-icon-visible false
-  gsettings set org.mate.caja.desktop volumes-visible false
-  gsettings set org.mate.screensaver idle-activation-enabled false
-  gsettings set org.mate.screensaver lock-enabled false
-  #
-  # Gestures for Mozilla Firefox
-  #* https://addons.mozilla.org/en-US/firefox/addon/firegestures/
-  # CrxMouse for Google Chrome
-  #* https://chrome.google.com/webstore/detail/crxmouse/jlgkpaicikihijadgifklkbpdajbkhjo
-
-  # HTTPS Everywhere
-  # https://www.eff.org/files/https-everywhere-latest.xpi
-  # Chrome: https://www.eff.org/https-everywhere
-  #
-  # Customize (Keyboard) Shortcuts for Firefox
-  # https://addons.mozilla.org/en-US/firefox/addon/customizable-shortcuts/
-  #  --> then you can remap Ctrl-Shift-C, which brings up the
-  #      Firefox Developer Tools Inspector, but I usually type
-  #      it by accident because that's how you copy selected text
-  #      from the terminal (since Ctrl-C sends sigterm).
-  #      I changed Inspector shortcut from Ctrl+Shift+C to Ctrl+Shift+D.
-  #      And I changed Console from Ctrl+Shiht+K to Ctrl+Shiht+X
-  #        (obscuring Text Switch Directions, which is... weird for Latin).
-
-  if false; then
-    # Linux Mint 17 Adode Flash update:
-    sudo add-apt-repository "deb http://archive.canonical.com/ rebecca partner"
-    sudo apt-get update
-    sudo apt-get install -y flashplugin-installer
-  fi
-
-  # 2016-04-27: apt-get update is complaining about this repo.
-  #if true; then
-  if false; then
-    # Linux Mint 17.1 Adode Flash update.
-    sudo add-apt-repository "deb http://archive.canonical.com/ rebecca partner"
-    sudo apt-get update
-    sudo apt-get install -y adobe-flashplugin
-  fi
-}
-
-__just_a_test__ () {
-  echo "Just a test!"
-}
-#__just_a_test__
 
 # Vim modeline:
 # vim:tw=0:ts=2:sw=2:et:norl:

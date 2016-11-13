@@ -1998,6 +1998,38 @@ lock_screensaver_and_do_nothing_else () {
 alias qq="lock_screensaver_and_do_nothing_else"
 alias qqq="lock_screensaver_and_power_suspend"
 
+# 2016-11-12: I don't use this fcn. I moved it from
+#   ~/.fries/once/setup_ubuntu.sh rather than delete it.
+user_window_session_logout () {
+  # The logout commands vary according to distro, so check what's there.
+  # Bash has three built-its that'll tell is if a command exists on
+  # $PATH. The simplest, ``command``, doesn't print anything but returns
+  # 1 if the command is not found, while the other three print a not-found
+  # message and return one. The other two commands are ``type`` and ``hash``.
+  # All commands return 0 is the command was found.
+  #  $ command -v foo >/dev/null 2>&1 || { echo >&2 "Not found."; exit 1; }
+  #  $ type foo       >/dev/null 2>&1 || { echo >&2 "Not found."; exit 1; }
+  #  $ hash foo       2>/dev/null     || { echo >&2 "Not found."; exit 1; }
+  # Thanks to http://stackoverflow.com/questions/592620/
+  #             how-to-check-if-a-program-exists-from-a-bash-script
+  if ``command -v mate-session-save >/dev/null 2>&1``; then
+    mate-session-save --logout
+  elif ``command -v gnome-session-save >/dev/null 2>&1``; then
+    gnome-session-save --logout
+  else
+    # This is the most destructive way to logout, so don't do it:
+    #   Kill everything but kill and init using the special -1 PID.
+    #   And don't run this as root or you'll be sorry (like, you'll
+    #   kill kill and init, I suppose). This will cause a logout.
+    #   http://aarklonlinuxinfo.blogspot.com/2008/07/kill-9-1.html
+    #     kill -9 -1
+    # Apparently also this, but less destructive
+    #     sudo pkill -u $USER
+    echo
+    echo "WARNING: Logout command not found; cannot logout."
+  fi
+}
+
 #########################
 
 # 2016-10-25: See stage_4_password_store

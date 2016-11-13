@@ -25,7 +25,7 @@ setup_time_0=$(date +%s.%N)
 
 # ***
 
-# Load: colorful logging
+# Load: Colorful logging.
 if [[ -e ${HOME}/.fries/lib/logger.sh ]]; then
   source ${HOME}/.fries/lib/logger.sh
 elif [[ -e logger.sh ]]; then
@@ -749,6 +749,22 @@ setup_private_ssh_directory () {
     chmod 440 ~/.ssh/*.pub
     chmod 600 ~/.ssh/config ~/.ssh/known_hosts* ~/.ssh/authorized_keys ~/.ssh/environment
   fi
+
+  # 2016-11-12: Check that PasswordAuthentication is disabled.
+  grep "PasswordAuthentication no" /etc/ssh/sshd_config &> /dev/null
+  if [[ $? -ne 0 ]]; then
+    echo
+    echo "###################################################"
+    echo
+    echo "WARNING: SSH PasswordAuthentication is not disabled"
+    echo
+    echo "###################################################"
+    echo
+  fi
+
+  # Appease SSH.
+  chmod g-w ~
+
 } # end: setup_private_ssh_directory
 
 setup_private_hamster_db () {
@@ -876,7 +892,6 @@ locate_and_clone_missing_repos () {
       locate_and_clone_missing_repo $key ${GIT_REPO_SEEDS[$key]}
     done
   fi
-
 } # end: locate_and_clone_missing_repos
 
 function chase_and_face () {

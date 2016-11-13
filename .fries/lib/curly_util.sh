@@ -10,48 +10,52 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 setup_users_curly_path () {
-  local CANDIDATES=()
-  if [[ -z ${USERS_CURLY} ]]; then
+  if [[ -f ${HOME}/.curly/master_chef || -f ${HOME}/.curly/junior_chef ]]; then
+    USERS_CURLY="${HOME}/.curly"
+  else
+    local CANDIDATES=()
+    if [[ -z ${USERS_CURLY} ]]; then
 
-    # First try to find it under ~/.
-    while IFS= read -r -d '' file; do
-      #echo "Checking candidate at: $file"
-      # Check if this dir contains the working private dotfiles...
-      if [[ -e ${file}/master_chef ]]; then
-        #echo "found: ${file}/master_chef"
-        # for the main development machine;
-        CANDIDATES+=("${file}")
-      elif [[ -e ${file}/junior_chef ]]; then
-        #echo "found: ${file}/junior_chef"
-        # or for a satellite machine.
-        CANDIDATES+=("${file}")
-      fi
-    # HA. HA. HA!
-    # http://unix.stackexchange.com/questions/272698/why-is-the-array-empty-after-the-while-loop
-    done < <(find ${HOME} -maxdepth 1 -type d ! -path . -name '.*' -print0)
+      # First try to find it under ~/.
+      while IFS= read -r -d '' file; do
+        #echo "Checking candidate at: $file"
+        # Check if this dir contains the working private dotfiles...
+        if [[ -e ${file}/master_chef ]]; then
+          #echo "found: ${file}/master_chef"
+          # for the main development machine;
+          CANDIDATES+=("${file}")
+        elif [[ -e ${file}/junior_chef ]]; then
+          #echo "found: ${file}/junior_chef"
+          # or for a satellite machine.
+          CANDIDATES+=("${file}")
+        fi
+      # HA. HA. HA!
+      # http://unix.stackexchange.com/questions/272698/why-is-the-array-empty-after-the-while-loop
+      done < <(find ${HOME} -maxdepth 1 -type d ! -path . -name '.*' -print0)
 
-    #echo "No. candidates found: ${#CANDIDATES[@]}"
-    if [[ ${#CANDIDATES[@]} -gt 1 ]]; then
-      echo "WARNING: More than one candidate found."
-      for ((i = 0; i < ${#CANDIDATES[@]}; i++)); do
-        CANDIDATE="${CANDIDATES[$i]}"
-        echo "CANDIDATE: ${CANDIDATE}"
-      done
-      echo
-      CANDIDATES=()
-    elif [[ ${#CANDIDATES[@]} -lt 1 ]]; then
-      echo "Welcome to curly!"
-      echo
-      echo "Please specify where to make your private dotfiles repository."
-      #echo
-      echo -n "Path to destination [~/.mydots]: "
-      read -e USERS_CURLY
-      #echo
-      if [[ -z ${USERS_CURLY} ]]; then
-        USERS_CURLY=${HOME}/.mydots
+      #echo "No. candidates found: ${#CANDIDATES[@]}"
+      if [[ ${#CANDIDATES[@]} -gt 1 ]]; then
+        echo "WARNING: More than one candidate found."
+        for ((i = 0; i < ${#CANDIDATES[@]}; i++)); do
+          CANDIDATE="${CANDIDATES[$i]}"
+          echo "CANDIDATE: ${CANDIDATE}"
+        done
+        echo
+        CANDIDATES=()
+      elif [[ ${#CANDIDATES[@]} -lt 1 ]]; then
+        echo "Welcome to curly!"
+        echo
+        echo "Please specify where to make your private dotfiles repository."
+        #echo
+        echo -n "Path to destination [~/.mydots]: "
+        read -e USERS_CURLY
+        #echo
+        if [[ -z ${USERS_CURLY} ]]; then
+          USERS_CURLY=${HOME}/.mydots
+        fi
+      else
+        USERS_CURLY=${CANDIDATES[0]}
       fi
-    else
-      USERS_CURLY=${CANDIDATES[0]}
     fi
   fi
 
