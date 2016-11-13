@@ -497,7 +497,7 @@ function git_dir_check () {
   elif [[ ! -d ${REPO_PATH}/.git ]]; then
     SKIP_GIT_PULL=true
     echo
-    echo "WARNING: No .git/ found at: ${REPO_PATH}/.git"
+    echo "WARNING: No .git/ found at: $(pwd -P)/${REPO_PATH}/.git"
   fi
 }
 

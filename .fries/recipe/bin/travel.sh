@@ -77,11 +77,16 @@ CRAPWORD=""
 PLAINTEXT_ARCHIVES=()
 ENCFS_GIT_REPOS=()
 ENCFS_GIT_ITERS=()
+ENCFS_VIM_ITERS=()
+ENCFS_EXO_ITERS=()
 AUTO_GIT_ONE=()
 AUTO_GIT_ALL=()
 declare -A GTSTOK_GIT_REPOS
 declare -A GIT_REPO_SEEDS_0
 declare -A GIT_REPO_SEEDS_1
+declare -A VIM_REPO_SEEDS_1
+declare -A KIT_REPO_SEEDS_1
+declare -A EXO_REPO_SEEDS_1
 
 # Look for sync_repos.sh.
 SYNC_REPOS_PATH=""
@@ -903,6 +908,14 @@ locate_and_clone_missing_repo () {
 
 locate_and_clone_missing_repos () {
 
+  TOTES_REPOS=$((0 \
+    + ${#VIM_REPO_SEEDS_0[@]} \
+    + ${#KIT_REPO_SEEDS_0[@]} \
+    + ${#GIT_REPO_SEEDS_0[@]} \
+    + ${#EXO_REPO_SEEDS_0[@]} \
+  ))
+  echo "Totes number of git repo seeds: ${TOTES_REPOS}"
+
   if [[ ${#GIT_REPO_SEEDS_0[@]} -gt 0 ]]; then
     echo "No. of GIT_REPO_SEEDS_0: ${#GIT_REPO_SEEDS_0[@]}"
     # NOTE: The keys are unordered.
@@ -920,6 +933,36 @@ locate_and_clone_missing_repos () {
       #echo "key  : $key"
       #echo "value: ${GIT_REPO_SEEDS_1[$key]}"
       locate_and_clone_missing_repo $key ${GIT_REPO_SEEDS_1[$key]}
+    done
+  fi
+
+  if [[ ${#VIM_REPO_SEEDS_1[@]} -gt 0 ]]; then
+    echo "No. of VIM_REPO_SEEDS_1: ${#VIM_REPO_SEEDS_1[@]}"
+    # NOTE: The keys are unordered.
+    for key in "${!VIM_REPO_SEEDS_1[@]}"; do
+      #echo "key  : $key"
+      #echo "value: ${VIM_REPO_SEEDS_1[$key]}"
+      locate_and_clone_missing_repo $key ${VIM_REPO_SEEDS_1[$key]}
+    done
+  fi
+
+  if [[ ${#KIT_REPO_SEEDS_1[@]} -gt 0 ]]; then
+    echo "No. of KIT_REPO_SEEDS_1: ${#KIT_REPO_SEEDS_1[@]}"
+    # NOTE: The keys are unordered.
+    for key in "${!KIT_REPO_SEEDS_1[@]}"; do
+      #echo "key  : $key"
+      #echo "value: ${KIT_REPO_SEEDS_1[$key]}"
+      locate_and_clone_missing_repo $key ${KIT_REPO_SEEDS_1[$key]}
+    done
+  fi
+
+  if [[ ${#EXO_REPO_SEEDS_1[@]} -gt 0 ]]; then
+    echo "No. of EXO_REPO_SEEDS_1: ${#EXO_REPO_SEEDS_1[@]}"
+    # NOTE: The keys are unordered.
+    for key in "${!EXO_REPO_SEEDS_1[@]}"; do
+      #echo "key  : $key"
+      #echo "value: ${EXO_REPO_SEEDS_1[$key]}"
+      locate_and_clone_missing_repo $key ${EXO_REPO_SEEDS_1[$key]}
     done
   fi
 
@@ -982,8 +1025,14 @@ function chase_and_face () {
   # Best bet is to pass its name and use an eval to reference it? Bah.
   #declare -p GIT_REPO_SEEDS_0
   #declare -p GIT_REPO_SEEDS_1
+  #declare -p VIM_REPO_SEEDS_1
+  #declare -p KIT_REPO_SEEDS_1
+  #declare -p EXO_REPO_SEEDS_1
   #locate_and_clone_missing_repos "GIT_REPO_SEEDS_0"
   #locate_and_clone_missing_repos "GIT_REPO_SEEDS_1"
+  #locate_and_clone_missing_repos "VIM_REPO_SEEDS_1"
+  #locate_and_clone_missing_repos "KIT_REPO_SEEDS_1"
+  #locate_and_clone_missing_repos "EXO_REPO_SEEDS_1"
   locate_and_clone_missing_repos
 
   echo " user_do_chase_and_face"
@@ -1059,6 +1108,28 @@ function umount_curly_emissary_gooey () {
   set -e
 }
 
+function populate_gardened_repo () {
+  ENCFS_GIT_ITER=$1
+  #echo " ${ENCFS_GIT_ITER}"
+  ENCFS_REL_PATH=$(echo ${ENCFS_GIT_ITER} | /bin/sed s/^.//)
+  echo " ${ENCFS_REL_PATH}"
+  # We don't -type d so that you can use symlinks.
+  while IFS= read -r -d '' fpath; do
+    TARGET_PATH="${ENCFS_REL_PATH}/$(basename ${fpath})"
+    if [[ -d ${fpath}/.git ]]; then
+      if [[ ! -e ${TARGET_PATH}/.git ]]; then
+        echo " $fpath"
+        echo "  \$ git clone ${fpath} ${TARGET_PATH}"
+        git clone ${fpath} ${TARGET_PATH}
+      else
+        echo " skipping (got .git?): +${TARGET_PATH}+"
+      fi
+    else
+      echo " skipping (not .git/): -${TARGET_PATH}-"
+    fi
+  done < <(find ${ENCFS_GIT_ITER} -maxdepth 1 ! -path . -print0)
+}
+
 function init_travel () {
 
   if [[ -z ${TRAVEL_DIR} ]]; then
@@ -1118,24 +1189,33 @@ function init_travel () {
 
   echo "Populating gardened git repos..."
   for ((i = 0; i < ${#ENCFS_GIT_ITERS[@]}; i++)); do
-    #echo " ${ENCFS_GIT_ITERS[$i]}"
-    ENCFS_REL_PATH=$(echo ${ENCFS_GIT_ITERS[$i]} | /bin/sed s/^.//)
-    echo " ${ENCFS_REL_PATH}"
-    # We don't -type d so that you can use symlinks.
-    while IFS= read -r -d '' fpath; do
-      TARGET_PATH="${ENCFS_REL_PATH}/$(basename ${fpath})"
-      if [[ -d ${fpath}/.git ]]; then
-        if [[ ! -e ${TARGET_PATH}/.git ]]; then
-          echo " $fpath"
-          echo "  \$ git clone ${fpath} ${TARGET_PATH}"
-          git clone ${fpath} ${TARGET_PATH}
-        else
-          echo " skipping (got .git?): +${TARGET_PATH}+"
-        fi
-      else
-        echo " skipping (not .git/): -${TARGET_PATH}-"
-      fi
-    done < <(find ${ENCFS_GIT_ITERS[$i]} -maxdepth 1 ! -path . -print0)
+    populate_gardened_repo ${ENCFS_GIT_ITERS[$i]}
+#    #echo " ${ENCFS_GIT_ITERS[$i]}"
+#    ENCFS_REL_PATH=$(echo ${ENCFS_GIT_ITERS[$i]} | /bin/sed s/^.//)
+#    echo " ${ENCFS_REL_PATH}"
+#    # We don't -type d so that you can use symlinks.
+#    while IFS= read -r -d '' fpath; do
+#      TARGET_PATH="${ENCFS_REL_PATH}/$(basename ${fpath})"
+#      if [[ -d ${fpath}/.git ]]; then
+#        if [[ ! -e ${TARGET_PATH}/.git ]]; then
+#          echo " $fpath"
+#          echo "  \$ git clone ${fpath} ${TARGET_PATH}"
+#          git clone ${fpath} ${TARGET_PATH}
+#        else
+#          echo " skipping (got .git?): +${TARGET_PATH}+"
+#        fi
+#      else
+#        echo " skipping (not .git/): -${TARGET_PATH}-"
+#      fi
+#    done < <(find ${ENCFS_GIT_ITERS[$i]} -maxdepth 1 ! -path . -print0)
+  done
+  echo "Populating gardened vim repos..."
+  for ((i = 0; i < ${#ENCFS_VIM_ITERS[@]}; i++)); do
+    populate_gardened_repo ${ENCFS_VIM_ITERS[$i]}
+  done
+  echo "Populating gardened exo repos..."
+  for ((i = 0; i < ${#ENCFSEXO_ITERS[@]}; i++)); do
+    populate_gardened_repo ${ENCFS_EXO_ITERS[$i]}
   done
 
   popd &> /dev/null
@@ -1262,6 +1342,22 @@ function git_commit_dirty_sync_repos () {
 
 # *** Git: check 'n fail
 
+function check_gardened_repo () {
+  ENCFS_GIT_ITER=$1
+  echo " top-level: ${ENCFS_GIT_ITER}"
+  while IFS= read -r -d '' fpath; do
+    if [[ -d ${fpath}/.git ]]; then
+      echo "  ${fpath}"
+      pushd ${fpath} &> /dev/null
+      git_status_porcelain "${fpath}"
+      popd &> /dev/null
+    else
+      #echo "Skipping non-.git/ ${fpath}"
+      :
+    fi
+  done < <(find ${ENCFS_GIT_ITER} -maxdepth 1 ! -path . -print0)
+}
+
 function check_repos_statuses () {
 
   # Skipping: PLAINTEXT_ARCHIVES
@@ -1292,20 +1388,29 @@ function check_repos_statuses () {
     popd &> /dev/null
   done
 
-  echo "Checking gardened repos..."
+  echo "Checking gardened git repos..."
   for ((i = 0; i < ${#ENCFS_GIT_ITERS[@]}; i++)); do
-    echo " top-level: ${ENCFS_GIT_ITERS[$i]}"
-    while IFS= read -r -d '' fpath; do
-      if [[ -d ${fpath}/.git ]]; then
-        echo "  ${fpath}"
-        pushd ${fpath} &> /dev/null
-        git_status_porcelain "${fpath}"
-        popd &> /dev/null
-      else
-        #echo "Skipping non-.git/ ${fpath}"
-        :
-      fi
-    done < <(find ${ENCFS_GIT_ITERS[$i]} -maxdepth 1 ! -path . -print0)
+    check_gardened_repo "${ENCFS_GIT_ITERS[$i]}"
+#    echo " top-level: ${ENCFS_GIT_ITERS[$i]}"
+#    while IFS= read -r -d '' fpath; do
+#      if [[ -d ${fpath}/.git ]]; then
+#        echo "  ${fpath}"
+#        pushd ${fpath} &> /dev/null
+#        git_status_porcelain "${fpath}"
+#        popd &> /dev/null
+#      else
+#        #echo "Skipping non-.git/ ${fpath}"
+#        :
+#      fi
+#    done < <(find ${ENCFS_GIT_ITERS[$i]} -maxdepth 1 ! -path . -print0)
+  done
+  echo "Checking gardened vim repos..."
+  for ((i = 0; i < ${#ENCFS_VIM_ITERS[@]}; i++)); do
+    check_gardened_repo "${ENCFS_VIM_ITERS[$i]}"
+  done
+  echo "Checking gardened exo repos..."
+  for ((i = 0; i < ${#ENCFS_EXO_ITERS[@]}; i++)); do
+    check_gardened_repo "${ENCFS_EXO_ITERS[$i]}"
   done
 
   git_issues_review
@@ -1332,6 +1437,23 @@ function git_issues_review {
 
 # *** Git: pull
 
+function pull_gardened_repo () {
+  ENCFS_GIT_ITER=$1
+  ABS_PATH="${ENCFS_GIT_ITER}"
+  ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
+  echo " ${ENCFS_REL_PATH}"
+  while IFS= read -r -d '' fpath; do
+    TARGET_PATH="${ENCFS_REL_PATH}/$(basename ${fpath})"
+    if [[ -d ${TARGET_PATH}/.git ]]; then
+      echo "  $fpath"
+      git_pull_hush ${PREFIX}${ABS_PATH}/$(basename ${fpath}) ${TARGET_PATH}
+    else
+      #echo " skipping (not .git/): $fpath"
+      :
+    fi
+  done < <(find /${ENCFS_REL_PATH} -maxdepth 1 ! -path . -print0)
+}
+
 function pull_git_repos () {
 
   if [[ $1 == 'emissary' ]]; then
@@ -1357,19 +1479,28 @@ function pull_git_repos () {
 
   echo "Pulling gardened git repos..."
   for ((i = 0; i < ${#ENCFS_GIT_ITERS[@]}; i++)); do
-    ABS_PATH="${ENCFS_GIT_ITERS[$i]}"
-    ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
-    echo " ${ENCFS_REL_PATH}"
-    while IFS= read -r -d '' fpath; do
-      TARGET_PATH="${ENCFS_REL_PATH}/$(basename ${fpath})"
-      if [[ -d ${TARGET_PATH}/.git ]]; then
-        echo "  $fpath"
-        git_pull_hush ${PREFIX}${ABS_PATH}/$(basename ${fpath}) ${TARGET_PATH}
-      else
-        #echo " skipping (not .git/): $fpath"
-        :
-      fi
-    done < <(find /${ENCFS_REL_PATH} -maxdepth 1 ! -path . -print0)
+    pull_gardened_repo "${ENCFS_GIT_ITERS[$i]}"
+#    ABS_PATH="${ENCFS_GIT_ITERS[$i]}"
+#    ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
+#    echo " ${ENCFS_REL_PATH}"
+#    while IFS= read -r -d '' fpath; do
+#      TARGET_PATH="${ENCFS_REL_PATH}/$(basename ${fpath})"
+#      if [[ -d ${TARGET_PATH}/.git ]]; then
+#        echo "  $fpath"
+#        git_pull_hush ${PREFIX}${ABS_PATH}/$(basename ${fpath}) ${TARGET_PATH}
+#      else
+#        #echo " skipping (not .git/): $fpath"
+#        :
+#      fi
+#    done < <(find /${ENCFS_REL_PATH} -maxdepth 1 ! -path . -print0)
+  done
+  echo "Pulling gardened vim repos..."
+  for ((i = 0; i < ${#ENCFS_VIM_ITERS[@]}; i++)); do
+    pull_gardened_repo "${ENCFS_VIM_ITERS[$i]}"
+  done
+  echo "Pulling gardened exo repos..."
+  for ((i = 0; i < ${#ENCFS_EXO_ITERS[@]}; i++)); do
+    pull_gardened_repo "${ENCFS_EXO_ITERS[$i]}"
   done
 
   popd &> /dev/null
@@ -1447,6 +1578,8 @@ function packme () {
   #echo "- # of. PLAINTEXT_ARCHIVES: ${#PLAINTEXT_ARCHIVES[@]}"
   #echo "- # of.    ENCFS_GIT_REPOS: ${#ENCFS_GIT_REPOS[@]}"
   #echo "- # of.    ENCFS_GIT_ITERS: ${#ENCFS_GIT_ITERS[@]}"
+  #echo "- # of.    ENCFS_VIM_ITERS: ${#ENCFS_VIM_ITERS[@]}"
+  #echo "- # of.    ENCFS_EXO_ITERS: ${#ENCFS_EXO_ITERS[@]}"
 
   # We can be smart about certain files that change often and
   # don't need meaningful commit messages and automatically
