@@ -1172,7 +1172,7 @@ function update_git () {
 # packme
 
 function create_umount_script () {
-  echo "umount ${TRAVEL_DIR}" > ${USERS_CURLY}/packup.sh
+  #echo "umount ${TRAVEL_DIR}" > ${USERS_CURLY}/packup.sh
   chmod 775 ${USERS_CURLY}/packup.sh
 
   # 2016-11-04: Oh, yerp.
