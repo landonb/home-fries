@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016.11.12
+# Last Modified: 2016.11.13
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
@@ -22,6 +22,8 @@ DEBUG=false
 
 # Start a timer.
 setup_time_0=$(date +%s.%N)
+
+UNIQUE_TIME=$(date +%Y-%m-%d_%T)
 
 # ***
 
@@ -47,6 +49,7 @@ setup_users_curly_path
 PRIVATE_REPO="${USERS_BNAME}"
 # In case ${PRIVATE_REPO} has a dot prefix, remove it for some friendlier representations.
 PRIVATE_REPO_=${PRIVATE_REPO#.}
+#echo "PRIVATE_REPO_: ${PRIVATE_REPO_}"
 
 # Load: git_commit_generic_file, et al
 if [[ -e ${HOME}/.fries/lib/git_util.sh ]]; then
@@ -69,12 +72,18 @@ FRIES_ABS_DIRN=${REPO_PATH}
 
 # ***
 
-# Get lists of things for unpack and packme from the machine specs file.
+# Setup things sync_repos.sh will probably overwrite.
 CRAPWORD=""
 PLAINTEXT_ARCHIVES=()
 ENCFS_GIT_REPOS=()
 ENCFS_GIT_ITERS=()
-SOURCED_SYNC_REPOS=true
+AUTO_GIT_ONE=()
+AUTO_GIT_ALL=()
+declare -A GTSTOK_GIT_REPOS
+declare -A GIT_REPO_SEEDS_0
+declare -A GIT_REPO_SEEDS_1
+
+# Look for sync_repos.sh.
 SYNC_REPOS_PATH=""
 if [[ -f "${USERS_CURLY}/cfg/sync_repos.sh-$(hostname)" ]]; then
   # You can set up per-hostname sync_repos lists, or you can use
@@ -90,9 +99,16 @@ elif [[ -f "sync_repos.sh" ]]; then
   SYNC_REPOS_PATH="sync_repos.sh"
 fi
 if [[ -n ${SYNC_REPOS_PATH} ]]; then
+  # Source this now so that sync_repos.sh can use, e.g., ${EMISSARY}.
+  SYNC_REPOS_AGAIN=false
   source "${SYNC_REPOS_PATH}"
+  SOURCED_SYNC_REPOS=true
 else
+  echo
+  echo "==============================="
   echo "NOTICE: sync_repos.sh not found"
+  echo "==============================="
+  echo
   SOURCED_SYNC_REPOS=false
 fi
 
@@ -149,7 +165,7 @@ echod "SOURCED_TRAVEL_TASKS: ${SOURCED_TRAVEL_TASKS}"
 HAMSTERING=false
 if [[ -d ${USERS_CURLY}/home/.local/share/hamster-applet ]]; then
   HAMSTERING=true
-  echo "Hamster found under: ${USERS_CURLY}/home/.local/share/hamster-applet"
+  echod "Hamster found under: ${USERS_CURLY}/home/.local/share/hamster-applet"
 else
   #echo "No hamster at: ${USERS_CURLY}/home/.local/share/hamster-applet"
   :
@@ -262,7 +278,7 @@ function soups_on () {
         PLEASE_CHOOSE_PART="to which to pack"
         DETERMINE_TRAVEL_DIR=true
         REQUIRES_CRAPPDWORD=true
-        set_travel_cmd "mount_curly_emissary_gooey"
+        set_travel_cmd "mount_curly_emissary_gooey_explicit"
         shift
         ;;
       umount)
@@ -400,21 +416,23 @@ function soups_on () {
 
   if ${DETERMINE_TRAVEL_DIR}; then
     determine_stick_dir "${PLEASE_CHOOSE_PART}"
-    # So that sync_repos.sh can use, e.g., ${EMISSARY}.
+  fi
+
+  if [[ ${REQUIRES_SYNC_REPOS} && ! ${SOURCED_SYNC_REPOS} ]]; then
+    echo
+    echo "ERROR: Missing repo_syncs.sh."
+    trap - EXIT
+    exit 1
+  fi
+  if ${SOURCED_SYNC_REPOS}; then
+    SYNC_REPOS_AGAIN=true
+    # Source this again so that sync_repos.sh can use, e.g., ${EMISSARY}.
     source "${SYNC_REPOS_PATH}"
   fi
 
   if [[ ${REQUIRES_CRAPPDWORD} && -z ${CRAPWORD} ]]; then
     echo
     echo "FATAL: Please set CRAPWORD. Maybe in repo_syncs.sh"
-    trap - EXIT
-    exit 1
-  fi
-
-  if [[ ${REQUIRES_SYNC_REPOS} && ! ${SOURCED_SYNC_REPOS} ]]; then
-    echo
-# FIXME: repo_syncs repositioned
-    echo "WARNING: Missing repo_syncs.sh."
     trap - EXIT
     exit 1
   fi
@@ -463,7 +481,7 @@ function determine_stick_dir () {
     CANDIDATES=()
     for fpath in "${MOUNTED_DIRS[@]}"; do
       # Use -r to check that path is readable. Just because.
-      if [[ -r ${fpath}/ ]]; then
+      if [[ -r ${fpath} ]]; then
         echod "Examining mounted path: ${fpath}"
         if [[ -d ${fpath}/${PRIVATE_REPO_}-emissary ]]; then
           echod "Adding candidate: ${fpath}"
@@ -859,12 +877,12 @@ locate_and_clone_missing_repo () {
   echod "   REPO: ${remote_orig}"
   if [[ -d ${check_repo} ]]; then
     if [[ -d ${check_repo}/.git ]]; then
-      echo "  EXISTS: ${check_repo}"
+      echod "  EXISTS: ${check_repo}"
     else
       echo
-      echo "WARNING: Where's .git/ ? at: ${check_repo}"
-      echo "   REPO: ${remote_orig}"
-      echo
+      echo "ERROR: Where's .git/ ? at: ${check_repo}"
+      echo " REPO: ${remote_orig}"
+      exit 1
     fi
   else
     echo "  MISSING: ${check_repo}"
@@ -884,14 +902,27 @@ locate_and_clone_missing_repo () {
 } # end: locate_and_clone_missing_repo
 
 locate_and_clone_missing_repos () {
-  if [[ ${#GIT_REPO_SEEDS[@]} -gt 0 ]]; then
-    #echo "No. of GIT_REPO_SEEDS: ${#GIT_REPO_SEEDS[@]}"
-    for key in "${!GIT_REPO_SEEDS[@]}"; do
+
+  if [[ ${#GIT_REPO_SEEDS_0[@]} -gt 0 ]]; then
+    echo "No. of GIT_REPO_SEEDS_0: ${#GIT_REPO_SEEDS_0[@]}"
+    # NOTE: The keys are unordered.
+    for key in "${!GIT_REPO_SEEDS_0[@]}"; do
       #echo "key  : $key"
-      #echo "value: ${GIT_REPO_SEEDS[$key]}"
-      locate_and_clone_missing_repo $key ${GIT_REPO_SEEDS[$key]}
+      #echo "value: ${GIT_REPO_SEEDS_0[$key]}"
+      locate_and_clone_missing_repo $key ${GIT_REPO_SEEDS_0[$key]}
     done
   fi
+
+  if [[ ${#GIT_REPO_SEEDS_1[@]} -gt 0 ]]; then
+    echo "No. of GIT_REPO_SEEDS_1: ${#GIT_REPO_SEEDS_1[@]}"
+    # NOTE: The keys are unordered.
+    for key in "${!GIT_REPO_SEEDS_1[@]}"; do
+      #echo "key  : $key"
+      #echo "value: ${GIT_REPO_SEEDS_1[$key]}"
+      locate_and_clone_missing_repo $key ${GIT_REPO_SEEDS_1[$key]}
+    done
+  fi
+
 } # end: locate_and_clone_missing_repos
 
 function chase_and_face () {
@@ -947,6 +978,12 @@ function chase_and_face () {
   setup_private_update_db_conf
 
   echo " locate_and_clone_missing_repos"
+  # 'tevs. Seems like a lot of work to pass an (associate) array in Bash.
+  # Best bet is to pass its name and use an eval to reference it? Bah.
+  #declare -p GIT_REPO_SEEDS_0
+  #declare -p GIT_REPO_SEEDS_1
+  #locate_and_clone_missing_repos "GIT_REPO_SEEDS_0"
+  #locate_and_clone_missing_repos "GIT_REPO_SEEDS_1"
   locate_and_clone_missing_repos
 
   echo " user_do_chase_and_face"
@@ -981,6 +1018,11 @@ function chase_and_face () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # init_travel
+
+function mount_curly_emissary_gooey_explicit () {
+  mount_curly_emissary_gooey
+  echo "gooey mounted at: ${EMISSARY}/gooey"
+}
 
 function mount_curly_emissary_gooey () {
   # Make the gooey candy center.
@@ -1056,11 +1098,6 @@ function init_travel () {
   mount_curly_emissary_gooey
 
   pushd ${EMISSARY}/gooey &> /dev/null
-
-  # Remember that sync_repos.sh file you edited?
-  #   PLAINTEXT_ARCHIVES
-  #   ENCFS_GIT_REPOS
-  #   ENCFS_GIT_ITERS
 
   # Skipping: PLAINTEXT_ARCHIVES (nothing to preload)
 
@@ -1263,7 +1300,7 @@ function check_repos_statuses () {
   done
 
   git_issues_review
-}
+} # end: check_repos_statuses
 
 function git_issues_review {
   if ${GIT_ISSUES_DETECTED}; then

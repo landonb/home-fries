@@ -1,6 +1,6 @@
 # File: curly_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.12
+# Last Modified: 2016.11.13
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Dumping ground for unused Bash functions, apparently.
 #          2016-10-24: I'll throw a useful fcn herein, passtore-ci
@@ -11,7 +11,11 @@
 
 setup_users_curly_path () {
   if [[ -f ${HOME}/.curly/master_chef || -f ${HOME}/.curly/junior_chef ]]; then
-    USERS_CURLY="${HOME}/.curly"
+    # You can cd and pwd -P or just readlink.
+    #  pushd ${HOME}/.curly &> /dev/null
+    #  USERS_CURLY=$(pwd -P)
+    #  popd &> /dev/null
+    USERS_CURLY=$(readlink -f ${HOME}/.curly)
   else
     local CANDIDATES=()
     if [[ -z ${USERS_CURLY} ]]; then
