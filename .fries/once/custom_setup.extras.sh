@@ -454,8 +454,10 @@ stage_4_hamster_time_tracker_setup () {
     exit 1
   fi
 
+  set +e
   pkill -f hamster-service
   pkill -f hamster-windows-service
+  reset_errexit
 
   if [[    -e ${HAMSTER_PKGS}/overview.py.ORIG \
         || -e ${HAMSTER_PKGS}/overview_totals.py.ORIG ]]; then
@@ -3713,8 +3715,9 @@ stage_4_install_docker_compose () {
 # 2016-11-13 06:36:57 ERROR 403: Forbidden.
 
   #DKRCPS_VERS="1.8.1"
-  #DKRCPS_VERS="1.9.0-rc1"
-  DKRCPS_VERS="1.9.0-rc4"
+# 2016-11-13: Leave at rc1, which is installed, until this 403 error goes away.
+  DKRCPS_VERS="1.9.0-rc1"
+  #DKRCPS_VERS="1.9.0-rc4"
 
   set +e
   command -v docker-compose
@@ -4741,6 +4744,8 @@ setup_customize_extras_go () {
   # need it or find yourself finally writing the alleycat app.
   #stage_4_opencl
 
+  echo
+  echo "===================================================================="
   echo
   echo "All done."
 
