@@ -305,9 +305,16 @@ function git_status_porcelain () {
 
   set +e
   if ! ${USE_ALT_GIT_ST} && ! ${DIRTY_REPO}; then
-    eval git status --porcelain ${GREPPERS} &> /dev/null
-    if [[ $? -ne 0 ]]; then
-      DIRTY_REPO=true
+    if [[ -n ${GREPPERS} ]]; then
+      eval git status --porcelain ${GREPPERS} &> /dev/null
+      if [[ $? -eq 0 ]]; then
+        DIRTY_REPO=true
+      fi
+    else
+      n_bytes=$(git status --porcelain | wc -c)
+      if [[ ${n_bytes} -gt 0 ]]; then
+        DIRTY_REPO=true
+      fi
     fi
   else
     eval git status --porcelain ${GREPPERS} | grep -v "^ M " &> /dev/null
