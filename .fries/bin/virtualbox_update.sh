@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016-10-04
+# Last Modified: 2016-11-13
 #
 # Buggers. Oracle VirtualBox update wrapper.
 
@@ -80,10 +80,11 @@ virtualbox_dubs_update () {
 
   if [[ -e ${OPT_DLOADS}/${LATEST_VBOX_DEB_PKG} ]]; then
     echo
-    echo "WARNING: Skipping VirtualBox install -- Already downloaded."
+    echo "Skipping VirtualBox install: Already up to date"
+    echo
     echo "Remove download if you want to start over: ${OPT_DLOADS}/${LATEST_VBOX_DEB_PKG}"
     echo
-    exit 1
+    exit 0
   fi
 
   wget -N \

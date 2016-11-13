@@ -2,7 +2,7 @@
 
 # File: bash_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.12
+# Last Modified: 2016.11.13
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bash function library.
 # License: GPLv3
@@ -416,16 +416,24 @@ reset_errexit () {
   fi
 }
 
-shush_errexit () {
+suss_errexit () {
   # This FAILS is errexit is set because grep fails. So remember, then parse.
-  #test_opts=`echo $SHELLOPTS | grep errexit` >/dev/null 2>&1
-  test_opts=$(echo $SHELLOPTS)
+  #shell_opts=`echo $SHELLOPTS | grep errexit` >/dev/null 2>&1
+  # 2016-11-13: What? Weird.
+  #  shell_opts=$(echo $SHELLOPTS)
+  #  SHELLOPTS: braceexpand:errexit:hashall:interactive-comments
+  #  shell_opts: braceexpand:hashall:interactive-comments
+  # Not sure why I was doing $(echo) anyway.
+  shell_opts=$SHELLOPTS
   set +e
-  `echo $test_opts | grep errexit` >/dev/null 2>&1
+  echo $shell_opts | grep errexit >/dev/null 2>&1
   if [[ $? -eq 0 ]]; then
     USING_ERREXIT=true
   else
     USING_ERREXIT=false
+  fi
+  if ${USING_ERREXIT}; then
+	  set -e
   fi
 }
 
@@ -454,7 +462,7 @@ shush_errexit () {
 #   $ host -t a ${CP_PRODNAME}
 #   ${CS_PRODUCTION} has address 123.456.78.90
 
-shush_errexit
+suss_errexit
 
 # 2016.03.23: On a new machine install, young into the standup,
 #             and not having editing /etc/hosts,
@@ -992,7 +1000,7 @@ determine_window_manager () {
   WM_IS_MATE=false # Pronouced, mah-tay!
   WM_IS_UNKNOWN=false
 
-  shush_errexit
+  set +e
   WIN_MGR_INFO=`wmctrl -m >/dev/null 2>&1`
   if [[ $? -ne 0 ]]; then
     # E.g., if you're ssh'ed into a server, returns 1 and "Cannot open display."
@@ -1072,4 +1080,6 @@ ensure_directory_hierarchy_exists () {
 
 # ============================================================================
 # *** End of bashy goodness.
+
+# vim:tw=0:ts=2:sw=2:et:norl:
 
