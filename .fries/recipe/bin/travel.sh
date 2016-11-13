@@ -1279,7 +1279,8 @@ function check_repos_statuses () {
       GREPPERS="${GREPPERS} | grep -v \" curly_util.sh\$\""
       echo "GREPPERS: ${GREPPERS}"
     fi
-    git_status_porcelain "$(basename ${ENCFS_GIT_REPOS[$i]})"
+    #git_status_porcelain "$(basename ${ENCFS_GIT_REPOS[$i]})"
+    git_status_porcelain "${ENCFS_GIT_REPOS[$i]}"
     popd &> /dev/null
   done
 

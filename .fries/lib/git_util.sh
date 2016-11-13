@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.07
+# Last Modified: 2016.11.13
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -220,7 +220,9 @@ function git_commit_all_dirty_files () {
 function git_status_porcelain () {
 
   GIT_REPO=$1
-# FIXME: Can we send assoc array as arg? For now expecting GTSTOK_GIT_REPOS
+
+  # NOTE: It's not super easy to pass associative arrays in Bash.
+  #       Instead, pass via GTSTOK_GIT_REPOS.
 
   #echo "GIT_REPO: ${GIT_REPO}"
 
