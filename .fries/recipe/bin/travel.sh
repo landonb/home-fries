@@ -1296,12 +1296,18 @@ function update_git () {
 # packme
 
 function create_umount_script () {
-  #echo "umount ${TRAVEL_DIR}" > ${USERS_CURLY}/packup.sh
-  #chmod 775 ${USERS_CURLY}/packup.sh
+  #echo "umount ${TRAVEL_DIR}" > ${USERS_CURLY}/popoff.sh
+  #chmod 775 ${USERS_CURLY}/popoff.sh
 
   # 2016-11-04: Oh, yerp.
-  echo "umount ${TRAVEL_DIR}" > ${HOME}/.fries/recipe/bin/packup.sh
-  chmod 775 ${HOME}/.fries/recipe/bin/packup.sh
+  #echo "umount ${TRAVEL_DIR}" > ${HOME}/.fries/recipe/bin/popoff.sh
+  cat > ${HOME}/.fries/recipe/bin/popoff.sh << EOF
+#!/bin/bash
+SCRIPT_DIR="\$(dirname \${BASH_SOURCE[0]})"
+\${SCRIPT_DIR}/travel umount
+umount ${TRAVEL_DIR}
+EOF
+  chmod 775 ${HOME}/.fries/recipe/bin/popoff.sh
 }
 
 # git_status_porcelain sets GIT_DIRTY_FILES_FOUND accordingly.
@@ -1713,7 +1719,7 @@ function packme () {
   # The Cylons said it first.
   echo "Unmount by your command:"
   echo
-  echo "  packup"
+  echo "  popoff"
   echo
 
   # WISHFUL_THING: Add to the tail of the Bash history.
@@ -1916,7 +1922,7 @@ function unpack () {
   echo
   echo "To unmount the stick when done:"
   echo
-  echo "  packup"
+  echo "  popoff"
   echo
 
 } # end: unpack
