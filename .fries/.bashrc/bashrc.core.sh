@@ -758,6 +758,9 @@ function rm_safe() {
   IFS=$'\n'
   for fpath in $*; do
     local bname=$(basename "${fpath}")
+    if [[ ${bname} == '.' || ${bname} == '..' ]]; then
+      continue
+    fi
     # A little trick to make sure to use the trash can on
     # the right device, to avoid copying files.
     trash_device=$(device_on_which_file_resides "${trashdir}")
