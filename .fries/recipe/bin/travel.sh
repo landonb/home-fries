@@ -219,6 +219,8 @@ AUTO_COMMIT_FILES=false
 SKIP_PULL_REPOS=false
 SKIP_UNPACK_SHIM=false
 TAR_VERBOSE=""
+INCLUDE_ENCFS_OFF_REPOS=false
+
 UNKNOWN_ARG=false
 
 function soups_on () {
@@ -331,6 +333,10 @@ function soups_on () {
         TAR_VERBOSE="v"
         shift
         ;;
+      -O)
+        INCLUDE_ENCFS_OFF_REPOS=true
+        shift
+        ;;
       -d)
         STAGING_DIR=$2
         shift 2
@@ -390,6 +396,7 @@ function soups_on () {
     echo "      init_travel       create or update secure travel repos"
     echo "                          (run on new USB stick or new Dropbox,"
     echo "                           or after editing cfg/sync_repos.sh)"
+    echo "                    -O   include normally not copied repos"
     echo "      update_git        update to the latest git, at least 2.9"
     echo "                          (else \`git pull --rebase --autostash\` isn't a thing)"
     #echo
@@ -1108,9 +1115,22 @@ function umount_curly_emissary_gooey () {
   set -e
 }
 
+function populate_singular_repo () {
+  ENCFS_GIT_REPO=$1
+  ENCFS_REL_PATH=$(echo ${ENCFS_GIT_REPO} | /bin/sed s/^.//)
+  if [[ ! -e "${ENCFS_REL_PATH}/.git" ]]; then
+    #echo " ${ENCFS_GIT_REPO}"
+    echo " ${ENCFS_REL_PATH}"
+    echo "  \$ git clone ${ENCFS_GIT_REPO} ${ENCFS_REL_PATH}"
+    git clone ${ENCFS_GIT_REPO} ${ENCFS_REL_PATH}
+  else
+    echo " skipping ( exists): ${ENCFS_REL_PATH}"
+  fi
+}
+
 function populate_gardened_repo () {
   ENCFS_GIT_ITER=$1
-  #echo " ${ENCFS_GIT_ITER}"
+  echo " ENCFS_GIT_ITER: ${ENCFS_GIT_ITER}"
   ENCFS_REL_PATH=$(echo ${ENCFS_GIT_ITER} | /bin/sed s/^.//)
   echo " ${ENCFS_REL_PATH}"
   # We don't -type d so that you can use symlinks.
@@ -1122,10 +1142,10 @@ function populate_gardened_repo () {
         echo "  \$ git clone ${fpath} ${TARGET_PATH}"
         git clone ${fpath} ${TARGET_PATH}
       else
-        echo " skipping (got .git?): +${TARGET_PATH}+"
+        echo " skipping ( exists): $(pwd -P)/${TARGET_PATH}"
       fi
     else
-      echo " skipping (not .git/): -${TARGET_PATH}-"
+      echo " skipping (no .git): $(pwd -P)/${TARGET_PATH}"
     fi
   done < <(find ${ENCFS_GIT_ITER} -maxdepth 1 ! -path . -print0)
 }
@@ -1140,19 +1160,22 @@ function init_travel () {
 
   if [[ -d ${EMISSARY} ]]; then
     echo
-    echo "EMISSARY already exists at ${EMISSARY}"
+    echo "NOTE: EMISSARY already exists at ${EMISSARY}"
     echo
-    echo "You can use the existing directory or start anew."
+    echo "If you want to start anew, try:"
     echo
-    echo -n "Replace it and start over?: [y/N] "
-    read -e YES_OR_NO
-    if [[ ${YES_OR_NO^^} == "Y" ]]; then
-      echo -n "Are you _absolutely_ *SURE*?: [y/N] "
-      read -e YES_OR_NO
-      if [[ ${YES_OR_NO^^} == "Y" ]]; then
-        /bin/rm -rf ${EMISSARY}
-      fi
-    fi
+    echo "    /bin/rm -rf ${EMISSARY}"
+    echo
+    echo "and then run this script again."
+    #echo -n "Replace it and start over?: [y/N] "
+    #read -e YES_OR_NO
+    #if [[ ${YES_OR_NO^^} == "Y" ]]; then
+    #  echo -n "Are you _absolutely_ *SURE*?: [y/N] "
+    #  read -e YES_OR_NO
+    #  if [[ ${YES_OR_NO^^} == "Y" ]]; then
+    #    /bin/rm -rf ${EMISSARY}
+    #  fi
+    #fi
   elif [[ -e ${EMISSARY} ]]; then
     echo
     echo "FAIL: EMISSARY exists and is not a directory: ${EMISSARY}"
@@ -1176,16 +1199,14 @@ function init_travel () {
   #             Decades and decades of cruft! I absolutely love it!!!
   echo "Populating singular git repos..."
   for ((i = 0; i < ${#ENCFS_GIT_REPOS[@]}; i++)); do
-    ENCFS_REL_PATH=$(echo ${ENCFS_GIT_REPOS[$i]} | /bin/sed s/^.//)
-    if [[ ! -e "${ENCFS_REL_PATH}/.git" ]]; then
-      #echo " ${ENCFS_GIT_REPOS[$i]}"
-      echo " ${ENCFS_REL_PATH}"
-      echo "  \$ git clone ${ENCFS_GIT_REPOS[$i]} ${ENCFS_REL_PATH}"
-      git clone ${ENCFS_GIT_REPOS[$i]} ${ENCFS_REL_PATH}
-    else
-      echo " skipping (already got?): ${ENCFS_REL_PATH}"
-    fi
+    populate_singular_repo ${ENCFS_GIT_REPOS[$i]}
   done
+  if ${INCLUDE_ENCFS_OFF_REPOS}; then
+    echo "Populating singular OFF repos..."
+    for ((i = 0; i < ${#ENCFS_OFF_REPOS[@]}; i++)); do
+      populate_singular_repo ${ENCFS_OFF_REPOS[$i]}
+    done
+  fi
 
   echo "Populating gardened git repos..."
   for ((i = 0; i < ${#ENCFS_GIT_ITERS[@]}; i++)); do
@@ -1214,7 +1235,7 @@ function init_travel () {
     populate_gardened_repo ${ENCFS_VIM_ITERS[$i]}
   done
   echo "Populating gardened exo repos..."
-  for ((i = 0; i < ${#ENCFSEXO_ITERS[@]}; i++)); do
+  for ((i = 0; i < ${#ENCFS_EXO_ITERS[@]}; i++)); do
     populate_gardened_repo ${ENCFS_EXO_ITERS[$i]}
   done
 
@@ -1226,6 +1247,13 @@ function init_travel () {
   set -e
   if [[ ${EXIT_CODE} -eq 0 ]]; then
     user_do_init_travel
+  fi
+
+  if ${INCLUDE_ENCFS_OFF_REPOS}; then
+    echo "Calculating travel size..."
+    du_cmd="du -m -d 1 ${EMISSARY}/gooey | sort -nr"
+    echo ${du_cmd}
+    eval ${du_cmd}
   fi
 
   umount_curly_emissary_gooey
