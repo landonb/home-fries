@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016.11.13
+# Last Modified: 2016.11.14
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
@@ -17,6 +17,13 @@ trap errexit_cleanup EXIT
 # You can also add this to cfg/sync_repos.sh.
 DEBUG=false
 #DEBUG=true
+
+# WHATEVER: 2016-11-14: I enabled these to help
+#       debug but they're not work as expected.
+#set +v
+#set +x
+#set +E
+#set +T
 
 # ***
 
@@ -781,8 +788,11 @@ setup_private_ssh_directory () {
   fi
 
   # 2016-11-12: Check that PasswordAuthentication is disabled.
-  grep "PasswordAuthentication no" /etc/ssh/sshd_config &> /dev/null
-  if [[ $? -ne 0 ]]; then
+  set +e
+  grep "^PasswordAuthentication no$" /etc/ssh/sshd_config &> /dev/null
+  exit_code=$?
+  set -e
+  if [[ $exit_code -ne 0 ]]; then
     echo
     echo "###################################################"
     echo
@@ -903,11 +913,17 @@ locate_and_clone_missing_repo () {
     if [[ -d ${parent_dir} ]]; then
       echo "           fetching!"
       pushd ${parent_dir} &> /dev/null
-      git clone ${remote_orig}
+      # Use associate array key so user can choose different name than repo.
+      #git clone ${remote_orig}
+      git clone ${remote_orig} ${check_repo}
       popd &> /dev/null
     else
       echo
       echo "WARNING: repo path not ready: ${check_repo} / because not dir: ${parent_dir}"
+      echo
+      echo "Maybe just try:"
+      echo
+      echo "      mkdir -p ${parent_dir}"
       echo
     fi
   fi
