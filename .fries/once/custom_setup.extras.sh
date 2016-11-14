@@ -2,7 +2,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.13
+# Last Modified: 2016.11.14
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -42,7 +42,7 @@ source ./linux_setup_base.sh
 
 # *** Don't Repeat Yourself.
 
-if sudo -n true 2>/dev/null; then 
+if sudo -n true 2>/dev/null; then
   # Has sudo already.
   :
 else
@@ -1522,6 +1522,12 @@ state_4_mod_spatialite () {
   # Avoid ./configure complaint: "checking for geos-config... no"
   sudo apt-get install -y libgeos-dev
 
+  # FIXME/WHATEVER/2016-11-13: Adding this to ~/.sqliterc
+  #     SELECT load_extension("/usr/local/lib/libspatialite");
+  # causes
+  #     Error: near line 1: /usr/local/lib/libspatialite.so: wrong ELF class: ELFCLASS64
+  # So not quite sure what's up.
+
   # See:
   #   https://www.gaia-gis.it/fossil/libspatialite/index
   # 2015-09-07: v4.3.0a
@@ -1534,9 +1540,19 @@ state_4_mod_spatialite () {
   # source ENV_PATH...
   umask 002
   #./configure --enable-freexl=no --prefix=...
-  ./configure --enable-freexl=no
+  #./configure --enable-freexl=no
+  CFLAGS="-m64" ./configure --enable-freexl=no
   make
   sudo make install
+
+  # 2016-11-13: Rebuilt with the -m64 flag and the library is half the size:
+  #   $ ll ./src/.libs/libspatialite.so.7.1.0
+  #   -rwxrwxr-x 1  me  me  7.5M Nov 13 22:12 ./src/.libs/libspatialite.so.7.1.0*
+  #   $ ll /usr/local/lib/libspatialite.so.7.1.0
+  #   -rwxr-xr-x 1 root root 15M Nov 12 19:16 /usr/local/lib/libspatialite.so.7.1.0*
+  # But still get same ELFCLASS64 problem.
+  # And this doesn't work:
+  #   CFLAGS="-m32" ./configure --enable-freexl=no
 
   popd &> /dev/null
 
@@ -2736,7 +2752,7 @@ stage_4_pass__libgpg_error () {
   sudo make install
 
   popd &> /dev/null
-  
+
 } # end: stage_4_pass__libgpg_error
 
 stage_4_pass__libassuan () {
