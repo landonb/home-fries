@@ -1714,9 +1714,13 @@ function make_plaintext () {
       popd &> /dev/null
       echo "ok"
     else
+      #echo
+      #echo "FATAL: Indicated plaintext archive not found at: ${ARCHIVE_SRC}"
+      #exit 1
       echo
-      echo "FATAL: Indicated plaintext archive not found at: ${ARCHIVE_SRC}"
-      exit 1
+      echo "NOTICE: Mkdir'ing plaintext archive not found at: ${ARCHIVE_SRC}"
+      echo
+      mkdir ${ARCHIVE_SRC}
     fi
   done
 
