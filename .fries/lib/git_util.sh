@@ -422,7 +422,7 @@ function git_status_porcelain () {
       #   Local refs configured for 'git push':
       #     feature/CLIENT-86 pushes to feature/CLIENT-86 (up to date)
       #     master            pushes to master            (local out of date)
-      if ${SKIP_REMOTE_CHECK}; then
+      if ! ${SKIP_REMOTE_CHECK} && [[ -n ${SKIP_REMOTE_CHECK} ]]; then
 
         set +e
         # If we didn't --no-color the branch_name, we'd have to strip-color.
