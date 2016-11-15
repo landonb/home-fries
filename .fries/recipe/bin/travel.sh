@@ -236,6 +236,7 @@ SKIP_PULL_REPOS=false
 SKIP_UNPACK_SHIM=false
 TAR_VERBOSE=""
 INCLUDE_ENCFS_OFF_REPOS=false
+SKIP_INTERNETS=false
 
 UNKNOWN_ARG=false
 
@@ -257,8 +258,8 @@ function soups_on () {
         ASKED_FOR_HELP=true
         shift
         ;;
+      # Need to escape the ? or it hits any single character option.
       -\?)
-        # Need the escape the ? or it hits any single character option.
         ASKED_FOR_HELP=true
         shift
         ;;
@@ -319,6 +320,14 @@ function soups_on () {
         COPY_PRIVATE_REPO_PLAIN=true
         shift
         ;;
+      -O)
+        INCLUDE_ENCFS_OFF_REPOS=true
+        shift
+        ;;
+      -s)
+        SKIP_INTERNETS=true
+        shift
+        ;;
       -DDDD)
         SKIP_PULL_REPOS=true
         shift
@@ -351,10 +360,6 @@ function soups_on () {
         ;;
       -v)
         TAR_VERBOSE="v"
-        shift
-        ;;
-      -O)
-        INCLUDE_ENCFS_OFF_REPOS=true
         shift
         ;;
       -d)
@@ -438,6 +443,7 @@ function soups_on () {
     echo "      -X                check in hamster: -DDD [skip dirty check] | -DDDD [skip git pull]"
     echo "      -I                /bin/cp cfg/sync_repos.sh to travel device [BEWARE: unencrypted!]"
     echo "                          (to setup a new machine *locally* without worrying about encfs)"
+    echo "      -s                skip checking that upstream origin is up to date (for if offline)"
     #echo
     echo "unpack options:"
     echo "      -d STAGING_DIR    specify the unpack path for incoming plaintext tar stuff"
@@ -1533,8 +1539,18 @@ function check_repos_statuses () {
       #
       #echo "GREPPERS: ${GREPPERS}"
     fi
+    set +e
     #git_status_porcelain "$(basename ${ENCFS_GIT_REPOS[$i]})"
-    git_status_porcelain "${ENCFS_GIT_REPOS[$i]}"
+    git_status_porcelain "${ENCFS_GIT_REPOS[$i]}" ${SKIP_INTERNETS}
+    exit_code=$?
+    reset_errexit
+    if [[ ${exit_code} -ne 0 ]]; then
+      echo "ERROR: git_status_porcelain failed."
+      if [[ ${exit_code} -eq 2 ]]; then
+        echo "Are you internetted? If not, try:"
+        echo "  ${script_name} packme "
+      fi
+    fi
     popd &> /dev/null
   done
 
@@ -1724,7 +1740,7 @@ function make_plaintext () {
     fi
   done
 
-} # end: make_plaintext 
+} # end: make_plaintext
 
 function packme () {
 

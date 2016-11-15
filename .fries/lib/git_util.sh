@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.13
+# Last Modified: 2016.11.15
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -220,6 +220,7 @@ function git_commit_all_dirty_files () {
 function git_status_porcelain () {
 
   GIT_REPO=$1
+  SKIP_REMOTE_CHECK=$2
 
   # NOTE: It's not super easy to pass associative arrays in Bash.
   #       Instead, pass via GTSTOK_GIT_REPOS.
@@ -338,7 +339,7 @@ function git_status_porcelain () {
       GIT_ISSUES_RESOLUTIONS+=("cdd $(pwd) && git add -p")
       export GIT_ISSUES_RESOLUTIONS
       if ${FAIL_ON_GIT_ISSUE}; then
-        exit 1
+        return 1
       fi
     else
       echo "Skipping."
@@ -392,7 +393,7 @@ function git_status_porcelain () {
             GIT_ISSUES_RESOLUTIONS+=("cdd $(pwd) && git push origin ${branch_name} && popd")
             export GIT_ISSUES_RESOLUTIONS
             if ${FAIL_ON_GIT_ISSUE}; then
-              exit 1
+              return 1
             fi
           else
             echo "Skipping."
@@ -421,7 +422,7 @@ function git_status_porcelain () {
       #   Local refs configured for 'git push':
       #     feature/CLIENT-86 pushes to feature/CLIENT-86 (up to date)
       #     master            pushes to master            (local out of date)
-      if true; then
+      if ${SKIP_REMOTE_CHECK}; then
 
         set +e
         # If we didn't --no-color the branch_name, we'd have to strip-color.
@@ -431,13 +432,23 @@ function git_status_porcelain () {
         grep_result=$?
         set -e
         if [[ $grep_result -ne 0 ]]; then
+
+          set +e
+          git remote show origin 2>&1 | grep "^ssh: Could not resolve hostname "
+          grep_result=$?
+          set -e
+          if [[ $grep_result -eq 0 ]]; then
+            echo "ERROR: It looks like you're offline."
+            return 2
+          fi
+
           echo "ERROR: Unexpected: Could not find \"${branch_name} pushes to ${branch_name}\""
           echo "                   in the output of"
           echo "                      git remote show origin"
           echo
           echo "branch_name=\"${branch_name}\""
           echo "git remote show origin | grep \"^\\W*\${branch_name}\\W\\+pushes to\\W\\+\${branch_name}\\W\\+\""
-          exit 1
+          return 1
         fi
 
         set +e
@@ -469,7 +480,7 @@ function git_status_porcelain () {
               GIT_ISSUES_RESOLUTIONS+=("cdd $(pwd) && git push origin ${branch_name} && popd")
               export GIT_ISSUES_RESOLUTIONS
               if ${FAIL_ON_GIT_ISSUE}; then
-                exit 1
+                return 1
               fi
             else
               echo "Skipping."
@@ -515,9 +526,9 @@ function git_pull_hush () {
     if ${SKIP_GIT_DIRTY}; then
       echo "Skipping"
       echo
-      return
+      return 0
     else
-      exit 1
+      return 1
     fi
   fi
 
@@ -546,11 +557,11 @@ function git_pull_hush () {
       git st
     fi
     popd &> /dev/null
-    exit 1
+    return 1
   fi
   if [[ -z ${TARGET_BRANCH} ]]; then
     echo "FATAL: What?! No \$TARGET_BRANCH for TARGET_REPO: ${TARGET_REPO}"
-    exit 1
+    return 1
   fi
   if [[ ${SOURCE_BRANCH} != ${TARGET_BRANCH} ]]; then
     echo "FATAL: \${SOURCE_BRANCH} != \${TARGET_BRANCH}"
@@ -567,7 +578,7 @@ function git_pull_hush () {
     echo "  git checkout -b feature/${SOURCE_BRANCH} --track origin/master"
     echo "   or maybe just"
     echo "  git checkout -b ${SOURCE_BRANCH} --track origin/master"
-    exit 1
+    return 1
   fi
 
   #echo "cd $(pwd) && git pull --rebase --autostash $SOURCE_REPO"
@@ -617,7 +628,7 @@ function git_pull_hush () {
       GIT_ISSUES_RESOLUTIONS+=("travel mount && cdd ${TARGET_REPO}")
       export GIT_ISSUES_RESOLUTIONS
       if ${FAIL_ON_GIT_ISSUE}; then
-        exit 1
+        return 1
       fi
     fi
   fi
