@@ -71,14 +71,19 @@ pushd $script_relbase &> /dev/null
 script_absbase=$(pwd -P)
 popd &> /dev/null
 
-if [[    "$script_path" != "$script_absbase"
-      || "$script_path" != "$SCRIPT_DIR" ]]; then
-  # You got some 'splain to do.
-  echo "WARNING: Unexpected: not all equal:"
-  echo "         script_path:     $script_path"
-  echo "         script_relbase:  $script_relbase"
-  echo "         script_absbase:  $script_absbase"
-  echo "         SCRIPT_DIR:      $SCRIPT_DIR"
+# 2016-11-15: Whatever. This is wrong: dir_resolve calls `pwd -P` which
+# doesn't resolve symlinks like `readlink -f` does, so $SCRIPT_DIR might
+# be the actual path and the rest have symlink in path.
+if false; then
+  if [[    "$script_path" != "$script_absbase"
+        || "$script_path" != "$SCRIPT_DIR" ]]; then
+    # You got some 'splain to do.
+    echo "WARNING: Unexpected: not all equal:"
+    echo "         script_path:     $script_path"
+    echo "         script_relbase:  $script_relbase"
+    echo "         script_absbase:  $script_absbase"
+    echo "         SCRIPT_DIR:      $SCRIPT_DIR"
+  fi
 fi
 
 # ============================================================================
