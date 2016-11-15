@@ -35,6 +35,15 @@ UNIQUE_TIME=$(date +%Y%m%d-%Hh%Mm%Ss)
 # ***
 
 # Load: Colorful logging.
+if [[ -e ${HOME}/.fries/lib/bash_base.sh ]]; then
+  source ${HOME}/.fries/lib/bash_base.sh
+elif [[ -e bash_base.sh ]]; then
+  source bash_base.sh
+else
+  echo "WARNING: Missing bash_base.sh"
+fi
+
+# Load: Colorful logging.
 if [[ -e ${HOME}/.fries/lib/logger.sh ]]; then
   source ${HOME}/.fries/lib/logger.sh
 elif [[ -e logger.sh ]]; then
@@ -258,10 +267,14 @@ function soups_on () {
         shift
         ;;
       chase_and_face)
+        PLEASE_CHOOSE_PART="to which to chase and face"
+        DETERMINE_TRAVEL_DIR=true
+        REQUIRES_SYNC_REPOS=true
         set_travel_cmd "chase_and_face"
         shift
         ;;
       init_travel)
+        PLEASE_CHOOSE_PART="to which to init"
         DETERMINE_TRAVEL_DIR=true
         REQUIRES_SYNC_REPOS=true
         set_travel_cmd "init_travel"
@@ -538,6 +551,10 @@ function determine_stick_dir () {
   PLAINPATH=${EMISSARY}/plain-$(hostname)
   PLAIN_TBD=${PLAINPATH}-TBD-${UNIQUE_TIME}
 
+  #echo "EMISSARY: ${EMISSARY}"
+  #echo "PLAINPATH: ${PLAINPATH}"
+  #echo "PLAIN_TBD: ${PLAIN_TBD}"
+
 } # end: determine_stick_dir
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -669,6 +686,11 @@ setup_private_vim_bundle_dubs () {
 
     pushd ${HOME}/.vim/bundle-dubs &> /dev/null
 
+# I think b/c I did not clone, and encfs is on FAT.
+#    # 2016-11-14: Odd. Not executable. Eh, git?
+#    chmod 775 ${USERS_CURLY}/home/.vim/bundle-dubs/generate.sh
+#    chmod 775 ${USERS_CURLY}/home/.vim/bundle-dubs/git-st-all.sh
+
     /bin/ln -sf ${USERS_CURLY}/home/.vim/bundle-dubs/generate.sh
     /bin/ln -sf ${USERS_CURLY}/home/.vim/bundle-dubs/git-st-all.sh
 
@@ -754,6 +776,7 @@ setup_private_dot_files () {
 } # end: setup_private_dot_files
 
 setup_private_ssh_directory () {
+
   if [[ -d ${USERS_CURLY}/.ssh ]]; then
     # A symlink works for outgoing conns but not incomms.
     #/bin/ln -sf ${USERS_CURLY}/.ssh ~/.ssh
@@ -804,6 +827,21 @@ setup_private_ssh_directory () {
 
   # Appease SSH.
   chmod g-w ~
+
+  # chase_and_face sets up SSH keys and then later `git clone`s
+  # private repos, so make sure we're ready for the latter.
+  set +e
+  ssh-add -l | grep "^The agent has no identities.$"
+  exit_code=$?
+  reset_errexit
+  if [[ $exit_code -eq 0 ]]; then
+    # Restart SSH agent and point at new stuff.
+    ssh-agent -k
+    SSH_SECRETS="${USERS_CURLY}/.cheat" ssh_agent_kick
+    # Verify:
+    #  ssh -T git@github.com
+    #  Hi landonb! You've successfully authenticated, but GitHub does not provide shell access.
+  fi
 
 } # end: setup_private_ssh_directory
 
@@ -907,16 +945,50 @@ locate_and_clone_missing_repo () {
       exit 1
     fi
   else
+    echo
+    echo " ==================================================== "
     echo "  MISSING: ${check_repo}"
     echo "     REPO: ${remote_orig}"
     parent_dir=$(dirname ${check_repo})
+    repo_name=$(basename ${check_repo})
+    if [[ ! -d ${parent_dir} ]]; then
+      echo
+      echo "MKDIR: Creating new parent_dir: ${parent_dir}"
+      echo
+      mkdir -p ${parent_dir}
+    fi
     if [[ -d ${parent_dir} ]]; then
       echo "           fetching!"
-      pushd ${parent_dir} &> /dev/null
-      # Use associate array key so user can choose different name than repo.
-      #git clone ${remote_orig}
-      git clone ${remote_orig} ${check_repo}
-      popd &> /dev/null
+      if [[ ${parent_dir} == '/' ]]; then
+        if [[ ! -e ${check_repo} ]]; then
+          # FIXME/2016-11-14: Is this okay? It's the first ~/.elsewhere usage herein.
+          mkdir -p ${HOME}/.elsewhere
+        else
+          echo
+          echo "ALERT: EXISTS: ~/.elsewhere/${check_repo}"
+          echo
+        fi
+        # Checkout the source.
+        pushd ${HOME}/.elsewhere &> /dev/null
+        if [[ ! -d ${repo_name} ]]; then
+          #git clone ${remote_orig} ${check_repo}
+          git clone ${remote_orig} ${repo_name}
+        else
+          cd ${repo_name}
+          git pull
+        fi
+        popd &> /dev/null
+        # Create the symlink from the root dir.
+        pushd / &> /dev/null
+        sudo /bin/ln -sf ${HOME}/.elsewhere/${repo_name}
+        popd &> /dev/null
+      else
+        pushd ${parent_dir} &> /dev/null
+        # Use associate array key so user can choose different name than repo.
+        #git clone ${remote_orig}
+        git clone ${remote_orig} ${check_repo}
+        popd &> /dev/null
+      fi
     else
       echo
       echo "WARNING: repo path not ready: ${check_repo} / because not dir: ${parent_dir}"
@@ -925,7 +997,11 @@ locate_and_clone_missing_repo () {
       echo
       echo "      mkdir -p ${parent_dir}"
       echo
+      # 2016-11-14: I added a mkdir above, so this shouldn't happen.
+      exit 1
     fi
+    echo " ==================================================== "
+    echo
   fi
 } # end: locate_and_clone_missing_repo
 

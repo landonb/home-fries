@@ -22,7 +22,16 @@ USING_ERREXIT=true
 
 # DEVs: For you:
 SKIP_APT_GET_UPDATE=false
-SKIP_APT_GET_UPDATE=true
+#SKIP_APT_GET_UPDATE=true
+
+# DEVs: Easy one-offs.
+SKIP_EVERYTHING=false
+#SKIP_EVERYTHING=true
+
+PAUSE_BETWEEN_INSTALLS=false
+# 2016-11-14: Leaving this enabled for now, since I don't run this script
+# very often and the errexit setting is new; so best to nurse it, I guess.
+PAUSE_BETWEEN_INSTALLS=true
 
 # Whether or not to re-install already installed applications.
 FORCE_REINSTALL=false
@@ -84,6 +93,13 @@ stage_announcement () {
   echo "$1"
   echo
   echo
+  if ${PAUSE_BETWEEN_INSTALLS}; then
+    echo " ####################################################"
+    echo " ###################### PAUSED ######################"
+    echo " ####################################################"
+    echo -n " press any key to continue... "
+    read -n 1 __ignored__
+  fi
 }
 
 stage_curtains () {
@@ -95,6 +111,9 @@ stage_curtains () {
 # *** Let the installations begin!
 
 stage_4_dropbox_install () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_dropbox_install"
 
@@ -163,6 +182,9 @@ Comment=
 } # end: stage_4_dropbox_install
 
 stage_4_meld_configure () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "Skipping: stage_4_meld_configure"
 
@@ -174,6 +196,9 @@ stage_4_meld_configure () {
 } # end: stage_4_meld_configure
 
 stage_4_psql_configure () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_psql_configure"
 
@@ -252,6 +277,9 @@ stage_4_psql_configure () {
 } # end: stage_4_psql_configure
 
 stage_4_apache_configure () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_apache_configure"
 
@@ -309,6 +337,9 @@ stage_4_apache_configure () {
 } # end: stage_4_apache_configure
 
 stage_4_quicktile_install () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_quicktile_install"
 
@@ -368,6 +399,9 @@ stage_4_quicktile_install () {
 } # end: stage_4_quicktile_install
 
 stage_4_pidgin_setup_autostart () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_pidgin_setup_autostart"
 
@@ -400,6 +434,9 @@ Comment=
 } # end: stage_4_pidgin_setup_autostart
 
 stage_4_hamster_time_tracker_setup () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_hamster_time_tracker_setup"
 
@@ -412,9 +449,9 @@ stage_4_hamster_time_tracker_setup () {
     sudo add-apt-repository -y ppa:dylanmccall/hamster-time-tracker-git-daily
     # NOTE: To remove the repository:
     #  sudo /bin/rm /etc/apt/sources.list.d/dylanmccall-hamster-time-tracker-git-daily-trusty.list
-    if ! ${SKIP_APT_GET_UPDATE}; then
+    #if ! ${SKIP_APT_GET_UPDATE}; then
       sudo apt-get update
-    fi
+    #fi
     sudo apt-get install -y hamster-time-tracker
     # Dependencies.
     sudo apt-get install -y gettext intltool python-gconf python-xdg gir1.2-gconf-2.0
@@ -520,6 +557,9 @@ Comment=
 } # end: stage_4_hamster_time_tracker_setup
 
 stage_4_hamster_briefs_setup () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_hamster_briefs_setup"
 
@@ -541,6 +581,9 @@ stage_4_hamster_briefs_setup () {
 } # end: stage_4_hamster_briefs_setup
 
 stage_4_gmail_notifier_setup () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_gmail_notifier_setup"
 
@@ -575,6 +618,9 @@ Comment=
 } # end: stage_4_gmail_notifier_setup
 
 stage_4_firefox_configure () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "Nada: stage_4_firefox_configure"
 
@@ -591,6 +637,9 @@ stage_4_firefox_configure () {
 } # end: stage_4_firefox_configure
 
 stage_4_chrome_install () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_chrome_install"
 
@@ -626,6 +675,9 @@ stage_4_chrome_install () {
 } # end: stage_4_chrome_install
 
 stage_4_https_everywhere_install () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "Skipping: stage_4_https_everywhere_install"
 
@@ -664,6 +716,9 @@ stage_4_https_everywhere_install () {
 } # end: stage_4_https_everywhere_install
 
 stage_4_virtualbox_install () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_virtualbox_install"
 
@@ -818,6 +873,9 @@ virtualbox-${LATEST_VBOX_VERS_MAJOR}_${LATEST_VBOX_VERSION_FULL}~Ubuntu~${UBUNTU
 } # end: stage_4_virtualbox_install
 
 stage_4_reader_install () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_reader_install"
 
@@ -864,6 +922,9 @@ stage_4_reader_install () {
 } # end: stage_4_reader_install
 
 stage_4_modern_ie_install () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "Modern is the new ancient: stage_4_modern_ie_install"
 
@@ -899,6 +960,9 @@ stage_4_modern_ie_install () {
 } # end: stage_4_modern_ie_install
 
 stage_4_dev_testing_expect_install () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "Don't expect: stage_4_dev_testing_expect_install"
 
@@ -934,6 +998,9 @@ stage_4_dev_testing_expect_install () {
 } # end: stage_4_dev_testing_expect_install
 
 stage_4_restview_install () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_restview_install"
 
@@ -946,6 +1013,9 @@ stage_4_restview_install () {
 #        packages from SourceForge without hardcoding here?
 
 stage_4_rssowl_install () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "Skipping: stage_4_rssowl_install"
 
@@ -965,6 +1035,9 @@ stage_4_rssowl_install () {
 } # end: stage_4_rssowl_install
 
 stage_4_cloc_install () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_cloc_install"
 
@@ -998,6 +1071,9 @@ stage_4_cloc_install () {
 } # end: stage_4_cloc_install
 
 stage_4_parT_install () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_parT_install"
 
@@ -1034,6 +1110,9 @@ stage_4_parT_install () {
 } # end: stage_4_parT_install
 
 stage_4_cookiecutter_install () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_cookiecutter_install"
 
@@ -1050,6 +1129,9 @@ stage_4_cookiecutter_install () {
 } # end: stage_4_cookiecutter_install
 
 stage_4_pencil_install () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "Erased: stage_4_pencil_install"
 
@@ -1070,6 +1152,9 @@ stage_4_pencil_install () {
 } # end: stage_4_pencil_install
 
 stage_4_jsctags_install () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "Skipping: stage_4_jsctags_install"
 
@@ -1090,6 +1175,9 @@ stage_4_jsctags_install () {
 } # end: stage_4_jsctags_install
 
 stage_4_disable_services () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "Pretend: stage_4_disable_services"
 
@@ -1114,6 +1202,9 @@ stage_4_disable_services () {
 } # end: stage_4_disable_services
 
 stage_4_spotify_install () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_spotify_install"
 
@@ -1137,9 +1228,9 @@ stage_4_spotify_install () {
   #             This step not listed on the spotify page.
   sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 94558F59
 
-  if ! ${SKIP_APT_GET_UPDATE}; then
+  #if ! ${SKIP_APT_GET_UPDATE}; then
     sudo apt-get update
-  fi
+  #fi
 
   # 2015.05.31: Is this step now necessary?
   sudo apt-get install spotify-client
@@ -1159,6 +1250,9 @@ stage_4_spotify_install () {
 } # end: stage_4_spotify_install
 
 stage_4_relocate_spotify_cache () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_relocate_spotify_cache"
 
@@ -1186,6 +1280,9 @@ stage_4_relocate_spotify_cache () {
 } # end: stage_4_relocate_spotify_cache
 
 stage_4_openjump_install () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_openjump_install"
 
@@ -1222,6 +1319,9 @@ stage_4_openjump_install () {
 } # end: stage_4_openjump_install
 
 stage_4_liclipse_install () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_liclipse_install"
 
@@ -1262,6 +1362,9 @@ stage_4_liclipse_install () {
 } # end: stage_4_liclipse_install
 
 stage_4_all_the_young_pips () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_all_the_young_pips"
 
@@ -1300,10 +1403,33 @@ stage_4_all_the_young_pips () {
 } # end: stage_4_all_the_young_pips
 
 stage_4_indirect_user_fonts () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_indirect_user_fonts"
 
   pushd ${OPT_FONTS} &> /dev/null
+
+  if [[ ! -h ${HOME}/.fonts ]]; then
+    # 2016-11-14: This seems pointless. Wasn't the point of this fcn. to do the moving?
+    echo
+    echo "NOTICE: ~/.fonts exists but is not symlink (to ${OPT_FONTS})"
+    echo
+    #echo "MAYBE: Relocate the ~/.fonts dir if you want (e.g., off SSD)"
+    #echo"        or fix this fcn. to do it automatically...."
+    #echo
+    num_files=$(ls -1 ${OPT_FONTS} | wc -l)
+    if [[ ${num_files} -eq 0 ]]; then
+      rmdir ${OPT_FONTS}
+      /bin/mv ${HOME}/.fonts ${OPT_FONTS}
+    else
+      echo
+      echo "ALERT: You'll have to setup ${OPT_FONTS} yourself, if you care."
+      echo -n " got it? [press any key to continue]"
+      read -n 1 ignored
+    fi
+  fi
 
   if [[ ! -e ${HOME}/.fonts ]]; then
     if [[ -h ${HOME}/.fonts ]]; then
@@ -1311,19 +1437,18 @@ stage_4_indirect_user_fonts () {
       /bin/rm ${HOME}/.fonts
     fi
     /bin/ln -s ${OPT_FONTS} ${HOME}/.fonts
-  else
-    if [[ ! -h ${HOME}/.fonts ]]; then
-      echo
-      echo "NOTICE: ~/.fonts exists but is not symlink (to ${OPT_FONTS})"
-      echo
-    fi
   fi
+
+  sudo fc-cache -fv
 
   popd &> /dev/null
 
 } # end: stage_4_indirect_user_fonts
 
 stage_4_font_mania () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_font_mania"
 
@@ -1367,6 +1492,9 @@ stage_4_font_mania () {
 } # end: stage_4_font_mania
 
 stage_4_font_typeface_hack () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_font_typeface_hack"
 
@@ -1396,6 +1524,9 @@ stage_4_font_typeface_hack () {
 } # end: stage_4_font_typeface_hack
 
 stage_4_font_google_noto () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_font_google_noto"
 
@@ -1428,6 +1559,9 @@ stage_4_font_google_noto () {
 } # end: stage_4_font_google_noto
 
 stage_4_sqlite3 () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_sqlite3"
 
@@ -1489,6 +1623,9 @@ stage_4_sqlite3 () {
 } # end: stage_4_sqlite3
 
 state_4_mod_spatialite () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "state_4_mod_spatialite"
 
@@ -1560,6 +1697,9 @@ state_4_mod_spatialite () {
 
 
 stage_4_opencl () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_opencl"
 
@@ -1629,6 +1769,9 @@ stage_4_opencl () {
 } # end: stage_4_opencl
 
 stage_4_darktable () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_darktable"
 
@@ -1639,9 +1782,9 @@ stage_4_darktable () {
     sudo add-apt-repository -y ppa:pmjdebruijn/darktable-release
     # NOTE: To remove the repository:
     #  sudo /bin/rm /etc/apt/sources.list.d/pmjdebruijn-darktable-release-trusty.list
-    if ! ${SKIP_APT_GET_UPDATE}; then
+    #if ! ${SKIP_APT_GET_UPDATE}; then
       sudo apt-get update
-    fi
+    #fi
     sudo apt-get install -y darktable
   else
 
@@ -1689,6 +1832,9 @@ stage_4_darktable () {
 } # end: stage_4_darktable
 
 stage_4_digikam_from_scratch () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_digikam_from_scratch"
 
@@ -1959,6 +2105,9 @@ echo
 } # end: stage_4_digikam_from_scratch
 
 stage_4_digikam_from_distro () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_digikam_from_distro"
 
@@ -1990,9 +2139,9 @@ stage_4_digikam_from_distro () {
     #  sudo /bin/rm /etc/apt/sources.list.d/philip5-extra-trusty.list
     #  sudo /bin/rm /etc/apt/sources.list.d/philip5-kubuntu-backports-trusty.list
     #  #sudo /bin/rm /etc/apt/sources.list.d/kubuntu-ppa-backports-trusty.list
-    if ! ${SKIP_APT_GET_UPDATE}; then
+    #if ! ${SKIP_APT_GET_UPDATE}; then
       sudo apt-get update
-    fi
+    #fi
 
     # Check the version we want is there:
     #
@@ -2038,6 +2187,9 @@ stage_4_digikam_from_distro () {
 } # end: stage_4_digikam_from_distro
 
 stage_4_digikam5_from_distro () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_digikam5_from_distro"
 
@@ -2060,9 +2212,9 @@ stage_4_digikam5_from_distro () {
   fi
 
   sudo apt-add-repository ppa:philip5/extra
-  if ! ${SKIP_APT_GET_UPDATE}; then
+  #if ! ${SKIP_APT_GET_UPDATE}; then
     sudo apt-get update
-  fi
+  #fi
   sudo apt-get install -y digikam5
 
 # Not supported on trusty/14.04!
@@ -2072,6 +2224,9 @@ stage_4_digikam5_from_distro () {
 } # end: stage_4_digikam5_from_distro
 
 stage_4_gimp_plugins () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_gimp_plugins"
 
@@ -2118,6 +2273,9 @@ stage_4_gimp_plugins () {
 } # end: stage_4_gimp_plugins
 
 stage_4_gimp_docs () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_gimp_docs"
 
@@ -2142,6 +2300,9 @@ stage_4_gimp_docs () {
 } # end: stage_4_gimp_docs
 
 stage_4_python_source () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_python_source"
 
@@ -2173,6 +2334,9 @@ stage_4_python_source () {
 } # end: stage_4_python_source
 
 stage_4_funstuff () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "A bore: stage_4_funstuff"
 
@@ -2197,6 +2361,9 @@ stage_4_funstuff () {
 } # end: stage_4_funstuff
 
 stage_4_updatedb_locate_conf () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "Noop: stage_4_updatedb_locate_conf"
 
@@ -2213,6 +2380,9 @@ stage_4_updatedb_locate_conf () {
 } # end: stage_4_updatedb_locate_conf
 
 stage_4_python_35 () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_python_35"
 
@@ -2231,19 +2401,36 @@ stage_4_python_35 () {
   fi
 
   sudo add-apt-repository -y ppa:fkrull/deadsnakes
-  if ! ${SKIP_APT_GET_UPDATE}; then
+  #if ! ${SKIP_APT_GET_UPDATE}; then
     sudo apt-get update -y
-  fi
+  #fi
   sudo apt-get install -y python3.5
   #sudo apt-get install -y python3.5-dev
 
 } # end: stage_4_python_35
 
 stage_4_garmin_software () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_garmin_software"
 
-  sudo apt-get install -y qlandkartegt qlandkartegt-garmin
+  # $ apt-cache show qlandkartegt-garmin
+  # N: Can't select versions from package 'qlandkartegt-garmin' as it is purely virtual
+  # N: No packages found
+  # # But $? is 0!
+  #
+  # $ apt-cache show you-never-heard-of-this
+  # N: Unable to locate package you-never-heard-of-this
+  # E: No packages found
+  # # And $? is 100.
+  #
+  # Argh, apt-cache show prints to stderr but redirection isn't working.
+  # $ apt-cache show qlandkartegt-garmin 2>&1 | grep No
+
+  #sudo apt-get install -y qlandkartegt qlandkartegt-garmin
+  sudo apt-get install -y qlandkartegt
 
   # For Garmin Connect to work in a Windows 10 VirtualBox.
 
@@ -2263,6 +2450,9 @@ stage_4_garmin_software () {
 } # end: stage_4_garmin_software
 
 stage_4_android_studio () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_android_studio"
 
@@ -2402,9 +2592,9 @@ export PATH" | sudo tee -a /etc/environment
       #  https://www.atlantic.net/community/howto/install-java-ubuntu-14-04/
       sudo apt-get install -y python-software-properties
       sudo add-apt-repository -y ppa:webupd8team/java
-      if ! ${SKIP_APT_GET_UPDATE}; then
+      #if ! ${SKIP_APT_GET_UPDATE}; then
         sudo apt-get update
-      fi
+      #fi
 # FIXME/2016-09-15: I just ran this to update Firefox's plugin. Should this just be in package list?
       sudo apt-get install oracle-java8-installer
 # 2016-09-15: To get southpark.cc.com's flash player to work...
@@ -2495,6 +2685,9 @@ Check box of latest SDK. Apply. [Download commences.]
 } # end: stage_4_android_studio
 
 stage_4_zoneminder () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_zoneminder"
 
@@ -2520,6 +2713,9 @@ stage_4_zoneminder () {
 } # end: stage_4_zoneminder
 
 stage_4_google_drive_drive () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_google_drive_drive"
 
@@ -2607,11 +2803,19 @@ stage_4_google_drive_drive () {
 
   # SWEET! Finally. Installed.
 
-  echo
-  echo "ALERT: Mandatory User Interaction Required"
-  echo
   #mkdir /jus/bkups/bkup-google.drive
-  drive init /jus/bkups/bkup-google.drive
+  if [[ -d /jus/bkups ]]; then
+    echo
+    echo "ALERT: Mandatory User Interaction Required"
+    echo
+    drive init /jus/bkups/bkup-google.drive
+  else
+    echo
+    echo "WHATEVER: Pick a spot for dumb google drive and init it, e.g.,:"
+    echo
+    echo "          git init /path/to/my/drive"
+    echo
+  fi
 
   # Visit this URL to get an authorization code
   # https://accounts.google.com/o/oauth2/auth?...
@@ -2625,7 +2829,7 @@ stage_4_google_drive_drive () {
 
   __interesting_commands_="
 
-  cd /jus/bkups/bkup-google.drive
+  cd /path/to/bkup-google.drive
 
   drive list
 
@@ -2648,6 +2852,9 @@ stage_4_google_drive_drive () {
 } # end: stage_4_google_drive_drive
 
 stage_4_td_ameritrade_thinkorswim () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_td_ameritrade_thinkorswim"
 
@@ -2663,9 +2870,9 @@ stage_4_td_ameritrade_thinkorswim () {
   pushd ${OPT_DLOADS} &> /dev/null
 
   sudo apt-add-repository -y ppa:webupd8team/java
-  if ! ${SKIP_APT_GET_UPDATE}; then
+  #if ! ${SKIP_APT_GET_UPDATE}; then
     sudo apt-get update -y
-  fi
+  #fi
   sudo apt-get install -y oracle-java7-installer
 
   wget -N http://mediaserver.thinkorswim.com/installer/InstFiles/thinkorswim_installer.sh
@@ -2680,6 +2887,9 @@ stage_4_td_ameritrade_thinkorswim () {
 } # end: stage_4_td_ameritrade_thinkorswim
 
 stage_4_optipng () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_optipng"
 
@@ -2715,202 +2925,13 @@ stage_4_optipng () {
 
 # *** Password Store and lots of subcomponents.
 
-stage_4_pass__libgpg_error () {
-
-  stage_announcement "stage_4_pass__libgpg_error"
-
-  libgpg_path="/usr/local/lib/libgpg-error.so.0.19.1"
-  if [[ -f ${libgpg_path} ]]; then
-    echo
-    echo "${REINSTALL_OR_SKIP}: Already installed: ${libgpg_path}"
-    echo
-    if ! ${FORCE_REINSTALL}; then
-      return
-    fi
+stage_4_setup_gnupg_public_key () {
+  if ${SKIP_EVERYTHING}; then
+    return
   fi
 
-  pushd ${OPT_DLOADS} &> /dev/null
+  stage_announcement "stage_4_setup_gnupg_public_key"
 
-  # For libassuan.
-  # ftp://ftp.gnupg.org/gcrypt/libgpg-error/
-
-  wget -N ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.24.tar.gz
-  wget -N ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.24.tar.gz.sig
-  set +e
-  gpg --verify libgpg-error-1.24.tar.gz.sig
-  exit_code=$?
-  reset_errexit
-  if [[ ${exit_code} -ne 0 ]]; then
-    echo "FATAL: Failed to verify downloaded file signature: libgpg-error-1.24.tar.gz"
-    exit 1
-  fi
-  tar xvzf libgpg-error-1.24.tar.gz
-  cd libgpg-error-1.24/
-  ./configure
-  make
-  make check
-  sudo make install
-
-  popd &> /dev/null
-
-} # end: stage_4_pass__libgpg_error
-
-stage_4_pass__libassuan () {
-
-  stage_announcement "stage_4_pass__libassuan"
-
-  libassuan_path="/usr/local/lib/libassuan.so.0.7.3"
-  if [[ -f ${libassuan_path} ]]; then
-    echo
-    echo "${REINSTALL_OR_SKIP}: Already installed: ${libassuan_path}"
-    echo
-    if ! ${FORCE_REINSTALL}; then
-      return
-    fi
-  fi
-
-  pushd ${OPT_DLOADS} &> /dev/null
-
-  # For GPG2.
-  # ftp://ftp.gnupg.org/gcrypt/libassuan/
-
-  wget -N ftp://ftp.gnupg.org/gcrypt/libassuan/libassuan-2.4.3.tar.bz2
-  wget -N ftp://ftp.gnupg.org/gcrypt/libassuan/libassuan-2.4.3.tar.bz2.sig
-  set +e
-  gpg --verify libassuan-2.4.3.tar.bz2.sig
-  exit_code=$?
-  reset_errexit
-  if [[ ${exit_code} -ne 0 ]]; then
-    echo "FATAL: Failed to verify downloaded file signature: libassuan-2.4.3.tar.bz2"
-    exit 1
-  fi
-  tar xvjf libassuan-2.4.3.tar.bz2
-  cd libassuan-2.4.3/
-  ./configure
-  make
-  make check
-  sudo make install
-
-  popd &> /dev/null
-
-} # end: stage_4_pass__libassuan
-
-stage_4_pass__libksba () {
-
-  stage_announcement "stage_4_pass__libksba"
-
-  libksba_path="/usr/local/lib/libksba.so.8.11.5"
-  if [[ -f ${libksba_path} ]]; then
-    echo
-    echo "${REINSTALL_OR_SKIP}: Already installed: ${libksba_path}"
-    echo
-    if ! ${FORCE_REINSTALL}; then
-      return
-    fi
-  fi
-
-  pushd ${OPT_DLOADS} &> /dev/null
-
-  # For GPG2.
-  # ftp://ftp.gnupg.org/gcrypt/libksba/
-
-  wget -N ftp://ftp.gnupg.org/gcrypt/libksba/libksba-1.3.4.tar.bz2
-  wget -N ftp://ftp.gnupg.org/gcrypt/libksba/libksba-1.3.4.tar.bz2.sig
-  set +e
-  gpg --verify libksba-1.3.4.tar.bz2.sig
-  exit_code=$?
-  reset_errexit
-  if [[ ${exit_code} -ne 0 ]]; then
-    echo "FATAL: Failed to verify downloaded file signature: libksba-1.3.4.tar.bz2"
-    exit 1
-  fi
-  tar xvjf libksba-1.3.4.tar.bz2
-  cd libksba-1.3.4/
-  ./configure
-  make
-  make check
-  sudo make install
-
-  popd &> /dev/null
-
-} # end: stage_4_pass__libksba
-
-stage_4_pass__libpth () {
-
-  stage_announcement "stage_4_pass__libpth"
-
-  libpth_path="/usr/local/lib/libpth.so.20.0.27"
-  if [[ -f ${libpth_path} ]]; then
-    echo
-    echo "${REINSTALL_OR_SKIP}: Already installed: ${libpth_path}"
-    echo
-    if ! ${FORCE_REINSTALL}; then
-      return
-    fi
-  fi
-
-  pushd ${OPT_DLOADS} &> /dev/null
-
-  # For GPG2.
-  # ftp://ftp.gnu.org/gnu/pth/
-  # 2016-08-17: I did not try this:
-  #  sudo apt-get install -y libpth-dev
-  wget -N ftp://ftp.gnu.org/gnu/pth/pth-2.0.7.tar.gz
-  wget -N ftp://ftp.gnu.org/gnu/pth/pth-2.0.7.tar.gz.sig
-  # 2016-08-17: Whhere's their public key?
-  # gpg --verify pth-2.0.7.tar.gz.sig
-  #  gpg: Signature made Thu 08 Jun 2006 01:18:31 PM CDT using DSA key ID A9C09E30
-  #  gpg: Can't check signature: public key not found
-  #if [[ $? -ne 0 ]]; then
-  #  echo "FATAL: Failed to verify downloaded file signature: pth-2.0.7.tar.gz"
-  #  exit 1
-  #fi
-  tar xvzf pth-2.0.7.tar.gz
-  cd pth-2.0.7/
-  ./configure
-  make
-  make test
-  sudo make install
-
-  popd &> /dev/null
-
-} # end: stage_4_pass__libpth
-
-stage_4_pass__gnupg_2 () {
-
-  stage_announcement "stage_4_pass__gnupg_2"
-
-  gpg2_path="/usr/local/bin/gpg2"
-  if [[ -f ${gpg2_path} ]]; then
-    gpg2_version=$(/usr/local/bin/gpg2 --version | head -1)
-    if [[ ${gpg2_version} == "gpg (GnuPG) 2.0.30" ]]; then
-      echo
-      echo "${REINSTALL_OR_SKIP}: Already installed: ${gpg2_path}"
-      echo
-      if ! ${FORCE_REINSTALL}; then
-        return
-      fi
-    else
-      echo
-      echo "Detected different version of GnuPG: ${gpg2_version}"
-      echo
-    fi
-  fi
-
-  pushd ${OPT_DLOADS} &> /dev/null
-
-  # Mint 17.3 upstream [2016-08-17]:
-  #
-  #   $ gpg2 --version
-  #   gpg (GnuPG) 2.0.22
-  #   libgcrypt 1.5.3
-  #
-  # https://www.gnupg.org/
-  # "2.1.14 is the modern version with support for ECC and many other new features
-  #  2.0.30 is the stable version which is currently mostly used."
-
-  wget -N https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-2.0.30.tar.bz2
-  wget -N https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-2.0.30.tar.bz2.sig
   # https://www.gnupg.org/signature_key.html
 echo "-----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v2
@@ -3012,20 +3033,312 @@ rGUZtDlKYbmNIeMeAJ0UpVsjxpylBcSjsPE8MAki7Hb2Rw==
 =W3eM
 -----END PGP PUBLIC KEY BLOCK-----" \
   | gpg --import
+} # end: stage_4_setup_gnupg_public_key
 
+stage_4_pass__libgpg_error () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_pass__libgpg_error"
+
+  libgpg_path="/usr/local/lib/libgpg-error.so.0.19.1"
+  if [[ -f ${libgpg_path} ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: ${libgpg_path}"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # For libassuan.
+  # ftp://ftp.gnupg.org/gcrypt/libgpg-error/
+
+  wget -N ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.24.tar.gz
+  wget -N ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.24.tar.gz.sig
   set +e
-  # gpg --verify gnupg-2.0.30.tar.bz2.sig gnupg-2.0.30.tar.bz2
-  gpg --verify gnupg-2.0.30.tar.bz2.sig
+  gpg --verify libgpg-error-1.24.tar.gz.sig
   exit_code=$?
   reset_errexit
   if [[ ${exit_code} -ne 0 ]]; then
-    echo "FATAL: Failed to verify downloaded file signature: gnupg-2.0.30.tar.bz2"
+    echo "FATAL: Failed to verify downloaded file signature: libgpg-error-1.24.tar.gz"
+    exit 1
+  fi
+  tar xvzf libgpg-error-1.24.tar.gz
+  cd libgpg-error-1.24/
+  ./configure
+  #./configure --prefix=/usr
+  make
+  make check
+  sudo make install
+
+  popd &> /dev/null
+
+} # end: stage_4_pass__libgpg_error
+
+stage_4_pass__libassuan () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_pass__libassuan"
+
+  libassuan_path="/usr/local/lib/libassuan.so.0.7.3"
+  if [[ -f ${libassuan_path} ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: ${libassuan_path}"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # For GPG2.
+  # ftp://ftp.gnupg.org/gcrypt/libassuan/
+
+  wget -N ftp://ftp.gnupg.org/gcrypt/libassuan/libassuan-2.4.3.tar.bz2
+  wget -N ftp://ftp.gnupg.org/gcrypt/libassuan/libassuan-2.4.3.tar.bz2.sig
+  set +e
+  gpg --verify libassuan-2.4.3.tar.bz2.sig
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -ne 0 ]]; then
+    echo "FATAL: Failed to verify downloaded file signature: libassuan-2.4.3.tar.bz2"
+    exit 1
+  fi
+  tar xvjf libassuan-2.4.3.tar.bz2
+  cd libassuan-2.4.3/
+  ./configure
+  #./configure --prefix=/usr
+  make
+  make check
+  sudo make install
+
+  popd &> /dev/null
+
+} # end: stage_4_pass__libassuan
+
+stage_4_pass__libksba () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_pass__libksba"
+
+  libksba_path="/usr/local/lib/libksba.so.8.11.5"
+  if [[ -f ${libksba_path} ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: ${libksba_path}"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # For GPG2.
+  # ftp://ftp.gnupg.org/gcrypt/libksba/
+
+  wget -N ftp://ftp.gnupg.org/gcrypt/libksba/libksba-1.3.4.tar.bz2
+  wget -N ftp://ftp.gnupg.org/gcrypt/libksba/libksba-1.3.4.tar.bz2.sig
+
+  set +e
+  gpg --verify libksba-1.3.4.tar.bz2.sig
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -ne 0 ]]; then
+    echo "FATAL: Failed to verify downloaded file signature: libksba-1.3.4.tar.bz2"
     exit 1
   fi
 
-  tar -xvjf gnupg-2.0.30.tar.bz2
+  tar xvjf libksba-1.3.4.tar.bz2
+  cd libksba-1.3.4/
+  ./configure
+  #./configure --prefix=/usr
+  make
+  make check
+  sudo make install
 
-  cd gnupg-2.0.30
+  popd &> /dev/null
+
+} # end: stage_4_pass__libksba
+
+stage_4_pass__libpth () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_pass__libpth"
+
+  LIBPTH_VERS="2.0.7"
+
+  libpth_path="/usr/local/lib/libpth.so.20.0.27"
+  if [[ -f ${libpth_path} ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: ${libpth_path}"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # For GPG2.
+  # ftp://ftp.gnu.org/gnu/pth/
+  # 2016-08-17: I did not try this:
+  #  sudo apt-get install -y libpth-dev
+  wget -N ftp://ftp.gnu.org/gnu/pth/pth-${LIBPTH_VERS}.tar.gz
+  wget -N ftp://ftp.gnu.org/gnu/pth/pth-${LIBPTH_VERS}.tar.gz.sig
+
+# 2016-11-14: I think this is fixed by stage_4_setup_gnupg_public_key.
+# 2016-08-17: Whhere's their public key?
+#  gpg: Signature made Thu 08 Jun 2006 01:18:31 PM CDT using DSA key ID A9C09E30
+#  gpg: Can't check signature: public key not found
+  set +e
+  gpg --verify pth-${LIBPTH_VERS}.tar.gz.sig
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -ne 0 ]]; then
+    echo "FATAL: Failed to verify downloaded file signature: pth-${LIBPTH_VERS}.tar.gz"
+    exit 1
+  fi
+
+  tar xvzf pth-${LIBPTH_VERS}.tar.gz
+  cd pth-${LIBPTH_VERS}
+  ./configure
+  #./configure --prefix=/usr
+  make
+  make test
+  sudo make install
+
+  popd &> /dev/null
+
+} # end: stage_4_pass__libpth
+
+stage_4_pass__libgcrypt () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_pass__libgcrypt"
+
+  LIBGCRYPT_VERS="1.7.3"
+
+  lib_path="/usr/local/lib/libgcrypt.so.20.1.3"
+  if [[ -f ${lib_path} ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: ${lib_path}"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  wget -N ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-${LIBGCRYPT_VERS}.tar.gz
+  wget -N ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-${LIBGCRYPT_VERS}.tar.gz.sig
+
+  set +e
+  gpg --verify libgcrypt-${LIBGCRYPT_VERS}.tar.gz.sig
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -ne 0 ]]; then
+    echo "FATAL: Failed to verify downloaded file signature: libgcrypt-${LIBGCRYPT_VERS}.tar.gz"
+    exit 1
+  fi
+
+  tar xvzf libgcrypt-${LIBGCRYPT_VERS}.tar.gz
+  cd libgcrypt-${LIBGCRYPT_VERS}
+  #./configure
+  ./configure --prefix=/usr
+  make
+  make check
+  sudo make install
+
+  popd &> /dev/null
+
+} # end: stage_4_pass__libgcrypt
+
+stage_4_pass__gnupg_2 () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_pass__gnupg_2"
+
+  #GPG2_VERS="2.0.30"
+  GPG2_VERS="2.1.15"
+
+  gpg2_path="/usr/local/bin/gpg2"
+  if [[ -f ${gpg2_path} ]]; then
+    gpg2_version=$(/usr/local/bin/gpg2 --version | head -1)
+    if [[ ${gpg2_version} == "gpg (GnuPG) ${GPG2_VERS}" ]]; then
+      echo
+      echo "${REINSTALL_OR_SKIP}: Already installed: ${gpg2_path}"
+      echo
+      if ! ${FORCE_REINSTALL}; then
+        return
+      fi
+    else
+      echo
+      echo "Detected different version of GnuPG: ${gpg2_version}"
+      echo
+    fi
+  fi
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # Prerequisites.
+  # 2016-11-14: I got library complaints on 16.04 that I didn't have on 14.04.
+  sudo apt-get install -y libgcrypt11-dev
+  # 2016-11-14: Also on 16.04, during `make check`:
+  #   ../../agent/gpg-agent: error while loading shared libraries: libpth.so.20:
+  #     cannot open shared object file: No such file or directory
+  # and adjusting configure didn't work:
+  #   ./configure --build=x86_64-pc-linux-gnu LDFLAGS="-L/usr/local/lib"
+  # Fortunately, this works:
+  sudo apt-get install -y libpth-dev
+  # From 2.0.30 to 2.1.15, new requirments.
+  sudo apt-get install -y libnpth0-dev
+  # Not required.
+  sudo apt-get install -y libgnutls-dev
+
+  # Mint 17.3 upstream [2016-08-17]:
+  #
+  #   $ gpg2 --version
+  #   gpg (GnuPG) 2.0.22
+  #   libgcrypt 1.5.3
+  #
+  # https://www.gnupg.org/
+  # "2.1.14 is the modern version with support for ECC and many other new features
+  #  2.0.30 is the stable version which is currently mostly used."
+
+  wget -N https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-${GPG2_VERS}.tar.bz2
+  wget -N https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-${GPG2_VERS}.tar.bz2.sig
+  # You'll need the public key loaded. See:
+  #   stage_4_setup_gnupg_public_key
+  set +e
+  # gpg --verify gnupg-2.0.30.tar.bz2.sig gnupg-2.0.30.tar.bz2
+  gpg --verify gnupg-${GPG2_VERS}.tar.bz2.sig
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -ne 0 ]]; then
+    echo "FATAL: Failed to verify downloaded file signature: gnupg-${GPG2_VERS}.tar.bz2"
+    exit 1
+  fi
+
+  tar -xvjf gnupg-${GPG2_VERS}.tar.bz2
+
+  cd gnupg-${GPG2_VERS}
+  make clean
   #   $ ./configure
   #   checking for GPG Error - version >= 1.11... yes (1.24)
   #   configure: WARNING:
@@ -3046,35 +3359,56 @@ rGUZtDlKYbmNIeMeAJ0UpVsjxpylBcSjsPE8MAki7Hb2Rw==
   #   *** used host x86_64-unknown-linux-gnu.
   #   *** You may want to use the configure option --with-libgcrypt-prefix
   #   *** to specify a matching config script or use $SYSROOT.
-  ./configure --build=x86_64-pc-linux-gnu
-
+  #./configure --build=x86_64-pc-linux-gnu
+  #./configure --build=x86_64-pc-linux-gnu --prefix=/usr
+  ./configure LDFLAGS="-L/usr/lib"
   make
   make check
   sudo make install
 
-# Crap...
-#
-# $ cmd gpg2
-# /usr/bin/gpg2
-#
-# $ /usr/local/bin/gpg2 --version
-# /usr/local/bin/gpg2: /lib/x86_64-linux-gnu/libgpg-error.so.0: no version information available (required by /usr/local/bin/gpg2)
-# gpg (GnuPG) 2.0.30
-# libgcrypt 1.5.3
-#
-# FIXME: 2016-08-17: I was able to install Password Store, but I did not finish getting gpg2 installed.
-#        Well, it's sort of installed, but
-#        1. it's not the first gpg2 on the path; and
-#        2. it complains about libgpg-error.so.0
-#            which I'm not sure matters, as I haven't tested the binary I just built
-#            and I'm going to drop this task until I care again.
-#            See you in the future!
+  # WHATEVER: On 14.04, I had weird error. Doesn't seem to be an issue on 16.04.
+  # Crap...
+  #
+  # $ cmd gpg2
+  # /usr/bin/gpg2
+  #
+  # $ /usr/local/bin/gpg2 --version
+  # /usr/local/bin/gpg2: /lib/x86_64-linux-gnu/libgpg-error.so.0:
+  #   no version information available (required by /usr/local/bin/gpg2)
+  # gpg (GnuPG) 2.0.30
+  # libgcrypt 1.5.3
+  #
+  # FIXME: 2016-08-17: I was able to install Password Store, but I did not finish getting gpg2 installed.
+  #        Well, it's sort of installed, but
+  #        1. it's not the first gpg2 on the path; and
+  #        2. it complains about libgpg-error.so.0
+  #            which I'm not sure matters, as I haven't tested the binary I just built
+  #            and I'm going to drop this task until I care again.
+  #            See you in the future!
+  #
+  # 2016-11-14: On 16.04:
+  #
+  #   $ /usr/bin/gpg2 --version
+  #   gpg (GnuPG) 2.1.11
+  #   libgcrypt 1.6.5
+  #
+  #   $ ll /usr/bin/gpg2
+  #   -rwxr-xr-x 1 root root 896K Apr  8  2016 /usr/bin/gpg2*
+  #
+  #   $ /usr/local/bin/gpg2 --version
+  #   gpg (GnuPG) 2.1.15
+  #   libgcrypt 1.7.3
+  #   $ ll /usr/local/bin/gpg2
+  #   -rwxr-xr-x 1 root root 3.5M Nov 14 14:44 /usr/local/bin/gpg2*
 
   popd &> /dev/null
 
 } # end: stage_4_pass__gnupg_2
 
 stage_4_pass__xclip () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_pass__xclip"
 
@@ -3102,7 +3436,8 @@ stage_4_pass__xclip () {
   # create configuration files
   autoreconf
   # create the Makefile
-  ./configure
+  #./configure
+  ./configure --prefix=/usr
   # build the binary
   make
   # install xclip
@@ -3115,6 +3450,9 @@ stage_4_pass__xclip () {
 } # end: stage_4_pass__xclip
 
 stage_4_pass__tree () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_pass__tree"
 
@@ -3148,6 +3486,9 @@ stage_4_pass__tree () {
 } # end: stage_4_pass__tree
 
 stage_4_pass__util_linux () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_pass__util_linux"
 
@@ -3244,7 +3585,8 @@ stage_4_pass__util_linux () {
   tar -xJvf util-linux-${UTILL_VERS}.tar.xz
   cd util-linux-${UTILL_VERS}
   # Just guessing here, as there are no build instructions.
-  ./configure
+  #./configure
+  ./configure --prefix=/usr
   make
   # No `make test`?
   # ARGH:
@@ -3268,6 +3610,9 @@ stage_4_pass__util_linux () {
 } # end: stage_4_pass__util_linux
 
 stage_4_pass__password_store () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_pass__password_store"
 
@@ -3308,6 +3653,9 @@ stage_4_pass__password_store () {
 } # end: stage_4_pass__password_store
 
 stage_4_pass__fix_gnome_keyring_hijack () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_pass__fix_gnome_keyring_hijack"
 
@@ -3361,14 +3709,26 @@ stage_4_pass__fix_gnome_keyring_hijack () {
   # $ gpg-agent --daemon
   # GPG_AGENT_INFO=/tmp/gpg-Kd7kIC/S.gpg-agent:4415:1; export GPG_AGENT_INFO; #copy this line below
   # $ GPG_AGENT_INFO=/tmp/gpg-Kd7kIC/S.gpg-agent:4415:1; export GPG_AGENT_INFO;
+  set +e
   eff_off_gkr=$(gpg-agent --daemon)
-  eval "$eff_off_gkr"
+  exit_code=$?
+  set -e
+  if [[ ${exit_code} -eq 0 ]]; then
+    eval "$eff_off_gkr"
+  else
+    echo
+    echo "WARNING: gpg-agent --daemon returned nonzero error code, possible because it's already running."
+    echo
+  fi
 
   popd &> /dev/null
 
 } # end: stage_4_pass__fix_gnome_keyring_hijack
 
 stage_4_password_store () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   # Password management tool.
 
@@ -3413,13 +3773,18 @@ stage_4_password_store () {
   #
   # so whatever. Not like I want to touch Bash, anyway.
 
+  stage_4_setup_gnupg_public_key
+
   stage_4_pass__libgpg_error
 
   stage_4_pass__libassuan
 
   stage_4_pass__libksba
 
+  # On 14.04, install libpth; on 16.04, use apt.
   stage_4_pass__libpth
+
+  stage_4_pass__libgcrypt
 
   stage_4_pass__gnupg_2
 
@@ -3440,15 +3805,22 @@ stage_4_password_store () {
 # *** Continuing along.
 
 stage_4_oracle_java_jre () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_oracle_java_jre"
 
-  JDK_TAR="jdk-8u101-linux-x64.tar.gz"
+  #JDK_TAR="jdk-8u101-linux-x64.tar.gz"
+  #JDK_VERS="jdk1.8.0_101"
+  JDK_TAR="jdk-8u111-linux-x64.tar.gz"
+  JDK_VERS="jdk1.8.0_111"
 
   JDK_DLOAD="${OPT_DLOADS}/${JDK_TAR}"
-  if [[ -f ${JDK_DLOAD} ]]; then
+  #if [[ -f ${JDK_DLOAD} ]]; then
+  if [[ -h ${OPT_BIN}/jdk ]]; then
     echo
-    echo "${REINSTALL_OR_SKIP}: Already installed: ${JDK_DLOAD}"
+    echo "${REINSTALL_OR_SKIP}: Already installed: ${OPT_BIN}/jdk"
     echo
     if ! ${FORCE_REINSTALL}; then
       return
@@ -3477,32 +3849,39 @@ stage_4_oracle_java_jre () {
   # Argh, the link doesn't work. Manually download using broswer.
   #wget -N http://download.oracle.com/otn-pub/java/jdk/8u101-b13/${JDK_TAR}
 
-  echo
-  echo "USER INTERACTION REQUIRED"
-  echo
-  echo "DOWNLOAD JDK FROM:"
-  echo
-  echo "   http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html"
-  echo
-  echo -n "Press any key to continue "
-  read -n 1 ignored
+  if [[ ! -f ${OPT_DLOADS}/${JDK_TAR} ]]; then
+    echo
+    echo "USER INTERACTION REQUIRED"
+    echo
+    echo "DOWNLOAD JDK FROM:"
+    echo
+    echo "   http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html"
+    echo
+    echo "Look for: ${JDK_TAR}"
+    echo
+    echo -n "Press any key to continue "
+    read -n 1 ignored
 
-  if [[ ! -e ~/Downloads/${JDK_TAR} ]]; then
-    echo
-    echo "ERROR: No JDK"
-    echo
-    # Just let the mv die.
-    #exit 1
+    if [[ ! -e ~/Downloads/${JDK_TAR} ]]; then
+      echo
+      echo "ERROR: No JDK"
+      echo
+      # Just let the mv die.
+      #exit 1
+    fi
+
+    echo "Found it, thanks!"
+
+    /bin/mv -f ~/Downloads/${JDK_TAR} ${OPT_DLOADS}
   fi
-  /bin/mv -f ~/Downloads/${JDK_TAR} ${OPT_DLOADS}
 
   tar xvzf ${JDK_TAR}
-  /bin/mv jdk1.8.0_101 ${OPT_BIN}
+  /bin/mv ${JDK_VERS} ${OPT_BIN}
   pushd ${OPT_BIN} &> /dev/null
   if [[ -h jdk ]]; then
     /bin/rm jdk
   fi
-  /bin/ln -sf jdk1.8.0_101 jdk
+  /bin/ln -sf ${JDK_VERS} jdk
   popd &> /dev/null
 
   popd &> /dev/null
@@ -3510,6 +3889,9 @@ stage_4_oracle_java_jre () {
 } # end: stage_4_oracle_java_jre
 
 stage_4_py_chjson () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_py_chjson"
 
@@ -3564,6 +3946,9 @@ stage_4_py_chjson () {
 } # end: stage_4_py_chjson
 
 stage_4_hipchat_client () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_hipchat_client"
 
@@ -3580,19 +3965,22 @@ stage_4_hipchat_client () {
     fi
   fi
 
-  if [[ ! -f /etc/apt/sources.list.d/docker.list ]]; then
+  if [[ ! -f /etc/apt/sources.list.d/atlassian-hipchat4.list ]]; then
     sudo sh -c 'echo "deb https://atlassian.artifactoryonline.com/atlassian/hipchat-apt-client $(lsb_release -c -s) main" > /etc/apt/sources.list.d/atlassian-hipchat4.list'
   fi
   # sudo apt-key list
   wget -O - https://atlassian.artifactoryonline.com/atlassian/api/gpg/key/public | sudo apt-key add -
-  if ! ${SKIP_APT_GET_UPDATE}; then
+  #if ! ${SKIP_APT_GET_UPDATE}; then
     sudo apt-get update
-  fi
+  #fi
   sudo apt-get install hipchat4
 
 } # end: stage_4_hipchat_client
 
 stage_4_install_docker () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_install_docker"
 
@@ -3634,11 +4022,15 @@ stage_4_install_docker () {
     fi
   fi
 
-  if ! ${SKIP_APT_GET_UPDATE}; then
+  #if ! ${SKIP_APT_GET_UPDATE}; then
     sudo apt-get update
-  fi
+  #fi
+
   # Purge the old repo, if it exists.
+  set +e
   sudo apt-get purge lxc-docker
+  set -e
+
   # Verify that APT is pulling from the right repository.
   apt-cache policy docker-engine
 
@@ -3724,6 +4116,9 @@ stage_4_install_docker () {
 } # end: stage_4_install_docker
 
 stage_4_install_docker_compose () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_install_docker_compose"
 
@@ -3777,6 +4172,9 @@ stage_4_install_docker_compose () {
 } # end: stage_4_install_docker_compose
 
 stage_4_git_latest () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_git_latest"
 
@@ -3787,14 +4185,17 @@ stage_4_git_latest () {
   #    git version 2.10.0
 
   sudo add-apt-repository -y ppa:git-core/ppa
-  if ! ${SKIP_APT_GET_UPDATE}; then
+  #if ! ${SKIP_APT_GET_UPDATE}; then
     sudo apt-get update
-  fi
+  #fi
   sudo apt-get install -y git
 
 } # end: stage_4_git_latest
 
 stage_4_openshift_client () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_openshift_client"
 
@@ -3833,6 +4234,9 @@ stage_4_openshift_client () {
 } # end: stage_4_openshift_client
 
 stage_4_jq_cli_json_processor () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_jq_cli_json_processor"
 
@@ -3872,6 +4276,9 @@ stage_4_jq_cli_json_processor () {
 } # end: stage_4_jq_cli_json_processor
 
 stage_4_gnome_encfs_manager () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_gnome_encfs_manager"
 
@@ -3909,9 +4316,9 @@ stage_4_gnome_encfs_manager () {
     #     same damn thing...
     #   HAHA This is just a GUI app. Dork!
     sudo add-apt-repository -y ppa:gencfsm/ppa
-    if ! ${SKIP_APT_GET_UPDATE}; then
+    #if ! ${SKIP_APT_GET_UPDATE}; then
       sudo apt-get update
-    fi
+    #fi
     sudo apt-get install -y gnome-encfs-manager
   fi
 
@@ -4027,6 +4434,9 @@ stage_4_gnome_encfs_manager () {
 } # end: stage_4_gnome_encfs_manager
 
 stage_4_exosite_setup () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_exosite_setup"
 
@@ -4072,6 +4482,9 @@ stage_4_exosite_setup () {
 } # end: stage_4_exosite_setup
 
 stage_4_go_delve_debugger () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_go_delve_debugger"
 
@@ -4094,7 +4507,8 @@ stage_4_go_delve_debugger () {
   pushd ${HOME}/.gopath/src/github.com/derekparker &> /dev/null
 
   if [[ ! -d delve ]]; then
-    git clone ssh://git@github.com/derekparker/delve
+    #git clone ssh://git@github.com/derekparker/delve
+    git clone https://github.com/derekparker/delve
     cd delve
   else
     cd delve
@@ -4110,6 +4524,9 @@ stage_4_go_delve_debugger () {
 } # end: stage_4_go_delve_debugger
 
 stage_4_fix_firefox_vertical_scrollbar_warp_to_click () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_fix_firefox_vertical_scrollbar_warp_to_click"
 
@@ -4142,6 +4559,9 @@ EOF
 #             ``libmateweather  iwin: use new server address to fix forecast  27 days ago``
 #             I think the issue is that the distro packagers probably won't rebuild it.
 stage_4_libmateweather () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_libmateweather"
 
@@ -4180,6 +4600,9 @@ stage_4_libmateweather () {
 } # end: stage_4_libmateweather
 
 stage_4_open_shift_origin_binary () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_open_shift_origin_binary"
 
@@ -4245,6 +4668,9 @@ stage_4_open_shift_origin_binary () {
 } # end: stage_4_open_shift_origin_binary
 
 stage_4_prep_home_fries () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_prep_home_fries"
 
@@ -4270,6 +4696,9 @@ stage_4_prep_home_fries () {
 } # end: stage_4_prep_home_fries
 
 stage_4_setup_whiteinge_diffconflicts () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_setup_whiteinge_diffconflicts"
 
@@ -4310,6 +4739,9 @@ stage_4_setup_whiteinge_diffconflicts () {
 } # end: stage_4_setup_whiteinge_diffconflicts
 
 stage_4_download_log4sh () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   echo
   echo "WARNING: Deprecated: stage_4_download_log4sh"
@@ -4360,6 +4792,9 @@ stage_4_download_log4sh () {
 } # end: stage_4_download_log4sh
 
 stage_4_install_disable_wakeup_on_lid () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_install_disable_wakeup_on_lid"
 
@@ -4379,6 +4814,9 @@ stage_4_install_disable_wakeup_on_lid () {
 } # end: stage_4_install_disable_wakeup_on_lid
 
 stage_4_go_get_crap () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_go_get_crap"
 
@@ -4404,6 +4842,9 @@ stage_4_go_get_crap () {
 } # end: stage_4_go_get_crap
 
 stage_4_install_fluentd_er_td_agent () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_install_fluentd_er_td_agent"
 
@@ -4455,6 +4896,9 @@ SCRIPT
 } # end: stage_4_install_fluentd_er_td_agent
 
 stage_4_install_arduino () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_install_arduino"
 
@@ -4495,6 +4939,9 @@ stage_4_install_arduino () {
 } # end: stage_4_install_arduino
 
 stage_4_fcn_template () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
 
   stage_announcement "stage_4_fcn_template"
 
@@ -4509,7 +4956,6 @@ stage_4_fcn_template () {
 # Application Main()
 
 setup_customize_extras_go () {
-
   echo "-------------------------"
   echo "setup_customize_extras_go"
   echo "-------------------------"

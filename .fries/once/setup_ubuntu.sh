@@ -2,7 +2,7 @@
 
 # File: setup_ubuntu.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.13
+# Last Modified: 2016.11.14
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -66,7 +66,14 @@ else
   echo
   echo "home-fries OS standup script"
   echo
-  echo ' .. tested on Linux Mint MATE 17.x and Ubuntu MATE 15.10. Good luck!'
+  echo " .. tested most recently on"
+  echo "      - Linux Mint MATE 18 Sarah"
+  echo "      - Ubuntu MATE 16.04 Xenial"
+  echo "    and has previously worked on"
+  echo "      - Linux Mint MATE 17.x (14.04)"
+  echo "      - Ubuntu MATE 15.10"
+  echo
+  echo 'Good luck!'
   echo
 fi
 
@@ -163,7 +170,7 @@ MAKE_CONF_DUMPS=false
 
 user_home_conf_dump() {
 
-  if ${MAKE_CONF_DUMPS} && [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
+  if ${MAKE_CONF_DUMPS} && [[ ${IS_HEADED_MACHINE_ANSWER} == "Y" ]]; then
 
     RELAT=$1
 
@@ -399,7 +406,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
     determine_window_manager
 
-    if ${WM_IS_MATE} && [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
+    if ${WM_IS_MATE} && [[ ${IS_HEADED_MACHINE_ANSWER} == "Y" ]]; then
       # Disable screensaver and lock-out.
       # gsettings doesn't seem to stick 'til now.
       #?: sudo gsettings set org.mate.screensaver lock-enabled false
@@ -1068,7 +1075,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       echo
     fi
 
-    if [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
+    if [[ ${IS_HEADED_MACHINE_ANSWER} == "Y" ]]; then
       sudo apt-get install -y ${CORE_DESKTOP_LIST[@]}
       if [[ $? -ne 0 ]]; then
         echo
@@ -1111,7 +1118,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
           echo
         fi
       fi
-      if [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
+      if [[ ${IS_HEADED_MACHINE_ANSWER} == "Y" ]]; then
         echo
         echo "SUCCESS: YES INSTALLING: BIG_DESKTOP_LIST"
         echo
@@ -1365,7 +1372,7 @@ setup_mint_17_stage_3_groups_etc () {
   # ANSWER: YES
 
   if [[ ${INSTALL_ALL_PACKAGES_ANSWER} == "Y" \
-      && ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
+      && ${IS_HEADED_MACHINE_ANSWER} == "Y" ]]; then
     sudo dpkg-reconfigure wireshark-common
     # Add the user to the new group.
     set +e
@@ -1443,8 +1450,8 @@ setup_mint_17_stage_4_extras () {
   # *** Customize the distro and window manager.
 
   # FIXME: Should check we're actually installing on Mint first...
-  #if ${WM_IS_MATE} && [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
-  if [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
+  #if ${WM_IS_MATE} && [[ ${IS_HEADED_MACHINE_ANSWER} == "Y" ]]; then
+  if [[ ${IS_HEADED_MACHINE_ANSWER} == "Y" ]]; then
     stage_4_wm_customize_mint
   fi
 
@@ -1461,7 +1468,7 @@ setup_mint_17_stage_4_extras () {
     echo
     echo "Installing Extras..."
     source ${script_absbase}/custom_setup.extras.sh
-    if [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
+    if [[ ${IS_HEADED_MACHINE_ANSWER} == "Y" ]]; then
       setup_customize_extras_go
     else
       :
@@ -1545,8 +1552,12 @@ stage_4_sshd_configure () {
 
   echo "Setting up sshd"
 
+  # 2016-11-14: I got a sed complaint but rerunning the script worked.
+  # Setting up sshd
+  # /bin/sed: -e expression #1, char 75: unknown option to `s'
+
   if [[ -e /etc/ssh/sshd_config ]]; then
-    if [[ ${IS_HEADLESS_MACHINE_ANSWER} == "N" ]]; then
+    if [[ ${IS_HEADED_MACHINE_ANSWER} == "Y" ]]; then
       set +e
       grep "PasswordAuthentication no" /etc/ssh/sshd_config &> /dev/null
       exit_code=$?
@@ -1578,6 +1589,8 @@ stage_4_sshd_configure () {
     #     bad ownership or modes for directory /home/$USER
     chmod g-w ~
   fi
+
+  echo "sshd setup"
 
 } # end: stage_4_sshd_configure
 
@@ -1679,15 +1692,15 @@ setup_ubuntu_go () {
 
   if [[ -z ${INSTALL_ALL_PACKAGES_ANSWER+x} ]]; then
     echo
-    echo "Is this a dev machine? Do you want all the packages?"
-    ask_yes_no_default 'N' 999999
+    echo "Is this a dev machine? Do you want all the dev packages?"
+    ask_yes_no_default 'Y' 999999
     INSTALL_ALL_PACKAGES_ANSWER=$the_choice
   fi
-  if [[ -z ${IS_HEADLESS_MACHINE_ANSWER+x} ]]; then
+  if [[ -z ${IS_HEADED_MACHINE_ANSWER+x} ]]; then
     echo
-    echo "Is this a headless server machine? Skip GUI apps?"
-    ask_yes_no_default 'N' 999999
-    IS_HEADLESS_MACHINE_ANSWER=$the_choice
+    echo "Is this a headed machine (not headless)? Do you want GUI apps?"
+    ask_yes_no_default 'Y' 999999
+    IS_HEADED_MACHINE_ANSWER=$the_choice
   fi
 
   # Call `sudo apt-get install -y [lots of packages]`.

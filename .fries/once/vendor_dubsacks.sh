@@ -1,6 +1,6 @@
 # File: vendor_dubsacks.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.12
+# Last Modified: 2016.11.14
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Dubsacks VIM setup script.
 # License: GPLv3
@@ -40,10 +40,10 @@ stage_4_dubsacks_install () {
       mv ${HOME}/.vim ${HOME}/.vim-TBD-`date +%Y_%m_%d`-`uuidgen`
     else 
       cd ${HOME}/.vim &> /dev/null
-      git +e
+      set +e
       git remote -v | grep "landonb/dubsacks_vim.git" > /dev/null
       exit_code=$?
-      git -e
+      set -e
       if [[ $exit_code -ne 0 ]]; then
         echo
         echo "WARNING: Was expecting ~/.vim to be the Dubsacks repo: moving it aside"

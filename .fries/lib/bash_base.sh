@@ -2,7 +2,7 @@
 
 # File: bash_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.13
+# Last Modified: 2016.11.14
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bash function library.
 # License: GPLv3
@@ -80,6 +80,55 @@ if [[    "$script_path" != "$script_absbase"
   echo "         script_absbase:  $script_absbase"
   echo "         SCRIPT_DIR:      $SCRIPT_DIR"
 fi
+
+# ============================================================================
+# *** errexit wrapper.
+
+# Configure errexit usage. If we're not anticipating an error, make
+# sure this script stops so that the developer can fix it.
+#
+# NOTE: You can determine the current setting from the shell using:
+#
+#        $ set -o | grep errexit | /bin/sed -r 's/^errexit\s+//'
+#
+#       which returns on or off.
+#
+#       However, from within this script, whether we set -e or set +e,
+#       the set -o always returns the value from our terminal -- from
+#       when we started the script -- and doesn't reflect any changes
+#       herein. So use a variable to remember the setting.
+#
+reset_errexit () {
+  if $USING_ERREXIT; then
+    #set -ex
+    set -e
+  else
+    set +ex
+  fi
+}
+
+suss_errexit () {
+  # This FAILS is errexit is set because grep fails. So remember, then parse.
+  #shell_opts=`echo $SHELLOPTS | grep errexit` >/dev/null 2>&1
+  # 2016-11-13: What? Weird.
+  #  shell_opts=$(echo $SHELLOPTS)
+  #  SHELLOPTS: braceexpand:errexit:hashall:interactive-comments
+  #  shell_opts: braceexpand:hashall:interactive-comments
+  # Not sure why I was doing $(echo) anyway.
+  shell_opts=$SHELLOPTS
+  set +e
+  echo $shell_opts | grep errexit >/dev/null 2>&1
+  if [[ $? -eq 0 ]]; then
+    USING_ERREXIT=true
+  else
+    USING_ERREXIT=false
+  fi
+  if ${USING_ERREXIT}; then
+	  set -e
+  fi
+}
+
+suss_errexit
 
 # ============================================================================
 # *** Chattiness
@@ -235,6 +284,7 @@ PYVERSABBR2=py${PYVERS_RAW2}
 # Note that if you alias sed, e.g., sed='sed -r', then you'll get an error if
 # you source this script from the command line (e.g., it expands to sed -r -r).
 # So use /bin/sed to avoid any alias.
+set +e
 if [[ `command -v psql` ]]; then
   POSTGRESABBR=$( \
     psql --version \
@@ -249,12 +299,14 @@ if [[ `command -v psql` ]]; then
     | grep psql \
     | /bin/sed -r 's/psql \(PostgreSQL\) [0-9]+\.([0-9]+)\.[0-9]+/\1/')
 fi # else, psql not installed (yet).
+reset_errexit
 
 # ============================================================================
 # *** Ubuntu-related
 
 # In the regex, \1 is the Fedora release, e.g., '14', and \2 is the friendly
 # name, e.g., 'Laughlin'.
+set +e
 FEDORAVERSABBR=$(cat /etc/issue \
                  | grep Fedora \
                  | /bin/sed 's/^Fedora release ([0-9]+) \((.*)\)$/\1/')
@@ -266,6 +318,7 @@ UBUNTUVERSABBR=$(cat /etc/issue \
 MINTVERSABBR=$(cat /etc/issue \
                | grep "Linux Mint" \
                | /bin/sed -r 's/^Linux Mint ([.0-9]+) .*$/\1/')
+reset_errexit
 
 # ============================================================================
 # *** Common script fcns.
@@ -391,53 +444,6 @@ wait_bg_tasks () {
 }
 
 # ============================================================================
-# *** errexit wrapper.
-
-# Configure errexit usage. If we're not anticipating an error, make
-# sure this script stops so that the developer can fix it.
-#
-# NOTE: You can determine the current setting from the shell using:
-#
-#        $ set -o | grep errexit | /bin/sed -r 's/^errexit\s+//'
-#
-#       which returns on or off.
-#
-#       However, from within this script, whether we set -e or set +e,
-#       the set -o always returns the value from our terminal -- from
-#       when we started the script -- and doesn't reflect any changes
-#       herein. So use a variable to remember the setting.
-#
-reset_errexit () {
-  if $USING_ERREXIT; then
-    #set -ex
-    set -e
-  else
-    set +ex
-  fi
-}
-
-suss_errexit () {
-  # This FAILS is errexit is set because grep fails. So remember, then parse.
-  #shell_opts=`echo $SHELLOPTS | grep errexit` >/dev/null 2>&1
-  # 2016-11-13: What? Weird.
-  #  shell_opts=$(echo $SHELLOPTS)
-  #  SHELLOPTS: braceexpand:errexit:hashall:interactive-comments
-  #  shell_opts: braceexpand:hashall:interactive-comments
-  # Not sure why I was doing $(echo) anyway.
-  shell_opts=$SHELLOPTS
-  set +e
-  echo $shell_opts | grep errexit >/dev/null 2>&1
-  if [[ $? -eq 0 ]]; then
-    USING_ERREXIT=true
-  else
-    USING_ERREXIT=false
-  fi
-  if ${USING_ERREXIT}; then
-	  set -e
-  fi
-}
-
-# ============================================================================
 # *** Machine I.P. address
 
 # There are lots of ways to get the machine's IP address:
@@ -462,7 +468,7 @@ suss_errexit () {
 #   $ host -t a ${CP_PRODNAME}
 #   ${CS_PRODUCTION} has address 123.456.78.90
 
-suss_errexit
+set +e
 
 # 2016.03.23: On a new machine install, young into the standup,
 #             and not having editing /etc/hosts,
@@ -487,14 +493,14 @@ if [[ $? != 0 ]]; then
 
   ifconfig eth0 &> /dev/null
   if [[ $? -eq 0 ]]; then
-    ifconfig eth0 | grep "inet addr" &> /dev/null
+    ifconfig eth0 2>&1 | grep "inet addr" > /dev/null
     if [[ $? -eq 0 ]]; then
       IFCFG_DEV=`ifconfig eth0 2> /dev/null`
     else
       # 2016-07-30: This:
       #  masterb@masterb:~ ⚓ $ ifconfig wlan0
       #  wlan0: error fetching interface information: Device not found
-      ifconfig wlan0 | grep "inet addr" &> /dev/null
+      ifconfig wlan0 2>&1 | grep "inet addr" > /dev/null
       if [[ $? -eq 0 ]]; then
         IFCFG_DEV=`ifconfig wlan0 2> /dev/null`
       else
@@ -503,16 +509,23 @@ if [[ $? != 0 ]]; then
       fi
     fi
   else
-    ifconfig enp0s25 | grep "inet addr" &> /dev/null
+    ifconfig enp0s25 2>&1 | grep "inet addr" > /dev/null
     if [[ $? -eq 0 ]]; then
       IFCFG_DEV=`ifconfig enp0s25 2> /dev/null`
     else
-      ifconfig wlp2s0 | grep "inet addr" &> /dev/null
+      ifconfig wlp2s0 2>&1 | grep "inet addr" > /dev/null
       if [[ $? -eq 0 ]]; then
         IFCFG_DEV=`ifconfig wlp2s0 2> /dev/null`
       else
-        # VirtualBox. I'm guessing.
-        IFCFG_DEV=`ifconfig enp0s3 2> /dev/null`
+        # 2016-11-14: Lenovo ThinkPad T460.
+        # MAYBE: This fcn. is getting messy/too nested.
+        ifconfig wlp4s0 2>&1 | grep "inet addr" > /dev/null
+        if [[ $? -eq 0 ]]; then
+          IFCFG_DEV=`ifconfig wlp4s0 2> /dev/null`
+        else
+          # VirtualBox. I'm guessing.
+          IFCFG_DEV=`ifconfig enp0s3 2> /dev/null`
+        fi
       fi
     fi
   fi
@@ -1077,6 +1090,83 @@ ensure_directory_hierarchy_exists () {
     exit 1
   fi
 }
+
+# ============================================================================
+# *** Kick that ssh-agent.
+
+ssh_agent_kick () {
+  if [[ $EUID -ne 0 \
+     && "dumb" != "${TERM}" \
+     && -e "$HOME/.ssh" ]]; then
+    # See http://help.github.com/working-with-key-passphrases/
+    SSH_ENV="$HOME/.ssh/environment"
+    function start_agent() {
+      #echo -n "Initializing new SSH agent... "
+      /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
+      #echo "ok."
+      chmod 600 "${SSH_ENV}"
+      . "${SSH_ENV}" > /dev/null
+      # The default ssh-add behavior is to just load id_dsa and id_rsa.
+      # But we don't want to use id_dsa, since RSA is better than DSA.
+      # And we might have multiple keys we want to load. So load whatever
+      # ends in _rsa.
+      #  /usr/bin/ssh-add
+      #  find $HOME/.ssh -name "*_[rd]sa" -maxdepth 1 ...
+      # Weird. With Stdin, ssh-add opens a GUI window, rather than
+      # asking for your passphrase on the command line.
+      #  find $HOME/.ssh -name "*_rsa" -maxdepth 1 | xargs /usr/bin/ssh-add
+      rsa_keys=`ls $HOME/.ssh/*_rsa 2> /dev/null`
+      if [[ -n $rsa_keys ]]; then
+        for pvt_key in $(/bin/ls $HOME/.ssh/*_rsa $HOME/.ssh/*_dsa 2> /dev/null); do
+          sent_passphrase=false
+          secret_name=$(basename $pvt_key)
+          if [[    -n "$SSH_SECRETS" \
+                && -d "$SSH_SECRETS" \
+                && -e "$SSH_SECRETS/$secret_name" ]]; then
+            if [[ $(command -v expect > /dev/null && echo true) ]]; then
+              # CUTE! If your $pphrase has a bracket in it, e.g., "1234[", expect complains:
+              #        "missing close-bracket while executing send "1234["
+              pphrase=$(cat ${SSH_SECRETS}/${secret_name})
+              /usr/bin/expect -c " \
+              spawn /usr/bin/ssh-add ${pvt_key}; \
+              expect \"Enter passphrase for /home/${USER}/.ssh/${secret_name}:\"; \
+              send \"${pphrase}\n\"; \
+              interact ; \
+              "
+              unset pphrase
+              sent_passphrase=true
+            else
+              echo "NOTICE: no expect: ignoring: ${SSH_SECRETS}/${pvt_key}"
+            fi
+          elif [[ ! -d "$SSH_SECRETS" ]]; then
+            if [[ -z $SSH_SECRETS ]]; then
+              echo "NOTICE: No SSH_SECRETS directory defined."
+            else
+              echo "NOTICE: No directory at: $SSH_SECRETS"
+            fi
+            echo "        Set this up yourself."
+            echo "        To test again: ssh-agent -k"
+            echo "          and then open a new terminal."
+          fi
+          if ! ${sent_passphrase}; then
+            /usr/bin/ssh-add $pvt_key
+          fi
+        done
+      fi
+      # Test: ssh-agent -k # then, open a terminal.
+    }
+    # Source SSH settings, if applicable
+    if [[ -f "${SSH_ENV}" ]]; then
+      . "${SSH_ENV}" > /dev/null
+      #ps ${SSH_AGENT_PID} doesn't work under Cygwin.
+      ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
+        start_agent;
+      }
+    else
+      start_agent;
+    fi
+  fi
+} # end: ssh_agent_kick
 
 # ============================================================================
 # *** End of bashy goodness.
