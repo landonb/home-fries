@@ -1500,15 +1500,19 @@ function git_commit_dirty_sync_repos () {
 
 function git_status_porcelain_wrap () {
   set +e
+  USING_ERREXIT=false
   git_status_porcelain $1 ${SKIP_INTERNETS}
   exit_code=$?
+  USING_ERREXIT=true
   reset_errexit
   if [[ ${exit_code} -ne 0 ]]; then
     echo "ERROR: git_status_porcelain failed."
+    #echo "exit_code: ${exit_code}"
     if [[ ${exit_code} -eq 2 ]]; then
       echo "Are you internetted? If not, try:"
-      echo "  ${script_name} packme "
+      echo "  ${script_name} packme -s"
     fi
+    exit ${exit_code}
   fi
 }
 

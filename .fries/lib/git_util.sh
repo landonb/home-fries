@@ -78,7 +78,7 @@ git_check_generic_file () {
   set +e
   git status --porcelain ${REPO_FILE} | grep "^\W*M\W*${REPO_FILE}" &> /dev/null
   grep_result=$?
-  set -e
+  reset_errexit
 
   if [[ $grep_result -eq 0 ]]; then
     # It's dirty.
@@ -116,7 +116,7 @@ git_commit_generic_file () {
   set +e
   git status --porcelain ${REPO_FILE} | grep "^\W*M\W*${REPO_FILE}" &> /dev/null
   grep_result=$?
-  set -e
+  reset_errexit
 
   if [[ $grep_result -eq 0 ]]; then
     # It's dirty.
@@ -183,7 +183,7 @@ function git_commit_all_dirty_files () {
     git status --porcelain | grep "^[^\?]" &> /dev/null
 
     grep_result=$?
-    set -e
+    reset_errexit
 
     if [[ $grep_result -eq 0 ]]; then
       # It's dirty.
@@ -279,7 +279,7 @@ function git_status_porcelain () {
       unstaged_changes_found=true
     fi
   fi
-  set -e
+  reset_errexit
   if ${unstaged_changes_found}; then
     DIRTY_REPO=true
     echo "WARNING: Unstaged changes found in $GIT_REPO"
@@ -289,7 +289,7 @@ function git_status_porcelain () {
   # 'M ' is added but not committed!
   eval git status --porcelain ${GREPPERS} | grep "^M  " &> /dev/null
   grep_result=$?
-  set -e
+  reset_errexit
   if [[ $grep_result -eq 0 ]]; then
     DIRTY_REPO=true
     echo "WARNING: Uncommitted changes found in $GIT_REPO"
@@ -298,7 +298,7 @@ function git_status_porcelain () {
   set +e
   eval git status --porcelain ${GREPPERS} | grep "^?? " &> /dev/null
   grep_result=$?
-  set -e
+  reset_errexit
   if [[ $grep_result -eq 0 ]]; then
     DIRTY_REPO=true
     echo "WARNING: Untracked files found in $GIT_REPO"
@@ -323,7 +323,7 @@ function git_status_porcelain () {
       DIRTY_REPO=true
     fi
   fi
-  set -e
+  reset_errexit
   if ${DIRTY_REPO}; then
     echo "STOPPING: Dirty things found in $GIT_REPO"
     echo "========================================="
@@ -332,6 +332,7 @@ function git_status_porcelain () {
     echo
     echo "========================================="
     if ! ${SKIP_GIT_DIRTY}; then
+      # FIXME: This message pertains to travel.sh.
       echo "Please fix. Or run with -D (skip all git warnings)"
       echo "            or run with -DD (skip warnings about $0)"
       GIT_ISSUES_DETECTED=true
@@ -360,7 +361,7 @@ function git_status_porcelain () {
   # Need to use grep's [-P]erl-defined regex that includes the tab character.
   git remote -v | grep -P "^origin\t\/"
   grep_result=$?
-  set -e
+  reset_errexit
 
   if [[ $grep_result -ne 0 ]]; then
     # Not a local origin.
@@ -378,7 +379,7 @@ function git_status_porcelain () {
         set +e
         git status | grep "^Your branch is up-to-date with" &> /dev/null
         grep_result=$?
-        set -e
+        reset_errexit
         if [[ $grep_result -ne 0 ]]; then
           echo "WARNING: Branch is behind origin/${branch_name} at $GIT_REPO"
           echo "============================================================"
@@ -387,6 +388,7 @@ function git_status_porcelain () {
           echo
           echo "============================================================"
           if ! ${SKIP_GIT_DIRTY}; then
+            # FIXME: This message pertains to travel.sh.
             echo "Please fix. Or run with -D (skip all git warnings)"
             GIT_ISSUES_DETECTED=true
             export GIT_ISSUES_DETECTED
@@ -430,13 +432,13 @@ function git_status_porcelain () {
         GIT_PUSH_STALENESS=$(git remote show origin \
           | grep "^\W*${branch_name}\W\+pushes to\W\+${branch_name}\W\+")
         grep_result=$?
-        set -e
+        reset_errexit
         if [[ $grep_result -ne 0 ]]; then
 
           set +e
           git remote show origin 2>&1 | grep "^ssh: Could not resolve hostname "
           grep_result=$?
-          set -e
+          reset_errexit
           if [[ $grep_result -eq 0 ]]; then
             echo "ERROR: It looks like you're offline."
             return 2
@@ -454,13 +456,13 @@ function git_status_porcelain () {
         set +e
         echo ${GIT_PUSH_STALENESS} | grep "(up to date)" &> /dev/null
         grep_result=$?
-        set -e
+        reset_errexit
         if [[ $grep_result -ne 0 ]]; then
 
           set +e
           echo ${GIT_PUSH_STALENESS} | grep "(local out of date)" &> /dev/null
           grep_result=$?
-          set -e
+          reset_errexit
           if [[ $grep_result -eq 0 ]]; then
             echo "WHATEVER: Branch is behind origin/${branch_name} at $GIT_REPO"
             echo "          You can git pull if you want to."
@@ -474,6 +476,7 @@ function git_status_porcelain () {
             echo
             echo "=============================================================="
             if ! ${SKIP_GIT_DIRTY}; then
+              # FIXME: This message pertains to travel.sh.
               echo "Please fix. Or run with -D (skip all git warnings)"
               GIT_ISSUES_DETECTED=true
               export GIT_ISSUES_DETECTED
@@ -547,7 +550,7 @@ function git_pull_hush () {
     set +e
     git -c color.ui=off status | grep "^rebase in progress" > /dev/null
     rebase_in_progress=$?
-    set -e
+    reset_errexit
     if [[ ${rebase_in_progress} -eq 0 ]]; then
       echo "Looks like a rebase is in progress"
       echo
@@ -600,7 +603,7 @@ function git_pull_hush () {
       | grep -v "^Already up-to-date.$" \
       | grep -v "^Current branch [a-zA-Z0-9]* is up to date.$" \
       | grep -v "^From .*${TARGET_REPO}$"
-    set -e
+    reset_errexit
   fi
 
   if true; then
@@ -618,7 +621,7 @@ function git_pull_hush () {
     # 2016-11-05: Check afterwards to see if there was an unresolved merge conflict.
     git -c color.ui=off status | grep "^rebase in progress" > /dev/null
     rebase_in_progress=$?
-    set -e
+    reset_errexit
     if [[ ${rebase_in_progress} -eq 0 ]]; then
       echo
       echo "WARNING: rebase problem in ${TARGET_REPO}"
