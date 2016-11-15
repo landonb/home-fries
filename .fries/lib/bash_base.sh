@@ -479,8 +479,12 @@ determine_machine_ip () {
   # 2016.05.05: I don't remember writing that last comment, and it wasn't
   #             that long ago. Anyway, $(host -t a ${HOSTNAME}) still saying
   #             the same thing: not found.
-  MACHINE_IP=`host -t a ${HOSTNAME} | awk '{print $4}' | egrep ^[1-9]`
-  if [[ $? != 0 ]]; then
+  # 2016-11-15: x201 dropping wi-fi for some reason, and this host command
+  #             takes a while to complete. Maybe just use the ifconfig greps?
+  #MACHINE_IP=`host -t a ${HOSTNAME} | awk '{print $4}' | egrep ^[1-9]`
+  #if [[ $? != 0 ]]; then
+  MACHINE_IP=""
+  if true; then
     MACHINE_IP=""
     # 2016-07-30: This:
     #  masterb@masterb:~ ⚓ $ ifconfig eth0
