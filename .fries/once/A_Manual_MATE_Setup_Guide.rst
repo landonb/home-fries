@@ -3,7 +3,7 @@ Manual Linux Distro Onboarding Instructions For Developers
 ##########################################################
 
 .. Author: Landon Bouma
-.. Last Modified: 2016.10.19
+.. Last Modified: 2016.11.15
 .. Project Page: https://github.com/landonb/home_fries
 
 Overview
@@ -51,13 +51,17 @@ Dubsacks VIM            (from Add to Panel > Application Launcher... > Accessori
 ---------------------   -----------------------------------------------------------------------
 Terminal                (from Add to Panel > Application Launcher... > System Tools)
 ---------------------   -----------------------------------------------------------------------
-OpenTerms               (from Add to Panel > Custom Application Launcher)
+Another VIM             (from Add to Panel > Application Launcher... > Accessories)
 ---------------------   -----------------------------------------------------------------------
 Termdub Dbms            (from Add to Panel > Custom Application Launcher)
 ---------------------   -----------------------------------------------------------------------
-Termdub Logs            (from Add to Panel > Custom Application Launcher)
+Termdub Topper          (from Add to Panel > Custom Application Launcher)
 ---------------------   -----------------------------------------------------------------------
-Termdub Logc            (from Add to Panel > Custom Application Launcher)
+Termdub Bottom          (from Add to Panel > Custom Application Launcher)
+---------------------   -----------------------------------------------------------------------
+Another VIM             (from Add to Panel > Application Launcher... > Accessories)
+---------------------   -----------------------------------------------------------------------
+Another VIM             (from Add to Panel > Application Launcher... > Accessories)
 ---------------------   -----------------------------------------------------------------------
 Meld                    (from Add to Panel > Application Launcher... > Programming)
 ---------------------   -----------------------------------------------------------------------
@@ -73,7 +77,13 @@ Dia                     (from Add to Panel > Application Launcher... > Graphics)
 ---------------------   -----------------------------------------------------------------------
 Take Screenshot         (from Add to Panel > Application Launcher... > Accessories)
 ---------------------   -----------------------------------------------------------------------
+Gimp                    (from Add to Panel > Application Launcher... > Graphics)
+---------------------   -----------------------------------------------------------------------
 Chromium                (from Add to Panel > Application Launcher... > Internet)
+---------------------   -----------------------------------------------------------------------
+Arduino IDE             (from Add to Panel > Custom Application Launcher)
+                        /srv/opt/.downloads/arduino-1.6.12/arduino
+                        ~/.local/share/icons/hicolor/48x48/apps/arduino-arduinoide.png
 ---------------------   -----------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------
 **Right-justified**
@@ -95,64 +105,32 @@ Custom launchers:
 
 - Dubsacks gVim/GVim:
   - ``gvim --servername SAMPI --remote-silent path/to/notes.rst``
-  - Icon: Was default for a while: ``/usr/share/icons/Mint-X/apps/48/vim.png``
-    Now: Personalized. I store icons I've used under ``/home/landonb/.fries/once/assets/``.
-.. 2016-04-20: I tried a waffle, then a penis, then cheese.
-..   http://www.flaticon.com/free-icon/waffle_93098#term=waffle&page=1&position=2
-..   http://www.flaticon.com/free-icon/round-waffle_78774#term=waffle&page=1&position=3
-..   http://www.flaticon.com/free-icon/penis_105392#term=penis&page=1&position=1
-..   http://www.flaticon.com/free-icon/penis_105428#term=penis&page=1&position=2
-..   http://www.flaticon.com/free-icon/cheese_89418#term=cheese&page=1&position=32
-.. cheese-outline-stylized-NARROWER-000000-Hand.Drawn.Goods-food.svg
+  - Icon: Default: ``/usr/share/icons/Mint-X/apps/48/vim.png``
+    Or see under ``~/.curly/home/.fries/once/assets/``
 
 - Terminal:
-  - ``/bin/bash -c "FORCE_JAILED=false /usr/bin/mate-terminal"``
+  - ``/bin/bash -c "/usr/bin/mate-terminal"`` (or just ``mate-terminal``)
 
-- OpenTerms:
-  - 2016.04.20: See install_openterms_mate_menu in ``.fries/once/*.private.*.sh``
-    To prevent accidentally pressing it and having to ``exit`` a dozen terminals,
-    we add it to the 'Programming' section of the MATE Menu instead.
-    - In lieu of this applet, I've added a second gvim launcher for work notes,
-      so I can have better separation between the two (and not obsess about
-      a Very Dirty notes file as much if it's, say, just my personal notes and
-      not my work notes that are dirty).
-      - Icon: Like the other GVim launcher, personalize it.
-.. 2016-04-20: I tried a brick wall (48/firestarter.png), then dog poo, then rats to cheese it.
-..   http://www.flaticon.com/free-icon/dog-poop_103727#term=poop&page=1&position=2
-..   http://www.flaticon.com/free-icon/dog-poo_91529#term=poo&page=1&position=1
-..   http://www.flaticon.com/free-icon/pile-of-dung_64552#term=poop&page=1&position=1
-..   http://www.flaticon.com/free-icon/dog-shitting_53131#term=poop&page=1&position=3
-..   http://www.flaticon.com/free-icon/mouse-frontal-animal-head-outline_58428#term=mouse&page=4&position=33
-..   http://www.flaticon.com/free-icon/rat-head-outline_29703#term=mouse&page=4&position=65
-..   USING: http://www.flaticon.com/free-icon/rat-silhouette_47240#term=rat&page=1&position=3
-..   http://www.flaticon.com/free-icon/rat-looking-right_84446#term=rat&page=1&position=4
-.. - The old instructions:
-..   - ``/home/<USERNAME>/.waffle/bin/openterms.sh 1024 0``
-..   - Icon: ``/usr/share/icons/Mint-X/apps/48/abrt.png``
-..           ``/usr/share/icons/matefaenza/apps/48/abrt.png``
-.. mouse-rat-solid-000000-Freepik-animals-Rat.looking.right-animal.svg
-.. mouse-rat-solid-000000-Freepik-animals-Rat.silhouette-shape.svg
-
-- Termdub Dbms:
-  - ``/bin/bash -c "FORCE_JAILED=false /home/<USERNAME>/.fries/bin/termdub.py -t dbms"``
-  - Icon: ``/usr/share/icons/Humanity/apps/48/utilities-terminal.svg``
-
-- Termdub Logs:
-  - ``/bin/bash -c "FORCE_JAILED=false /home/<USERNAME>/.fries/bin/termdub.py -t logs"``
-
-- Termdub Logc:
-  - ``/bin/bash -c "FORCE_JAILED=false /home/<USERNAME>/.fries/bin/termdub.py -t logc"``
+.. - Termdub Dbms:
+..   - ``/bin/bash -c "/home/<USERNAME>/.fries/bin/termdub.py -t dbms"``
+..   - Icon: ``/usr/share/icons/Humanity/apps/48/utilities-terminal.svg``
+..
+.. - Termdub Logs:
+..   - ``/bin/bash -c "/home/<USERNAME>/.fries/bin/termdub.py -t logs"``
+..
+.. - Termdub Logc:
+..   - ``/bin/bash -c "/home/<USERNAME>/.fries/bin/termdub.py -t logc"``
 
 .. 2016-10-19: New links.
 
 - Termdub Dbms:
-  - ``/bin/bash -c "FORCE_JAILED=false ${HOME}/.fries/bin/termdub.py -t dbms -x 1486"``
+  - ``/bin/bash -c "${HOME}/.fries/bin/termdub.py -t dbms -x 1486"``
 
 - Termbud Toppers:
-  - ``/bin/bash -c "FORCE_JAILED=false DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 1486"``
+  - ``/bin/bash -c "DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 1486"``
 
 - Termdub Bottoms:
-  - ``/bin/bash -c "FORCE_JAILED=false DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 0 -y 1080"``
+  - ``/bin/bash -c "DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 0 -y 1080"``
 
 See also:
 
