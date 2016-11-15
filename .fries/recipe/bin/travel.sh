@@ -3,6 +3,7 @@
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
+USING_ERREXIT=true
 function errexit_cleanup () {
   echo
   echo "ERROR: The script failed!!"
@@ -174,7 +175,7 @@ fi
 echod () {
   set +e
   ${DEBUG} && echo $*
-  set -e
+  reset_errexit
 }
 
 echod "SOURCED_SYNC_REPOS: ${SOURCED_SYNC_REPOS}"
@@ -312,6 +313,7 @@ function soups_on () {
       umount)
         PLEASE_CHOOSE_PART="to which to pack"
         DETERMINE_TRAVEL_DIR=true
+        CAN_IGNORE_TRAVEL_DIR=true
         REQUIRES_CRAPPDWORD=true
         set_travel_cmd "umount_curly_emissary_gooey"
         shift
@@ -453,6 +455,7 @@ function soups_on () {
   fi
 
   if ${DETERMINE_TRAVEL_DIR}; then
+    set +e
     determine_stick_dir "${PLEASE_CHOOSE_PART}"
   fi
 
@@ -510,9 +513,13 @@ function determine_stick_dir () {
   shopt -u dotglob
   shopt -u nullglob
   if [[ ${#MOUNTED_DIRS[@]} -eq 0 ]]; then
-    echo "Nothing mounted under /media/${USER}/"
-    echo -n "Please specify the dually-accessible sync directory: "
-    read -e TRAVEL_DIR
+    if ! ${CAN_IGNORE_TRAVEL_DIR}; then
+      echo "Nothing mounted under /media/${USER}/"
+      echo -n "Please specify the dually-accessible sync directory: "
+      read -e TRAVEL_DIR
+    else
+      return 0
+    fi
   elif [[ ${#MOUNTED_DIRS[@]} -eq 1 ]]; then
     TRAVEL_DIR=${MOUNTED_DIRS[0]}
   else
@@ -844,7 +851,7 @@ setup_private_ssh_directory () {
   set +e
   grep "^PasswordAuthentication no$" /etc/ssh/sshd_config &> /dev/null
   exit_code=$?
-  set -e
+  reset_errexit
   if [[ $exit_code -ne 0 ]]; then
     echo
     echo "###################################################"
@@ -928,7 +935,7 @@ setup_private_etc_fstab () {
     set +e
     diff ${USERS_CURLY}/dev/$(hostname)/etc/fstab /etc/fstab &> /dev/null
     ECODE=$?
-    set -e
+    reset_errexit
     if [[ ${ECODE} -ne 0 ]]; then
       echo "BKUPPING: /etc/fstab"
       sudo /bin/mv /etc/fstab /etc/fstab-${BACKUP_POSTFIX}
@@ -945,7 +952,7 @@ setup_private_update_db_conf () {
     set +e
     diff ${USERS_CURLY}/dev/$(hostname)/etc/updatedb.conf /etc/updatedb.conf &> /dev/null
     ECODE=$?
-    set -e
+    reset_errexit
     if [[ ${ECODE} -ne 0 ]]; then
       if [[ -e /etc/updatedb.conf ]]; then
         echo "BKUPPING: /etc/updatedb.conf"
@@ -1107,7 +1114,7 @@ function chase_and_face () {
     set +e
     #sudo killall hamster-service hamster-indicator
     killall hamster-service hamster-indicator
-    set -e
+    reset_errexit
   fi
 
   echo " setup_private_fries_bash..."
@@ -1169,7 +1176,7 @@ function chase_and_face () {
   set +e
   command -v user_do_chase_and_face &> /dev/null
   EXIT_CODE=$?
-  set -e
+  reset_errexit
   if [[ ${EXIT_CODE} -eq 0 ]]; then
     user_do_chase_and_face
   fi
@@ -1213,7 +1220,7 @@ function mount_curly_emissary_gooey () {
   set +e
   mount | grep ${EMISSARY}/gooey &> /dev/null
   retval=$?
-  set -e
+  reset_errexit
   # Lick it.
   if [[ $retval -ne 0 ]]; then
     echo "${CRAPWORD}" | \
@@ -1225,16 +1232,25 @@ function mount_curly_emissary_gooey () {
 }
 
 function umount_curly_emissary_gooey () {
-  sleep 0.1 # else umount fails.
   set +e
-  fusermount -u ${EMISSARY}/gooey
-  if [[ $? -ne 0 ]]; then
-    echo
-    echo "MEH: Could not umount the encfs. Try:"
-    echo "  fuser -c ${EMISSARY}/gooey 2>&1"
-    echo " and you can get the process ID with: echo \$\$"
+  mount | grep ${EMISSARY}/gooey > /dev/null
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -eq 0 ]]; then
+    sleep 0.1 # else umount fails.
+    set +e
+    fusermount -u ${EMISSARY}/gooey
+    exit_code=$?
+    reset_errexit
+    if [[ ${exit_code} -ne 0 ]]; then
+      echo
+      echo "MEH: Could not umount the encfs. Try:"
+      echo "  fuser -c ${EMISSARY}/gooey 2>&1"
+      echo " and you can get the process ID with: echo \$\$"
+    fi
+  else
+    echo "The Encfs is not mounted."
   fi
-  set -e
 }
 
 function populate_singular_repo () {
@@ -1366,7 +1382,7 @@ function init_travel () {
   set +e
   command -v user_do_init_travel &> /dev/null
   EXIT_CODE=$?
-  set -e
+  reset_errexit
   if [[ ${EXIT_CODE} -eq 0 ]]; then
     user_do_init_travel
   fi
@@ -1411,7 +1427,11 @@ function create_umount_script () {
 #!/bin/bash
 SCRIPT_DIR="\$(dirname \${BASH_SOURCE[0]})"
 \${SCRIPT_DIR}/travel umount
-umount ${TRAVEL_DIR}
+if [[ -d ${TRAVEL_DIR} ]]; then
+  umount ${TRAVEL_DIR}
+else
+  echo "Travel device is not mounted."
+fi
 EOF
   chmod 775 ${HOME}/.fries/recipe/bin/popoff.sh
 }
@@ -1807,7 +1827,7 @@ function packme () {
     set +e
     command -v user_do_packme &> /dev/null
     EXIT_CODE=$?
-    set -e
+    reset_errexit
     if [[ ${EXIT_CODE} -eq 0 ]]; then
       user_do_packme
     fi
@@ -1929,7 +1949,7 @@ function update_hamster_db () {
     set +e
     command -v hamster_love.sh > /dev/null
     RET_VAL=$?
-    set -e
+    reset_errexit
     if [[ ${RET_VAL} -eq 0 ]]; then
 
       #pushd ${USERS_CURLY}/bin &> /dev/null
@@ -2032,7 +2052,7 @@ function unpack () {
   set +e
   command -v user_do_unpack &> /dev/null
   EXIT_CODE=$?
-  set -e
+  reset_errexit
   if [[ ${EXIT_CODE} -eq 0 ]]; then
     user_do_unpack
   fi
@@ -2120,7 +2140,7 @@ function prepare_shim () {
   set +e
   command -v user_do_prepare_shim &> /dev/null
   EXIT_CODE=$?
-  set -e
+  reset_errexit
   if [[ ${EXIT_CODE} -eq 0 ]]; then
     user_do_prepare_shim
   fi

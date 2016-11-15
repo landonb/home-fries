@@ -151,8 +151,8 @@ fi
 
 # Say hello to the user.
 
-$DEBUG_TRACE && echo "Hello, ${LOGNAME}. (From: bash_base!)"
-$DEBUG_TRACE && echo ""
+#$DEBUG_TRACE && echo "Hello, ${LOGNAME}. (From: bash_base!)"
+#$DEBUG_TRACE && echo ""
 
 # Time this script
 
@@ -550,18 +550,35 @@ determine_machine_ip () {
     fi
   fi
   if [[ -z ${MACHINE_IP} ]]; then
-    echo -e "\nWARNING: Could not determine the machine's IP address."
+    echo "======================================================"
+    echo "WARNING: Could not determine the machine's IP address."
     echo "Maybe try"
     echo "  sudo service network-manager restart"
-  else "Here's what was sussed:"
+    echo "Here's what was sussed:"
     # 2016.05.05: This path being followed on initial cli_gk12 go, but
     #             otherwise not just on /bin/bash... so what gives?
-    echo -e "$ host -t a ${HOSTNAME}\n`host -t a ${HOSTNAME}`"
-    echo -e "$ ifconfig eth0\n`ifconfig eth0`"
-    echo -e "$ ifconfig wlan0\n`ifconfig wlan0`"
-    echo -e "$ ifconfig enp0s25\n`ifconfig enp0s25`"
-    echo -e "$ ifconfig wlp2s0\n`ifconfig wlp2s0`"
-    echo -e "$ ifconfig wlp4s0\n`ifconfig wlp4s0`"
+
+    # `host` is slow when disconnected.
+    if false; then
+      echo -e "$ host -t a ${HOSTNAME}\n`host -t a ${HOSTNAME}`\n"
+    fi
+
+    echo "$ ifconfig eth0"
+    ifconfig eth0
+
+    echo "$ ifconfig wlan0"
+    ifconfig wlan0
+
+    echo "$ ifconfig enp0s25"
+    ifconfig enp0s25
+
+    echo "$ ifconfig wlp2s0"
+    ifconfig wlp2s0
+
+    echo "$ ifconfig wlp4s0"
+    ifconfig wlp4s0
+
+    echo "======================================================"
   fi
 
   reset_errexit
