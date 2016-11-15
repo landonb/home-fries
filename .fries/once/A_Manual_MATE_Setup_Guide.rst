@@ -127,10 +127,16 @@ Custom launchers:
   - ``/bin/bash -c "${HOME}/.fries/bin/termdub.py -t dbms -x 1486"``
 
 - Termbud Toppers:
-  - ``/bin/bash -c "DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 1486"``
+  - X201:
+    - ``/bin/bash -c "DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 1486"``
+  - T460:
+    - ``/bin/bash -c "DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 2020"``
 
 - Termdub Bottoms:
-  - ``/bin/bash -c "DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 0 -y 1080"``
+  - X201:
+    - ``/bin/bash -c "DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 0 -y 1080"``
+  - T460:
+    - ``/bin/bash -c "DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 0 -y 1180"``
 
 See also:
 
