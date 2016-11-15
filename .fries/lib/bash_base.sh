@@ -2,7 +2,7 @@
 
 # File: bash_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.14
+# Last Modified: 2016.11.15
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bash function library.
 # License: GPLv3
@@ -232,7 +232,7 @@ ccp_apache_reload () {
 #  PYTHONVERS2=python2.6
 #  PYVERSABBR2=py2.6
 #else
-#  echo 
+#  echo
 #  echo "Unexpected Python version."
 #  exit 1
 #fi
@@ -461,93 +461,103 @@ wait_bg_tasks () {
 #   Address:  123.456.78.90
 # Or ifconfig, again filtering by device,
 #   $ ifconfig eth0
-#   eth0      Link encap:Ethernet  HWaddr d4:ae:52:73:42:c4  
+#   eth0      Link encap:Ethernet  HWaddr d4:ae:52:73:42:c4
 #             inet addr:128.101.34.16  Bcast:128.101.34.255  Mask:255.255.255.0
 #             ...
 # But probably the easiest to parse is host:
 #   $ host -t a ${CP_PRODNAME}
 #   ${CS_PRODUCTION} has address 123.456.78.90
 
-set +e
+determine_machine_ip () {
 
-# 2016.03.23: On a new machine install, young into the standup,
-#             and not having editing /etc/hosts,
-#             host -t a ${HOSTNAME} says:
-#               Host ${HOSTNAME} not found: 3(NXDOMAIN)
-# 2016.05.05: I don't remember writing that last comment, and it wasn't
-#             that long ago. Anyway, $(host -t a ${HOSTNAME}) still saying
-#             the same thing: not found.
-MACHINE_IP=`host -t a ${HOSTNAME} | awk '{print $4}' | egrep ^[1-9]`
-if [[ $? != 0 ]]; then
-  MACHINE_IP=""
-  # 2016-07-30: This:
-  #  masterb@masterb:~ ⚓ $ ifconfig eth0
-  #  eth0: error fetching interface information: Device not found
-  # 2016-09-23: 
-  #   systemd's Predictable Network Interface naming started in 15.04.
-  #   (predictable as in physically predictable, so devices are
-  #   numbered by their physical position, as opposed to being
-  #   numbered sequentially by the prober on boot)
-  #   http://askubuntu.com/questions/704361/why-is-my-network-interface-named-enp0s25-instead-of-eth0
-  #   On Lenovo ThinkPad X201, enp0s25 is the new eth0; wlp2s0 the new wlan0.
+  set +e
 
-  ifconfig eth0 &> /dev/null
-  if [[ $? -eq 0 ]]; then
-    ifconfig eth0 2>&1 | grep "inet addr" > /dev/null
+  # 2016.03.23: On a new machine install, young into the standup,
+  #             and not having editing /etc/hosts,
+  #             host -t a ${HOSTNAME} says:
+  #               Host ${HOSTNAME} not found: 3(NXDOMAIN)
+  # 2016.05.05: I don't remember writing that last comment, and it wasn't
+  #             that long ago. Anyway, $(host -t a ${HOSTNAME}) still saying
+  #             the same thing: not found.
+  MACHINE_IP=`host -t a ${HOSTNAME} | awk '{print $4}' | egrep ^[1-9]`
+  if [[ $? != 0 ]]; then
+    MACHINE_IP=""
+    # 2016-07-30: This:
+    #  masterb@masterb:~ ⚓ $ ifconfig eth0
+    #  eth0: error fetching interface information: Device not found
+    # 2016-09-23:
+    #   systemd's Predictable Network Interface naming started in 15.04.
+    #   (predictable as in physically predictable, so devices are
+    #   numbered by their physical position, as opposed to being
+    #   numbered sequentially by the prober on boot)
+    #   http://askubuntu.com/questions/704361/why-is-my-network-interface-named-enp0s25-instead-of-eth0
+    #   On Lenovo ThinkPad X201, enp0s25 is the new eth0; wlp2s0 the new wlan0.
+
+    ifconfig eth0 &> /dev/null
     if [[ $? -eq 0 ]]; then
-      IFCFG_DEV=`ifconfig eth0 2> /dev/null`
-    else
-      # 2016-07-30: This:
-      #  masterb@masterb:~ ⚓ $ ifconfig wlan0
-      #  wlan0: error fetching interface information: Device not found
-      ifconfig wlan0 2>&1 | grep "inet addr" > /dev/null
+      ifconfig eth0 2>&1 | grep "inet addr" > /dev/null
       if [[ $? -eq 0 ]]; then
-        IFCFG_DEV=`ifconfig wlan0 2> /dev/null`
+        IFCFG_DEV=`ifconfig eth0 2> /dev/null`
       else
-        # VirtualBox. I'm guessing.
-        IFCFG_DEV=`ifconfig enp0s3 2> /dev/null`
-      fi
-    fi
-  else
-    ifconfig enp0s25 2>&1 | grep "inet addr" > /dev/null
-    if [[ $? -eq 0 ]]; then
-      IFCFG_DEV=`ifconfig enp0s25 2> /dev/null`
-    else
-      ifconfig wlp2s0 2>&1 | grep "inet addr" > /dev/null
-      if [[ $? -eq 0 ]]; then
-        IFCFG_DEV=`ifconfig wlp2s0 2> /dev/null`
-      else
-        # 2016-11-14: Lenovo ThinkPad T460.
-        # MAYBE: This fcn. is getting messy/too nested.
-        ifconfig wlp4s0 2>&1 | grep "inet addr" > /dev/null
+        # 2016-07-30: This:
+        #  masterb@masterb:~ ⚓ $ ifconfig wlan0
+        #  wlan0: error fetching interface information: Device not found
+        ifconfig wlan0 2>&1 | grep "inet addr" > /dev/null
         if [[ $? -eq 0 ]]; then
-          IFCFG_DEV=`ifconfig wlp4s0 2> /dev/null`
+          IFCFG_DEV=`ifconfig wlan0 2> /dev/null`
         else
           # VirtualBox. I'm guessing.
           IFCFG_DEV=`ifconfig enp0s3 2> /dev/null`
         fi
       fi
+    else
+      ifconfig enp0s25 2>&1 | grep "inet addr" > /dev/null
+      if [[ $? -eq 0 ]]; then
+        IFCFG_DEV=`ifconfig enp0s25 2> /dev/null`
+      else
+        ifconfig wlp2s0 2>&1 | grep "inet addr" > /dev/null
+        if [[ $? -eq 0 ]]; then
+          IFCFG_DEV=`ifconfig wlp2s0 2> /dev/null`
+        else
+          # 2016-11-14: Lenovo ThinkPad T460.
+          # MAYBE: This fcn. is getting messy/too nested.
+          ifconfig wlp4s0 2>&1 | grep "inet addr" > /dev/null
+          if [[ $? -eq 0 ]]; then
+            IFCFG_DEV=`ifconfig wlp4s0 2> /dev/null`
+          else
+            # VirtualBox. I'm guessing.
+            IFCFG_DEV=`ifconfig enp0s3 2> /dev/null`
+          fi
+        fi
+      fi
+    fi
+    MACHINE_IP=`echo ${IFCFG_DEV} | grep "inet addr" \
+                | sed "s/.*inet addr:([.0-9]+).*/\1/" \
+                2> /dev/null`
+    if [[ $? != 0 ]]; then
+      MACHINE_IP=`echo ${IFCFG_DEV} | grep "inet addr" \
+                  | sed "s/.*inet addr:\([.0-9]\+\).*/\1/" \
+                  2> /dev/null`
     fi
   fi
-  MACHINE_IP=`echo ${IFCFG_DEV} | grep "inet addr" \
-              | sed "s/.*inet addr:([.0-9]+).*/\1/" \
-              2> /dev/null`
-  if [[ $? != 0 ]]; then
-    MACHINE_IP=`echo ${IFCFG_DEV} | grep "inet addr" \
-                | sed "s/.*inet addr:\([.0-9]\+\).*/\1/" \
-                2> /dev/null`
+  if [[ -z ${MACHINE_IP} ]]; then
+    echo -e "\nWARNING: Could not determine the machine's IP address."
+    echo "Maybe try"
+    echo "  sudo service network-manager restart"
+  else "Here's what was sussed:"
+    # 2016.05.05: This path being followed on initial cli_gk12 go, but
+    #             otherwise not just on /bin/bash... so what gives?
+    echo -e "$ host -t a ${HOSTNAME}\n`host -t a ${HOSTNAME}`"
+    echo -e "$ ifconfig eth0\n`ifconfig eth0`"
+    echo -e "$ ifconfig wlan0\n`ifconfig wlan0`"
+    echo -e "$ ifconfig enp0s25\n`ifconfig enp0s25`"
+    echo -e "$ ifconfig wlp2s0\n`ifconfig wlp2s0`"
+    echo -e "$ ifconfig wlp4s0\n`ifconfig wlp4s0`"
   fi
-fi
-if [[ -z ${MACHINE_IP} ]]; then
-  echo -e "\nWARNING: Could not determine the machine's IP address."
-  # 2016.05.05: This path being followed on initial cli_gk12 go, but
-  #             otherwise not just on /bin/bash... so what gives?
-  echo -e "$ host -t a ${HOSTNAME}\n`host -t a ${HOSTNAME}`"
-  echo -e "$ ifconfig eth0\n`ifconfig eth0`"
-  echo -e "$ ifconfig wlan0\n`ifconfig wlan0`"
-fi
 
-reset_errexit
+  reset_errexit
+}
+determine_machine_ip
 
 # ============================================================================
 # *** Script timering
@@ -603,7 +613,7 @@ alias elem_in_arr=array_in
 #           "maurice moss" "26")
 #
 # where ${people[2]} => maurice moss
-# 
+#
 # So this fcn. wraps a flat list and treats it as a 2-dimensional array,
 # using the elements in each sub-array as arguments to the function on
 # which we're iterating.
@@ -838,7 +848,7 @@ flock_dir () {
     /bin/mkdir -p "${FLOCKING_DIR_PATH}-${script_name}"
   elif [[ ${FLOCKING_REQUIRED} -ne 0 ]]; then
     $DEBUG_TRACE && echo "Mutex in use: giving up!"
-  
+
     $DEBUG_TRACE && echo "Could not secure flock dir: Bailing now."
     $DEBUG_TRACE && echo "FLOCKING_DIR_PATH: ${FLOCKING_DIR_PATH}"
     exit 1
@@ -956,7 +966,7 @@ ask_yes_no_default () {
   local not_done=true
   while $not_done; do
     not_done=false
-    for elaps in `seq 0 $((timeo - 1))`; do 
+    for elaps in `seq 0 $((timeo - 1))`; do
       echo -en \
         "[Default in $((timeo - elaps)) seconds...] Please answer $choices "
       read -n 1 -t 1 the_choice
@@ -1004,7 +1014,7 @@ ask_yes_no_default () {
 # ============================================================================
 # *** Window Manager Wat.
 
-# NOTE: VirtualBox does not supply a graphics driver for Cinnamon 2.0, 
+# NOTE: VirtualBox does not supply a graphics driver for Cinnamon 2.0,
 #       which runs DRI2 (Direct Rendering Interface2). But Xfce runs
 #       DRI1, which VirtualBox supports.
 determine_window_manager () {
