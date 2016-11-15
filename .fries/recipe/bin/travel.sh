@@ -1498,6 +1498,20 @@ function git_commit_dirty_sync_repos () {
 
 # *** Git: check 'n fail
 
+function git_status_porcelain_wrap () {
+  set +e
+  git_status_porcelain $1 ${SKIP_INTERNETS}
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -ne 0 ]]; then
+    echo "ERROR: git_status_porcelain failed."
+    if [[ ${exit_code} -eq 2 ]]; then
+      echo "Are you internetted? If not, try:"
+      echo "  ${script_name} packme "
+    fi
+  fi
+}
+
 function check_gardened_repo () {
   ENCFS_GIT_ITER=$1
   echo " top-level: ${ENCFS_GIT_ITER}"
@@ -1505,7 +1519,7 @@ function check_gardened_repo () {
     if [[ -d ${fpath}/.git ]]; then
       echo "  ${fpath}"
       pushd ${fpath} &> /dev/null
-      git_status_porcelain "${fpath}"
+      git_status_porcelain_wrap "${fpath}"
       popd &> /dev/null
     else
       #echo "Skipping non-.git/ ${fpath}"
@@ -1539,18 +1553,8 @@ function check_repos_statuses () {
       #
       #echo "GREPPERS: ${GREPPERS}"
     fi
-    set +e
-    #git_status_porcelain "$(basename ${ENCFS_GIT_REPOS[$i]})"
-    git_status_porcelain "${ENCFS_GIT_REPOS[$i]}" ${SKIP_INTERNETS}
-    exit_code=$?
-    reset_errexit
-    if [[ ${exit_code} -ne 0 ]]; then
-      echo "ERROR: git_status_porcelain failed."
-      if [[ ${exit_code} -eq 2 ]]; then
-        echo "Are you internetted? If not, try:"
-        echo "  ${script_name} packme "
-      fi
-    fi
+    #git_status_porcelain_wrap "$(basename ${ENCFS_GIT_REPOS[$i]})"
+    git_status_porcelain_wrap "${ENCFS_GIT_REPOS[$i]}"
     popd &> /dev/null
   done
 
@@ -1562,7 +1566,7 @@ function check_repos_statuses () {
 #      if [[ -d ${fpath}/.git ]]; then
 #        echo "  ${fpath}"
 #        pushd ${fpath} &> /dev/null
-#        git_status_porcelain "${fpath}"
+#        git_status_porcelain_wrap "${fpath}"
 #        popd &> /dev/null
 #      else
 #        #echo "Skipping non-.git/ ${fpath}"
