@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016.11.14
+# Last Modified: 2016.11.15
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
@@ -660,6 +660,30 @@ setup_private_vim_bundle_dubs_all () {
 
     popd &> /dev/null
 
+  fi
+
+  if [[ -e ${HOME}/.vim/bundle_/dubs_file_finder ]]; then
+
+    pushd ${HOME}/.vim/bundle_/dubs_file_finder &> /dev/null
+
+    /bin/ln -sf ${USERS_CURLY}/home/.vim/bundle_/dubs_file_finder/cmdt_paths
+
+    cd cmdt_paths
+    ./generate_links.sh
+
+    popd &> /dev/null
+  fi
+
+  if [[ -e ${HOME}/.vim/bundle_/dubs_edit_juice ]]; then
+    pushd ${HOME}/.vim/bundle_/dubs_edit_juice &> /dev/null
+    /bin/ln -sf ${USERS_CURLY}/home/.vim/bundle_/dubs_edit_juice/dubs_tagpaths.vim
+    popd &> /dev/null
+  fi
+
+  if [[ -e ${HOME}/.vim/bundle_/dubs_grep_steady ]]; then
+    pushd ${HOME}/.vim/bundle_/dubs_grep_steady &> /dev/null
+    /bin/ln -sf ${USERS_CURLY}/home/.vim/bundle_/dubs_grep_steady/dubs_projects.vim
+    popd &> /dev/null
   fi
 
 } # end: setup_private_vim_bundle_dubs_all
