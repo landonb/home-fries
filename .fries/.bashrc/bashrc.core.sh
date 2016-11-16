@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.14
+# Last Modified: 2016.11.16
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -1675,7 +1675,15 @@ umount_guard () {
 if [[ -d ${HOME}/.fries/bin/completions ]]; then
   # 2016-06-28: Currently just ./termdub_completion.
   # 2016-10-30: Now with `exo` command completion.
-  source ${HOME}/.fries/bin/completions/*
+  # 2016-11-16: sourcing a glob doesn't work for symlinks.
+  #   source ${HOME}/.fries/bin/completions/*
+  # I though a find -exec would work, but nope.
+  #   find ${HOME}/.fries/bin/completions/ ! -type d -exec bash -c "source {}" \;
+  # So then just iterate, I suppose.
+  while IFS= read -r -d '' file; do
+    #echo "file = $file"
+    source $file
+  done < <(find ${HOME}/.fries/bin/completions/* -maxdepth 1 ! -path . -print0)
 fi
 
 #########################
