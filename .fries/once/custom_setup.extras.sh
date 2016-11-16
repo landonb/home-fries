@@ -2,7 +2,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.14
+# Last Modified: 2016.11.15
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -4938,6 +4938,28 @@ stage_4_install_arduino () {
 
 } # end: stage_4_install_arduino
 
+stage_4_install_google_earth () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_install_google_earth"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  wget -N https://dl.google.com/dl/earth/client/current/google-earth-stable_current_amd64.deb
+  sudo apt-get install -y lsb-core
+  sudo apt-get -f install
+  sudo dpkg -i google-earth-stable_current_amd64.deb
+  # Crashes, at least when viewing the moon.
+  # Also, the planet dropdown doesn't display,
+  #  but you can down-arrow and hit Enter and guess.
+
+  popd &> /dev/null
+
+} # end: stage_4_install_google_earth
+# DEVs: CXPX above template for easy-making new function.
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -5150,6 +5172,8 @@ setup_customize_extras_go () {
   #stage_4_install_fluentd_er_td_agent
 
   stage_4_install_arduino
+
+  #stage_4_install_google_earth
 
   # Add before this'n: stage_4_fcn_template.
 
