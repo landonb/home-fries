@@ -1,6 +1,6 @@
 # File: curly_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.13
+# Last Modified: 2016.11.15
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Dumping ground for unused Bash functions, apparently.
 #          2016-10-24: I'll throw a useful fcn herein, passtore-ci
@@ -51,11 +51,11 @@ setup_users_curly_path () {
         echo
         echo "Please specify where to make your private dotfiles repository."
         #echo
-        echo -n "Path to destination [~/.mydots]: "
+        echo -n "Path to destination [~/.curly]: "
         read -e USERS_CURLY
         #echo
         if [[ -z ${USERS_CURLY} ]]; then
-          USERS_CURLY=${HOME}/.mydots
+          USERS_CURLY=${HOME}/.curly
         fi
       else
         USERS_CURLY=${CANDIDATES[0]}
