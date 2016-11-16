@@ -49,6 +49,8 @@
 !.fries/bin/completions/*
 !.fries/bin/libmypy/*
 .fries/bin/libmypy/__pycache__/
+#
+.fries/bin/completions/*autocomplete.private
 
 !.fries/once
 !.fries/once/
