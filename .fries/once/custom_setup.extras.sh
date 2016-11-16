@@ -2,7 +2,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.15
+# Last Modified: 2016.11.16
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -4475,7 +4475,10 @@ stage_4_exosite_setup () {
   # and not just particular to my machines.
   sudo apt-get install libffi-dev
 
-  sudo pip install --upgrade exoline
+  #sudo pip install --upgrade exoline
+  # 2016-11-16: I see exoline in py3 but not py2. Looks like `pip` is `pip3`.
+  sudo pip2 install --upgrade exoline
+  sudo pip3 install --upgrade exoline
 
   popd &> /dev/null
 
