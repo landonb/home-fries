@@ -4963,6 +4963,33 @@ stage_4_install_google_earth () {
 } # end: stage_4_install_google_earth
 # DEVs: CXPX above template for easy-making new function.
 
+stage_4_install_opera () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_install_opera"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # 2016-11-16: I'm having issues with a certain financial
+  # website and am curious if a fresh browser will trick it.
+  # And it works! Ug.
+
+  #wget http://www.opera.com/download/get/?id=40294&location=410&nothanks=yes&sub=marine
+  # What, open Firefox and have user fetch it?
+  #
+  #  firefox https://opera.com
+  #  cd ~/Downloads
+  #  sudo dpkg -i opera-stable_41.0.2353.56_amd64.deb
+  #  # Asks to install to apt, writes
+  #  #   /etc/apt/sources.list.d/opera-stable.list
+  #  #   deb https://deb.opera.com/opera-stable/ stable non-free #Opera Browser (final releases)
+
+  popd &> /dev/null
+
+} # end: stage_4_install_opera
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -5177,6 +5204,8 @@ setup_customize_extras_go () {
   stage_4_install_arduino
 
   #stage_4_install_google_earth
+
+  stage_4_install_opera
 
   # Add before this'n: stage_4_fcn_template.
 
