@@ -2,7 +2,7 @@
 
 # File: bash_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.15
+# Last Modified: 2016.11.16
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bash function library.
 # License: GPLv3
@@ -502,40 +502,40 @@ determine_machine_ip () {
     #   http://askubuntu.com/questions/704361/why-is-my-network-interface-named-enp0s25-instead-of-eth0
     #   On Lenovo ThinkPad X201, enp0s25 is the new eth0; wlp2s0 the new wlan0.
 
-    ifconfig eth0 &> /dev/null
+    /sbin/ifconfig eth0 &> /dev/null
     if [[ $? -eq 0 ]]; then
-      ifconfig eth0 2>&1 | grep "inet addr" > /dev/null
+      /sbin/ifconfig eth0 2>&1 | grep "inet addr" > /dev/null
       if [[ $? -eq 0 ]]; then
-        IFCFG_DEV=`ifconfig eth0 2> /dev/null`
+        IFCFG_DEV=`/sbin/ifconfig eth0 2> /dev/null`
       else
         # 2016-07-30: This:
         #  masterb@masterb:~ ⚓ $ ifconfig wlan0
         #  wlan0: error fetching interface information: Device not found
-        ifconfig wlan0 2>&1 | grep "inet addr" > /dev/null
+        /sbin/ifconfig wlan0 2>&1 | grep "inet addr" > /dev/null
         if [[ $? -eq 0 ]]; then
-          IFCFG_DEV=`ifconfig wlan0 2> /dev/null`
+          IFCFG_DEV=`/sbin/ifconfig wlan0 2> /dev/null`
         else
           # VirtualBox. I'm guessing.
-          IFCFG_DEV=`ifconfig enp0s3 2> /dev/null`
+          IFCFG_DEV=`/sbin/ifconfig enp0s3 2> /dev/null`
         fi
       fi
     else
-      ifconfig enp0s25 2>&1 | grep "inet addr" > /dev/null
+      /sbin/ifconfig enp0s25 2>&1 | grep "inet addr" > /dev/null
       if [[ $? -eq 0 ]]; then
-        IFCFG_DEV=`ifconfig enp0s25 2> /dev/null`
+        IFCFG_DEV=`/sbin/ifconfig enp0s25 2> /dev/null`
       else
-        ifconfig wlp2s0 2>&1 | grep "inet addr" > /dev/null
+        /sbin/ifconfig wlp2s0 2>&1 | grep "inet addr" > /dev/null
         if [[ $? -eq 0 ]]; then
-          IFCFG_DEV=`ifconfig wlp2s0 2> /dev/null`
+          IFCFG_DEV=`/sbin/ifconfig wlp2s0 2> /dev/null`
         else
           # 2016-11-14: Lenovo ThinkPad T460.
           # MAYBE: This fcn. is getting messy/too nested.
-          ifconfig wlp4s0 2>&1 | grep "inet addr" > /dev/null
+          /sbin/ifconfig wlp4s0 2>&1 | grep "inet addr" > /dev/null
           if [[ $? -eq 0 ]]; then
-            IFCFG_DEV=`ifconfig wlp4s0 2> /dev/null`
+            IFCFG_DEV=`/sbin/ifconfig wlp4s0 2> /dev/null`
           else
             # VirtualBox. I'm guessing.
-            IFCFG_DEV=`ifconfig enp0s3 2> /dev/null`
+            IFCFG_DEV=`/sbin/ifconfig enp0s3 2> /dev/null`
           fi
         fi
       fi
@@ -563,20 +563,20 @@ determine_machine_ip () {
       echo -e "$ host -t a ${HOSTNAME}\n`host -t a ${HOSTNAME}`\n"
     fi
 
-    echo "$ ifconfig eth0"
-    ifconfig eth0
+    echo "$ /sbin/ifconfig eth0"
+    /sbin/ifconfig eth0
 
-    echo "$ ifconfig wlan0"
-    ifconfig wlan0
+    echo "$ /sbin/ifconfig wlan0"
+    /sbin/ifconfig wlan0
 
-    echo "$ ifconfig enp0s25"
-    ifconfig enp0s25
+    echo "$ /sbin/ifconfig enp0s25"
+    /sbin/ifconfig enp0s25
 
-    echo "$ ifconfig wlp2s0"
-    ifconfig wlp2s0
+    echo "$ /sbin/ifconfig wlp2s0"
+    /sbin/ifconfig wlp2s0
 
-    echo "$ ifconfig wlp4s0"
-    ifconfig wlp4s0
+    echo "$ /sbin/ifconfig wlp4s0"
+    /sbin/ifconfig wlp4s0
 
     echo "======================================================"
   fi
