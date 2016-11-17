@@ -3,7 +3,7 @@ Manual Linux Distro Onboarding Instructions For Developers
 ##########################################################
 
 .. Author: Landon Bouma
-.. Last Modified: 2016.11.15
+.. Last Modified: 2016.11.16
 .. Project Page: https://github.com/landonb/home_fries
 
 Overview
@@ -285,6 +285,27 @@ working on because you haven't refreshed a window recently.
   - Navigate to
     `chrome-extension://lhobbakbeomfcgjallalccfhfcgleinm/settings.html`
     and make rules as necessary.
+
+Switcheroo Redirector
+---------------------
+
+Redirect URLs within Chrome.
+
+Specifically, there are some sites that don't work for me, or, they
+seem to work, but don't. E.g., a certain financial website I use
+sends my Chrome to their mobile browser, which is confusing at first
+because it seems like it works, but it seems overly simple, and
+then you realize you can't do certain things, like Autopay. But I ramble.
+
+- https://chrome.google.com/webstore/detail/switcheroo-redirector/cnmciclhnghalnpfhhleggldniplelbg?hl=en
+
+  https://github.com/ranjez/Switcheroo
+
+After installing, you'll see an 'S' button to the right of the location bar.
+
+Click it and add your rickrollredirect.
+
+``https://www.stupidbank.com`` -> ``https://www.youtube.com/watch?v=dQw4w9WgXcQ``
 
 Configure Web Browsers
 ======================
