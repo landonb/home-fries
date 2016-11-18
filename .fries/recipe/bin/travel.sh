@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016.11.15
+# Last Modified: 2016.11.17
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
@@ -741,6 +741,20 @@ setup_private_vim_bundle_dubs () {
 
 } # end: setup_private_vim_bundle_dubs
 
+setup_private_vim_bundle_dubs_project_tray () {
+
+  if [[ -f ${HOME}/.vim/bundle-dubs/dubs_project_tray/dubs_cuts ]]; then
+
+    pushd ${HOME}/.vim/bundle-dubs/dubs_project_tray/dubs_cuts &> /dev/null
+
+    ./generate_links.sh
+
+    popd &> /dev/null
+
+  fi
+
+} # end: setup_private_vim_bundle_dubs_project_tray
+
 setup_private_dot_files () {
 
   pushd ${HOME} &> /dev/null
@@ -1134,6 +1148,9 @@ function chase_and_face () {
 
   echo " setup_private_vim_bundle_dubs_edit_juice"
   setup_private_vim_bundle_dubs_edit_juice
+
+  echo " setup_private_vim_bundle_dubs_project_tray"
+  setup_private_vim_bundle_dubs_project_tray
 
   echo " setup_private_vim_bundle_dubs"
   setup_private_vim_bundle_dubs
