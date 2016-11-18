@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016.11.17
+# Last Modified: 2016.11.18
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
@@ -95,15 +95,12 @@ PLAINTEXT_ARCHIVES=()
 ENCFS_GIT_REPOS=()
 ENCFS_GIT_ITERS=()
 ENCFS_VIM_ITERS=()
-ENCFS_EXO_ITERS=()
 AUTO_GIT_ONE=()
 AUTO_GIT_ALL=()
 declare -A GTSTOK_GIT_REPOS
 declare -A GIT_REPO_SEEDS_0
 declare -A GIT_REPO_SEEDS_1
 declare -A VIM_REPO_SEEDS_1
-declare -A KIT_REPO_SEEDS_1
-declare -A EXO_REPO_SEEDS_1
 
 # Look for sync_repos.sh.
 SYNC_REPOS_PATH=""
@@ -174,7 +171,7 @@ fi
 
 echod () {
   set +e
-  ${DEBUG} && echo $*
+  ${DEBUG} && echo "$*"
   reset_errexit
 }
 
@@ -984,11 +981,11 @@ setup_private_update_db_conf () {
 locate_and_clone_missing_repo () {
   check_repo=$1
   remote_orig=$2
-  echod "  CHECK: ${check_repo}"
-  echod "   REPO: ${remote_orig}"
+  echod "    CHECK: ${check_repo}"
+  echod "     REPO: ${remote_orig}"
   if [[ -d ${check_repo} ]]; then
     if [[ -d ${check_repo}/.git ]]; then
-      echod "  EXISTS: ${check_repo}"
+      echod "   EXISTS: ${check_repo}"
     else
       echo
       echo "ERROR: Where's .git/ ? at: ${check_repo}"
@@ -997,14 +994,14 @@ locate_and_clone_missing_repo () {
     fi
   else
     echo
-    echo " ==================================================== "
+    echo "  ==================================================== "
     echo "  MISSING: ${check_repo}"
     echo "     REPO: ${remote_orig}"
     parent_dir=$(dirname ${check_repo})
     repo_name=$(basename ${check_repo})
     if [[ ! -d ${parent_dir} ]]; then
       echo
-      echo "MKDIR: Creating new parent_dir: ${parent_dir}"
+      echo "  MKDIR: Creating new parent_dir: ${parent_dir}"
       echo
       mkdir -p ${parent_dir}
     fi
@@ -1016,7 +1013,7 @@ locate_and_clone_missing_repo () {
           mkdir -p ${HOME}/.elsewhere
         else
           echo
-          echo "ALERT: EXISTS: ~/.elsewhere/${check_repo}"
+          echo "  ALERT: EXISTS: ~/.elsewhere/${check_repo}"
           echo
         fi
         # Checkout the source.
@@ -1056,64 +1053,79 @@ locate_and_clone_missing_repo () {
   fi
 } # end: locate_and_clone_missing_repo
 
+locate_and_clone_missing_repos_helper () {
+  # How you receive a passed associate array.
+  declare -n GIT_REPO_SEEDS=$1
+
+  if [[ ${#GIT_REPO_SEEDS[@]} -gt 0 ]]; then
+    echo "---------------------------------------------------"
+    echo "No. of git repos in group $1: ${#GIT_REPO_SEEDS[@]}"
+    echo "---------------------------------------------------"
+    # NOTE: The keys are unordered.
+    for key in "${!GIT_REPO_SEEDS[@]}"; do
+      #echo " key  : $key"
+      #echo " value: ${GIT_REPO_SEEDS[$key]}"
+
+      locate_and_clone_missing_repo $key ${GIT_REPO_SEEDS[$key]}
+    done
+  fi
+} # end: locate_and_clone_missing_repos_helper
+
+locate_and_clone_missing_repos_header () {
+  set +e
+  command -v user_locate_and_clone_missing_repos_header &> /dev/null
+  USER_CMD_EXIT_CODE=$?
+  reset_errexit
+  if [[ ${USER_CMD_EXIT_CODE} -eq 0 ]]; then
+    # This is just a dumb override so I can include my private
+    # repo lookups in the total count. So clunky.
+    user_locate_and_clone_missing_repos_header
+  else
+    TOTES_REPOS=$((0 \
+      + ${#GIT_REPO_SEEDS_0[@]} \
+      + ${#GIT_REPO_SEEDS_1[@]} \
+      + ${#VIM_REPO_SEEDS_1[@]} \
+    ))
+    echo "==================================================="
+    echo "Number of git repository seeds: ${TOTES_REPOS}"
+    echo "==================================================="
+  fi
+}
+
 locate_and_clone_missing_repos () {
 
-  TOTES_REPOS=$((0 \
-    + ${#VIM_REPO_SEEDS_0[@]} \
-    + ${#KIT_REPO_SEEDS_0[@]} \
-    + ${#GIT_REPO_SEEDS_0[@]} \
-    + ${#EXO_REPO_SEEDS_0[@]} \
-  ))
-  echo "Totes number of git repo seeds: ${TOTES_REPOS}"
+  locate_and_clone_missing_repos_header
 
-  if [[ ${#GIT_REPO_SEEDS_0[@]} -gt 0 ]]; then
-    echo "No. of GIT_REPO_SEEDS_0: ${#GIT_REPO_SEEDS_0[@]}"
-    # NOTE: The keys are unordered.
-    for key in "${!GIT_REPO_SEEDS_0[@]}"; do
-      #echo "key  : $key"
-      #echo "value: ${GIT_REPO_SEEDS_0[$key]}"
-      locate_and_clone_missing_repo $key ${GIT_REPO_SEEDS_0[$key]}
-    done
-  fi
+  # DEVs: Setting DEBUG at the top of the file doesn't stick.
+  # So until that's fixed, here's a nice way to debug this fcn.
+  DEBUG=false
+  #DEBUG=true
 
-  if [[ ${#GIT_REPO_SEEDS_1[@]} -gt 0 ]]; then
-    echo "No. of GIT_REPO_SEEDS_1: ${#GIT_REPO_SEEDS_1[@]}"
-    # NOTE: The keys are unordered.
-    for key in "${!GIT_REPO_SEEDS_1[@]}"; do
-      #echo "key  : $key"
-      #echo "value: ${GIT_REPO_SEEDS_1[$key]}"
-      locate_and_clone_missing_repo $key ${GIT_REPO_SEEDS_1[$key]}
-    done
-  fi
+  locate_and_clone_missing_repos_helper GIT_REPO_SEEDS_0
+  locate_and_clone_missing_repos_helper GIT_REPO_SEEDS_1
+  locate_and_clone_missing_repos_helper VIM_REPO_SEEDS_1
 
-  if [[ ${#VIM_REPO_SEEDS_1[@]} -gt 0 ]]; then
-    echo "No. of VIM_REPO_SEEDS_1: ${#VIM_REPO_SEEDS_1[@]}"
-    # NOTE: The keys are unordered.
-    for key in "${!VIM_REPO_SEEDS_1[@]}"; do
-      #echo "key  : $key"
-      #echo "value: ${VIM_REPO_SEEDS_1[$key]}"
-      locate_and_clone_missing_repo $key ${VIM_REPO_SEEDS_1[$key]}
-    done
-  fi
-
-  if [[ ${#KIT_REPO_SEEDS_1[@]} -gt 0 ]]; then
-    echo "No. of KIT_REPO_SEEDS_1: ${#KIT_REPO_SEEDS_1[@]}"
-    # NOTE: The keys are unordered.
-    for key in "${!KIT_REPO_SEEDS_1[@]}"; do
-      #echo "key  : $key"
-      #echo "value: ${KIT_REPO_SEEDS_1[$key]}"
-      locate_and_clone_missing_repo $key ${KIT_REPO_SEEDS_1[$key]}
-    done
-  fi
-
-  if [[ ${#EXO_REPO_SEEDS_1[@]} -gt 0 ]]; then
-    echo "No. of EXO_REPO_SEEDS_1: ${#EXO_REPO_SEEDS_1[@]}"
-    # NOTE: The keys are unordered.
-    for key in "${!EXO_REPO_SEEDS_1[@]}"; do
-      #echo "key  : $key"
-      #echo "value: ${EXO_REPO_SEEDS_1[$key]}"
-      locate_and_clone_missing_repo $key ${EXO_REPO_SEEDS_1[$key]}
-    done
+  # See if there's a user callback.
+  # Some general rules:
+  # - Meta repos should be cloned before any descendent repos
+  #   (repos that live within repos), otherwise things fail
+  #   (or we could improve this script to clone to a temporary
+  #   location and then apply that repo to the existing location,
+  #   but that seems like it could be messy and I don't want to
+  #   get my hands dirty).
+  # - You could not write a custom function and just put everything
+  #   else in GIT_REPO_SEEDS_1, really, unless you want to group your
+  #   repos (for cosmetic purposes, e.g., logging), in which case make
+  #   a custom fcn., user_locate_and_clone_missing_repos, and call
+  #   locate_and_clone_missing_repos_helper on your own.
+  echo " user_locate_and_clone_missing_repos"
+  # Call private fcns. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
+  set +e
+  command -v user_locate_and_clone_missing_repos &> /dev/null
+  USER_CMD_EXIT_CODE=$?
+  reset_errexit
+  if [[ ${USER_CMD_EXIT_CODE} -eq 0 ]]; then
+    user_locate_and_clone_missing_repos
   fi
 
 } # end: locate_and_clone_missing_repos
@@ -1174,18 +1186,6 @@ function chase_and_face () {
   setup_private_update_db_conf
 
   echo " locate_and_clone_missing_repos"
-  # 'tevs. Seems like a lot of work to pass an (associate) array in Bash.
-  # Best bet is to pass its name and use an eval to reference it? Bah.
-  #declare -p GIT_REPO_SEEDS_0
-  #declare -p GIT_REPO_SEEDS_1
-  #declare -p VIM_REPO_SEEDS_1
-  #declare -p KIT_REPO_SEEDS_1
-  #declare -p EXO_REPO_SEEDS_1
-  #locate_and_clone_missing_repos "GIT_REPO_SEEDS_0"
-  #locate_and_clone_missing_repos "GIT_REPO_SEEDS_1"
-  #locate_and_clone_missing_repos "VIM_REPO_SEEDS_1"
-  #locate_and_clone_missing_repos "KIT_REPO_SEEDS_1"
-  #locate_and_clone_missing_repos "EXO_REPO_SEEDS_1"
   locate_and_clone_missing_repos
 
   echo " user_do_chase_and_face"
@@ -1388,10 +1388,6 @@ function init_travel () {
   echo "Populating gardened vim repos..."
   for ((i = 0; i < ${#ENCFS_VIM_ITERS[@]}; i++)); do
     populate_gardened_repo ${ENCFS_VIM_ITERS[$i]}
-  done
-  echo "Populating gardened exo repos..."
-  for ((i = 0; i < ${#ENCFS_EXO_ITERS[@]}; i++)); do
-    populate_gardened_repo ${ENCFS_EXO_ITERS[$i]}
   done
 
   popd &> /dev/null
@@ -1602,27 +1598,21 @@ function check_repos_statuses () {
   echo "Checking gardened git repos..."
   for ((i = 0; i < ${#ENCFS_GIT_ITERS[@]}; i++)); do
     check_gardened_repo "${ENCFS_GIT_ITERS[$i]}"
-#    echo " top-level: ${ENCFS_GIT_ITERS[$i]}"
-#    while IFS= read -r -d '' fpath; do
-#      if [[ -d ${fpath}/.git ]]; then
-#        echo "  ${fpath}"
-#        pushd ${fpath} &> /dev/null
-#        git_status_porcelain_wrap "${fpath}"
-#        popd &> /dev/null
-#      else
-#        #echo "Skipping non-.git/ ${fpath}"
-#        :
-#      fi
-#    done < <(find ${ENCFS_GIT_ITERS[$i]} -maxdepth 1 ! -path . -print0)
   done
-  echo "Checking gardened vim repos..."
+
+  echo "Checking gardened Vim repos..."
   for ((i = 0; i < ${#ENCFS_VIM_ITERS[@]}; i++)); do
     check_gardened_repo "${ENCFS_VIM_ITERS[$i]}"
   done
-  echo "Checking gardened exo repos..."
-  for ((i = 0; i < ${#ENCFS_EXO_ITERS[@]}; i++)); do
-    check_gardened_repo "${ENCFS_EXO_ITERS[$i]}"
-  done
+
+  # Call private fcns. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
+  set +e
+  command -v user_do_check_repos_statuses &> /dev/null
+  EXIT_CODE=$?
+  reset_errexit
+  if [[ ${EXIT_CODE} -eq 0 ]]; then
+    user_do_check_repos_statuses
+  fi
 
   git_issues_review
 } # end: check_repos_statuses
@@ -1649,7 +1639,8 @@ function git_issues_review {
 # *** Git: pull
 
 function pull_gardened_repo () {
-  ENCFS_GIT_ITER=$1
+  ENCFS_GIT_ITER="$1"
+  PREFIX="$2"
   ABS_PATH="${ENCFS_GIT_ITER}"
   ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
   echo " ${ENCFS_REL_PATH}"
@@ -1668,11 +1659,11 @@ function pull_gardened_repo () {
 function pull_git_repos () {
 
   if [[ $1 == 'emissary' ]]; then
-    TO_EMISSARY=true
+    #TO_EMISSARY=true
     PREFIX=""
     pushd ${EMISSARY}/gooey &> /dev/null
   elif [[ $1 == 'dev-machine' ]]; then
-    TO_EMISSARY=false
+    #TO_EMISSARY=false
     PREFIX="${EMISSARY}/gooey"
     pushd / &> /dev/null
   else
@@ -1690,28 +1681,12 @@ function pull_git_repos () {
 
   echo "Pulling gardened git repos..."
   for ((i = 0; i < ${#ENCFS_GIT_ITERS[@]}; i++)); do
-    pull_gardened_repo "${ENCFS_GIT_ITERS[$i]}"
-#    ABS_PATH="${ENCFS_GIT_ITERS[$i]}"
-#    ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
-#    echo " ${ENCFS_REL_PATH}"
-#    while IFS= read -r -d '' fpath; do
-#      TARGET_PATH="${ENCFS_REL_PATH}/$(basename ${fpath})"
-#      if [[ -d ${TARGET_PATH}/.git ]]; then
-#        echo "  $fpath"
-#        git_pull_hush ${PREFIX}${ABS_PATH}/$(basename ${fpath}) ${TARGET_PATH}
-#      else
-#        #echo " skipping (not .git/): $fpath"
-#        :
-#      fi
-#    done < <(find /${ENCFS_REL_PATH} -maxdepth 1 ! -path . -print0)
+    pull_gardened_repo "${ENCFS_GIT_ITERS[$i]}" "${PREFIX}"
   done
-  echo "Pulling gardened vim repos..."
+
+  echo "Pulling gardened Vim repos..."
   for ((i = 0; i < ${#ENCFS_VIM_ITERS[@]}; i++)); do
-    pull_gardened_repo "${ENCFS_VIM_ITERS[$i]}"
-  done
-  echo "Pulling gardened exo repos..."
-  for ((i = 0; i < ${#ENCFS_EXO_ITERS[@]}; i++)); do
-    pull_gardened_repo "${ENCFS_EXO_ITERS[$i]}"
+    pull_gardened_repo "${ENCFS_VIM_ITERS[$i]}" "${PREFIX}"
   done
 
   popd &> /dev/null
@@ -1794,7 +1769,6 @@ function packme () {
   #echo "- # of.    ENCFS_GIT_REPOS: ${#ENCFS_GIT_REPOS[@]}"
   #echo "- # of.    ENCFS_GIT_ITERS: ${#ENCFS_GIT_ITERS[@]}"
   #echo "- # of.    ENCFS_VIM_ITERS: ${#ENCFS_VIM_ITERS[@]}"
-  #echo "- # of.    ENCFS_EXO_ITERS: ${#ENCFS_EXO_ITERS[@]}"
 
   # We can be smart about certain files that change often and
   # don't need meaningful commit messages and automatically
@@ -1834,13 +1808,13 @@ function packme () {
   else
 
     mount_curly_emissary_gooey
+
     pull_git_repos 'emissary'
-    umount_curly_emissary_gooey
 
     # Sets: ${PLAIN_TBD}
     make_plaintext
 
-    # Call private fcns. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
+    # Call private fcn. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
     set +e
     command -v user_do_packme &> /dev/null
     EXIT_CODE=$?
@@ -1848,6 +1822,8 @@ function packme () {
     if [[ ${EXIT_CODE} -eq 0 ]]; then
       user_do_packme
     fi
+
+    umount_curly_emissary_gooey
 
     if [[ -d ${PLAIN_TBD} ]]; then
       /bin/rm -rf ${PLAIN_TBD}
