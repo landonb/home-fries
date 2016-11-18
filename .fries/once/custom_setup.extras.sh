@@ -2,7 +2,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.16
+# Last Modified: 2016.11.17
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -550,6 +550,39 @@ Comment[en_US]=
 Comment=
 " > ${HOME}/.config/autostart/hamster-indicator.desktop
 
+  # 2016-11-17: Configure hamster.
+  #  - Don't "Stop tracking when computer becomes idle."
+  #  - "Remind of current activity every:" 66 minutes, not 27.
+  #  - Add "Also remind when no activity is set".
+  #  - New days starts at: 05:30. Is this okay?
+  # See: ~/.gconf/apps/hamster-applet/%gconf.xml
+
+  gconftool-2 \
+    --set /apps/hamster-applet/notify_on_idle \
+    --type bool "true"
+
+  gconftool-2 \
+    --set /apps/hamster-applet/notify_interval \
+    --type int "66"
+
+  gconftool-2 \
+    --set /apps/hamster-applet/enable_timeout \
+    --type bool "true"
+
+  # NOTE: When I fiddled with the preferences to see what changed in
+  #       %gconf.xml, I never saw this one pop up. However, I do see
+  #       it's schema listed via `gconftool-2 -R /`. And it works
+  #       when I tickle it.
+
+  # This is off by default, but whatever.
+  gconftool-2 \
+    --set /apps/hamster-applet/stop_on_shutdown \
+    --type bool "false"
+
+  gconftool-2 \
+    --set /apps/hamster-applet/enable_timeout \
+    --type bool "false"
+
   # Start hamster.
 
   hamster-indicator &
@@ -575,6 +608,7 @@ stage_4_hamster_briefs_setup () {
 
   /bin/ln -sf ${OPT_DLOADS}/hamster_briefs/hamster_briefs.py ${OPT_BIN}
   /bin/ln -sf ${OPT_DLOADS}/hamster_briefs/hamster_love.sh ${OPT_BIN}
+  /bin/ln -sf ${OPT_DLOADS}/hamster_briefs/transform-brief.py ${OPT_BIN}
 
   popd &> /dev/null
 
@@ -1260,14 +1294,14 @@ stage_4_relocate_spotify_cache () {
   # and my local space is an SSD, so stop that! spotify.
   #
   #  $ du -m -d 1 ~/.cache | sort -nr
-  #  5328	 ~/.cache
-  #  4275	 ~/.cache/spotify
-  #  631	 ~/.cache/google-chrome
-  #  176	 ~/.cache/chromium
-  #  146	 ~/.cache/thumbnails
-  #  66	   ~/.cache/apt-file
-  #  17	   ~/.cache/Atlassian
-  #  12	   ~/.cache/mozilla
+  #  5328   ~/.cache
+  #  4275   ~/.cache/spotify
+  #   631   ~/.cache/google-chrome
+  #   176   ~/.cache/chromium
+  #   146   ~/.cache/thumbnails
+  #    66   ~/.cache/apt-file
+  #    17   ~/.cache/Atlassian
+  #    12   ~/.cache/mozilla
 
   if [[ -e ${HOME}/.cache/spotify ]]; then
     if [[ ! -h ${HOME}/.cache/spotify ]]; then
