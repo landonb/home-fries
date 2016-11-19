@@ -1065,7 +1065,6 @@ locate_and_clone_missing_repos_helper () {
     for key in "${!GIT_REPO_SEEDS[@]}"; do
       #echo " key  : $key"
       #echo " value: ${GIT_REPO_SEEDS[$key]}"
-
       locate_and_clone_missing_repo $key ${GIT_REPO_SEEDS[$key]}
     done
   fi
