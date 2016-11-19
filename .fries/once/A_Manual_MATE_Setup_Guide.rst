@@ -3,7 +3,7 @@ Manual Linux Distro Onboarding Instructions For Developers
 ##########################################################
 
 .. Author: Landon Bouma
-.. Last Modified: 2016.11.16
+.. Last Modified: 2016.11.19
 .. Project Page: https://github.com/landonb/home_fries
 
 Overview
@@ -103,12 +103,21 @@ All launchers:
 
 Custom launchers:
 
+- Chrome
+
+  - HINT: If Chrome windows open but don't have focus, use a custom launcher:
+
+  - ``/home/landonb/.fries/bin/chrome_shim.sh``
+
 - Dubsacks gVim/GVim:
+
   - ``gvim --servername SAMPI --remote-silent path/to/notes.rst``
+
   - Icon: Default: ``/usr/share/icons/Mint-X/apps/48/vim.png``
     Or see under ``~/.curly/home/.fries/once/assets/``
 
 - Terminal:
+
   - ``/bin/bash -c "/usr/bin/mate-terminal"`` (or just ``mate-terminal``)
 
 .. - Termdub Dbms:
@@ -124,18 +133,27 @@ Custom launchers:
 .. 2016-10-19: New links.
 
 - Termdub Dbms:
+
   - ``/bin/bash -c "${HOME}/.fries/bin/termdub.py -t dbms -x 1486"``
 
 - Termbud Toppers:
+
   - X201:
+
     - ``/bin/bash -c "DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 1486"``
+
   - T460:
+
     - ``/bin/bash -c "DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 2020"``
 
 - Termdub Bottoms:
+
   - X201:
+
     - ``/bin/bash -c "DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 0 -y 1080"``
+
   - T460:
+
     - ``/bin/bash -c "DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 0 -y 1180"``
 
 See also:
