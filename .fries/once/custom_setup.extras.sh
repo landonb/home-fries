@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.18
+# Last Modified: 2016.11.19
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -5149,6 +5149,10 @@ stage_4_install_interactive_python_notebooks () {
   # which looks the same as the jupyter notebook.
   #
   # Choose: New > Python notebook
+
+  # Some help:
+  #
+  # https://geosci.uchicago.edu/~rtp1/PrinciplesPlanetaryClimate/Python/NotebookQuickstart/InstantNotebooks.html
 
   popd &> /dev/null
 
