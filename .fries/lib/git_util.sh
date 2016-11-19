@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.15
+# Last Modified: 2016.11.18
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -34,7 +34,7 @@ find_git_parent () {
   if [[ ${REL_PATH} == '.' ]]; then
     DOUBLE_DOWN=true
     #echo "find_git_parent: REL_PATH/2b: ${REL_PATH}"
-    fi
+  fi
   REPO_PATH=""
   while [[ ${REL_PATH} != '/' || ${REL_PATH} != '.' ]]; do
     #echo "find_git_parent: REL_PATH/3: ${REL_PATH}"
