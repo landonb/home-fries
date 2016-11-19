@@ -1427,32 +1427,38 @@ simpletimeit () {
 
 #########################
 
-# https://github.com/downloads/ginatrapani/todo.txt-cli/
+# 2016-11-18: Obsolete. I use git and reST and wentNUTS.
 
-# In lieu of system-wide installation, i.e.,
-#   sudo cp path/to/todo_completion /etc/bash_completion.d/todo
-# we can just source the file for ourselves.
-if [[ -e ${OPT_DLOADS}/todo.txt_cli/todo_completion ]]; then
-  source ${OPT_DLOADS}/todo.txt_cli/todo_completion
-  # NOTE: If you alias todo.sh, e.g.,
-  #         alias t="todo.sh"
-  #       you'll also need to update the completion.
-  #         complete -F _todo t
-  alias t="todo.sh"
-  complete -F _todo t
-fi
+if false; then
 
-#alias tt="todo.sh traskr"
-#alias tt="traskr.py"
+  # https://github.com/ginatrapani/todo.txt-cli
 
-# FIXME: We can do better!
-#PATH="${PATH}:/kit/traskr-time-tracker"
+  # In lieu of system-wide installation, i.e.,
+  #   sudo cp path/to/todo_completion /etc/bash_completion.d/todo
+  # we can just source the file for ourselves.
+  if [[ -e ${OPT_DLOADS}/todo.txt_cli/todo_completion ]]; then
+    source ${OPT_DLOADS}/todo.txt_cli/todo_completion
+    # NOTE: If you alias todo.sh, e.g.,
+    #         alias t="todo.sh"
+    #       you'll also need to update the completion.
+    #         complete -F _todo t
+    alias t="todo.sh"
+    complete -F _todo t
+  fi
 
-#eval "$(register-python-argcomplete ${HOME}/.todo.actions.d/traskr)"
-#eval "$(register-python-argcomplete /kit/traskr-time-tracker/traskr.py)"
-#eval "$(register-python-argcomplete traskr.py)"
-if [[ -e /usr/local/bin/register-python-argcomplete ]]; then
-  eval "$(register-python-argcomplete tt)"
+  #alias tt="todo.sh traskr"
+  #alias tt="traskr.py"
+
+  # FIXME: We can do better!
+  #PATH="${PATH}:/kit/traskr-time-tracker"
+
+  #eval "$(register-python-argcomplete ${HOME}/.todo.actions.d/traskr)"
+  #eval "$(register-python-argcomplete /kit/traskr-time-tracker/traskr.py)"
+  #eval "$(register-python-argcomplete traskr.py)"
+  if [[ -e /usr/local/bin/register-python-argcomplete ]]; then
+    eval "$(register-python-argcomplete tt)"
+  fi
+
 fi
 
 #########################
