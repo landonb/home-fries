@@ -553,6 +553,9 @@ if [[ -f ~/.fries/bin/packme ]]; then
   alias pckme="packme"
 fi
 
+# 2016-11-18: If ack -v works (unlike ag -v) I might use this.
+alias ack="ack-grep"
+
 # Fix rm to be a crude trashcan
 ###############################
 

@@ -2,7 +2,7 @@
 
 # File: setup_ubuntu.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.15
+# Last Modified: 2016.11.18
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -520,6 +520,9 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
       # The better grepper.
       silversearcher-ag
+      # 2016-11-18 Well, why not be inclusive. Every now
+      # and then you copy and paste someone elses ack.
+      ack-grep
 
       # Un-Zip-a-Dee-Doo-Dah
       unzip
