@@ -3,9 +3,18 @@
 
 # File: termdub.py
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.05.04
+# Last Modified: 2016.11.19
 # Project Page: https://github.com/landonb/home_fries
 # License: GPLv3
+
+# FIXME/2016-11-19: Make this its own project.
+#                   Installable with pip (from local sources, too).
+#                   See: /kit/sturdy/chjson
+#                   http://stackoverflow.com/questions/15031694/
+#                    installing-python-packages-from-local-file-system-folder-with-pip
+#                   This is one of the few (only?) py files in home-fries,
+#                   so it feels a little out of place. And hacky, too,
+#                   since it should just install itself like normal.
 
 """
 Monitor-size-aware Dimensionally-adaptive Gnome-terminal Wrapper
@@ -136,7 +145,6 @@ class Termdub(object):
             1024: "77x46+0+100",       # HP L1925
             },
          1366: {
-            # FIXME: 2015.02.27: Not customized yet. I copied 1280x800's.
             768: "77x38+0+100",        # Lenovo T440p
             },
          1600: {
