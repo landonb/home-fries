@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.16
+# Last Modified: 2016.11.18
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -131,6 +131,21 @@ fi
 # OpenShift Origin server.
 if [[ -d ${OPT_BIN}/openshift-origin-server ]]; then
   PATH="${PATH}:${OPT_BIN}/openshift-origin-server"
+fi
+
+# 2016-11-18: What a jerk! Heroku Toolbelt just shat this at
+# the end of my ~/.bashrc, which is a symlink to, well, you
+# know. An Important File. Get out of there! And you didn't
+# even use a trailing newline. Why to respk house rulz, bruh.
+#
+#     ### Added by the Heroku Toolbelt
+#     export PATH="/usr/local/heroku/bin:$PATH"
+#
+# Also, shouldn't you be at the _end_ of the conga line?
+# And what ever happened to being polite and checking for
+# existence?
+if [[ -d /usr/local/heroku/bin ]]; then
+  PATH="${PATH}:/usr/local/heroku/bin"
 fi
 
 export PATH

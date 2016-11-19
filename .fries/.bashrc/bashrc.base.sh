@@ -1,6 +1,6 @@
 # File: bashrc.base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.10
+# Last Modified: 2016.11.18
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Smart Bash Startup Script
 # License: GPLv3
