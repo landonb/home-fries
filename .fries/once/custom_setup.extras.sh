@@ -5025,6 +5025,135 @@ stage_4_install_opera () {
 
 } # end: stage_4_install_opera
 
+stage_4_install_virtualenv () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_install_virtualenv"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  #sudo apt-get install -y virtualenvwrapper
+  sudo pip2 install virtualenvwrapper
+  sudo pip3 install virtualenvwrapper
+
+  # See bashrc for:
+  #   source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
+
+  popd &> /dev/null
+
+} # end: stage_4_install_virtualenv
+
+stage_4_install_heroku () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_install_heroku"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # This installation courtest Heroku's installer script:
+  #
+  #   wget -N https://toolbelt.heroku.com/install-ubuntu.sh
+  #   sudo sh install-ubuntu.sh
+  #
+  # which was a little annoying because it edited ~/.bashrc
+  # (who does that without asking?) but at least it worked.
+
+  # run inside sudo
+  sudo sh <<SCRIPT
+
+  # add heroku repository to apt
+  echo "deb http://toolbelt.heroku.com/ubuntu ./" > /etc/apt/sources.list.d/heroku.list
+
+  # install heroku's release key for package verification
+  wget -O- https://toolbelt.heroku.com/apt/release.key | apt-key add -
+
+  # update your sources
+  apt-get update
+
+  # install the toolbelt
+  apt-get install -y heroku-toolbelt
+
+  # install ruby if needed (vervet)
+  # 2016-11-18: [lb] notes the easy use of `type` vs `command -v`.
+  if ! type ruby >/dev/null 2>&1; then
+    apt-get install -y ruby
+  fi
+
+SCRIPT
+
+  popd &> /dev/null
+
+} # end: stage_4_install_heroku
+
+stage_4_install_interactive_python_notebooks () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_install_interactive_python_notebooks"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # FIXME: I should just have an array of package I pip2 and pip3 install,
+  #        like I do with apt-get.
+
+  # bypthon runs in your terminal and does fancy autocomplete and
+  # syntax highlighting, unlike the built-in Python interpreter.
+  #
+  # There's also a Rewind feature to undo? previous commands
+  # so you can replay them -- try Ctrl-r.
+  #
+  # http://bpython-interpreter.org/about.html
+  sudo pip2 install bpython
+  sudo pip3 install bpython
+
+  # IPython uses a web browser for your interaction
+  #
+  # Ton of features
+  # http://ipython.readthedocs.io/en/stable/overview.html
+  #
+  # http://jupyter.readthedocs.io/en/latest/running.html#running
+  # http://jupyter.readthedocs.io/en/latest/ipython/content-ipython.html
+  # http://ipython.readthedocs.io/en/stable/
+  sudo pip2 install jupyter
+  sudo pip3 install jupyter
+  # Takes care of:
+  #  sudo pip2 install ipython
+  #  sudo pip3 install ipython
+  # And this is all, "Requirement already satisfied:"
+  #  python -m pip install ipykernel
+
+  # Not really sure what this does but did it.
+  # http://ipython.readthedocs.io/en/stable/install/index.html
+  # Says: "register an IPython kernel with Jupyter"
+  #python -m ipykernel install [--user] [--name <machine-readable-name>] [--display-name <"User Friendly Name">]
+  python -m ipykernel install --user
+
+  # Starting it.
+  #
+  # Here's the bigger apps web notebook.
+  #
+  # $ jupyter notebook
+  #
+  # Here's in interactive IPython shell.
+  #
+  # $ ipython
+  #
+  # And here's your Python browser notebook.
+  #
+  # $ ipython notebook
+  # which looks the same as the jupyter notebook.
+  #
+  # Choose: New > Python notebook
+
+  popd &> /dev/null
+
+} # end: stage_4_install_interactive_python_notebooks
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -5241,6 +5370,12 @@ setup_customize_extras_go () {
   #stage_4_install_google_earth
 
   stage_4_install_opera
+
+  stage_4_install_virtualenv
+
+  stage_4_install_heroku
+
+  stage_4_install_interactive_python_notebooks
 
   # Add before this'n: stage_4_fcn_template.
 

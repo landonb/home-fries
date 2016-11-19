@@ -662,7 +662,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       python-subversion
       python-levenshtein
 
-      # MAYBE?:
+      # Skipping: virtualenvwrapper (see: pip install instead)
       #virtualenvwrapper
       # Install via virtualenv and pip:
       #  python-pytest
