@@ -1533,15 +1533,12 @@ PS4='(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]} - [${SHLVL},${BASH_SUBSHELL}, $?
 
 #########################
 
-# MAYBE:
-#source /usr/local/bin/virtualenvwrapper.sh
-
-#########################
-
-# git-flow-completion
-# https://github.com/bobthecow/git-flow-completion
-
-#source /srv/opt/.downloads/git-flow-completion/git-flow-completion.bash
+# 2016-11-18: Wow. This has been here for years, commented out,
+# because I haven't use mkvirtualenv in oh so very, very long.
+# Welcome back, friend.
+if [[ -f /usr/local/bin/virtualenvwrapper.sh ]]; then
+  source /usr/local/bin/virtualenvwrapper.sh
+fi
 
 #########################
 
