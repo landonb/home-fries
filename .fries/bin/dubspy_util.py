@@ -1,10 +1,10 @@
-!/usr/bin/python3
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 # vim: ts=4:sw=4:et
 
 # File: termdub.py
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.19
+# Last Modified: 2016.11.21
 # Project Page: https://github.com/landonb/home_fries
 # License: GPLv3
 
