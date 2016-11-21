@@ -67,6 +67,10 @@ fi
 
 # *** Ensure expected directories exist.
 
+# FIXME/MEH: Instead of OPT_BIN, install to ~/.local/bin?
+#            Or maybe not; then I might not be able to tell
+#            what was pip installed vs. dubs installed.
+
 stage_4_setup_ensure_dirs () {
   for dir_path in \
     ${OPT_DLOADS} \
@@ -599,17 +603,17 @@ stage_4_hamster_briefs_setup () {
 
   pushd ${OPT_DLOADS} &> /dev/null
 
-  if [[ ! -e ${OPT_DLOADS}/hamster_briefs ]]; then
-    git clone https://github.com/landonb/hamster_briefs
+  if [[ ! -e ${OPT_DLOADS}/hamster-briefs ]]; then
+    git clone https://github.com/landonb/hamster-briefs
   else
-    pushd ${OPT_DLOADS}/hamster_briefs &> /dev/null
+    pushd ${OPT_DLOADS}/hamster-briefs &> /dev/null
     git pull
     popd &> /dev/null
   fi
 
-  /bin/ln -sf ${OPT_DLOADS}/hamster_briefs/hamster_briefs.py ${OPT_BIN}
-  /bin/ln -sf ${OPT_DLOADS}/hamster_briefs/hamster_love.sh ${OPT_BIN}
-  /bin/ln -sf ${OPT_DLOADS}/hamster_briefs/transform-brief.py ${OPT_BIN}
+  /bin/ln -sf ${OPT_DLOADS}/hamster-briefs/hamster-briefs.py ${OPT_BIN}
+  /bin/ln -sf ${OPT_DLOADS}/hamster-briefs/hamster-love.sh ${OPT_BIN}
+  /bin/ln -sf ${OPT_DLOADS}/hamster-briefs/transform-brief.py ${OPT_BIN}
 
   popd &> /dev/null
 
@@ -1415,7 +1419,7 @@ stage_4_all_the_young_pips () {
   # 2016-11-12: Meh. I got my own uncommitted script now.
   if false; then
     # My ~/.vim/bundle_/ contains a dozenish sub-gits. Uncommitted helps.
-    sudo pip install uncommitted
+    sudo pip2 install uncommitted
     sudo chmod 755 /usr/local/bin/uncommitted
     # Be sure to specify -l to use locate.
     # E.g., `uncommitted -l ~/.vim`, or `uncommitted -l -v ~/.vim`.
@@ -1424,12 +1428,19 @@ stage_4_all_the_young_pips () {
   # https://argcomplete.readthedocs.org/en/latest/#activating-global-completion%20argcomplete
 # FIXME:
 # The directory '/home/landonb/.cache/pip' or its parent directory is not owned by the current user and caching wheels has been disabled. check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.
-  sudo pip install argcomplete
+  sudo pip2 install argcomplete
   sudo pip3 install argcomplete
   sudo activate-global-python-argcomplete
   # To upgrade:
-  sudo pip install --upgrade argcomplete
+  sudo pip2 install --upgrade argcomplete
   sudo pip3 install --upgrade argcomplete
+
+  # 2016-11-19 PyPi
+  # https://packaging.python.org/distributing/
+  pip install -U pip setuptools
+  # MAYBE: Use virtualenv instead for making projects?
+  sudo pip2 install twine
+  sudo pip3 install twine
 
   umask ${was_umask}
 
@@ -5100,6 +5111,9 @@ stage_4_install_interactive_python_notebooks () {
 
   # FIXME: I should just have an array of package I pip2 and pip3 install,
   #        like I do with apt-get.
+  #        2016-11-19: So far it's, like, a dozen packages or so. Not a lot.
+  #        See existing:
+  #         stage_4_all_the_young_pips
 
   # bypthon runs in your terminal and does fancy autocomplete and
   # syntax highlighting, unlike the built-in Python interpreter.
@@ -5270,6 +5284,7 @@ setup_customize_extras_go () {
   stage_4_openjump_install
 
   # Install pip, and use pip to install uncommitted and argcomplete.
+  # 2016-11-19: And why not more pips while we're at it.
   stage_4_all_the_young_pips
 
   # Put ~/.fonts at /srv/opt/.fonts so we don't incur an SSD or

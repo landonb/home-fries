@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016.11.18
+# Last Modified: 2016.11.19
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
@@ -1939,7 +1939,7 @@ function update_hamster_db () {
     echo "update_hamster_db: HAMSTERING"
 
     set +e
-    command -v hamster_love.sh > /dev/null
+    command -v hamster-love.sh > /dev/null
     RET_VAL=$?
     reset_errexit
     if [[ ${RET_VAL} -eq 0 ]]; then
@@ -1994,7 +1994,7 @@ function update_hamster_db () {
         echo
         echo "hamster love says:"
         echo
-        hamster_love.sh ${LATEST_HAMMY} ${CURLY_PATH}/hamster-$(hostname).db
+        hamster-love.sh ${LATEST_HAMMY} ${CURLY_PATH}/hamster-$(hostname).db
         echo
         echo 'hamstered!'
       else
@@ -2007,7 +2007,7 @@ function update_hamster_db () {
 
     else
 
-      echo "WARNING: Hamster found but not hamster_love.sh"
+      echo "WARNING: Hamster found but not hamster-love.sh"
 
     fi
 

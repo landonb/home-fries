@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.18
+# Last Modified: 2016.11.19
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -252,7 +252,7 @@ export LD_LIBRARY_PATH=/usr/lib/expect5.45:${LD_LIBRARY_PATH}
 #
 alias sqlite3='LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib sqlite3'
 #
-# however, scripts that call sqlite3 (like hamster_briefs) still have the
+# however, scripts that call sqlite3 (like hamster-briefs) still have the
 # issue. I guess we'll just let them deal...
 
 # Tell psql to use less for large output
