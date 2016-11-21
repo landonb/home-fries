@@ -29,6 +29,8 @@
 
 # Home Fries (includes Bash).
 !.fries/
+# 2016-11-21: Hrmpf. ~.fries/ didn't do the trick.
+!.fries/.agignore
 
 !.fries/.bashrc
 !.fries/.bashrc/
