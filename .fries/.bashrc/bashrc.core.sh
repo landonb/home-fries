@@ -2032,7 +2032,7 @@ fi
 
 has_sudo () {
   sudo -n true &> /dev/null && echo YES || echo NOPE
-  #if sudo -n true 2>/dev/null; then 
+  #if sudo -n true 2>/dev/null; then
   #  echo "I got sudo"
   #else
   #  echo "I don't have sudo"
