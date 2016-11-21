@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.19
+# Last Modified: 2016.11.21
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -599,6 +599,15 @@ stage_4_hamster_briefs_setup () {
     return
   fi
 
+# FIXME/2016-11-21: With travel unpack, you'll set this up under /kit...
+# and then who should call `pip install --user -v -e .` ?
+echo
+echo "WARNING: Skipping hamster-briefs install."
+echo "FIXME: Determine who should pip install this from /kit, right?"
+echo "FIXME: Also, pip install pyoiler-* projects first."
+echo
+return
+
   stage_announcement "stage_4_hamster_briefs_setup"
 
   pushd ${OPT_DLOADS} &> /dev/null
@@ -611,9 +620,14 @@ stage_4_hamster_briefs_setup () {
     popd &> /dev/null
   fi
 
-  /bin/ln -sf ${OPT_DLOADS}/hamster-briefs/hamster-briefs.py ${OPT_BIN}
-  /bin/ln -sf ${OPT_DLOADS}/hamster-briefs/hamster-love.sh ${OPT_BIN}
-  /bin/ln -sf ${OPT_DLOADS}/hamster-briefs/transform-brief.py ${OPT_BIN}
+  # 2016-11-21: The old way, before I pipped the project.
+  #/bin/ln -sf ${OPT_DLOADS}/hamster-briefs/hamster-briefs.py ${OPT_BIN}
+  #/bin/ln -sf ${OPT_DLOADS}/hamster-briefs/hamster-love.sh ${OPT_BIN}
+  #/bin/ln -sf ${OPT_DLOADS}/hamster-briefs/transform-brief.py ${OPT_BIN}
+
+  pushd ${OPT_DLOADS}/hamster-briefs &> /dev/null
+  pip install --user -v -e .
+  popd &> /dev/null
 
   popd &> /dev/null
 
