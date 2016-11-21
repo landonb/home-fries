@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016.11.19
+# Last Modified: 2016.11.21
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
@@ -2064,6 +2064,8 @@ function unpack () {
   echo
   echo "  popoff"
   echo
+
+  git_issues_review
 
 } # end: unpack
 

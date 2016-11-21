@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.18
+# Last Modified: 2016.11.21
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -612,15 +612,19 @@ function git_pull_hush () {
     # NOTE: The Current branch grep doesn't work if like "feature/topic".
     #       But I kinda like seeing that.
     #       I wonder if just ignoring master is ok (normally show branch?).
+
     git pull --rebase --autostash $SOURCE_REPO 2>&1 \
       | grep -v "^ \* branch            HEAD       -> FETCH_HEAD$" \
       | grep -v "^Already up-to-date.$" \
       | grep -v "^Current branch [a-zA-Z0-9]* is up to date.$" \
       | grep -v "^From .*${TARGET_REPO}$"
-# FIXME: This is untested:
     # 2016-11-05: Check afterwards to see if there was an unresolved merge conflict.
     git -c color.ui=off status | grep "^rebase in progress" > /dev/null
     rebase_in_progress=$?
+    if [[ ${rebase_in_progress} -ne 0 ]]; then
+      git -c color.ui=off status | grep "^You are currently rebasing.$" > /dev/null
+      rebase_in_progress=$?
+    fi
     reset_errexit
     if [[ ${rebase_in_progress} -eq 0 ]]; then
       echo
@@ -628,7 +632,7 @@ function git_pull_hush () {
       echo
       GIT_ISSUES_DETECTED=true
       export GIT_ISSUES_DETECTED
-      GIT_ISSUES_RESOLUTIONS+=("travel mount && cdd ${TARGET_REPO}")
+      GIT_ISSUES_RESOLUTIONS+=("travel mount && cdd $(pwd) && git st")
       export GIT_ISSUES_RESOLUTIONS
       if ${FAIL_ON_GIT_ISSUE}; then
         return 1
