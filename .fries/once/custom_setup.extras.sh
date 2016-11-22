@@ -5217,6 +5217,30 @@ stage_4_install_node_js () {
 
 } # end: stage_4_install_node_js
 
+stage_4_install_zoom_cloud_meetings () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_install_zoom_cloud_meetings"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # https://www.zoom.us
+
+  mkdir -p zoom.us
+  cd zoom.us
+
+  wget -N https://www.zoom.us/linux/download/pubkey
+  wget -N https://www.zoom.us/client/latest/zoom_amd64.deb
+
+  sudo rpm --import pubkey
+  sudo dpkg -i zoom_amd64.deb
+
+  popd &> /dev/null
+
+} # end: stage_4_install_zoom_cloud_meetings
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -5442,6 +5466,8 @@ setup_customize_extras_go () {
   stage_4_install_interactive_python_notebooks
 
   stage_4_install_node_js
+
+  stage_4_install_zoom_cloud_meetings
 
   # Add before this'n: stage_4_fcn_template.
 
