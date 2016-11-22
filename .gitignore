@@ -1,7 +1,21 @@
-# Ignore everything
+# 1. First ignore everything so we
+#    don't goggle the home directory.
+
 *
 
-# But not these files...
+# 2. Next, add things *back* to git scrutiny
+#    in the home directory that you care about.
+#
+#    This will be files in the home directory,
+#    and the ~/.fries directory.
+
+# *** Home Fries (includes Bash).
+
+# 2016-11-21: So, both / and /* are required for this to work.
+!.fries/
+!.fries/*
+
+# *** Home directory files.
 
 # Project boilerplate.
 !LICENSE
@@ -27,66 +41,72 @@
 !.bashrc
 !.vimrc
 
-# Home Fries (includes Bash).
-!.fries/
-# 2016-11-21: Hrmpf. ~.fries/ didn't do the trick.
-!.fries/.agignore
+# 3. Finally, add general ignore rules
+#    (which will just apply to ~/.fries).
 
-!.fries/.bashrc
-!.fries/.bashrc/
-!.fries/.bashrc/*
-.fries/.bashrc/.agignore
-.fries/.bashrc/bashrx.private.*.sh
-!.fries/.bashrc/bashrx.private.sh.template
-.fries/.bashrc/bashrc0.*.sh
-# Implicitly still ignored: Directories under .fries/.bashrc
-
-# 2016-11-11: An indicator.
-.fries/.bashrc/disable_trackpad
-
-# EXPLAIN: Why the three path varieties? path, path/, and path/*?
-!.fries/bin
-!.fries/bin/
-!.fries/bin/*
-!.fries/bin/completions/*
-!.fries/bin/libmypy/*
-.fries/bin/libmypy/__pycache__/
-#
-.fries/bin/completions/*autocomplete.private
-
-!.fries/once
-!.fries/once/
-!.fries/once/*
-.fries/once/.agignore
-.fries/once/*.private.*
-# Generated files.
-.fries/once/fries-setup-stage.num
-.fries/once/fries-setup-mysql.pwd
-#!.fries/once/archive/*
-!.fries/once/assets/*
-#!.fries/once/assets/applications-boardgames-21x21.png
-!.fries/once/target/*
-!.fries/once/target/common/*
-!.fries/once/target/common/etc/*
-!.fries/once/target/common/etc/init.d/*
-!.fries/once/target/common/*
-.fries/once/target/.agignore
-
-# 2016-10-09: Weird! the lib/ and lib/* syntax both need to be present
-#             for it to work! But on recipe/ (not checked in at all),
-#             the first version (!.fries/recipe) works!?
-#!.fries/lib
-!.fries/lib/
-!.fries/lib/*
-
-#!.fries/recipe
-!.fries/recipe/
-!.fries/recipe/*
-#/.fries/recipe/bin/packup.sh
-
-# Ignore tags files.
+# Pop those tags.
 tags
 
-# Sorry, adding this to .git/info/exclude didn't work, so it's here.
-.fries/.bashrc/bashrc.waffle-encfs.base.sh
+
+# 2016-11-21: Delete remaining once you confirm
+#             everything's d'accord/dac/dak on
+#             all yer fleet machines.
+
+# #!.fries/.agignore
+# # ... still nothing.
+#
+# !.fries/.bashrc
+# !.fries/.bashrc/
+# !.fries/.bashrc/*
+# .fries/.bashrc/.agignore
+# .fries/.bashrc/bashrx.private.*.sh
+# !.fries/.bashrc/bashrx.private.sh.template
+# .fries/.bashrc/bashrc0.*.sh
+# # Implicitly still ignored: Directories under .fries/.bashrc
+#
+# # 2016-11-11: An indicator.
+# .fries/.bashrc/disable_trackpad
+#
+# # EXPLAIN: Why the three path varieties? path, path/, and path/*?
+# !.fries/bin
+# !.fries/bin/
+# !.fries/bin/*
+# !.fries/bin/completions/*
+# !.fries/bin/libmypy/*
+# .fries/bin/libmypy/__pycache__/
+# #
+# .fries/bin/completions/*autocomplete.private
+#
+# !.fries/once
+# !.fries/once/
+# !.fries/once/*
+# .fries/once/.agignore
+# .fries/once/*.private.*
+# # Generated files.
+# .fries/once/fries-setup-stage.num
+# .fries/once/fries-setup-mysql.pwd
+# #!.fries/once/archive/*
+# !.fries/once/assets/*
+# #!.fries/once/assets/applications-boardgames-21x21.png
+# !.fries/once/target/*
+# !.fries/once/target/common/*
+# !.fries/once/target/common/etc/*
+# !.fries/once/target/common/etc/init.d/*
+# !.fries/once/target/common/*
+# .fries/once/target/.agignore
+#
+# # 2016-10-09: Weird! the lib/ and lib/* syntax both need to be present
+# #             for it to work! But on recipe/ (not checked in at all),
+# #             the first version (!.fries/recipe) works!?
+# #!.fries/lib
+# !.fries/lib/
+# !.fries/lib/*
+#
+# #!.fries/recipe
+# !.fries/recipe/
+# !.fries/recipe/*
+# #/.fries/recipe/bin/packup.sh
+
+# # Sorry, adding this to .git/info/exclude didn't work, so it's here.
+# .fries/.bashrc/bashrc.waffle-encfs.base.sh
 
