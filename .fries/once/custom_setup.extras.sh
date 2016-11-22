@@ -5048,7 +5048,7 @@ stage_4_install_opera () {
   # website and am curious if a fresh browser will trick it.
   # And it works! Ug.
 
-  #wget http://www.opera.com/download/get/?id=40294&location=410&nothanks=yes&sub=marine
+  # wget https://www.opera.com/download/get/?id=40294&location=411&nothanks=yes&sub=marine
   # What, open Firefox and have user fetch it?
   #
   #  firefox https://opera.com
@@ -5252,6 +5252,28 @@ stage_4_install_node_js () {
   popd &> /dev/null
 
 } # end: stage_4_install_node_js
+
+stage_4_install_mocha () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_install_mocha"
+
+  # See:
+  #  http://dareid.github.io/chakram/
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # I think this is what you run in the directory you want to
+  # create tests in.
+  #   npm init
+  #   npm install --save-dev chakram
+  sudo npm install -g mocha
+
+  popd &> /dev/null
+
+} # end: stage_4_install_mocha
 
 stage_4_install_zoom_cloud_meetings () {
   if ${SKIP_EVERYTHING}; then
@@ -5502,6 +5524,8 @@ setup_customize_extras_go () {
   stage_4_install_interactive_python_notebooks
 
   stage_4_install_node_js
+
+  stage_4_install_mocha
 
   stage_4_install_zoom_cloud_meetings
 
