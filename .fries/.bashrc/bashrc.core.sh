@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.21
+# Last Modified: 2016.11.22
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -1626,7 +1626,7 @@ fffind () {
 #    syndaemon -i 5 -K -R -t -d
 
 # 2016-11-11: Let's not confuse first-time users by disabling their trackpad.
-if [[ -e ${HOME}/.fries/.bashrc/disable_trackpad ]]; then
+if [[ -e ${HOME}/.fries/.bashrc/touchpad_disable ]]; then
   if [[ $(command -v xinput > /dev/null) || $? -eq 0 ]]; then
     DEVICE_NUM=$(xinput --list --id-only "SynPS/2 Synaptics TouchPad" 2> /dev/null)
     if [[ -n ${DEVICE_NUM} ]]; then
