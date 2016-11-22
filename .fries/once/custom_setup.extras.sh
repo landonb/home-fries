@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.21
+# Last Modified: 2016.11.22
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -477,12 +477,19 @@ stage_4_hamster_time_tracker_setup () {
 
   pushd ${OPT_DLOADS} &> /dev/null
 
-  if [[ ! -e ${OPT_DLOADS}/hamster-applet ]]; then
-    git clone https://github.com/landonb/hamster-applet
+  # Skip if already installed.
+  if type -P module &>/dev/null; then
+    if [[ ! -e ${OPT_DLOADS}/hamster-applet ]]; then
+      git clone https://github.com/landonb/hamster-applet
+    else
+      # NOTE: Given the `type -P`, this path probably not gonna happen.
+      #       Which if fine, since I `pip install -e` it.
+      pushd ${OPT_DLOADS}/hamster-applet &> /dev/null
+      git pull
+      popd &> /dev/null
+    fi
   else
-    pushd ${OPT_DLOADS}/hamster-applet &> /dev/null
-    git pull
-    popd &> /dev/null
+    echo "Skipping: Already installed: hamster-applet"
   fi
 
   if [[ -f /usr/share/pyshared/hamster/overview.py ]]; then
@@ -5220,7 +5227,7 @@ stage_4_install_node_js () {
   # askubuntu says install nodejs, not npm.
   #
   #   http://askubuntu.com/questions/462337/couldnt-install-npm-on-ubuntu
-
+  #
   #sudo apt-get install -y npm
   sudo apt-get install -y nodejs
 
