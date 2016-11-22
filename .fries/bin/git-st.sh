@@ -1,8 +1,9 @@
 #!/bin/bash
+#  vim:tw=0:ts=2:sw=2:et:norl:
 
 # File: git-st.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.27
+# Last Modified: 2016.11.22
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Helpful `git st`, `git add -p`, and `git diff` wrapper
 #          used to hide acceptably deviant repository changes.
@@ -124,7 +125,8 @@ prepare_grep_exclude () {
     fi
 
     ref_file=${file_path%%.${SPECIAL_EXT}}
-    echod "file_path: ${file_path} / ref_file: $ref_file"
+    echod "file_path: ${file_path}"
+    echod "ref_file: ${ref_file}"
 
     echod "diff ${ref_file} ${file_path}"
 
@@ -132,10 +134,27 @@ prepare_grep_exclude () {
     if [[ $? -eq 0 ]]; then
       # The tracked file matches an approved divergent file.
       # 2016-10-24: Because of color, line ends: .[m | 1B 5B 6D 0A
-      # Also need -P to use line termination match$.
-      GREP_EXCLUDE="${GREP_EXCLUDE} |
-        grep -P -v \"${ref_file}$\" |
-        grep -P -v \"${ref_file}\x1B\x5B\x6D$\""
+      #             Also need grep -P to use line termination match$.
+      curr_dir=$(readlink -f .)
+      abs_path=$(readlink -f ${ref_file})
+      ref_path=${abs_path#${curr_dir}/}
+      echod "curr_dir: ${curr_dir}"
+      echod "abs_path: ${abs_path}"
+      echod "ref_path: ${ref_path}"
+      # Check if the path starts with a path delimiter, i.e., is absolute.
+      if [[ ${ref_path} == /* ]]; then
+        # An absolute path means git-st being run from a cousin
+        # directory of the GTSTOK file.
+        GREP_EXCLUDE="${GREP_EXCLUDE} |
+          grep -P -v \"${ref_file}$\" |
+          grep -P -v \"${ref_file}\x1B\x5B\x6D$\""
+      else
+        # A relative path means git-st being run from the directory
+        # containing .GTSTOK or a parent directory.
+        GREP_EXCLUDE="${GREP_EXCLUDE} |
+          grep -P -v \"${ref_path}$\" |
+          grep -P -v \"${ref_path}\x1B\x5B\x6D$\""
+      fi
     else
       # The tracked file doesn't match, so make sure it's dirty
       # and that `git status` shows it, otherwise gripe about it.
