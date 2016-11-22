@@ -5198,7 +5198,31 @@ stage_4_install_node_js () {
   # Start with node's package manager,
   #   `npm <https://www.npmjs.com/>`__.
 
-  sudo apt-get install -y npm
+  # 2016-11-21: On older desktop, 14.04:
+  #   $ sudo apt-get install -y npm
+  #   ...
+  #   The following packages have unmet dependencies:
+  #   ...
+  #
+  #   $ sudo apt-get update
+  #   $ sudo apt-get upgrade
+  #   $ sudo apt-get install -f
+  #   $ sudo apt-get install -y npm
+  #
+  #   but this didn't fix things....
+  #
+  #   $ sudo apt-get autoremove
+  #   # didn't help
+  #
+  #   $ npm -v
+  #   3.10.8
+  #
+  # askubuntu says install nodejs, not npm.
+  #
+  #   http://askubuntu.com/questions/462337/couldnt-install-npm-on-ubuntu
+
+  #sudo apt-get install -y npm
+  sudo apt-get install -y nodejs
 
   # Next, download and compile ``node``.
 
