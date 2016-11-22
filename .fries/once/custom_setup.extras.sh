@@ -5186,6 +5186,37 @@ stage_4_install_interactive_python_notebooks () {
 
 } # end: stage_4_install_interactive_python_notebooks
 
+stage_4_install_node_js () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_install_node_js"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # Start with node's package manager,
+  #   `npm <https://www.npmjs.com/>`__.
+
+  sudo apt-get install -y npm
+
+  # Next, download and compile ``node``.
+
+  #LATEST_VERS="v0.10.35"
+  LATEST_VERS="v6.9.1"
+  #LATEST_VERS="v7.1.0"
+
+  wget -N http://nodejs.org/dist/${LATEST_VERS}/node-${LATEST_VERS}.tar.gz
+  tar -xvzf node-${LATEST_VERS}.tar.gz
+  cd node-${LATEST_VERS}
+  ./configure
+  make
+  sudo make install
+
+  popd &> /dev/null
+
+} # end: stage_4_install_node_js
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -5409,6 +5440,8 @@ setup_customize_extras_go () {
   stage_4_install_heroku
 
   stage_4_install_interactive_python_notebooks
+
+  stage_4_install_node_js
 
   # Add before this'n: stage_4_fcn_template.
 
