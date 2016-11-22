@@ -1463,6 +1463,11 @@ stage_4_all_the_young_pips () {
   sudo pip2 install twine
   sudo pip3 install twine
 
+  # 2016-11-22 PyYAML
+
+  sudo pip2 install PyYAML
+  sudo pip3 install PyYAML
+
   umask ${was_umask}
 
   popd &> /dev/null
