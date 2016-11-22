@@ -5292,8 +5292,15 @@ stage_4_install_zoom_cloud_meetings () {
   wget -N https://www.zoom.us/linux/download/pubkey
   wget -N https://www.zoom.us/client/latest/zoom_amd64.deb
 
+  # 2016-11-22: How did I not need this at home, 14.04? But I do on new 16.04.
+  sudo apt-get install -y rpm
   sudo rpm --import pubkey
   sudo dpkg -i zoom_amd64.deb
+
+  # 2016-11-22: And this, too? Weird.
+  sudo apt-get install -y libxcb-xtest0-dev libxcb-xtest0
+
+  # And then, naturally.
 
   popd &> /dev/null
 
