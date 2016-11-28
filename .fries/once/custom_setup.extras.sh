@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.22
+# Last Modified: 2016.11.28
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -2478,6 +2478,12 @@ stage_4_python_35 () {
   #fi
   sudo apt-get install -y python3.5
   #sudo apt-get install -y python3.5-dev
+
+  # Bump!
+  # 2016-11-28: Just doing this on 14.04, which uses 3.4.
+  if [[ $(readlink -f /usr/bin/python3) == "/usr/bin/python3.4" ]]; then
+    sudo /bin/ln -sf /usr/bin/python3.5 /usr/bin/python3
+  fi
 
 } # end: stage_4_python_35
 
