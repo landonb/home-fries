@@ -498,7 +498,10 @@ if [[ ! -e /usr/bin/py2 ]]; then
   alias py2='/usr/bin/env python2'
 fi
 if [[ ! -e /usr/bin/py3 ]]; then
-  alias py3='/usr/bin/env python3'
+  # 2016-11-28: hamster-briefs uses py3.5's subprocess.run.
+  #alias py3='/usr/bin/env python3'
+  # Argh...
+  alias py3='/usr/bin/env python3.5'
 fi
 
 # The `whoami` is just `id -un` in disguise.
