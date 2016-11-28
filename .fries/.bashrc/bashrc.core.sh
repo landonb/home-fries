@@ -1,6 +1,7 @@
 # File: bashrc.core.sh
+#  vim:tw=0:ts=2:sw=2:et:norl:
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.22
+# Last Modified: 2016.11.28
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -124,13 +125,18 @@ if [[ -d ${HOME}/.gopath ]]; then
   export GOPATH=${HOME}/.gopath
   # Check with: `go env`
 
-  #PATH=${GOPATH}:${GOPATH}/bin:${PATH}
   PATH=${GOPATH}:${GOPATH}/bin:${PATH}
 fi
 
 # OpenShift Origin server.
 if [[ -d ${OPT_BIN}/openshift-origin-server ]]; then
   PATH="${PATH}:${OPT_BIN}/openshift-origin-server"
+
+  # OpenShift development.
+  #  https://github.com/openshift/origin/blob/master/CONTRIBUTING.adoc#develop-locally-on-your-host
+  # Used in one place:
+  #  /exo/clients/openshift/origin/hack/common.sh
+  export OS_OUTPUT_GOPATH=1
 fi
 
 # 2016-11-18: What a jerk! Heroku Toolbelt just shat this at
