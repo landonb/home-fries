@@ -2471,13 +2471,33 @@ stage_4_python_35 () {
       return
     fi
   fi
+  # And not if better than py3.5, either.
+  py3_minor_vers=$(python3 --version | /bin/sed -r 's/^Python 3\.([0-9]+)\.[0-9]+$/\1/')
+  if [[ ${py3_minor_vers} -ge 5 ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: python3.5 or better"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
 
   sudo add-apt-repository -y ppa:fkrull/deadsnakes
   #if ! ${SKIP_APT_GET_UPDATE}; then
     sudo apt-get update -y
   #fi
   sudo apt-get install -y python3.5
-  #sudo apt-get install -y python3.5-dev
+  # 2016-11-28: Yas:
+  sudo apt-get install -y python3.5-dev
+  # 2016-11-28: So obscure. I accidentally ran `less.bashrc-client` [sans space]
+  # and got a "No module named '_gdbm'". This, after upgrading to deadsnakes 3.5.
+  # -- Because Bash's "command not found" handler is a Python script.
+  # FIXME/MAYBE: What other libraries am I missing? I tried installing all
+  #              the python3-* libraries from setup_ubuntu.sh but none of
+  #              them matched. So far just -dev and -gdbm.
+  #              I really should've thought twice about trying to override
+  #              the distro's preferred Python installation...
+  sudo apt-get install -y python3.5-gdbm
 
   # Bump!
   # 2016-11-28: Just doing this on 14.04, which uses 3.4.
@@ -5350,6 +5370,14 @@ setup_customize_extras_go () {
 
   stage_4_oracle_java_jre
 
+  # *** Non-interactive Important installers.
+
+  # 2016-11-28: Do py3.5 now so pip3 installs its mod'ls.
+  #
+  # Install Python 3.5 from deadsnakes.
+  # FIXME: This should be distro-dependent.
+  stage_4_python_35
+
   # *** Non-interactive installers.
 
   # Tell Hamster to start on login.
@@ -5465,10 +5493,6 @@ setup_customize_extras_go () {
   # Dah Gimp Dah Gimp Dah Gimp!
   stage_4_gimp_plugins
   stage_4_gimp_docs
-
-  # Install Python 3.5 from deadsnakes.
-  # FIXME: This should be distro-dependent.
-  stage_4_python_35
 
   # Lettuce route please.
   stage_4_garmin_software
