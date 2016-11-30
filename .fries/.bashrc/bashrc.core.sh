@@ -1,7 +1,7 @@
 # File: bashrc.core.sh
 #  vim:tw=0:ts=2:sw=2:et:norl:
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.28
+# Last Modified: 2016.11.29
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -1312,8 +1312,9 @@ termdo-bash-reset () {
   # don't work from the same shell (the second is apparently ignored),
   # so sub-shell the first call and sleep to make it work.
   termdo-all bash_exit_bash_hole &
-  sleep 0.5
-  termdo-all /bin/bash
+  #sleep 0.5
+  sleep 1.0
+  termdo-all /bin/bas
 }
 
 bash_exit_bash_hole () {
