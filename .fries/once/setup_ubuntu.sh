@@ -2,7 +2,7 @@
 
 # File: setup_ubuntu.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.18
+# Last Modified: 2016.11.29
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -876,6 +876,10 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
       # For the qq command.
       gnome-screensaver
+
+      # Webcam software.
+      # https://help.ubuntu.com/community/Webcam
+      cheese
 
     ) # end: BIG_DESKTOP_LIST
 
