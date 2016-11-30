@@ -2,7 +2,7 @@
 
 # File: bash_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.16
+# Last Modified: 2016.11.30
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bash function library.
 # License: GPLv3
@@ -550,36 +550,56 @@ determine_machine_ip () {
     fi
   fi
   if [[ -z ${MACHINE_IP} ]]; then
-    echo "======================================================"
-    echo "WARNING: Could not determine the machine's IP address."
-    echo "Maybe try"
-    echo "  sudo service network-manager restart"
-    echo "Here's what was sussed:"
-    # 2016.05.05: This path being followed on initial cli_gk12 go, but
-    #             otherwise not just on /bin/bash... so what gives?
 
-    # `host` is slow when disconnected.
-    if false; then
-      echo -e "$ host -t a ${HOSTNAME}\n`host -t a ${HOSTNAME}`\n"
+    if [[ -z ${DUBS_MACHINE_IP_WARNED} ]]; then
+
+      echo "======================================================"
+      echo "WARNING: Could not determine the machine's IP address."
+      echo "======================================================"
+      echo "  Maybe try"
+      echo
+      echo "    sudo service network-manager restart"
+      echo
+      echo "  Here's what was sussed:"
+      # 2016.05.05: This path being followed on initial cli_gk12 go, but
+      #             otherwise not just on /bin/bash... so what gives?
+
+      # `host` is slow when disconnected.
+      if false; then
+        echo
+        echo -e "$ host -t a ${HOSTNAME}\n`host -t a ${HOSTNAME}`\n"
+      fi
+
+      echo
+      echo "$ /sbin/ifconfig eth0"
+      /sbin/ifconfig eth0
+
+      echo
+      echo "$ /sbin/ifconfig wlan0"
+      /sbin/ifconfig wlan0
+
+      echo
+      echo "$ /sbin/ifconfig enp0s25"
+      /sbin/ifconfig enp0s25
+
+      echo
+      echo "$ /sbin/ifconfig wlp2s0"
+      /sbin/ifconfig wlp2s0
+
+      echo
+      echo "$ /sbin/ifconfig wlp4s0"
+      /sbin/ifconfig wlp4s0
+
+      echo
+      echo "Good luck!"
+      echo "======================================================"
+
+      DUBS_MACHINE_IP_WARNED=1
     fi
-
-    echo "$ /sbin/ifconfig eth0"
-    /sbin/ifconfig eth0
-
-    echo "$ /sbin/ifconfig wlan0"
-    /sbin/ifconfig wlan0
-
-    echo "$ /sbin/ifconfig enp0s25"
-    /sbin/ifconfig enp0s25
-
-    echo "$ /sbin/ifconfig wlp2s0"
-    /sbin/ifconfig wlp2s0
-
-    echo "$ /sbin/ifconfig wlp4s0"
-    /sbin/ifconfig wlp4s0
-
-    echo "======================================================"
+  else
+    DUBS_MACHINE_IP_WARNED=$((DUBS_MACHINE_IP_WARNED + 1))
   fi
+  export DUBS_MACHINE_IP_WARNED
 
   reset_errexit
 }
