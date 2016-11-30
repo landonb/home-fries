@@ -1770,7 +1770,8 @@ function make_plaintext () {
         --exclude="*/TBD-*" \
          ${ARCHIVE_REL}
       popd &> /dev/null
-      echo "ok"
+      #echo " ok"
+      echo
     else
       #echo
       #echo "FATAL: Indicated plaintext archive not found at: ${ARCHIVE_SRC}"
