@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.21
+# Last Modified: 2016.11.30
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -570,17 +570,20 @@ function git_pull_hush () {
     echo "FATAL: \${SOURCE_BRANCH} != \${TARGET_BRANCH}"
     echo " SOURCE_BRANCH: ${SOURCE_BRANCH}"
     echo " TARGET_BRANCH: ${TARGET_BRANCH}"
+    echo
     echo "You may need to change branches:"
-    echo "  #pushd $(pwd -P) && git checkout --track origin/${SOURCE_BRANCH}"
-    echo " or maybe it's the other one"
-    echo "  #pushd ${SOURCE_REPO} && git checkout --track origin/${SOURCE_BRANCH}"
-    echo " but really it might be this"
+    echo
+    #echo "  #pushd $(pwd -P) && git checkout --track origin/${SOURCE_BRANCH}"
+    #echo " or maybe it's the other one"
+    #echo "  #pushd ${SOURCE_REPO} && git checkout --track origin/${SOURCE_BRANCH}"
+    #echo " but really it might be this"
     echo "  pushd $(pwd -P)"
-    echo "  git remote set-url origin /${SOURCE_REPO}"
-    echo "  git pull -a"
-    echo "  git checkout -b feature/${SOURCE_BRANCH} --track origin/master"
-    echo "   or maybe just"
-    echo "  git checkout -b ${SOURCE_BRANCH} --track origin/master"
+    #echo "  git remote set-url origin /${SOURCE_REPO}"
+    #echo "  git pull -a"
+    #echo "  git checkout -b feature/${SOURCE_BRANCH} --track origin/master"
+    #echo "   or maybe just"
+    #echo "  git checkout -b ${SOURCE_BRANCH} --track origin/master"
+    echo "  git checkout --track origin/${SOURCE_BRANCH}"
     return 1
   fi
 
