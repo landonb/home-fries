@@ -649,6 +649,38 @@ function git_pull_hush () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+check_git_clone_or_pull_error () {
+  ret_code=$1
+  git_resp=$2
+  if [[ ${ret_code} -ne 0 ]]; then
+    local failed=true
+    if ${NO_NETWORK_OKAY}; then
+      # On git submodule update, e.g.,
+      #   fatal: unable to access 'https://github.com/vim-scripts/AutoAdapt.git/':
+      #     Could not resolve host: github.com Unable to fetch in submodule path 'bundle/AutoAdapt'
+      # On git clone, e.g.,
+      #   Cloning into '/exo/clients/openshift/origin'... ssh: Could not resolve hostname github.com:
+      #     Temporary fa fatal: Could not read from remote repository. Please make sure you have the
+      #     correct access rights and the repository exists.
+      #echo $git_resp | grep "ssh: Could not resolve hostname" > /dev/null && failed=false
+      echo $git_resp | grep "Could not resolve host" > /dev/null && failed=false
+    fi
+    if $failed; then
+      echo ${git_resp}
+      echo
+      echo "FATAL: git operation failed."
+      exit 1
+    else
+      echo
+      echo "WARNING: git operation failed:"
+      echo
+      echo ${git_resp}
+    fi
+  fi
+} # end: check_git_clone_or_pull_error
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 git-flip-master () {
   # If your scheme is project/ and master+project/, then we got this, boo.
 

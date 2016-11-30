@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016.11.21
+# Last Modified: 2016.11.30
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
@@ -231,7 +231,8 @@ SKIP_THIS_DIRTY=false
 SKIP_GIT_DIRTY=false
 AUTO_COMMIT_FILES=false
 SKIP_PULL_REPOS=false
-SKIP_UNPACK_SHIM=false
+#SKIP_UNPACK_SHIM=false
+NO_NETWORK_OKAY=false
 TAR_VERBOSE=""
 INCLUDE_ENCFS_OFF_REPOS=false
 SKIP_INTERNETS=false
@@ -353,8 +354,12 @@ function soups_on () {
         AUTO_COMMIT_FILES=true
         shift
         ;;
-      --no-shim)
-        SKIP_UNPACK_SHIM=true
+      #--no-shim)
+      #  SKIP_UNPACK_SHIM=true
+      #  shift
+      #  ;;
+      --no-net)
+        NO_NETWORK_OKAY=true
         shift
         ;;
       -v)
@@ -447,8 +452,9 @@ function soups_on () {
     echo "unpack options:"
     echo "      -d STAGING_DIR    specify the unpack path for incoming plaintext tar stuff"
     echo "      -v                to \`tar v\` (if you have problems detarring)"
-    echo "      --no-shim         use local travel.sh for unpack and not what's on travel"
-    echo "                          (local travel.sh is used always if it's git-dirty)"
+    #echo "      --no-shim         use local travel.sh for unpack and not what's on travel"
+    #echo "                          (local travel.sh is used always if it's git-dirty)"
+    echo "      --no-net          set if git failure on net connection okay"
   fi
 
   if ${DETERMINE_TRAVEL_DIR}; then
@@ -658,7 +664,13 @@ setup_private_vim_bundle_dubs_all () {
     pushd ${HOME}/.vim/bundle/dubs_all &> /dev/null
 
     /bin/ln -sf ../../bundle_/dubs_file_finder/cmdt_paths
+
+
+# FIXME/2016-11-30: Missing: bundle_/dubs_project_tray
     /bin/ln -sf ../../bundle_/dubs_project_tray/dubs_cuts
+
+
+
 
     /bin/ln -sf ../../bundle_/dubs_edit_juice/dubs_tagpaths.vim
     /bin/ln -sf ../../bundle_/dubs_grep_steady/dubs_projects.vim
@@ -1018,13 +1030,19 @@ locate_and_clone_missing_repo () {
         fi
         # Checkout the source.
         pushd ${HOME}/.elsewhere &> /dev/null
+        local git_resp=""
+        set +e
         if [[ ! -d ${repo_name} ]]; then
-          #git clone ${remote_orig} ${check_repo}
-          git clone ${remote_orig} ${repo_name}
+          ##git clone ${remote_orig} ${check_repo}
+          #git clone ${remote_orig} ${repo_name}
+          git_resp=$(git clone ${remote_orig} ${repo_name} 2>&1)
         else
           cd ${repo_name}
-          git pull
+          git_resp=$(git pull 2>&1)
         fi
+        ret_code=$?
+        reset_errexit
+        check_git_clone_or_pull_error "${ret_code}" "${git_resp}"
         popd &> /dev/null
         # Create the symlink from the root dir.
         pushd / &> /dev/null
@@ -1033,8 +1051,13 @@ locate_and_clone_missing_repo () {
       else
         pushd ${parent_dir} &> /dev/null
         # Use associate array key so user can choose different name than repo.
-        #git clone ${remote_orig}
-        git clone ${remote_orig} ${check_repo}
+        ##git clone ${remote_orig}
+        #git clone ${remote_orig} ${check_repo}
+        set +e
+        git_resp=$(git clone ${remote_orig} ${check_repo} 2>&1)
+        ret_code=$?
+        reset_errexit
+        check_git_clone_or_pull_error "${ret_code}" "${git_resp}"
         popd &> /dev/null
       fi
     else
