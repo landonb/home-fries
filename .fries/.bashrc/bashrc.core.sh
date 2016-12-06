@@ -1,7 +1,7 @@
 # File: bashrc.core.sh
 #  vim:tw=0:ts=2:sw=2:et:norl:
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.29
+# Last Modified: 2016.12.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -152,6 +152,16 @@ fi
 # existence?
 if [[ -d /usr/local/heroku/bin ]]; then
   PATH="${PATH}:/usr/local/heroku/bin"
+fi
+
+# 2016-12-03: I guess MrMurano is my first gem.
+if type -P ruby &>/dev/null; then
+  # Determine the user's rubygems path. E.g.,
+  #   ~/.gem/ruby/1.9.1
+  ruby_gem_path=$(ruby -rubygems -e 'puts Gem.user_dir')
+  if [[ -n ${ruby_gem_path} ]]; then
+    PATH="${PATH}:${ruby_gem_path}"
+  fi
 fi
 
 export PATH
