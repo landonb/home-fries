@@ -1,6 +1,6 @@
 # File: .fries/lib/openshift_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.25
+# Last Modified: 2016.12.03
 # Project Page: https://github.com/landonb/home-fries
 # Summary: OpenShift Helpers.
 # License: GPLv3
@@ -29,8 +29,16 @@ oc-rsh-mysql () {
     # Only call get pods if MYSQL_POD not set, or if connect fails.
     refreshed_pod_name=false
     if [[ -z ${MYSQL_POD} ]]; then
-        MYSQL_POD=$(oc get pods | grep "^mysql-" | awk '{print $1}')
-        refreshed_pod_name=true
+        # NOTE: -l app=mysql not working, but name=mysql is.
+        # MAYBE: Should we check status is "Running"?
+        #MYSQL_POD=$(oc get pods -l name=mysql | grep "^mysql-" | awk '{print $1}')
+        MYSQL_POD=$(oc get pods -l name=mysql -o json | jq -r '.items[0].metadata.name')
+        if [[ -z ${MYSQL_POD} ]]; then
+          MYSQL_POD=$(oc get pods | grep "^mysql-" | awk '{print $1}')
+        fi
+        if [[ -n ${MYSQL_POD} ]]; then
+          refreshed_pod_name=true
+        fi
     fi
 
     # FIXME/MAYBE: Connect to mysql database upon login?
@@ -46,6 +54,8 @@ oc-rsh-mysql () {
 
     if [[ -z ${MYSQL_POD} ]]; then
       echo "ERROR: Could not determine pod name. Tried:"
+      echo "  oc get pods -l name=mysql -o json | jq -r '.items[0].metadata.name'"
+      echo "and"
       echo '  oc get pods | grep "^mysql-" | awk "{print $1}"'
       return 1
     fi
@@ -73,10 +83,16 @@ oc-rsh-mysql () {
 
 oc-rsh () {
 
-    TARGET_POD=$(oc get pods | grep "^$1-" | grep Running | awk '{print $1}')
+    #POD_NAME=$(oc get pods | grep "^$1-" | grep Running | awk '{print $1}')
+    # NOTE: Unlike with the mysql pod, here we use app=, not name=.
+    #       Not sure why; I thought the configs all had app= annotations/labels.
+    POD_NAME=$( \
+      oc get pods -l app=$1 -o json \
+      | jq -r '.items[] | select(.status.phase | contains("Running")) | .metadata.name' \
+    )
 
-    echo "Trying \`oc rsh ${TARGET_POD}\`"
-    oc rsh ${TARGET_POD}
+    echo "Trying \`oc rsh ${POD_NAME}\`"
+    oc rsh ${POD_NAME}
     if [[ $? -ne 0 ]]; then
         echo "ERROR: Unable to \`oc rsh\` to pod: ${MYSQL_POD}"
     fi
