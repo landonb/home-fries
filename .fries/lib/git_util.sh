@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.30
+# Last Modified: 2016.12.02
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -682,6 +682,7 @@ check_git_clone_or_pull_error () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 git-flip-master () {
+
   # If your scheme is project/ and master+project/, then we got this, boo.
 
   # Tell Bash to echo command lines, sort of:
@@ -692,6 +693,11 @@ git-flip-master () {
   #  set -x
   #  set -v
   # I though -v might work (echo each line) but it doesn't echo the git commands.
+
+  # Walk up from curdir looking for .git/ so you can call from subdir.
+  find_git_parent
+  # sets: REL_PREFIX
+  pushd ${REL_PREFIX} &> /dev/null
 
   project_name=$(basename $(pwd -P))
 
@@ -725,6 +731,8 @@ git-flip-master () {
   git push origin master
 
   echo popd
+  popd &> /dev/null
+
   popd &> /dev/null
 
   # FIXME: You want to log the *new* build, and then that should die, right?
