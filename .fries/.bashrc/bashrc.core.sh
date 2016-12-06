@@ -1,7 +1,7 @@
 # File: bashrc.core.sh
 #  vim:tw=0:ts=2:sw=2:et:norl:
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.03
+# Last Modified: 2016.12.06
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -161,6 +161,7 @@ if type -P ruby &>/dev/null; then
   ruby_gem_path=$(ruby -rubygems -e 'puts Gem.user_dir')
   if [[ -n ${ruby_gem_path} ]]; then
     PATH="${PATH}:${ruby_gem_path}"
+    PATH="${PATH}:${ruby_gem_path}/bin"
   fi
 fi
 
