@@ -1324,7 +1324,7 @@ termdo-bash-reset () {
   termdo-all bash_exit_bash_hole &
   #sleep 0.5
   sleep 1.0
-  termdo-all /bin/bas
+  termdo-all /bin/bash
 }
 
 bash_exit_bash_hole () {
