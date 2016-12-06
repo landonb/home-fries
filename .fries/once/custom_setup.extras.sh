@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.04
+# Last Modified: 2016.12.06
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -1475,6 +1475,37 @@ stage_4_all_the_young_pips () {
   popd &> /dev/null
 
 } # end: stage_4_all_the_young_pips
+
+
+stage_4_shiny_precious_gems () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_shiny_precious_gems"
+
+  #pushd ${OPT_DLOADS} &> /dev/null
+
+  # MAYBE: Is there such a thing as a ~/.gemspec or something
+  #   that installs non-project specific dev gems?
+
+  # ruby-debug is good through ruby 1.9, not 2.x (2016-12-06: Currently 2.3).
+  sudo gem install ruby-debug
+  # pry is an irb alternative that can kind of debug (but without step capability).
+  sudo gem install pry
+
+  # CLI framework.
+  sudo gem install commander
+
+  # Style guide checker.
+  sudo gem install rubocop
+
+  # ASCII tables.
+  sudo gem install terminal-table
+
+  #popd &> /dev/null
+
+} # end: stage_4_shiny_precious_gems
 
 stage_4_indirect_user_fonts () {
   if ${SKIP_EVERYTHING}; then
@@ -5528,6 +5559,9 @@ setup_customize_extras_go () {
   # Install pip, and use pip to install uncommitted and argcomplete.
   # 2016-11-19: And why not more pips while we're at it.
   stage_4_all_the_young_pips
+
+  # 2016-12-06: Now it's Ruby's time?
+  stage_4_shiny_precious_gems
 
   # Put ~/.fonts at /srv/opt/.fonts so we don't incur an SSD or
   # encrypted home cost.
