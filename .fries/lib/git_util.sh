@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.02
+# Last Modified: 2016.12.06
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -242,6 +242,7 @@ function git_status_porcelain () {
     fi
   fi
   #echo "GREPPERS: ${GREPPERS}"
+  #echo "USE_ALT_GIT_ST: ${USE_ALT_GIT_ST}"
 
   # ***
 
@@ -309,17 +310,20 @@ function git_status_porcelain () {
     if [[ -n ${GREPPERS} ]]; then
       eval git status --porcelain ${GREPPERS} &> /dev/null
       if [[ $? -eq 0 ]]; then
+        echo "WARNING: git status --porcelain: non-zero exit"
         DIRTY_REPO=true
       fi
     else
       n_bytes=$(git status --porcelain | wc -c)
       if [[ ${n_bytes} -gt 0 ]]; then
+        echo "WARNING: git status --porcelain: n_bytes > 0"
         DIRTY_REPO=true
       fi
     fi
   else
     eval git status --porcelain ${GREPPERS} | grep -v "^ M " &> /dev/null
     if [[ $? -eq 0 ]]; then
+        echo "WARNING: git status --porcelain: grepped"
       DIRTY_REPO=true
     fi
   fi
