@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.28
+# Last Modified: 2016.12.04
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -1065,7 +1065,9 @@ stage_4_restview_install () {
   stage_announcement "stage_4_restview_install"
 
   # Weird. This installs restview with ownership as my ${USER}.
-  sudo su -c "pip install restview"
+  #sudo su -c "pip install restview"
+  sudo pip2 install restview
+  sudo pip3 install restview
 
 } # end: stage_4_restview_install
 
@@ -2575,8 +2577,10 @@ stage_4_android_studio () {
   #ANDROID_STUDIO_VERS="2.0.0.20"
   #ANDROID_STUDIO_BUILD="143.2739321"
   # 2016-07-23: 2.2.0.5 / XXX MB
-  ANDROID_STUDIO_VERS="2.2.0.5"
-  ANDROID_STUDIO_BUILD="145.3070098"
+  #ANDROID_STUDIO_VERS="2.2.0.5"
+  #ANDROID_STUDIO_BUILD="145.3070098"
+  ANDROID_STUDIO_VERS="2.2.2.0"
+  ANDROID_STUDIO_BUILD="145.3360264"
 
   ANDROID_STUDIO_BASE="android-studio-ide-${ANDROID_STUDIO_BUILD}-linux"
   ANDROID_STUDIO_NAME="${ANDROID_STUDIO_BASE}.zip"
@@ -2600,6 +2604,7 @@ stage_4_android_studio () {
   # /bin/rm stderrs on empty lines:
   #  echo ${OLD_DLS[@]} | xargs /bin/rm
   for old_file in ${OLD_DLS[@]}; do
+    #echo "old_file: $old_file"
     if [[ -n $old_file ]]; then
       /bin/rm $old_file
       old_unpacked=$(dirname $old_file)
@@ -2647,24 +2652,56 @@ stage_4_android_studio () {
     #   gcj-4.8-jre-headless: /usr/bin/gij-4.8
   fi
 
-  # Argh, you have to sign a EULA; use a browser to download for now...
+  # Argh, you have to sign a EULA; use a browser to download the JDK...
+  # 2016-12-03: Latest link:
+  #  http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+  #  http://download.oracle.com/otn-pub/java/jdk/8u111-b14/jdk-8u111-linux-x64.tar.gz
   if false; then
-    JAVA_SE_DEV_KIT_VERS="8u91"
+
+    #JAVA_SE_DEV_KIT_VERS="8u91"
+    #JAVA_SE_DEV_KIT_NAME="jdk-${JAVA_SE_DEV_KIT_VERS}-linux-x64.tar.gz"
+    #JAVA_SE_DEV_DIR_NAME="jdk1.8.0_91"
+
+    JAVA_SE_OLD_DIR_NAME=()
+    JAVA_SE_OLD_DIR_NAME+=("jdk1.8.0_91")
+    JAVA_SE_OLD_DIR_NAME+=("jdk1.8.0_101")
+    JAVA_SE_OLD_DIR_NAME+=("jdk1.8.0_111")
+
+    JAVA_SE_DEV_KIT_VERS="8u111"
     JAVA_SE_DEV_KIT_NAME="jdk-${JAVA_SE_DEV_KIT_VERS}-linux-x64.tar.gz"
-    JAVA_SE_DEV_KIT_PATH="http://download.oracle.com/otn-pub/java/jdk/8u91-b14/${JAVA_SE_DEV_KIT_NAME}"
+    JAVA_SE_DEV_DIR_NAME="jdk1.8.0_111"
+
+    JAVA_SE_DEV_KIT_PATH="http://download.oracle.com/otn-pub/java/jdk/${JAVA_SE_DEV_KIT_VERS}-b14/${JAVA_SE_DEV_KIT_NAME}"
+
     wget -N ${JAVA_SE_DEV_KIT_PATH}
 
     # DEVs: Download from web: Oracle Java Downloads:
     #
     #   http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
     #
+    # ===================
     # Then continue here:
-    #
-    /bin/mv ~/Downloads/jdk-8u91-linux-x64.tar.gz .
-    tar xvzf jdk-8u91-linux-x64.tar.gz
-    /bin/mv jdk1.8.0_91 ${OPT_BIN}
+    # ===================
+
     pushd ${OPT_BIN} &> /dev/null
-    /bin/ln -sf jdk1.8.0_91 jdk
+    for ((i = 0; i < ${#JAVA_SE_OLD_DIR_NAME[@]}; i++)); do
+      OLD_JDK="${JAVA_SE_OLD_DIR_NAME[$i]}"
+      #echo "OLD_JDK: ${OLD_JDK}"
+      /bin/rm -rf ${OLD_JDK}
+    done
+    popd &> /dev/null
+
+    pushd ${OPT_DLOADS} &> /dev/null
+    /bin/mv ~/Downloads/jdk-${JAVA_SE_DEV_KIT_VERS}-linux-x64.tar.gz .
+    tar xvzf jdk-${JAVA_SE_DEV_KIT_VERS}-linux-x64.tar.gz
+    /bin/mv ${JAVA_SE_DEV_DIR_NAME} ${OPT_BIN}
+    popd &> /dev/null
+
+    pushd ${OPT_BIN} &> /dev/null
+    if [[ -h jdk ]]; then
+      /bin/rm jdk
+    fi
+    /bin/ln -sf ${JAVA_SE_DEV_DIR_NAME} jdk
     popd &> /dev/null
 
     #grep "[:\"]\/usr\/local\/games[:\"]" /etc/environment &> /dev/null
@@ -2731,7 +2768,7 @@ export PATH" | sudo tee -a /etc/environment
   # Android Studio install docs say to install the following libraries.
   sudo apt-get install -y lib32z1 lib32ncurses5 lib32bz2-1.0 lib32stdc++6
 
-  # We're still in ${OPT_DLOADS}/
+  pushd ${OPT_DLOADS} &> /dev/null
   UNPACK_PATH="${OPT_BIN}/${ANDROID_STUDIO_BASE}"
   if [[ ! -e ${UNPACK_PATH} ]]; then
     #unzip -d ${UNPACK_PATH} ${ANDROID_STUDIO_NAME}
@@ -2752,6 +2789,7 @@ export PATH" | sudo tee -a /etc/environment
     echo "         /bin/rm -rf ${UNPACK_PATH}"
     echo
   fi
+  popd &> /dev/null
 
   pushd ${OPT_BIN} &> /dev/null
   if [[ -h ${OPT_BIN}/android-studio ]]; then
@@ -4602,7 +4640,8 @@ stage_4_go_delve_debugger () {
   mkdir -p ${HOME}/.gopath
   export GOPATH=${HOME}/.gopath
 
-# FIXME/2016-10-29: Is this necessary? Doesn't `make install` do this?
+  # The Delve Makefile expects to find the source under GOPATH
+  # at github.com/derekparker.
   mkdir -p ${HOME}/.gopath/src/github.com/derekparker
 
   pushd ${HOME}/.gopath/src/github.com/derekparker &> /dev/null
@@ -4619,6 +4658,10 @@ stage_4_go_delve_debugger () {
   make install
 
   # ll gocode
+
+# FIXME
+#      /home/landonb/.gopath/src/github.com/landonb
+#      ln -s /kit/sturdy/delve
 
   popd &> /dev/null
 
@@ -5332,6 +5375,37 @@ stage_4_install_zoom_cloud_meetings () {
 
 } # end: stage_4_install_zoom_cloud_meetings
 
+
+stage_4_install_visual_studio_code () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_install_visual_studio_code"
+
+  echo
+  echo "FIXME: Install Visual Studio code yourself"
+  echo
+  return
+
+  # Wanting to debug node.js. Apparently VS is risen.
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # FIXME: This is not quite automation friendly.
+  wget -N https://go.microsoft.com/fwlink/?LinkID=760868
+  /bin/mv index.html\?LinkID=760868 code_1.7.2-1479766213_amd64.deb
+  # FIXME: Where's their signature??
+  sudo dpkg -i code_1.7.2-1479766213_amd64.deb
+
+  # How obnoxious! Or pretentious. They called it `code`. Bwah.
+  # To run:
+  #   code &
+
+  popd &> /dev/null
+
+} # end: stage_4_install_visual_studio_code
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -5565,6 +5639,8 @@ setup_customize_extras_go () {
   stage_4_install_mocha
 
   stage_4_install_zoom_cloud_meetings
+
+  stage_4_install_visual_studio_code
 
   # Add before this'n: stage_4_fcn_template.
 
