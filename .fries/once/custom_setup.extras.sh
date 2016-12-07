@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.06
+# Last Modified: 2016.12.07
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -1476,6 +1476,30 @@ stage_4_all_the_young_pips () {
 
 } # end: stage_4_all_the_young_pips
 
+stage_4_install_ruby_install () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_install_ruby_install"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  wget -O ruby-install-0.6.0.tar.gz https://github.com/postmodern/ruby-install/archive/v0.6.0.tar.gz
+  tar -xzvf ruby-install-0.6.0.tar.gz
+  pushd ruby-install-0.6.0 &> /dev/null
+  sudo make install
+  popd &> /dev/null
+
+  wget -O chruby-0.3.9.tar.gz https://github.com/postmodern/chruby/archive/v0.3.9.tar.gz
+  tar -xzvf chruby-0.3.9.tar.gz
+  pushd chruby-0.3.9 &> /dev/null
+  sudo make install
+  popd &> /dev/null
+
+  popd &> /dev/null
+
+} # end: stage_4_install_ruby_install
 
 stage_4_shiny_precious_gems () {
   if ${SKIP_EVERYTHING}; then
@@ -5621,6 +5645,7 @@ setup_customize_extras_go () {
   stage_4_all_the_young_pips
 
   # 2016-12-06: Now it's Ruby's time?
+  stage_4_install_ruby_install
   stage_4_shiny_precious_gems
 
   # Put ~/.fonts at /srv/opt/.fonts so we don't incur an SSD or
