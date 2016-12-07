@@ -2,7 +2,7 @@
 
 # File: bash_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.30
+# Last Modified: 2016.12.07
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bash function library.
 # License: GPLv3
@@ -85,6 +85,33 @@ if false; then
     echo "         SCRIPT_DIR:      $SCRIPT_DIR"
   fi
 fi
+
+# ============================================================================
+# *** PATH builder
+
+path_add_part () {
+  PATH_PART="$1"
+  if [[ -d "${PATH_PART}" ]]; then
+    if [[ ":$PATH:" != *":${PATH_PART}:"* ]]; then
+      PATH="${PATH_PART}:${PATH}"
+      export PATH
+    fi
+  fi
+}
+
+# ============================================================================
+# *** Bash stack trace, of sorts.
+
+# http://wiki.bash-hackers.org/commands/builtin/caller
+
+die () {
+  local frame=0
+  while caller $frame; do
+    ((frame++));
+  done
+  echo "$*"
+  exit 1
+}
 
 # ============================================================================
 # *** errexit wrapper.

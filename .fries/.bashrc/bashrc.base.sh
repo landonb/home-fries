@@ -1,6 +1,6 @@
 # File: bashrc.base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.06
+# Last Modified: 2016.12.07
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Smart Bash Startup Script
 # License: GPLv3
@@ -49,20 +49,6 @@ elif [[ -f "/etc/bash.bashrc" ]]; then
   # Debian/Ubuntu.
   . /etc/bash.bashrc
 fi
-
-# Path helper
-# ===========
-
-# MAYBE: Move this to a new util file that's sourced so other sourced files can use it.
-path_add_part () {
-  PATH_PART="$1"
-  if [[ -d "${PATH_PART}" ]]; then
-    if [[ ":$PATH:" != *":${PATH_PART}:"* ]]; then
-      PATH="${PATH_PART}:${PATH}"
-      export PATH
-    fi
-  fi
-}
 
 # Machine-specific Profiles
 # =========================
