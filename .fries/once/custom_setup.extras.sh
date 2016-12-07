@@ -61,10 +61,6 @@ else
   sudo -v
 fi
 
-if ! ${SKIP_APT_GET_UPDATE}; then
-  sudo apt-get update
-fi
-
 # *** Ensure expected directories exist.
 
 # FIXME/MEH: Instead of OPT_BIN, install to ~/.local/bin?
@@ -5547,6 +5543,10 @@ setup_customize_extras_go () {
   if [[ -n ${USE_STAFF_GROUP_ASSOCIATION} ]]; then
     sudo chgrp ${USE_STAFF_GROUP_ASSOCIATION} /srv
     sudo chmod g+w /srv
+  fi
+
+  if ! ${SKIP_APT_GET_UPDATE}; then
+    sudo apt-get update
   fi
 
   # *** Interactive installers. Get 'em done first.
