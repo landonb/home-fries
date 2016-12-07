@@ -1,7 +1,7 @@
 # File: bashrc.core.sh
 #  vim:tw=0:ts=2:sw=2:et:norl:
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.06
+# Last Modified: 2016.12.07
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -1605,6 +1605,15 @@ if [[ -f /usr/local/bin/virtualenvwrapper.sh ]]; then
   source /usr/local/bin/virtualenvwrapper.sh
 fi
 
+# 2016-12-07: ``chruby`` sources.
+# MAYBE: This bashrc.core.sh is getting bloated. Make a ruby_util.sh?
+if [[ -f /usr/local/share/chruby/chruby.sh ]]; then
+  source /usr/local/share/chruby/chruby.sh
+fi
+if [[ -f /usr/local/share/chruby/auto.sh ]]; then
+  source /usr/local/share/chruby/auto.sh
+fi
+
 #########################
 
 # 2015.02.20: Fancy find: A linux find command that honors .*ignore,
@@ -1728,6 +1737,8 @@ alias ton="bind 'set disable-completion off'"
 #########################
 
 # Encrypted Filesystem.
+
+# 2016-12-07: Haven't used these in a long time.
 
 mount_guard () {
   if [[ -n $(/bin/ls -A ~/.waffle/.guard) ]]; then
