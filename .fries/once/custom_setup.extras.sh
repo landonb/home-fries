@@ -1491,6 +1491,16 @@ stage_4_install_ruby_install () {
   pushd ruby-install-0.6.0 &> /dev/null
   sudo make install
   popd &> /dev/null
+  # Verify
+  if [[ "$(ruby-install -V)" != "ruby-install: 0.6.0" ]]; then
+    echo "ERROR: Something went wrong with install ruby-install."
+    exit 1
+  fi
+  # Install the latest Ruby.
+  # PATIENCE: Runs for a few minutes 'cause it builds Ruby.
+  ruby-install --latest ruby 2.3
+  # Install other versions if you want, too, but this project uses 2.3.
+  ruby-install --latest ruby 2.2
 
   wget -O chruby-0.3.9.tar.gz https://github.com/postmodern/chruby/archive/v0.3.9.tar.gz
   tar -xzvf chruby-0.3.9.tar.gz
