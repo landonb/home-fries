@@ -1545,9 +1545,11 @@ stage_4_shiny_precious_gems () {
   sudo gem install bundler
 
   # ruby-debug is good through ruby 1.9, not 2.x (2016-12-06: Currently 2.3).
-  sudo gem install ruby-debug
+  #sudo gem install ruby-debug
   # pry is an irb alternative that can kind of debug (but without step capability).
   sudo gem install pry
+  # byebug seems to be the Rubyist's debugger.
+  sudo gem install byebug
 
   # CLI framework.
   sudo gem install commander
