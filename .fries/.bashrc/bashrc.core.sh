@@ -546,6 +546,16 @@ if [[ ! -e /usr/bin/py3 ]]; then
   alias py3='/usr/bin/env python3.5'
 fi
 
+# 2016-12-06: Not sure I need this... probably not.
+#if [[ ! -e "/usr/bin/ruby1" ]]; then
+#  alias ruby1='/usr/bin/env ruby1.9.1'
+#fi
+#if [[ ! -e "/usr/bin/ruby2" ]]; then
+#  #alias ruby2='/usr/bin/env ruby2.0'
+#  #alias ruby2='/usr/bin/env ruby2.2'
+#  alias ruby2='/usr/bin/env ruby2.3'
+#fi
+
 # The `whoami` is just `id -un` in disguise.
 # Here are its lesser known sibling commands.
 # alias whereami=is an actual package you can install.
