@@ -3,7 +3,7 @@ Manual Linux Distro Onboarding Instructions For Developers
 ##########################################################
 
 .. Author: Landon Bouma
-.. Last Modified: 2016.11.19
+.. Last Modified: 2016.12.07
 .. Project Page: https://github.com/landonb/home_fries
 
 Overview
@@ -324,6 +324,27 @@ After installing, you'll see an 'S' button to the right of the location bar.
 Click it and add your rickrollredirect.
 
 ``https://www.stupidbank.com`` -> ``https://www.youtube.com/watch?v=dQw4w9WgXcQ``
+
+Backspace to go Back
+--------------------
+
+Google nixed the Backspace key as the "back" feature starting in Chrome 52.
+
+http://venturebeat.com/2016/08/14/restore-backspace-shortcut-chrome/
+
+Restore it!
+
+- Backspace to go Back
+
+  https://chrome.google.com/webstore/detail/backspace-to-go-back/nlffgllnjjkheddehpolbanogdeaogbc/related
+
+- Back to Backspace
+
+  https://chrome.google.com/webstore/detail/back-to-backspace/cldokedgmomhbifmiiogjjkgffhcbaec
+
+NOTE: I don't have a preference to either plugin.
+Both popped up when I searched for a solution.
+I installed "Backspace to go Back" and it worked.
 
 Configure Web Browsers
 ======================
