@@ -1668,12 +1668,12 @@ function pull_gardened_repo () {
   echo " ${ENCFS_REL_PATH}"
   while IFS= read -r -d '' fpath; do
     TARGET_PATH="${ENCFS_REL_PATH}/$(basename ${fpath})"
-    if [[ -d ${TARGET_PATH}/.git ]]; then
+    if [[ -d ${TARGET_PATH}/.git && ! -h ${TARGET_PATH} ]]; then
       echo "  $fpath"
       SOURCE_PATH="${PREFIX}${ABS_PATH}/$(basename ${fpath})"
       git_pull_hush "${SOURCE_PATH}" "${TARGET_PATH}"
     else
-      #echo " skipping (not .git/): $fpath"
+      #echo " skipping (not .git/, or symlink): $fpath"
       :
     fi
   done < <(find /${ENCFS_REL_PATH} -maxdepth 1 ! -path . -print0)
