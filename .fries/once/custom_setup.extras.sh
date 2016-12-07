@@ -1457,14 +1457,19 @@ stage_4_all_the_young_pips () {
   # 2016-11-19 PyPi
   # https://packaging.python.org/distributing/
   pip install -U pip setuptools
-  # MAYBE: Use virtualenv instead for making projects?
+  # MAYBE: Use virtualenv instead of pipping here.
   sudo pip2 install twine
   sudo pip3 install twine
 
   # 2016-11-22 PyYAML
-
   sudo pip2 install PyYAML
   sudo pip3 install PyYAML
+
+  # 2016-12-07: Pyonep.
+  # MAYBE: Use virtualenv instead of pipping here.
+  # https://github.com/exosite-labs/pyonep
+  sudo pip2 install pyonep
+  sudo pip3 install pyonep
 
   umask ${was_umask}
 
