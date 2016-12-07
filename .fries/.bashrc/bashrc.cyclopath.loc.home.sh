@@ -1,6 +1,6 @@
 # File: bashrc.cyclopath.loc.home.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.02.23
+# Last Modified: 2016.12.06
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Cyclopath bash startup script for remote, non-CS machines.
 # License: GPLv3
@@ -28,10 +28,12 @@ dubs_set_terminal_prompt `hostname`
 
 # GroupLens scripts.
 # CcpV1:
-#   export PATH=/project/Grouplens/bin:/export/scratch/ccp/opt/usr/bin:$PATH
+#   path_add_part "/project/Grouplens/bin"
+#   path_add_part "/export/scratch/ccp/opt/usr/bin"
 # But in CcpV2 we've moved the scripts to ccpdev (so we can release them).
 # NOTE: /ccp/opt/usr/bin is currently only GraphServer executables.
-export PATH=/ccp/bin/ccpdev/bin:/export/scratch/ccp/opt/usr/bin:$PATH
+path_add_part "/ccp/bin/ccpdev/bin"
+path_add_part "/export/scratch/ccp/opt/usr/bin"
 
 # Source the TCL bash script; not sure what for;
 # The default bash script from CS does this....

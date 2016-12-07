@@ -1,6 +1,6 @@
 # File: bashrc.cyclopath.loc.work.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.04.04
+# Last Modified: 2016.12.06
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Cyclopath bash startup script for CS machines.
 # License: GPLv3
@@ -29,7 +29,17 @@ dubs_set_terminal_prompt
 # Add GroupLens scripts to path.
 #export PATH=/ccp/bin/grpbin:/ccp/opt/usr/bin:$PATH
 # Er, the GroupLens scripts are now in the Ccp source.
-export PATH=/ccp/bin/ccpdev/bin:/ccp/opt/usr/bin:$PATH
+if [[ -d /ccp/bin/ccpdev/bin ]]; then
+    if [[ ":${PATH}:" != *":/ccp/bin/ccpdev/bin:"* ]]; then
+        PATH="/ccp/bin/ccpdev/bin:${PATH}"
+    fi
+fi
+if [[ -d /ccp/opt/usr/bin ]]; then
+    if [[ ":${PATH}:" != *":/ccp/opt/usr/bin:"* ]]; then
+        PATH="/ccp/opt/usr/bin:${PATH}"
+    fi
+fi
+export PATH
 
 # `ssh` wrapper (`sss` maps ports and sets terminal window title).
 

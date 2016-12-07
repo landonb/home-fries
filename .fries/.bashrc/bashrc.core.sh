@@ -80,26 +80,33 @@ fi
 # Home-fries scripts are in ~/.fries/bin. Third-party applications installed
 # by custom_setup.extras.sh et al are installed to /srv/opt/bin.
 
+# 2016-12-06: To avoid making PATH super long -- mostly just an annoyance
+# if you want to look at, but not a performance issue or anything -- which
+# happens if you reload your .bashrc by running /bin/bash from a terminal,
+# collect all the PATH additions and then add them only if not added.
+PATH_PREF=()
+PATH_POST=()
+
 # Binary fries.
-PATH="/home/${LOGNAME}/.fries/bin:${PATH}"
+PATH_PREF+=("/home/${LOGNAME}/.fries/bin")
 
 # /srv/opt/bin
-PATH="${OPT_BIN}:${PATH}"
+PATH_PREF+=("${OPT_BIN}")
 
 # ~/.local/bin is where, e.g., `pip install --user blah` installs.
-PATH="${PATH}:${HOME}/.local/bin"
+PATH_POST+=("${HOME}/.local/bin")
 
 # Android Studio.
 JAVA_HOME=${OPT_BIN}/jdk
 JRE_HOME=$JAVA_HOME/jre
 if [[ -d ${JAVA_HOME} ]]; then
-  PATH="${JAVA_HOME}/bin:${JRE_HOME}/bin:${PATH}"
+  PATH_PREF+=("${JAVA_HOME}/bin:${JRE_HOME}/bin")
 fi
 if [[ -d ${OPT_BIN}/android-studio/bin ]]; then
-  PATH="${PATH}:${OPT_BIN}/android-studio/bin"
+  PATH_POST+=("${OPT_BIN}/android-studio/bin")
 fi
 if [[ -d ${OPT_BIN}/android-sdk/platform-tools ]]; then
-  PATH="${PATH}:${OPT_BIN}/android-sdk/platform-tools"
+  PATH_POST+=("${OPT_BIN}/android-sdk/platform-tools")
 fi
 
 # No whep. 2016.04.28 and this is the first time I've seen this.
@@ -108,13 +115,13 @@ fi
 #   The command could not be located because '/sbin' is not included in the PATH environment variable.
 #   This is most likely caused by the lack of administrative privileges associated with your user account.
 #   ifconfig: command not found
-PATH="${PATH}:/sbin"
+PATH_POST+=("/sbin")
 
 # 2016-07-11: Google Go, for Google Drive `drive`.
 #
 # The latest go binary.
 if [[ -d /usr/local/go/bin ]]; then
-  PATH=/usr/local/go/bin:${PATH}
+  PATH_PREF+=("/usr/local/go/bin")
 fi
 if [[ ! -d ${HOME}/.gopath ]]; then
   # 2016-10-03: Why not?
@@ -125,12 +132,12 @@ if [[ -d ${HOME}/.gopath ]]; then
   export GOPATH=${HOME}/.gopath
   # Check with: `go env`
 
-  PATH=${GOPATH}:${GOPATH}/bin:${PATH}
+  PATH_PREF+=("${GOPATH}:${GOPATH}/bin")
 fi
 
 # OpenShift Origin server.
 if [[ -d ${OPT_BIN}/openshift-origin-server ]]; then
-  PATH="${PATH}:${OPT_BIN}/openshift-origin-server"
+  PATH_POST+=("${OPT_BIN}/openshift-origin-server")
 
   # OpenShift development.
   #  https://github.com/openshift/origin/blob/master/CONTRIBUTING.adoc#develop-locally-on-your-host
@@ -145,13 +152,13 @@ fi
 # even use a trailing newline. Why to respk house rulz, bruh.
 #
 #     ### Added by the Heroku Toolbelt
-#     export PATH="/usr/local/heroku/bin:$PATH"
+#     export NEW_PATHS+=("/usr/local/heroku/bin:$PATH")
 #
 # Also, shouldn't you be at the _end_ of the conga line?
 # And what ever happened to being polite and checking for
 # existence?
 if [[ -d /usr/local/heroku/bin ]]; then
-  PATH="${PATH}:/usr/local/heroku/bin"
+  PATH_POST+=("/usr/local/heroku/bin")
 fi
 
 # 2016-12-03: I guess MrMurano is my first gem.
@@ -160,10 +167,34 @@ if type -P ruby &>/dev/null; then
   #   ~/.gem/ruby/1.9.1
   ruby_gem_path=$(ruby -rubygems -e 'puts Gem.user_dir')
   if [[ -n ${ruby_gem_path} ]]; then
-    PATH="${PATH}:${ruby_gem_path}"
-    PATH="${PATH}:${ruby_gem_path}/bin"
+    PATH_POST+=("${ruby_gem_path}")
+    PATH_POST+=("${ruby_gem_path}/bin")
   fi
 fi
+
+# 2016-12-06: Check if directory in PATH or not (so PATH doesn't
+# just become really long if you run /bin/bash from a shell).
+#   https://stackoverflow.com/questions/1396066/
+#     detect-if-users-path-has-a-specific-directory-in-it
+#   "Using grep is overkill, and can cause trouble if you're searching for
+#   anything that happens to include RE metacharacters. This problem can be
+#   solved perfectly well with bash's builtin [[ command:" [... see below.]
+
+for ((i = 0; i < ${#PATH_PREF[@]}; i++)); do
+  PATH_ELEM="${PATH_PREF[$i]}"
+  # Similar to:
+  #  path_add_part "${PATH_ELEM}"
+  if [[ ":${PATH}:" != *":${PATH_ELEM}:"* ]]; then
+    PATH="${PATH_ELEM}:${PATH}"
+  fi
+done
+
+for ((i = 0; i < ${#PATH_POST[@]}; i++)); do
+  PATH_ELEM="${PATH_POST[$i]}"
+  if [[ ":${PATH}:" != *":${PATH_ELEM}:"* ]]; then
+    PATH="${PATH}:${PATH_ELEM}"
+  fi
+done
 
 export PATH
 
@@ -1474,7 +1505,7 @@ if false; then
   #alias tt="traskr.py"
 
   # FIXME: We can do better!
-  #PATH="${PATH}:/kit/traskr-time-tracker"
+  #PATH_POST+=("/kit/traskr-time-tracker")
 
   #eval "$(register-python-argcomplete ${HOME}/.todo.actions.d/traskr)"
   #eval "$(register-python-argcomplete /kit/traskr-time-tracker/traskr.py)"

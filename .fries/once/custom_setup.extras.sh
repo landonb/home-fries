@@ -2980,7 +2980,9 @@ stage_4_google_drive_drive () {
   #  For more details see: go help gopath
   # Add to bashrc:
   #  export GOPATH=${HOME}/.gopath
-  #  export PATH=${PATH}:${GOPATH}:${GOPATH}/bin
+  #  #export PATH=${PATH}:${GOPATH}:${GOPATH}/bin
+  #  path_add_part "${GOPATH}"
+  #  path_add_part "${GOPATH}/bin"
 
   # SECOND ATTEMPT
   #
@@ -3015,7 +3017,8 @@ stage_4_google_drive_drive () {
   # go version go1.2.1 linux/amd64
   wget -N https://storage.googleapis.com/golang/go1.6.2.linux-amd64.tar.gz
   # Add to bashrc:
-  #  export PATH=$PATH:/usr/local/go/bin
+  #  #export PATH=$PATH:/usr/local/go/bin
+  #  path_add_part "/usr/local/go/bin"
   sudo tar -C /usr/local -xzf go1.6.2.linux-amd64.tar.gz
 
   # THIRD ATTEMPT
