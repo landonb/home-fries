@@ -2,7 +2,7 @@
 
 # File: setup_ubuntu.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.06
+# Last Modified: 2016.12.07
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -512,10 +512,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       exuberant-ctags
       # Ruby dev tools for Command-T.
       ruby-dev
-      # On 14.04, ruby 1.9 is default. On 16.04, ruby 2.x is default.
-      ruby2.0
-      ruby2.0-dev
-      ruby2.0-doc
 
       # `most` is pretty lame; author prefers `less`.
       #most
@@ -893,7 +889,14 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
     ) # end: BIG_DESKTOP_LIST_MINT_17
 
     local BIG_DESKTOP_LIST_MINT_18=(
+
       python-wxgtk3.0
+
+      # On 14.04, ruby 1.9 is default. On 16.04, ruby 2.3 is default.
+      ruby2.3
+      ruby2.3-dev
+      ruby2.3-doc
+
     ) # end: BIG_DESKTOP_LIST_MINT_18
 
     local BIG_PACKAGE_LIST_LMINT_17X=(
@@ -949,6 +952,11 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       # 2016-09-23: For some reason the desktop stopped being locked after suspend.
       # For the xss-lock!
       xscreensaver
+
+      # On 14.04, ruby 1.9 is default. On 16.04, ruby 2.3 is default.
+      ruby2.0
+      ruby2.0-dev
+      ruby2.0-doc
 
     ) # end: BIG_PACKAGE_LIST_LMINT_17X
 
