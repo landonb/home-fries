@@ -1553,13 +1553,18 @@ stage_4_shiny_precious_gems () {
     sudo make install
   fi
 
-  sudo apt-add-repository ppa:brightbox/ruby-ng
-  sudo apt-get update
-  sudo apt-get install -y ruby2.2 ruby2.2-dev ruby2.2-doc
-  sudo apt-get install -y ruby2.3 ruby2.3-dev ruby2.3-doc
+  # 2016-12-07: Added, then disabled. See ruby-install and chruby instead.
+  if false; then
+    sudo apt-add-repository ppa:brightbox/ruby-ng
+    sudo apt-get update
+    sudo apt-get install -y ruby2.2 ruby2.2-dev ruby2.2-doc
+    sudo apt-get install -y ruby2.3 ruby2.3-dev ruby2.3-doc
+  fi
 
   # MAYBE: Is there such a thing as a ~/.gemspec or something
   #   that installs non-project specific dev gems?
+
+  # REVIEW: Does gem need to be called for each chruby version?
 
   # gem installer
   sudo gem install bundler
