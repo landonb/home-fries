@@ -1363,13 +1363,13 @@ termdo-bash-reset () {
   # Note also the backgrounded and the sleep. 2 termdo-all's in a row
   # don't work from the same shell (the second is apparently ignored),
   # so sub-shell the first call and sleep to make it work.
-  termdo-all bash_exit_bash_hole &
+  termdo-all bash-exit-bash-hole &
   #sleep 0.5
   sleep 1.0
   termdo-all /bin/bash
 }
 
-bash_exit_bash_hole () {
+bash-exit-bash-hole () {
   # If the parent process is also bash, we're bash-in-bash,
   # so we want to exit to the outer shell.
   ps aux | grep "bash" | grep $PPID &> /dev/null
