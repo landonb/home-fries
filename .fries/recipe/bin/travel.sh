@@ -2057,14 +2057,9 @@ function unpack () {
   unpack_plaintext_archives
 
   mount_curly_emissary_gooey
+
   # pull_git_repos knows 'emissary' and 'dev-machine'.
   pull_git_repos 'dev-machine'
-  umount_curly_emissary_gooey
-
-  update_hamster_db
-
-  # 2016-10-09: Save yourself a step reface automatically on unpack.
-  chase_and_face
 
   set +e
   command -v user_do_unpack &> /dev/null
@@ -2073,6 +2068,13 @@ function unpack () {
   if [[ ${EXIT_CODE} -eq 0 ]]; then
     user_do_unpack
   fi
+
+  umount_curly_emissary_gooey
+
+  update_hamster_db
+
+  # 2016-10-09: Save yourself a step reface automatically on unpack.
+  chase_and_face
 
   create_umount_script
 
@@ -2150,12 +2152,6 @@ function prepare_shim () {
   echo "  Copying: ${PREFIX}${TRAVEL_TASKS_PATH}"
   /bin/cp -aLf ${PREFIX}${TRAVEL_TASKS_PATH} .
 
-  if ${USE_GOOEY}; then
-    umount_curly_emissary_gooey
-  fi
-
-  popd &> /dev/null
-
   set +e
   command -v user_do_prepare_shim &> /dev/null
   EXIT_CODE=$?
@@ -2164,6 +2160,13 @@ function prepare_shim () {
     user_do_prepare_shim
   fi
 
+  if ${USE_GOOEY}; then
+    umount_curly_emissary_gooey
+  fi
+
+  popd &> /dev/null
+
+  # REVIEW/2016-12-07: What's the point of this echo?
   echo ${USERS_CURLY}
 
 } # end: prepare_shim
