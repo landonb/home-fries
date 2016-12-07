@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016.11.30
+# Last Modified: 2016.12.07
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
@@ -1670,7 +1670,8 @@ function pull_gardened_repo () {
     TARGET_PATH="${ENCFS_REL_PATH}/$(basename ${fpath})"
     if [[ -d ${TARGET_PATH}/.git ]]; then
       echo "  $fpath"
-      git_pull_hush ${PREFIX}${ABS_PATH}/$(basename ${fpath}) ${TARGET_PATH}
+      SOURCE_PATH="${PREFIX}${ABS_PATH}/$(basename ${fpath})"
+      git_pull_hush "${SOURCE_PATH}" "${TARGET_PATH}"
     else
       #echo " skipping (not .git/): $fpath"
       :
