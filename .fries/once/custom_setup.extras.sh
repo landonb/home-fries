@@ -1484,10 +1484,65 @@ stage_4_shiny_precious_gems () {
 
   stage_announcement "stage_4_shiny_precious_gems"
 
-  #pushd ${OPT_DLOADS} &> /dev/null
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # 2016-12-06: Ug. Ubuntu 14.04, why do I still use thee?
+  #   $ ruby -v
+  #   ruby 1.9.3p484 (2013-11-22 revision 43786) [x86_64-linux]
+  #   $ ruby2.0 -v
+  #   ruby 2.0.0p384 (2014-01-12) [x86_64-linux-gnu]
+
+  if false; then
+    rb22_sha256="de8e192791cb157d610c48a9a9ff6e7f19d67ce86052feae62b82e3682cc675f"
+    rb22_version=2.2.6
+    rb22_archive="ruby-${rb22_version}.tar.gz"
+    rb22_https="https://cache.ruby-lang.org/pub/ruby/2.2/${rb22_archive}"
+    #
+    wget -N ${rb22_https}
+    # https://help.ubuntu.com/community/HowToSHA256SUM
+    if [[ $(sha256sum ${rb22_archive} | awk '{print $1}') != ${rb22_sha256} ]]; then
+      echo "FATAL: SHA256 mismatch: $(sha256sum ${rb22_archive}) / expected: ${rb22_sha256}"
+      exit 1
+    fi
+    tar xvzf ${rb22_archive}
+    cd "ruby-${rb22_version}"
+    ./configure
+    make
+    sudo make install
+    #
+    cd 
+    /bin/ln -s 
+  fi
+
+  if false; then
+    rb23_sha256="241408c8c555b258846368830a06146e4849a1d58dcaf6b14a3b6a73058115b7"
+    rb23_version=2.3.3
+    rb23_archive="ruby-${rb23_version}.tar.gz"
+    rb23_https="https://cache.ruby-lang.org/pub/ruby/2.3/${rb23_archive}"
+    #
+    wget -N ${rb23_https}
+    # https://help.ubuntu.com/community/HowToSHA256SUM
+    if [[ $(sha256sum ${rb23_archive} | awk '{print $1}') != ${rb23_sha256} ]]; then
+      echo "FATAL: SHA256 mismatch: $(sha256sum ${rb23_archive}) / expected: ${rb23_sha256}"
+      exit 1
+    fi
+    tar xvzf ${rb23_archive}
+    cd "ruby-${rb23_version}"
+    ./configure
+    make
+    sudo make install
+  fi
+
+  sudo apt-add-repository ppa:brightbox/ruby-ng
+  sudo apt-get update
+  sudo apt-get install -y ruby2.2 ruby2.2-dev ruby2.2-doc
+  sudo apt-get install -y ruby2.3 ruby2.3-dev ruby2.3-doc
 
   # MAYBE: Is there such a thing as a ~/.gemspec or something
   #   that installs non-project specific dev gems?
+
+  # gem installer
+  sudo gem install bundler
 
   # ruby-debug is good through ruby 1.9, not 2.x (2016-12-06: Currently 2.3).
   sudo gem install ruby-debug
@@ -1503,7 +1558,7 @@ stage_4_shiny_precious_gems () {
   # ASCII tables.
   sudo gem install terminal-table
 
-  #popd &> /dev/null
+  popd &> /dev/null
 
 } # end: stage_4_shiny_precious_gems
 
