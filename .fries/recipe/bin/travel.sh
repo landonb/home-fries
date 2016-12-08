@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016.12.07
+# Last Modified: 2016.12.08
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
@@ -2054,7 +2054,10 @@ function unpack () {
 
   mkdir -p ${UNPACKERED_PATH}
 
-  unpack_plaintext_archives
+  # FIXME/2016-12-08: This shouldn't be done on junior_chef's, right?
+  if [[ -f ${HOME}/.curly/master_chef ]]; then
+    unpack_plaintext_archives
+  fi
 
   mount_curly_emissary_gooey
 
