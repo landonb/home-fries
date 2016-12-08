@@ -1,6 +1,6 @@
 # File: bashrc.base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.07
+# Last Modified: 2016.12.08
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Smart Bash Startup Script
 # License: GPLv3
@@ -48,6 +48,15 @@ if [[ -f "/etc/bashrc" ]]; then
 elif [[ -f "/etc/bash.bashrc" ]]; then
   # Debian/Ubuntu.
   . /etc/bash.bashrc
+fi
+
+# Useful fcns. like path_add_part
+# ===============================
+
+if [[ -f ${HOME}/.fries/lib/bash_base.sh ]]; then
+  # 2016.05.05: Cinqo de Mayo. This is cool, right?
+  DEBUG_TRACE=false \
+    source ${HOME}/.fries/lib/bash_base.sh
 fi
 
 # Machine-specific Profiles
