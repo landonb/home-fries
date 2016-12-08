@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.07
+# Last Modified: 2016.12.08
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -1599,6 +1599,8 @@ stage_4_shiny_precious_gems () {
 
   # ASCII tables.
   sudo gem install terminal-table
+
+  sudo gem install httparty
 
   popd &> /dev/null
 
