@@ -1446,7 +1446,7 @@ stage_4_all_the_young_pips () {
 
   # https://argcomplete.readthedocs.org/en/latest/#activating-global-completion%20argcomplete
 # FIXME:
-# The directory '/home/landonb/.cache/pip' or its parent directory is not owned by the current user and caching wheels has been disabled. check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.
+# The directory 'll ~/.cache/pip' or its parent directory is not owned by the current user and caching wheels has been disabled. check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.
   sudo pip2 install argcomplete
   sudo pip3 install argcomplete
   sudo activate-global-python-argcomplete
@@ -1497,8 +1497,12 @@ stage_4_install_ruby_install () {
     exit 1
   fi
   # Install the latest Ruby.
-  # PATIENCE: Runs for a few minutes 'cause it builds Ruby.
-  ruby-install --latest ruby 2.3
+  # PATIENCE: `ruby-install` runs for a few minutes 'cause it builds Ruby.
+  #   And it always build fresh, even if that version of ruby is already there.
+  # 2016-12-08: Did "ruby 2.3" just install 2.3.0? I have 2.3.0 and 2.3.3 and gem
+  #   problems with the latter.
+  #ruby-install --latest ruby 2.3
+  ruby-install --latest ruby 2.3.3
   # Install other versions if you want, too, but this project uses 2.3.
   ruby-install --latest ruby 2.2
 
@@ -1511,6 +1515,20 @@ stage_4_install_ruby_install () {
   popd &> /dev/null
 
 } # end: stage_4_install_ruby_install
+
+ruby_install_gems () {
+  echo chruby $1
+  chruby $1
+  gem install \
+    --user-install \
+    bundler \
+    pry \
+    byebug \
+    commander \
+    rubocop \
+    terminal-table \
+    httparty
+}
 
 stage_4_shiny_precious_gems () {
   if ${SKIP_EVERYTHING}; then
@@ -1601,6 +1619,12 @@ stage_4_shiny_precious_gems () {
   sudo gem install terminal-table
 
   sudo gem install httparty
+
+  #ruby_install_gems ruby-1.9
+  #ruby_install_gems ruby-2.2
+  #ruby_install_gems ruby-2.3
+  #ruby_install_gems ruby-2.3.0
+  ruby_install_gems ruby-2.3.3
 
   popd &> /dev/null
 
@@ -4793,7 +4817,7 @@ stage_4_go_delve_debugger () {
   # ll gocode
 
 # FIXME
-#      /home/landonb/.gopath/src/github.com/landonb
+#      ll ~/.gopath/src/github.com/landonb
 #      ln -s /kit/sturdy/delve
 
   popd &> /dev/null
