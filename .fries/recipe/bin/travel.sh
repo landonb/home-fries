@@ -1575,7 +1575,8 @@ function check_gardened_repo () {
   ENCFS_GIT_ITER=$1
   echo " top-level: ${ENCFS_GIT_ITER}"
   while IFS= read -r -d '' fpath; do
-    if [[ -d ${fpath}/.git ]]; then
+    # 2016-12-08: Adding ! -h, should be fine, and faster.
+    if [[ -d ${fpath}/.git && -h ${fpath} ]]; then
       echo "  ${fpath}"
       pushd ${fpath} &> /dev/null
       git_status_porcelain_wrap "${fpath}"
