@@ -1,7 +1,7 @@
 # File: bashrc.core.sh
 #  vim:tw=0:ts=2:sw=2:et:norl:
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.07
+# Last Modified: 2016.12.08
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -162,15 +162,26 @@ if [[ -d /usr/local/heroku/bin ]]; then
 fi
 
 # 2016-12-03: I guess MrMurano is my first gem.
-if type -P ruby &>/dev/null; then
-  # Determine the user's rubygems path. E.g.,
-  #   ~/.gem/ruby/1.9.1
-  ruby_gem_path=$(ruby -rubygems -e 'puts Gem.user_dir')
-  if [[ -n ${ruby_gem_path} ]]; then
-    PATH_POST+=("${ruby_gem_path}")
-    PATH_POST+=("${ruby_gem_path}/bin")
-  fi
-fi
+# 2016-12-08: Looks like `chruby` updates PATH for us.
+#  if type -P ruby &>/dev/null; then
+#    # Determine the user's rubygems path. E.g.,
+#    #   ~/.gem/ruby/1.9.1
+#    ruby_gem_path=$(ruby -rubygems -e 'puts Gem.user_dir')
+#    if [[ -n ${ruby_gem_path} ]]; then
+#      PATH_POST+=("${ruby_gem_path}")
+#      PATH_POST+=("${ruby_gem_path}/bin")
+#    fi
+#  fi
+#
+# FIXME/2016-12-08: Probably need to figure out how to handle chruby, e.g.,
+# $ chruby ruby-2.3.3
+# $ gem install --user-install bundler pry byebug commander rubocop terminal-table httparty
+# Fetching: bundler-1.13.6.gem (100%)
+# WARNING:  You don't have /home/landonb/.gem/ruby/2.3.0/bin in your PATH,
+# 	  gem executables will not run.
+# ...
+#
+# MAYBE: just override chruby to fix PATH?
 
 # 2016-12-06: Check if directory in PATH or not (so PATH doesn't
 # just become really long if you run /bin/bash from a shell).
@@ -1613,6 +1624,37 @@ fi
 if [[ -f /usr/local/share/chruby/auto.sh ]]; then
   source /usr/local/share/chruby/auto.sh
 fi
+
+# tail -n +2 remove the original function declartion.
+eval "$(echo "orig_chruby_use()"; declare -f chruby_use | tail -n +2)"
+# MONKEY PATCH!
+chruby_use () {
+  orig_chruby_use $*
+  # See chruby_use in
+  #   /usr/local/share/chruby/chruby.sh
+  # MAYBE: If you need to cleanup old paths, something like this:
+  if false; then
+    export GEM_PATH="$(\
+      echo ${GEM_PATH} \
+        | /bin/sed -r "s@:?${GEM_HOME}[^:]*:@:@g" \
+        | /bin/sed -r s/^:// \
+        | /bin/sed -r s/:$//
+    )"
+  fi
+  # Check if patch version.
+  PATCH_NUM=$(ruby -e "puts RUBY_VERSION.split('.')[2]")
+  if [[ ${PATCH_NUM} -gt 0 ]]; then
+    echo "Monkey patching!"
+    RUBY_MINOR_ZERO=$(ruby -e "puts RUBY_VERSION.split('.')[0..1].join('.') + '.0'")
+    GEM_PATH="${GEM_PATH}:${HOME}/.gem/ruby/${RUBY_MINOR_ZERO}"
+    GEM_PATH="${GEM_PATH}:${HOME}/.rubies/ruby-${RUBY_MINOR_ZERO}/lib/ruby/gems/${RUBY_MINOR_ZERO}"
+    export GEM_PATH
+    # WRONG:
+    #RUBY_ROOT_ZERO=$(echo ${RUBY_ROOT} | /bin/sed -r s/-${RUBY_VERSION}$/-${RUBY_MINOR_ZERO}/)
+	  #export PATH="${PATH}:${RUBY_ROOT_ZERO}/bin"
+    export PATH="${PATH}:${GEM_HOME/${RUBY_VERSION}/${RUBY_MINOR_ZERO}}/bin"
+  fi
+}
 
 #########################
 
