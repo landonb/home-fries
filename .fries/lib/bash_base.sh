@@ -2,7 +2,7 @@
 
 # File: bash_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.07
+# Last Modified: 2016.12.11
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bash function library.
 # License: GPLv3
@@ -104,12 +104,16 @@ path_add_part () {
 
 # http://wiki.bash-hackers.org/commands/builtin/caller
 
-die () {
+where () {
   local frame=0
   while caller $frame; do
     ((frame++));
   done
   echo "$*"
+}
+
+die () {
+  where
   exit 1
 }
 
