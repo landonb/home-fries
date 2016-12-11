@@ -15,9 +15,22 @@ if [[ -f /usr/local/share/chruby/auto.sh ]]; then
   source /usr/local/share/chruby/auto.sh
 fi
 
-# tail -n +2 remove the original function declartion.
+# Here we monkey patch the chruby function -- replace the actual fcn.
+# with our own wrapper function.
+#
+# PROBLEM: If the ruby version is not the 0 patch level (e.g., 2.3.0),
+#   chruby doesn't include all the gem paths. For example, should you
+#   `chruby 2.3.3`, GEM_PATH include the 2.3.3/ directory, but gem install
+#   stashed everything under the 2.3.0/ directory, so we have to add that
+#   back in.
+
+# Do a little Bash trickery: Spit out the original function and set it up
+#   under a new name. We use `tail -n +2` to remove the original function
+#   name but leave the function body, e.g., leave out ``chruby_use ()\n``.
 eval "$(echo "orig_chruby_use()"; declare -f chruby_use | tail -n +2)"
-# MONKEY PATCH!
+
+# And here's our
+#   MONKEY PATCH!
 chruby_use () {
   orig_chruby_use $*
   # See chruby_use in
@@ -34,14 +47,10 @@ chruby_use () {
   # Check if patch version.
   PATCH_NUM=$(ruby -e "puts RUBY_VERSION.split('.')[2]")
   if [[ ${PATCH_NUM} -gt 0 ]]; then
-    # FIXME/2016-12-11: `gogo utc utc-audit` then `date` hits this
-    #where
-    # # 18 chruby_use /home/landonb/.fries/.bashrc/bashrc.core.sh
-    # # 36 chruby /usr/local/share/chruby/chruby.sh
-    # # 10 chruby_auto /usr/local/share/chruby/auto.sh
-    # REASON: auto.sh sets a trap on DEBUG which runs before every command!
-    # 2016-12-11: Ug: Now the problem isn't repeating itself...
-    #   well, it seems to only happen in a `ttyrec` session. Srsly?
+    # NOTE/2016-12-11: If there's a .ruby-version file in the current
+    #   directory, running *any* command might invoke us, since auto.sh
+    #   sets a trap on DEBUG which runs before every command. Just FYI.
+    # MAYBE: Silence this echo. For now, curious when this fcn. is triggered.
     echo "Monkey patching!"
     RUBY_MINOR_ZERO=$(ruby -e "puts RUBY_VERSION.split('.')[0..1].join('.') + '.0'")
     GEM_PATH="${GEM_PATH}:${HOME}/.gem/ruby/${RUBY_MINOR_ZERO}"
