@@ -1,6 +1,6 @@
 # File: .fries/lib/openshift_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.03
+# Last Modified: 2016.12.11
 # Project Page: https://github.com/landonb/home-fries
 # Summary: OpenShift Helpers.
 # License: GPLv3
