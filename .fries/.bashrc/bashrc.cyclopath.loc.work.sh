@@ -1,6 +1,6 @@
 # File: bashrc.cyclopath.loc.work.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.06
+# Last Modified: 2016.12.11
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Cyclopath bash startup script for CS machines.
 # License: GPLv3
@@ -24,7 +24,8 @@ fi
 # == Running on local/home machine ==
 
 # Initialize the terminal prompt and terminal titlebar name.
-dubs_set_terminal_prompt
+# 2016-12-11: Disabled: dubs_set_terminal_prompt.
+#dubs_set_terminal_prompt
 
 # Add GroupLens scripts to path.
 #export PATH=/ccp/bin/grpbin:/ccp/opt/usr/bin:$PATH
@@ -92,7 +93,8 @@ sss () {
   # 2013.01.30: Hahaha, the problem is that this needs to be called from the
   #   remote machine on its bash startup.
   wmctrl -r :ACTIVE: -T ""
-  dubs_set_terminal_prompt
+  # 2016-12-11: Disabled: dubs_set_terminal_prompt.
+  #dubs_set_terminal_prompt
 
   echo "All done byebyenow."
 }

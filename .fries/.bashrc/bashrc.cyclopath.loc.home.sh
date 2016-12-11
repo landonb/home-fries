@@ -24,7 +24,8 @@ fi
 # == Running on remote/work machine. ==
 
 # Initialize the terminal prompt and terminal titlebar name.
-dubs_set_terminal_prompt `hostname`
+# 2016-12-11: Disabled: dubs_set_terminal_prompt.
+#dubs_set_terminal_prompt `hostname`
 
 # GroupLens scripts.
 # CcpV1:
