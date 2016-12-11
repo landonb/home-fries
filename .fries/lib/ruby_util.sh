@@ -24,7 +24,7 @@ fi
 #
 # PROBLEM: If the ruby version is not the 0 patch level (e.g., 2.3.0),
 #   chruby doesn't include all the gem paths. For example, should you
-#   `chruby 2.3.3`, GEM_PATH include the 2.3.3/ directory, but gem install
+#   `chruby 2.3.3`, GEM_PATH includes the 2.3.3/ directory, but gem install
 #   stashed everything under the 2.3.0/ directory, so we have to add that
 #   back in.
 
