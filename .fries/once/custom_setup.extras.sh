@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.08
+# Last Modified: 2016.12.11
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -5563,6 +5563,32 @@ stage_4_install_visual_studio_code () {
 
 } # end: stage_4_install_visual_studio_code
 
+stage_4_install_ttygif () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_install_ttygif"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # 2016-12-09: These packages were *not* added to Big List in setup_ubuntu.sh.
+  #   http://nethack.wikia.com/wiki/Ttyrec#ttyrec_format
+  sudo apt-get install -y imagemagick ttyrec gcc x11-apps
+  git clone https://github.com/icholy/ttygif.git
+  cd ttygif
+  make
+  sudo make install
+
+  # Then:
+  #   ttyrec myrecording
+  #   ^D # or `exit`, if you disabled terminal Ctrl-D.
+  #   ttygif myrecording
+
+  popd &> /dev/null
+
+} # end: stage_4_install_ttygif
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -5806,6 +5832,8 @@ setup_customize_extras_go () {
   stage_4_install_zoom_cloud_meetings
 
   stage_4_install_visual_studio_code
+
+  stage_4_install_ttygif
 
   # Add before this'n: stage_4_fcn_template.
 
