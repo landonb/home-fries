@@ -6,17 +6,21 @@
 # License: GPLv3
 # vim:tw=0:ts=2:sw=2:et:norl:
 
-# 2016-12-07: ``chruby`` sources.
-# MAYBE: This bashrc.core.sh is getting bloated. Make a ruby_util.sh?
+# See:
+#   https://github.com/postmodern/ruby-install
+#   https://github.com/postmodern/chruby
+
 if [[ -f /usr/local/share/chruby/chruby.sh ]]; then
   source /usr/local/share/chruby/chruby.sh
 fi
+
 if [[ -f /usr/local/share/chruby/auto.sh ]]; then
   source /usr/local/share/chruby/auto.sh
 fi
 
-# Here we monkey patch the chruby function -- replace the actual fcn.
-# with our own wrapper function.
+# Here we monkey patch the chruby function -- we replace
+# the chruby fcn. with our own wrapper function.
+# MAYBE: I should probably just submit a pull request.
 #
 # PROBLEM: If the ruby version is not the 0 patch level (e.g., 2.3.0),
 #   chruby doesn't include all the gem paths. For example, should you
