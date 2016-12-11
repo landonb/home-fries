@@ -1,6 +1,6 @@
 # File: bashrc.cyclopath.loc.home.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.06
+# Last Modified: 2016.12.11
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Cyclopath bash startup script for remote, non-CS machines.
 # License: GPLv3

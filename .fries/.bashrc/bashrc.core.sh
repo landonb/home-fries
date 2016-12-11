@@ -1,7 +1,7 @@
 # File: bashrc.core.sh
 #  vim:tw=0:ts=2:sw=2:et:norl:
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.08
+# Last Modified: 2016.12.11
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -971,7 +971,6 @@ function dubs_set_terminal_prompt() {
   #         PROMPT_COMMAND='echo -ne "${TITLEBAR}\[\033[01;36m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]\$ "'
 
 }
-
 dubs_set_terminal_prompt
 
 # Fix ls -C
@@ -1644,6 +1643,14 @@ chruby_use () {
   # Check if patch version.
   PATCH_NUM=$(ruby -e "puts RUBY_VERSION.split('.')[2]")
   if [[ ${PATCH_NUM} -gt 0 ]]; then
+    # FIXME/2016-12-11: `gogo utc utc-audit` then `date` hits this
+    #where
+    # # 18 chruby_use /home/landonb/.fries/.bashrc/bashrc.core.sh
+    # # 36 chruby /usr/local/share/chruby/chruby.sh
+    # # 10 chruby_auto /usr/local/share/chruby/auto.sh
+    # REASON: auto.sh sets a trap on DEBUG which runs before every command!
+    # 2016-12-11: Ug: Now the problem isn't repeating itself...
+    #   well, it seems to only happen in a `ttyrec` session. Srsly?
     echo "Monkey patching!"
     RUBY_MINOR_ZERO=$(ruby -e "puts RUBY_VERSION.split('.')[0..1].join('.') + '.0'")
     GEM_PATH="${GEM_PATH}:${HOME}/.gem/ruby/${RUBY_MINOR_ZERO}"
