@@ -62,7 +62,7 @@ chruby_use () {
     export GEM_PATH
     # WRONG:
     #RUBY_ROOT_ZERO=$(echo ${RUBY_ROOT} | /bin/sed -r s/-${RUBY_VERSION}$/-${RUBY_MINOR_ZERO}/)
-	  #export PATH="${PATH}:${RUBY_ROOT_ZERO}/bin"
+    #export PATH="${PATH}:${RUBY_ROOT_ZERO}/bin"
     export PATH="${PATH}:${GEM_HOME/${RUBY_VERSION}/${RUBY_MINOR_ZERO}}/bin"
   fi
 }
