@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.11
+# Last Modified: 2016.12.12
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -5589,6 +5589,34 @@ stage_4_install_ttygif () {
 
 } # end: stage_4_install_ttygif
 
+stage_4_install_cassandra () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_install_cassandra"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # https://cassandra.apache.org/download/
+
+  echo "deb http://www.apache.org/dist/cassandra/debian 39x main" \
+    | sudo tee -a /etc/apt/sources.list.d/cassandra.sources.list
+
+  curl https://www.apache.org/dist/cassandra/KEYS | sudo apt-key add -
+
+  sudo apt-get update
+
+  sudo apt-get install -y cassandra
+
+  # See also:
+  #   https://www.influxdata.com/
+  #   https://github.com/influxdata/influxdb
+
+  popd &> /dev/null
+
+} # end: stage_4_install_cassandra
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -5834,6 +5862,9 @@ setup_customize_extras_go () {
   stage_4_install_visual_studio_code
 
   stage_4_install_ttygif
+
+  # 2016-12-12: For work!
+  stage_4_install_cassandra
 
   # Add before this'n: stage_4_fcn_template.
 
