@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016.12.08
+# Last Modified: 2016.12.12
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
@@ -1672,6 +1672,8 @@ function pull_gardened_repo () {
     if [[ -d ${TARGET_PATH}/.git && ! -h ${TARGET_PATH} ]]; then
       echo "  $fpath"
       SOURCE_PATH="${PREFIX}${ABS_PATH}/$(basename ${fpath})"
+      #echo "\${SOURCE_PATH}: ${SOURCE_PATH}"
+      #echo "\${TARGET_PATH}: ${TARGET_PATH}"
       git_pull_hush "${SOURCE_PATH}" "${TARGET_PATH}"
     else
       #echo " skipping (not .git/, or symlink): $fpath"
@@ -1699,8 +1701,13 @@ function pull_git_repos () {
   for ((i = 0; i < ${#ENCFS_GIT_REPOS[@]}; i++)); do
     ABS_PATH="${ENCFS_GIT_REPOS[$i]}"
     ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
-    echo " ${ENCFS_REL_PATH}"
-    git_pull_hush ${PREFIX}${ABS_PATH} ${ENCFS_REL_PATH}
+    # MAYBE/2016-12-12: Ignore symlinks?
+    #if [[ -d ${ENCFS_REL_PATH} && ! -h ${ENCFS_REL_PATH} ]]; then
+      echo " ${ENCFS_REL_PATH}"
+      git_pull_hush ${PREFIX}${ABS_PATH} ${ENCFS_REL_PATH}
+    #else
+    #  echo " not dir/symlink: ${ENCFS_REL_PATH}"
+    #fi
   done
 
   echo "Pulling gardened git repos..."
