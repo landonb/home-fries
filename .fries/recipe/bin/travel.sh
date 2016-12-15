@@ -1249,6 +1249,7 @@ function mount_curly_emissary_gooey_explicit () {
 }
 
 function mount_curly_emissary_gooey () {
+  #echo "GOOEY: Mount"
   # Make the gooey candy center.
   mkdir -p ${EMISSARY}/gooey
   mkdir -p ${EMISSARY}/.gooey
@@ -1271,6 +1272,7 @@ function mount_curly_emissary_gooey () {
 }
 
 function umount_curly_emissary_gooey () {
+  #echo "GOOEY: Unmount"
   set +e
   mount | grep ${EMISSARY}/gooey > /dev/null
   exit_code=$?
