@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.12
+# Last Modified: 2016.12.15
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -512,6 +512,7 @@ function git_dir_check () {
     SKIP_GIT_PULL=true
     echo
     echo "WARNING: Not a directory: ${REPO_PATH}"
+    echo " In cwd: $(pwd -P)"
     die "WARNING: Not a directory: ${REPO_PATH}"
   elif [[ ! -d ${REPO_PATH}/.git ]]; then
     SKIP_GIT_PULL=true

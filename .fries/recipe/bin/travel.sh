@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016.12.12
+# Last Modified: 2016.12.15
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
@@ -1703,8 +1703,10 @@ function pull_git_repos () {
     ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
     # MAYBE/2016-12-12: Ignore symlinks?
     #if [[ -d ${ENCFS_REL_PATH} && ! -h ${ENCFS_REL_PATH} ]]; then
+      #echo " SOURCE_PATH: ${PREFIX}${ABS_PATH}"
+      #echo " TARGET_PATH: ${ENCFS_REL_PATH}"
       echo " ${ENCFS_REL_PATH}"
-      git_pull_hush ${PREFIX}${ABS_PATH} ${ENCFS_REL_PATH}
+      git_pull_hush "${PREFIX}${ABS_PATH}" "${ENCFS_REL_PATH}"
     #else
     #  echo " not dir/symlink: ${ENCFS_REL_PATH}"
     #fi
