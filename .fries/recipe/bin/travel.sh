@@ -1314,7 +1314,9 @@ function populate_gardened_repo () {
   while IFS= read -r -d '' fpath; do
     TARGET_PATH="${ENCFS_REL_PATH}/$(basename ${fpath})"
     if [[ -d ${fpath}/.git ]]; then
-      if [[ ! -e ${TARGET_PATH}/.git ]]; then
+      # 2016-12-15: Don't follow symlinks is probably good practice.
+      #if [[ ! -e ${TARGET_PATH}/.git ]]; then
+      if [[ ! -e "${TARGET_PATH}/.git" && ! -h "${fpath}" ]]; then
         echo " $fpath"
         echo "  \$ git clone ${fpath} ${TARGET_PATH}"
         git clone ${fpath} ${TARGET_PATH}
