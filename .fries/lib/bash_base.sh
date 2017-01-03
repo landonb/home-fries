@@ -2,12 +2,18 @@
 
 # File: bash_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.11
+# Last Modified: 2016.12.27
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bash function library.
 # License: GPLv3
 
 # Usage: Call this script from another script.
+
+if [[ -z ${HOMEFRIES_WARNINGS+x} ]]; then
+  # Usage, e.g.:
+  #   HOMEFRIES_WARNINGS=true bash
+  HOMEFRIES_WARNINGS=false
+fi
 
 # FIXME: Prepend 'local' keyword to function variables.
 
