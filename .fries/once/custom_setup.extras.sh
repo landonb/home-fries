@@ -3,15 +3,27 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.12
+# Last Modified: 2017.01.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
 
-# 2016-11-12: Calling it. Die of error, so we can fix it.
-# set -e
-set -o errexit
-USING_ERREXIT=true
+if [[ "$0" == "$BASH_SOURCE" ]]; then
+  # 2016-11-12: Calling it. Die of error, so we can fix it.
+  # set -e
+  set -o errexit
+  USING_ERREXIT=true
+else
+  set +o errexit
+fi
+function errexit_cleanup () {
+  echo
+  echo "ERROR: The script failed!!"
+  # No exit necessary, unless we want to specify status.
+  exit 1
+}
+trap errexit_cleanup EXIT
+
 # set -v
 #   Print shell input lines as they are read.
 #set -o verbose
