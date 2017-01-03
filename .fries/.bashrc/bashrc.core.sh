@@ -1797,6 +1797,20 @@ fi
 
 # https://askubuntu.com/questions/20821/using-locate-on-an-encrypted-partition
 
+# 2016-12-27: Always use the local locate db if it exists.
+# Funny: If you specify the normal db, e.g.,
+#   export LOCATE_PATH="/var/lib/mlocate/mlocate.db:$HOME/.mlocate/mlocate.db"
+# it gets searched twice and you get double the results.
+# So just indicate the user's mlocate.db.
+if [[ -f /var/lib/mlocate/mlocate.db ]]; then
+  export LOCATE_PATH="$HOME/.mlocate/mlocate.db"
+fi
+# See also:
+#   /etc/updatedb.conf
+# And you could also specify the dbs to locate
+#   locate -d /var/lib/mlocate/mlocate.db -d $HOME/.mlocate/mlocate.db
+# (and note that if you use -d, you need to specify both for both to be searched).
+
 updatedb_ecryptfs () {
   /bin/mkdir -p ~/.mlocate
   export LOCATE_PATH="$HOME/.mlocate/mlocate.db"
