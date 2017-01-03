@@ -1,6 +1,6 @@
 # File: ruby_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.11
+# Last Modified: 2016.12.27
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Ruby Helpers.
 # License: GPLv3
@@ -18,6 +18,12 @@ if [[ -f /usr/local/share/chruby/auto.sh ]]; then
   source /usr/local/share/chruby/auto.sh
 fi
 
+if [[ -z ${HOMEFRIES_WARNINGS+x} ]]; then
+  # Usage, e.g.:
+  #   HOMEFRIES_WARNINGS=true bash
+  HOMEFRIES_WARNINGS=false
+fi
+
 # Here we monkey patch the chruby function -- we replace
 # the chruby fcn. with our own wrapper function.
 # MAYBE: I should probably just submit a pull request.
@@ -31,7 +37,15 @@ fi
 # Do a little Bash trickery: Spit out the original function and set it up
 #   under a new name. We use `tail -n +2` to remove the original function
 #   name but leave the function body, e.g., leave out ``chruby_use ()\n``.
-eval "$(echo "orig_chruby_use()"; declare -f chruby_use | tail -n +2)"
+
+orig_chruby_use () {
+  :
+}
+if declare -f chruby_use; then
+  eval "$(echo "orig_chruby_use()"; declare -f chruby_use | tail -n +2)"
+else
+  $HOMEFRIES_WARNINGS && echo "WARNING: chruby_use() not found"
+fi
 
 # And here's our
 #   MONKEY PATCH!
