@@ -1,6 +1,6 @@
 # File: ruby_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.27
+# Last Modified: 2017.01.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Ruby Helpers.
 # License: GPLv3
@@ -41,7 +41,7 @@ fi
 orig_chruby_use () {
   :
 }
-if declare -f chruby_use; then
+if declare -f chruby_use &> /dev/null; then
   eval "$(echo "orig_chruby_use()"; declare -f chruby_use | tail -n +2)"
 else
   $HOMEFRIES_WARNINGS && echo "WARNING: chruby_use() not found"
