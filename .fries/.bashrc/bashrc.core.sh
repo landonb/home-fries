@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.11
+# Last Modified: 2016.12.27
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -51,6 +51,12 @@ fi
 
 if [[ -f ${HOME}/.fries/lib/openshift_util.sh ]]; then
   source ${HOME}/.fries/lib/openshift_util.sh
+fi
+
+if [[ -z ${HOMEFRIES_WARNINGS+x} ]]; then
+  # Usage, e.g.:
+  #   HOMEFRIES_WARNINGS=true bash
+  HOMEFRIES_WARNINGS=false
 fi
 
 # Determine OS Flavor
