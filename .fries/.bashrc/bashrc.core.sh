@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.27
+# Last Modified: 2017.01.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -1802,7 +1802,7 @@ fi
 #   export LOCATE_PATH="/var/lib/mlocate/mlocate.db:$HOME/.mlocate/mlocate.db"
 # it gets searched twice and you get double the results.
 # So just indicate the user's mlocate.db.
-if [[ -f /var/lib/mlocate/mlocate.db ]]; then
+if [[ -f /var/lib/mlocate/mlocate.db && -f $HOME/.mlocate/mlocate.db ]]; then
   export LOCATE_PATH="$HOME/.mlocate/mlocate.db"
 fi
 # See also:
