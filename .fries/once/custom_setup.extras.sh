@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.01.03
+# Last Modified: 2017.01.05
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -5149,6 +5149,9 @@ stage_4_go_get_crap () {
   # Installs to:
   #  ~/.gopath/src/github.com/jmoiron/jsonq/
   go get github.com/jmoiron/jsonq
+
+  # 2017-01-05
+  go get github.com/landonb/gocovmerge
 
   #popd &> /dev/null
 
