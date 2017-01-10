@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.01.03
+# Last Modified: 2017.01.09
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -461,6 +461,7 @@ function cdd_() {
 # FIXME: 2015.04.04: Still testing what makes the most sense:
 #        2016-10-07: I just use `cdd`. What's the problem?
 alias cdd='cdd_'
+# HINT: `dirs -c` to clear pushd/popd directory stack.
 #alias ccd='cdd_'
 #alias cdc='cdd_'
 # MAYBE GOES FULL ON:
