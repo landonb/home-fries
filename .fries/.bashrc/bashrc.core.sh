@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.01.09
+# Last Modified: 2017.01.10
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -2156,6 +2156,12 @@ touchpad_disable () {
 
 touchpad_enable () {
   touchpad_twiddle 1
+}
+
+#########################
+
+touch_datefile () {
+  touch "$(date +%Y%m%d%H%M%S)$1"
 }
 
 #########################
