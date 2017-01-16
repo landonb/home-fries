@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.15
+# Last Modified: 2017.01.16
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -28,7 +28,7 @@ find_git_parent () {
   fi
   # Crap, if symlink, blows up, because prefix of git status doesn't match.
   REL_PATH="$(dirname ${FILE_PATH})"
-  REL_PREFIX=""
+  REL_PREFIX="./"
   #echo "find_git_parent: REL_PATH/2: ${REL_PATH}"
   DOUBLE_DOWN=false
   if [[ ${REL_PATH} == '.' ]]; then
@@ -702,6 +702,8 @@ git-flip-master () {
 
   # Walk up from curdir looking for .git/ so you can call from subdir.
   find_git_parent
+  # FIXME: From root of project, cd'ing into subfolder??
+  echo "git-flip-master: \${REL_PREFIX}: ${REL_PREFIX}"
   # sets: REL_PREFIX
   pushd ${REL_PREFIX} &> /dev/null
 
@@ -715,6 +717,7 @@ git-flip-master () {
 
   if [[ ! -d ../${master_path}/.git ]]; then
       echo "FATAL: Cannot suss paths, ya dingus."
+      popd &> /dev/null
       return 1
   fi
 
