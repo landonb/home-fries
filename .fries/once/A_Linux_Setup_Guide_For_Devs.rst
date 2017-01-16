@@ -3,7 +3,7 @@ A General Linux Setup Guide For Developers
 ==========================================
 
 .. Author: Landon Bouma
-.. Last Modified: 2016.11.12
+.. Last Modified: 2017.01.13
 .. Project Page: https://github.com/landonb/home_fries
 
 Overview
@@ -475,6 +475,24 @@ Add some options to the postfix configuration file.
  smtp_use_tls = yes
  " >> /etc/postfix/main.cf
 
+NOTE: Generate Google APP password, don't use your normal one.
+2017-01-13::
+
+    sudo mv /etc/postfix/main.cf /etc/postfix/main.cf.ORIG
+    cat /etc/ssl/certs/thawte_Primary_Root_CA.pem \
+        | sudo tee -a /etc/postfix/cacert.pem
+
+    cd ~/.curly/dev/$(hostname)/etc/postfix
+    sudo cp -a main.cf /etc/postfix/main.cf
+    sudo cp -a sasl_passwd /etc/postfix/sasl_passwd
+    sudo chown root /etc/postfix/main.cf
+    sudo chown root /etc/postfix/sasl_passwd
+    sudo chmod 644 /etc/postfix/main.cf
+    sudo chmod 600 /etc/postfix/sasl_passwd
+    sudo postmap /etc/postfix/sasl_passwd
+    sudo /etc/init.d/postfix reload
+    echo "Is this thing on?" | mail -s "Testing 123" your.email@domain.tld
+
 Set you gmail username and password in a new file.
 
 .. code-block:: bash
@@ -493,7 +511,11 @@ Add the Thawte certificate to the Postfix configuration directory.
 
 .. code-block:: bash
 
-   cat /etc/ssl/certs/Thawte_Premium_Server_CA.pem \
+   # Ubuntu 12.04:
+   #cat /etc/ssl/certs/Thawte_Premium_Server_CA.pem \
+   #| sudo tee -a /etc/postfix/cacert.pem
+   # Ubuntu 14.04:
+   cat /etc/ssl/certs/thawte_Primary_Root_CA.pem \
    | sudo tee -a /etc/postfix/cacert.pem
 
 Reload the Postfix server.
