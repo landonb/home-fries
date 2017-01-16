@@ -2,12 +2,12 @@
 
 # File: setup_ubuntu.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.07
+# Last Modified: 2017.01.14
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
 # -------------------------------------------------------------------
-# Copyright © 2011-2016 Landon Bouma.
+# Copyright © 2011-2017 Landon Bouma.
 # 
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -822,6 +822,10 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       wireshark
       # Woozuh, some funky root-faking mechanism Wireshark uses.
       fakeroot
+      #
+      # Terminal-based Wireshark alternatives
+      ssldump
+      tshark
 
       thunderbird
 
