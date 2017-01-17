@@ -28,7 +28,7 @@ find_git_parent () {
   fi
   # Crap, if symlink, blows up, because prefix of git status doesn't match.
   REL_PATH="$(dirname ${FILE_PATH})"
-  REL_PREFIX="./"
+  REL_PREFIX=""
   #echo "find_git_parent: REL_PATH/2: ${REL_PATH}"
   DOUBLE_DOWN=false
   if [[ ${REL_PATH} == '.' ]]; then
@@ -705,7 +705,9 @@ git-flip-master () {
   # FIXME: From root of project, cd'ing into subfolder??
   echo "git-flip-master: \${REL_PREFIX}: ${REL_PREFIX}"
   # sets: REL_PREFIX
-  pushd ${REL_PREFIX} &> /dev/null
+  if [[ -n ${REL_PREFIX} ]]; then
+    pushd ${REL_PREFIX} &> /dev/null
+  fi
 
   project_name=$(basename $(pwd -P))
 
@@ -717,7 +719,7 @@ git-flip-master () {
 
   if [[ ! -d ../${master_path}/.git ]]; then
       echo "FATAL: Cannot suss paths, ya dingus."
-      popd &> /dev/null
+      [[ -n ${REL_PREFIX} ]] && popd &> /dev/null
       return 1
   fi
 
@@ -742,7 +744,7 @@ git-flip-master () {
   echo popd
   popd &> /dev/null
 
-  popd &> /dev/null
+  [[ -n ${REL_PREFIX} ]] && popd &> /dev/null
 
   # FIXME: You want to log the *new* build, and then that should die, right?
   #        And then you can log the new deployment.
