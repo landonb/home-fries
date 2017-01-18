@@ -1,6 +1,6 @@
 # File: .fries/lib/openshift_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.11
+# Last Modified: 2017.01.17
 # Project Page: https://github.com/landonb/home-fries
 # Summary: OpenShift Helpers.
 # License: GPLv3
@@ -34,7 +34,7 @@ oc-rsh-mysql () {
         #MYSQL_POD=$(oc get pods -l name=mysql | grep "^mysql-" | awk '{print $1}')
         MYSQL_POD=$(oc get pods -l name=mysql -o json | jq -r '.items[0].metadata.name')
         if [[ -z ${MYSQL_POD} ]]; then
-          MYSQL_POD=$(oc get pods | grep "^mysql-" | awk '{print $1}')
+          MYSQL_POD=$(oc get pods | grep -m 1 "^mysql-" | awk '{print $1}')
         fi
         if [[ -n ${MYSQL_POD} ]]; then
           refreshed_pod_name=true
@@ -64,7 +64,7 @@ oc-rsh-mysql () {
     oc rsh ${MYSQL_POD}
     if [[ $? -ne 0 ]]; then
         if ! $refreshed_pod_name; then
-            MYSQL_POD=$(oc get pods | grep "^mysql-" | awk '{print $1}')
+            MYSQL_POD=$(oc get pods | grep -m 1 "^mysql-" | awk '{print $1}')
             echo "Trying \`oc rsh ${MYSQL_POD}\`"
             oc rsh ${MYSQL_POD}
             if [[ $? -ne 0 ]]; then
