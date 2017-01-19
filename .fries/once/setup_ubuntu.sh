@@ -2,7 +2,7 @@
 
 # File: setup_ubuntu.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.01.14
+# Last Modified: 2017.01.19
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -601,6 +601,8 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       logcheck-database
 
       logtail
+      # A colorful, more clever tail command.
+      multitail
 
       socket
 
