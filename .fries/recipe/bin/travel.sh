@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2016.12.15
+# Last Modified: 2017.01.19
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 set -e
@@ -803,6 +803,12 @@ setup_private_dot_files () {
 
   # Skipping: .local/share/hamster-applet/
   # See: setup_private_hamster_db
+
+  if [[ ! -e .multitail.conf ]]; then
+    if [[ -f ${USERS_CURLY}/home/.multitail.conf ]]; then
+      /bin/ln -s ${USERS_CURLY}/home/.multitail.conf
+    fi
+  fi
 
   if [[ ! -e mm.cfg ]]; then
     if [[ -f ${USERS_CURLY}/home/mm.cfg ]]; then
