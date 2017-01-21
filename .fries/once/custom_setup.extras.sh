@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.01.05
+# Last Modified: 2017.01.20
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -4789,6 +4789,69 @@ stage_4_exosite_setup () {
 
 } # end: stage_4_exosite_setup
 
+stage_4_go_get_go () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_go_get_go"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # See:
+  #
+  #   https://storage.googleapis.com
+  #
+  # <Contents>
+  # <Key>go1.8rc2.linux-amd64.tar.gz</Key>
+  # <Generation>1484863045251000</Generation>
+  # <MetaGeneration>1</MetaGeneration>
+  # <LastModified>2017-01-19T21:57:25.243Z</LastModified>
+  # <ETag>"26e244367d2cae4af2e5fc1c44becf88"</ETag>
+  # <Size>91223748</Size>
+  # <Owner/>
+  # </Contents>
+  # <Contents>
+  # <Key>go1.8rc2.linux-amd64.tar.gz.sha256</Key>
+  # <Generation>1484863045715000</Generation>
+  # <MetaGeneration>1</MetaGeneration>
+  # <LastModified>2017-01-19T21:57:25.698Z</LastModified>
+  # <ETag>"911dbf6b46a12f5a90018ba5bcf7a9af"</ETag>
+  # <Size>64</Size>
+  # <Owner/>
+  # </Contents>
+
+  #sudo apt-get update
+  # 2017-01-20: Mothereffing Oracle is taking 4evs [50m!] on the 175M jdk-8u121 upgrade. Gah, what year is this?
+  #sudo apt-get upgrade
+  #sudo apt-get dist-upgrade
+
+  GO_VERS="go1.8rc2"
+  GO_TBAL="${GO_VERS}.linux-amd64.tar.gz"
+  wget -N https://storage.googleapis.com/golang/${GO_TBAL}
+  wget -N https://storage.googleapis.com/golang/${GO_TBAL}.sha256
+  GO_SHA256=$(cat ${GO_TBAL}.sha256)
+  if [[ $(sha256sum ${GO_TBAL} | awk '{print $1}') != ${GO_SHA256} ]]; then
+    echo "FATAL: SHA256 mismatch: $(sha256sum ${GO_TBAL}) / expected: ${GO_SHA256}"
+    exit 1
+  fi
+
+  # `sudo tar` so sudo owns.
+  sudo tar -xvzf ${GO_TBAL}
+  if [[ -d /usr/local/go ]]; then
+    sudo /bin/mv /usr/local/go /usr/local/go-`date +%Y.%m.%d-%T`
+  fi
+  sudo mv go /usr/local
+
+  if [[ $(go version) != "go version ${GO_VERS} linux/amd64" ]]; then
+    echo "FATAL: install go failed: $(go version) / expected: ${GO_VERS}"
+    exit 1
+  fi
+
+  popd &> /dev/null
+
+} # end: stage_4_go_get_go
+
 stage_4_go_delve_debugger () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -4835,6 +4898,37 @@ stage_4_go_delve_debugger () {
   popd &> /dev/null
 
 } # end: stage_4_go_delve_debugger
+
+stage_4_go_get_crap () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_go_get_crap"
+
+  JSONQ_SRC="${HOME}/.gopath/src/github.com/jmoiron/jsonq/"
+
+  if [[ -d ${JSONQ_SRC} ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: ${JSONQ_SRC}"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
+
+  #pushd ${OPT_DLOADS} &> /dev/null
+
+  # Installs to:
+  #  ~/.gopath/src/github.com/jmoiron/jsonq/
+  go get github.com/jmoiron/jsonq
+
+  # 2017-01-05
+  go get github.com/landonb/gocovmerge
+
+  #popd &> /dev/null
+
+} # end: stage_4_go_get_crap
 
 stage_4_fix_firefox_vertical_scrollbar_warp_to_click () {
   if ${SKIP_EVERYTHING}; then
@@ -5125,37 +5219,6 @@ stage_4_install_disable_wakeup_on_lid () {
   fi
 
 } # end: stage_4_install_disable_wakeup_on_lid
-
-stage_4_go_get_crap () {
-  if ${SKIP_EVERYTHING}; then
-    return
-  fi
-
-  stage_announcement "stage_4_go_get_crap"
-
-  JSONQ_SRC="${HOME}/.gopath/src/github.com/jmoiron/jsonq/"
-
-  if [[ -d ${JSONQ_SRC} ]]; then
-    echo
-    echo "${REINSTALL_OR_SKIP}: Already installed: ${JSONQ_SRC}"
-    echo
-    if ! ${FORCE_REINSTALL}; then
-      return
-    fi
-  fi
-
-  #pushd ${OPT_DLOADS} &> /dev/null
-
-  # Installs to:
-  #  ~/.gopath/src/github.com/jmoiron/jsonq/
-  go get github.com/jmoiron/jsonq
-
-  # 2017-01-05
-  go get github.com/landonb/gocovmerge
-
-  #popd &> /dev/null
-
-} # end: stage_4_go_get_crap
 
 stage_4_install_fluentd_er_td_agent () {
   if ${SKIP_EVERYTHING}; then
@@ -5834,7 +5897,11 @@ setup_customize_extras_go () {
 
   stage_4_exosite_setup
 
+  stage_4_go_get_go
+
   stage_4_go_delve_debugger
+
+  stage_4_go_get_crap
 
   stage_4_fix_firefox_vertical_scrollbar_warp_to_click
 
@@ -5849,8 +5916,6 @@ setup_customize_extras_go () {
   #  stage_4_setup_whiteinge_diffconflicts
   #
   #  stage_4_download_log4sh
-
-  stage_4_go_get_crap
 
   # Docker container logger collector.
   # 2016-10-26: I'll stick to the syslog logger for now.
