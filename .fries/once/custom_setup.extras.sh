@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.01.20
+# Last Modified: 2017.01.23
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -5695,6 +5695,53 @@ stage_4_install_cassandra () {
 
 } # end: stage_4_install_cassandra
 
+stage_4_make_install_multitail () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_make_install_multitail"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # 2017-01-23: multitail "prints hats" bug:
+  #   https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=824430
+  #   > Package: multitail
+  #   > Version: 6.4.2-1
+  #   > Severity: normal
+  # Ubuntu 14.04's repo installs 6.0.
+  # I would see output like
+  #   ^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^
+  #   `^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`
+  #   ^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^
+  #   `^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`^`
+  # 2017-01-23: Crud. After updating to 6.4.2, it still happens!
+  #   Fortunately you can just Ctrl-c and start multitail again,
+  #   but it's a little annoying.
+
+  # Installing from github did not work::
+  #
+  #    $ make
+  #    cc --std=c99 -Wall -Wextra -Wno-unused-parameter -funsigned-char -O3 -DUTF8_SUPPORT ...
+  #    mt.c: In function ‘do_color_print’:
+  #    mt.c:624:43: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+  #       if (mbsrtowcs(&wcur, &dummy, 1, &state) == -1) {
+  #    ...
+  #
+  # Fortunately installing from source archive does
+
+  local mt_vers="6.4.2"
+
+  wget https://www.vanheusden.com/multitail/multitail-${mt_vers}.tgz
+  tar xvzf multitail-${mt_vers}.tgz
+  cd multitail-${mt_vers}
+  make
+  sudo make install
+
+  popd &> /dev/null
+
+} # end: stage_4_make_install_multitail
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -5945,6 +5992,8 @@ setup_customize_extras_go () {
 
   # 2016-12-12: For work!
   stage_4_install_cassandra
+
+  stage_4_make_install_multitail
 
   # Add before this'n: stage_4_fcn_template.
 
