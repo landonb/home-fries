@@ -1,6 +1,6 @@
 # File: ruby_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.01.03
+# Last Modified: 2017.01.25
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Ruby Helpers.
 # License: GPLv3
@@ -70,14 +70,24 @@ chruby_use () {
     #   sets a trap on DEBUG which runs before every command. Just FYI.
     # MAYBE: Silence this echo. For now, curious when this fcn. is triggered.
     echo "Monkey patching!"
-    RUBY_MINOR_ZERO=$(ruby -e "puts RUBY_VERSION.split('.')[0..1].join('.') + '.0'")
-    GEM_PATH="${GEM_PATH}:${HOME}/.gem/ruby/${RUBY_MINOR_ZERO}"
-    GEM_PATH="${GEM_PATH}:${HOME}/.rubies/ruby-${RUBY_MINOR_ZERO}/lib/ruby/gems/${RUBY_MINOR_ZERO}"
-    export GEM_PATH
+    ruby_set_gem_path
     # WRONG:
     #RUBY_ROOT_ZERO=$(echo ${RUBY_ROOT} | /bin/sed -r s/-${RUBY_VERSION}$/-${RUBY_MINOR_ZERO}/)
     #export PATH="${PATH}:${RUBY_ROOT_ZERO}/bin"
     export PATH="${PATH}:${GEM_HOME/${RUBY_VERSION}/${RUBY_MINOR_ZERO}}/bin"
   fi
 }
+
+ruby_set_gem_path () {
+  RUBY_MINOR_ZERO=$(ruby -e "puts RUBY_VERSION.split('.')[0..1].join('.') + '.0'")
+  GEM_PATH="${GEM_PATH}:${HOME}/.gem/ruby/${RUBY_MINOR_ZERO}"
+  GEM_PATH="${GEM_PATH}:${HOME}/.rubies/ruby-${RUBY_MINOR_ZERO}/lib/ruby/gems/${RUBY_MINOR_ZERO}"
+  # 2017-01-25: Haven't touched a project in one month, and now it's not working?
+  #   Am I on a different machine, or what? Anyway, missing /var/lib/gems, I guess!
+  if [[ -d /var/lib/gems/${RUBY_MINOR_ZERO} ]]; then
+    GEM_PATH="${GEM_PATH}:/var/lib/gems/${RUBY_MINOR_ZERO}"
+  fi
+  export GEM_PATH
+}
+ruby_set_gem_path
 
