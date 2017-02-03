@@ -2,7 +2,7 @@
 
 # File: setup_ubuntu.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.01.19
+# Last Modified: 2017.02.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -1067,7 +1067,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
       # For Cyclopath flashclient build via fcsh.
       # Follow symlinks on dpkg -S /usr/bin/java
-      openjdk-8-jre-headless
+      #openjdk-8-jre-headless
 
       # For Cyclopaths mr_do.
       python-lxml

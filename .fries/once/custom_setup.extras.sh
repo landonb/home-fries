@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.01.23
+# Last Modified: 2017.02.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -2926,6 +2926,9 @@ export PATH" | sudo tee -a /etc/environment
       echo
     fi
   fi
+
+  # 2017-02-03: See IcedTea, an OpenJDK "build harness".
+  #   http://icedtea.classpath.org/wiki/Main_Page
 
   # MAYBE: Download Oracle Java JDK/JRE Documentation
   # http://www.oracle.com/technetwork/java/javase/documentation/java-se-7-doc-download-435117.html
