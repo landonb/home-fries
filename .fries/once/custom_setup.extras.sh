@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.02.03
+# Last Modified: 2017.02.07
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -5745,6 +5745,29 @@ stage_4_make_install_multitail () {
 
 } # end: stage_4_make_install_multitail
 
+stage_4_janus_sam_ba () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_janus_sam_ba"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  wget -N http://www.janus-rc.com/Documentation/sam-ba_2.10.zip
+
+  unzip -d sam-ba_2.10 sam-ba_2.10.zip
+
+  cd sam-ba_2.10/sam-ba_cdc_linux/
+
+  # Run:
+  #
+  #   ./sam-ba
+
+  popd &> /dev/null
+
+} # end: stage_4_janus_sam_ba
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -5996,7 +6019,11 @@ setup_customize_extras_go () {
   # 2016-12-12: For work!
   stage_4_install_cassandra
 
+  # 2017-01-31: For awesome!
   stage_4_make_install_multitail
+
+  # 2017-02-07: For work!
+  stage_4_janus_sam_ba
 
   # Add before this'n: stage_4_fcn_template.
 
