@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.01.10
+# Last Modified: 2017.02.07
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -2162,6 +2162,11 @@ touchpad_enable () {
 
 touch_datefile () {
   touch "$(date +%Y%m%d%H%M%S)$1"
+}
+
+# 2017-02-07: Took you long enough!
+TTT () {
+  echo "$(date +%Y-%m-%d)"
 }
 
 #########################
