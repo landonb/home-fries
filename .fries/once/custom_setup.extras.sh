@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.02.07
+# Last Modified: 2017.02.08
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -5754,11 +5754,14 @@ stage_4_janus_sam_ba () {
 
   pushd ${OPT_DLOADS} &> /dev/null
 
-  wget -N http://www.janus-rc.com/Documentation/sam-ba_2.10.zip
+  #wget -N http://www.janus-rc.com/Documentation/sam-ba_2.10.zip
+  #unzip -d sam-ba_2.10 sam-ba_2.10.zip
+  #cd sam-ba_2.10/sam-ba_cdc_linux/
 
-  unzip -d sam-ba_2.10 sam-ba_2.10.zip
-
-  cd sam-ba_2.10/sam-ba_cdc_linux/
+  wget -N http://www.janus-rc.com/Documentation/sam-ba_2.11_linux_janus_04302014.tar.bz2
+  tar xvjf sam-ba_2.11_linux_janus_04302014.tar.bz2
+  /bin/mv sam-ba_janus sam-ba_janus-2.11
+  cd sam-ba_janus-2.11
 
   # Run:
   #
