@@ -1,6 +1,15 @@
 #!/bin/bash
-# Last Modified: 2017.01.19
+# Last Modified: 2017.02.08
 # vim:tw=0:ts=2:sw=2:et:norl:
+
+# FIXME/2017-02-08: Conflicts are not being caught!
+#   Created autostash: c5e49bb
+#   HEAD is now at d50bb90 Update hamster-mnemosyne.db during packme.
+#   First, rewinding head to replay your work on top of it...
+#   Fast-forwarded master to 8520b78e68c90a7615770aeb2ba83c9e83751bc5.
+#   Applying autostash resulted in conflicts.
+#   Your changes are safe in the stash.
+#   You can run "git stash pop" or "git stash drop" at any time.
 
 set -e
 USING_ERREXIT=true
