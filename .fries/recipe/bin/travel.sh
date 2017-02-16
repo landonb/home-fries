@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.02.08
+# Last Modified: 2017.02.16
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # FIXME/2017-02-08: Conflicts are not being caught!
@@ -1687,15 +1687,20 @@ function pull_gardened_repo () {
   ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
   echo " ${ENCFS_REL_PATH}"
   while IFS= read -r -d '' fpath; do
-    TARGET_PATH="${ENCFS_REL_PATH}/$(basename ${fpath})"
+    TARGET_BASE=$(basename ${fpath})
+    TARGET_PATH="${ENCFS_REL_PATH}/${}"
     if [[ -d ${TARGET_PATH}/.git && ! -h ${TARGET_PATH} ]]; then
-      echo "  $fpath"
-      SOURCE_PATH="${PREFIX}${ABS_PATH}/$(basename ${fpath})"
-      #echo "\${SOURCE_PATH}: ${SOURCE_PATH}"
-      #echo "\${TARGET_PATH}: ${TARGET_PATH}"
-      git_pull_hush "${SOURCE_PATH}" "${TARGET_PATH}"
+      if [[ ${TARGET_BASE#TBD-} == ${TARGET_BASE} ]]; then
+        echo "  $fpath"
+        SOURCE_PATH="${PREFIX}${ABS_PATH}/$(basename ${fpath})"
+        #echo "\${SOURCE_PATH}: ${SOURCE_PATH}"
+        #echo "\${TARGET_PATH}: ${TARGET_PATH}"
+        git_pull_hush "${SOURCE_PATH}" "${TARGET_PATH}"
+      else
+        echo "  skipping (TBD-*): $fpath"
+      fi
     else
-      #echo " skipping (not .git/, or symlink): $fpath"
+      #echo "  skipping (not .git/, or symlink): $fpath"
       :
     fi
   done < <(find /${ENCFS_REL_PATH} -maxdepth 1 ! -path . -print0)
