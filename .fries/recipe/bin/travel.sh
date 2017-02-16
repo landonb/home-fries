@@ -1596,10 +1596,15 @@ function check_gardened_repo () {
   while IFS= read -r -d '' fpath; do
     # 2016-12-08: Adding ! -h, should be fine, and faster.
     if [[ -d ${fpath}/.git && -h ${fpath} ]]; then
-      echo "  ${fpath}"
-      pushd ${fpath} &> /dev/null
-      git_status_porcelain_wrap "${fpath}"
-      popd &> /dev/null
+      TARGET_BASE=$(basename ${fpath})
+      if [[ ${TARGET_BASE#TBD-} == ${TARGET_BASE} ]]; then
+        echo "  ${fpath}"
+        pushd ${fpath} &> /dev/null
+        git_status_porcelain_wrap "${fpath}"
+        popd &> /dev/null
+      else
+        echo "  skipping (TBD-*): ${fpath}"
+      fi
     else
       #echo "Skipping non-.git/ ${fpath}"
       :
@@ -1688,17 +1693,17 @@ function pull_gardened_repo () {
   echo " ${ENCFS_REL_PATH}"
   while IFS= read -r -d '' fpath; do
     TARGET_BASE=$(basename ${fpath})
-    TARGET_PATH="${ENCFS_REL_PATH}/${}"
+    TARGET_PATH="${ENCFS_REL_PATH}/${TARGET_BASE}"
     if [[ -d ${TARGET_PATH}/.git && ! -h ${TARGET_PATH} ]]; then
-      if [[ ${TARGET_BASE#TBD-} == ${TARGET_BASE} ]]; then
+      #if [[ ${TARGET_BASE#TBD-} == ${TARGET_BASE} ]]; then
         echo "  $fpath"
         SOURCE_PATH="${PREFIX}${ABS_PATH}/$(basename ${fpath})"
         #echo "\${SOURCE_PATH}: ${SOURCE_PATH}"
         #echo "\${TARGET_PATH}: ${TARGET_PATH}"
         git_pull_hush "${SOURCE_PATH}" "${TARGET_PATH}"
-      else
-        echo "  skipping (TBD-*): $fpath"
-      fi
+      #else
+      #  echo "  skipping (TBD-*): ${fpath}"
+      #fi
     else
       #echo "  skipping (not .git/, or symlink): $fpath"
       :
