@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.02.08
+# Last Modified: 2017.02.16
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -595,6 +595,7 @@ function git_pull_hush () {
     echo "  pushd $(pwd -P)"
     #echo "  git remote set-url origin /${SOURCE_REPO}"
     #echo "  git pull -a"
+    echo "  git pull"
     #echo "  git checkout -b feature/${SOURCE_BRANCH} --track origin/master"
     #echo "   or maybe just"
     #echo "  git checkout -b ${SOURCE_BRANCH} --track origin/master"
