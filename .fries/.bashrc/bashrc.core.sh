@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.02.07
+# Last Modified: 2017.02.17
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -1830,6 +1830,9 @@ updatedb_ecryptfs () {
 #        To find out your keyboard's key codes, run:
 #           xev
 
+# List of Keysyms Recognised by Xmodmap
+#  http://wiki.linuxquestions.org/wiki/List_of_Keysyms_Recognised_by_Xmodmap
+
 # CAVEAT: This doesn't care if you're using another keyboard.
 
 # OTHER: Super_L is the "Windows" key.
@@ -1842,24 +1845,35 @@ updatedb_ecryptfs () {
 # A non-sudo way.
 # Note: xprop -root just checks that X is running (and we're not sshing in).
 if xprop -root &> /dev/null; then
-  if [[ -e /sys/class/dmi/id/product_version && \
-        $(cat /sys/class/dmi/id/product_version) == "ThinkPad X201" ]] ; then
-    # On Lenovo ThinkPad: Map Browser-back to Delete
-    #   |-------------------------------|
-    #   | Brw Bck | Up Arrow | Brow Fwd |
-    #   |-------------------------------|
-    #   | L Arrow | Down Arr | R Arrow  |
-    #   |-------------------------------|
-    # Here's the view of the bottom row:
-    #  L-Ctrl|Fn|Win|Alt|--Space--|Alt|Menu|Ctrl|Browse-back|Up-arrow|Broforward
-    #                                             Left-Arrow|Down-arw|Right-Arrow
-    command -v xmodmap &> /dev/null
-    if [[ $? -eq 0 ]]; then
-      xmodmap -e "keycode 166 = Delete" # brobackward
+  # Check that xmodmap is installed.
+  command -v xmodmap &> /dev/null
+  if [[ $? -eq 0 ]]; then
+    if [[ -e /sys/class/dmi/id/product_version ]]; then
+      if [[ $(cat /sys/class/dmi/id/product_version) == "ThinkPad X201" ]]; then
+        # On Lenovo ThinkPad: Map Browser-back to Delete
+        #   |-------------------------------|
+        #   | Brw Bck | Up Arrow | Brow Fwd |
+        #   |-------------------------------|
+        #   | L Arrow | Down Arr | R Arrow  |
+        #   |-------------------------------|
+        # Here's the view of the bottom row:
+        #  L-Ctrl|Fn|Win|Alt|--Space--|Alt|Menu|Ctrl|Browse-back|Up-arrow|Broforward
+        #                                             Left-Arrow|Down-arw|Right-Arrow
+        xmodmap -e "keycode 166 = Delete" # brobackward
+        # 2015.02.28: At some point, browser-back stopped working, and I used
+        #             right-ctrl instead, but now browser back is remapping again.
+        #               xmodmap -e "keycode 105 = Delete" # right-ctrl
+      elif [[ $(cat /sys/class/dmi/id/product_version) == "ThinkPad T460" ]]; then
+        # 2017-02-17: I shouldn't be hard-coding these settings here (it's my
+        # personal taste; belongs in a private Bash module), but how many other
+        # people really use home-fries, much less on an X201 or a T460?
+        #
+        # Here's the view of the bottom row as labeled (note hardware swap of Fn and L-Ctrl):
+        #  Fn|L-Ctrl|Win|Alt|--Space--|Alt|PrtSc|Ctrl|PgUp|⬆|PgDn
+        #                                                ⬅|⬇|➞
+        /usr/bin/xmodmap -e "keycode 107 = Delete"
+      fi
     fi
-    # 2015.02.28: At some point, browser-back stopped working, and I used
-    #             right-ctrl instead, but now browser back is remapping again.
-    #               xmodmap -e "keycode 105 = Delete" # right-ctrl
   fi
 fi
 
