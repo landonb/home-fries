@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.02.16
+# Last Modified: 2017.02.17
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # FIXME/2017-02-08: Conflicts are not being caught!
@@ -1329,19 +1329,24 @@ function populate_gardened_repo () {
   echo " ${ENCFS_REL_PATH}"
   # We don't -type d so that you can use symlinks.
   while IFS= read -r -d '' fpath; do
-    TARGET_PATH="${ENCFS_REL_PATH}/$(basename ${fpath})"
-    if [[ -d ${fpath}/.git ]]; then
-      # 2016-12-15: Don't follow symlinks is probably good practice.
-      #if [[ ! -e ${TARGET_PATH}/.git ]]; then
-      if [[ ! -e "${TARGET_PATH}/.git" && ! -h "${fpath}" ]]; then
-        echo " $fpath"
-        echo "  \$ git clone ${fpath} ${TARGET_PATH}"
-        git clone ${fpath} ${TARGET_PATH}
-      else
-        echo " skipping ( exists): $(pwd -P)/${TARGET_PATH}"
-      fi
-    else
+    TARGET_BASE=$(basename ${fpath})
+    TARGET_PATH="${ENCFS_REL_PATH}/${TARGET_BASE}"
+    if [[ ! -d ${fpath}/.git ]]; then
       echo " skipping (no .git): $(pwd -P)/${TARGET_PATH}"
+      :
+    elif [[ -e ${TARGET_PATH}/.git ]]; then
+      echo " skipping ( exists): $(pwd -P)/${TARGET_PATH}"
+      :
+    elif [[ -h "${fpath}" ]]; then
+      echo " skipping (symlink): $(pwd -P)/${TARGET_PATH}"
+      :
+    elif [[ ${TARGET_BASE#TBD-} != ${TARGET_BASE} ]]; then
+      echo " skipping (    tbd): $(pwd -P)/${TARGET_PATH}"
+      :
+    else
+      echo " $fpath"
+      echo "  \$ git clone ${fpath} ${TARGET_PATH}"
+      git clone ${fpath} ${TARGET_PATH}
     fi
   done < <(find ${ENCFS_GIT_ITER} -maxdepth 1 ! -path . -print0)
 }
@@ -1699,15 +1704,15 @@ function pull_gardened_repo () {
     TARGET_BASE=$(basename ${fpath})
     TARGET_PATH="${ENCFS_REL_PATH}/${TARGET_BASE}"
     if [[ -d ${TARGET_PATH}/.git && ! -h ${TARGET_PATH} ]]; then
-      #if [[ ${TARGET_BASE#TBD-} == ${TARGET_BASE} ]]; then
+      if [[ ${TARGET_BASE#TBD-} == ${TARGET_BASE} ]]; then
         echo "  $fpath"
         SOURCE_PATH="${PREFIX}${ABS_PATH}/$(basename ${fpath})"
         #echo "\${SOURCE_PATH}: ${SOURCE_PATH}"
         #echo "\${TARGET_PATH}: ${TARGET_PATH}"
         git_pull_hush "${SOURCE_PATH}" "${TARGET_PATH}"
-      #else
-      #  echo "  skipping (TBD-*): ${fpath}"
-      #fi
+      else
+        echo "  skipping (TBD-*): ${fpath}"
+      fi
     else
       #echo "  skipping (not .git/, or symlink): $fpath"
       :
