@@ -1595,19 +1595,23 @@ function check_gardened_repo () {
   echo " top-level: ${ENCFS_GIT_ITER}"
   while IFS= read -r -d '' fpath; do
     # 2016-12-08: Adding ! -h, should be fine, and faster.
-    if [[ -d ${fpath}/.git && -h ${fpath} ]]; then
+    if [[ -h ${fpath} ]]; then
+      echo "  - Skipping symlinked something: ${fpath}"
+      :
+    elif [[ ! -d ${fpath}/.git ]]; then
+      echo "  - Skipping .git-less directory: ${fpath}"
+      :
+    else
       TARGET_BASE=$(basename ${fpath})
-      if [[ ${TARGET_BASE#TBD-} == ${TARGET_BASE} ]]; then
+      if [[ ${TARGET_BASE#TBD-} != ${TARGET_BASE} ]]; then
+        echo "  - Skipping resource with TBD-*: ${fpath}"
+        :
+      else
         echo "  ${fpath}"
         pushd ${fpath} &> /dev/null
         git_status_porcelain_wrap "${fpath}"
         popd &> /dev/null
-      else
-        echo "  skipping (TBD-*): ${fpath}"
       fi
-    else
-      #echo "Skipping non-.git/ ${fpath}"
-      :
     fi
   done < <(find ${ENCFS_GIT_ITER} -maxdepth 1 ! -path . -print0)
 }
