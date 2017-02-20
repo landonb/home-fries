@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.02.17
+# Last Modified: 2017.02.20
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -1959,6 +1959,9 @@ export GPG_TTY=`tty`
 # Show timestamps in bash history.
 
 export HISTTIMEFORMAT="%d/%m/%y %T "
+
+# 2017-02-20: HISTFILESIZE defaults to 500...
+export HISTFILESIZE=-1
 
 #########################
 
