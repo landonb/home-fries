@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.02.17
+# Last Modified: 2017.02.22
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # FIXME/2017-02-08: Conflicts are not being caught!
@@ -858,18 +858,24 @@ setup_private_ssh_directory () {
     # Cannot create hard links on directories.
     #/bin/ln -f ${USERS_CURLY}/.ssh ~/.ssh
     mkdir -p ${HOME}/.ssh
+
     pushd ${HOME}/.ssh &> /dev/null
+
     # Remove symlinks from ~/.ssh/
     find . -maxdepth 1 -type l -exec /bin/rm {} +
+
     # Replace with symlinks from private repo .ssh/
     find ${USERS_CURLY}/.ssh -maxdepth 1 -type f -not -iname "known_hosts-*" -exec /bin/ln -s {} \;
-    if [[ -e ${USERS_CURLY}/.ssh/known_hosts-$(hostname) ]]; then
+
+    # FIXME/2017-02-22: On laptop, this is a hardlink. Which seems better?
+    if [[ -e ${USERS_CURLY}/.ssh/known_hosts-$(hostname) && ! -e known_hosts ]]; then
       /bin/ln -s ${USERS_CURLY}/.ssh/known_hosts-$(hostname) known_hosts
     # else, you'll get a real file at ~/.ssh/known_hosts
     fi
+
     popd &> /dev/null
 
-    # Ssh is so particular about permissions.
+    # SSH is so particular about permissions.
     chmod g-w ~
     chmod g-w ${USERS_CURLY}
     chmod 700 ~/.ssh
