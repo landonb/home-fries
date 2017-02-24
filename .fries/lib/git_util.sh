@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.02.16
+# Last Modified: 2017.02.23
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -461,6 +461,7 @@ function git_status_porcelain () {
           echo "                   in the output of"
           echo "                      git remote show origin"
           echo
+          echo "cwd: $(pwd -P)"
           echo "branch_name=\"${branch_name}\""
           echo "git remote show origin | grep \"^\\W*\${branch_name}\\W\\+pushes to\\W\\+\${branch_name}\\W\\+\""
           return 1
