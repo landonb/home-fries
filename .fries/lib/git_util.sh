@@ -442,8 +442,6 @@ function git_status_porcelain () {
         set +e
         # If we didn't --no-color the branch_name, we'd have to strip-color.
         #  stripcolors='/bin/sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"'
-        echo 'git remote show origin \
-          | grep "^\W*${branch_name}\W\+pushes to\W\+${branch_name}\W\+"'
         GIT_PUSH_STALENESS=$(git remote show origin \
           | grep "^\W*${branch_name}\W\+pushes to\W\+${branch_name}\W\+")
 
