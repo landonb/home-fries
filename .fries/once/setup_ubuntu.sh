@@ -2,7 +2,7 @@
 
 # File: setup_ubuntu.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.02.03
+# Last Modified: 2017.02.24
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -886,6 +886,10 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       # Webcam software.
       # https://help.ubuntu.com/community/Webcam
       cheese
+
+      # Lua scripting.
+      lua5.2
+      lua5.2-doc
 
     ) # end: BIG_DESKTOP_LIST
 
