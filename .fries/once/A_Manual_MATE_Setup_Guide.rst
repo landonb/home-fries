@@ -3,7 +3,7 @@ Manual Linux Distro Onboarding Instructions For Developers
 ##########################################################
 
 .. Author: Landon Bouma
-.. Last Modified: 2016.12.07
+.. Last Modified: 2017.02.27
 .. Project Page: https://github.com/landonb/home_fries
 
 Overview
@@ -345,6 +345,17 @@ Restore it!
 NOTE: I don't have a preference to either plugin.
 Both popped up when I searched for a solution.
 I installed "Backspace to go Back" and it worked.
+
+Scrum for Trello.com
+--------------------
+
+http://scrumfortrello.com/
+
+- Chrome
+
+  https://chrome.google.com/webstore/detail/scrum-for-trello/jdbcdblgjdpmfninkoogcfpnkjmndgje
+
+- Firefox
 
 Configure Web Browsers
 ======================
