@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.02.22
+# Last Modified: 2017.02.27
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # FIXME/2017-02-08: Conflicts are not being caught!
@@ -1056,7 +1056,9 @@ locate_and_clone_missing_repo () {
         if [[ ! -d ${repo_name} ]]; then
           ##git clone ${remote_orig} ${check_repo}
           #git clone ${remote_orig} ${repo_name}
-          git_resp=$(git clone ${remote_orig} ${repo_name} 2>&1)
+          #git_resp=$(git clone ${remote_orig} ${repo_name} 2>&1)
+          # 2017-02-27: Taking a while on work laptop. Wanting to see progress.
+          git_resp=$(git clone ${remote_orig} ${repo_name})
         else
           cd ${repo_name}
           git_resp=$(git pull 2>&1)
@@ -1075,7 +1077,9 @@ locate_and_clone_missing_repo () {
         ##git clone ${remote_orig}
         #git clone ${remote_orig} ${check_repo}
         set +e
-        git_resp=$(git clone ${remote_orig} ${check_repo} 2>&1)
+        #git_resp=$(git clone ${remote_orig} ${check_repo} 2>&1)
+        # 2017-02-27: Taking a while on work laptop. Wanting to see progress.
+        git_resp=$(git clone ${remote_orig} ${check_repo})
         ret_code=$?
         reset_errexit
         check_git_clone_or_pull_error "${ret_code}" "${git_resp}"
