@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.02.08
+# Last Modified: 2017.02.26
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -5771,6 +5771,103 @@ stage_4_janus_sam_ba () {
 
 } # end: stage_4_janus_sam_ba
 
+stage_4_custom_compile_vim_with_latest_ruby () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_custom_compile_vim_with_latest_ruby"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  if [[ ! -d https://github.com/vim/vim ]]; then
+    git clone https://github.com/vim/vim
+    cd vim
+  else
+    cd vim
+    git pull
+  fi
+  # src/Make_mvc.mak
+  export RUBY_VER=23
+  export RUBY_VER_LONG=2.3.3
+  #./configure
+  #make
+  #sudo make install
+  ./configure --enable-rubyinterp=yes --prefix=${OPT_BIN}
+  # -j 3 to use 3 CPU cores to build.
+  make -j 3
+  make install
+  # Test with:
+  #   :ruby puts RUBY_DESCRIPTION
+
+  popd &> /dev/null
+
+} # end: stage_4_custom_compile_vim_with_latest_ruby
+
+stage_4_sdkmanbang () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_sdkmanbang"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  curl -s "https://get.sdkman.io" > get-sdkman.sh
+  chmod 775 get-sdkman.sh
+  ./get-sdkman.sh
+
+  sdk install gradle 3.4
+
+  popd &> /dev/null
+
+} # end: stage_4_sdkmanbang
+
+stage_4_spatialite_for_android () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+return
+
+  stage_announcement "stage_4_spatialite_for_android"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  if [[ ! -d ${OPT_DLOADS}/spatialite-android ]]; then
+    # https://code.google.com/archive/p/spatialite-android/
+    git clone https://code.google.com/p/spatialite-android
+    cd spatialite-android
+  else
+    cd ${OPT_DLOADS}/spatialite-android
+    git pull origin
+  fi
+
+  cd spatialite-android/spatialite-android-library/jni/
+  wget http://download.osgeo.org/proj/proj-4.8.0.tar.gz
+  wget http://download.osgeo.org/geos/geos-3.3.6.tar.bz2
+  wget http://www.sqlite.org/2013/sqlite-amalgamation-3071602.zip
+  wget http://www.gaia-gis.it/gaia-sins/libspatialite-sources/libspatialite-4.0.0.tar.gz
+  tar -xvzf proj-4.8.0.tar.gz
+  tar -xvjf geos-3.3.6.tar.bz2
+  unzip sqlite-amalgamation-3071602.zip
+  tar -xvzf libspatialite-4.0.0.tar.gz
+  cd proj-4.8.0/
+  ./configure --build=x86_64-pc-linux-gnu --host=arm-linux-eabi
+  cd ..
+  cd geos-3.3.6
+  ./configure --build=x86_64-pc-linux-gnu --host=arm-linux-eabi
+  cd ..
+  cd libspatialite-4.0.0/
+  ./configure --build=x86_64-pc-linux-gnu --host=arm-linux-eabi
+  cd ..
+  # Build the native library
+  /usr/local/android-ndk-r8b/ndk-build -j10
+
+  popd &> /dev/null
+
+} # end: stage_4_spatialite_for_android
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -6027,6 +6124,18 @@ setup_customize_extras_go () {
 
   # 2017-02-07: For work!
   stage_4_janus_sam_ba
+
+  # 2017-02-25: :CommandT (<C-D>)
+  #   command-t.vim could not load the C extension
+  #   Please see INSTALLATION and TROUBLE-SHOOTING in the help
+  #   Vim Ruby version: 1.9.3-p551
+  #   Expected version: 2.3.3-p222
+  #   For more information type:    :help command-t
+  stage_4_custom_compile_vim_with_latest_ruby
+
+  stage_4_sdkmanbang
+
+  stage_4_spatialite_for_android
 
   # Add before this'n: stage_4_fcn_template.
 
