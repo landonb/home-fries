@@ -1,6 +1,6 @@
 # File: ruby_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.01.25
+# Last Modified: 2017.02.25
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Ruby Helpers.
 # License: GPLv3
@@ -74,7 +74,11 @@ chruby_use () {
     # WRONG:
     #RUBY_ROOT_ZERO=$(echo ${RUBY_ROOT} | /bin/sed -r s/-${RUBY_VERSION}$/-${RUBY_MINOR_ZERO}/)
     #export PATH="${PATH}:${RUBY_ROOT_ZERO}/bin"
-    export PATH="${PATH}:${GEM_HOME/${RUBY_VERSION}/${RUBY_MINOR_ZERO}}/bin"
+    #export PATH="${PATH}:${GEM_HOME/${RUBY_VERSION}/${RUBY_MINOR_ZERO}}/bin"
+    local gem_ruby_bin="${GEM_HOME/${RUBY_VERSION}/${RUBY_MINOR_ZERO}}/bin"
+    if [[ ":${PATH}:" != *":${gem_ruby_bin}:"* ]]; then
+      export PATH="${PATH}:${gem_ruby_bin}"
+    fi
   fi
 }
 
