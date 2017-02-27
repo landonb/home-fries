@@ -2112,8 +2112,7 @@ function unpack () {
 
   mkdir -p ${UNPACKERED_PATH}
 
-  # FIXME/2016-12-08: This shouldn't be done on junior_chef's, right?
-  if [[ -f ${HOME}/.curly/master_chef ]]; then
+  if [[ -f ${USERS_CURLY}/master_chef ]]; then
     unpack_plaintext_archives
   fi
 
