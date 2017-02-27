@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.02.20
+# Last Modified: 2017.02.25
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -102,6 +102,8 @@ PATH_PREF+=("/home/${LOGNAME}/.fries/bin")
 
 # /srv/opt/bin
 PATH_PREF+=("${OPT_BIN}")
+# 2017-02-25: /srv/opt/bin/bin
+PATH_PREF+=("${OPT_BIN}/bin")
 
 # ~/.local/bin is where, e.g., `pip install --user blah` installs.
 PATH_POST+=("${HOME}/.local/bin")
@@ -117,6 +119,11 @@ if [[ -d ${OPT_BIN}/android-studio/bin ]]; then
 fi
 if [[ -d ${OPT_BIN}/android-sdk/platform-tools ]]; then
   PATH_POST+=("${OPT_BIN}/android-sdk/platform-tools")
+fi
+# 2017-02-25: Have I been missing ANDROID_HOME for this long??
+export ANDROID_HOME=${HOME}/Android/Sdk
+if [[ ":${PATH}:" != *":${ANDROID_HOME}/tools:"* ]]; then
+  export PATH=$PATH:${ANDROID_HOME}/tools
 fi
 
 # No whep. 2016.04.28 and this is the first time I've seen this.
@@ -2185,6 +2192,15 @@ touch_datefile () {
 TTT () {
   echo "$(date +%Y-%m-%d)"
 }
+
+#########################
+
+# 2017-02-25: Such Yellers! The SDKMAN! installer appended this to .bashrc:
+#   #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+if [[ -d "${HOME}/.sdkman" ]]; then
+  export SDKMAN_DIR="${HOME}/.sdkman"
+  [[ -s "${HOME}/.sdkman/bin/sdkman-init.sh" ]] && source "/home/landonb/.sdkman/bin/sdkman-init.sh"
+fi
 
 #########################
 
