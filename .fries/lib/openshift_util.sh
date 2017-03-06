@@ -45,10 +45,10 @@ oc-rsh-mysql () {
     if [[ -z ${MYSQL_POD} ]]; then
         # NOTE: -l app=mysql not working, but name=mysql is.
         # MAYBE: Should we check status is "Running"?
-        #MYSQL_POD=$(oc get pods -l name=mysql | grep "^mysql-" | awk '{print $1}')
-        MYSQL_POD=$(oc get pods -l name=mysql -o json | jq -r '.items[0].metadata.name')
+        #MYSQL_POD=$(oc${OC_PROJECT} get pods -l name=mysql | grep "^mysql-" | awk '{print $1}')
+        MYSQL_POD=$(oc${OC_PROJECT} get pods -l name=mysql -o json | jq -r '.items[0].metadata.name')
         if [[ -z ${MYSQL_POD} ]]; then
-          MYSQL_POD=$(oc get pods | grep -m 1 "^mysql-" | awk '{print $1}')
+          MYSQL_POD=$(oc${OC_PROJECT} get pods | grep -m 1 "^mysql-" | awk '{print $1}')
         fi
         if [[ -n ${MYSQL_POD} ]]; then
           refreshed_pod_name=true
@@ -68,19 +68,19 @@ oc-rsh-mysql () {
 
     if [[ -z ${MYSQL_POD} ]]; then
       echo "ERROR: Could not determine pod name. Tried:"
-      echo "  oc get pods -l name=mysql -o json | jq -r '.items[0].metadata.name'"
+      echo "  oc${OC_PROJECT} get pods -l name=mysql -o json | jq -r '.items[0].metadata.name'"
       echo "and"
-      echo '  oc get pods | grep "^mysql-" | awk "{print $1}"'
+      echo "  oc${OC_PROJECT} get pods | grep \"^mysql-\" | awk \"{print $1}\""
       return 1
     fi
 
-    echo "Trying \`oc rsh ${MYSQL_POD}\`"
-    oc rsh ${MYSQL_POD}
+    echo "Trying \`oc${OC_PROJECT} rsh ${MYSQL_POD}\`"
+    oc${OC_PROJECT} rsh ${MYSQL_POD}
     if [[ $? -ne 0 ]]; then
         if ! $refreshed_pod_name; then
-            MYSQL_POD=$(oc get pods | grep -m 1 "^mysql-" | awk '{print $1}')
-            echo "Trying \`oc rsh ${MYSQL_POD}\`"
-            oc rsh ${MYSQL_POD}
+            MYSQL_POD=$(oc${OC_PROJECT} get pods | grep -m 1 "^mysql-" | awk '{print $1}')
+            echo "Trying \`oc${OC_PROJECT} rsh ${MYSQL_POD}\`"
+            oc${OC_PROJECT} rsh ${MYSQL_POD}
             if [[ $? -ne 0 ]]; then
                 echo "ERROR: Tried twice but unable to \`oc rsh\` to pod: ${MYSQL_POD}"
             fi
