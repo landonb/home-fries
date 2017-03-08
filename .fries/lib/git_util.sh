@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.02.23
+# Last Modified: 2017.03.07
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -741,9 +741,11 @@ git-flip-master () {
   echo pushd ../${master_path}
   pushd ../${master_path} &> /dev/null
 
-  # If you were to be working in master, you'd want to rebase:
-  #   pull --rebase --autostash
-  # but you don't touch master other than as a hopper repo.
+  # Since the master branch is published, don't rebase or you'll
+  # rewrite history.
+  #  Don't: git pull --rebase --autostash
+  # But if you were pulling into a feature branch, it might be
+  # desirable to rebase to avoid a merge commit. In any case...
   echo git pull
   git pull
 
