@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.02.27
+# Last Modified: 2017.03.14
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -2233,19 +2233,31 @@ printdirsincur_better () {
 }
 
 # Also remember: In Bash, to handle spaces when iterating over an array, iterate the indices.
-array_iterate_example () {
-  AN_ARR=$1
-  for ((i = 0; i < ${#AN_ARR[@]}; i++)); do
-    AN_ELEM="${AN_ARR[$i]}"
-    echo "AN_ELEM: ${AN_ELEM}"
+echo_list () {
+  list=$1
+  if [[ -z ${list} ]]; then
+    declare -a list
+  fi
+  for ((i = 0; i < ${#list[@]}; i++)); do
+    local elem="${list[$i]}"
+    echo "elem: ${elem}"
   done
 }
 
-associative_array_iterate_example () {
-  declare -A assoc_array
-  for i in "${!assoc_array[@]}"; do
+echo_dict () {
+  # Per https://www.mail-archive.com/bug-bash@gnu.org/msg01774.html,
+  #  and what [Bash's] Chet says: Cannot encode an array var into the env.
+  # Meaning: You cannot pass an associate array in bash. E.g., this won't work:
+  #   dict=$1
+  #   if [[ -z ${dict} ]]; then
+  #     declare -A dict
+  #   fi
+  # [lb] not sure there's a work around, other than, say, using Ruby or Perl
+  # to write shell scripts.
+  declare -A dict
+  for i in "${!dict[@]}"; do
     echo "key  : $i"
-    echo "value: ${assoc_array[$i]}"
+    echo "value: ${dict[$i]}"
   done
 }
 
