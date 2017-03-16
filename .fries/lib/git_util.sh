@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.03.07
+# Last Modified: 2017.03.16
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -201,7 +201,7 @@ function git_commit_all_dirty_files () {
         echo -n "HEY, HEY: Your ${REPO_PATH} is dirty. Wanna check it all in? [y/n] "
         read -e YES_OR_NO
       else
-        echo "HEY, HEY: Your ${REPO_PATH} is dirty. Ley's check that in for ya."
+        echo "HEY, HEY: Your ${REPO_PATH} is dirty. Let's check that in for ya."
         YES_OR_NO="Y"
       fi
       if [[ ${YES_OR_NO^^} == "Y" ]]; then
