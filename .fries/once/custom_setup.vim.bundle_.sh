@@ -17,6 +17,7 @@ clone_repos() {
 	git clone ssh://git@github.com/landonb/dubs_style_guard.git
 	git clone ssh://git@github.com/landonb/dubs_syntastic_wrap.git
 	git clone ssh://git@github.com/landonb/dubs_toggle_textwrap.git
+	git clone ssh://git@github.com/landonb/vim-markdown.git
 
 }
 
