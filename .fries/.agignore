@@ -3,10 +3,11 @@
 # Weird-whatever: If you exclude cyclopath.sh here, it shows up in no search
 # results! But if you exclude it in ~/.waffle's .agignore, it shows up just
 # once in search result. (Without excluding, you get two sets of results.)
-#.agignore/bashrx.private.cyclopath.sh
-.agignore/bashrx.private.excensus.sh
-#.agignore/bashrx.private.landonb.sh
-.agignore/bashrx.private.landon.sh
+#bashrx.private.cyclopath.sh
+bashrx.private.excensus.sh
+# This pops up via the ~/.waffle path in .dubs_projects.vim.
+bashrx.private.landonb.sh
+bashrx.private.landon.sh
 
 # 2016-11-18: From ~/.fries/bin/.agignore
 bin/packme
