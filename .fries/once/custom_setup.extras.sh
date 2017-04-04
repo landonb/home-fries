@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.02.26
+# Last Modified: 2017.04.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -5771,12 +5771,12 @@ stage_4_janus_sam_ba () {
 
 } # end: stage_4_janus_sam_ba
 
-stage_4_custom_compile_vim_with_latest_ruby () {
+stage_4_compile_vim () {
   if ${SKIP_EVERYTHING}; then
     return
   fi
 
-  stage_announcement "stage_4_custom_compile_vim_with_latest_ruby"
+  stage_announcement "stage_4_compile_vim"
 
   pushd ${OPT_DLOADS} &> /dev/null
 
@@ -5802,7 +5802,7 @@ stage_4_custom_compile_vim_with_latest_ruby () {
 
   popd &> /dev/null
 
-} # end: stage_4_custom_compile_vim_with_latest_ruby
+} # end: stage_4_compile_vim
 
 stage_4_sdkmanbang () {
   if ${SKIP_EVERYTHING}; then
@@ -6131,7 +6131,8 @@ setup_customize_extras_go () {
   #   Vim Ruby version: 1.9.3-p551
   #   Expected version: 2.3.3-p222
   #   For more information type:    :help command-t
-  stage_4_custom_compile_vim_with_latest_ruby
+  #stage_4_custom_compile_vim_with_latest_ruby
+  stage_4_compile_vim
 
   stage_4_sdkmanbang
 
