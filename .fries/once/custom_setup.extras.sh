@@ -5771,6 +5771,9 @@ stage_4_janus_sam_ba () {
 
 } # end: stage_4_janus_sam_ba
 
+# EXPLAIN/2017-04-03: Frack. I added this function 2017-02-27 10:17:12.
+#   I think it so Command-T in Vim (activated by Ctrl-D) would work
+#   (otherwise, it'd complain that Vim's Ruby version differed from the OS's.)
 stage_4_compile_vim () {
   if ${SKIP_EVERYTHING}; then
     return
