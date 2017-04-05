@@ -2,7 +2,7 @@
 
 # File: setup_ubuntu.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.02.24
+# Last Modified: 2017.04.04
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -1452,6 +1452,10 @@ setup_mint_17_stage_3_groups_etc () {
       sudo /bin/ln -s /media/sf_${USE_MOUNTPT} ${DST_MOUNTPT}
     fi
   fi
+
+  # 2017-04-04: How have I never had a problem with this?
+  # Already in "plugdev", but "fuse" is "nuse" to me.
+  sudo usermod -a -G plugdev,fuse ${USER}
 
 } # end: setup_mint_17_stage_3_groups_etc
 
