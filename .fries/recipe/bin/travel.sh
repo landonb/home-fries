@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.02.27
+# Last Modified: 2017.04.04
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # FIXME/2017-02-08: Conflicts are not being caught!
@@ -1909,6 +1909,8 @@ function packme () {
 
     if [[ -d ${PLAIN_TBD} ]]; then
       /bin/rm -rf ${PLAIN_TBD}
+      # FIXME/2017-04-04: There are a bunch of these still on the sync-stick...
+      /bin/rm -rf ${PLAINPATH}-TBD-*
     fi
 
     if ${COPY_PRIVATE_REPO_PLAIN}; then
