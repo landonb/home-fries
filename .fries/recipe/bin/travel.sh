@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.04.04
+# Last Modified: 2017.04.05
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # FIXME/2017-02-08: Conflicts are not being caught!
@@ -1288,8 +1288,11 @@ function mount_curly_emissary_gooey () {
   reset_errexit
   # Lick it.
   if [[ $retval -ne 0 ]]; then
-    echo "${CRAPWORD}" | \
-      encfs -S ${EMISSARY}/.gooey ${EMISSARY}/gooey
+    # 2017-04-05: Ha! You get segfault without the --standard flag!
+    #   Zero length password not allowed
+    #   Segmentation fault
+    # (Though I'd swear it used to work... but I probably didn't notice it didn't!)
+    echo "${CRAPWORD}" | encfs -S --standard ${EMISSARY}/.gooey ${EMISSARY}/gooey
   else
     # else, already mounted; maybe the last operation failed?
     echo "Looks like gooey is already mounted."
