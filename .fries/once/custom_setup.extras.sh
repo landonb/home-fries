@@ -3,17 +3,18 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.04.03
+# Last Modified: 2017.04.06
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
 
 if [[ "$0" == "$BASH_SOURCE" ]]; then
-  # 2016-11-12: Calling it. Die of error, so we can fix it.
+  # 2016-11-12: Calling script. Die on error, so we can fix it.
   # set -e
   set -o errexit
   USING_ERREXIT=true
 else
+  # Sourcing script.
   set +o errexit
 fi
 function errexit_cleanup () {
