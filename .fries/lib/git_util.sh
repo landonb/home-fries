@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.03.16
+# Last Modified: 2017.04.06
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -551,6 +551,11 @@ function git_pull_hush () {
       return 1
     fi
   fi
+
+  # 2017-04-04: I did not hit <CR> after ``popoff`` and plugged the USB stick,
+  #   then started getting errors (where signal 7 is a bus error, meaning the
+  #   hardware or the filesystem or something is corrupt, most likely...).
+  #     error: git-status died of signal 7
 
   pushd ${SOURCE_REPO} &> /dev/null
   SOURCE_BRANCH=$(git st | grep "^On branch" | /bin/sed -r "s/^On branch //")
