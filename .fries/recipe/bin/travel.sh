@@ -981,7 +981,7 @@ setup_private_etc_fstab () {
     ECODE=$?
     reset_errexit
     if [[ ${ECODE} -ne 0 ]]; then
-      echo "BKUPPING: /etc/fstab"
+      echo "BKUPPING: /etc/fstab [to replace with: ${USERS_CURLY}/dev/$(hostname)/etc/fstab]"
       sudo /bin/mv /etc/fstab /etc/fstab-${BACKUP_POSTFIX}
       sudo /bin/cp -a ${USERS_CURLY}/dev/$(hostname)/etc/fstab /etc/fstab
       sudo chmod 644 /etc/fstab
