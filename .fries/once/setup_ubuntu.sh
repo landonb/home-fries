@@ -2,7 +2,7 @@
 
 # File: setup_ubuntu.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.04.04
+# Last Modified: 2017.04.11
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -830,6 +830,8 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       tshark
 
       thunderbird
+      # Mutt bark bark better than mail
+      mutt
 
       # PDF/Document readers.
       # 2015.02.26: [lb] cannot get okular to open any PDFs...
