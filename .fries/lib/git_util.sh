@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.04.06
+# Last Modified: 2017.04.13
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -131,6 +131,12 @@ git_commit_generic_file () {
     fi
     if [[ ${YES_OR_NO^^} == "Y" ]]; then
       git add ${REPO_FILE}
+      # FIXME/2017-04-13: Probably shouldn't redirect to netherspace here.
+      #   U	source/landonb/Unfiled_Notes.rst
+      #   error: Committing is not possible because you have unmerged files.
+      #   hint: Fix them up in the work tree, and then use 'git add/rm <file>'
+      #   hint: as appropriate to mark resolution and make a commit.
+      #   fatal: Exiting because of an unresolved conflict.
       git commit -m "${COMMITMSG}" &> /dev/null
       # FIXME: travel fails on uncommitted changes!
       #        (Last night I had a conflict that I took home, because `packme`
