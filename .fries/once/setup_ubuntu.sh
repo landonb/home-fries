@@ -893,9 +893,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       lua5.2
       lua5.2-doc
 
-      # Use ``avidemux`` to rotate a video 90º or 180º.
-      avidemux
-
     ) # end: BIG_DESKTOP_LIST
 
     local BIG_DESKTOP_LIST_MINT_17=(
