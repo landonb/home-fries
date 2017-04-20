@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.04.06
+# Last Modified: 2017.04.19
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -1484,6 +1484,10 @@ stage_4_all_the_young_pips () {
   sudo pip2 install pyonep
   sudo pip3 install pyonep
 
+  # 2017-04-19: sha512_crypt wrapper [mkpasshash.py]
+  sudo pip2 install passlib
+  sudo pip3 install passlib
+
   umask ${was_umask}
 
   popd &> /dev/null
@@ -1576,8 +1580,8 @@ stage_4_shiny_precious_gems () {
     make
     sudo make install
     #
-    cd 
-    /bin/ln -s 
+    #cd ...
+    #/bin/ln -s ...
   fi
 
   if false; then
@@ -5872,6 +5876,112 @@ return
 
 } # end: stage_4_spatialite_for_android
 
+stage_4_libreoffice () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_libreoffice"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  wget -N http://download.documentfoundation.org/libreoffice/stable/5.2.6/deb/x86_64/LibreOffice_5.2.6_Linux_x86-64_deb.tar.gz
+
+  tar xvzf LibreOffice_5.2.6_Linux_x86-64_deb.tar.gz
+
+  cd LibreOffice_5.2.6.2_Linux_x86-64_deb/DEBS
+
+  sudo dpkg -i *.deb
+
+  popd &> /dev/null
+
+} # end: stage_4_libreoffice
+
+stage_4_jruby () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_jruby"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  wget https://s3.amazonaws.com/jruby.org/downloads/9.1.8.0/jruby-bin-9.1.8.0.tar.gz
+  tar xvzf jruby-bin-9.1.8.0.tar.gz
+  mv jruby-9.1.8.0/ ${OPT_BIN}
+
+  # You can run jruby as-is:
+  #
+  #   $ cd ${OPT_BIN}/jruby-9.1.8.0
+  #   $ bin/jruby -v
+  #   jruby 9.1.8.0 (2.3.1) 2017-03-06 90fc7ab Java HotSpot(TM)
+  #     64-Bit Server VM 25.111-b14 on 1.8.0_111-b14 +jit [linux-x86_64]
+  #
+  # But you cannot run irb because your PATH isn't setup. E.g.,
+  #
+  #   $ bin/irb -v
+  #   /usr/bin/env: jruby: No such file or directory
+  #
+  # You can update your PATH, as such:
+  #
+  #   $ export PATH=/srv/opt/bin/jruby-9.1.8.0/bin:$PATH
+  #   $ irb -v
+  #   Ignoring byebug-9.0.6 because its extensions are not built.
+  #     Try: gem pristine byebug --version 9.0.6
+  #   irb 0.9.6(09/06/30)
+  #
+  # And then I did as it said -- but while running gem pristine, I
+  # worried I'd screw up my existing, non-Java ruby installation!
+  # But I don't think I did.
+  #
+  # Nonetheless, the command failed -- but, oddly,
+  # the "Ignoring byebug-9.0.6" went away after this!
+  #
+  #   $ gem pristine byebug --version 9.0.6
+  #   Restoring gems to pristine condition...
+  #   Building native extensions.  This could take a while...
+  #   ERROR:  While executing gem ... (Gem::Ext::BuildError)
+  #       ERROR: Failed to build gem native extension.
+  #
+  #       current directory: /home/user/.gem/ruby/2.3.0/gems/byebug-9.0.6/ext/byebug
+  #   /srv/opt/bin/jruby-9.1.8.0/bin/jruby -r ./siteconf20170417-3391-1w2jst5.rb extconf.rb
+  #   creating Makefile
+  #
+  #   current directory: /home/user/.gem/ruby/2.3.0/gems/byebug-9.0.6/ext/byebug
+  #   make "DESTDIR=" clean
+  #
+  #   current directory: /home/user/.gem/ruby/2.3.0/gems/byebug-9.0.6/ext/byebug
+  #   make "DESTDIR="
+  #   make: *** No rule to make target
+  #     `/srv/opt/bin/jruby-9.1.8.0/lib/ruby/include/ruby/ruby.h',
+  #     needed by `breakpoint.o'.  Stop.
+  #
+  #   make failed, exit code 2
+  #
+  #   Gem files will remain installed in /home/user/.gem/ruby/2.3.0/gems/byebug-9.0.6 for inspection.
+  #   Results logged to /home/user/.gem/ruby/2.3.0/extensions/universal-java-1.8/2.3.0/byebug-9.0.6/gem_make.out
+  #
+  # With my PATH temporarily updated, I tried a few things.
+  #
+  # On thing I noticed is the lag between running a command
+  # and seeing a response.
+  #
+  # For instance, `irb -v` replies immediately against the normal
+  # ruby executable, but against jruby, there's a pause.
+  #
+  #   $ irb -v
+  #                          <---------------- 1-2 sec. pause.
+  #     irb 0.9.6(09/06/30)
+  #
+  # As such, I've installed jruby to ${OPT_BIN}, but I did not
+  # add its path to PATH in any home-fries .bashrc setup. That
+  # is left as an exercise for the reader, should they want to
+  # tinker more with jruby.
+
+  popd &> /dev/null
+
+} # end: stage_4_jruby
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -6141,6 +6251,10 @@ setup_customize_extras_go () {
   stage_4_sdkmanbang
 
   stage_4_spatialite_for_android
+
+  stage_4_libreoffice
+
+  stage_4_jruby
 
   # Add before this'n: stage_4_fcn_template.
 
