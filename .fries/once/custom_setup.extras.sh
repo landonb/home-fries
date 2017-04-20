@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.04.19
+# Last Modified: 2017.04.20
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -4530,6 +4530,9 @@ stage_4_openshift_client () {
   #wget -N \
   #  https://github.com/openshift/origin/releases/download/v1.2.0/openshift-origin-client-tools-v1.2.0-2e62fab-linux-64bit.tar.gz
   #tar xvzf openshift-origin-client-tools-v1.2.0-2e62fab-linux-64bit.tar.gz
+
+# FIXME/2017-04-20: I need to downgrade to v.1.2.1
+# https://github.com/openshift/origin/releases/download/v1.2.1/openshift-origin-client-tools-v1.2.1-5e723f6-linux-64bit.tar.gz
 
   wget -N \
     https://github.com/openshift/origin/releases/download/v1.3.0/openshift-origin-client-tools-v1.3.0-3ab7af3d097b57f933eccef684a714f2368804e7-linux-64bit.tar.gz
