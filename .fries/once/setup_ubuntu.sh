@@ -2,7 +2,7 @@
 
 # File: setup_ubuntu.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.04.17
+# Last Modified: 2017.04.19
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -830,7 +830,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       tshark
 
       thunderbird
-      # Mutt bark bark better than mail
+      # Mutt bark bark better than mail (see also: elm)
       mutt
 
       # PDF/Document readers.
@@ -892,6 +892,9 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       # Lua scripting.
       lua5.2
       lua5.2-doc
+
+      # Yaml linter. Because you always wanted more Yaml in your life.
+      yamllint
 
     ) # end: BIG_DESKTOP_LIST
 
