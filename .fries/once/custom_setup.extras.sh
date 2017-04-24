@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.04.20
+# Last Modified: 2017.04.23
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -5985,6 +5985,165 @@ stage_4_jruby () {
 
 } # end: stage_4_jruby
 
+stage_4_abcde_cd_ripper () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_abcde_cd_ripper"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # https://abcde.einval.com/download/HEADER.html
+  #
+  # say:
+  #
+  #    abcde downloads
+  #
+  #    Here are current and some historical abcde releases in tar.gz format.
+  #    The matching tar.gz.sign files are detached PGP signatures using
+  #    either of the following keys:
+  #
+  #    Steve's key: 587979573442684E
+  #    Andrew's key: f8fb375d9cc820b3
+  #    Both of these keys are readily available on PGP keyservers.
+  #
+  #    Enjoy!
+
+  wget -N https://abcde.einval.com/download/abcde-2.8.1.tar.gz
+  wget -N https://abcde.einval.com/download/abcde-2.8.1.tar.gz.sign
+
+  # Use gpg to verify PGP signature.
+  #   $ gpg abcde-2.8.1.tar.gz.sign
+  #   gpg: Signature made Wed 18 Jan 2017 07:57:18 AM CST using RSA key ID 3442684E
+  #   gpg: Can't check signature: public key not found
+  # Ha, no response:
+  #   $ gpg --keyserver abcde.einval.com --recv-key
+  # This is no key for Andrew listed
+  #   https://pgp.mit.edu/pks/lookup?search=einval.com&op=index
+  # So just get Steve's.
+  # I saw some suggestions to use MIT keyserver.
+  #   $ gpg --keyserver pgp.mit.edu --search-keys steve@einval.com
+  # But we can use gpg's built-in list.
+  #   $ gpg --search-keys steve@einval.com
+  #   gpg: searching for "steve@einval.com" from hkp server keys.gnupg.net
+  #   (1)	Steve McIntyre <steve@einval.com>
+  #   	  4096 bit RSA key 3442684E, created: 2014-06-16 (revoked)
+  #   (2)	Steve McIntyre <steve@einval.com>
+  #   	  1024 bit RSA key 88C7C1F7, created: 2014-06-16 (revoked)
+  #   (3)	Steve McIntyre <93sam@debian.org>
+  #   	Steve McIntyre <steve@einval.com>
+  #   	Steve McIntyre <stevem@chiark.greenend.org.uk>
+  #   	  4096 bit RSA key 3442684E, created: 2009-05-09
+  #   (4)	Steve McIntyre <93sam@debian.org>
+  #   	Steve McIntyre <steve@einval.com>
+  #   	Steve McIntyre <stevem@chiark.greenend.org.uk>
+  #   	Debian CD signing key <debian-cd@lists.debian.org>
+  #   	  1024 bit DSA key 88C7C1F7, created: 1999-01-30 (revoked)
+  #   Keys 1-4 of 4 for "steve@einval.com".  Enter number(s), N)ext, or Q)uit > 
+  # Well, (1) and (2) are revoked. and (3) matches the key in HEADER.html.
+  # Out of curiosity:
+  #   $ gpg  --recv-key 587979573442684E
+  #   gpg: requesting key 3442684E from hkp server keys.gnupg.net
+  #   gpg: key 3442684E: public key "Steve McIntyre <steve@einval.com>" imported
+  #   gpg: 3 marginal(s) needed, 1 complete(s) needed, PGP trust model
+  #   gpg: depth: 0  valid:   1  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 1u
+  #   gpg: Total number processed: 1
+  #   gpg:               imported: 1  (RSA: 1)
+  # Cute. Run it again:
+  #   $ gpg --recv-key 587979573442684E
+  #   gpg: requesting key 3442684E from hkp server keys.gnupg.net
+  #   gpg: key 3442684E: "Steve McIntyre <steve@einval.com>" not changed
+  #   gpg: Total number processed: 1
+  #   gpg:              unchanged: 1
+  # But not using MIT keyserver:
+  #   $ gpg --keyserver pgp.mit.edu --recv-key 587979573442684E
+  #   gpg: requesting key 3442684E from hkp server pgp.mit.edu
+  #   gpgkeys: key 587979573442684E partially retrieved (probably corrupt)
+  #   gpg: invalid radix64 character 2E skipped
+  #   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [repeats 15 x with diff chars]
+  #   gpg: malformed CRC
+  #   gpg: read_block: read error: invalid keyring
+  #   gpg: Total number processed: 0
+  gpg --recv-key 587979573442684E
+  #gpg --keyserver pgp.mit.edu --recv-key 587979573442684E
+  gpg abcde-2.8.1.tar.gz.sign
+  # gpg: Signature made Wed 18 Jan 2017 07:57:18 AM CST using RSA key ID 3442684E
+  # gpg: Good signature from "Steve McIntyre <steve@einval.com>"
+  # gpg:                 aka "Steve McIntyre <93sam@debian.org>"
+  # gpg:                 aka "Steve McIntyre <stevem@chiark.greenend.org.uk>"
+  # gpg: WARNING: This key is not certified with a trusted signature!
+  # gpg:          There is no indication that the signature belongs to the owner.
+  # Primary key fingerprint: CEBB 5230 1D61 7E91 0390  FE16 5879 7957 3442 684E
+  tar xvzf abcde-2.8.1.tar.gz
+  
+  # Wow! It's just bash scripts!
+
+  # https://ubuntuforums.org/showthread.php?t=109429
+  # Dependencies:
+  #   cd-discid (0.9-1)
+  #   liboggflac3 (1.1.2-1ubuntu2) <--- NOTE: Not finding this in 14.04...
+  #   vorbis-tools (1.0.1-1.4)
+  # For MP3:
+  #   lame
+  # cdreader (from CDROMREADERSYNTAX var in abcde.conf):
+  #   cdparanoia libcdio icedax cdda2wav dagrab pird flac
+  #   Just wondering (Ubuntu 14.04):
+  #     $ sudo apt-get install cdparanoia libcdio icedax cdda2wav dagrab pird flac
+  #     Note, selecting 'icedax' instead of 'cdda2wav'
+  #     E: Unable to locate package libcdio
+  #     E: Unable to locate package dagrab
+  #     E: Unable to locate package pird
+  #     $ sudo apt-get install cdparanoia libcdio13 icedax flac
+  # Also, you'll want bsd-mailx.
+
+  # Hrmm. Getting error. Or warning.
+  #
+  # Can't locate MusicBrainz/DiscID.pm in @INC (you may need to install the MusicBrainz::DiscID module)
+  #   (@INC contains: /etc/perl /usr/local/lib/perl/5.18.2 /usr/local/share/perl/5.18.2 /usr/lib/perl5 /usr/share/perl5 /usr/lib/perl/5.18 /usr/share/perl/5.18 /usr/local/lib/site_perl .)
+  #   at /srv/opt/.downloads/abcde-2.8.1/abcde-musicbrainz-tool line 18.
+  #   BEGIN failed--compilation aborted at /srv/opt/.downloads/abcde-2.8.1/abcde-musicbrainz-tool line 18.
+  #
+  # I tried glyr, to no success:
+  #   # https://github.com/sahib/glyr
+  #   # "Glyr is a music related metadata searchengine, both with commandline interface and C API"
+  #   git clone https://github.com/sahib/glyr.git
+  #   cd glyr
+  #   cmake -DCMAKE_INSTALL_PREFIX=/usr .
+  #   make
+  #   sudo make install
+  #
+  # I tried finding DiscID.pm:
+  # Already installed:
+  #   libdiscid0
+  #   libmusicbrainz3-6
+  #   libmusicbrainz5-0
+  # Didn't get rid of error:
+  #   python-libdiscid
+  #   python-musicbrainz2
+  #   python3-libdiscid
+  # Oh, dummy! It's Perl -- .pm.
+  #   https://github.com/njh/perl-musicbrainz-discid
+  # Did not help:
+  #   libmusicbrainz-discid-perl - Perl interface to the MusicBrainz libdiscid library
+  # This is it!:
+  #   libwebservice-musicbrainz-perl - XML based Web service API to the MusicBrainz database
+
+  cd abcde-2.8.1/
+  if [[ ! -e ~/.abcde.conf ]]; then
+    /bin/cp abcde.conf ~/.abcde.conf
+    # Then you'll want to set CDROM and OUTPUTDIR.
+    # NOTE: Really, you'll just add ~/.abcde.conf to ~/.curly repo.
+  fi
+  # To run, simply:
+  #   export PATH="${PATH}:${OPT_DLOADS}/abcde-2.8.1"
+  #   ./abcde
+
+  popd &> /dev/null
+
+} # end: stage_4_abcde_cd_ripper
+# DEVs: CXPX above template for easy-making new function.
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -6258,6 +6417,8 @@ setup_customize_extras_go () {
   stage_4_libreoffice
 
   stage_4_jruby
+
+  stage_4_abcde_cd_ripper
 
   # Add before this'n: stage_4_fcn_template.
 

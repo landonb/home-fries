@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.03.14
+# Last Modified: 2017.04.23
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -199,6 +199,14 @@ fi
 # ...
 #
 # MAYBE: just override chruby to fix PATH?
+
+if [[ -d ${OPT_DLOADS}/abcde-2.8.1 ]]; then
+  PATH_POST+=("${OPT_DLOADS}/abcde-2.8.1")
+fi
+
+# ============================
+# Cleanup PATH before export
+# ============================
 
 # 2016-12-06: Check if directory in PATH or not (so PATH doesn't
 # just become really long if you run /bin/bash from a shell).

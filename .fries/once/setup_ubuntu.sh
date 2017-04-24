@@ -2,7 +2,7 @@
 
 # File: setup_ubuntu.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.04.19
+# Last Modified: 2017.04.23
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -895,6 +895,47 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 
       # Yaml linter. Because you always wanted more Yaml in your life.
       yamllint
+
+      # For abcde CD ripper.
+      cd-discid
+      # vorbis-tools is probably already installed:
+      vorbis-tools
+      # lame is for MP3s.
+      lame
+      # Audio extraction tools.
+      #   cdparanoia - audio extraction tool for sampling CDs
+      #   libcdio13 - library to read and control CD-ROM
+      #   icedax - Creates WAV files from audio CDs
+      #   flac - Free Lossless Audio Codec - command line tools
+      cdparanoia
+      libcdio13
+      icedax
+      flac
+      # mailx. Postfix. for cddb-tool
+      bsd-mailx
+      # Misc.
+      # cd-discid - CDDB DiscID utility
+      cd-discid
+      # id3v2 - A command line id3v2 tag editor
+      id3v2
+      # vorbis-tools - several Ogg Vorbis tools
+      vorbis-tools
+      # mkcue - Generates a CUE sheet from a CD
+      mkcue
+      # $ apt-cache search cdrtools
+      # simpleburn - Minimalistic application for burning and extracting CDs and DVDs
+      simpleburn
+      # abcde complains that cddb-tool not found. Is this close enough?
+      python-cddb
+      # What's the `musicbrainz` equivalent?
+      # Picard is a cross-platform music tagger written in Python.
+      picard
+      # libwebservice-musicbrainz-perl - XML based Web service API to the MusicBrainz database
+      libwebservice-musicbrainz-perl
+      # Needed for lame encoding.
+      # eyed3 - Display and manipulate id3-tags on the command-line
+      # python-eyed3 - Python module for id3-tags manipulation
+      eyed3
 
     ) # end: BIG_DESKTOP_LIST
 
