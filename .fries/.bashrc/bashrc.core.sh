@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.04.23
+# Last Modified: 2017.04.27
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -202,6 +202,12 @@ fi
 
 if [[ -d ${OPT_DLOADS}/abcde-2.8.1 ]]; then
   PATH_POST+=("${OPT_DLOADS}/abcde-2.8.1")
+fi
+
+# 2017-04-27: Added by Bash script at https://get.rvm.io:
+#   "Add RVM to PATH for scripting. Make sure this is the last PATH variable change."
+if [[ -d ${HOME}/.rvm/bin ]]; then
+  PATH_POST+=("${HOME}/.rvm/bin")
 fi
 
 # ============================
