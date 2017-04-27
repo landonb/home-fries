@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.04.05
+# Last Modified: 2017.04.26
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # FIXME/2017-02-08: Conflicts are not being caught!
@@ -773,6 +773,7 @@ setup_private_vim_bundle_dubs_project_tray () {
 
 } # end: setup_private_vim_bundle_dubs_project_tray
 
+# FIXME: Privatize this.
 setup_private_dot_files () {
 
   pushd ${HOME} &> /dev/null
@@ -780,6 +781,12 @@ setup_private_dot_files () {
   # Common dotfiles are symlinked below.
   # Feel free to add to this list; just
   #  respect the isn't-there-don't-care policy.
+
+  if [[ ! -e .cobra.yaml ]]; then
+    if [[ -f ${USERS_CURLY}/home/.cobra.yaml ]]; then
+      /bin/ln -s ${USERS_CURLY}/home/.cobra.yaml
+    fi
+  fi
 
   if [[ ! -e .cookiecutterrc ]]; then
     if [[ -f ${USERS_CURLY}/home/.cookiecutterrc ]]; then
