@@ -2,7 +2,7 @@
 
 # File: setup_ubuntu.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.04.23
+# Last Modified: 2017.04.29
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -936,6 +936,9 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       # eyed3 - Display and manipulate id3-tags on the command-line
       # python-eyed3 - Python module for id3-tags manipulation
       eyed3
+
+      # mount.nfs
+      nfs-common
 
     ) # end: BIG_DESKTOP_LIST
 
