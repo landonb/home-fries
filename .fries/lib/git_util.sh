@@ -1,19 +1,19 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.04.13
+# Last Modified: 2017.05.03
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
 # vim:tw=0:ts=2:sw=2:et:norl:
 
-GIT_ISSUES_DETECTED=false
-export GIT_ISSUES_DETECTED
+FRIES_GIT_ISSUES_DETECTED=false
+export FRIES_GIT_ISSUES_DETECTED
 
-GIT_ISSUES_RESOLUTIONS=()
-export GIT_ISSUES_RESOLUTIONS
+FRIES_GIT_ISSUES_RESOLUTIONS=()
+export FRIES_GIT_ISSUES_RESOLUTIONS
 
-if [[ -z ${FAIL_ON_GIT_ISSUE+x} ]]; then
-  FAIL_ON_GIT_ISSUE=false
+if [[ -z ${FRIES_FAIL_ON_GIT_ISSUE+x} ]]; then
+  FRIES_FAIL_ON_GIT_ISSUE=false
 fi
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -354,11 +354,11 @@ function git_status_porcelain () {
       # FIXME: This message pertains to travel.sh.
       echo "Please fix. Or run with -D (skip all git warnings)"
       echo "            or run with -DD (skip warnings about $0)"
-      GIT_ISSUES_DETECTED=true
-      export GIT_ISSUES_DETECTED
-      GIT_ISSUES_RESOLUTIONS+=("cdd $(pwd) && git add -p")
-      export GIT_ISSUES_RESOLUTIONS
-      if ${FAIL_ON_GIT_ISSUE}; then
+      FRIES_GIT_ISSUES_DETECTED=true
+      export FRIES_GIT_ISSUES_DETECTED
+      FRIES_GIT_ISSUES_RESOLUTIONS+=("cdd $(pwd) && git add -p")
+      export FRIES_GIT_ISSUES_RESOLUTIONS
+      if ${FRIES_FAIL_ON_GIT_ISSUE}; then
         return 1
       fi
     else
@@ -409,11 +409,11 @@ function git_status_porcelain () {
           if ! ${SKIP_GIT_DIRTY}; then
             # FIXME: This message pertains to travel.sh.
             echo "Please fix. Or run with -D (skip all git warnings)"
-            GIT_ISSUES_DETECTED=true
-            export GIT_ISSUES_DETECTED
-            GIT_ISSUES_RESOLUTIONS+=("cdd $(pwd) && git push origin ${branch_name} && popd")
-            export GIT_ISSUES_RESOLUTIONS
-            if ${FAIL_ON_GIT_ISSUE}; then
+            FRIES_GIT_ISSUES_DETECTED=true
+            export FRIES_GIT_ISSUES_DETECTED
+            FRIES_GIT_ISSUES_RESOLUTIONS+=("cdd $(pwd) && git push origin ${branch_name} && popd")
+            export FRIES_GIT_ISSUES_RESOLUTIONS
+            if ${FRIES_FAIL_ON_GIT_ISSUE}; then
               return 1
             fi
           else
@@ -499,11 +499,11 @@ function git_status_porcelain () {
             if ! ${SKIP_GIT_DIRTY}; then
               # FIXME: This message pertains to travel.sh.
               echo "Please fix. Or run with -D (skip all git warnings)"
-              GIT_ISSUES_DETECTED=true
-              export GIT_ISSUES_DETECTED
-              GIT_ISSUES_RESOLUTIONS+=("cdd $(pwd) && git push origin ${branch_name} && popd")
-              export GIT_ISSUES_RESOLUTIONS
-              if ${FAIL_ON_GIT_ISSUE}; then
+              FRIES_GIT_ISSUES_DETECTED=true
+              export FRIES_GIT_ISSUES_DETECTED
+              FRIES_GIT_ISSUES_RESOLUTIONS+=("cdd $(pwd) && git push origin ${branch_name} && popd")
+              export FRIES_GIT_ISSUES_RESOLUTIONS
+              if ${FRIES_FAIL_ON_GIT_ISSUE}; then
                 return 1
               fi
             else
@@ -662,11 +662,11 @@ function git_pull_hush () {
       echo
       echo "WARNING: rebase problem in ${TARGET_REPO}"
       echo
-      GIT_ISSUES_DETECTED=true
-      export GIT_ISSUES_DETECTED
-      GIT_ISSUES_RESOLUTIONS+=("travel mount && cdd $(pwd) && git st")
-      export GIT_ISSUES_RESOLUTIONS
-      if ${FAIL_ON_GIT_ISSUE}; then
+      FRIES_GIT_ISSUES_DETECTED=true
+      export FRIES_GIT_ISSUES_DETECTED
+      FRIES_GIT_ISSUES_RESOLUTIONS+=("travel mount && cdd $(pwd) && git st")
+      export FRIES_GIT_ISSUES_RESOLUTIONS
+      if ${FRIES_FAIL_ON_GIT_ISSUE}; then
         return 1
       fi
     fi

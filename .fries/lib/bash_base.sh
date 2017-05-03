@@ -2,7 +2,7 @@
 
 # File: bash_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.27
+# Last Modified: 2017.05.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bash function library.
 # License: GPLv3
@@ -96,12 +96,24 @@ fi
 # *** PATH builder
 
 path_add_part () {
-  PATH_PART="$1"
+  local PATH_PART="$1"
   if [[ -d "${PATH_PART}" ]]; then
-    if [[ ":$PATH:" != *":${PATH_PART}:"* ]]; then
-      PATH="${PATH_PART}:${PATH}"
-      export PATH
-    fi
+    # We could do nothing if the path part is already indicated:
+    #
+    #   if [[ ":$PATH:" != *":${PATH_PART}:"* ]]; then
+    #     ..
+    #   fi
+    #
+    # but to put the new part at first place, remove it first.
+    PATH=${PATH#${PATH_PART}:} # Remove prefix
+    PATH=${PATH#${PATH_PART}} # Remove prefix
+    PATH=${PATH%:${PATH_PART}} # Remove suffix
+    PATH=${PATH%${PATH_PART}} # Remove suffix
+    PATH=${PATH/:${PATH_PART}:/} # Remove inside
+    PATH="${PATH_PART}:${PATH}"
+    export PATH
+  #else
+  #  echo "path_add_part: Not a directory: ${PATH_PART}"
   fi
 }
 
@@ -346,21 +358,24 @@ reset_errexit
 # ============================================================================
 # *** Ubuntu-related
 
-# In the regex, \1 is the Fedora release, e.g., '14', and \2 is the friendly
-# name, e.g., 'Laughlin'.
-set +e
-FEDORAVERSABBR=$(cat /etc/issue \
-                 | grep Fedora \
-                 | /bin/sed 's/^Fedora release ([0-9]+) \((.*)\)$/\1/')
-# /etc/issue is, e.g., 'Ubuntu 12.04 LTS (precise) \n \l'
-UBUNTUVERSABBR=$(cat /etc/issue \
-                 | grep Ubuntu \
-                 | /bin/sed -r 's/^Ubuntu ([.0-9]+) [^(]*\((.*)\).*$/\1/')
-# /etc/issue is, e.g., 'Linux Mint 16 Petra \n \l'
-MINTVERSABBR=$(cat /etc/issue \
-               | grep "Linux Mint" \
-               | /bin/sed -r 's/^Linux Mint ([.0-9]+) .*$/\1/')
-reset_errexit
+# 2017-05-03: Disabling. Nothing uses any of these vars, AFAICT.
+if false; then
+  # In the regex, \1 is the Fedora release, e.g., '14', and \2 is the friendly
+  # name, e.g., 'Laughlin'.
+  set +e
+  FEDORAVERSABBR=$(cat /etc/issue \
+                   | grep Fedora \
+                   | /bin/sed 's/^Fedora release ([0-9]+) \((.*)\)$/\1/')
+  # /etc/issue is, e.g., 'Ubuntu 12.04 LTS (precise) \n \l'
+  UBUNTUVERSABBR=$(cat /etc/issue \
+                   | grep Ubuntu \
+                   | /bin/sed -r 's/^Ubuntu ([.0-9]+) [^(]*\((.*)\).*$/\1/')
+  # /etc/issue is, e.g., 'Linux Mint 16 Petra \n \l'
+  MINTVERSABBR=$(cat /etc/issue \
+                 | grep "Linux Mint" \
+                 | /bin/sed -r 's/^Linux Mint ([.0-9]+) .*$/\1/')
+  reset_errexit
+fi
 
 # ============================================================================
 # *** Common script fcns.
@@ -525,7 +540,7 @@ determine_machine_ip () {
   #             takes a while to complete. Maybe just use the ifconfig greps?
   #MACHINE_IP=`host -t a ${HOSTNAME} | awk '{print $4}' | egrep ^[1-9]`
   #if [[ $? != 0 ]]; then
-  MACHINE_IP=""
+  local MACHINE_IP=""
   if true; then
     MACHINE_IP=""
     # 2016-07-30: This:
@@ -538,6 +553,8 @@ determine_machine_ip () {
     #   numbered sequentially by the prober on boot)
     #   http://askubuntu.com/questions/704361/why-is-my-network-interface-named-enp0s25-instead-of-eth0
     #   On Lenovo ThinkPad X201, enp0s25 is the new eth0; wlp2s0 the new wlan0.
+
+    local IFCFG_DEV=""
 
     /sbin/ifconfig eth0 &> /dev/null
     if [[ $? -eq 0 ]]; then

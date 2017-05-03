@@ -6,6 +6,11 @@
 # License: GPLv3
 # vim:tw=0:ts=2:sw=2:et:norl:
 
+if [[ -f ${HOME}/.fries/lib/bash_base.sh ]]; then
+  DEBUG_TRACE=false \
+    source ${HOME}/.fries/lib/bash_base.sh
+fi
+
 # See:
 #   https://github.com/postmodern/ruby-install
 #   https://github.com/postmodern/chruby
@@ -76,54 +81,89 @@ chruby_use () {
     #export PATH="${PATH}:${RUBY_ROOT_ZERO}/bin"
     #export PATH="${PATH}:${GEM_HOME/${RUBY_VERSION}/${RUBY_MINOR_ZERO}}/bin"
     local gem_ruby_bin="${GEM_HOME/${RUBY_VERSION}/${RUBY_MINOR_ZERO}}/bin"
-    if [[ ":${PATH}:" != *":${gem_ruby_bin}:"* ]]; then
-      export PATH="${PATH}:${gem_ruby_bin}"
-    fi
+    #if [[ ":${PATH}:" != *":${gem_ruby_bin}:"* ]]; then
+    #  export PATH="${PATH}:${gem_ruby_bin}"
+    #fi
+    path_add_part ${gem_ruby_bin}
   fi
 }
 
 ruby_set_gem_path () {
   local GEM_PATHS=()
 
-  if ``command -v ruby >/dev/null 2>&1``; then
-    RUBY_MINOR_ZERO=$(ruby -e "puts RUBY_VERSION.split('.')[0..1].join('.') + '.0'")
-    GEM_PATHS+=(${HOME}/.gem/ruby/${RUBY_MINOR_ZERO})
-    # 2017-05-03: MAYBE: Do we need this one, too? If anything, it's same as previous.
-    GEM_PATHS+=($(ruby -rubygems -e 'puts Gem.user_dir'))
+  local RUBY_MINOR_ZERO=$(ruby -e "puts RUBY_VERSION.split('.')[0..1].join('.') + '.0'")
+  local RUBY_VERS=$(ruby -e "puts RUBY_VERSION")
+
+  if false; then
+    # 2017-05-03: I started having issues at work... I think this is all too much!
+
+    if ``command -v ruby >/dev/null 2>&1``; then
+      # E.g., ${HOME}/.gem/ruby/2.3.0
+      GEM_PATHS+=(${HOME}/.gem/ruby/${RUBY_MINOR_ZERO})
+      # 2017-05-03: MAYBE: Do we need this one, too? If anything, it's same as previous.
+      GEM_PATHS+=($(ruby -rubygems -e 'puts Gem.user_dir'))
+    fi
+    GEM_PATHS+=(${HOME}/.rubies/ruby-${RUBY_MINOR_ZERO}/lib/ruby/gems/${RUBY_MINOR_ZERO})
+    # 2017-05-03: I am so confused.
+    # E.g., ${HOME}/.gem/ruby/2.3.0/ruby/2.3.0
+    GEM_PATHS+=(${HOME}/.gem/ruby/${RUBY_MINOR_ZERO}/ruby/${RUBY_MINOR_ZERO})
+    # E.g., ${HOME}/.gem/ruby-2.3.3/ruby/2.3.0
+    GEM_PATHS+=(${HOME}/.gem/ruby/${RUBY_VERS}/ruby/${RUBY_MINOR_ZERO})
+    # 2017-01-25: Haven't touched a project in one month, and now it's not working?
+    #   Am I on a different machine, or what? Anyway, missing /var/lib/gems, I guess!
+    # E.g., /var/lib/gems/2.3.0
+    # 2017-05-03 14:38: ARGH: apt-get install binaries are in /var/lib/gems,
+    #   not the ones controlled by chruby, rvm, etc.
+    #GEM_PATHS+=(/var/lib/gems/${RUBY_MINOR_ZERO})
   fi
 
-  GEM_PATHS+=(${HOME}/.rubies/ruby-${RUBY_MINOR_ZERO}/lib/ruby/gems/${RUBY_MINOR_ZERO})
-
-  # 2017-01-25: Haven't touched a project in one month, and now it's not working?
-  #   Am I on a different machine, or what? Anyway, missing /var/lib/gems, I guess!
-  GEM_PATHS+=(/var/lib/gems/${RUBY_MINOR_ZERO})
+  # E.g., ${HOME}/.rubies/ruby-2.3.3/ruby/2.3.0
+  GEM_PATHS+=(${HOME}/.rubies/ruby-${RUBY_VERS}/ruby/${RUBY_MINOR_ZERO})
 
   for ((i = 0; i < ${#GEM_PATHS[@]}; i++)); do
-    PATH_ELEM="${GEM_PATHS[$i]}"
+    local PATH_ELEM="${GEM_PATHS[$i]}"
+    #echo "PATH_ELEM: $PATH_ELEM"
     if [[ -d "${PATH_ELEM}" ]]; then
       if [[ ":${GEM_PATH}:" != *":${PATH_ELEM}:"* ]]; then
         if [[ -n ${GEM_PATH} ]]; then
           GEM_PATH="${GEM_PATH}:"
         fi
         GEM_PATH="${GEM_PATH}${PATH_ELEM}"
+        #echo "GEM_PATH: $GEM_PATH"
+      else
+        #echo "Already added: $PATH_ELEM"
+        :
       fi
+    else
+      #echo "Not a directory: $PATH_ELEM"
+      :
     fi
   done
+  #echo "GEM_PATH: $GEM_PATH"
 
   export GEM_PATH
 
-  # $ echo $GEM_PATH
-  # ${HOME}/.gem/ruby/2.3.0:/var/lib/gems/2.3.0
-  # $ gogo project
-  # Skipping ~/.exoline symlink: no replacement found.
-  # Entered /work/clients/project
-  # $ ll
-  # Ignoring byebug-9.0.6 because its extensions are not built.  Try: gem pristine byebug --version 9.0.6
-  # Monkey patching!
-  # total 188K
-  # drwxrwxr-x 11 landonb landonb 4.0K May  1 18:41 ./
-  # drwxrwxr-x  7 landonb landonb 4.0K May  1 14:08 ../
-  # ...
+  if false; then
+    # $ echo $GEM_PATH
+    # ${HOME}/.gem/ruby/2.3.0:/var/lib/gems/2.3.0
+    # $ gogo project
+    # Skipping ~/.exoline symlink: no replacement found.
+    # Entered /work/clients/project
+    # $ ll
+    # Ignoring byebug-9.0.6 because its extensions are not built.  Try: gem pristine byebug --version 9.0.6
+    # Monkey patching!
+    # total 188K
+    # drwxrwxr-x 11 landonb landonb 4.0K May  1 18:41 ./
+    # drwxrwxr-x  7 landonb landonb 4.0K May  1 14:08 ../
+    # ...
+
+    # E.g., ${HOME}/.rubies/ruby-2.3.3/ruby/2.3.0/bin
+    path_add_part ${HOME}/.rubies/ruby-${RUBY_VERS}/ruby/${RUBY_MINOR_ZERO}/bin
+
+    # Put this at first place in the PATH. If it exists.
+    path_add_part ${HOME}/.gem/ruby/${RUBY_MINOR_ZERO}/bin
+    path_add_part ${HOME}/.gem/ruby/${RUBY_VERS}/bin
+  fi
 
 }
 ruby_set_gem_path

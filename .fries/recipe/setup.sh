@@ -1,7 +1,7 @@
 #!/bin/bash
 # File: setup.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.09
+# Last Modified: 2017.05.03
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Private Dotfiles Recipe
 # License: GPLv3
@@ -139,6 +139,10 @@ pump_n_dump () {
 }
 
 pump_n_dump $*
+
+unset SCRIPT_DIR
+unset CANON_CURLY
+unset CANON_BNAME
 
 echo "Thanks for playing!"
 

@@ -1,6 +1,6 @@
 # File: bashrc.cyclopath.loc.home.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.11
+# Last Modified: 2017.05.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Cyclopath bash startup script for remote, non-CS machines.
 # License: GPLv3
@@ -14,12 +14,15 @@ if [[ $(domainname) != "(none)" ]]; then
   MACHINE_DOMAIN=$(domainname)
 fi
 if [[ -z "$MACHINE_DOMAIN" ]]; then
-   return
+  unset MACHINE_DOMAIN
+  return
 fi
 if [[ "${MACHINE_DOMAIN}" != "${CS_HOSTDOMAIN}" ]]; then
   # == Running on local/home machine ==
+  unset MACHINE_DOMAIN
   return
 fi
+unset MACHINE_DOMAIN
 
 # == Running on remote/work machine. ==
 
@@ -39,7 +42,7 @@ path_add_part "/export/scratch/ccp/opt/usr/bin"
 # Source the TCL bash script; not sure what for;
 # The default bash script from CS does this....
 if [[ -f "/soft/rko-modules/tcl/init/bash" ]]; then
-   # 2013.06.14: You need this for the `module` command to work.
+  # 2013.06.14: You need this for the `module` command to work.
   . /soft/rko-modules/tcl/init/bash
 fi
 

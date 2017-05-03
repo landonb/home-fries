@@ -1,6 +1,6 @@
 # File: bashrc.cyclopath.base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.06
+# Last Modified: 2017.05.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Cyclopath bash startup script.
 # License: GPLv3
@@ -834,6 +834,7 @@ alias cddb='pushd /ccp/var/dbdumps > /dev/null'
 if $LOAD_PYTHONPATH; then
   export PYTHONPATH=$ccp/opt/usr/lib/python:$ccp/opt/usr/lib/$PYTHONVERS2/site-packages:$ccp/opt/gdal/lib/$PYTHONVERS2/site-packages:$ccp/dev/cp/pyserver/bin/winpdb
 fi
+unset LOAD_PYTHONPATH
 
 if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
   # Ubuntu

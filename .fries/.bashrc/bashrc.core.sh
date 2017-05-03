@@ -222,23 +222,31 @@ fi
 #   anything that happens to include RE metacharacters. This problem can be
 #   solved perfectly well with bash's builtin [[ command:" [... see below.]
 
-for ((i = 0; i < ${#PATH_PREF[@]}; i++)); do
-  PATH_ELEM="${PATH_PREF[$i]}"
-  # Similar to:
-  #  path_add_part "${PATH_ELEM}"
-  if [[ ":${PATH}:" != *":${PATH_ELEM}:"* ]]; then
-    PATH="${PATH_ELEM}:${PATH}"
-  fi
-done
+update_path_paths () {
+  local PATH_ELEM=""
 
-for ((i = 0; i < ${#PATH_POST[@]}; i++)); do
-  PATH_ELEM="${PATH_POST[$i]}"
-  if [[ ":${PATH}:" != *":${PATH_ELEM}:"* ]]; then
-    PATH="${PATH}:${PATH_ELEM}"
-  fi
-done
+  for ((i = 0; i < ${#PATH_PREF[@]}; i++)); do
+    PATH_ELEM="${PATH_PREF[$i]}"
+    # Similar to:
+    #  path_add_part "${PATH_ELEM}"
+    if [[ ":${PATH}:" != *":${PATH_ELEM}:"* ]]; then
+      PATH="${PATH_ELEM}:${PATH}"
+    fi
+  done
+
+  for ((i = 0; i < ${#PATH_POST[@]}; i++)); do
+    PATH_ELEM="${PATH_POST[$i]}"
+    if [[ ":${PATH}:" != *":${PATH_ELEM}:"* ]]; then
+      PATH="${PATH}:${PATH_ELEM}"
+    fi
+  done
+}
+update_path_paths
 
 export PATH
+
+unset PATH_PREF
+unset PATH_POST
 
 # Umask
 #######
@@ -1731,14 +1739,17 @@ fffind () {
 #    syndaemon -i 5 -K -R -t -d
 
 # 2016-11-11: Let's not confuse first-time users by disabling their trackpad.
-if [[ -e ${HOME}/.fries/.bashrc/touchpad_disable ]]; then
-  if [[ $(command -v xinput > /dev/null) || $? -eq 0 ]]; then
-    DEVICE_NUM=$(xinput --list --id-only "SynPS/2 Synaptics TouchPad" 2> /dev/null)
-    if [[ -n ${DEVICE_NUM} ]]; then
-      xinput set-prop ${DEVICE_NUM} "Device Enabled" 0
+xinput_set_prop_touchpad_device () {
+  if [[ -e ${HOME}/.fries/.bashrc/touchpad_disable ]]; then
+    if [[ $(command -v xinput > /dev/null) || $? -eq 0 ]]; then
+      local DEVICE_NUM=$(xinput --list --id-only "SynPS/2 Synaptics TouchPad" 2> /dev/null)
+      if [[ -n ${DEVICE_NUM} ]]; then
+        xinput set-prop ${DEVICE_NUM} "Device Enabled" 0
+      fi
     fi
   fi
-fi
+}
+xinput_set_prop_touchpad_device
 
 #########################
 

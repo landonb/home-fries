@@ -14,4 +14,5 @@ if [[ $? -eq 0 ]]; then
 else
   echo "BURN: Something went wrong."
 fi
+unset SCRIPT_DIR
 

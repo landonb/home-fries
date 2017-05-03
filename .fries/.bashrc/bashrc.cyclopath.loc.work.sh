@@ -1,6 +1,6 @@
 # File: bashrc.cyclopath.loc.work.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.12.11
+# Last Modified: 2017.05.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Cyclopath bash startup script for CS machines.
 # License: GPLv3
@@ -14,12 +14,14 @@ if [[ $(domainname) != "(none)" ]]; then
   MACHINE_DOMAIN=$(domainname)
 fi
 if [[ -z "$MACHINE_DOMAIN" ]]; then
-   MACHINE_DOMAIN="FIXME"
+  MACHINE_DOMAIN="FIXME"
 fi
 if [[ "${MACHINE_DOMAIN}" == "${CS_HOSTDOMAIN}" ]]; then
   # == Running on remote/work machine. ==
+  unset MACHINE_DOMAIN
   return
 fi
+unset MACHINE_DOMAIN
 
 # == Running on local/home machine ==
 

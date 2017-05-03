@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.04.26
+# Last Modified: 2017.05.03
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # FIXME/2017-02-08: Conflicts are not being caught!
@@ -1511,6 +1511,7 @@ if [[ -d ${TRAVEL_DIR} ]]; then
 else
   echo "Travel device is not mounted."
 fi
+unset SCRIPT_DIR
 EOF
   chmod 775 ${HOME}/.fries/recipe/bin/popoff.sh
 }
@@ -1694,7 +1695,7 @@ function check_repos_statuses () {
 } # end: check_repos_statuses
 
 function git_issues_review {
-  if ${GIT_ISSUES_DETECTED}; then
+  if ${FRIES_GIT_ISSUES_DETECTED}; then
     echo "FIZATAL: One or more git issues was detected. See prior log."
     echo "Could be dirty files, untracted files, and/or behind branches."
     echo "Please fix. Or run with -D (skip all git warnings)"
@@ -1704,8 +1705,8 @@ function git_issues_review {
     echo " Give this a try "
     echo "#################"
     echo
-    for ((i = 0; i < ${#GIT_ISSUES_RESOLUTIONS[@]}; i++)); do
-      RESOLUTION_CMD="  ${GIT_ISSUES_RESOLUTIONS[$i]}"
+    for ((i = 0; i < ${#FRIES_GIT_ISSUES_RESOLUTIONS[@]}; i++)); do
+      RESOLUTION_CMD="  ${FRIES_GIT_ISSUES_RESOLUTIONS[$i]}"
       echo "${RESOLUTION_CMD}"
     done
     exit 1
