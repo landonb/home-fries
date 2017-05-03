@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.04.27
+# Last Modified: 2017.05.02
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -123,7 +123,7 @@ fi
 # 2017-02-25: Have I been missing ANDROID_HOME for this long??
 export ANDROID_HOME=${HOME}/Android/Sdk
 if [[ ":${PATH}:" != *":${ANDROID_HOME}/tools:"* ]]; then
-  export PATH=$PATH:${ANDROID_HOME}/tools
+  export PATH=${PATH}:${ANDROID_HOME}/tools
 fi
 
 # No whep. 2016.04.28 and this is the first time I've seen this.
@@ -321,13 +321,15 @@ fi
 #   expect: error while loading shared libraries: libexpect5.45.so:
 #     cannot open shared object file: No such file or directory
 # Do this before the SSH function, which expects expect.
-export LD_LIBRARY_PATH=/usr/lib/expect5.45:${LD_LIBRARY_PATH}
+if [[ ":${LD_LIBRARY_PATH}:" != *":/usr/lib/expect5.45:"* ]]; then
+  export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/lib/expect5.45
+fi
 
 # SQLITE3 / LD_LIBRARY_PATH / SELECT load_extension()/.load
 
 # 2016-05-03: sqlite3 looks for extensions in the local dir and at
 #             LD_LIBRARY_PATH, but the latter isn't really set up,
-#             e.g., on tribolium, it's "/usr/lib/expect5.45:" and
+#             e.g., on one machine, it's "/usr/lib/expect5.45:" and
 #             doesn't include the standard system library directory,
 #             /usr/local/lib.
 #
@@ -336,6 +338,8 @@ export LD_LIBRARY_PATH=/usr/lib/expect5.45:${LD_LIBRARY_PATH}
 #   export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
 #
 # but some blogs I saw don't think you should eff with the ell-d path.
+#
+#   ftp://linuxmafia.com/kb/Admin/ld-lib-path.html
 #
 # We can alias sqlite3 instead, which is probably the solution with
 # the least impact:
