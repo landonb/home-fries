@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.05.02
+# Last Modified: 2017.05.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -495,11 +495,8 @@ alias cdd='cdd_'
 #alias ppd='popd > /dev/null'
 #alias pod='popd > /dev/null'
 alias cdc='popd > /dev/null'
-
-# 2015.08.06: Project directory aliases.
-# WAS: alias cdfe='pushd ~/.fries/.erectus &> /dev/null'
-alias cdfe='pushd ~/.waffle &> /dev/null'
-alias cdwf='pushd ~/.waffle &> /dev/null'
+# 2017-05-03: How is `cd -` doing a flip-between-last-dir news to me?!
+alias cddc='cd -'
 
 # Misc. directory aliases.
 alias h='history'         # Nothing special, just convenient.
