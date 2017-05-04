@@ -6,15 +6,8 @@
 # License: GPLv3
 # vim:tw=0:ts=2:sw=2:et:norl:
 
-# FIXME Notes
-#############
-
-# MAYBE: Cray-cray: None of @ $ ? are mapped in Bash
-#        and are free to be aliased or made into commands.
-#        Can you think of any magical mapping?
-
-#
-#####################
+# Doobious Sources
+##################
 
 if [[ -f ${HOME}/.fries/lib/bash_base.sh ]]; then
   # 2016.05.05: Cinqo de Mayo. This is cool, right?
@@ -87,166 +80,165 @@ fi
 # Update PATH
 #############
 
-# Home-fries scripts are in ~/.fries/bin. Third-party applications installed
-# by custom_setup.extras.sh et al are installed to /srv/opt/bin.
+update_path_with_more_paths () {
 
-# 2016-12-06: To avoid making PATH super long -- mostly just an annoyance
-# if you want to look at, but not a performance issue or anything -- which
-# happens if you reload your .bashrc by running /bin/bash from a terminal,
-# collect all the PATH additions and then add them only if not added.
-PATH_PREF=()
-PATH_POST=()
+  # Home-fries scripts are in ~/.fries/bin. Third-party applications installed
+  # by custom_setup.extras.sh et al are installed to /srv/opt/bin.
 
-# Binary fries.
-PATH_PREF+=("/home/${LOGNAME}/.fries/bin")
+  # 2016-12-06: To avoid making PATH super long -- mostly just an annoyance
+  # if you want to look at, but not a performance issue or anything -- which
+  # happens if you reload your .bashrc by running /bin/bash from a terminal,
+  # collect all the PATH additions and then add them only if not added.
+  local path_prefix=()
+  local path_suffix=()
 
-# /srv/opt/bin
-PATH_PREF+=("${OPT_BIN}")
-# 2017-02-25: /srv/opt/bin/bin
-PATH_PREF+=("${OPT_BIN}/bin")
+  # Binary fries.
+  path_prefix+=("/home/${LOGNAME}/.fries/bin")
 
-# ~/.local/bin is where, e.g., `pip install --user blah` installs.
-PATH_POST+=("${HOME}/.local/bin")
+  # /srv/opt/bin
+  path_prefix+=("${OPT_BIN}")
+  # 2017-02-25: /srv/opt/bin/bin
+  path_prefix+=("${OPT_BIN}/bin")
 
-# Android Studio.
-JAVA_HOME=${OPT_BIN}/jdk
-JRE_HOME=$JAVA_HOME/jre
-if [[ -d ${JAVA_HOME} ]]; then
-  PATH_PREF+=("${JAVA_HOME}/bin:${JRE_HOME}/bin")
-fi
-if [[ -d ${OPT_BIN}/android-studio/bin ]]; then
-  PATH_POST+=("${OPT_BIN}/android-studio/bin")
-fi
-if [[ -d ${OPT_BIN}/android-sdk/platform-tools ]]; then
-  PATH_POST+=("${OPT_BIN}/android-sdk/platform-tools")
-fi
-# 2017-02-25: Have I been missing ANDROID_HOME for this long??
-export ANDROID_HOME=${HOME}/Android/Sdk
-if [[ ":${PATH}:" != *":${ANDROID_HOME}/tools:"* ]]; then
-  export PATH=${PATH}:${ANDROID_HOME}/tools
-fi
+  # ~/.local/bin is where, e.g., `pip install --user blah` installs.
+  path_suffix+=("${HOME}/.local/bin")
 
-# No whep. 2016.04.28 and this is the first time I've seen this.
-#   $ ifconfig
-#   Command 'ifconfig' is available in '/sbin/ifconfig'
-#   The command could not be located because '/sbin' is not included in the PATH environment variable.
-#   This is most likely caused by the lack of administrative privileges associated with your user account.
-#   ifconfig: command not found
-PATH_POST+=("/sbin")
+  # Android Studio.
+  JAVA_HOME=${OPT_BIN}/jdk
+  JRE_HOME=$JAVA_HOME/jre
+  if [[ -d ${JAVA_HOME} ]]; then
+    path_prefix+=("${JAVA_HOME}/bin:${JRE_HOME}/bin")
+  fi
+  if [[ -d ${OPT_BIN}/android-studio/bin ]]; then
+    path_suffix+=("${OPT_BIN}/android-studio/bin")
+  fi
+  if [[ -d ${OPT_BIN}/android-sdk/platform-tools ]]; then
+    path_suffix+=("${OPT_BIN}/android-sdk/platform-tools")
+  fi
+  # 2017-02-25: Have I been missing ANDROID_HOME for this long??
+  export ANDROID_HOME=${HOME}/Android/Sdk
+  if [[ ":${PATH}:" != *":${ANDROID_HOME}/tools:"* ]]; then
+    export PATH=${PATH}:${ANDROID_HOME}/tools
+  fi
 
-# 2016-07-11: Google Go, for Google Drive `drive`.
-#
-# The latest go binary.
-if [[ -d /usr/local/go/bin ]]; then
-  PATH_PREF+=("/usr/local/go/bin")
-fi
-if [[ ! -d ${HOME}/.gopath ]]; then
-  # 2016-10-03: Why not?
-  mkdir ${HOME}/.gopath
-fi
-if [[ -d ${HOME}/.gopath ]]; then
-  # Local go projects you install.
-  export GOPATH=${HOME}/.gopath
-  # Check with: `go env`
+  # No whep. 2016.04.28 and this is the first time I've seen this.
+  #   $ ifconfig
+  #   Command 'ifconfig' is available in '/sbin/ifconfig'
+  #   The command could not be located because '/sbin' is not included in the PATH environment variable.
+  #   This is most likely caused by the lack of administrative privileges associated with your user account.
+  #   ifconfig: command not found
+  path_suffix+=("/sbin")
 
-  PATH_PREF+=("${GOPATH}:${GOPATH}/bin")
-fi
+  # 2016-07-11: Google Go, for Google Drive `drive`.
+  #
+  # The latest go binary.
+  if [[ -d /usr/local/go/bin ]]; then
+    path_prefix+=("/usr/local/go/bin")
+  fi
+  if [[ ! -d ${HOME}/.gopath ]]; then
+    # 2016-10-03: Why not?
+    mkdir ${HOME}/.gopath
+  fi
+  if [[ -d ${HOME}/.gopath ]]; then
+    # Local go projects you install.
+    export GOPATH=${HOME}/.gopath
+    # Check with: `go env`
 
-# OpenShift Origin server.
-if [[ -d ${OPT_BIN}/openshift-origin-server ]]; then
-  PATH_POST+=("${OPT_BIN}/openshift-origin-server")
+    path_prefix+=("${GOPATH}:${GOPATH}/bin")
+  fi
 
-  # OpenShift development.
-  #  https://github.com/openshift/origin/blob/master/CONTRIBUTING.adoc#develop-locally-on-your-host
-  # Used in one place:
-  #  /exo/clients/openshift/origin/hack/common.sh
-  export OS_OUTPUT_GOPATH=1
-fi
+  # OpenShift Origin server.
+  if [[ -d ${OPT_BIN}/openshift-origin-server ]]; then
+    path_suffix+=("${OPT_BIN}/openshift-origin-server")
 
-# 2016-11-18: What a jerk! Heroku Toolbelt just shat this at
-# the end of my ~/.bashrc, which is a symlink to, well, you
-# know. An Important File. Get out of there! And you didn't
-# even use a trailing newline. Why to respk house rulz, bruh.
-#
-#     ### Added by the Heroku Toolbelt
-#     export NEW_PATHS+=("/usr/local/heroku/bin:$PATH")
-#
-# Also, shouldn't you be at the _end_ of the conga line?
-# And what ever happened to being polite and checking for
-# existence?
-if [[ -d /usr/local/heroku/bin ]]; then
-  PATH_POST+=("/usr/local/heroku/bin")
-fi
+    # OpenShift development.
+    #  https://github.com/openshift/origin/blob/master/CONTRIBUTING.adoc#develop-locally-on-your-host
+    # Used in one place:
+    #  /exo/clients/openshift/origin/hack/common.sh
+    export OS_OUTPUT_GOPATH=1
+  fi
 
-# 2016-12-03: I guess MrMurano is my first gem.
-# 2016-12-08: Looks like `chruby` updates PATH for us.
-#  if type -P ruby &>/dev/null; then
-#    # Determine the user's rubygems path. E.g.,
-#    #   ~/.gem/ruby/1.9.1
-#    ruby_gem_path=$(ruby -rubygems -e 'puts Gem.user_dir')
-#    if [[ -n ${ruby_gem_path} ]]; then
-#      PATH_POST+=("${ruby_gem_path}")
-#      PATH_POST+=("${ruby_gem_path}/bin")
-#    fi
-#  fi
-#
-# FIXME/2016-12-08: Probably need to figure out how to handle chruby, e.g.,
-# $ chruby ruby-2.3.3
-# $ gem install --user-install bundler pry byebug commander rubocop terminal-table httparty
-# Fetching: bundler-1.13.6.gem (100%)
-# WARNING:  You don't have /home/landonb/.gem/ruby/2.3.0/bin in your PATH,
-# 	  gem executables will not run.
-# ...
-#
-# MAYBE: just override chruby to fix PATH?
+  # 2016-11-18: What a jerk! Heroku Toolbelt just shat this at
+  # the end of my ~/.bashrc, which is a symlink to, well, you
+  # know. An Important File. Get out of there! And you didn't
+  # even use a trailing newline. Why to respk house rulz, bruh.
+  #
+  #     ### Added by the Heroku Toolbelt
+  #     export NEW_PATHS+=("/usr/local/heroku/bin:$PATH")
+  #
+  # Also, shouldn't you be at the _end_ of the conga line?
+  # And what ever happened to being polite and checking for
+  # existence?
+  if [[ -d /usr/local/heroku/bin ]]; then
+    path_suffix+=("/usr/local/heroku/bin")
+  fi
 
-if [[ -d ${OPT_DLOADS}/abcde-2.8.1 ]]; then
-  PATH_POST+=("${OPT_DLOADS}/abcde-2.8.1")
-fi
+  # 2016-12-03: I guess MrMurano is my first gem.
+  # 2016-12-08: Looks like `chruby` updates PATH for us.
+  #  if type -P ruby &>/dev/null; then
+  #    # Determine the user's rubygems path. E.g.,
+  #    #   ~/.gem/ruby/1.9.1
+  #    ruby_gem_path=$(ruby -rubygems -e 'puts Gem.user_dir')
+  #    if [[ -n ${ruby_gem_path} ]]; then
+  #      path_suffix+=("${ruby_gem_path}")
+  #      path_suffix+=("${ruby_gem_path}/bin")
+  #    fi
+  #  fi
+  #
+  # FIXME/2016-12-08: Probably need to figure out how to handle chruby, e.g.,
+  # $ chruby ruby-2.3.3
+  # $ gem install --user-install bundler pry byebug commander rubocop terminal-table httparty
+  # Fetching: bundler-1.13.6.gem (100%)
+  # WARNING:  You don't have /home/landonb/.gem/ruby/2.3.0/bin in your PATH,
+  # 	  gem executables will not run.
+  # ...
+  #
+  # MAYBE: just override chruby to fix PATH?
 
-# 2017-04-27: Added by Bash script at https://get.rvm.io:
-#   "Add RVM to PATH for scripting. Make sure this is the last PATH variable change."
-if [[ -d ${HOME}/.rvm/bin ]]; then
-  PATH_POST+=("${HOME}/.rvm/bin")
-fi
+  if [[ -d ${OPT_DLOADS}/abcde-2.8.1 ]]; then
+    path_suffix+=("${OPT_DLOADS}/abcde-2.8.1")
+  fi
 
-# ============================
-# Cleanup PATH before export
-# ============================
+  # 2017-04-27: Added by Bash script at https://get.rvm.io:
+  #   "Add RVM to PATH for scripting. Make sure this is the last PATH variable change."
+  if [[ -d ${HOME}/.rvm/bin ]]; then
+    path_suffix+=("${HOME}/.rvm/bin")
+  fi
 
-# 2016-12-06: Check if directory in PATH or not (so PATH doesn't
-# just become really long if you run /bin/bash from a shell).
-#   https://stackoverflow.com/questions/1396066/
-#     detect-if-users-path-has-a-specific-directory-in-it
-#   "Using grep is overkill, and can cause trouble if you're searching for
-#   anything that happens to include RE metacharacters. This problem can be
-#   solved perfectly well with bash's builtin [[ command:" [... see below.]
+  # ============================
+  # Cleanup PATH before export
+  # ============================
 
-update_path_paths () {
-  local PATH_ELEM=""
+  # 2016-12-06: Check if directory in PATH or not (so PATH doesn't
+  # just become really long if you run /bin/bash from a shell).
+  #   https://stackoverflow.com/questions/1396066/
+  #     detect-if-users-path-has-a-specific-directory-in-it
+  #   "Using grep is overkill, and can cause trouble if you're searching for
+  #   anything that happens to include RE metacharacters. This problem can be
+  #   solved perfectly well with bash's builtin [[ command:" [... see below.]
 
-  for ((i = 0; i < ${#PATH_PREF[@]}; i++)); do
-    PATH_ELEM="${PATH_PREF[$i]}"
+  local path_elem=""
+
+  for ((i = 0; i < ${#path_prefix[@]}; i++)); do
+    path_elem="${path_prefix[$i]}"
     # Similar to:
-    #  path_add_part "${PATH_ELEM}"
-    if [[ ":${PATH}:" != *":${PATH_ELEM}:"* ]]; then
-      PATH="${PATH_ELEM}:${PATH}"
+    #  path_add_part "${path_elem}"
+    if [[ ":${PATH}:" != *":${path_elem}:"* ]]; then
+      PATH="${path_elem}:${PATH}"
     fi
   done
 
-  for ((i = 0; i < ${#PATH_POST[@]}; i++)); do
-    PATH_ELEM="${PATH_POST[$i]}"
-    if [[ ":${PATH}:" != *":${PATH_ELEM}:"* ]]; then
-      PATH="${PATH}:${PATH_ELEM}"
+  for ((i = 0; i < ${#path_suffix[@]}; i++)); do
+    path_elem="${path_suffix[$i]}"
+    if [[ ":${PATH}:" != *":${path_elem}:"* ]]; then
+      PATH="${PATH}:${path_elem}"
     fi
   done
+
+  export PATH
 }
-update_path_paths
-
-export PATH
-
-unset PATH_PREF
-unset PATH_POST
+update_path_with_more_paths
+unset update_path_with_more_paths
 
 # Umask
 #######
@@ -700,12 +692,14 @@ fi
 #          and call empty_trashes after a certain amount of time has elapsed.
 empty_trashes () {
   # locate .trash | grep "\/\.trash$"
+  local device_path=""
   for device_path in `mount \
     | grep \
       -e " type fuse.encfs (" \
       -e " type ext4 (" \
     | awk '{print $3}'`; \
   do
+    local trash_path=""
     if [[ "${device_path}" == "/" ]]; then
       trash_path="$trashdir/.trash"
     else
@@ -714,9 +708,10 @@ empty_trashes () {
     YES_OR_NO="N"
     if [[ -d $trash_path ]]; then
       # FIXME/MAYBE/LATER: Disable asking if you find this code solid enough.
+      local yes_or_no=""
       echo -n "Empty trash at: \"$trash_path\"? [y/n] "
-      read -e YES_OR_NO
-      if [[ ${YES_OR_NO^^} == "Y" ]]; then
+      read -e yes_or_no
+      if [[ ${yes_or_no^^} == "Y" ]]; then
         if [[ -d $trash_path-TBD ]]; then
           /bin/rm -rf $trash_path-TBD
         fi
@@ -736,6 +731,7 @@ empty_trashes () {
 alias rmtrash='empty_trashes'
 
 function device_on_which_file_resides() {
+  local owning_device=""
   if [[ -d "$1" || -f "$1" ]]; then
     owning_device=$(df "$1" | awk 'NR == 2 {print $1}')
   elif [[ -h "$1" ]]; then
@@ -751,7 +747,8 @@ function device_on_which_file_resides() {
 }
 
 function device_filepath_for_file() {
-  usage_report=$(df "$1")
+  local device_path=""
+  local usage_report=$(df "$1")
   if [[ $? -eq 0 ]]; then
     device_path=$(echo "$usage_report" | awk 'NR == 2 {for(i=7;i<=NF;++i) print $i}')
   else
@@ -766,8 +763,9 @@ function device_filepath_for_file() {
 }
 
 function ensure_trashdir() {
-  device_trashdir="$1"
-  trash_device="$2"
+  local device_trashdir="$1"
+  local trash_device="$2"
+  local ensured=0
   if [[ -f ${device_trashdir}/.trash ]]; then
     ensured=0
     # MAYBE: Suppress this message, or at least don't show multiple times
@@ -817,8 +815,9 @@ function rm_safe() {
   #   /bin/rm -rf ~/.trash && touch ~/.trash
   # You can make the trash with rmtrash or mkdir ~/.trash,
   #   or run the command and you'll be prompted.
-  OLD_IFS=$IFS
+  local old_IFS=$IFS
   IFS=$'\n'
+  local fpath=""
   for fpath in $*; do
     local bname=$(basename "${fpath}")
     if [[ ${bname} == '.' || ${bname} == '..' ]]; then
@@ -826,16 +825,17 @@ function rm_safe() {
     fi
     # A little trick to make sure to use the trash can on
     # the right device, to avoid copying files.
-    trash_device=$(device_on_which_file_resides "${trashdir}")
+    local trash_device=$(device_on_which_file_resides "${trashdir}")
     if [[ $? -ne 0 ]]; then
       echo "ERROR: No device for trashdir: ${trashdir}"
       return 1
     fi
-    fpath_device=$(device_on_which_file_resides "${fpath}")
+    local fpath_device=$(device_on_which_file_resides "${fpath}")
     if [[ $? -ne 0 ]]; then
       echo "ERROR: No device for fpath: ${fpath}"
       return 1
     fi
+    local device_trashdir=""
     if [[ ${trash_device} = ${fpath_device} ]]; then
       # MAYBE: Update this fcn. to support specific trash
       # directories on each device. For now you can specify
@@ -856,14 +856,15 @@ function rm_safe() {
       # If fpath is a symlink and includes a trailing slash, doing a raw mv:
       #  /bin/mv "${fpath}" "${device_trashdir}/.trash/${fname}"
       # causes the response:
-      #  /bin/mv: cannot move ‘symlink/’ to ‘/path/to/.trash/symlink.2015_12_03_14h26m51s_179228194’: Not a directory
+      #  /bin/mv: cannot move ‘symlink/’ to
+      #   ‘/path/to/.trash/symlink.2015_12_03_14h26m51s_179228194’: Not a directory
       /bin/mv "$(dirname "${fpath}")/${bname}" "${device_trashdir}/.trash/${fname}"
     else
       # Ye olde original rm alias, now the unpreferred method.
       /bin/rm -i "${fpath}"
     fi
   done
-  IFS=$OLD_IFS
+  IFS=$old_IFS
 }
 
 function rm_safe_deprecated() {
@@ -874,8 +875,7 @@ function rm_safe_deprecated() {
 #################
 
 function dubs_set_terminal_prompt() {
-
-  ssh_host=$1
+  local ssh_host=$1
 
   # Configure a colorful prompt of the following format:
   #  user@host:dir
@@ -912,12 +912,12 @@ function dubs_set_terminal_prompt() {
   #                      Chime when you hit <BS> on an empty prompt?
   #                      But this is the window titlebar title... hmmm.
   # By default, the title bar is user@host:working-directory.
-  TITLEBAR='\[\e]0;\u@\h:\W\a\]'
+  local titlebar='\[\e]0;\u@\h:\W\a\]'
   # This does the same thing but uses octal ASCII escape chars instead of
   # bash's escape chars:
-  #  TITLEBAR='\[\033]2;\u@\h\007\]'
+  #  titlebar='\[\033]2;\u@\h\007\]'
   # Gnome-terminal's default (though it doesn't specify it, it just is):
-  #  TITLEBAR='\[\e]0;\u@\h:\w\a\]'
+  #  titlebar='\[\e]0;\u@\h:\w\a\]'
 
   # Name this terminal window specially if special.
   # NOTE: This information comes from Gnome, where we've set the Gnome shortcut
@@ -926,18 +926,18 @@ function dubs_set_terminal_prompt() {
   #       won't find your bash scripts.
   if [[ "$ssh_host" == "" ]]; then
     if [[ "$DUBS_TERMNAME" != "" ]]; then
-      TITLEBAR="\[\e]0;${DUBS_TERMNAME}\a\]"
+      titlebar="\[\e]0;${DUBS_TERMNAME}\a\]"
     elif [[ $(stat -c %i /) -eq 2 ]]; then
       # Not in chroot jail.
-      #TITLEBAR='\[\e]0;\u@\h:\w\a\]'
-      #TITLEBAR='\[\e]0;\w:(\u@\h)\a\]'
-      #TITLEBAR='\[\e]0;\w\a\]'
-      TITLEBAR='\[\e]0;\W\a\]'
+      #titlebar='\[\e]0;\u@\h:\w\a\]'
+      #titlebar='\[\e]0;\w:(\u@\h)\a\]'
+      #titlebar='\[\e]0;\w\a\]'
+      titlebar='\[\e]0;\W\a\]'
     else
-      TITLEBAR='\[\e]0;|-\W-|\a\]'
+      titlebar='\[\e]0;|-\W-|\a\]'
     fi
   else
-    TITLEBAR="\[\e]0;On ${ssh_host}\a\]"
+    titlebar="\[\e]0;On ${ssh_host}\a\]"
   fi
 
   # 2012.10.17: The default bash includes ${debian_chroot:+($debian_chroot)} in
@@ -948,7 +948,7 @@ function dubs_set_terminal_prompt() {
   #  http://unix.stackexchange.com/questions/3171/what-is-debian-chroot-in-bashrc
   #  https://en.wikipedia.org/wiki/Chroot
 
-  # NOTE: Using "" below instead of '' so that ${TITLEBAR} is resolved by the
+  # NOTE: Using "" below instead of '' so that ${titlebar} is resolved by the
   #       shell first.
   $DUBS_TRACE && echo "Setting prompt"
   if [[ -e /proc/version ]]; then
@@ -956,10 +956,10 @@ function dubs_set_terminal_prompt() {
       $DUBS_TRACE && echo "Running as root!"
       if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
         $DUBS_TRACE && echo "Ubuntu"
-        PS1="${TITLEBAR}\[\033[01;45m\]\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]\$ "
+        PS1="${titlebar}\[\033[01;45m\]\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]\$ "
       elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
         $DUBS_TRACE && echo "Red Hat"
-        PS1="${TITLEBAR}\[\033[01;45m\]\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]\$ "
+        PS1="${titlebar}\[\033[01;45m\]\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]\$ "
       else
         echo "WARNING: Not enough info. to set PS1."
       fi
@@ -972,29 +972,29 @@ function dubs_set_terminal_prompt() {
       #       the inode of the (outermost) root directory is always 2.
       # CAVEAT: This check works on Linux but probably not on Mac, BSD, Cygwin, etc.
       if [[ $(stat -c %i /) -eq 2 ]]; then
-        #PS1="${TITLEBAR}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]\$ "
+        #PS1="${titlebar}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]\$ "
         # 2015.03.04: The chroot is Ubuntu 12.04, and it's Bash v4.2 does not
         #             support Unicode \uXXXX escapes, so use the escape in the
         #             outer. (Follow the directory path with an anchor symbol
         #             so I know I'm *not* in the chroot.)
-        PS1="${TITLEBAR}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]"$' \u2693 '"\$ "
+        PS1="${titlebar}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]"$' \u2693 '"\$ "
         # 2015.02.26: Add git branch.
         #             Maybe... not sure I like this...
         #             maybe change delimiter and make branch name colorful?
-        #PS1="${TITLEBAR}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]"'$(__git_ps1 "-%s" )\$ '
+        #PS1="${titlebar}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]"'$(__git_ps1 "-%s" )\$ '
       else
         # NOTE: Bash's $'...' sees \uXXXX unicode espace sequences, but not $"..."
         # See the Unicode character table: http://unicode-table.com/en/
         # Bash doesn't support all Unicode characters, so see also this list:
         #   https://mkaz.com/2014/04/17/the-bash-prompt/
-        #PS1="${TITLEBAR}\[\033[01;31m\]"$'\u2605'"\u@"$'\u2605'"\[\033[1;36m\]\h\[\033[00m\]:\[\033[01;33m\]\W\[\033[00m\]"$' \u2693 '
+        #PS1="${titlebar}\[\033[01;31m\]"$'\u2605'"\u@"$'\u2605'"\[\033[1;36m\]\h\[\033[00m\]:\[\033[01;33m\]\W\[\033[00m\]"$' \u2693 '
         # 2015.03.04: As mentioned above, the chroot may be running an old Bash,
         #             so use the Unicode \uXXXX escape in the outer only.
-        PS1="${TITLEBAR}\[\033[01;31m\]**\u@**\[\033[1;36m\]\h\[\033[00m\]:\[\033[01;33m\]\W\[\033[00m\] "'! '
+        PS1="${titlebar}\[\033[01;31m\]**\u@**\[\033[1;36m\]\h\[\033[00m\]:\[\033[01;33m\]\W\[\033[00m\] "'! '
       fi
     elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
       $DUBS_TRACE && echo "Red Hat"
-      PS1="${TITLEBAR}\[\033[01;36m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]\$ "
+      PS1="${titlebar}\[\033[01;36m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]\$ "
     else
         echo "WARNING: Not enough info. to set PS1."
     fi
@@ -1008,8 +1008,8 @@ function dubs_set_terminal_prompt() {
   #         PS1=""
   #         PROMPT_COMMAND='echo -ne "\033]0;SOME TITLE HERE\007"'
   #       But the escapes don't work the same. E.g., this looks really funny:
-  #         TITLEBAR="\[\e]0;THIS IS A TEST\a\]"
-  #         PROMPT_COMMAND='echo -ne "${TITLEBAR}\[\033[01;36m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]\$ "'
+  #         titlebar="\[\e]0;THIS IS A TEST\a\]"
+  #         PROMPT_COMMAND='echo -ne "${titlebar}\[\033[01;36m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]\$ "'
 
 }
 dubs_set_terminal_prompt
@@ -1057,81 +1057,93 @@ fi
 
 # SYNC_ME: See $cp/scripts/setupcp/runic/auto_install/check_parms.sh
 
-# Determine the Python version-path.
-#PYTHON_VER=$(python --version 2>&1)
-# Convert, e.g., 'Python 3.4.0' to '3.4'.
-# Note the |&, which is like 2>&1, i.e., send stderr to stdout.
-# 2016-07-18: Ubuntu 16.04: Adds a plus sign!: Python 3.5.1+
-PYVERS_RAW3=`python3 --version \
-  |& /usr/bin/awk '{print $2}' \
-  | /bin/sed -r 's/^([0-9]+\.[0-9]+)\.[0-9]+\+?/\1/g'`
-if [[ -n $PYVERS_RAW3 ]]; then
-  export PYTHONVERS3=python${PYVERS_RAW3}
-  export PYVERSABBR3=py${PYVERS_RAW3}
-else
-  echo
-  echo "######################################################################"
-  echo
-  echo "WARNING: Unexpected: Could not parse Python3 version."
-  echo "python3 --version: `python3 --version`"
-  python3 --version
-  python3 --version |& /usr/bin/awk '{print $2}'
-  python3 --version |& /usr/bin/awk '{print $2}' | /bin/sed -r 's/^([0-9]+\.[0-9]+)\.[0-9]+\+?/\1/g'
-  echo
-  echo "######################################################################"
-  echo
-  # If we exit, you cannot log on the terminal! Because /bin/bash exits...
-  #exit 1
-fi
-
-# Convert, e.g., 'Python 2.7.6' to '2.7'.
-# 2016-07-18: NOTE: Default on Mint 17: Python 2.7.6
-#              Default on Ubuntu 16.04: Python 2.7.12
-PYVERS_RAW2=`python2 --version \
-  |& /usr/bin/awk '{print $2}' \
-  | /bin/sed -r 's/^([0-9]+\.[0-9]+)\.[0-9]+/\1/g'`
-PYVERS_DOTLESS2=`python2 --version \
-  |& /usr/bin/awk '{print $2}' \
-  | /bin/sed -r 's/^([0-9]+)\.([0-9]+)\.[0-9]+/\1\2/g'`
-if [[ -z $PYVERS_RAW2 ]]; then
-  echo
-  echo "######################################################################"
-  echo
-  echo "WARNING: Unexpected: Could not parse Python2 version."
-  echo
-  echo "######################################################################"
-  echo
-  # If we exit, you cannot log on the terminal! Because /bin/bash exits...
-  #exit 1
-fi
-PYVERS_RAW2=${PYVERS_RAW2}
-PYVERS_RAW2_m=${PYVERS_RAW2}m
-PYTHONVERS2_m=python${PYVERS_RAW2_m}
-PYVERS_CYTHON2=${PYVERS_DOTLESS2}m
-#
-PYTHONVERS2=python${PYVERS_RAW2}
-PYVERSABBR2=py${PYVERS_RAW2}
-
-# Determine the apache user.
-# 'TEVS: CAPITALIZE these, like most exports.
-if [[ -e /proc/version ]]; then
-  if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
-    # echo Ubuntu!
-    export httpd_user=www-data
-    export httpd_etc_dir=/etc/apache2
-  elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
-    # echo Red Hat!
-    export httpd_user=apache
-    export httpd_etc_dir=/etc/httpd
+whats_python3 () {
+  # Determine the Python version-path.
+  #PYTHON_VER=$(python --version 2>&1)
+  # Convert, e.g., 'Python 3.4.0' to '3.4'.
+  # Note the |&, which is like 2>&1, i.e., send stderr to stdout.
+  # 2016-07-18: Ubuntu 16.04: Adds a plus sign!: Python 3.5.1+
+  local PYVERS_RAW3=`python3 --version \
+    |& /usr/bin/awk '{print $2}' \
+    | /bin/sed -r 's/^([0-9]+\.[0-9]+)\.[0-9]+\+?/\1/g'`
+  if [[ -n $PYVERS_RAW3 ]]; then
+    export PYTHONVERS3=python${PYVERS_RAW3}
+    export PYVERSABBR3=py${PYVERS_RAW3}
   else
     echo
-    echo "Error: Unexpected OS; cannot set httpd_user/_etc_dir."
+    echo "######################################################################"
     echo
+    echo "WARNING: Unexpected: Could not parse Python3 version."
+    echo "python3 --version: `python3 --version`"
+    python3 --version
+    python3 --version |& /usr/bin/awk '{print $2}'
+    python3 --version |& /usr/bin/awk '{print $2}' | /bin/sed -r 's/^([0-9]+\.[0-9]+)\.[0-9]+\+?/\1/g'
+    echo
+    echo "######################################################################"
+    echo
+    # If we exit, you cannot log on the terminal! Because /bin/bash exits...
+    #exit 1
   fi
-else
-  # If no /proc/version, then this is an unwired chroot jail.
-  : # Meh.
-fi
+}
+whats_python3
+unset whats_python3
+
+whats_python2 () {
+  # Convert, e.g., 'Python 2.7.6' to '2.7'.
+  # 2016-07-18: NOTE: Default on Mint 17: Python 2.7.6
+  #              Default on Ubuntu 16.04: Python 2.7.12
+  local PYVERS_RAW2=`python2 --version \
+    |& /usr/bin/awk '{print $2}' \
+    | /bin/sed -r 's/^([0-9]+\.[0-9]+)\.[0-9]+/\1/g'`
+  local PYVERS_DOTLESS2=`python2 --version \
+    |& /usr/bin/awk '{print $2}' \
+    | /bin/sed -r 's/^([0-9]+)\.([0-9]+)\.[0-9]+/\1\2/g'`
+  if [[ -z $PYVERS_RAW2 ]]; then
+    echo
+    echo "######################################################################"
+    echo
+    echo "WARNING: Unexpected: Could not parse Python2 version."
+    echo
+    echo "######################################################################"
+    echo
+    # If we exit, you cannot log on the terminal! Because /bin/bash exits...
+    #exit 1
+  fi
+  PYVERS_RAW2=${PYVERS_RAW2}
+  PYVERS_RAW2_m=${PYVERS_RAW2}m
+  PYTHONVERS2_m=python${PYVERS_RAW2_m}
+  PYVERS_CYTHON2=${PYVERS_DOTLESS2}m
+  #
+  export PYTHONVERS2=python${PYVERS_RAW2}
+  export PYVERSABBR2=py${PYVERS_RAW2}
+}
+whats_python2
+unset whats_python2
+
+whats_apache () {
+  # Determine the apache user.
+  # 'TEVS: CAPITALIZE these, like most exports.
+  if [[ -e /proc/version ]]; then
+    if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
+      # echo Ubuntu!
+      export httpd_user=www-data
+      export httpd_etc_dir=/etc/apache2
+    elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
+      # echo Red Hat!
+      export httpd_user=apache
+      export httpd_etc_dir=/etc/httpd
+    else
+      echo
+      echo "Error: Unexpected OS; cannot set httpd_user/_etc_dir."
+      echo
+    fi
+  else
+    # If no /proc/version, then this is an unwired chroot jail.
+    : # Meh.
+  fi
+}
+whats_apache
+unset whats_apache
 
 # Remove SVN directories.
 #########################
@@ -1159,27 +1171,33 @@ shopt -s direxpand &> /dev/null
 
 # Crontab shortcuts.
 
-alias ct='crontab -e -u $USER'
-if [[ -e "/usr/bin/vim.basic" ]]; then
-  VIM_EDITOR=/usr/bin/vim.basic
-elif [[ -e "/usr/bin/vim.tiny" ]]; then
-  VIM_EDITOR=/usr/bin/vim.tiny
-fi
-# 2015.01.25: FIXME: Not sure what best to use...
-VIM_EDITOR=/usr/bin/vim
-if [[ -n $VIM_EDITOR ]]; then
-  alias ct-www='\
-    ${DUBS_TRACE} && echo "ct-www" ; \
-    sudo -u $httpd_user \
-      SELECTED_EDITOR=${VIM_EDITOR} \
-      crontab -e -u $httpd_user'
-fi
+configure_crontab () {
+  alias ct='crontab -e -u $USER'
+
+  local vim_editor=""
+  if [[ -e "/usr/bin/vim.basic" ]]; then
+    vim_editor=/usr/bin/vim.basic
+  elif [[ -e "/usr/bin/vim.tiny" ]]; then
+    vim_editor=/usr/bin/vim.tiny
+  fi
+  # 2015.01.25: FIXME: Not sure what best to use...
+  vim_editor=/usr/bin/vim
+  if [[ -n ${vim_editor} ]]; then
+    alias ct-www='\
+      ${DUBS_TRACE} && echo "ct-www" ; \
+      sudo -u ${httpd_user} \
+        SELECTED_EDITOR=${vim_editor} \
+        crontab -e -u $httpd_user'
+  fi
+}
+configure_crontab
+unset configure_crontab
 
 #########################
 
 # Control and Kill Processes.
 
-# Restart Apache.
+# Restart Apache aliases.
 if [[ -e /proc/version ]]; then
   if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
     alias re='\
@@ -1205,7 +1223,7 @@ fi
 # EXPLAIN/FIXME: Why doesn't bash_core.sh just use what's in bash_base.sh
 #                and share like a normal script?
 killsomething () {
-  something=$1
+  local something=$1
   # The $2 is the awk way of saying, second column. I.e., ps aux shows
   #   apache 27635 0.0 0.1 238736 3168 ? S 12:51 0:00 /usr/sbin/httpd
   # and awk splits it on whitespace and sets $1..$11 to what was split.
@@ -1227,7 +1245,7 @@ dir_resolve () {
   # Squash error messages but return error status, maybe.
   pushd "$1" &> /dev/null || return $?
   # -P returns the full, link-resolved path.
-  dir_resolved="`pwd -P`"
+  local dir_resolved="`pwd -P`"
   popd &> /dev/null
   echo "$dir_resolved"
 }
@@ -1242,7 +1260,6 @@ symlink_dirname () {
 #########################
 
 invoked_from_terminal () {
-
   # E.g., Consider the fcn. and script,
   #
   #   echo 'test_f () { echo $0; }; test_f' > test.sh
@@ -1262,10 +1279,9 @@ invoked_from_terminal () {
   # name of file is sufficient to determine if calling `exit` will
   # just kill a script or if it will exit the user's terminal.
 
+  local bashed=0
   if [[ `echo "$0" | grep "bash$" -` ]]; then
     bashed=1
-  else
-    bashed=0
   fi
 
   return $bashed
@@ -1300,14 +1316,15 @@ invoked_from_terminal () {
 
 termdo-all () {
   determine_window_manager
-  THIS_WINDOW_ID=$(xdotool getactivewindow)
-  WINDOW_IDS=$(xdotool search --class "$WM_TERMINAL_APP")
+  local THIS_WINDOW_ID=$(xdotool getactivewindow)
+  local WINDOW_IDS=$(xdotool search --class "$WM_TERMINAL_APP")
+  local winid
   for winid in $WINDOW_IDS; do
     # Don't send the command to this window, at least not yet, since it'll
     # end up on stdin of this fcn. and won't be honored as a bash command.
     if [[ $THIS_WINDOW_ID -ne $winid ]]; then
       # See if this is a legit window or not.
-      DESKTOP_NUM=$(xdotool get_desktop_for_window $winid 2> /dev/null)
+      local DESKTOP_NUM=$(xdotool get_desktop_for_window $winid 2> /dev/null)
       # For real terminal, the number is 0 or greater;
       # for the fakey, it's 0, and also xdotool returns 1.
       if [[ $? -eq 0 ]]; then
@@ -1345,11 +1362,12 @@ fi
 
 termdo-reset () {
   determine_window_manager
-  THIS_WINDOW_ID=$(xdotool getactivewindow)
-  WINDOW_IDS=$(xdotool search --class "$WM_TERMINAL_APP")
+  local THIS_WINDOW_ID=$(xdotool getactivewindow)
+  local WINDOW_IDS=$(xdotool search --class "$WM_TERMINAL_APP")
+  local winid
   for winid in $WINDOW_IDS; do
     if [[ $THIS_WINDOW_ID -ne $winid ]]; then
-      DESKTOP_NUM=$(xdotool get_desktop_for_window $winid 2> /dev/null)
+      local DESKTOP_NUM=$(xdotool get_desktop_for_window $winid 2> /dev/null)
       if [[ $? -eq 0 ]]; then
         # Note that the terminal from whence this command is being run
         # will get the keystrokes -- but since the command is running,
@@ -1371,11 +1389,12 @@ termdo-reset () {
 
 termdo-cmd () {
     determine_window_manager
-    THIS_WINDOW_ID=$(xdotool getactivewindow)
-    WINDOW_IDS=$(xdotool search --class "$WM_TERMINAL_APP")
+    local THIS_WINDOW_ID=$(xdotool getactivewindow)
+    local WINDOW_IDS=$(xdotool search --class "$WM_TERMINAL_APP")
+    local winid
     for winid in $WINDOW_IDS; do
         if [[ $THIS_WINDOW_ID -ne $winid ]]; then
-            DESKTOP_NUM=$(xdotool get_desktop_for_window $winid 2> /dev/null)
+            local DESKTOP_NUM=$(xdotool get_desktop_for_window $winid 2> /dev/null)
             if [[ $? -eq 0 ]]; then
                 xdotool key --window $winid ctrl+c
                 xdotool key --window $winid ctrl+d
@@ -1476,12 +1495,12 @@ webperms () {
   #chmod -R o+rX $1 &> /dev/null || sudo chmod -R o+rX $1
   chmod -R u+rwX,g+rwX,o+rX $1 &> /dev/null || sudo chmod -R u+rwX,g+rwX,o+rX $1
   # Also fix the ancestor permissions.
-  local CUR_DIR=$1
-  while [[ -n ${CUR_DIR} && $(dirname ${CUR_DIR}) != '/' ]]; do
-    ${DUBS_TRACE} && echo "Ancestor: ${CUR_DIR}"
+  local cur_dir=$1
+  while [[ -n ${cur_dir} && $(dirname ${cur_dir}) != '/' ]]; do
+    ${DUBS_TRACE} && echo "Ancestor: ${cur_dir}"
     # NOTE: Not giving read access, just execute.
-      chmod -R o+X ${CUR_DIR} &> /dev/null || sudo chmod -R o+X ${CUR_DIR}
-    local CUR_DIR=$(dirname ${CUR_DIR})
+      chmod -R o+X ${cur_dir} &> /dev/null || sudo chmod -R o+X ${cur_dir}
+    local cur_dir=$(dirname ${cur_dir})
   done
 }
 
@@ -1489,6 +1508,7 @@ webperms () {
 dirperms () {
   # find . -maxdepth 1 -type d -exec chmod 2775 {} +
   # find . -maxdepth 1 -type f -exec chmod u+rw,g+rw,o+r {} +
+  local one_dir=""
   if [[ -z $1 ]]; then
     one_dir=".* *"
   else
@@ -1524,6 +1544,7 @@ reperms () {
 simpletimeit () {
   # Python has a great timeit fcn. you could use on a command, or
   # you could just do it in Bash. Except msg is not as friendly here.
+  local time_0
   if [[ -z ${simpletimeit_0+x} ]]; then
     if [[ -z $1 ]]; then
       echo "Nothing took no time."
@@ -1535,10 +1556,10 @@ simpletimeit () {
   else
     time_0=${simpletimeit_0}
   fi
-  time_1=$(date +%s.%N)
-  TM_USED=`printf "%.2F" $(echo "($time_1 - $time_0) / 60.0" | bc -l)`
+  local time_1=$(date +%s.%N)
+  local elapsed=`printf "%.2F" $(echo "($time_1 - $time_0) / 60.0" | bc -l)`
   echo
-  echo "Your task took ${TM_USED} mins."
+  echo "Your task took ${elapsed} mins."
 }
 
 #########################
@@ -1566,7 +1587,7 @@ if false; then
   #alias tt="traskr.py"
 
   # FIXME: We can do better!
-  #PATH_POST+=("/kit/traskr-time-tracker")
+  #path_suffix+=("/kit/traskr-time-tracker")
 
   #eval "$(register-python-argcomplete ${HOME}/.todo.actions.d/traskr)"
   #eval "$(register-python-argcomplete /kit/traskr-time-tracker/traskr.py)"
@@ -1607,6 +1628,7 @@ alias c="${OPT_DLOADS}/punch-time-tracking/Punch.py"
 # the working directory, which in my case is ~/.vim.
 
 git_status_all () {
+  local subdir
   for subdir in $(find . -name ".git" -type d); do
     gitst=$(git --git-dir=$subdir --work-tree=$subdir/.. status --short)
     if [[ -n $gitst ]]; then
@@ -1677,46 +1699,48 @@ fi
 #        becomes some/dir/this/that/**/*.pyc... oy.
 fffind () {
 
-  HERE_WE_ARE=$(dir_resolve $(pwd -P))
+  local here_we_are=$(dir_resolve $(pwd -P))
 
-  BIG_IGNORE_LIST=()
+  local big_ignore_list=()
+
+  local ignore_f=""
 
   # Go up the hierarchy...
-  while [[ ${HERE_WE_ARE} != '/' ]]; do
+  while [[ ${here_we_are} != '/' ]]; do
     for ignore_f in ".agignore" ".gitignore" ".findignore"; do
-      if [[ -e "${HERE_WE_ARE}/${ignore_f}" ]]; then
+      if [[ -e "${here_we_are}/${ignore_f}" ]]; then
         # Read line by line from the file.
         while read fline; do
           # Bash regular expressions, eh.
           if [[ ! "${fline}" =~ ^[[:space:]]*# ]]; then
             # Not a comment line.
-            BIG_IGNORE_LIST+=("-path '${fline}' -prune -o")
+            big_ignore_list+=("-path '${fline}' -prune -o")
           fi
-        done < "${HERE_WE_ARE}/${ignore_f}"
+        done < "${here_we_are}/${ignore_f}"
       fi
     done
     # Keep looping:
-    HERE_WE_ARE=$(dir_resolve ${HERE_WE_ARE}/..)
+    here_we_are=$(dir_resolve ${here_we_are}/..)
   done
 
   # Go down the hierarchies...
   # Find all .agignore, .gitignore, and .anythingignore.
   for ignore_f in `find . -type f -name ".*ignore"`; do
-    ignore_p=$(dirname ${ignore_f})
+    local ignore_p=$(dirname ${ignore_f})
     while read fline; do
       # Bash regular expressions, eh.
       if [[ ! "${fline}" =~ ^[[:space:]]*# ]]; then
         # Not a comment line.
-        BIG_IGNORE_LIST+=("-path '${ignore_p}/${fline}' -prune -o")
+        big_ignore_list+=("-path '${ignore_p}/${fline}' -prune -o")
       fi
     done < "${ignore_f}"
   done
 
   # So, calling find on its own does not work, probably
   # because of the globbing. So eval the commmand.
-  # Nope: find . ${BIG_IGNORE_LIST[@]} -name $*
-  # eval "find . ${BIG_IGNORE_LIST[@]} -name $*"
-    eval "find . ${BIG_IGNORE_LIST[@]} -name $* | grep -E $*"
+  # Nope: find . ${big_ignore_list[@]} -name $*
+  # eval "find . ${big_ignore_list[@]} -name $*"
+    eval "find . ${big_ignore_list[@]} -name $* | grep -E $*"
 
 } # fffind
 
@@ -1742,9 +1766,9 @@ fffind () {
 xinput_set_prop_touchpad_device () {
   if [[ -e ${HOME}/.fries/.bashrc/touchpad_disable ]]; then
     if [[ $(command -v xinput > /dev/null) || $? -eq 0 ]]; then
-      local DEVICE_NUM=$(xinput --list --id-only "SynPS/2 Synaptics TouchPad" 2> /dev/null)
-      if [[ -n ${DEVICE_NUM} ]]; then
-        xinput set-prop ${DEVICE_NUM} "Device Enabled" 0
+      local device_num=$(xinput --list --id-only "SynPS/2 Synaptics TouchPad" 2> /dev/null)
+      if [[ -n ${device_num} ]]; then
+        xinput set-prop ${device_num} "Device Enabled" 0
       fi
     fi
   fi
@@ -2171,11 +2195,15 @@ user_window_session_logout () {
 #     ssh-agent -k
 #     bash
 #
-ps -C gpg-agent &> /dev/null
-if [[ $? -ne 0 ]]; then
-  eff_off_gkr=$(gpg-agent --daemon)
-  eval "$eff_off_gkr"
-fi
+daemonize_gpg_agent () {
+  ps -C gpg-agent &> /dev/null
+  if [[ $? -ne 0 ]]; then
+    local eff_off_gkr=$(gpg-agent --daemon)
+    eval "$eff_off_gkr"
+  fi
+}
+daemonize_gpg_agent
+unset daemonize_gpg_agent
 
 #########################
 
@@ -2191,11 +2219,11 @@ has_sudo () {
 #########################
 
 touchpad_twiddle () {
-  TOUCHPAD_STATE=$1
+  local touchpad_state=$1
   if [[ $(command -v xinput > /dev/null) || $? -eq 0 ]]; then
-    DEVICE_NUM=$(xinput --list --id-only "SynPS/2 Synaptics TouchPad" 2> /dev/null)
-    if [[ -n ${DEVICE_NUM} ]]; then
-      xinput set-prop ${DEVICE_NUM} "Device Enabled" ${TOUCHPAD_STATE}
+    local device_num=$(xinput --list --id-only "SynPS/2 Synaptics TouchPad" 2> /dev/null)
+    if [[ -n ${device_num} ]]; then
+      xinput set-prop ${device_num} "Device Enabled" ${touchpad_state}
     fi
   fi
 }
@@ -2260,7 +2288,7 @@ printdirsincur_better () {
 
 # Also remember: In Bash, to handle spaces when iterating over an array, iterate the indices.
 echo_list () {
-  list=$1
+  local list=$1
   if [[ -z ${list} ]]; then
     declare -a list
   fi

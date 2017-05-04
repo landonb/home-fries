@@ -1,6 +1,6 @@
 # File: color_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.12
+# Last Modified: 2017.05.03
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Dumping ground for unused Bash functions, apparently.
 #          2016-10-24: I'll throw a useful fcn herein, passtore-ci
@@ -13,6 +13,8 @@
 # See also hex-to-xterm converter: http://www.frexx.de/xterm-256-notes/
 
 if false; then
+  # 2017-05-03: NOTE: Single quotes don't work. What's up with this?
+  #
   export PINK='\\033[38;5;211m'
   export ORANGE='\\033[38;5;203m'
   export SKYBLUE='\\033[38;5;111m'
