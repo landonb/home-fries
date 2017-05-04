@@ -1,6 +1,6 @@
 # File: ruby_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.05.03
+# Last Modified: 2017.05.04
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Ruby Helpers.
 # License: GPLv3
@@ -19,8 +19,54 @@ if [[ -f /usr/local/share/chruby/chruby.sh ]]; then
   source /usr/local/share/chruby/chruby.sh
 fi
 
+# The github.com/postmodern/chruby README lists Anti-Features, starting with:
+#   - Does not hook cd.
+#   - Does not install executable shims.
+# However, it doesn't say what it does do instead!
+#   chruby/auto.sh sets a trap on DEBUG,
+#   and if $BASH_COMMAND != $PROMPT_COMMAND,
+#   it walks up the directory tree looking
+#   for a .ruby-version file on which to chruby.
+# Cmd:
+#   trap '[[ "$BASH_COMMAND" != "$PROMPT_COMMAND" ]] && chruby_auto' DEBUG
+# Ref:
+#   BASH_COMMAND
+#     The  command  currently  being  executed or about to be executed,
+#     unless the shell is executing a command as the result of a trap,
+#     in which case it is the command executing at the time of the trap.
+#   PROMPT_COMMAND
+#     If set, the value is executed as a command prior to issuing each
+#     primary prompt.
+#   DEBUG
+#     Refer to the description of the extdebug option to the shopt builtin
+#     for details of its effect  on  the  DEBUG  trap.
+#   extdebug
+#     If set, behavior intended for use by debuggers is enabled:
+#     1.     The  -F option to the declare builtin displays the source file name and line number corresponding
+#            to each function name supplied as an argument.
+#     2.     If the command run by the DEBUG trap returns a non-zero value, the next command  is  skipped  and
+#            not executed.
+#     3.     If  the  command run by the DEBUG trap returns a value of 2, and the shell is executing in a sub‐
+#            routine (a shell function or a shell script executed by the . or  source  builtins),  a  call  to
+#            return is simulated.
+#     4.     BASH_ARGC and BASH_ARGV are updated as described in their descriptions above.
+#     5.     Function tracing is enabled:  command substitution, shell functions, and subshells invoked with (
+#            command ) inherit the DEBUG and RETURN traps.
+#     6.     Error tracing is enabled:  command substitution, shell functions, and subshells  invoked  with  (
+#            command ) inherit the ERR trap.
+# So:
+#   Every time you run *any* command, auto.sh
+#   crawls the tree looking for .ruby-version.
+
+# 2017-05-03: I'm disabling this. Seems redonkulous.
+# You have ``gogo`` command et al to accomplish same.
+# And then you're not spinning up dir every time you
+# run a Bash command. And it's not not that's slow,
+# it's just the principal of the thing, man.
+if false; then
 if [[ -f /usr/local/share/chruby/auto.sh ]]; then
   source /usr/local/share/chruby/auto.sh
+fi
 fi
 
 if [[ -z ${HOMEFRIES_WARNINGS+x} ]]; then
@@ -143,7 +189,7 @@ ruby_set_gem_path () {
 
   export GEM_PATH
 
-  if false; then
+  if true; then
     # $ echo $GEM_PATH
     # ${HOME}/.gem/ruby/2.3.0:/var/lib/gems/2.3.0
     # $ gogo project
@@ -159,7 +205,9 @@ ruby_set_gem_path () {
 
     # E.g., ${HOME}/.rubies/ruby-2.3.3/ruby/2.3.0/bin
     path_add_part ${HOME}/.rubies/ruby-${RUBY_VERS}/ruby/${RUBY_MINOR_ZERO}/bin
+  fi
 
+  if false; then
     # Put this at first place in the PATH. If it exists.
     path_add_part ${HOME}/.gem/ruby/${RUBY_MINOR_ZERO}/bin
     path_add_part ${HOME}/.gem/ruby/${RUBY_VERS}/bin
