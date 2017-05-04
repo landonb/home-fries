@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.05.03
+# Last Modified: 2017.05.04
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -6150,6 +6150,56 @@ stage_4_abcde_cd_ripper () {
 } # end: stage_4_abcde_cd_ripper
 # DEVs: CXPX above template for easy-making new function.
 
+stage_4_remarkable_markdown_ide () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_remarkable_markdown_ide"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # https://remarkableapp.github.io/
+  #
+  # https://github.com/jamiemcg/remarkable
+
+  # Prereqs. I tried pip but I need aptitude versions instead, it seems.
+  #
+  # " error-tolerant HTML parser for Python"
+  sudo apt-get install -y python-bs4
+  # "Command line utilities to convert html to pdf or image using WebKit"
+  sudo apt-get install -y wkhtmltopdf
+  # "text-to-HTML conversion library/tool (Python 3 version)"
+  sudo apt-get install -y python3-markdown
+  # *Spellchecking not enabled.
+  # *To enable spellchecking install pygtkspellcheck
+  # *https://pypi.python.org/pypi/pygtkspellcheck/
+  # pip search pygtkspellcheck
+  #sudo pip install pygtkspellcheck
+  #sudo pip3 install pygtkspellcheck
+  # "The directory '${HOME}/.cache/pip/http' or its parent directory is not
+  #   owned by the current user and the cache has been disabled. Please check
+  #   the permissions and owner of that directory. If executing pip with sudo,
+  #   you may want sudo's -H flag.
+  # "The directory '${HOME}/.cache/pip' or its parent directory is not owned
+  #   by the current user and caching wheels has been disabled. check the
+  #   permissions and owner of that directory. If executing pip with sudo,
+  #   you may want sudo's -H flag."
+  # -H, --set-home
+  #   "Request that the security policy set the HOME environment variable to
+  #   the home directory specified by the target user's password database entry.
+  #   Depending on the policy, this may be the default behavior."
+  sudo -H pip install pygtkspellcheck
+  sudo -H pip3 install pygtkspellcheck
+
+  wget -N https://remarkableapp.github.io/files/remarkable_1.87_all.deb
+  # FIXME: HERE-AND-EVERYWHERE: Verify Checksums of Downloaded File!s
+  sudo dpkg -i remarkable_1.87_all.deb
+
+  popd &> /dev/null
+
+} # end: stage_4_remarkable_markdown_ide
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -6425,6 +6475,8 @@ setup_customize_extras_go () {
   stage_4_jruby
 
   stage_4_abcde_cd_ripper
+
+  #stage_4_remarkable_markdown_ide
 
   # Add before this'n: stage_4_fcn_template.
 
