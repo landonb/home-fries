@@ -2,7 +2,7 @@
 
 # File: bash_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.05.03
+# Last Modified: 2017.05.04
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bash function library.
 # License: GPLv3
@@ -104,13 +104,22 @@ path_add_part () {
     #     ..
     #   fi
     #
-    # but to put the new part at first place, remove it first.
-    PATH=${PATH#${PATH_PART}:} # Remove prefix
-    PATH=${PATH#${PATH_PART}} # Remove prefix
-    PATH=${PATH%:${PATH_PART}} # Remove suffix
-    PATH=${PATH%${PATH_PART}} # Remove suffix
-    PATH=${PATH/:${PATH_PART}:/} # Remove inside
+    # but path_add_part guarantees the new part is positioned
+    # at first place, so remove it first.
+    #
+    # Substitute: s/^prefix://
+    PATH=${PATH#${PATH_PART}:}
+    # Substitute: s/:suffix$//
+    PATH=${PATH%:${PATH_PART}}
+    # Substitute: s/^sole-path$//
+    if [[ ${PATH} == ${PATH_PART} ]]; then
+      PATH=""
+    fi
+    # Substitute: s/:inside:/:/
+    PATH=${PATH/:${PATH_PART}:/:}
+    # Now we're ready to prepend it.
     PATH="${PATH_PART}:${PATH}"
+    #
     export PATH
   #else
   #  echo "path_add_part: Not a directory: ${PATH_PART}"
