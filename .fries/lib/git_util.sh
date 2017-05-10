@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.05.03
+# Last Modified: 2017.05.09
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -612,7 +612,9 @@ function git_pull_hush () {
     #echo "  git checkout -b feature/${SOURCE_BRANCH} --track origin/master"
     #echo "   or maybe just"
     #echo "  git checkout -b ${SOURCE_BRANCH} --track origin/master"
-    echo "  git checkout --track origin/${SOURCE_BRANCH}"
+    # Using `--track origin/` is archaic (<1.6.6?) usage.
+    #echo "  git checkout --track origin/${SOURCE_BRANCH}"
+    echo "  git checkout ${SOURCE_BRANCH}"
     return 1
   fi
 

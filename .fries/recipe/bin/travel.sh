@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.05.03
+# Last Modified: 2017.05.09
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # FIXME/2017-02-08: Conflicts are not being caught!
@@ -1552,6 +1552,8 @@ function git_commit_vim_spell () {
     /bin/cat ${VIM_SPELL_ABS} | /usr/bin/sort > ${VIM_SPELL_ABS}.tmp
     /bin/mv -f ${VIM_SPELL_ABS}.tmp ${VIM_SPELL_ABS}
 
+    # FIXME/2017-05-09/TRANSITION-TO-TRAVEL: Should indicate from what machine
+    #   and maybe what operation (unless it's always packme).
     git_commit_generic_file \
       "${VIM_SPELL_ABS}" \
       "Commit Vim spell during packme."
@@ -1568,6 +1570,8 @@ function git_commit_vimprojects () {
   VIMPROJECTS_ABS="${USERS_CURLY}/${VIMPROJECTS_REL}"
   if [[ -e ${VIMPROJECTS_ABS} ]]; then
     echo "Checking .vimprojects..."
+      # FIXME/2017-05-09/TRANSITION-TO-TRAVEL: Should indicate from what machine
+      #   and maybe what operation (unless it's always packme).
       git_commit_generic_file \
         "${VIMPROJECTS_ABS}" \
         "Commit .vimprojects during packme."
