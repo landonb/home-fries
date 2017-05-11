@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.05.09
+# Last Modified: 2017.05.11
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -388,7 +388,8 @@ function git_status_porcelain () {
     if [[ -n $(git remote -v) ]]; then
       # Not a remote-less repo.
 
-      branch_name=$(git branch --no-color | head -n 1 | /bin/sed 's/^\*\? *//')
+      #branch_name=$(git branch --no-color | head -n 1 | /bin/sed 's/^\*\? *//')
+      branch_name=$(git branch --no-color | grep \* | cut -d ' ' -f2)
       #echo "branch_name: ${branch_name}"
 
       # git status always compares against origin/master, or at least I
