@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.05.04
+# Last Modified: 2017.05.20
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -2467,6 +2467,61 @@ stage_4_digikam5_from_distro () {
 # digikam5  4:5.1.0-wily~ppa1
 
 } # end: stage_4_digikam5_from_distro
+
+stage_4_digikam_install_appimage () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_digikam_install_appimage"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  wget -N https://download.kde.org/stable/digikam/digikam-5.5.0-01-x86-64.appimage
+
+  cd ${OPT_BIN}
+
+  # 2017-05-20: Ubuntu 14.04:
+  #   $ digikam --version
+  #   Qt: 4.8.6
+  #   KDE Development Platform: 4.14.2
+  #   digiKam: 4.14.0
+
+  /bin/ln -s ${OPT_DLOADS}/digikam-5.5.0-01-x86-64.appimage digikam5
+
+  # $ digikam5 &
+  # -- Use 'help' as CLI argument to know all available options
+  #
+  # Dialog:
+  #
+  #   Would you like to integrate
+  #     /path/to/digikam-5.5.0-01-x86-64.appimage
+  #   with your system?
+  #
+  #   This will add it to your applications menu and install icons.
+  #   If you don't do this you can still launch the application by
+  #   double-clicking on the AppImage.
+  #
+  # Dialog:
+  #
+  #   Should this question be permanently disabled for digiKam?
+  #
+  #   To re-enable this question you have to delete
+  #
+  # "/${HOME}/.local/share/appimagekit/digiKam_no_desktopintegration"
+  #
+  # I declined and will just background it instead.
+  # Though maybe I should have for the appbar...
+  #
+  # Backgrounding digikim5::
+  #
+  #   digikim5 > /dev/null 2>&1 &
+
+  # Setup suggests storing SQLite db on SSD.
+
+  popd &> /dev/null
+
+} # end: stage_4_digikam_install_appimage
 
 stage_4_gimp_plugins () {
   if ${SKIP_EVERYTHING}; then
@@ -6365,6 +6420,8 @@ setup_customize_extras_go () {
   # 2016-11-13: Wait, not on trusty?
   # FIXME: See if this works on xenial.
   #stage_4_digikam5_from_distro
+  # 2017-05-20: Sweet! Using Linux AppImage!
+  stage_4_digikam_install_appimage
 
   # Dah Gimp Dah Gimp Dah Gimp!
   stage_4_gimp_plugins
