@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.05.10
+# Last Modified: 2017.05.20
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -568,6 +568,7 @@ alias mv.='mv_dotglob'
 # Show resource usage, and default to human readable figures.
 alias df='df -h -T'
 alias du='du -h'
+alias duh="du -m -d 1 . | sort -n"
 #alias duhome='du -ah /home | sort -n'
 # Use same units, else sort mingles different sizes.
 # cd ~ && du -BG -d 1 . | sort -n
