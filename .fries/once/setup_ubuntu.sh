@@ -2,13 +2,13 @@
 
 # File: setup_ubuntu.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.05.19
+# Last Modified: 2017.05.23
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
 # -------------------------------------------------------------------
 # Copyright © 2011-2017 Landon Bouma.
-# 
+#
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation, either version 3 of
@@ -250,7 +250,7 @@ fi
 
 setup_mint_17_stage_1_apt_get_install () {
 
-  echo 
+  echo
   echo "Welcome to the installer!"
   echo
   #echo "We're going to install lots of packages and then reboot."
@@ -327,7 +327,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       sudo chmod 0440 /etc/sudoers
     fi
 
-    sudo visudo -c 
+    sudo visudo -c
     if [[ $? -ne 0 ]]; then
       echo "WARNING: We messed up /etc/sudoers!"
       echo
@@ -684,7 +684,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       python3-coverage
       python-flake8
       python3-flake8
-      
+
       libagg-dev
       libedit-dev
       mime-construct
@@ -781,6 +781,14 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       ubuntu-release-upgrader-core
 
       inotify-tools
+
+      # 2017-05-23: What is with wanting to save color output to a file?
+      # ls --color=always | aha --black > ls-with-colors.html
+      aha
+      # You can also pygmentize exiting files.
+      #   pygmentize file.pl | \
+      #     grep -i --color=always version | \
+      #     aha --black > ls-with-colors.html
 
     ) # end: BIG_PACKAGE_LIST
 
