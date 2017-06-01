@@ -769,6 +769,13 @@ git-flip-master () {
   echo git push origin master
   git push origin master
 
+  if [[ -f Rakefile ]]; then
+    if ! rake --task | grep "rake tagGitRepo"; then
+      echo "rake tagGitRepo"
+      rake tagGitRepo
+    fi
+  fi
+
   echo popd
   popd &> /dev/null
 
