@@ -1611,48 +1611,6 @@ alias c="${OPT_DLOADS}/punch-time-tracking/Punch.py"
 
 #########################
 
-# git subdirectory statusr
-
-# I maintain a bunch of Vim plugins,
-# published at https://github.com/landonb/dubs_*,
-# that are loaded as submodules in an uber-project
-# that makes it easy to share my plugins and makes
-# it simple to deploy them to a new machine, found
-# at https://github.com/landonb/dubsacks_vim.
-#
-# However, git status doesn't work like, say, svn status:
-# you can't postpend a directory path and have it search
-# that. For example, from the parent directory of the plugins,
-# e.g., from ~/.vim/bundle_/, using git status doesn't
-# work, e.g., running `git status git_ignores_this` no matter
-# what the third token is always reports on the git status of
-# the working directory, which in my case is ~/.vim.
-
-git_status_all () {
-  local subdir
-  for subdir in $(find . -name ".git" -type d); do
-    gitst=$(git --git-dir=$subdir --work-tree=$subdir/.. status --short)
-    if [[ -n $gitst ]]; then
-      echo
-      echo "====================================================="
-      echo "Dirty project: $subdir"
-      echo
-      # We could just echo, but the we've lost any coloring.
-      # Ok: echo $gitst
-      # Better: run git again.
-      #git --git-dir=$subdir --work-tree=$subdir/.. status
-      git --git-dir=$subdir --work-tree=$subdir/.. status --short
-      echo
-    fi
-  done
-}
-
-alias git_st_all='git_status_all'
-# Hrmm... gitstall? I'm not sold on any alias yet...
-alias gitstall='git_status_all'
-
-#########################
-
 # For debugging/tracing Bash scripts using
 #
 #   `set -x` and `set -v`.
