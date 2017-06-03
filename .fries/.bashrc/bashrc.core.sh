@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.05.20
+# Last Modified: 2017.06.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -68,8 +68,8 @@ if [[ -e /proc/version ]]; then
     # echo Red Hat!
     : # noop
   else
-    echo "WARNING: Unknown OS flavor: $(cat /proc/version)"
-    echo "Please update this file ($(basename $0)) or comment out this gripe."
+    echo "WARNING: Unknown OS flavor ‘$(cat /proc/version)’"
+    echo "Please comment out this gripe or update the file ‘$(basename $0)’"
   fi
 else
   # /proc/version does not exist.
@@ -296,7 +296,7 @@ if [[ -e '/usr/bin/vim.basic' ]]; then
 elif [[ -e '/usr/bin/vim' ]]; then
    export EDITOR='/usr/bin/vim'
 else
-   echo "WARNING: Did not set EDITOR: no vim found."
+   echo "WARNING: bashrc.core.sh: did not set EDITOR: No vim found"
 fi
 
 # Vi vs. Vim
@@ -548,7 +548,7 @@ alias mv_all='mv_dotglob'
 #
 mv_dotglob () {
   if [[ -z "$1" && -z "$2" ]]; then
-    echo "missing args weirdo"
+    echo "mv_gotglob: missing args weirdo"
   fi
   shopt -s dotglob
   # or,
@@ -710,7 +710,7 @@ empty_trashes () {
     if [[ -d $trash_path ]]; then
       # FIXME/MAYBE/LATER: Disable asking if you find this code solid enough.
       local yes_or_no=""
-      echo -n "Empty trash at: \"$trash_path\"? [y/n] "
+      echo -n "Empty trash at ‘$trash_path’? [y/n] "
       read -e yes_or_no
       if [[ ${yes_or_no^^} == "Y" ]]; then
         if [[ -d $trash_path-TBD ]]; then
@@ -720,10 +720,10 @@ empty_trashes () {
         touch $trash_path-TBD
         mkdir $trash_path
       else
-        echo "Skipping: User said not to: $trash_path"
+        echo "Skipping: User said not to empty ‘$trash_path’"
       fi
     else
-      echo "Skipping: No trash at: $trash_path"
+      echo "Skipping: No trash at ‘$trash_path’"
     fi
   done
 }
@@ -771,10 +771,10 @@ function ensure_trashdir() {
     ensured=0
     # MAYBE: Suppress this message, or at least don't show multiple times
     #        for same ${trash_device}.
-    echo "Trash is disabled on device ${trash_device}."
+    echo "Trash is disabled on device ‘${trash_device}’"
   else
     if [[ ! -e ${device_trashdir}/.trash ]]; then
-      echo "Trash directory not found on ${trash_device}"
+      echo "Trash directory not found on ‘${trash_device}’"
       sudo_prefix=""
       if [[ ${device_trashdir} == "/" ]]; then
         # The file being deleted lives on the root device but the default
@@ -789,7 +789,7 @@ function ensure_trashdir() {
         echo
         sudo_prefix="sudo"
       fi
-      echo "Create a new trash at ${device_trashdir}/.trash ?"
+      echo "Create a new trash at ‘${device_trashdir}/.trash’ ?"
       echo -n "Please answer [y/n]: "
       read the_choice
       if [[ ${the_choice} != "y" && ${the_choice} != "Y" ]]; then
@@ -997,7 +997,7 @@ function dubs_set_terminal_prompt() {
       $DUBS_TRACE && echo "Red Hat"
       PS1="${titlebar}\[\033[01;36m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]\$ "
     else
-        echo "WARNING: Not enough info. to set PS1."
+        echo "WARNING: dubs_set_terminal_prompt: Not enough info. to set PS1."
     fi
   else
     # This is a chroot jail without a mounted /proc.
@@ -1135,7 +1135,7 @@ whats_apache () {
       export httpd_etc_dir=/etc/httpd
     else
       echo
-      echo "Error: Unexpected OS; cannot set httpd_user/_etc_dir."
+      echo "ERROR: whats_apache: Unexpected OS; cannot set httpd_user/_etc_dir."
       echo
     fi
   else
@@ -1233,7 +1233,7 @@ killsomething () {
   # NOTE: awk {'print $2'} is also acceptable.
   if [[ "$somethings" != "" ]]; then
     echo $(ps aux | grep "${something}" | grep -v "\<grep\>")
-    echo "Killing: $somethings"
+    echo "killsomething: killing ‘$somethings’"
     echo $somethings | xargs sudo kill -s 9 >/dev/null 2>&1
   fi
   return 0
@@ -1480,7 +1480,7 @@ echoerr () { echo "$@" 1>&2; }
 
 webperms () {
   if [[ -z $1 || ! -d $1 ]]; then
-    echo "ERROR: Not a directory: $1"
+    echo "ERROR: webperms: ‘$1’ is not a directory"
     return 1
   fi
   # Recurse through the web directory.
@@ -2123,7 +2123,7 @@ lock_screensaver_and_power_suspend () {
       dbus-send --system --print-reply --dest=org.freedesktop.UPower \
         /org/freedesktop/UPower org.freedesktop.UPower.Suspend
   else
-    echo "ERROR: Unknown distro to us. Refuse to Lock Screensaver and Power Suspend."
+    echo "ERROR: Unknown distro. I refuse to Lock Screensaver and Power Suspend."
     return 1
   fi
 } # end: lock_screensaver_and_power_suspend
