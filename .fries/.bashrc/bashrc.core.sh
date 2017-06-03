@@ -740,9 +740,15 @@ function device_on_which_file_resides() {
     # die if the link is dangling (df says "No such file or directory").
     owning_device=$(df $(dirname "$1") | awk 'NR == 2 {print $1}')
   else
-    owning_device=''
-    echo "ERROR: Not a directory, regular file, or symbolic link: $1."
+    owning_device=""
+    # 2017-06-03: For some reason, the caller checking $? for nonzero
+    # is not working, so echo empty string instead.
+    #echo "ERROR: Not a directory, regular file, or symbolic link: $1."
+    echo ""
     return 1
+  fi
+  if [[ $owning_device == "" ]]; then
+    echo "WARNING: \`df\` returned empty string but file exists?: $1"
   fi
   echo $owning_device
 }
@@ -826,16 +832,25 @@ function rm_safe() {
     fi
     # A little trick to make sure to use the trash can on
     # the right device, to avoid copying files.
+    # NOTE/2017-06-03: The device_on_which fcn. returns nonzero on error,
+    # for reason the $? -ne 0 isn't seeing it (and I could swear that it
+    # used to work!). So check for the empty string, too!
     local trash_device=$(device_on_which_file_resides "${trashdir}")
-    if [[ $? -ne 0 ]]; then
-      echo "ERROR: No device for trashdir: ${trashdir}"
+    if [[ $? -ne 0 || ${trash_device} == "" ]]; then
+      echo "rm_safe(): ERROR: No device for trashdir: ${trashdir}"
       return 1
     fi
+    #echo "trash_device: ${trash_device}"
     local fpath_device=$(device_on_which_file_resides "${fpath}")
-    if [[ $? -ne 0 ]]; then
-      echo "ERROR: No device for fpath: ${fpath}"
+    if [[ $? -ne 0 || ${fpath_device} == "" ]]; then
+      if [[ ! -d "${fpath}" && ! -f "${fpath}"  &&! -h "${fpath}" ]]; then
+        echo "rm_safe(): cannot remove ‘$1’: No such file or directory"
+      else
+        echo "rm_safe(): ERROR: No device for fpath: ${fpath}"
+      fi
       return 1
     fi
+    #echo "fpath_device: ${fpath_device}"
     local device_trashdir=""
     if [[ ${trash_device} = ${fpath_device} ]]; then
       # MAYBE: Update this fcn. to support specific trash
