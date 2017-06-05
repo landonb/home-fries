@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.05.09
+# Last Modified: 2017.06.04
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # FIXME/2017-02-08: Conflicts are not being caught!
@@ -44,7 +44,7 @@ UNIQUE_TIME=$(date +%Y%m%d-%Hh%Mm%Ss)
 
 # ***
 
-# Load: Colorful logging.
+# Load: Useful Bash functions.
 if [[ -e ${HOME}/.fries/lib/bash_base.sh ]]; then
   source ${HOME}/.fries/lib/bash_base.sh
 elif [[ -e bash_base.sh ]]; then
