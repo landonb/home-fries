@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.06.03
+# Last Modified: 2017.06.06
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -456,47 +456,6 @@ ssh_agent_kick
 #       `/bin/cp` or `\cp` and not `cp -f` if you want to overwrite files.
 alias cp='cp -i'
 alias mv='mv -i'
-# 2015.04.04: Tray Cray.
-# FIXME: completions... limit to just directories, eh.
-function cdd_() {
-  if [[ -n $2 ]]; then
-    echo 'You wish!' $*
-    return 1
-  fi
-  if [[ -n $1 ]]; then
-    pushd "$1" &> /dev/null
-    # Same as:
-    #  pushd -n "$1" &> /dev/null
-    #  cd "$1"
-    if [[ $? -ne 0 ]]; then
-      # Maybe the stupid user provided a path to a file.
-      pushd "$(dirname $1)" &> /dev/null
-      if [[ $? -ne 0 ]]; then
-        echo "You're dumb."
-      else
-        # alias errcho='>&2 echo'
-        # echo blah >&2
-        >&2 echo "FYI: We popped you to a file's homedir, home skillet."
-      fi
-    fi
-  else
-    pushd ${HOME} &> /dev/null
-  fi
-}
-# FIXME: 2015.04.04: Still testing what makes the most sense:
-#        2016-10-07: I just use `cdd`. What's the problem?
-alias cdd='cdd_'
-# HINT: `dirs -c` to clear pushd/popd directory stack.
-#alias ccd='cdd_'
-#alias cdc='cdd_'
-# MAYBE GOES FULL ON:
-##alias cd='cdd_'
-# FIXME: Choose one of:
-#alias ppd='popd > /dev/null'
-#alias pod='popd > /dev/null'
-alias cdc='popd > /dev/null'
-# 2017-05-03: How is `cd -` doing a flip-between-last-dir news to me?!
-alias cddc='cd -'
 
 # Misc. directory aliases.
 alias h='history'         # Nothing special, just convenient.
@@ -662,8 +621,8 @@ fi
 # 2016-11-18: If ack -v works (unlike ag -v) I might use this.
 alias ack="ack-grep"
 
-# Fix rm to be a crude trashcan
-###############################
+# Fix rm to be a respectable trashcan
+#####################################
 
 alias rm='rm_safe'
 # DANGER: Will Robinson. Be careful when you repeat yourself, it'll be gone.
@@ -886,6 +845,51 @@ function rm_safe() {
 function rm_safe_deprecated() {
   /bin/mv --target-directory ${trashdir}/.trash "$*"
 }
+
+# Changing Directories like Hänsel und Gretel
+#############################################
+
+# 2015.04.04: Tray Cray.
+# FIXME: completions... limit to just directories, eh.
+function cdd_() {
+  if [[ -n $2 ]]; then
+    echo 'You wish!' $*
+    return 1
+  fi
+  if [[ -n $1 ]]; then
+    pushd "$1" &> /dev/null
+    # Same as:
+    #  pushd -n "$1" &> /dev/null
+    #  cd "$1"
+    if [[ $? -ne 0 ]]; then
+      # Maybe the stupid user provided a path to a file.
+      pushd "$(dirname $1)" &> /dev/null
+      if [[ $? -ne 0 ]]; then
+        echo "You're dumb."
+      else
+        # alias errcho='>&2 echo'
+        # echo blah >&2
+        >&2 echo "FYI: We popped you to a file's homedir, home skillet."
+      fi
+    fi
+  else
+    pushd ${HOME} &> /dev/null
+  fi
+}
+# FIXME: 2015.04.04: Still testing what makes the most sense:
+#        2016-10-07: I just use `cdd`. What's the problem?
+alias cdd='cdd_'
+# HINT: `dirs -c` to clear pushd/popd directory stack.
+#alias ccd='cdd_'
+#alias cdc='cdd_'
+# MAYBE GOES FULL ON:
+##alias cd='cdd_'
+# FIXME: Choose one of:
+#alias ppd='popd > /dev/null'
+#alias pod='popd > /dev/null'
+alias cdc='popd > /dev/null'
+# 2017-05-03: How is `cd -` doing a flip-between-last-dir news to me?!
+alias cddc='cd -'
 
 # Terminal Prompt
 #################
