@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.06.03
+# Last Modified: 2017.06.06
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -859,6 +859,41 @@ git_status_all () {
 alias git_st_all='git_status_all'
 # Hrmm... gitstall? I'm not sold on any alias yet...
 alias gitstall='git_status_all'
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# 2017-06-06 22:11 You've got a /bin/rm monkey patch, why not another
+# dastardly accidentally typed command! Sometimes when I mean to type
+# `git reset HEAD blurgh`, sometimes I start typing `git co -- blurgh`
+# oh no!
+function cis_git() {
+  # "co" is a home frites `co = checkout` alias.
+  # I'm not concerned with the long-form [2017-06-06: Boo, still hyphenated]
+  # counterpart, "checkout". I just don't want to `git co -- oops` without
+  # an undo, like home 🍟
+  local gitted=false
+  if [[ $1 == "co" ]]; then
+    if [[ $2 == "--" ]]; then
+      echo -n "Are you sure this is absolutely what you want? [Y/n] "
+      read -e YES_OR_NO
+      if [[ ${YES_OR_NO^^} =~ ^Y.* || -z ${YES_OR_NO} ]]; then
+        # FIXME/2017-06-06: Someday soon I'll remove this sillinessmessage.
+        echo "YASSSSSSSSSSSSS"
+      else
+        echo "I see"
+        gitted=true
+      fi
+    fi
+  fi
+  if ! $gitted; then
+    # FIXME/2017-06-06: So that Home-fries is universal,
+    #                    need to get git's locale another way.
+    exec /usr/bin/git "$@"
+  fi
+}
+
+alias git='cis_git'
+#unalias git
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
