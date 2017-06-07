@@ -2301,6 +2301,17 @@ echo_dict () {
   done
 }
 
+# 2017-06-06: Still refining Bash input experience.
+default_yes_question() {
+  echo -n "Tell me yes or no. [Y/n] "
+  read -e YES_OR_NO
+  if [[ ${YES_OR_NO^^} =~ ^Y.* || -z ${YES_OR_NO} ]]; then
+    echo "YESSSSSSSSSSSSS"
+  else
+    echo "Apparently not"
+  fi
+}
+
 ############################################################################
 # DONE                              DONE                              DONE #
 ############################################################################
