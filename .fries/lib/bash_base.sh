@@ -2,7 +2,7 @@
 
 # File: bash_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.05.04
+# Last Modified: 2017.06.06
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bash function library.
 # License: GPLv3
@@ -1020,7 +1020,7 @@ ask_yes_no_default () {
   # Also -x prints commands that are run, which taints the output.
   set +x
 
-  # Bash has nifty built-ins for capilizing and lower-casing strings,
+  # Bash has nifty built-ins for capitalizing and lower-casing strings,
   # names ${x^^} and ${x,,}
   local choice1_u=${1^^}
   local choice1_l=${1,,}
