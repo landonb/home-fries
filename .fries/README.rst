@@ -3,7 +3,7 @@ Home Fries Scripts
 ==================
 
 Just a collection of one developer's Bash startup scripts
-and other generic and useful project-agnostic scripts.
+and other generic and useful project-agnostic scripts. 🍟
 
 Why You Might Care
 ------------------
