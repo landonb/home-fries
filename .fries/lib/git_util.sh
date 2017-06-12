@@ -890,7 +890,20 @@ function cis_git() {
   if ! $gitted; then
     # FIXME/2017-06-06: So that Home-fries is universal,
     #                    need to get git's locale another way.
-    exec /usr/bin/git "$@"
+
+    # exec creates a new process, so if you `git log` and hit q,
+    # the terminal gets an exit!
+    # WRONG: exec /usr/bin/git "$@"
+
+    # With eval, e.g., git ci -m "Blah (blugh)" responds
+    # bash: syntax error near unexpected token `('
+    # WRONG: eval /usr/bin/git "$@"
+    # WRONG: eval /usr/bin/git "$*"
+    # WRONG: eval "/usr/bin/git $@"
+    # WRONG: eval "/usr/bin/git $*"
+
+    # 2017-06-12: If this works, why was I trying to use exec??
+    /usr/bin/git "$@"
   fi
 }
 
