@@ -770,7 +770,7 @@ git-flip-master () {
   git push origin master
 
   if [[ -f Rakefile ]]; then
-    if rake --task | grep "rake tagGitRepo"; then
+    if rake --task | grep "rake tagGitRepo" &> /dev/null; then
       echo "Running: \`rake tagGitRepo\`"
 # FIXME/2017-06-12: This needs to wait on the build...
 echo "FIXME: \`rake tagGitRepo\` should wait for build to complete..."
