@@ -231,7 +231,7 @@ ruby_set_gem_path
 #    ~/.rubies/ruby-2.3.3/ruby/2.3.0/bin/rspec -v <== 3.5.4
 #    hrmmm...
 ruby_set_rspec_alias () {
-  # FIXME: Maybe write this for work.
+  : # FIXME: Maybe write this for work.
 }
 #ruby_set_rspec_alias
 
