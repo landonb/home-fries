@@ -1,6 +1,6 @@
 # File: ruby_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.05.04
+# Last Modified: 2017.06.19
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Ruby Helpers.
 # License: GPLv3
@@ -164,7 +164,10 @@ ruby_set_gem_path () {
   fi
 
   # E.g., ${HOME}/.rubies/ruby-2.3.3/ruby/2.3.0
-  GEM_PATHS+=(${HOME}/.rubies/ruby-${RUBY_VERS}/ruby/${RUBY_MINOR_ZERO})
+  local ruby_path="${HOME}/.rubies/ruby-${RUBY_VERS}/ruby/${RUBY_MINOR_ZERO}"
+  if [[ -d ${ruby_path} ]]; then
+    GEM_PATHS+=(${HOME}/.rubies/ruby-${RUBY_VERS}/ruby/${RUBY_MINOR_ZERO})
+  fi
 
   for ((i = 0; i < ${#GEM_PATHS[@]}; i++)); do
     local PATH_ELEM="${GEM_PATHS[$i]}"
