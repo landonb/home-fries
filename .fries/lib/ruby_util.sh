@@ -219,3 +219,19 @@ ruby_set_gem_path () {
 }
 ruby_set_gem_path
 
+# 2017-06-19: So confused.
+# At work, `cmd rspec` indicates ???.
+# At home, it's ${HOME}/.rubies/ruby-2.3.3/ruby/2.3.0/bin/rspec
+# At work, rspec could not find the rainbow gem,
+# because it's RUBY_VERSION was 2.3.1, not 2.3.3.
+#    $ alias rspec=~/.gem/ruby/2.3.3/ruby/2.3.0/bin/rspec
+#    @home $ locate rspec | grep "\/rspec$"
+#    ~/.gem/ruby/2.3.0/ruby/2.3.0/bin/rspec -v    <== 3.5.4
+#    ~/.gem/ruby/2.3.3/ruby/2.3.0/bin/rspec -v    <== 3.5.4
+#    ~/.rubies/ruby-2.3.3/ruby/2.3.0/bin/rspec -v <== 3.5.4
+#    hrmmm...
+ruby_set_rspec_alias () {
+  # FIXME: Maybe write this for work.
+}
+#ruby_set_rspec_alias
+
