@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.06.12
+# Last Modified: 2017.06.24
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -19,6 +19,7 @@ fi
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # find_git_parent
 
+# FIXME/2017-06-24: When translating for Go, make generic/work on any target dir.
 find_git_parent () {
   FILE_PATH=$1
   #echo "find_git_parent: FILE_PATH: ${1}"
