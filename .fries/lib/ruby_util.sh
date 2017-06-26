@@ -1,6 +1,6 @@
 # File: ruby_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.06.19
+# Last Modified: 2017.06.25
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Ruby Helpers.
 # License: GPLv3
@@ -234,4 +234,7 @@ ruby_set_rspec_alias () {
   : # FIXME: Maybe write this for work.
 }
 #ruby_set_rspec_alias
+
+# 2017-06-25 18:24
+# alias rake=/home/landonb/.rubies/ruby-2.3.3/bin/rake
 
