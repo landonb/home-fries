@@ -1,6 +1,6 @@
 # File: ruby_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.06.25
+# Last Modified: 2017.06.26
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Ruby Helpers.
 # License: GPLv3
@@ -208,6 +208,9 @@ ruby_set_gem_path () {
 
     # E.g., ${HOME}/.rubies/ruby-2.3.3/ruby/2.3.0/bin
     path_add_part ${HOME}/.rubies/ruby-${RUBY_VERS}/ruby/${RUBY_MINOR_ZERO}/bin
+
+    # 2017-06-26: For work, PATH should be to ~/.gems, not ~/.rubies.
+    path_add_part ${HOME}/.gem/ruby/${RUBY_VERS}/ruby/${RUBY_MINOR_ZERO}/bin
   fi
 
   if false; then
