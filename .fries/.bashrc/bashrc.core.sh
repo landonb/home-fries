@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.06.06
+# Last Modified: 2017.06.30
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile
 # License: GPLv3
@@ -369,6 +369,15 @@ export PAGER=less\ -R
 #      and quits. But for multiple pages, the output remains in the
 #      terminal, which is annoying; I don't like crud!
 export LESS="-iMx2"
+
+# Hrmm. I cannot get this to work...
+if false; then
+  # 2017-06-30: Make less and more more colorful.
+  #   -R or --RAW-CONTROL-CHARS
+  export LESS="-iMx2R"
+  # 2017-06-30: Preprocess the input with pygmentize, for color.
+  export LESSOPEN='|~/.lessfilter %s'
+fi
 
 # Shell Options
 ###############
