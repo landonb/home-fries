@@ -1,8 +1,8 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.06.30
+# Last Modified: 2017.07.10
 # Project Page: https://github.com/landonb/home_fries
-# Summary: One Developer's Bash Profile
+# Summary: One Developer's Bash Profile [Home-🍟]
 # License: GPLv3
 # vim:tw=0:ts=2:sw=2:et:norl:
 
