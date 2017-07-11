@@ -496,7 +496,9 @@ alias l='/bin/ls -ChFA --color=auto --group-directories-first'
                                       #   seems to make the output cleaner.
 alias ll='/bin/ls -lhFa --color=auto' # Long listing; includes ./ and ../
                                       #   (so you can check permissions)
+alias lll='ll --time-style=long-iso'  # 2017-07-10: Show timestamps always.
 alias lo='ll -rt'                     # Reverse sort by time.
+alias llo='lo --time-style=long-iso'  # 2017-07-10: You get the ideaa.
 alias lS='/bin/ls --color=auto -lhFaS' # Sort by size, from largest (show empties last).
 
 # Move a glob of files and include .dotted (hidden) files.
