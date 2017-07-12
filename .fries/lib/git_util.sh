@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.06.24
+# Last Modified: 2017.07.12
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -775,7 +775,14 @@ git-flip-master () {
       echo "Running: \`rake tagGitRepo\`"
 # FIXME/2017-06-12: This needs to wait on the build...
 echo "FIXME: \`rake tagGitRepo\` should wait for build to complete..."
-      rake tagGitRepo
+      #rake tagGitRepo
+      echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+      echo
+      echo "Watch build in OpenShift and tag when complete:"
+      echo
+      echo "  rake tagGitRepo"
+      echo
+      echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     fi
   fi
 
