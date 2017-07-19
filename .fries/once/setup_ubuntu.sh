@@ -2,7 +2,7 @@
 
 # File: setup_ubuntu.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.07.13
+# Last Modified: 2017.07.19
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -1781,6 +1781,15 @@ stage_4_wm_customize_mint () {
   # Default (see also: Mint Menu > Preferences > Desktop Settings > Windows > Window Manger)
   #   $ gsettings get com.linuxmint.desktop mate-window-manager
   #   'marco-composite'
+  #
+  # 2017-07-19: Aha! I was wondering why this wasn't a problem at home:
+  #   on 12.04, there's a checkbox for "Use compositing" that's unchecked,
+  #   and Marco and Compwiz are the only two window managers
+  #   (so there's no marco-composite and marco-compton).
+  # So in 14.04, compositing was added to the window manager option
+  #   as a bundled option, in a sense (though not sure what "compton"
+  #   means -- is it just non-compositing, or is it something more?).
+  #
   gsettings set com.linuxmint.desktop mate-window-manager 'marco-compton'
 
 } # end: stage_4_wm_customize_mint
