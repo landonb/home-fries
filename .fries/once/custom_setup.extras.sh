@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.07.05
+# Last Modified: 2017.07.20
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -5619,15 +5619,27 @@ stage_4_install_node_js () {
   # Next, download and compile ``node``.
 
   #LATEST_VERS="v0.10.35"
-  LATEST_VERS="v6.9.1"
+  #LATEST_VERS="v6.9.1"
+  LATEST_VERS="v6.11.1"
   #LATEST_VERS="v7.1.0"
 
-  wget -N http://nodejs.org/dist/${LATEST_VERS}/node-${LATEST_VERS}.tar.gz
-  tar -xvzf node-${LATEST_VERS}.tar.gz
-  cd node-${LATEST_VERS}
-  ./configure
-  make
-  sudo make install
+  # 2017-07-20: v6.9.1 was not x64?
+  #wget -N http://nodejs.org/dist/${LATEST_VERS}/node-${LATEST_VERS}.tar.gz
+  wget -N http://nodejs.org/dist/${LATEST_VERS}/node-${LATEST_VERS}-linux-x64.tar.gz
+
+  if [[ ${LATEST_VERS} == "v6.9.1" ]]; then
+    tar -xvzf node-${LATEST_VERS}.tar.gz
+    cd node-${LATEST_VERS}
+    ./configure
+    make
+    sudo make install
+  else
+    # 2017-07-20: v6.11.1 ships pre-built.
+    tar -xvzf node-${LATEST_VERS}-linux-x64.tar.gz
+    cd ${OPT_BIN} &> /dev/null
+    /bin/ln -sf ${OPT_DLOADS}/node-${LATEST_VERS}-linux-x64/bin/node
+    /bin/ln -sf ${OPT_DLOADS}/node-${LATEST_VERS}-linux-x64/bin/npm
+  fi
 
   popd &> /dev/null
 
