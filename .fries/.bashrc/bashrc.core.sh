@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.07.10
+# Last Modified: 2017.07.20
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile [Home-🍟]
 # License: GPLv3
@@ -2255,6 +2255,16 @@ TTTtt0 () {
 if [[ -d "${HOME}/.sdkman" ]]; then
   export SDKMAN_DIR="${HOME}/.sdkman"
   [[ -s "${HOME}/.sdkman/bin/sdkman-init.sh" ]] && source "/home/landonb/.sdkman/bin/sdkman-init.sh"
+fi
+
+#########################
+
+# 2017-07-20: What nvm writes to the end of ~/.bashrc.
+#  curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash
+if [[ -d $HOME/.nvm ]]; then
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 fi
 
 #########################
