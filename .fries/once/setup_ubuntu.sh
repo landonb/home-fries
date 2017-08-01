@@ -2,7 +2,7 @@
 
 # File: setup_ubuntu.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.07.19
+# Last Modified: 2017.08.01
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -1777,6 +1777,8 @@ stage_4_wm_customize_mint () {
 
   # 2017-07-13: Alt-tab is very slow -- there's a secondish delay.
   #   Seems to be caused by "Compositing" in the Window Manager.
+  #
+  # https://askubuntu.com/questions/43875/how-do-i-adjust-the-alt-tab-speed
   #
   # Default (see also: Mint Menu > Preferences > Desktop Settings > Windows > Window Manger)
   #   $ gsettings get com.linuxmint.desktop mate-window-manager
