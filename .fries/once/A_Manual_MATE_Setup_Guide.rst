@@ -3,7 +3,7 @@ Manual Linux Distro Onboarding Instructions For Developers
 ##########################################################
 
 .. Author: Landon Bouma
-.. Last Modified: 2017.02.27
+.. Last Modified: 2017.08.01
 .. Project Page: https://github.com/landonb/home_fries
 
 Overview
@@ -356,6 +356,19 @@ http://scrumfortrello.com/
   https://chrome.google.com/webstore/detail/scrum-for-trello/jdbcdblgjdpmfninkoogcfpnkjmndgje
 
 - Firefox
+
+Chrome tabbed landing page replacement
+--------------------------------------
+
+It doesn't seem like you have much control of the Chrome landing
+page that shows 8 icons of the most visited web sites. You can
+basically remove items from the list, but you cannot restore items
+without restoring all hidden items. And you cannot promote your owns
+sites to the list.
+
+"Speed Dial" replaces the landing page and offers much more control.
+
+https://chrome.google.com/webstore/detail/speed-dial-fvd-new-tab-pa/llaficoajjainaijghjlofdfmbjpebpa?brand=CHBD&gclid=EAIaIQobChMI993or42i1QIV1YKzCh2YUAPNEAAYASABEgJcHfD_BwE&dclid=CO7gqrGNotUCFU1YDAodJ5oFzw
 
 Configure Web Browsers
 ======================
