@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.07.12
+# Last Modified: 2017.08.04
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -649,11 +649,50 @@ function git_pull_hush () {
     #       But I kinda like seeing that.
     #       I wonder if just ignoring master is ok (normally show branch?).
 
-    git pull --rebase --autostash $SOURCE_REPO 2>&1 \
-      | grep -v "^ \* branch            HEAD       -> FETCH_HEAD$" \
-      | grep -v "^Already up-to-date.$" \
-      | grep -v "^Current branch [a-zA-Z0-9]* is up to date.$" \
-      | grep -v "^From .*${TARGET_REPO}$"
+    # 2017-08-04: Until I figure this out better, so two git pulls.
+    # The first is in the clear, so it's output goes to the terminal,
+    # minus some of the normal blather (really, just the list of files
+    # that get pulled (followed by pluses and minuses) and any errors.
+    git pull --rebase --autostash ${SOURCE_REPO} 2>&1 \
+          | grep -v "^ \* branch            HEAD       -> FETCH_HEAD$" \
+          | grep -v "^Already up-to-date.$" \
+          | grep -v "^Current branch [a-zA-Z0-9]* is up to date.$" \
+          | grep -v "^From .*${TARGET_REPO}$"
+
+    # Next, we'll run git pull again but capture the output, to check for "error".
+
+    # Cool, dog!
+    #  https://stackoverflow.com/questions/962255/
+    #   how-to-store-standard-error-in-a-variable-in-a-bash-script
+    # For some reason, the semicolon is needed.
+    #  "The '{}' does I/O redirection over the enclosed commands."
+    PULLOUT=$(
+      {
+        git pull --rebase --autostash ${SOURCE_REPO} 2>&1
+      } 2>&1
+    )
+    # Note: We cannot just capture stderr, e.g.,
+    #         } 2>&1 >/dev/null
+    #       because git seems to dump normal messages to stderr,
+    #       hence the 2>&1 in the git command (at least I think
+    #       that's what's going on).
+    #       So rather than saying, if nothing is on stderr, there's
+    #       no error, we just combine all output, look for what we
+    #       know about, and hope we don't miss anything (because, on
+    #       2017-08-04, I realized `unpack` was not working on two
+    #       different repos, but I wasn't being informed (though the
+    #       error appeared on the terminal, but mixed in with evertyhing
+    #       else).
+
+    if [[ `echo ${PULLOUT} | grep -i "error" -` ]]; then
+      echo "=============================================="
+      echo "✗ ✗ ✗ ERROR DETECTOROMETER! ★ ☆ ☆ ☆ ☆ 1 STAR!!"
+      echo
+      echo "${ERROR}"
+      echo
+      echo "ERROR: You lose!"
+      echo "=============================================="
+    fi
     # 2016-11-05: Check afterwards to see if there was an unresolved merge conflict.
     git -c color.ui=off status | grep "^rebase in progress" > /dev/null
     rebase_in_progress=$?
