@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.08.01
+# Last Modified: 2017.08.12
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile [Home-🍟]
 # License: GPLv3
@@ -1762,7 +1762,27 @@ xinput_set_prop_touchpad_device () {
     fi
   fi
 }
-xinput_set_prop_touchpad_device
+#xinput_set_prop_touchpad_device
+
+#########################
+
+touchpad_twiddle () {
+  local touchpad_state=$1
+  if [[ $(command -v xinput > /dev/null) || $? -eq 0 ]]; then
+    local device_num=$(xinput --list --id-only "SynPS/2 Synaptics TouchPad" 2> /dev/null)
+    if [[ -n ${device_num} ]]; then
+      xinput set-prop ${device_num} "Device Enabled" ${touchpad_state}
+    fi
+  fi
+}
+
+touchpad_disable () {
+  touchpad_twiddle 0
+}
+
+touchpad_enable () {
+  touchpad_twiddle 1
+}
 
 #########################
 
@@ -2203,26 +2223,6 @@ has_sudo () {
   #else
   #  echo "I don't have sudo"
   #fi
-}
-
-#########################
-
-touchpad_twiddle () {
-  local touchpad_state=$1
-  if [[ $(command -v xinput > /dev/null) || $? -eq 0 ]]; then
-    local device_num=$(xinput --list --id-only "SynPS/2 Synaptics TouchPad" 2> /dev/null)
-    if [[ -n ${device_num} ]]; then
-      xinput set-prop ${device_num} "Device Enabled" ${touchpad_state}
-    fi
-  fi
-}
-
-touchpad_disable () {
-  touchpad_twiddle 0
-}
-
-touchpad_enable () {
-  touchpad_twiddle 1
 }
 
 #########################
