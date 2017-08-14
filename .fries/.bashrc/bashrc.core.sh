@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.08.12
+# Last Modified: 2017.08.14
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile [Home-🍟]
 # License: GPLv3
@@ -2123,7 +2123,10 @@ lock_screensaver_and_power_suspend () {
   termdo-all sudo -K
 
   source /etc/lsb-release
-  if [[ ${DISTRIB_CODENAME} = 'xenial' || ${DISTRIB_CODENAME} = 'sarah' ]]; then
+  if [[ ${DISTRIB_CODENAME} = 'xenial' \
+     || ${DISTRIB_CODENAME} = 'sarah' \
+     || ${DISTRIB_CODENAME} = 'sonya' \
+     ]]; then
     gnome-screensaver-command --lock && \
       systemctl suspend -i
   elif [[ ${DISTRIB_CODENAME} = 'trusty' || ${DISTRIB_CODENAME} = 'rebecca' ]]; then
