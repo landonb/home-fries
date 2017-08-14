@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.07.20
+# Last Modified: 2017.08.14
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -6271,6 +6271,75 @@ stage_4_remarkable_markdown_ide () {
 
 } # end: stage_4_remarkable_markdown_ide
 
+# 2017-08-14: I upgraded from Linux Mint 18.0 to 18.2 and the Clock applet broke:
+#
+#    $ /usr/lib/mate-panel/clock-applet  
+#
+#    (clock-applet:16378): Gtk-ERROR **: GTK+ 2.x symbols detected.
+#      Using GTK+ 2.x and GTK+ 3 in the same process is not supported
+#    Trace/breakpoint trap
+#
+# Building from scratch fixed it. And repaired what had been a broken
+# weather applet for the past half a year or so.
+#
+# See
+#
+#   https://pub.mate-desktop.org/releases/1.19
+#
+# E.g.,
+#
+#   https://pub.mate-desktop.org/releases/1.19/mate-session-manager-1.19.0.tar.xz
+#   https://pub.mate-desktop.org/releases/1.19/mate-applets-1.19.0.tar.xz
+#   https://pub.mate-desktop.org/releases/1.19/libmateweather-1.19.1.tar.xz
+#   https://pub.mate-desktop.org/releases/1.19/mate-panel-1.19.3.tar.xz
+#
+# This fcn. installs the latest version of libmateweather, which mate-panel needs,
+# and then installs the latest version of mate-panel.
+stage_4_update_mate_panel () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_update_mate_panel"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # Prerequisites for mate-panel.
+  sudo apt-get install -y libgtk-3-dev
+  sudo apt-get install -y libmate-desktop-dev
+  sudo apt-get install -y libmate-menu-dev
+  sudo apt-get install -y libdbus-glib-1-dev
+  sudo apt-get install -y libwnck-3-dev
+  sudo apt-get install -y itstool
+
+  # Install libmateweather.
+  cd ${OPT_DLOADS}
+  wget https://pub.mate-desktop.org/releases/1.19/libmateweather-1.19.1.tar.xz
+  tar xf libmateweather-1.19.1.tar.xz
+  cd libmateweather-1.19.1
+  ./configure
+  make
+  make check
+  sudo make install
+  make installcheck
+  make clean
+
+  # Install mate-panel.
+  cd ${OPT_DLOADS}
+  wget https://pub.mate-desktop.org/releases/1.19/mate-panel-1.19.3.tar.xz
+  tar xf mate-panel-1.19.3.tar.xz
+  cd mate-panel-1.19.3/
+  ./configure
+  make
+  make check
+  sudo make install
+  make installcheck
+  make clean
+
+  popd &> /dev/null
+
+} # end: stage_4_update_mate_panel
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -6550,6 +6619,9 @@ setup_customize_extras_go () {
   stage_4_abcde_cd_ripper
 
   #stage_4_remarkable_markdown_ide
+
+  # 2017-08-14: Added this but not enabling; may/may not be necessary.
+  #stage_4_update_mate_panel
 
   # Add before this'n: stage_4_fcn_template.
 
