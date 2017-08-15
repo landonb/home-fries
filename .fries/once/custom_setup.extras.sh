@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.08.14
+# Last Modified: 2017.08.15
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -1526,6 +1526,8 @@ stage_4_install_ruby_install () {
   ruby-install --latest ruby 2
   # 2017-07-05: I need this for backward compatibility...
   ruby-install --latest ruby 2.0.0-p648
+  # 2017-08-15: Whoopie!
+  ruby-install --latest ruby 2.4.0
 
   wget -O chruby-0.3.9.tar.gz https://github.com/postmodern/chruby/archive/v0.3.9.tar.gz
   tar -xzvf chruby-0.3.9.tar.gz
@@ -1646,6 +1648,7 @@ stage_4_shiny_precious_gems () {
   #ruby_install_gems ruby-2.3
   #ruby_install_gems ruby-2.3.0
   ruby_install_gems ruby-2.3.3
+  ruby_install_gems ruby-2.4.0
 
   popd &> /dev/null
 
