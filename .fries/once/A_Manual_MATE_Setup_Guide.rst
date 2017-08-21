@@ -3,7 +3,7 @@ Manual Linux Distro Onboarding Instructions For Developers
 ##########################################################
 
 .. Author: Landon Bouma
-.. Last Modified: 2017.08.01
+.. Last Modified: 2017.08.17
 .. Project Page: https://github.com/landonb/home_fries
 
 Overview
@@ -77,13 +77,20 @@ Dia                     (from Add to Panel > Application Launcher... > Graphics)
 ---------------------   -----------------------------------------------------------------------
 Take Screenshot         (from Add to Panel > Application Launcher... > Accessories)
 ---------------------   -----------------------------------------------------------------------
-Gimp                    (from Add to Panel > Application Launcher... > Graphics)
----------------------   -----------------------------------------------------------------------
 Chromium                (from Add to Panel > Application Launcher... > Internet)
 ---------------------   -----------------------------------------------------------------------
 Arduino IDE             (from Add to Panel > Custom Application Launcher)
                         /srv/opt/.downloads/arduino-1.6.12/arduino
                         ~/.local/share/icons/hicolor/48x48/apps/arduino-arduinoide.png
+---------------------   -----------------------------------------------------------------------
+Opera                   (from Add to Panel > Application Launcher... > Internet)
+---------------------   -----------------------------------------------------------------------
+GIMP Image Editor       (from Add to Panel > Application Launcher... > Graphics)
+                        gimp-2.8 %U
+---------------------   -----------------------------------------------------------------------
+Digikam5                (from Add to Panel > Custom Application Launcher)
+                        /srv/opt/bin/digikam5
+                        ~/.icons/hicolor/48x48/apps/appimagekit-digikam.png
 ---------------------   -----------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------
 **Right-justified**
