@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.08.15
+# Last Modified: 2017.08.22
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -5455,8 +5455,8 @@ stage_4_install_virtualenv () {
   pushd ${OPT_DLOADS} &> /dev/null
 
   #sudo apt-get install -y virtualenvwrapper
-  sudo pip2 install virtualenvwrapper
-  sudo pip3 install virtualenvwrapper
+  sudo pip2 install virtualenv virtualenvwrapper
+  sudo pip3 install virtualenv virtualenvwrapper
 
   # See bashrc for:
   #   source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
