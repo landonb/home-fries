@@ -3,7 +3,7 @@
 
 # File: termdub.py
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.19
+# Last Modified: 2017.08.22
 # Project Page: https://github.com/landonb/home_fries
 # License: GPLv3
 
@@ -408,7 +408,7 @@ class Termdub(object):
       r", current (?P<res_w>[0-9]+) x (?P<res_h>[0-9]+), maximum ")
 
    XR_CONNECTED_RE = re.compile(
-      r"^[a-zA-Z0-9]+ connected (?P<res_w>[0-9]+)x(?P<res_h>[0-9]+)\+(?P<off_w>[0-9]+)\+(?P<off_h>[0-9]+)")
+      r"^[a-zA-Z0-9]+ connected (primary )?(?P<res_w>[0-9]+)x(?P<res_h>[0-9]+)\+(?P<off_w>[0-9]+)\+(?P<off_h>[0-9]+)")
 
    #
    def get_monitor_resolution(self):
