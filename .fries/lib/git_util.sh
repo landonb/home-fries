@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.08.04
+# Last Modified: 2017.09.07
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -565,12 +565,24 @@ function git_pull_hush () {
   #   hardware or the filesystem or something is corrupt, most likely...).
   #     error: git-status died of signal 7
 
+  # FIXME/2017-09-07: This fcn. should really just try to do a fast-forward
+  # merge, and if that fails, then bug the user.
+  # - Either the user forgot to unpack, so their local branch is diverged
+  #   from what's on the stick; or
+  # - The user packme'ed, rebased locally, and packme'ed again, in which
+  #   case the branches have diverged; or
+  # - The user switched branches locally, so the branches don't match; or
+  # - The user switched branches on one machine, packme'ed, forgot to
+  #   unpack, and then packme's -- the branches won't match.
+
   pushd ${SOURCE_REPO} &> /dev/null
   SOURCE_BRANCH=$(git st | grep "^On branch" | /bin/sed -r "s/^On branch //")
   popd &> /dev/null
 
   pushd ${TARGET_REPO} &> /dev/null
   TARGET_BRANCH=$(git st | grep "^On branch" | /bin/sed -r "s/^On branch //")
+  TARGET_REFNAME=$(git config branch.`git name-rev --name-only HEAD`.remote)
+  TARGET_REFNAME_BRANCH_NAME=$(git rev-parse --abbrev-ref --symbolic-full-name @{u})
 
   # 2016-09-28: Being extra paranoid because if the branches don't match,
   #             pull don't care! This is really confusing/worrying to me.
@@ -707,7 +719,14 @@ function git_pull_hush () {
       echo
       FRIES_GIT_ISSUES_DETECTED=true
       export FRIES_GIT_ISSUES_DETECTED
+      # FIXME/2017-09-07: Address this is new Travel project.
       FRIES_GIT_ISSUES_RESOLUTIONS+=("travel mount && cdd $(pwd) && git st")
+      FRIES_GIT_ISSUES_RESOLUTIONS+=("# Did you packme and then rebase and then packme again?")
+      FRIES_GIT_ISSUES_RESOLUTIONS+=("# - Or did you forget to unpack first?")
+      FRIES_GIT_ISSUES_RESOLUTIONS+=("# Maybe just chuck the conflict?:")
+      FRIES_GIT_ISSUES_RESOLUTIONS+=(\
+        "git fetch ${TARGET_REFNAME} && git reset --hard ${TARGET_REFNAME_BRANCH_NAME}"\
+      )
       export FRIES_GIT_ISSUES_RESOLUTIONS
       if ${FRIES_FAIL_ON_GIT_ISSUE}; then
         return 1
