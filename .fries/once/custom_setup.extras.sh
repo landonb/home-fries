@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.08.22
+# Last Modified: 2017.09.06
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -6343,6 +6343,69 @@ stage_4_update_mate_panel () {
 
 } # end: stage_4_update_mate_panel
 
+stage_4_fcn_meld () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_fcn_meld"
+
+  # Ubuntu 16.04+:
+  try_meld="meld-3.17.4"
+  try_major="3.17"
+  source /etc/lsb-release
+  if [[ $DISTRIB_CODENAME == 'rebecca' ]]; then
+    # Mint 17.X is rebecca is trusty is Ubuntu 14.04.
+
+    # On Ubuntu 14.04, on setup.py install, you'll see:
+    #   unable to execute 'gtk-update-icon-cache': No such file or directory
+    #   error: command 'gtk-update-icon-cache' failed with exit status 1
+    # Or, if you run bin/meld, you'll see, e.g.,:
+    #    $ meld-3.15.3/bin/meld
+    #    Meld requires GTK+ 3.14 or higher.
+    try_meld="meld-3.14.2"
+    try_major="3.14"
+  fi
+
+  pushd ${OPT_DLOADS} &> /dev/null
+  wget https://download.gnome.org/sources/meld/${try_major}/${try_meld}.tar.xz
+  tar xvf ${try_meld}.tar.xz
+
+  # On 16.04, I tried symlinking from bin, but the old version shadows it.
+  #   cd ${OPT_BIN}
+  #   ln -s /srv/opt/.downloads/${try_meld}/bin/meld
+  # Even running it directly ran the old version.
+  #   $OPT_BIN/meld
+  # May be a redirection issue? I.e., wrapper script loads python module,
+  #   but path is to old meld package.
+  if [[ $DISTRIB_CODENAME == 'rebecca' ]]; then
+    # The build fails on 14.04.
+    #    $ sudo python3 setup.py install --prefix=/usr
+    #    ...
+    #    copying build/help/es/flattened-view.page -> /usr/share/help/es/meld
+    #    running gtk-update-icon-cache
+    #    gtk-update-icon-cache -q -t /usr/share/icons/hicolor
+    #    unable to execute 'gtk-update-icon-cache': No such file or directory
+    #    error: command 'gtk-update-icon-cache' failed with exit status 1
+    # But don't bother trying to install gtk-update-icon-cache.
+    # That relies on gettext being updated, but you don't want to
+    # change your gettext version (and you certainly don't want to
+    # change your GLib version, either).
+    cd ${OPT_BIN}
+    ln -s /srv/opt/.downloads/${try_meld}/bin/meld
+    sudo mv /usr/bin/meld /usr/bin/TBD-meld
+  else
+    cd ${try_meld}
+    sudo apt-get install -y itstool
+    sudo python3 setup.py install --prefix=/usr
+  fi
+
+  popd &> /dev/null
+
+  # =======================================================================
+
+} # end: stage_4_fcn_meld
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -6625,6 +6688,9 @@ setup_customize_extras_go () {
 
   # 2017-08-14: Added this but not enabling; may/may not be necessary.
   #stage_4_update_mate_panel
+
+  # 2017-09-06: Why, oh why, do I run such an old OS...
+  stage_4_fcn_meld
 
   # Add before this'n: stage_4_fcn_template.
 
