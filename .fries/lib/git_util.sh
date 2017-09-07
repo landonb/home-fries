@@ -581,8 +581,13 @@ function git_pull_hush () {
 
   pushd ${TARGET_REPO} &> /dev/null
   TARGET_BRANCH=$(git st | grep "^On branch" | /bin/sed -r "s/^On branch //")
-  TARGET_REFNAME=$(git config branch.`git name-rev --name-only HEAD`.remote)
+  #echo "TARGET_BRANCH: ${TARGET_BRANCH}"
   TARGET_REFNAME_BRANCH_NAME=$(git rev-parse --abbrev-ref --symbolic-full-name @{u})
+  #echo "TARGET_REFNAME_BRANCH_NAME: ${TARGET_REFNAME_BRANCH_NAME}"
+  # This is empty string and errexit 1 on stick.
+  #TARGET_REFNAME=$(git config branch.`git name-rev --name-only HEAD`.remote)
+  TARGET_REFNAME=$(dirname ${TARGET_REFNAME_BRANCH_NAME})
+  #echo "TARGET_REFNAME: ${TARGET_REFNAME}"
 
   # 2016-09-28: Being extra paranoid because if the branches don't match,
   #             pull don't care! This is really confusing/worrying to me.

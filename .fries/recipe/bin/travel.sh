@@ -11,9 +11,6 @@
 #   Your changes are safe in the stash.
 #   You can run "git stash pop" or "git stash drop" at any time.
 
-set +x
-set +v
-
 set -e
 USING_ERREXIT=true
 function errexit_cleanup () {
@@ -459,7 +456,7 @@ function soups_on () {
     echo "      -X                check in hamster: -DDD [skip dirty check] | -DDDD [skip git pull]"
     echo "      -I                /bin/cp cfg/sync_repos.sh to travel device [BEWARE: unencrypted!]"
     echo "                          (to setup a new machine *locally* without worrying about encfs)"
-    echo "      -s                skip checking that upstream origin is up to date (for if offline)"
+    echo "      -s                skip check that remote tracking branch is up to date (if offline)"
     #echo
     echo "unpack options:"
     echo "      -d STAGING_DIR    specify the unpack path for incoming plaintext tar stuff"
