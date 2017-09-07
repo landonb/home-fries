@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.06.04
+# Last Modified: 2017.09.07
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # FIXME/2017-02-08: Conflicts are not being caught!
@@ -10,6 +10,9 @@
 #   Applying autostash resulted in conflicts.
 #   Your changes are safe in the stash.
 #   You can run "git stash pop" or "git stash drop" at any time.
+
+set +x
+set +v
 
 set -e
 USING_ERREXIT=true
