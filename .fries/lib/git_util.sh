@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.09.07
+# Last Modified: 2017.09.08
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -729,9 +729,12 @@ function git_pull_hush () {
       FRIES_GIT_ISSUES_RESOLUTIONS+=("# Did you packme and then rebase and then packme again?")
       FRIES_GIT_ISSUES_RESOLUTIONS+=("# - Or did you forget to unpack first?")
       FRIES_GIT_ISSUES_RESOLUTIONS+=("# Maybe just chuck the conflict?:")
-      FRIES_GIT_ISSUES_RESOLUTIONS+=(\
-        "git fetch ${TARGET_REFNAME} && git reset --hard ${TARGET_REFNAME_BRANCH_NAME}"\
-      )
+      FRIES_GIT_ISSUES_RESOLUTIONS+=("   ./travel mount")
+      FRIES_GIT_ISSUES_RESOLUTIONS+=("   cdd $(pwd)")
+      FRIES_GIT_ISSUES_RESOLUTIONS+=("   git st")
+      FRIES_GIT_ISSUES_RESOLUTIONS+=("   git rebase --abort")
+      FRIES_GIT_ISSUES_RESOLUTIONS+=("   git fetch ${TARGET_REFNAME}")
+      FRIES_GIT_ISSUES_RESOLUTIONS+=("   git reset --hard ${TARGET_REFNAME_BRANCH_NAME}")
       export FRIES_GIT_ISSUES_RESOLUTIONS
       if ${FRIES_FAIL_ON_GIT_ISSUE}; then
         return 1
