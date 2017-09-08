@@ -586,7 +586,8 @@ function git_pull_hush () {
   #echo "TARGET_REFNAME_BRANCH_NAME: ${TARGET_REFNAME_BRANCH_NAME}"
   # This is empty string and errexit 1 on stick.
   #TARGET_REFNAME=$(git config branch.`git name-rev --name-only HEAD`.remote)
-  TARGET_REFNAME=$(dirname ${TARGET_REFNAME_BRANCH_NAME})
+  #TARGET_REFNAME=$(dirname ${TARGET_REFNAME_BRANCH_NAME})
+  TARGET_REFNAME=$(echo "$TARGET_REFNAME_BRANCH_NAME" | cut -d "/" -f2)
   #echo "TARGET_REFNAME: ${TARGET_REFNAME}"
 
   # 2016-09-28: Being extra paranoid because if the branches don't match,
