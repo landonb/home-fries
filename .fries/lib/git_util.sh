@@ -580,10 +580,15 @@ function git_pull_hush () {
   popd &> /dev/null
 
   pushd ${TARGET_REPO} &> /dev/null
+
   TARGET_BRANCH=$(git st | grep "^On branch" | /bin/sed -r "s/^On branch //")
   #echo "TARGET_BRANCH: ${TARGET_BRANCH}"
+
+  set +e
   TARGET_REFNAME_BRANCH_NAME=$(git rev-parse --abbrev-ref --symbolic-full-name @{u})
+  reset_errexit
   #echo "TARGET_REFNAME_BRANCH_NAME: ${TARGET_REFNAME_BRANCH_NAME}"
+
   # This is empty string and errexit 1 on stick.
   #TARGET_REFNAME=$(git config branch.`git name-rev --name-only HEAD`.remote)
   #TARGET_REFNAME=$(dirname ${TARGET_REFNAME_BRANCH_NAME})
