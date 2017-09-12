@@ -1,13 +1,14 @@
-==========================================
+##########################################
 A General Linux Setup Guide For Developers
-==========================================
+##########################################
 
 .. Author: Landon Bouma
-.. Last Modified: 2017.01.13
+.. Last Modified: 2017.09.12
 .. Project Page: https://github.com/landonb/home_fries
 
+========
 Overview
---------
+========
 
 This is a tedious guide to setting up a Linux development
 machine, either in a virtual machine or natively.
@@ -21,8 +22,9 @@ If you're just looking for the automated goodies,
 check out ``setup_ubuntu.sh`` in the same directory
 as this file.
 
+=============
 Install Linux
--------------
+=============
 
 VirtualBox vs. Native
 ^^^^^^^^^^^^^^^^^^^^^
@@ -146,7 +148,7 @@ If you'd like to setup a dual boot laptop, follow these steps.
      partition with recovery files on it.
 
 #. Reset your laptop to factory settings.
-   
+
    - I.e., blow away everything and start over.
 
 #. Shrink your hard drive partition.
@@ -231,8 +233,9 @@ Do something like this to mount your Windows partition in Linux:
    # And then test.
    sudo mount -a
 
+=============================
 Configure Linux to Your Taste
------------------------------
+=============================
 
 Configuring Linux is a personal process, obviously.
 
@@ -255,7 +258,7 @@ script in the same directory as this document.
     for development. (You can tweak the same options using the
     widgets in the Mint menu, but it's easier to just capture
     all your favorite settings in an easy-to-run script.)
-    
+
     - Tweaks include disabling the 5-minute-idle screen lockout,
       hiding desktop icons, setting up user groups and memberships,
       updating sudoers to not bug you as often for your password,
@@ -716,4 +719,136 @@ I have other, older notes that also indicate how to check the swap.
 
     # This shows the swap name.
     swapon -s
+
+====================================================
+2017-09-11: Windows Vagrant Box, The New Way to Roll
+====================================================
+
+Based on
+
+https://github.com/marvinpinto/windows-throwaway-image
+
+Boot Windows
+------------
+
+Use my ``Vagrantfile``::
+
+  cp -ar /kit/sturdy/windows/vagrantbox-setup vag
+  cd vag
+  vagrant up
+
+The VirtualBox machine should boot, and the ``vargrant`` executable
+will continue to run in the terminal, waiting for some sort of
+confirmation. Don't worry if it eventually times out and gives up.
+
+After the machine boots up, you'll be prompted to choose the network
+location. Select either Home or Work.
+
+Setup the VM
+------------
+
+- Manually update Virtualbox Guest Additions. Device > Insert Guest CD Additions...
+
+- To access the ``winrm.bat`` script, mount shared folders.
+
+  Go to Devices > Shared Folders and Enable Auto-mount; then reboot.
+
+- Enable copy-paste. Go to Devices > Shared Clipboard > Bidirectional.
+
+- Run the ``winrm.bat`` script as administrator.
+
+  Start > Command Prompt > [Right click] > Run as administrator
+
+  ::
+
+    C:\Windows\system32> net use F: \\vboxsrv\vagrant
+
+    C:\Windows\system32> F:
+
+    F:\> winrm.bat
+
+  Troubleshooting: You need to specify a directory::
+
+    C:\Windows\system32>net use F: \\vboxsrv
+    System error 67 has occurred.
+
+    The network name cannot be found.
+
+Install Things
+--------------
+
+- Install Google Chrome.
+
+https://www.google.com/chrome/browser/desktop/index.html
+
+- Install Intel USB 3.0 drivers.
+
+  https://downloadcenter.intel.com/download/21129/USB-3-0-Driver-Intel-USB-3-0-eXtensible-Host-Controller-Driver-for-Intel-7-Series-C216-Chipset-Family
+
+- Install chocolatey and puppet on the guest machine.
+  Open a terminal as Administrator::
+
+  @echo off
+  @powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))" && SET PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin
+  choco install -y puppet
+
+- Open a new Administrator terminal window and use chocolatey to install
+  a few basic Windows essentials.
+
+  FIXME: Explain these.
+
+  puppet module install chocolatey-chocolatey
+  choco install -y dotnet4.5
+  choco install -y dotnet4.6.2
+  choco install -y python2
+  choco install -y pip
+  choco install -y garmin-express
+  choco install -y qmapshack
+
+- Install Garmin Express
+
+  https://www.garmin.com/en-US/software/express
+
+  - After attaching a Garmin GPS, you'll want to hook it to the VM, e.g.:
+
+    Devices > USB > Garmin International [0509]
+
+- Skip Garmin BaseCamp since you can load maps and routes without it.
+
+  https://www.garmin.com/en-US/shop/downloads/basecamp
+
+- Install QMapShack, for viewing Garmin ``*.img`` files
+
+  https://bitbucket.org/maproom/qmapshack/downloads/
+
+Rebooting
+---------
+
+You can reboot your Windows virtual machine from the guest Start Menu,
+or from the host terminal::
+
+  vagrant reload
+
+Packaging
+---------
+
+::
+
+  vagrant halt
+  vagrant package --output "win7-ie11-garmin.box" --Vagrantfile Vagrantfile
+  vagrant box add win7-ie11-garmin.box --name "win7-ie11-garmin"
+  #vagrant destroy
+  ##cd /tmp
+  ##rm -rf /tmp/win7-custom-image
+
+Copying
+-------
+
+Copy folders between machines from under::
+
+  ~/.vagrant.d/boxes
+
+E.g.,::
+
+  cp -ar ~/.vagrant.d/boxes/win7-ie11-garmin /media/${USER}/some_device/
 
