@@ -805,6 +805,12 @@ https://www.google.com/chrome/browser/desktop/index.html
   choco install -y garmin-express
   choco install -y qmapshack
 
+  choco install -y git
+  # Installs 2.4.1.2:
+  choco install -y ruby
+  # Not found:
+  #choco install -y uru
+
 - Install Garmin Express
 
   https://www.garmin.com/en-US/software/express
