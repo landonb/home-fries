@@ -1,11 +1,11 @@
 .bashrc/bashrx.private.*.sh
 
-# 2016-11-18: From ~/.fries/bin/.agignore
+# 2016-11-18: From ~/.fries/bin/.ignore
 bin/packme
 bin/travel
 bin/unpack
 
-# 2016-11-18: From ~/.fries/once/.agignore
+# 2016-11-18: From ~/.fries/once/.ignore
 once/*.private.*
 
 #bin/
