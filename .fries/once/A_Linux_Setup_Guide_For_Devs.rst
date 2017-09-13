@@ -811,6 +811,12 @@ https://www.google.com/chrome/browser/desktop/index.html
   # Not found:
   #choco install -y uru
 
+- You'll want 7-Zip. You always do.
+
+  http://www.7-zip.org/
+
+  http://www.7-zip.org/a/7z1604.exe
+
 - Install Garmin Express
 
   https://www.garmin.com/en-US/software/express
