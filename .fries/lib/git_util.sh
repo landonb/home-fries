@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.09.08
+# Last Modified: 2017.09.13
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -265,6 +265,11 @@ function git_status_porcelain () {
   # MAYBE: Does this commits of known knowns feel awkward here?
 
   # Be helpful! We can take care of the known knowns.
+
+  git_commit_generic_file \
+    ".ignore" \
+    "Update .ignore."
+    #"Update .ignore during packme."
 
   git_commit_generic_file \
     ".agignore" \
@@ -879,6 +884,7 @@ git-jockey () {
 
     # Just the basics, I suppose.
     TOPLEVEL_COMMON_FILE=()
+    TOPLEVEL_COMMON_FILE+=(".ignore")
     TOPLEVEL_COMMON_FILE+=(".agignore")
     TOPLEVEL_COMMON_FILE+=(".gitignore")
     TOPLEVEL_COMMON_FILE+=("README.rst")

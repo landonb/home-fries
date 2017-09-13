@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.09.07
+# Last Modified: 2017.09.13
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # FIXME/2017-02-08: Conflicts are not being caught!
@@ -749,7 +749,7 @@ setup_private_vim_bundle_dubs () {
     /bin/ln -sf ${USERS_CURLY}/home/.vim/bundle-dubs/generate.sh
     /bin/ln -sf ${USERS_CURLY}/home/.vim/bundle-dubs/git-st-all.sh
 
-    /bin/ln -sf ../.agignore
+    /bin/ln -sf ../.ignore
 
     ./generate.sh
 

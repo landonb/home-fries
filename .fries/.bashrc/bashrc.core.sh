@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.08.25
+# Last Modified: 2017.09.13
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile [Home-🍟]
 # License: GPLv3
@@ -606,6 +606,16 @@ alias ag='ag --smart-case --hidden'
 # So that Vim can predictably parse the output, we use this shim of a fcn.
 function ag_peek () {
   ag -A 0 -B 0 --hidden --follow --max-count 1 $* 2> /dev/null
+}
+
+# 2017-09-13: ripgrep!
+# https://github.com/BurntSushi/ripgrep
+# I'm only doing this because The Silver Searcher is identifying
+# one of my reST files as binary, and I don't care to figure out
+# why.
+alias rg='rg --smart-case --hidden'
+function rg_peek () {
+  rg -A 0 -B 0 --hidden --follow --max-count 1 $* 2> /dev/null
 }
 
 # Does this help?
@@ -1671,6 +1681,7 @@ fi
 
 # 2015.02.20: Fancy find: A linux find command that honors .*ignore,
 #                         like .gitignore and .agignore.
+# 2017-09-13: Hahaha, now Silver Search and new ripgrep honor .ignore.
 
 # FIXME: For this to be really effective, you'd have to descend
 #        into directories looking for the ignore files... so,
