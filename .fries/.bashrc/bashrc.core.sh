@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.09.13
+# Last Modified: 2017.09.14
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile [Home-🍟]
 # License: GPLv3
@@ -2264,12 +2264,13 @@ TTT () {
   echo "$(date +%Y-%m-%d)"
 }
 
-TTTtt: () {
-  echo "$(date '+%Y-%m-%d_%H:%M:%S')"
-}
-
+# 2017-02-27: Taking it even further.
 TTTtt () {
   TTTtt:
+}
+
+TTTtt: () {
+  echo "$(date '+%Y-%m-%d_%H:%M:%S')"
 }
 
 TTTtt- () {
