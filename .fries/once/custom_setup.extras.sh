@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.09.06
+# Last Modified: 2017.09.13
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -6406,6 +6406,66 @@ stage_4_fcn_meld () {
 
 } # end: stage_4_fcn_meld
 
+stage_4_long_live_oh_what_ok_goodbye_awesomegrep () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_long_live_oh_what_ok_goodbye_awesomegrep"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # Old version remains installed...
+  #sudo apt-get remove silversearcher-ag
+  # Update >= 0.33.0 so .ignore files are recognized.
+  wget -O the_silver_searcher-2.1.0.tar.gz https://github.com/ggreer/the_silver_searcher/archive/2.1.0.tar.gz
+  tar xvzf the_silver_searcher-2.1.0.tar.gz
+  cd the_silver_searcher-2.1.0
+  sudo apt-get install -y automake pkg-config libpcre3-dev zlib1g-dev liblzma-dev
+  ./build.sh
+  sudo make install
+
+  popd &> /dev/null
+
+} # end: stage_4_long_live_oh_what_ok_goodbye_awesomegrep
+
+stage_4_long_live_silver_searcher_hoorah_ripgrep () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_long_live_silver_searcher_hoorah_ripgrep"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  LATEST_BURNT_SUSHI_RIPGREP_VERSION=0.6.0
+
+  wget -N \
+    https://github.com/BurntSushi/ripgrep/releases/download/${LATEST_BURNT_SUSHI_RIPGREP_VERSION}/ripgrep-${LATEST_BURNT_SUSHI_RIPGREP_VERSION}-i686-unknown-linux-musl.tar.gz
+
+  tar xvzf ripgrep-${LATEST_BURNT_SUSHI_RIPGREP_VERSION}-i686-unknown-linux-musl.tar.gz
+  #cd ripgrep-${LATEST_BURNT_SUSHI_RIPGREP_VERSION}-i686-unknown-linux-musl
+  #cd ${OPT_BIN}
+  #/bin/ln -s /srv/opt/.downloads/ripgrep-${LATEST_BURNT_SUSHI_RIPGREP_VERSION}-i686-unknown-linux-musl/rg
+  # Argh. It needs to be on Vim's $PATH...
+  #  " NOTE: :TabMessage echo $PATH
+  #  "   /usr/local/sbin
+  #  "  :/usr/local/bin
+  #  "  :/usr/sbin
+  #  "  :/usr/bin
+  #  "  :/sbin
+  #  "  :/bin
+  #  "  :/usr/games
+  #  "  :/usr/local/games
+  #  "  :/home/landonb/.rvm/bin
+  cd /usr/local/bin
+  # FIXME/2017-09-13: I am guessing you'll need a -f here the next time you install-OS.
+  sudo /bin/ln -s /srv/opt/.downloads/ripgrep-${LATEST_BURNT_SUSHI_RIPGREP_VERSION}-i686-unknown-linux-musl/rg
+
+  popd &> /dev/null
+
+} # end: stage_4_long_live_silver_searcher_hoorah_ripgrep
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -6691,6 +6751,11 @@ setup_customize_extras_go () {
 
   # 2017-09-06: Why, oh why, do I run such an old OS...
   stage_4_fcn_meld
+
+  # 2017-09-13: And away we go. New grepper. Greppers like to Grep.
+  # Grepper Need to Grep.
+  stage_4_long_live_oh_what_ok_goodbye_awesomegrep
+  stage_4_long_live_silver_searcher_hoorah_ripgrep
 
   # Add before this'n: stage_4_fcn_template.
 
