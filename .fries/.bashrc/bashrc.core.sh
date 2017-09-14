@@ -2266,19 +2266,107 @@ TTT () {
 
 # 2017-02-27: Taking it even further.
 TTTtt () {
-  TTTtt:
+  TTT:tt
 }
 
-TTTtt: () {
-  echo "$(date '+%Y-%m-%d_%H:%M:%S')"
+# 2017-09-14: Let's complete this.
+tt () {
+  echo "$(date '+%H:%M:%S')"
 }
 
-TTTtt- () {
-  echo "$(date '+%Y-%m-%d_%H-%M-%S')"
-}
+#TTTtt: () {
+#  echo "$(date '+%Y-%m-%d_%H:%M:%S')"
+#}
+
+#TTTtt- () {
+#  echo "$(date '+%Y-%m-%d_%H-%M-%S')"
+#}
 
 TTTtt0 () {
   echo "$(date '+%Y%m%d%H%M%S')"
+}
+
+TTT!tt () {
+  echo "$(date '+%Y-%m-%d!%H:%M:%S')"
+}
+
+TTT@tt () {
+  echo "$(date '+%Y-%m-%d@%H:%M:%S')"
+}
+
+TTT#tt () {
+  echo "$(date '+%Y-%m-%d#%H:%M:%S')"
+}
+
+# Variable identifier.
+#TTT$tt () {
+#  echo "$(date '+%Y-%m-%d$%H:%M:%S')"
+#}
+
+TTT%tt () {
+  echo "$(date '+%Y-%m-%d%%H:%M:%S')"
+}
+
+TTT^tt () {
+  echo "$(date '+%Y-%m-%d^%H:%M:%S')"
+}
+
+# Background process operator.
+#TTT&tt () {
+#  echo "$(date '+%Y-%m-%d&%H:%M:%S')"
+#}
+
+TTT*tt () {
+  echo "$(date '+%Y-%m-%d*%H:%M:%S')"
+}
+
+TTT-tt () {
+  echo "$(date '+%Y-%m-%d-%H:%M:%S')"
+}
+
+TTT_tt () {
+  echo "$(date '+%Y-%m-%d_%H:%M:%S')"
+}
+
+TTT+tt () {
+  echo "$(date '+%Y-%m-%d+%H:%M:%S')"
+}
+
+# Backslash is not gonna work.
+#TTT\tt () {
+#  echo "$(date '+%Y-%m-%d\%H:%M:%S')"
+#}
+
+# Bash doesn't complain about this one, but spits on date only.
+#TTT|tt () {
+#  echo "$(date '+%Y-%m-%d|%H:%M:%S')"
+#}
+
+# ; is statement delimiter.
+#TTT;tt () {
+#  echo "$(date '+%Y-%m-%d;%H:%M:%S')"
+#}
+
+TTT:tt () {
+  echo "$(date '+%Y-%m-%d:%H:%M:%S')"
+}
+
+# Quotes not gonna work.
+#TTT'tt () {
+#  echo "$(date '+%Y-%m-%d'%H:%M:%S')"
+#}
+
+# Quotes not gonna work.
+#TTT"tt () {
+#  echo "$(date '+%Y-%m-%d"%H:%M:%S')"
+#}
+
+TTT/tt () {
+  echo "$(date '+%Y-%m-%d/%H:%M:%S')"
+}
+
+TTT?tt () {
+  echo "$(date '+%Y-%m-%d?%H:%M:%S')"
 }
 
 #########################
