@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.09.13
+# Last Modified: 2017.09.19
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -5968,11 +5968,25 @@ stage_4_libreoffice () {
 
   pushd ${OPT_DLOADS} &> /dev/null
 
-  wget -N http://download.documentfoundation.org/libreoffice/stable/5.2.6/deb/x86_64/LibreOffice_5.2.6_Linux_x86-64_deb.tar.gz
+  # Remove old installs, lest their binaries clash on tab-complete.
+  # E.g.,
+  #  sudo apt-get remove --purge libreoffice5.2*
+  #  # Or:
+  #  dpkg -S /usr/bin/libreoffice
+  #  sudo apt-get remove --purge libreoffice-common
+  sudo apt-get remove --purge libreoffice*
 
-  tar xvzf LibreOffice_5.2.6_Linux_x86-64_deb.tar.gz
+  #LIBRE_LATEST="5.2.6"
+  #LIBRE_LATESTT="5.2.6.2"
+  #
+  LIBRE_LATEST="5.4.1"
+  LIBRE_LATESTT="5.4.1.2"
 
-  cd LibreOffice_5.2.6.2_Linux_x86-64_deb/DEBS
+  wget -N http://download.documentfoundation.org/libreoffice/stable/${LIBRE_LATEST}/deb/x86_64/LibreOffice_${LIBRE_LATEST}_Linux_x86-64_deb.tar.gz
+
+  tar xvzf LibreOffice_${LIBRE_LATEST}_Linux_x86-64_deb.tar.gz
+
+  cd LibreOffice_${LIBRE_LATESTT}_Linux_x86-64_deb/DEBS
 
   sudo dpkg -i *.deb
 
