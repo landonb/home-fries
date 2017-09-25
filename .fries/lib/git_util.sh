@@ -674,7 +674,8 @@ function git_pull_hush () {
 #      | grep -v "^ \* branch "
   git fetch --all \
       | grep -v "^Fetching [a-zA-Z0-9]*$" \
-      | grep -v "^ \* branch "
+      | grep -v "^ \* branch " \
+      | grep -v "^origin	"
   reset_errexit
 ##  git remote update
   # This could be dangerous if you're pulling in the wrong direction...
