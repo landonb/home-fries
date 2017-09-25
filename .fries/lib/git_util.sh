@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.09.13
+# Last Modified: 2017.09.25
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -583,12 +583,16 @@ function git_pull_hush () {
   #   unpack, and then packme's -- the branches won't match.
 
   pushd ${SOURCE_REPO} &> /dev/null
-  SOURCE_BRANCH=$(git st | grep "^On branch" | /bin/sed -r "s/^On branch //")
+  SOURCE_BRANCH=$(\
+    git status | head -n 1 | grep "^On branch" | /bin/sed -r "s/^On branch //" \
+  )
   popd &> /dev/null
 
   pushd ${TARGET_REPO} &> /dev/null
 
-  TARGET_BRANCH=$(git st | grep "^On branch" | /bin/sed -r "s/^On branch //")
+  TARGET_BRANCH=$(\
+    git status | head -n 1 | grep "^On branch" | /bin/sed -r "s/^On branch //" \
+  )
   #echo "TARGET_BRANCH: ${TARGET_BRANCH}"
 
   set +e
@@ -626,28 +630,60 @@ function git_pull_hush () {
     echo "FATAL: What?! No \$TARGET_BRANCH for TARGET_REPO: ${TARGET_REPO}"
     return 1
   fi
+  if false; then
+    if [[ ${SOURCE_BRANCH} != ${TARGET_BRANCH} ]]; then
+      echo "FATAL: \${SOURCE_BRANCH} != \${TARGET_BRANCH}"
+      echo " SOURCE_BRANCH: ${SOURCE_BRANCH}"
+      echo " TARGET_BRANCH: ${TARGET_BRANCH}"
+      echo
+      echo "You may need to change branches:"
+      echo
+      #echo "  #pushd $(pwd -P) && git checkout --track origin/${SOURCE_BRANCH}"
+      #echo " or maybe it's the other one"
+      #echo "  #pushd ${SOURCE_REPO} && git checkout --track origin/${SOURCE_BRANCH}"
+      #echo " but really it might be this"
+      echo "  pushd $(pwd -P)"
+      #echo "  git remote set-url origin /${SOURCE_REPO}"
+      #echo "  git pull -a"
+      echo "  git pull"
+      #echo "  git checkout -b feature/${SOURCE_BRANCH} --track origin/master"
+      #echo "   or maybe just"
+      #echo "  git checkout -b ${SOURCE_BRANCH} --track origin/master"
+      # Using `--track origin/` is archaic (<1.6.6?) usage.
+      #echo "  git checkout --track origin/${SOURCE_BRANCH}"
+      echo "  git checkout ${SOURCE_BRANCH}"
+      return 1
+    fi
+  fi
+
+  # 2017-09-25: ...
+  # --all doesn't work if your stick mounts at different locations, e.g.,
+  #   /media/$USER/at_work and /media/$USER/at_home...
+  #git fetch --all
+  # Disable errexit because grep returns 1 if nothing matches.
+  set +e
+  git fetch ${SOURCE_REPO} 2>&1 \
+      | grep -v "^Fetching [a-zA-Z0-9]*$" \
+      | grep -v "^From " \
+      | grep -v "^ \* branch "
+  reset_errexit
+  # This could be dangerous if you're pulling in the wrong direction...
+  #git remote prune origin
+
   if [[ ${SOURCE_BRANCH} != ${TARGET_BRANCH} ]]; then
-    echo "FATAL: \${SOURCE_BRANCH} != \${TARGET_BRANCH}"
-    echo " SOURCE_BRANCH: ${SOURCE_BRANCH}"
-    echo " TARGET_BRANCH: ${TARGET_BRANCH}"
+    echo "############################################################################"
+    echo "🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀"
+    echo "############################################################################"
+    echo "NOTE: \${SOURCE_BRANCH} != \${TARGET_BRANCH}"
     echo
-    echo "You may need to change branches:"
+    echo "  ... changing branches..."
     echo
-    #echo "  #pushd $(pwd -P) && git checkout --track origin/${SOURCE_BRANCH}"
-    #echo " or maybe it's the other one"
-    #echo "  #pushd ${SOURCE_REPO} && git checkout --track origin/${SOURCE_BRANCH}"
-    #echo " but really it might be this"
-    echo "  pushd $(pwd -P)"
-    #echo "  git remote set-url origin /${SOURCE_REPO}"
-    #echo "  git pull -a"
-    echo "  git pull"
-    #echo "  git checkout -b feature/${SOURCE_BRANCH} --track origin/master"
-    #echo "   or maybe just"
-    #echo "  git checkout -b ${SOURCE_BRANCH} --track origin/master"
-    # Using `--track origin/` is archaic (<1.6.6?) usage.
-    #echo "  git checkout --track origin/${SOURCE_BRANCH}"
-    echo "  git checkout ${SOURCE_BRANCH}"
-    return 1
+    git checkout ${SOURCE_BRANCH}
+    echo
+    echo "Changed!"
+    echo "############################################################################"
+    echo "🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀"
+    echo "############################################################################"
   fi
 
   #echo "cd $(pwd) && git pull --rebase --autostash $SOURCE_REPO"
