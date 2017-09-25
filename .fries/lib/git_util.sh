@@ -384,7 +384,7 @@ function git_status_porcelain () {
   # But don't care if not really a remote, i.e., local origin.
   set +e
   # Need to use grep's [-P]erl-defined regex that includes the tab character.
-  git remote -v | grep -P "^origin\t\/"
+  git remote -v | grep -P "^origin\t\/" > /dev/null
   grep_result=$?
   reset_errexit
 
@@ -674,8 +674,7 @@ function git_pull_hush () {
 #      | grep -v "^ \* branch "
   git fetch --all \
       | grep -v "^Fetching [a-zA-Z0-9]*$" \
-      | grep -v "^ \* branch " \
-      | grep -v "^origin	"
+      | grep -v "^ \* branch "
   reset_errexit
 ##  git remote update
   # This could be dangerous if you're pulling in the wrong direction...
