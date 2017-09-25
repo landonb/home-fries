@@ -659,14 +659,23 @@ function git_pull_hush () {
   # 2017-09-25: ...
   # --all doesn't work if your stick mounts at different locations, e.g.,
   #   /media/$USER/at_work and /media/$USER/at_home...
-  #git fetch --all
+#  echo "\${SOURCE_BRANCH}: ${SOURCE_BRANCH}"
+#  echo "\${TARGET_REPO}: ${TARGET_REPO}"
+#  echo "\${EMISSARY}: ${EMISSARY}"
+  # Argh... also, only do on local repos pointing at stick;
+  #   the repos on the stick point to the locals, sans EMISSARY/gooey
+#  git remote set-url origin ${EMISSARY}/gooey/${TARGET_REPO}
   # Disable errexit because grep returns 1 if nothing matches.
   set +e
-  git fetch ${SOURCE_REPO} 2>&1 \
+#  git fetch ${SOURCE_REPO} 2>&1 \
+#      | grep -v "^Fetching [a-zA-Z0-9]*$" \
+#      | grep -v "^From " \
+#      | grep -v "^ \* branch "
+  git fetch --all \
       | grep -v "^Fetching [a-zA-Z0-9]*$" \
-      | grep -v "^From " \
       | grep -v "^ \* branch "
   reset_errexit
+##  git remote update
   # This could be dangerous if you're pulling in the wrong direction...
   #git remote prune origin
 
