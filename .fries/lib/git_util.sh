@@ -664,6 +664,7 @@ function git_pull_hush () {
 #  echo "\${EMISSARY}: ${EMISSARY}"
   # Argh... also, only do on local repos pointing at stick;
   #   the repos on the stick point to the locals, sans EMISSARY/gooey
+  # Also, not all repo's remote is on the stick -- for many, it's github, dummy.
 #  git remote set-url origin ${EMISSARY}/gooey/${TARGET_REPO}
   # Disable errexit because grep returns 1 if nothing matches.
   set +e
