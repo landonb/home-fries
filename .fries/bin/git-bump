@@ -21,7 +21,9 @@
 # 2017-09-27: Fist bump! Update 'develop' or a named branch
 #   to 'upstream' remote or a named remote.
 set -e
-git fetch --all
+#git fetch --all
+git fetch ${3:-origin}
+git fetch ${2:-upstream}
 git checkout ${1:-develop}
 git rebase ${2:-upstream}/${1:-develop}
 git push ${3:-origin}
