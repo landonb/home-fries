@@ -1,0 +1,28 @@
+#!/bin/bash
+#  vim:tw=0:ts=2:sw=2:et:norl:ft=bash
+
+# File: git-gone.sh
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Last Modified: 2017.09.27
+# Project Page: https://github.com/landonb/home_fries
+# Summary: Since apparently you cannot do tricky git from .gitconfig.
+# License: GPLv3
+
+# 2017-09-27: I tried making this an alias in ~/.gitconfig::
+# 
+#  bump = !\
+#    /bin/bash -c "\
+#      git checkout ${1:-develop} \
+#      git fetch --all \
+#    "
+#
+# but for some reason `git bump` just spits out the usage message.
+
+# 2017-09-27: Fist bump! Update 'develop' or a named branch
+#   to 'upstream' remote or a named remote.
+set -e
+git fetch --all
+git checkout ${1:-develop}
+git rebase ${2:-upstream}/${1:-develop}
+git push ${3:-origin}
+
