@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.09.19
+# Last Modified: 2017.09.28
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -63,6 +63,8 @@ fi
 DEBUG_TRACE=true
 source ./linux_setup_base.sh
 
+source ./installers/_announcement.sh
+
 # *** Don't Repeat Yourself.
 
 if sudo -n true 2>/dev/null; then
@@ -98,29 +100,6 @@ stage_4_setup_ensure_dirs () {
   done
 }
 stage_4_setup_ensure_dirs
-
-# *** Common installation routines.
-
-stage_announcement () {
-  echo
-  echo "===================================================================="
-  echo "$1"
-  echo
-  echo
-  if ${PAUSE_BETWEEN_INSTALLS}; then
-    echo " ####################################################"
-    echo " ###################### PAUSED ######################"
-    echo " ####################################################"
-    echo -n " press any key to continue... "
-    read -n 1 __ignored__
-  fi
-}
-
-stage_curtains () {
-  echo
-  echo "Done: $1"
-  echo "===================================================================="
-}
 
 # *** Let the installations begin!
 
@@ -4546,27 +4525,6 @@ stage_4_install_docker_compose () {
 
 } # end: stage_4_install_docker_compose
 
-stage_4_git_latest () {
-  if ${SKIP_EVERYTHING}; then
-    return
-  fi
-
-  stage_announcement "stage_4_git_latest"
-
-  # 2016-09-28: Stock 16.04 (latest Ubuntu):
-  #    $ git --version
-  #    git version 2.7.4
-  # After installing git maintainers repo:
-  #    git version 2.10.0
-
-  sudo add-apt-repository -y ppa:git-core/ppa
-  #if ! ${SKIP_APT_GET_UPDATE}; then
-    sudo apt-get update
-  #fi
-  sudo apt-get install -y git
-
-} # end: stage_4_git_latest
-
 stage_4_openshift_client () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -5859,42 +5817,6 @@ stage_4_janus_sam_ba () {
 
 } # end: stage_4_janus_sam_ba
 
-# EXPLAIN/2017-04-03: Frack. I added this function 2017-02-27 10:17:12.
-#   I think it so Command-T in Vim (activated by Ctrl-D) would work
-#   (otherwise, it'd complain that Vim's Ruby version differed from the OS's.)
-stage_4_compile_vim () {
-  if ${SKIP_EVERYTHING}; then
-    return
-  fi
-
-  stage_announcement "stage_4_compile_vim"
-
-  pushd ${OPT_DLOADS} &> /dev/null
-
-  if [[ ! -d https://github.com/vim/vim ]]; then
-    git clone https://github.com/vim/vim
-    cd vim
-  else
-    cd vim
-    git pull
-  fi
-  # src/Make_mvc.mak
-  export RUBY_VER=23
-  export RUBY_VER_LONG=2.3.3
-  #./configure
-  #make
-  #sudo make install
-  ./configure --enable-rubyinterp=yes --prefix=${OPT_BIN}
-  # -j 3 to use 3 CPU cores to build.
-  make -j 3
-  make install
-  # Test with:
-  #   :ruby puts RUBY_DESCRIPTION
-
-  popd &> /dev/null
-
-} # end: stage_4_compile_vim
-
 stage_4_sdkmanbang () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -6674,7 +6596,8 @@ setup_customize_extras_go () {
 
   stage_4_install_docker_compose
 
-  stage_4_git_latest
+  source ./installers/git_from_repo.sh
+  git_install_from_git_core_ppa
 
   stage_4_openshift_client
 
@@ -6739,14 +6662,8 @@ setup_customize_extras_go () {
   # 2017-02-07: For work!
   stage_4_janus_sam_ba
 
-  # 2017-02-25: :CommandT (<C-D>)
-  #   command-t.vim could not load the C extension
-  #   Please see INSTALLATION and TROUBLE-SHOOTING in the help
-  #   Vim Ruby version: 1.9.3-p551
-  #   Expected version: 2.3.3-p222
-  #   For more information type:    :help command-t
-  #stage_4_custom_compile_vim_with_latest_ruby
-  stage_4_compile_vim
+  source ./installers/vim_from_source.sh
+  vim_clone_compile_install
 
   stage_4_sdkmanbang
 
