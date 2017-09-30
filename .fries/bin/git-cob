@@ -1,0 +1,13 @@
+#!/bin/bash
+#  vim:tw=0:ts=2:sw=2:et:norl:ft=bash
+
+# File: git-gone.sh
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Last Modified: 2017.09.29
+# Project Page: https://github.com/landonb/home_fries
+# Summary: Since apparently you cannot do tricky git from .gitconfig.
+# License: GPLv3
+
+set -e
+git checkout -b ${1} ${2:-upstream}/${1}
+
