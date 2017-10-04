@@ -14,7 +14,7 @@
 # *** Are we being run or sourced?
 
 must_sourced() {
-  [[ -z $1 ]] && echo "must_sourced: missing param: \${BASH_SOURCE[0]}" && exit 1
+  [[ -z "$1" ]] && echo "must_sourced: missing param: \${BASH_SOURCE[0]}" && exit 1
   if [[ "$0" == "$1" ]]; then
     # Not being sourced, but being run.
     echo "Why are you running this file?"
