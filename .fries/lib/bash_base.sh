@@ -158,8 +158,6 @@ main() {
 
   gather_script_meta
 
-  suss_errexit
-
   export HOMEFRIES_LOADED_BASH_BASE=true
 }
 
