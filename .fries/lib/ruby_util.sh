@@ -1,6 +1,6 @@
 # File: ruby_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.03
+# Last Modified: 2017.10.04
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Ruby Helpers.
 # License: GPLv3
@@ -10,6 +10,8 @@ source_deps() {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   DEBUG_TRACE=false \
     source ${curdir}/bash_base.sh
+  # Load: path_add_part
+  source ${curdir}/path_util.sh
 
   # See:
   #   https://github.com/postmodern/ruby-install

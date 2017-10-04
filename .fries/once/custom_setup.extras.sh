@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.03
+# Last Modified: 2017.10.04
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -28,6 +28,7 @@ trap errexit_cleanup EXIT
 source_deps() {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   source ${curdir}/../lib/bash_base.sh
+  source ${curdir}/../lib/fries_util.sh
 }
 source_deps
 

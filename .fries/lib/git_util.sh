@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.10.03
+# Last Modified: 2017.10.04
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # File: .fries/lib/git_util.sh
@@ -11,8 +11,13 @@
 # Usage: Source this script. Call its functions. Use its exports.
 
 source_deps() {
-  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
-  source ${curdir}/bash_base.sh
+#  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
+#  source ${curdir}/bash_base.sh
+#  # Load: die
+#  source ${curdir}/process_util.sh
+  source bash_base.sh
+  # Load: die
+  source process_util.sh
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

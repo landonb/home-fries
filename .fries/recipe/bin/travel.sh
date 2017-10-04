@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.10.03
+# Last Modified: 2017.10.04
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # FIXME/2017-02-08: Conflicts are not being caught!
@@ -21,7 +21,21 @@ function errexit_cleanup () {
 }
 trap errexit_cleanup EXIT
 
-source bash_base.sh
+# LATER/STYLE/2017-10-04: Decide if you should rely on $PATH or not.
+#
+# E.g., this works, and looks cleaner:
+#
+#   source bash_base.sh
+#   # Load: ssh_agent_kick
+#   source ssh_util.sh
+#
+# than this:
+source_deps() {
+  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
+  source ${curdir}/bash_base.sh
+  # Load: ssh_agent_kick
+  source ${curdir}/ssh_util.sh
+}
 
 # ***
 

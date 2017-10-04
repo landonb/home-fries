@@ -3,12 +3,19 @@
 
 # File: ~/.fries/once/installers/_announcement.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.03
+# Last Modified: 2017.10.04
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
 
 # *** Common environ/path checkers.
+
+source_deps() {
+  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
+  # Load: OPT_* environs.
+  source ${curdir}/../../lib/fries_util.sh
+}
+source_deps
 
 if [[ -z ${OPT_DLOADS+x} && ! -d /srv/opt/.downloads ]]; then
   echo "ERROR: Set \$OPT_DLOADS environ or mkdir /srv/opt/.downloads"

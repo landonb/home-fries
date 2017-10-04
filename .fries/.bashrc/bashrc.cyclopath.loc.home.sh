@@ -1,11 +1,14 @@
 # File: bashrc.cyclopath.loc.home.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.03
+# Last Modified: 2017.10.04
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Cyclopath bash startup script for remote, non-CS machines.
 # License: GPLv3
 
 # This script is loaded by bashrc.cyclopath.base.sh.
+
+# Load: path_add_part
+source path_util.sh
 
 # In a chroot, [lb] sees "hostname: Name or service not known"
 #  MACHINE_DOMAIN=`hostname --domain`

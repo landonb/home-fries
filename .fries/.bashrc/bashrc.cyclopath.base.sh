@@ -1,6 +1,6 @@
 # File: bashrc.cyclopath.base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.03
+# Last Modified: 2017.10.04
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Cyclopath bash startup script.
 # License: GPLv3
@@ -13,6 +13,7 @@ HARD_PATH=$(dirname -- $(readlink -f -- "${BASH_SOURCE}"))
 source ${HARD_PATH}/bashrc.cyclopath.loc.home.sh
 source ${HARD_PATH}/bashrc.cyclopath.loc.work.sh
 
+# Load: dir_resolve, path_add_part
 source path_util.sh
 
 # MAGIC_NUMBER/SYNC_ME: 'minnesota' is our default psql schema.

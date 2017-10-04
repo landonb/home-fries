@@ -2,7 +2,7 @@
 
 # File: setup_ubuntu.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.03
+# Last Modified: 2017.10.04
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -40,8 +40,14 @@ source_deps() {
   source "${bash_base}"
   # ${SCRIPT_DIR} is now the absolute path to this script's directory.
 
+  # Load: array_in
+  source "${curdir}/../lib/array_util.sh"
   # Load: determine_window_manager
   source "${curdir}/../lib/distro_util.sh"
+  # Load: ask_yes_no_default
+  source "${curdir}/../lib/interact_util.sh"
+  # Load: ensure_directory_hierarchy_exists
+  source "${curdir}/../lib/path_util.sh"
 }
 source_deps
 

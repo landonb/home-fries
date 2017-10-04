@@ -1,7 +1,14 @@
 #!/bin/bash
-# Last Modified: 2016-11-13
+# Last Modified: 2017-10-04
 #
 # Buggers. Oracle VirtualBox update wrapper.
+
+source_deps() {
+  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
+  # Load: OPT_* environs.
+  source ${curdir}/../lib/fries_util.sh
+}
+source_deps
 
 if [[ -z ${OPT_DLOADS} ]]; then
   OPT_DLOADS=/srv/opt/.downloads

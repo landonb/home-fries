@@ -1,12 +1,19 @@
 # File: vendor_bugzilla.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.03
+# Last Modified: 2017.10.04
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Bugzilla setup script.
 # License: GPLv3
 
 # Very Dated/Very Unused: Bugzilla Install
 # ========================================
+
+source_deps() {
+  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
+  # Load: ask_yes_no_default
+  source "${curdir}/../lib/interact_util.sh"
+}
+source_deps
 
 # Bugzilla installation options
 # -----------------------------
