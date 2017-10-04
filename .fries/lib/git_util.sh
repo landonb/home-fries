@@ -1048,29 +1048,68 @@ git_infuse_gitignore_local() {
 }
 
 git_infuse_assume_unchanging() {
-  [[ -z "$1" ]] && (echo "${FUNCNAME[0]}: missing param" && exit 1) || local fpath="$1"
-  [[ -z "$2" ]] && local fname=$(basename -- "${fpath}") || local fname="$2"
+  [[ -z "$1" ]] && (echo "${FUNCNAME[0]}: missing param" && exit 1) || local opath="$1"
+  if [[ -z "$2" ]]; then
+    local fpath='.'
+    local fname=$(basename -- "${opath}")
+  else
+    local fpath="$2"
+    local fname=$(basename -- "${fpath}")
+  fi
   [[ "$3" == "1" ]] && local do_sym=false || local do_sym=true
+
+  pushd $(dirname -- "${fpath}") &> /dev/null
+
+  git update-index --no-assume-unchanged "${fname}"
   if [[ ! $(git ls-files --error-unmatch "${fname}" 2>/dev/null ) ]]; then
     echo "${FUNCNAME[0]}: file not in git: ${fname}"
     exit 1
   fi
-  local dirty_status=$(git status --porcelain "${fname}")
-  if [[ -n "${dirty_status}" ]]; then
-    echo "${FUNCNAME[0]}: git file is dirty: ${fname}"
-    exit 1
+  if [[ "${do_sym}" == true && ! -h "${fname}" ]]; then
+    local dirty_status=$(git status --porcelain "${fname}")
+    if [[ -n "${dirty_status}" ]]; then
+      echo "${FUNCNAME[0]}: git file is dirty: ${fname}"
+      exit 1
+    fi
   fi
   git update-index --assume-unchanged "${fname}"
-  # Undo with:
-  #   git update-index --no-assume-unchanged "${fname}"
+
   /bin/rm "${fname}"
   /usr/bin/git checkout -- "${fname}"
   /bin/cp "${fname}" "${fname}-COMMIT"
   if $do_sym; then
-    /bin/ln -sf "${fpath}" "${fname}"
+    /bin/ln -sf "${opath}" "${fname}"
   else
-    /bin/cp -a "${fpath}" "${fname}"
+    /bin/cp -a "${opath}" "${fname}"
   fi
+
+  popd &> /dev/null
+}
+
+git_unfuse_symlink() {
+  [[ -z "$1" ]] && (echo "${FUNCNAME[0]}: missing param" && exit 1) || local fpath="$1"
+  local fname=$(basename -- "${fpath}")
+  pushd $(dirname -- "${fpath}") &> /dev/null
+  if [[ -h "${fname}" ]]; then
+    /bin/rm "${fname}"
+    /bin/rm "${fname}-COMMIT"
+    /usr/bin/git checkout -- "${fname}"
+    git update-index --no-assume-unchanged "${fname}"
+  fi
+  popd &> /dev/null
+}
+
+git_unfuse_hardcopy() {
+  [[ -z "$1" ]] && (echo "${FUNCNAME[0]}: missing param" && exit 1) || local fpath="$1"
+  local fname=$(basename -- "${fpath}")
+  pushd $(dirname -- "${fpath}") &> /dev/null
+  if [[ -f "${fname}" ]]; then
+    /bin/rm "${fname}"
+    /bin/rm "${fname}-COMMIT"
+    /usr/bin/git checkout -- "${fname}"
+    git update-index --no-assume-unchanged "${fname}"
+  fi
+  popd &> /dev/null
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
