@@ -1031,6 +1031,50 @@ function cis_git() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# 2017-10-03: An infuse function, for overlaying private files atop a repo.
+git_infuse_gitignore_local() {
+  [[ -z "$1" ]] && echo "${FUNCNAME[0]}: missing param" && exit 1
+  if [[ ! -e .git/info/exclude ]]; then
+    echo "WARNING: Cannot infuse .gitignore.local under $(pwd -P)"
+    return
+  fi
+  if [[ -f .git/info/exclude ]]; then
+    pushd .git/info &> /dev/null
+    /bin/rm exclude
+    /bin/ln -sf "$1" "exclude"
+    popd &> /dev/null
+  fi
+  /bin/ln -sf .git/info/exclude .gitignore.local
+}
+
+git_infuse_assume_unchanging() {
+  [[ -z "$1" ]] && (echo "${FUNCNAME[0]}: missing param" && exit 1) || local fpath="$1"
+  [[ -z "$2" ]] && local fname=$(basename -- "${fpath}") || local fname="$2"
+  [[ "$3" == "1" ]] && local do_sym=false || local do_sym=true
+  if [[ ! $(git ls-files --error-unmatch "${fname}" 2>/dev/null ) ]]; then
+    echo "${FUNCNAME[0]}: file not in git: ${fname}"
+    exit 1
+  fi
+  local dirty_status=$(git status --porcelain "${fname}")
+  if [[ -n "${dirty_status}" ]]; then
+    echo "${FUNCNAME[0]}: git file is dirty: ${fname}"
+    exit 1
+  fi
+  git update-index --assume-unchanged "${fname}"
+  # Undo with:
+  #   git update-index --no-assume-unchanged "${fname}"
+  /bin/rm "${fname}"
+  /usr/bin/git checkout -- "${fname}"
+  /bin/cp "${fname}" "${fname}-COMMIT"
+  if $do_sym; then
+    /bin/ln -sf "${fpath}" "${fname}"
+  else
+    /bin/cp -a "${fpath}" "${fname}"
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 main() {
   source_deps
 
