@@ -2,8 +2,8 @@
 
 # File: setup.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.01.27
-# Project Page: https://github.com/landonb/home_fries
+# Last Modified: 2017.10.03
+# Project Page: https://github.com/landonb/home-fries
 # License: GPLv3
 
 # Expects: bashrc* files in current directory

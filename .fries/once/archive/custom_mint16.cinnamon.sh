@@ -1,7 +1,7 @@
 # File: custom_mint16.cinnamon.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
 # Last Modified: 2017.10.03
-# Project Page: https://github.com/landonb/home_fries
+# Project Page: https://github.com/landonb/home-fries
 # Summary: Custom Mint16 Cinnamon Window Manage Customization.
 # License: GPLv3
 

@@ -4,8 +4,8 @@
 
 # File: termdub.py
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.21
-# Project Page: https://github.com/landonb/home_fries
+# Last Modified: 2017.10.03
+# Project Page: https://github.com/landonb/home-fries
 # License: GPLv3
 
 import os

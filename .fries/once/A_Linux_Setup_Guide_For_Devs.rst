@@ -4,7 +4,7 @@ A General Linux Setup Guide For Developers
 
 .. Author: Landon Bouma
 .. Last Modified: 2017.10.03
-.. Project Page: https://github.com/landonb/home_fries
+.. Project Page: https://github.com/landonb/home-fries
 
 ========
 Overview

@@ -2,8 +2,8 @@ Manual Cyclopath Configuration Steps and Gotchas
 ================================================
 
 .. Author: Landon Bouma
-.. Last Modified: 2015.01.26
-.. Project Page: https://github.com/landonb/home_fries
+.. Last Modified: 2017.10.03
+.. Project Page: https://github.com/landonb/home-fries
 
 After installing Cyclopath, perform manual configuration
 tasks and learn about and be aware of post-install caveats.

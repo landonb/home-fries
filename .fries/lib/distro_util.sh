@@ -4,7 +4,7 @@
 
 # File: distro_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Project Page: https://github.com/landonb/home_fries
+# Project Page: https://github.com/landonb/home-fries
 # Summary: Generic Bash function library.
 # License: GPLv3
 
