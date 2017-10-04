@@ -122,49 +122,49 @@ source ${hard_path}/bashrc.core.sh
 # =============================================
 
 source_projects () {
-    if [[ $EUID -ne 0 ]]; then
-      # CONVENTION: Load scripts named like bashrc.*.base.sh
-      #
-      #             This lets the user define a bunch of
-      #             project-specific scripts; the *.base.sh
-      #             files will be sourced from here, and then
-      #             those scripts can source whatever else they
-      #             wants, and you, the user, can keep all your
-      #             bash profiles neatly (alphabetically) organized.
-      #
-      # Load all bash scripts that are named thusly: bashrc.*.base.sh
-      local rcfile=""
-      for rcfile in $(find ${hard_path} \
-          -maxdepth 1 -type f -name "bashrc.*.base.sh" \
-                  -or -type l -name "bashrc.*.base.sh"); do
-        $DUBS_TRACE && echo "Loading project-specific Bash resource script: $rcfile"
-        source $rcfile
-      done
-    fi
+  if [[ $EUID -ne 0 ]]; then
+    # CONVENTION: Load scripts named like bashrc.*.base.sh
+    #
+    #             This lets the user define a bunch of
+    #             project-specific scripts; the *.base.sh
+    #             files will be sourced from here, and then
+    #             those scripts can source whatever else they
+    #             wants, and you, the user, can keep all your
+    #             bash profiles neatly (alphabetically) organized.
+    #
+    # Load all bash scripts that are named thusly: bashrc.*.base.sh
+    local rcfile=""
+    for rcfile in $(find ${hard_path} \
+        -maxdepth 1 -type f -name "bashrc.*.base.sh" \
+                -or -type l -name "bashrc.*.base.sh"); do
+      $DUBS_TRACE && echo "Loading project-specific Bash resource script: $rcfile"
+      source $rcfile
+    done
+  fi
 }
 source_projects
 unset source_projects
 
 source_projects0 () {
-    # Load scripts named like bashrc0.*.base.sh, even for root.
-    local rcfile=""
-    for rcfile in $(find ${hard_path} -maxdepth 1 \
-            -type f -name "bashrc0.*.base.sh" \
-        -or -type l -name "bashrc0.*.base.sh"); do
-      # Avoid stderr message if symlink points at naught.
-      if [[ -e $rcfile ]]; then
-        $DUBS_TRACE && echo "Loading project-specific Bash resource script: $rcfile"
-        # 2016-09-23: I've been mkdir 'ing my way around Dubsacks Gvim `ag` complaints
-        #             on the laptop where not /jus/cache is loaded.
-        if [[ ! -d $rcfile ]]; then
-          source $rcfile
-        else
-          $DUBS_TRACE && echo "Is a directory: $rcfile"
-        fi
+  # Load scripts named like bashrc0.*.base.sh, even for root.
+  local rcfile=""
+  for rcfile in $(find ${hard_path} -maxdepth 1 \
+          -type f -name "bashrc0.*.base.sh" \
+      -or -type l -name "bashrc0.*.base.sh"); do
+    # Avoid stderr message if symlink points at naught.
+    if [[ -e $rcfile ]]; then
+      $DUBS_TRACE && echo "Loading project-specific Bash resource script: $rcfile"
+      # 2016-09-23: I've been mkdir 'ing my way around Dubsacks Gvim `ag` complaints
+      #             on the laptop where not /jus/cache is loaded.
+      if [[ ! -d $rcfile ]]; then
+        source $rcfile
       else
-        $DUBS_TRACE && echo "No such file: $rcfile"
+        $DUBS_TRACE && echo "Is a directory: $rcfile"
       fi
-    done
+    else
+      $DUBS_TRACE && echo "No such file: $rcfile"
+    fi
+  done
 }
 source_projects0
 unset source_projects0
@@ -184,7 +184,6 @@ unset source_projects0
 #   DUBS_TERMNAME -- Title of the terminal window.
 
 if [[ $EUID -ne 0 ]]; then
-
   # Start out in the preferred development directory.
   if [[ -n "$DUBS_STARTIN" ]]; then
     cd $DUBS_STARTIN
@@ -208,7 +207,6 @@ if [[ $EUID -ne 0 ]]; then
   export DUBS_STARTIN=''
   export DUBS_STARTUP=''
   export DUBS_TERMNAME=''
-
 fi
 
 # Cleanup
