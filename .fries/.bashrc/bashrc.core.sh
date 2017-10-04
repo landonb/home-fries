@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.01
+# Last Modified: 2017.10.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: One Developer's Bash Profile [Home-🍟]
 # License: GPLv3
@@ -9,48 +9,51 @@
 # Doobious Sources
 ##################
 
-if [[ -f ${HOME}/.fries/lib/bash_base.sh ]]; then
-  # 2016.05.05: Cinqo de Mayo. This is cool, right?
-  DEBUG_TRACE=false \
-    source ${HOME}/.fries/lib/bash_base.sh
-fi
+source_utils() {
+  # Generally, FRIES_DIR=${HOME}/.fries [a/k/a /home/${LOGNAME}/.fries]
+  export HOMEFRIES_DIR=$(dirname $(dirname -- "${BASH_SOURCE[0]}"))
+  if [[ ${HOMEFRIES_DIR} == '/' ]]; then
+    echo 'WARNING: Where is .fries installed? For real?'
+  fi
 
-if [[ -f ${HOME}/.fries/lib/color_util.sh ]]; then
-  source ${HOME}/.fries/lib/color_util.sh
-fi
+  declare -a lib_files=()
 
-if [[ -f ${HOME}/.fries/lib/curly_util.sh ]]; then
-  source ${HOME}/.fries/lib/curly_util.sh
-fi
+  unset HOMEFRIES_LOADED_BASH_BASE
+  lib_files+=("bash_base.sh")
+  lib_files+=("array_util.sh")
+  lib_files+=("distro_util.sh")
+  lib_files+=("path_util.sh")
+  lib_files+=("process_util.sh")
+  lib_files+=("color_util.sh")
+  lib_files+=("interact_util.sh")
+  lib_files+=("no_util.sh")
+  lib_files+=("curly_util.sh")
+  lib_files+=("fries_util.sh")
+  lib_files+=("git_util.sh")
+  lib_files+=("ssh_util.sh")
+  lib_files+=("ruby_util.sh")
+  lib_files+=("docker_util.sh")
+  lib_files+=("openshift_util.sh")
+  # 2016-11-12: What about this guy?
+  #lib_files+=("logger.sh")
 
-# 2016-10-24: Well, the lib/ dir sure is growing.
-if [[ -f ${HOME}/.fries/lib/docker_util.sh ]]; then
-  source ${HOME}/.fries/lib/docker_util.sh
-fi
+  DEBUG_TRACE=false
+  for lib_file in "${lib_files[@]}"; do
+    if [[ -f "${HOMEFRIES_DIR}/lib/${lib_file}" ]]; then
+      #echo "Loading: ${lib_file}"
+      source "${HOMEFRIES_DIR}/lib/${lib_file}"
+    #else
+    #  echo "Not found: ${lib_file}"
+    fi
+  done
 
-# 2016-10-11: Might as well plop git fcns in the sess', eh?
-if [[ -f ${HOME}/.fries/lib/git_util.sh ]]; then
-  source ${HOME}/.fries/lib/git_util.sh
-fi
-
-# 2016-11-12: What about this guy?
-#if [[ -f ${HOME}/.fries/lib/logger.sh ]]; then
-#  source ${HOME}/.fries/lib/logger.sh
-#fi
-
-if [[ -f ${HOME}/.fries/lib/ruby_util.sh ]]; then
-  source ${HOME}/.fries/lib/ruby_util.sh
-fi
-
-if [[ -f ${HOME}/.fries/lib/openshift_util.sh ]]; then
-  source ${HOME}/.fries/lib/openshift_util.sh
-fi
-
-if [[ -z ${HOMEFRIES_WARNINGS+x} ]]; then
-  # Usage, e.g.:
-  #   HOMEFRIES_WARNINGS=true bash
-  HOMEFRIES_WARNINGS=false
-fi
+  if [[ -z ${HOMEFRIES_WARNINGS+x} ]]; then
+    # Usage, e.g.:
+    #   HOMEFRIES_WARNINGS=true bash
+    HOMEFRIES_WARNINGS=false
+  fi
+}
+source_utils
 
 # Determine OS Flavor
 #####################
@@ -93,7 +96,9 @@ update_path_with_more_paths () {
   local path_suffix=()
 
   # Binary fries.
-  path_prefix+=("/home/${LOGNAME}/.fries/bin")
+  path_prefix+=("${HOMEFRIES_DIR}/bin")
+  # 2017-10-03: Make sourcing files easy!
+  path_prefix+=("${HOMEFRIES_DIR}/lib")
 
   # /srv/opt/bin
   path_prefix+=("${OPT_BIN}")
@@ -1281,7 +1286,7 @@ killsomething () {
 
 #########################
 
-# C.f. ${HOME}/.fries/lib/bash_base.sh.
+# C.f. ${HOMEFRIES_DIR}/lib/bash_base.sh.
 dir_resolve () {
   # Squash error messages but return error status, maybe.
   pushd "$1" &> /dev/null || return $?
@@ -1764,7 +1769,7 @@ fffind () {
 
 # 2016-11-11: Let's not confuse first-time users by disabling their trackpad.
 xinput_set_prop_touchpad_device () {
-  if [[ -e ${HOME}/.fries/.bashrc/touchpad_disable ]]; then
+  if [[ -e ${HOMEFRIES_DIR}/.bashrc/touchpad_disable ]]; then
     if [[ $(command -v xinput > /dev/null) || $? -eq 0 ]]; then
       local device_num=$(xinput --list --id-only "SynPS/2 Synaptics TouchPad" 2> /dev/null)
       if [[ -n ${device_num} ]]; then
@@ -1869,18 +1874,18 @@ umount_guard () {
 
 # Bash command completion (for dub's apps).
 
-if [[ -d ${HOME}/.fries/bin/completions ]]; then
+if [[ -d ${HOMEFRIES_DIR}/bin/completions ]]; then
   # 2016-06-28: Currently just ./termdub_completion.
   # 2016-10-30: Now with `exo` command completion.
   # 2016-11-16: sourcing a glob doesn't work for symlinks.
-  #   source ${HOME}/.fries/bin/completions/*
+  #   source ${HOMEFRIES_DIR}/bin/completions/*
   # I though a find -exec would work, but nope.
-  #   find ${HOME}/.fries/bin/completions/ ! -type d -exec bash -c "source {}" \;
+  #   find ${HOMEFRIES_DIR}/bin/completions/ ! -type d -exec bash -c "source {}" \;
   # So then just iterate, I suppose.
   while IFS= read -r -d '' file; do
     #echo "file = $file"
     source $file
-  done < <(find ${HOME}/.fries/bin/completions/* -maxdepth 1 ! -path . -print0)
+  done < <(find ${HOMEFRIES_DIR}/bin/completions/* -maxdepth 1 ! -path . -print0)
 fi
 
 #########################

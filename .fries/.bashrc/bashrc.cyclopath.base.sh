@@ -1,6 +1,6 @@
 # File: bashrc.cyclopath.base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.05.03
+# Last Modified: 2017.10.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Cyclopath bash startup script.
 # License: GPLv3
@@ -12,6 +12,8 @@
 HARD_PATH=$(dirname $(readlink -f $BASH_SOURCE))
 source ${HARD_PATH}/bashrc.cyclopath.loc.home.sh
 source ${HARD_PATH}/bashrc.cyclopath.loc.work.sh
+
+source path_util.sh
 
 # MAGIC_NUMBER/SYNC_ME: 'minnesota' is our default psql schema.
 # You can still access other schemas in the database (read: the
@@ -1114,23 +1116,23 @@ function ccpcp () {
 
 # C.f. scripts/util/ccp_base.sh.
 find_pyserver_uncle () {
+  local script_dir_relative=$(dirname -- "$0")
+  local here_we_are=$(dir_resolve ${script_dir_relative})
 
-  HERE_WE_ARE=$(dir_resolve ${script_relbase})
-
-  while [[ ${HERE_WE_ARE} != '/' ]]; do
-    if [[ -e "${HERE_WE_ARE}/pyserver/CONFIG" ]]; then
+  while [[ ${here_we_are} != '/' ]]; do
+    if [[ -e "${here_we_are}/pyserver/CONFIG" ]]; then
       # MAYBE: Really export? We were sourced, so maybe don't do this,
       #        so we don't clobber the user's working environment?
-      export CCP_WORKING=${HERE_WE_ARE}
+      export CCP_WORKING=${here_we_are}
       export PYSERVER_HOME=${CCP_WORKING}/pyserver
       break
     else
       # Keep looping:
-      HERE_WE_ARE=$(dir_resolve ${HERE_WE_ARE}/..)
+      here_we_are=$(dir_resolve ${here_we_are}/..)
     fi
   done
 
-  if [[ ${HERE_WE_ARE} == '/' ]]; then
+  if [[ ${here_we_are} == '/' ]]; then
     echo "ERROR: Cannot suss out PYSERVER_HOME. Failing!"
     invoked_from_terminal
     if [[ $? -eq 0 ]]; then

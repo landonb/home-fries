@@ -2,12 +2,12 @@
 
 # File: linux_setup_base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.12
+# Last Modified: 2017.10.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
 # -------------------------------------------------------------------
-# Copyright © 2011-2016 Landon Bouma.
+# Copyright © 2011-2017 Landon Bouma.
 # 
 # This program is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -39,7 +39,7 @@ if [[ ! -e ../lib/bash_base.sh ]]; then
 fi
 DEBUG_TRACE=false
 source ../lib/bash_base.sh
-# ${script_absbase} is now the absolute path to this script's directory.
+# ${SCRIPT_DIR} is now the absolute path to this script's directory.
 
 # ------------------------------------------
 # Configuration
@@ -108,7 +108,7 @@ USE_STAFF_GROUP_ASSOCIATION="staff"
 # [lb] likes the dice icon that's included with Ubuntu. Poke around
 # the /usr/share/icons/ files and find something you like or add you own.
 if [[ -z ${USE_MINT_MENU_ICON+x} ]]; then
-  USE_MINT_MENU_ICON="${script_absbase}/assets/applications-boardgames-21x21.png"
+  USE_MINT_MENU_ICON="${SCRIPT_DIR}/assets/applications-boardgames-21x21.png"
 fi
 
 # -- Install proprietary software (namely, just Adobe Reader).

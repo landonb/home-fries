@@ -1,6 +1,6 @@
 # File: vendor_bugzilla.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2015.02.02
+# Last Modified: 2017.10.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Bugzilla setup script.
 # License: GPLv3
@@ -137,7 +137,7 @@ stage_4_bugzilla_install () {
   m4 \
     --define=MWIKI_BASENAME=$bzilla_basename \
     --define=MACH_DOMAIN=$USE_DOMAIN \
-      ${script_absbase}/common/etc/apache2/sites-available/bugzilla \
+      ${SCRIPT_DIR}/common/etc/apache2/sites-available/bugzilla \
       > /etc/apache2/sites-available/bugzilla.conf
   # Activate the apache conf.
   cd /etc/apache2/sites-enabled/

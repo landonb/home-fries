@@ -1,6 +1,6 @@
 # File: custom_mint16.cinnamon.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.10
+# Last Modified: 2017.10.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Custom Mint16 Cinnamon Window Manage Customization.
 # License: GPLv3
@@ -16,7 +16,7 @@ stage_4_wm_terminal_white_on_black () {
   # - Make White text on Solid Black background.
   terminal_conf=.gconf/apps/gnome-terminal/profiles/Default/%gconf.xml
   /bin/cp -f \
-    ${script_absbase}/target/cinnamon/home/user/$terminal_conf \
+    ${SCRIPT_DIR}/target/cinnamon/home/user/$terminal_conf \
     /home/$USER/$terminal_conf
 
 } # end: stage_4_wm_terminal_white_on_black
@@ -86,7 +86,7 @@ stage_4_wm_customize_cinnamon_part_1 () {
   # Calendar applet
   home_path=.cinnamon/configs/calendar@cinnamon.org
   /bin/cp \
-    ${script_absbase}/target/cinnamon/home/user/$home_path/calendar@cinnamon.org.json \
+    ${SCRIPT_DIR}/target/cinnamon/home/user/$home_path/calendar@cinnamon.org.json \
     ~/$home_path/
 
   # System monitor applet
@@ -102,7 +102,7 @@ stage_4_wm_customize_cinnamon_part_1 () {
 
   home_path=.local/share/cinnamon/applets/sysmonitor@orcus
   /bin/cp \
-    ${script_absbase}/target/cinnamon/home/user/$home_path/settings.json \
+    ${SCRIPT_DIR}/target/cinnamon/home/user/$home_path/settings.json \
     ~/$home_path/
 
   # Weather applet
@@ -117,7 +117,7 @@ stage_4_wm_customize_cinnamon_part_1 () {
 
   home_path=.local/share/cinnamon/applets/weather@mockturtl
   /bin/cp \
-    ${script_absbase}/target/cinnamon/home/user/$home_path/metadata.json \
+    ${SCRIPT_DIR}/target/cinnamon/home/user/$home_path/metadata.json \
     ~/$home_path/
 
   # Screenshot applet
@@ -132,7 +132,7 @@ stage_4_wm_customize_cinnamon_part_1 () {
 
   home_path=.local/share/cinnamon/applets/capture@rjanja
   /bin/cp \
-    ${script_absbase}/target/cinnamon/home/user/$home_path/metadata.json \
+    ${SCRIPT_DIR}/target/cinnamon/home/user/$home_path/metadata.json \
     ~/$home_path/
 
   # Cinnamon Multi-Line Taskbar
@@ -173,7 +173,7 @@ stage_4_wm_customize_cinnamon_part_1 () {
  
     home_path=.local/share/cinnamon/applets/capture@rjanja
     /bin/cp \
-      ${script_absbase}/target/cinnamon/home/user/$home_path/metadata.json \
+      ${SCRIPT_DIR}/target/cinnamon/home/user/$home_path/metadata.json \
       ~/$home_path/
 
   fi
@@ -286,7 +286,7 @@ stage_4_wm_customize_cinnamon_part_2 () {
   /bin/mkdir -p /home/$USER/.cinnamon/panel-launchers
   # It's not quite this simple:
   #  /bin/cp \
-  #   ${script_absbase}/target/cinnamon/home/user/$home_path/*.desktop \
+  #   ${SCRIPT_DIR}/target/cinnamon/home/user/$home_path/*.desktop \
   #   ~/$home_path/
   # We can't use environment variables, and since some of the
   #   executables (like .fries/bin/*) live in the user's directory,
@@ -298,8 +298,8 @@ stage_4_wm_customize_cinnamon_part_2 () {
   OLD_IFS=$IFS
   IFS=$'\n'
   # Huh. I guess the wildcard doesn't work in the quotes.
-  #  for dir in `ls "${script_absbase}/target/cinnamon/home/$home_path/*.desktop"`
-  for dtop_file in `ls ${script_absbase}/target/cinnamon/home/user/$home_path/*.desktop`;
+  #  for dir in `ls "${SCRIPT_DIR}/target/cinnamon/home/$home_path/*.desktop"`
+  for dtop_file in `ls ${SCRIPT_DIR}/target/cinnamon/home/user/$home_path/*.desktop`;
   do
     #echo $dtop_file
     m4 --define=TARGETUSER=$USER \
@@ -331,7 +331,7 @@ stage_4_wm_customize_cinnamon_part_2 () {
   # MAYBE: Use sed instead, since you're just changing two values.
   home_path=.cinnamon/configs/menu@cinnamon.org
   /bin/cp -f \
-    ${script_absbase}/target/cinnamon/home/user/$home_path/menu@cinnamon.org.json \
+    ${SCRIPT_DIR}/target/cinnamon/home/user/$home_path/menu@cinnamon.org.json \
     ~/$home_path/
 
   fi # end: if $WM_IS_CINNAMON

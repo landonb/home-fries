@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.09.28
+# Last Modified: 2017.10.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -232,20 +232,20 @@ stage_4_psql_configure () {
   # MEH: If you implement this, be sure to backup pg_hba.conf.
   if false; then
     # We usually configure psql on a per-project basis.
-    if [[ -e ${script_absbase}/recipe/etc/postgresql/${POSTGRESABBR}/main/pg_hba.conf ]]; then
+    if [[ -e ${SCRIPT_DIR}/recipe/etc/postgresql/${POSTGRESABBR}/main/pg_hba.conf ]]; then
       sudo /bin/cp -a \
-        ${script_absbase}/recipe/etc/postgresql/${POSTGRESABBR}/main/pg_hba.conf \
+        ${SCRIPT_DIR}/recipe/etc/postgresql/${POSTGRESABBR}/main/pg_hba.conf \
         /etc/postgresql/${POSTGRESABBR}/main/pg_hba.conf
     fi
   fi
 
   # MEH: If you implement this, be sure to backup pg_ident.conf.
   if false; then
-    if [[ -e ${script_absbase}/common/etc/postgresql/${POSTGRESABBR}/main/pg_ident.conf ]]; then
+    if [[ -e ${SCRIPT_DIR}/common/etc/postgresql/${POSTGRESABBR}/main/pg_ident.conf ]]; then
       m4 \
         --define=HTTPD_USER=${httpd_user} \
         --define=TARGETUSER=$USER \
-          ${script_absbase}/common/etc/postgresql/${POSTGRESABBR}/main/pg_ident.conf \
+          ${SCRIPT_DIR}/common/etc/postgresql/${POSTGRESABBR}/main/pg_ident.conf \
         | sudo tee /etc/postgresql/${POSTGRESABBR}/main/pg_ident.conf \
         &> /dev/null
     fi
@@ -300,11 +300,11 @@ stage_4_apache_configure () {
   # MEH: If you implement this, be sure to backup apache2.conf.
   if false; then
     # Avoid an apache gripe and set ServerName.
-    if [[ -e ${script_absbase}/recipe/etc/apache2/apache2.conf ]]; then
+    if [[ -e ${SCRIPT_DIR}/recipe/etc/apache2/apache2.conf ]]; then
       m4 \
         --define=HOSTNAME=${HOSTNAME} \
         --define=MACH_DOMAIN=${USE_DOMAIN} \
-          ${script_absbase}/recipe/etc/apache2/apache2.conf \
+          ${SCRIPT_DIR}/recipe/etc/apache2/apache2.conf \
           > /etc/apache2/apache2.conf
     fi
   fi

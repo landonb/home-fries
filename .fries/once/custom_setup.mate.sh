@@ -1,6 +1,6 @@
 # File: custom_setup.mate.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.11
+# Last Modified: 2017.10.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Custom Linux Mint MATE Window Manage Customization.
 # License: GPLv3
@@ -88,7 +88,7 @@ stage_4_wm_customize_mate_misc () {
   #             trick hasn't worked in a long time.
   if false; then
     sudo /bin/cp -f \
-      ${script_path}/recipe/usr/lib/pm-utils/sleep.d/33disablewakeups \
+      ${SCRIPT_BASE}/recipe/usr/lib/pm-utils/sleep.d/33disablewakeups \
       /usr/lib/pm-utils/sleep.d
     sudo chown root:root /usr/lib/pm-utils/sleep.d/33disablewakeups
     sudo chmod 755 /usr/lib/pm-utils/sleep.d/33disablewakeups

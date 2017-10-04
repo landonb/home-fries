@@ -1,6 +1,6 @@
 # File: vendor_mediawiki.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.10
+# Last Modified: 2017.10.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: MediaWiki (and PHP, etc.) setup script.
 # License: GPLv3
@@ -36,7 +36,7 @@ REMOTE_RESOURCES_PASS=""
   # USE_PSQLWIKIPWD="" # Auto-generated if not set here.
   USE_WIKIUSERNAME="Your Name"
   # USE_WIKIUSERPASS="" # Auto-generated if not set here.
-  USE_WIKISITELOGO="${script_absbase}/assets/mediawiki_custom_crushinator.png"
+  USE_WIKISITELOGO="${SCRIPT_DIR}/assets/mediawiki_custom_crushinator.png"
   USE_WIKIDB_DUMP="path/to/mediawiki.dump.xml.gz"
 
 
@@ -98,11 +98,11 @@ USE_WIKINAME="[${LOGNAME:0:1}$((${#LOGNAME}-2))${LOGNAME: -1}]"
 # Set the Postgres user's MediaWiki password, it you want. By default,
 # we generate a random password, since it's stored in LocalSettings.php
 # and you won't normally need to use it.
-if [[ ! -e ${script_absbase}/setup-exc-mwiki_pwd ]]; then
+if [[ ! -e ${SCRIPT_DIR}/setup-exc-mwiki_pwd ]]; then
   USE_PSQLWIKIPWD=$(pwgen -n 16 -s -N 1 -y)
-  echo "${USE_PSQLWIKIPWD}" > ${script_absbase}/setup-exc-mwiki_pwd
+  echo "${USE_PSQLWIKIPWD}" > ${SCRIPT_DIR}/setup-exc-mwiki_pwd
 else
-  USE_PSQLWIKIPWD=`cat ${script_absbase}/setup-exc-mwiki_pwd`
+  USE_PSQLWIKIPWD=`cat ${SCRIPT_DIR}/setup-exc-mwiki_pwd`
 fi
 
 # Set the Postgres username and password. This is what's specified in
@@ -117,9 +117,9 @@ USE_WIKIUSERNAME="mediawiki_psql_user"
 USE_WIKIUSERPASS='mediawiki_psql_pass'
 
 # Set a custom Wiki logo if you will, otherwise behold the crushinator.
-USE_WIKISITELOGO="${script_absbase}/assets/mediawiki_custom_crushinator.png"
-#USE_WIKISITELOGO="${script_absbase}/assets/mediawiki_custom_cyclopath.png"
-#USE_WIKISITELOGO="${script_absbase}/assets/mediawiki_custom_retros.png"
+USE_WIKISITELOGO="${SCRIPT_DIR}/assets/mediawiki_custom_crushinator.png"
+#USE_WIKISITELOGO="${SCRIPT_DIR}/assets/mediawiki_custom_cyclopath.png"
+#USE_WIKISITELOGO="${SCRIPT_DIR}/assets/mediawiki_custom_retros.png"
 
 # PHP5 Timezone option
 # --------------------
@@ -404,7 +404,7 @@ stage_4_mediawiki_install () {
   m4 \
     --define=MWIKI_BASENAME=$mwiki_basename \
     --define=MACH_DOMAIN=$USE_DOMAIN \
-      ${script_absbase}/common/etc/apache2/sites-available/mediawiki \
+      ${SCRIPT_DIR}/common/etc/apache2/sites-available/mediawiki \
       > /etc/apache2/sites-available/mediawiki.conf
 
   # Activate the apache conf.
@@ -521,12 +521,12 @@ stage_4_mediawiki_install () {
     --define=DB_PASSWORD="$USE_PSQLWIKIPWD" \
     --define=SECRET_KEY="" \
     --define=UPGRADE_KEY="" \
-      ${script_absbase}/target/mediawiki/LocalSettings.php \
+      ${SCRIPT_DIR}/target/mediawiki/LocalSettings.php \
       | sudo tee ${mwiki_basepath}/LocalSettings.php &> /dev/null
 
   # See mediawiki-1.22.0/includes/installer/Installer.php::doGenerateKeys
   sudo /bin/cp \
-    ${script_absbase}/target/mediawiki/regenerateSecretKey.php \
+    ${SCRIPT_DIR}/target/mediawiki/regenerateSecretKey.php \
     ${mwiki_basepath}/maintenance
   sudo chown www-data:${USE_PROJECT_GROUP_MAIN} \
     ${mwiki_basepath}/maintenance/regenerateSecretKey.php
@@ -551,7 +551,7 @@ stage_4_mediawiki_install () {
     --define=DB_PASSWORD="$USE_PSQLWIKIPWD" \
     --define=SECRET_KEY="$SECRET_KEY" \
     --define=UPGRADE_KEY="$UPGRADE_KEY" \
-    ${script_absbase}/target/mediawiki/LocalSettings.php \
+    ${SCRIPT_DIR}/target/mediawiki/LocalSettings.php \
       | sudo tee ${mwiki_basepath}/LocalSettings.php &> /dev/null
 
   sudo chmod 660 ${mwiki_basepath}/LocalSettings.php

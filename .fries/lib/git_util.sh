@@ -1,6 +1,6 @@
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.09.25
+# Last Modified: 2017.10.03
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
@@ -28,7 +28,7 @@ find_git_parent () {
     FILE_PATH="."
   fi
   # Crap, if symlink, blows up, because prefix of git status doesn't match.
-  REL_PATH="$(dirname ${FILE_PATH})"
+  REL_PATH=$(dirname -- "${FILE_PATH}")
   REL_PREFIX=""
   #echo "find_git_parent: REL_PATH/2: ${REL_PATH}"
   DOUBLE_DOWN=false
@@ -45,9 +45,9 @@ find_git_parent () {
     else
       # Keep looping.
       if ! ${DOUBLE_DOWN}; then
-        REL_PATH=$(dirname ${REL_PATH})
+        REL_PATH=$(dirname -- "${REL_PATH}")
       else
-        ABS_PATH="$(readlink -f ${REL_PATH})"
+        ABS_PATH=$(readlink -f -- "${REL_PATH}")
         if [[ ${ABS_PATH} == '/' ]]; then
           #echo "WARNING: find_git_parent: No parent found for ${FILE_PATH}"
           break
@@ -121,7 +121,7 @@ git_commit_generic_file () {
 
   if [[ $grep_result -eq 0 ]]; then
     # It's dirty.
-    CUR_DIR=$(basename $(pwd -P))
+    CUR_DIR=$(basename -- $(pwd -P))
     if ! ${AUTO_COMMIT_FILES}; then
       echo
       echo -n "HEY, HEY: Your ${CUR_DIR}/${REPO_FILE} is dirty. Wanna check it in? [y/n] "
@@ -602,7 +602,7 @@ function git_pull_hush () {
 
   # This is empty string and errexit 1 on stick.
   #TARGET_REFNAME=$(git config branch.`git name-rev --name-only HEAD`.remote)
-  #TARGET_REFNAME=$(dirname ${TARGET_REFNAME_BRANCH_NAME})
+  #TARGET_REFNAME=$(dirname -- "${TARGET_REFNAME_BRANCH_NAME}")
   TARGET_REFNAME=$(echo "$TARGET_REFNAME_BRANCH_NAME" | cut -d "/" -f2)
   #echo "TARGET_REFNAME: ${TARGET_REFNAME}"
 
@@ -861,7 +861,7 @@ git-flip-master () {
     pushd ${REL_PREFIX} &> /dev/null
   fi
 
-  project_name=$(basename $(pwd -P))
+  project_name=$(basename -- $(pwd -P))
 
   branch_name=$(git branch --no-color | head -n 1 | /bin/sed 's/^\*\? *//')
 
@@ -937,7 +937,7 @@ git-jockey () {
 
     #echo "Checking single dirty files..."
     for ((i = 0; i < ${#TOPLEVEL_COMMON_FILE[@]}; i++)); do
-      DIRTY_BNAME=$(basename ${TOPLEVEL_COMMON_FILE[$i]})
+      DIRTY_BNAME=$(basename -- "${TOPLEVEL_COMMON_FILE[$i]}")
       if [[ -f $REPO_PATH/${DIRTY_BNAME} ]]; then
         echo "Checking ${DIRTY_BNAME}"
         AUTO_COMMIT_FILES=true \

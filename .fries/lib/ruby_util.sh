@@ -1,79 +1,80 @@
 # File: ruby_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.06.26
+# Last Modified: 2017.10.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Ruby Helpers.
 # License: GPLv3
 # vim:tw=0:ts=2:sw=2:et:norl:
 
-if [[ -f ${HOME}/.fries/lib/bash_base.sh ]]; then
+source_deps() {
+  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   DEBUG_TRACE=false \
-    source ${HOME}/.fries/lib/bash_base.sh
-fi
+    source ${curdir}/bash_base.sh
 
-# See:
-#   https://github.com/postmodern/ruby-install
-#   https://github.com/postmodern/chruby
+  # See:
+  #   https://github.com/postmodern/ruby-install
+  #   https://github.com/postmodern/chruby
+  if [[ -f /usr/local/share/chruby/chruby.sh ]]; then
+    source /usr/local/share/chruby/chruby.sh
+  fi
 
-if [[ -f /usr/local/share/chruby/chruby.sh ]]; then
-  source /usr/local/share/chruby/chruby.sh
-fi
+  # The github.com/postmodern/chruby README lists Anti-Features, starting with:
+  #   - Does not hook cd.
+  #   - Does not install executable shims.
+  # However, it doesn't say what it does do instead!
+  #   chruby/auto.sh sets a trap on DEBUG,
+  #   and if $BASH_COMMAND != $PROMPT_COMMAND,
+  #   it walks up the directory tree looking
+  #   for a .ruby-version file on which to chruby.
+  # Cmd:
+  #   trap '[[ "$BASH_COMMAND" != "$PROMPT_COMMAND" ]] && chruby_auto' DEBUG
+  # Ref:
+  #   BASH_COMMAND
+  #     The  command  currently  being  executed or about to be executed,
+  #     unless the shell is executing a command as the result of a trap,
+  #     in which case it is the command executing at the time of the trap.
+  #   PROMPT_COMMAND
+  #     If set, the value is executed as a command prior to issuing each
+  #     primary prompt.
+  #   DEBUG
+  #     Refer to the description of the extdebug option to the shopt builtin
+  #     for details of its effect  on  the  DEBUG  trap.
+  #   extdebug
+  #     If set, behavior intended for use by debuggers is enabled:
+  #     1.     The  -F option to the declare builtin displays the source file name and line number corresponding
+  #            to each function name supplied as an argument.
+  #     2.     If the command run by the DEBUG trap returns a non-zero value, the next command  is  skipped  and
+  #            not executed.
+  #     3.     If  the  command run by the DEBUG trap returns a value of 2, and the shell is executing in a sub‐
+  #            routine (a shell function or a shell script executed by the . or  source  builtins),  a  call  to
+  #            return is simulated.
+  #     4.     BASH_ARGC and BASH_ARGV are updated as described in their descriptions above.
+  #     5.     Function tracing is enabled:  command substitution, shell functions, and subshells invoked with (
+  #            command ) inherit the DEBUG and RETURN traps.
+  #     6.     Error tracing is enabled:  command substitution, shell functions, and subshells  invoked  with  (
+  #            command ) inherit the ERR trap.
+  # So:
+  #   Every time you run *any* command, auto.sh
+  #   crawls the tree looking for .ruby-version.
 
-# The github.com/postmodern/chruby README lists Anti-Features, starting with:
-#   - Does not hook cd.
-#   - Does not install executable shims.
-# However, it doesn't say what it does do instead!
-#   chruby/auto.sh sets a trap on DEBUG,
-#   and if $BASH_COMMAND != $PROMPT_COMMAND,
-#   it walks up the directory tree looking
-#   for a .ruby-version file on which to chruby.
-# Cmd:
-#   trap '[[ "$BASH_COMMAND" != "$PROMPT_COMMAND" ]] && chruby_auto' DEBUG
-# Ref:
-#   BASH_COMMAND
-#     The  command  currently  being  executed or about to be executed,
-#     unless the shell is executing a command as the result of a trap,
-#     in which case it is the command executing at the time of the trap.
-#   PROMPT_COMMAND
-#     If set, the value is executed as a command prior to issuing each
-#     primary prompt.
-#   DEBUG
-#     Refer to the description of the extdebug option to the shopt builtin
-#     for details of its effect  on  the  DEBUG  trap.
-#   extdebug
-#     If set, behavior intended for use by debuggers is enabled:
-#     1.     The  -F option to the declare builtin displays the source file name and line number corresponding
-#            to each function name supplied as an argument.
-#     2.     If the command run by the DEBUG trap returns a non-zero value, the next command  is  skipped  and
-#            not executed.
-#     3.     If  the  command run by the DEBUG trap returns a value of 2, and the shell is executing in a sub‐
-#            routine (a shell function or a shell script executed by the . or  source  builtins),  a  call  to
-#            return is simulated.
-#     4.     BASH_ARGC and BASH_ARGV are updated as described in their descriptions above.
-#     5.     Function tracing is enabled:  command substitution, shell functions, and subshells invoked with (
-#            command ) inherit the DEBUG and RETURN traps.
-#     6.     Error tracing is enabled:  command substitution, shell functions, and subshells  invoked  with  (
-#            command ) inherit the ERR trap.
-# So:
-#   Every time you run *any* command, auto.sh
-#   crawls the tree looking for .ruby-version.
+  # 2017-05-03: I'm disabling this. Seems redonkulous.
+  # You have ``gogo`` command et al to accomplish same.
+  # And then you're not spinning up dir every time you
+  # run a Bash command. And it's not not that's slow,
+  # it's just the principal of the thing, man.
+  if false; then
+    if [[ -f /usr/local/share/chruby/auto.sh ]]; then
+      source /usr/local/share/chruby/auto.sh
+    fi
+  fi
 
-# 2017-05-03: I'm disabling this. Seems redonkulous.
-# You have ``gogo`` command et al to accomplish same.
-# And then you're not spinning up dir every time you
-# run a Bash command. And it's not not that's slow,
-# it's just the principal of the thing, man.
-if false; then
-if [[ -f /usr/local/share/chruby/auto.sh ]]; then
-  source /usr/local/share/chruby/auto.sh
-fi
-fi
-
-if [[ -z ${HOMEFRIES_WARNINGS+x} ]]; then
-  # Usage, e.g.:
-  #   HOMEFRIES_WARNINGS=true bash
-  HOMEFRIES_WARNINGS=false
-fi
+  if [[ -z ${HOMEFRIES_WARNINGS+x} ]]; then
+    # Usage, e.g.:
+    #   HOMEFRIES_WARNINGS=true bash
+    HOMEFRIES_WARNINGS=false
+  fi
+}
+source_deps
 
 # Here we monkey patch the chruby function -- we replace
 # the chruby fcn. with our own wrapper function.
@@ -240,4 +241,10 @@ ruby_set_rspec_alias () {
 
 # 2017-06-25 18:24
 # alias rake=/home/landonb/.rubies/ruby-2.3.3/bin/rake
+
+main() {
+  :
+}
+
+main "$@"
 

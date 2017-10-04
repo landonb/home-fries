@@ -2,7 +2,7 @@
 
 # File: setup_ubuntu.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.08.01
+# Last Modified: 2017.10.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -86,7 +86,14 @@ if [[ ! -e ../lib/bash_base.sh ]]; then
 fi
 DEBUG_TRACE=false
 source ../lib/bash_base.sh
-# ${script_absbase} is now the absolute path to this script's directory.
+# ${SCRIPT_DIR} is now the absolute path to this script's directory.
+
+source_deps() {
+  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
+  # Load: determine_window_manager
+  source ${curdir}/../lib/distro_util.sh
+}
+source_deps
 
 # ------------------------------------------
 # Configuration
@@ -206,12 +213,9 @@ user_home_conf_dump() {
 #     copy-and-paste anything to make debugging this script easier.
 
 setup_ready_print_env () {
-
   # FIXME: 2015.01.26: This script is probably out-of-sync.
   set | grep "=" | grep \
-    -e script_relbase \
-    -e script_absbase \
-    -e script_path \
+    -e SCRIPT_DIR \
     -e USE_DOMAIN \
     -e USE_MOUNTPT \
     -e USE_PROJECT_USERGROUPS \
@@ -281,7 +285,7 @@ setup_mint_17_stage_1_apt_get_install () {
 
     #sudo apt-get install dconf-tools
     sudo apt-get install -y dconf-cli
-    user_home_conf_dump "${script_absbase}/conf_dump/new_01"
+    user_home_conf_dump "${SCRIPT_DIR}/conf_dump/new_01"
 
     # *** Install wmctrl so we can determine the window manager.
 
@@ -440,11 +444,11 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       # FIXME: You could use `expect` here to send the pwd to the terminal.
       #
       sudo apt-get install -y pwgen
-      if [[ ! -e ${script_absbase}/fries-setup-mysql.pwd ]]; then
+      if [[ ! -e ${SCRIPT_DIR}/fries-setup-mysql.pwd ]]; then
         MYSQL_PASSWORD=$(pwgen -n 16 -s -N 1 -y)
-        echo "${MYSQL_PASSWORD}" > ${script_absbase}/fries-setup-mysql.pwd
+        echo "${MYSQL_PASSWORD}" > ${SCRIPT_DIR}/fries-setup-mysql.pwd
       else
-        MYSQL_PASSWORD=`cat ${script_absbase}/fries-setup-mysql.pwd`
+        MYSQL_PASSWORD=`cat ${SCRIPT_DIR}/fries-setup-mysql.pwd`
       fi
       echo
       echo "*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!"
@@ -1527,14 +1531,14 @@ setup_mint_17_stage_4_extras () {
 
   # *** Make a snapshot of the user's home directory, maybe.
 
-  user_home_conf_dump "${script_absbase}/conf_dump/usr_04"
+  user_home_conf_dump "${SCRIPT_DIR}/conf_dump/usr_04"
 
   # *** Install Dubsacks VIM.
 
   echo
   echo "Installing Dubsacks Vim..."
   echo
-  ${script_absbase}/vendor_dubsacks.sh
+  ${SCRIPT_DIR}/vendor_dubsacks.sh
 
   # *** Tweak the Window Manager Configuration.
 
@@ -1553,7 +1557,7 @@ setup_mint_17_stage_4_extras () {
   # The new hot: MATE on Mint.
   if $WM_IS_MATE; then
     echo "Sourcing custom_setup.mate.sh"
-    source ${script_absbase}/custom_setup.mate.sh
+    source ${SCRIPT_DIR}/custom_setup.mate.sh
   fi
 
   # Setup third-party apps that are not found in the official repos.
@@ -1562,7 +1566,7 @@ setup_mint_17_stage_4_extras () {
   if [[ ${INSTALL_ALL_PACKAGES_ANSWER} == "Y" ]]; then
     echo
     echo "Installing Extras..."
-    source ${script_absbase}/custom_setup.extras.sh
+    source ${SCRIPT_DIR}/custom_setup.extras.sh
     if [[ ${IS_HEADED_MACHINE_ANSWER} == "Y" ]]; then
       setup_customize_extras_go
     else
@@ -1587,12 +1591,12 @@ setup_mint_17_stage_4_extras () {
   #             vendor_dubsacks.sh which was already called.
   echo
   echo "Skipping vendor setup files:"
-  for vfname in $(find ${script_absbase} \
+  for vfname in $(find ${SCRIPT_DIR} \
                     -maxdepth 1 \
                     -type f \
                     -name "vendor_*.sh"); do
-    #source ${script_absbase}/${vfname}
-    echo "${script_absbase}/${vfname}"
+    #source ${SCRIPT_DIR}/${vfname}
+    echo "${SCRIPT_DIR}/${vfname}"
   done
 
   # Update the `locate` db.

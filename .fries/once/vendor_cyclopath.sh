@@ -1,6 +1,6 @@
 # File: vendor_cyclopath.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.11
+# Last Modified: 2017.10.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Cyclopath IDE setup script.
 # License: GPLv3
@@ -71,7 +71,7 @@ stage_4_meld_configure () {
   /bin/chmod 2700 /home/$USER/.gconf/apps/meld
   if $WM_IS_MATE; then
     /bin/cp -f \
-      ${script_absbase}/target/cyclopath/home/user/.gconf/apps/meld/%gconf.xml-mate \
+      ${SCRIPT_DIR}/target/cyclopath/home/user/.gconf/apps/meld/%gconf.xml-mate \
       /home/$USER/.gconf/apps/meld/%gconf.xml
     # MAYBE: There are also keys in gconftool-2, just after the existing meld
     #        entry. Might the absense of these conflict with the %gconf.xml?
@@ -125,7 +125,7 @@ stage_4_meld_configure () {
   elif $WM_IS_CINNAMON; then
     # Configure Meld (Monospace 9 pt font; show line numbers).
     /bin/cp -f \
-      ${script_absbase}/target/cinnamon/home/user/.gconf/apps/meld/%gconf.xml-cinnamon \
+      ${SCRIPT_DIR}/target/cinnamon/home/user/.gconf/apps/meld/%gconf.xml-cinnamon \
       /home/$USER/.gconf/apps/meld/%gconf.xml
   fi
 
@@ -196,7 +196,7 @@ stage_4_cyclopath_install () {
 
   m4 \
     --define=PGSQL_SHBU=$PGSQL_SHBU \
-      ${script_absbase}/target/cyclopath/etc/postgresql/${POSTGRESABBR}/main/postgresql.conf \
+      ${SCRIPT_DIR}/target/cyclopath/etc/postgresql/${POSTGRESABBR}/main/postgresql.conf \
     | sudo tee /etc/postgresql/${POSTGRESABBR}/main/postgresql.conf \
     &> /dev/null
   sudo /etc/init.d/postgresql restart

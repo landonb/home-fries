@@ -1,13 +1,13 @@
 #!/bin/bash
 # File: setup.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.12
+# Last Modified: 2017.10.03
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Colorful Bash Logger
 # License: GPLv3
 # vim:tw=0:ts=2:sw=2:et:norl:
 
-SCRIPT_DIR="$(dirname ${BASH_SOURCE[0]})"
+SCRIPT_DIR=$(dirname -- "${BASH_SOURCE[0]}")
 
 # Load colors.
 source ${SCRIPT_DIR}/color_util.sh

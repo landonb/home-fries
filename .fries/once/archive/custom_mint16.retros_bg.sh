@@ -1,6 +1,6 @@
 # File: custom_mint16.retros.bg.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.10
+# Last Modified: 2017.10.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Custom Mint16 Login Screen and Desktop Background.
 # License: GPLv3
@@ -27,12 +27,12 @@ exit 1
 # substitute any image of your own that makes you want to log into a
 # heartless machine and spend a lot of time working.
 
-USE_GREETER_THEME="${script_absbase}/target/mint16-mdm/usr/share/mdm/html-themes/Retrosoft"
+USE_GREETER_THEME="${SCRIPT_DIR}/target/mint16-mdm/usr/share/mdm/html-themes/Retrosoft"
 
 # You can use any jpeg or png image as a background. Specify it here.
-USE_GREETER_IMAGE="${script_absbase}/assets/ccp-mint16-greeter-by-landonb.jpg"
+USE_GREETER_IMAGE="${SCRIPT_DIR}/assets/ccp-mint16-greeter-by-landonb.jpg"
 
-USE_DESKTOP_IMAGE="${script_absbase}/assets/ccp-mint16-desktop-by-landonb.jpg"
+USE_DESKTOP_IMAGE="${SCRIPT_DIR}/assets/ccp-mint16-desktop-by-landonb.jpg"
 
 # -- Remote resources. Maybe.
 
