@@ -11,13 +11,14 @@
 # Usage: Source this script. Call its functions. Use its exports.
 
 source_deps() {
-#  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
-#  source ${curdir}/bash_base.sh
-#  # Load: die
-#  source ${curdir}/process_util.sh
-  source bash_base.sh
+  # source defaults to the current directory, but the caller's,
+  # so this won't always work:
+  #   source bash_base.sh
+  #   source process_util.sh
+  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
+  source ${curdir}/bash_base.sh
   # Load: die
-  source process_util.sh
+  source ${curdir}/process_util.sh
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

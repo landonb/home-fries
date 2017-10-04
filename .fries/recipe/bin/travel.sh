@@ -21,21 +21,18 @@ function errexit_cleanup () {
 }
 trap errexit_cleanup EXIT
 
-# LATER/STYLE/2017-10-04: Decide if you should rely on $PATH or not.
-#
-# E.g., this works, and looks cleaner:
-#
-#   source bash_base.sh
-#   # Load: ssh_agent_kick
-#   source ssh_util.sh
-#
-# than this:
 source_deps() {
+  # We could rely on $PATH to have ~/.fries/lib on it, e.g.,
+  #   source bash_base.sh
+  # or we could just be more robust and explicit, and not rely
+  # on user having set up their PATH properly (especially since
+  # what we're sourcing lives in the same repository).
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
-  source ${curdir}/bash_base.sh
+  source ${curdir}/../../lib/bash_base.sh
   # Load: ssh_agent_kick
-  source ${curdir}/ssh_util.sh
+  source ${curdir}/../../lib/ssh_util.sh
 }
+source_deps
 
 # ***
 
