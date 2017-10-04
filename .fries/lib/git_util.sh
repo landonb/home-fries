@@ -1,20 +1,19 @@
+#!/bin/bash
+# Last Modified: 2017.10.03
+# vim:tw=0:ts=2:sw=2:et:norl:
+
 # File: .fries/lib/git_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.03
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
 # License: GPLv3
-# vim:tw=0:ts=2:sw=2:et:norl:
 
-FRIES_GIT_ISSUES_DETECTED=false
-export FRIES_GIT_ISSUES_DETECTED
+# Usage: Source this script. Call its functions. Use its exports.
 
-FRIES_GIT_ISSUES_RESOLUTIONS=()
-export FRIES_GIT_ISSUES_RESOLUTIONS
-
-if [[ -z ${FRIES_FAIL_ON_GIT_ISSUE+x} ]]; then
-  FRIES_FAIL_ON_GIT_ISSUE=false
-fi
+source_deps() {
+  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
+  source ${curdir}/bash_base.sh
+}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # find_git_parent
@@ -921,20 +920,15 @@ echo "FIXME: \`rake tagGitRepo\` should wait for build to complete..."
 # git-jockey
 
 git-jockey () {
-
   find_git_parent .
-
   #echo "REPO_PATH: $REPO_PATH"
-
   if [[ -n $REPO_PATH ]]; then
-
     # Just the basics, I suppose.
     TOPLEVEL_COMMON_FILE=()
     TOPLEVEL_COMMON_FILE+=(".ignore")
     TOPLEVEL_COMMON_FILE+=(".agignore")
     TOPLEVEL_COMMON_FILE+=(".gitignore")
     TOPLEVEL_COMMON_FILE+=("README.rst")
-
     #echo "Checking single dirty files..."
     for ((i = 0; i < ${#TOPLEVEL_COMMON_FILE[@]}; i++)); do
       DIRTY_BNAME=$(basename -- "${TOPLEVEL_COMMON_FILE[$i]}")
@@ -948,9 +942,7 @@ git-jockey () {
         echo "Skipping ${DIRTY_BNAME}"
       fi
     done
-
   fi
-
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -991,10 +983,6 @@ git_status_all () {
     fi
   done
 }
-
-alias git_st_all='git_status_all'
-# Hrmm... gitstall? I'm not sold on any alias yet...
-alias gitstall='git_status_all'
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -1041,8 +1029,28 @@ function cis_git() {
   fi
 }
 
-alias git='cis_git'
-#unalias git
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+main() {
+  source_deps
+
+  FRIES_GIT_ISSUES_DETECTED=false
+  export FRIES_GIT_ISSUES_DETECTED
+
+  FRIES_GIT_ISSUES_RESOLUTIONS=()
+  export FRIES_GIT_ISSUES_RESOLUTIONS
+
+  if [[ -z ${FRIES_FAIL_ON_GIT_ISSUE+x} ]]; then
+    FRIES_FAIL_ON_GIT_ISSUE=false
+  fi
+
+  alias git_st_all='git_status_all'
+  # Hrmm... gitstall? I'm not sold on any alias yet...
+  alias gitstall='git_status_all'
+
+  alias git='cis_git'
+  #unalias git
+}
+
+main "$@"
 
