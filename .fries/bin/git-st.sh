@@ -3,7 +3,7 @@
 
 # File: git-st.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.11.22
+# Last Modified: 2017.10.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Helpful `git st`, `git add -p`, and `git diff` wrapper
 #          used to hide acceptably deviant repository changes.
@@ -136,7 +136,7 @@ prepare_grep_exclude () {
       # 2016-10-24: Because of color, line ends: .[m | 1B 5B 6D 0A
       #             Also need grep -P to use line termination match$.
       curr_dir=$(readlink -f .)
-      abs_path=$(readlink -f ${ref_file})
+      abs_path=$(readlink -f -- "${ref_file}")
       ref_path=${abs_path#${curr_dir}/}
       echod "curr_dir: ${curr_dir}"
       echod "abs_path: ${abs_path}"

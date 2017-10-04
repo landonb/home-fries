@@ -9,7 +9,7 @@
 # a remote development machine or a machine on the CS network.
 # Note: BASH_SOURCE stores the name of the file being sourced
 # (whereas $0 stores the name of the executable, e.g., 'bash').
-HARD_PATH=$(dirname $(readlink -f $BASH_SOURCE))
+HARD_PATH=$(dirname -- $(readlink -f -- "${BASH_SOURCE}"))
 source ${HARD_PATH}/bashrc.cyclopath.loc.home.sh
 source ${HARD_PATH}/bashrc.cyclopath.loc.work.sh
 
@@ -282,7 +282,7 @@ remake () {
       echo "I give up\!"
    fi
    # Get the ccp working directory, i.e., ../..
-   working_dir=$(basename `dirname $PWD`)
+   working_dir=$(basename -- $(dirname -- "${PWD}"))
    fixperms --public ../../${working_dir}/
    # FIXME: Add wincopy behavior (from flashclient/Makefile)
 } # re
@@ -506,7 +506,7 @@ cp_basedir () {
     cp_dir=`pwd`
     $VERBOSE && echoerr "cp_basedir: pwd: $cp_dir"
   else
-    cp_dir=`readlink -f $cp_dir`
+    cp_dir=$(readlink -f -- "${cp_dir}")
     $VERBOSE && echoerr "cp_basedir: resolved path: $cp_dir"
   fi
   if [[ ! -d "$cp_dir" ]]; then
@@ -744,7 +744,7 @@ alias putcps='cpput cp -r ${CS_HOSTNAME}'
 fixcpf () {
    # Assumes you're one-deep in Cyclopath folder, e.g., in flashclient/.
    # MAYBE: See Cyclopath source for fcn. to find source folder base.
-   working_dir=$(basename `dirname $PWD`)
+   working_dir=$(basename -- $(dirname -- "$PWD"))
    fixperms --public ../../${working_dir}/
 }
 

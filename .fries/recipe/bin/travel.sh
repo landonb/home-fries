@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.09.13
+# Last Modified: 2017.10.03
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # FIXME/2017-02-08: Conflicts are not being caught!
@@ -91,7 +91,7 @@ fi
 # ~/.curly/setup.sh makes symlinks in the user's private dotfiles destination,
 # which means this script could be running as a symlink, and we gotta dance.
 
-SCRIPT_ABS_PATH="$(readlink -f ${BASH_SOURCE[0]})"
+SCRIPT_ABS_PATH=$(readlink -f -- "${BASH_SOURCE[0]}")
 
 find_git_parent ${SCRIPT_ABS_PATH}
 FRIES_ABS_DIRN=${REPO_PATH}
@@ -1037,8 +1037,8 @@ locate_and_clone_missing_repo () {
     echo "  ==================================================== "
     echo "  MISSING: ${check_repo}"
     echo "     REPO: ${remote_orig}"
-    parent_dir=$(dirname ${check_repo})
-    repo_name=$(basename ${check_repo})
+    parent_dir=$(dirname -- "${check_repo}")
+    repo_name=$(basename -- "${check_repo}")
     if [[ ! -d ${parent_dir} ]]; then
       echo
       echo "  MKDIR: Creating new parent_dir: ${parent_dir}"
@@ -1349,7 +1349,7 @@ function populate_gardened_repo () {
   echo " ${ENCFS_REL_PATH}"
   # We don't -type d so that you can use symlinks.
   while IFS= read -r -d '' fpath; do
-    TARGET_BASE=$(basename ${fpath})
+    TARGET_BASE=$(basename -- "${fpath}")
     TARGET_PATH="${ENCFS_REL_PATH}/${TARGET_BASE}"
     if [[ ! -d ${fpath}/.git ]]; then
       echo " skipping (no .git): $(pwd -P)/${TARGET_PATH}"
@@ -1437,7 +1437,7 @@ function init_travel () {
 #    echo " ${ENCFS_REL_PATH}"
 #    # We don't -type d so that you can use symlinks.
 #    while IFS= read -r -d '' fpath; do
-#      TARGET_PATH="${ENCFS_REL_PATH}/$(basename ${fpath})"
+#      TARGET_PATH="${ENCFS_REL_PATH}/$(basename -- "${fpath}")"
 #      if [[ -d ${fpath}/.git ]]; then
 #        if [[ ! -e ${TARGET_PATH}/.git ]]; then
 #          echo " $fpath"
@@ -1588,7 +1588,7 @@ function git_commit_dirty_sync_repos () {
   echo "Checking single dirty files..."
   for ((i = 0; i < ${#AUTO_GIT_ONE[@]}; i++)); do
     echo " ${AUTO_GIT_ONE[$i]}"
-    DIRTY_BNAME=$(basename ${AUTO_GIT_ONE[$i]})
+    DIRTY_BNAME=$(basename -- "${AUTO_GIT_ONE[$i]}")
     git_commit_generic_file "${AUTO_GIT_ONE[$i]}" "Update ${DIRTY_BNAME}."
   done
 
@@ -1613,6 +1613,7 @@ function git_status_porcelain_wrap () {
     echo "ERROR: git_status_porcelain failed."
     #echo "exit_code: ${exit_code}"
     if [[ ${exit_code} -eq 2 ]]; then
+      local script_name=$(basename -- "$0")
       echo "Are you internetted? If not, try:"
       echo "  ${script_name} packme -s"
     fi
@@ -1632,7 +1633,7 @@ function check_gardened_repo () {
       echo "  - Skipping .git-less directory: ${fpath}"
       :
     else
-      TARGET_BASE=$(basename ${fpath})
+      TARGET_BASE=$(basename -- "${fpath}")
       if [[ ${TARGET_BASE#TBD-} != ${TARGET_BASE} ]]; then
         echo "  - Skipping resource with TBD-*: ${fpath}"
         :
@@ -1657,7 +1658,7 @@ function check_repos_statuses () {
     GREPPERS=''
     if [[ ${SKIP_THIS_DIRTY} = true && ${ENCFS_GIT_REPOS[$i]} == ${FRIES_ABS_DIRN} ]]; then
       # Tell git_status_porcelain to ignore this dirty file, travel.sh.
-      THIS_SCRIPT_NAME="$(basename ${SCRIPT_ABS_PATH})"
+      THIS_SCRIPT_NAME=$(basename -- "${SCRIPT_ABS_PATH}")
       #GREPPERS='| grep -v " travel.sh$"'
       #
       GREPPERS="${GREPPERS} | grep -v \" ${THIS_SCRIPT_NAME}\$\""
@@ -1671,7 +1672,7 @@ function check_repos_statuses () {
       #
       #echo "GREPPERS: ${GREPPERS}"
     fi
-    #git_status_porcelain_wrap "$(basename ${ENCFS_GIT_REPOS[$i]})"
+    #git_status_porcelain_wrap "$(basename -- "${ENCFS_GIT_REPOS[$i]}")"
     git_status_porcelain_wrap "${ENCFS_GIT_REPOS[$i]}"
     popd &> /dev/null
   done
@@ -1726,12 +1727,12 @@ function pull_gardened_repo () {
   ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
   echo " ${ENCFS_REL_PATH}"
   while IFS= read -r -d '' fpath; do
-    TARGET_BASE=$(basename ${fpath})
+    TARGET_BASE=$(basename -- "${fpath}")
     TARGET_PATH="${ENCFS_REL_PATH}/${TARGET_BASE}"
     if [[ -d ${TARGET_PATH}/.git && ! -h ${TARGET_PATH} ]]; then
       if [[ ${TARGET_BASE#TBD-} == ${TARGET_BASE} ]]; then
         echo "  $fpath"
-        SOURCE_PATH="${PREFIX}${ABS_PATH}/$(basename ${fpath})"
+        SOURCE_PATH="${PREFIX}${ABS_PATH}/$(basename -- "${fpath}")"
         #echo "\${SOURCE_PATH}: ${SOURCE_PATH}"
         #echo "\${TARGET_PATH}: ${TARGET_PATH}"
         git_pull_hush "${SOURCE_PATH}" "${TARGET_PATH}"
@@ -1820,12 +1821,12 @@ function make_plaintext () {
 
     # FIXME/MAYBE: Enforce rule: Starts with leading '/'.
     ARCHIVE_SRC=${PLAINTEXT_ARCHIVES[$i]}
-    ARCHIVE_NAME=$(basename ${ARCHIVE_SRC})
+    ARCHIVE_NAME=$(basename -- "${ARCHIVE_SRC}")
 
     # Resolve to real full path, if symlink. (I can't remember why I do this.
     # And I only ever did it for /ccp/dev/cp.)
     if [[ -h ${ARCHIVE_SRC} ]]; then
-      ARCHIVE_SRC=$(readlink -f ${ARCHIVE_SRC})
+      ARCHIVE_SRC=$(readlink -f -- "${ARCHIVE_SRC}")
     fi
 
     ARCHIVE_REL=$(echo ${ARCHIVE_SRC} | /bin/sed s/^.//)
@@ -1999,7 +2000,7 @@ function unpack_plaintext_archives () {
     fi
 
     # Does the unpack target already exist? If so, move it to delete it.
-    TARGETPATH=${UNPACKERED_PATH}/$(basename ${fpath})
+    TARGETPATH=${UNPACKERED_PATH}/$(basename -- "${fpath}")
     if [[ -e ${TARGETPATH} ]]; then
       /bin/mv ${TARGETPATH} ${UNPACK_TBD}
     fi
@@ -2013,7 +2014,7 @@ function unpack_plaintext_archives () {
     shopt -s dotglob
 
     for zpath in ${fpath}/*.tar.gz; do
-      if [[ $(basename ${zpath}) != '*.tar.gz' ]]; then
+      if [[ $(basename -- "${zpath}") != '*.tar.gz' ]]; then
         echo " tar xzf${TAR_VERBOSE} ${zpath}"
         tar xzf${TAR_VERBOSE} ${zpath}
       # else, No such file or directory
@@ -2198,9 +2199,9 @@ function prepare_shim () {
   if [[ $git_result -eq 0 ]]; then
     # travel.sh is dirty; use it and not the travel one.
     USE_GOOEY=false
-    echo " Using local $(basename ${SCRIPT_ABS_PATH})"
+    echo " Using local $(basename -- "${SCRIPT_ABS_PATH}")"
   else
-    echo " Using gooey $(basename ${SCRIPT_ABS_PATH})"
+    echo " Using gooey $(basename -- "${SCRIPT_ABS_PATH}")"
   fi
 
   PREFIX=""

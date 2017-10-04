@@ -3,7 +3,7 @@ A General Linux Setup Guide For Developers
 ##########################################
 
 .. Author: Landon Bouma
-.. Last Modified: 2017.09.12
+.. Last Modified: 2017.10.03
 .. Project Page: https://github.com/landonb/home_fries
 
 ========
@@ -222,7 +222,7 @@ Do something like this to mount your Windows partition in Linux:
    # If you always want to mount this partition on boot,
    # first, get the drive's UUID.
    DEVICE_UUID=$(ls -l /dev/disk/by-uuid/ \
-                 | grep `basename $DEVICE_NAME` \
+                 | grep $(basename -- "${DEVICE_NAME}") \
                  | awk '{print $9}')
    echo $DEVICE_UUID # Just to make sure.
 

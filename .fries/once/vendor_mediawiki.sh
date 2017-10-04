@@ -574,7 +574,7 @@ stage_4_mediawiki_install () {
 
   # Download the remote file if the path is relative, indicating as such
   # (from $REMOTE_RESOURCES_URI).
-  if [[ -n $USE_WIKIDB_DUMP && $(dirname $USE_WIKIDB_DUMP) == "." ]]; then
+  if [[ -n $USE_WIKIDB_DUMP && $(dirname -- "${USE_WIKIDB_DUMP}") == "." ]]; then
     if [[ -z $REMOTE_RESOURCES_URI ]]; then
       echo
       echo "ERROR: Set REMOTE_RESOURCES_URI or abs path for USE_WIKIDB_DUMP"

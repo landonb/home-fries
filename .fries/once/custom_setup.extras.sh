@@ -2816,10 +2816,10 @@ stage_4_android_studio () {
   # /bin/rm stderrs on empty lines:
   #  echo ${OLD_DLS[@]} | xargs /bin/rm
   for old_file in ${OLD_DLS[@]}; do
-    #echo "old_file: $old_file"
-    if [[ -n $old_file ]]; then
-      /bin/rm $old_file
-      old_unpacked=$(dirname $old_file)
+    #echo "old_file: ${old_file}"
+    if [[ -n "${old_file}" ]]; then
+      /bin/rm "${old_file}"
+      old_unpacked=$(dirname -- "${old_file}")
       if [[ -d ${old_unpacked} ]]; then
         echo "Removing old_unpacked: ${old_unpacked}"
         /bin/rm -rf ${old_unpacked}
@@ -4044,7 +4044,7 @@ stage_4_pass__fix_gnome_keyring_hijack () {
   mkdir -p ${HOME}/.config/autostart
   cd ${HOME}/.config/autostart
   for gk_path in /etc/xdg/autostart/gnome-keyring-*; do
-    gk_file=$(basename ${gk_path})
+    gk_file=$(basename -- "${gk_path}")
     if [[ ! -e ${HOME}/.config/autostart/${gk_file} ]]; then
       /bin/cp /etc/xdg/autostart/${gk_file} ${HOME}/.config/autostart/
       echo 'Hidden=true' >> ${HOME}/.config/autostart/${gk_file}

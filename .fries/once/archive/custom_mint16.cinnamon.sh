@@ -304,7 +304,7 @@ stage_4_wm_customize_cinnamon_part_2 () {
     #echo $dtop_file
     m4 --define=TARGETUSER=$USER \
       $dtop_file \
-      > ~/$home_path/`basename $dtop_file`
+      > ~/$home_path/$(basename -- "${dtop_file}")
   done
   # Similar to: IFS=$' \t\n'
   IFS=$OLD_IFS

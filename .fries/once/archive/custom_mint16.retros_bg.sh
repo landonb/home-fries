@@ -52,7 +52,7 @@ stage_4_wm_customize_login_and_dtop_bg () {
 
   # Download the remote file, maybe.
   if [[ -n $USE_DESKTOP_IMAGE \
-        && $(dirname $USE_DESKTOP_IMAGE) == "." ]]; then
+        && $(dirname -- "${USE_DESKTOP_IMAGE}") == "." ]]; then
     if [[ -z $REMOTE_RESOURCES_URI ]]; then
       echo
       echo "ERROR: Set REMOTE_RESOURCES_URI or abs path for USE_DESKTOP_IMAGE"
@@ -76,7 +76,7 @@ stage_4_wm_customize_login_and_dtop_bg () {
     USER_BGS=/home/$USER/Pictures/.backgrounds
     /bin/mkdir -p $USER_BGS
     /bin/cp $USE_DESKTOP_IMAGE $USER_BGS
-    BG_FILE_PATH="$USER_BGS/`basename $USE_DESKTOP_IMAGE`"
+    BG_FILE_PATH="$USER_BGS/$(basename -- "${USE_DESKTOP_IMAGE}")
   fi
 
   if $WM_IS_MATE; then
@@ -104,7 +104,7 @@ stage_4_wm_customize_login_and_dtop_bg () {
   # Custom login screen.
 
   # Download the remote file, maybe.
-  if [[ -n $USE_GREETER_IMAGE && $(dirname $USE_GREETER_IMAGE) == "." ]];
+  if [[ -n $USE_GREETER_IMAGE && $(dirname -- "${USE_GREETER_IMAGE}") == "." ]];
     then
     if [[ -z $REMOTE_RESOURCES_URI ]]; then
       echo
@@ -128,7 +128,7 @@ stage_4_wm_customize_login_and_dtop_bg () {
 
   if [[ -n $USE_GREETER_IMAGE && -n $USE_GREETER_THEME ]]; then
 
-    THEME_NAME=$(basename $USE_GREETER_THEME)
+    THEME_NAME=$(basename -- "${USE_GREETER_THEME}")
 
     sudo /bin/cp -r \
       $USE_GREETER_THEME \

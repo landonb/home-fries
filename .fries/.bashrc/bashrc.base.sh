@@ -1,9 +1,10 @@
 # File: bashrc.base.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.05.03
+# Last Modified: 2017.10.03
 # Project Page: https://github.com/landonb/home_fries
 # Summary: Smart Bash Startup Script
 # License: GPLv3
+# vim:tw=0:ts=2:sw=2:et:norl:
 
 # Overview
 # ========
@@ -32,11 +33,11 @@ $DUBS_TRACE && echo "User's EUID is $EUID"
 
 # Get the path to this script's parent directory.
 # Doesn't work?!:
-#   hard_path=$(dirname $(readlink -f $0))
+#   hard_path=$(dirname $(readlink -f -- "$0"))
 # Carnally related:
 #   hard_path=$(dirname $(readlink -f ~/.bashrc))
 # Universally Bashy:
-hard_path=$(dirname $(readlink -f $BASH_SOURCE))
+hard_path=$(dirname $(readlink -f -- "${BASH_SOURCE}"))
 
 # System-wide Profile
 # ===================

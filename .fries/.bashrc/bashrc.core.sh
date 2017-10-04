@@ -72,7 +72,7 @@ if [[ -e /proc/version ]]; then
     : # noop
   else
     echo "WARNING: Unknown OS flavor ‘$(cat /proc/version)’"
-    echo "Please comment out this gripe or update the file ‘$(basename $0)’"
+    echo "Please comment out this gripe or update the file ‘$(basename -- "$0")’"
   fi
 else
   # /proc/version does not exist.
@@ -723,7 +723,7 @@ function device_on_which_file_resides() {
   elif [[ -h "$1" ]]; then
     # A symbolic link, so don't use the linked-to file's location, and don't
     # die if the link is dangling (df says "No such file or directory").
-    owning_device=$(df $(dirname "$1") | awk 'NR == 2 {print $1}')
+    owning_device=$(df $(dirname -- "$1") | awk 'NR == 2 {print $1}')
   else
     owning_device=""
     # 2017-06-03: For some reason, the caller checking $? for nonzero
@@ -749,7 +749,7 @@ function device_filepath_for_file() {
       echo "WARNING: Using relative path because not a file: $1"
     # else, df didn't find symlink because it points at non existant file.
     fi
-    device_path=$(df $(dirname "$1") | awk 'NR == 2 {for(i=7;i<=NF;++i) print $i}')
+    device_path=$(df $(dirname -- "$1") | awk 'NR == 2 {for(i=7;i<=NF;++i) print $i}')
   fi
   echo $device_path
 }
@@ -811,7 +811,7 @@ function rm_safe() {
   IFS=$'\n'
   local fpath=""
   for fpath in $*; do
-    local bname=$(basename "${fpath}")
+    local bname=$(basename -- "${fpath}")
     if [[ ${bname} == '.' || ${bname} == '..' ]]; then
       continue
     fi
@@ -859,7 +859,7 @@ function rm_safe() {
       # causes the response:
       #  /bin/mv: cannot move ‘symlink/’ to
       #   ‘/path/to/.trash/symlink.2015_12_03_14h26m51s_179228194’: Not a directory
-      /bin/mv "$(dirname "${fpath}")/${bname}" "${device_trashdir}/.trash/${fname}"
+      /bin/mv "$(dirname -- "${fpath}")/${bname}" "${device_trashdir}/.trash/${fname}"
     else
       # Ye olde original rm alias, now the unpreferred method.
       /bin/rm -i "${fpath}"
@@ -889,7 +889,7 @@ function cdd_() {
     #  cd "$1"
     if [[ $? -ne 0 ]]; then
       # Maybe the stupid user provided a path to a file.
-      pushd "$(dirname $1)" &> /dev/null
+      pushd $(dirname -- "$1") &> /dev/null
       if [[ $? -ne 0 ]]; then
         echo "You're dumb."
       else
@@ -1300,7 +1300,7 @@ dir_resolve () {
 # a filepath after following symlinks;
 # can be used in lieu of dir_resolve.
 symlink_dirname () {
-  echo $(dirname $(readlink -f $1))
+  echo $(dirname -- $(readlink -f -- "$1"))
 }
 
 #########################
@@ -1542,11 +1542,11 @@ webperms () {
   chmod -R u+rwX,g+rwX,o+rX $1 &> /dev/null || sudo chmod -R u+rwX,g+rwX,o+rX $1
   # Also fix the ancestor permissions.
   local cur_dir=$1
-  while [[ -n ${cur_dir} && $(dirname ${cur_dir}) != '/' ]]; do
+  while [[ -n ${cur_dir} && $(dirname -- "${cur_dir}") != '/' ]]; do
     ${DUBS_TRACE} && echo "Ancestor: ${cur_dir}"
     # NOTE: Not giving read access, just execute.
       chmod -R o+X ${cur_dir} &> /dev/null || sudo chmod -R o+X ${cur_dir}
-    local cur_dir=$(dirname ${cur_dir})
+    local cur_dir=$(dirname -- "${cur_dir}")
   done
 }
 
@@ -1731,7 +1731,7 @@ fffind () {
   # Go down the hierarchies...
   # Find all .agignore, .gitignore, and .anythingignore.
   for ignore_f in `find . -type f -name ".*ignore"`; do
-    local ignore_p=$(dirname ${ignore_f})
+    local ignore_p=$(dirname -- "${ignore_f}")
     while read fline; do
       # Bash regular expressions, eh.
       if [[ ! "${fline}" =~ ^[[:space:]]*# ]]; then
