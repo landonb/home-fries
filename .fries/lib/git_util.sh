@@ -160,7 +160,7 @@ git_commit_generic_file () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # git_commit_all_dirty_files
 
-function git_commit_all_dirty_files () {
+git_commit_all_dirty_files () {
 
   # 2016-10-18: I considered adding a `git add --all`, but that
   #             really isn't always desirable...
@@ -232,7 +232,7 @@ function git_commit_all_dirty_files () {
 # *** Git: check 'n commit, maybe
 
 # NOTE: This fcn. expects to be at the root of the git repo.
-function git_status_porcelain () {
+git_status_porcelain () {
 
   GIT_REPO=$1
   SKIP_REMOTE_CHECK=$2
@@ -531,7 +531,7 @@ function git_status_porcelain () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # git_dir_check
 
-function git_dir_check () {
+git_dir_check () {
   REPO_PATH=$1
   if [[ ! -d ${REPO_PATH} ]]; then
     SKIP_GIT_PULL=true
@@ -549,7 +549,7 @@ function git_dir_check () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # git_pull_hush
 
-function git_pull_hush () {
+git_pull_hush () {
   SOURCE_REPO=$1
   TARGET_REPO=$2
 
