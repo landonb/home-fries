@@ -10,6 +10,11 @@
 
 # Usage: Source this script. Call its functions. Use its exports.
 
+source_deps() {
+  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
+  source ${curdir}/bash_base.sh
+}
+
 # ============================================================================
 # *** Ubuntu-related
 
@@ -218,6 +223,8 @@ suss_postgres() {
 }
 
 main() {
+  source_deps
+
   suss_distro
   # FIXME/2017-10-03: Find-n-Replace: determine_window_manager => suss_window_manager
   determine_window_manager

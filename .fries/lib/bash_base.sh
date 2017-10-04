@@ -129,46 +129,6 @@ gather_script_meta() {
 }
 
 # ============================================================================
-# *** errexit respect.
-
-# Reset errexit to what it was . If we're not anticipating an error, make
-# sure this script stops so that the developer can fix it.
-#
-# NOTE: You can determine the current setting from the shell using:
-#
-#        $ set -o | grep errexit | /bin/sed -r 's/^errexit\s+//'
-#
-#       which returns on or off.
-#
-#       However, from within this script, whether we set -e or set +e,
-#       the set -o always returns the value from our terminal -- from
-#       when we started the script -- and doesn't reflect any changes
-#       herein. So use a variable to remember the setting.
-#
-reset_errexit () {
-  if $USING_ERREXIT; then
-    #set -ex
-    set -e
-  else
-    set +ex
-  fi
-}
-
-suss_errexit () {
-  shell_opts=$SHELLOPTS
-  set +e
-  echo $shell_opts | grep errexit >/dev/null 2>&1
-  if [[ $? -eq 0 ]]; then
-    USING_ERREXIT=true
-  else
-    USING_ERREXIT=false
-  fi
-  if ${USING_ERREXIT}; then
-	  set -e
-  fi
-}
-
-# ============================================================================
 # *** End of bashy goodness.
 
 main() {

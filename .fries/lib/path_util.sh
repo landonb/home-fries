@@ -10,6 +10,11 @@
 
 # Usage: Source this script. Call its functions. Use its exports.
 
+source_deps() {
+  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
+  source ${curdir}/process_util.sh
+}
+
 # ============================================================================
 # *** Path-related
 
@@ -285,7 +290,7 @@ ensure_directory_hierarchy_exists () {
 # *** Main.
 
 main() {
-  :
+  source_deps
 }
 
 main "$@"

@@ -21,6 +21,8 @@ function errexit_cleanup () {
 }
 trap errexit_cleanup EXIT
 
+source bash_base.sh
+
 # ***
 
 # Enable a little more echo, if you want.

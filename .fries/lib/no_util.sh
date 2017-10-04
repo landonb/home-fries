@@ -2,13 +2,18 @@
 # Last Modified: 2017.10.03
 # vim:tw=0:ts=2:sw=2:et:norl:
 
-# File: no_util.sh
+# File: .fries/lib/no_util.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Generic Bash function library.
 # License: GPLv3
 
 # Usage: Source this script. Call its functions. Use its exports.
+
+source_deps() {
+  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
+  source ${curdir}/bash_base.sh
+}
 
 # ============================================================================
 # *** Machine I.P. address
@@ -168,6 +173,8 @@ suss_machine_ip () {
 }
 
 main() {
+  source_deps
+
   # 2017-10-03: This one seems pointless:
   #suss_machine_ip
   :

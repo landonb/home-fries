@@ -25,6 +25,26 @@
 #                     Fifth Floor, Boston, MA 02110-1301, USA.
 # ===================================================================
 
+# ------------------------------------------
+# Bootstrap
+
+source_deps() {
+  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
+
+  local bash_base="${curdir}/../lib/bash_base.sh"
+  if [[ ! -e "${bash_base}" ]]; then
+    echo "Error: Expected to find ${bash_base}"
+    exit 1
+  fi
+  DEBUG_TRACE=false
+  source "${bash_base}"
+  # ${SCRIPT_DIR} is now the absolute path to this script's directory.
+
+  # Load: determine_window_manager
+  source "${curdir}/../lib/distro_util.sh"
+}
+source_deps
+
 set -e
 
 # ------------------------------------------
@@ -76,24 +96,6 @@ else
   echo 'Good luck!'
   echo
 fi
-
-# ------------------------------------------
-# Bootstrap
-
-if [[ ! -e ../lib/bash_base.sh ]]; then
-  echo "Error: Expected to find ../lib/bash_base.sh."
-  exit 1
-fi
-DEBUG_TRACE=false
-source ../lib/bash_base.sh
-# ${SCRIPT_DIR} is now the absolute path to this script's directory.
-
-source_deps() {
-  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
-  # Load: determine_window_manager
-  source ${curdir}/../lib/distro_util.sh
-}
-source_deps
 
 # ------------------------------------------
 # Configuration

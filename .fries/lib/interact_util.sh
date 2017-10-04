@@ -10,6 +10,11 @@
 
 # Usage: Source this script. Call its functions. Use its exports.
 
+source_deps() {
+  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
+  source ${curdir}/bash_base.sh
+}
+
 # ============================================================================
 # *** Question Asker and Input Taker.
 
@@ -127,7 +132,7 @@ ask_yes_no_default () {
 #  echo $the_choice
 
 main() {
-  :
+  source_deps
 }
 
 main "$@"

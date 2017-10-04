@@ -25,6 +25,12 @@ function errexit_cleanup () {
 }
 trap errexit_cleanup EXIT
 
+source_deps() {
+  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
+  source ${curdir}/../lib/bash_base.sh
+}
+source_deps
+
 # set -v
 #   Print shell input lines as they are read.
 #set -o verbose
