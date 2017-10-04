@@ -22,15 +22,16 @@ function errexit_cleanup () {
 trap errexit_cleanup EXIT
 
 source_deps() {
-  # We could rely on $PATH to have ~/.fries/lib on it, e.g.,
-  #   source bash_base.sh
-  # or we could just be more robust and explicit, and not rely
-  # on user having set up their PATH properly (especially since
-  # what we're sourcing lives in the same repository).
-  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
-  source ${curdir}/../../lib/bash_base.sh
+  # NOTE: We symlink ~/.fries/recipe/bin from ~/.fries/bin
+  #       so cannot rely on ${BASH_SOURCE[0]} to figure out
+  #       source path. Or, we could try multiple relative
+  #       paths and see which one works. Or, we could just
+  #       assume the user will have ~/.fries/lib on their
+  #       PATH and then we can just call `source` with the
+  #       filename and not worry about the directory path.
+  source bash_base.sh
   # Load: ssh_agent_kick
-  source ${curdir}/../../lib/ssh_util.sh
+  source ssh_util.sh
 }
 source_deps
 
