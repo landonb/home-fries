@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.03
+# Last Modified: 2017.10.09
 # Project Page: https://github.com/landonb/home-fries
 # Summary: One Developer's Bash Profile [Home-🍟]
 # License: GPLv3
@@ -2088,6 +2088,15 @@ export IGNOREEOF=9999999
 
 # 2016-09-24: Seriously? This is what's been hounding me forever?
 #             So that, e.g., `echo "!X"` works.
+#               $ set -o histexpand
+#               $ echo "!X"
+#               bash: !X: event not found
+#               $ echo !b
+#               echo bash
+#               bash
+#               $ set +o histexpand
+#               $ echo "!X"
+#               !X
 #             And I _rarely_ use !n to repeat a history command.
 #             Usually, I just up-arrow.
 #             Recently, I've been Ctrl-R'ing.
