@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.09
+# Last Modified: 2017.10.10
 # Project Page: https://github.com/landonb/home-fries
 # Summary: One Developer's Bash Profile [Home-🍟]
 # License: GPLv3
@@ -208,6 +208,11 @@ update_path_with_more_paths () {
   #   "Add RVM to PATH for scripting. Make sure this is the last PATH variable change."
   if [[ -d ${HOME}/.rvm/bin ]]; then
     path_suffix+=("${HOME}/.rvm/bin")
+  fi
+
+  # 2017-10-10...
+  if [[ -d ${OPT_DLOADS}/WebStorm-172.4155.35/bin ]]; then
+    path_suffix+=("${OPT_DLOADS}/WebStorm-172.4155.35/bin")
   fi
 
   # ============================
