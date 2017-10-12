@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.10
+# Last Modified: 2017.10.12
 # Project Page: https://github.com/landonb/home-fries
 # Summary: One Developer's Bash Profile [Home-🍟]
 # License: GPLv3
@@ -510,6 +510,9 @@ alias lll='ll --time-style=long-iso'  # 2017-07-10: Show timestamps always.
 alias lo='ll -rt'                     # Reverse sort by time.
 alias llo='lo --time-style=long-iso'  # 2017-07-10: You get the ideaa.
 alias lS='/bin/ls --color=auto -lhFaS' # Sort by size, from largest (show empties last).
+
+# 2017-10-12?
+alias t='tree'
 
 # Move a glob of files and include .dotted (hidden) files.
 alias mv_all='mv_dotglob'
