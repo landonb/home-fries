@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.10.04
+# Last Modified: 2017.10.16
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # File: .fries/lib/git_util.sh
@@ -677,6 +677,9 @@ git_pull_hush () {
 #      | grep -v "^Fetching [a-zA-Z0-9]*$" \
 #      | grep -v "^From " \
 #      | grep -v "^ \* branch "
+  # 2017-10-16: This is hanging. No ping github.com!
+  #   [Or ping google... drrr, new WiFi network added last week had
+  #    connect-automatically enabled by default, you scurvy bastards!]
   git fetch --all \
       | grep -v "^Fetching [a-zA-Z0-9]*$" \
       | grep -v "^ \* branch "
