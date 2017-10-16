@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.12
+# Last Modified: 2017.10.16
 # Project Page: https://github.com/landonb/home-fries
 # Summary: One Developer's Bash Profile [Home-🍟]
 # License: GPLv3
@@ -626,7 +626,24 @@ function ag_peek () {
 # I'm only doing this because The Silver Searcher is identifying
 # one of my reST files as binary, and I don't care to figure out
 # why.
-alias rg='rg --smart-case --hidden'
+#alias rg='rg --smart-case --hidden'
+# 2017-10-16: Output is difficult to read. Emulate The Silver Searcher.
+#  Colors: red, blue, green, cyan, magenta, yellow, white, black.
+#  Styles: nobold, bold, nointense, intense.
+#  Format is {type}:{attribute}:{value}.
+#    {type}: path, line, column, match.
+#    {attribute}: fg, bg style.
+#    {value} is either a color (for fg and bg) or a text style.
+alias rg="\
+  rg \
+    --smart-case \
+    --hidden \
+    --colors 'path:fg:yellow' \
+    --colors 'path:style:bold' \
+    --colors 'line:fg:green' \
+    --colors 'line:style:bold' \
+    --colors 'match:bg:white' \
+  "
 function rg_peek () {
   rg -A 0 -B 0 --hidden --follow --max-count 1 $* 2> /dev/null
 }
