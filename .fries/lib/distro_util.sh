@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.10.03
+# Last Modified: 2017.10.16
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # File: distro_util.sh
@@ -13,6 +13,7 @@
 source_deps() {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   source ${curdir}/bash_base.sh
+  source ${curdir}/process_util.sh
 }
 
 # ============================================================================
@@ -23,7 +24,7 @@ suss_distro() {
   if false; then
     # In the regex, \1 is the Fedora release, e.g., '14', and \2 is the friendly
     # name, e.g., 'Laughlin'.
-    set +e
+    tweak_errexit
     FEDORAVERSABBR=$(cat /etc/issue \
                      | grep Fedora \
                      | /bin/sed 's/^Fedora release ([0-9]+) \((.*)\)$/\1/')
@@ -51,7 +52,7 @@ determine_window_manager () {
   WM_IS_MATE=false # Pronouced, mah-tay!
   WM_IS_UNKNOWN=false
 
-  set +e
+  tweak_errexit
   WIN_MGR_INFO=`wmctrl -m >/dev/null 2>&1`
   if [[ $? -ne 0 ]]; then
     # E.g., if you're ssh'ed into a server, returns 1 and "Cannot open display."
@@ -204,7 +205,7 @@ suss_postgres() {
   # Note that if you alias sed, e.g., sed='sed -r', then you'll get an error if
   # you source this script from the command line (e.g., it expands to sed -r -r).
   # So use /bin/sed to avoid any alias.
-  set +e
+  tweak_errexit
   if [[ `command -v psql` ]]; then
     POSTGRESABBR=$( \
       psql --version \

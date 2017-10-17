@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.10.03
+# Last Modified: 2017.10.16
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # File: process_util.sh
@@ -13,6 +13,7 @@
 source_deps() {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   source ${curdir}/bash_base.sh
+  source ${curdir}/process_util.sh
 }
 
 # ============================================================================
@@ -23,7 +24,7 @@ source_deps() {
 # is not y or n (or one of some other two characters).
 ask_yes_no_default () {
   # Don't exit on error, since `read` returns $? != 0 on timeout.
-  set +e
+  tweak_errexit +e
   # Also -x prints commands that are run, which taints the output.
   set +x
 

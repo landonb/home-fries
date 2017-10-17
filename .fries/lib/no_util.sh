@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.10.03
+# Last Modified: 2017.10.16
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # File: .fries/lib/no_util.sh
@@ -13,6 +13,7 @@
 source_deps() {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   source ${curdir}/bash_base.sh
+  source ${curdir}/process_util.sh
 }
 
 # ============================================================================
@@ -41,7 +42,7 @@ source_deps() {
 #   ${CS_PRODUCTION} has address 123.456.78.90
 
 suss_machine_ip () {
-  set +e
+  tweak_errexit
 
   # 2016.03.23: On a new machine install,
   #             early into the standup,

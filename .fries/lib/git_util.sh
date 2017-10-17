@@ -17,7 +17,7 @@ source_deps() {
   #   source process_util.sh
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   source ${curdir}/bash_base.sh
-  # Load: die
+  # Load: die, reset_errexit, tweak_errexit
   source ${curdir}/process_util.sh
 }
 
@@ -81,7 +81,7 @@ git_check_generic_file () {
 
   pushd ${REPO_PATH} &> /dev/null
 
-  set +e
+  tweak_errexit
   git status --porcelain ${REPO_FILE} | grep "^\W*M\W*${REPO_FILE}" &> /dev/null
   grep_result=$?
   reset_errexit
@@ -119,7 +119,7 @@ git_commit_generic_file () {
 
   pushd ${REPO_PATH} &> /dev/null
 
-  set +e
+  tweak_errexit
   git status --porcelain ${REPO_FILE} | grep "^\W*M\W*${REPO_FILE}" &> /dev/null
   grep_result=$?
   reset_errexit
@@ -178,7 +178,7 @@ git_commit_all_dirty_files () {
     echo "Checking for git dirtiness at: ${REPO_PATH}"
 
     pushd ${REPO_PATH} &> /dev/null
-    set +e
+    tweak_errexit
 
     # We ignore untracted files here because they cannot be added
     # by a generic `git add -u` -- in fact, git should complain.
@@ -293,7 +293,7 @@ git_status_porcelain () {
   # Use eval's below because of the GREPPERS.
 
   unstaged_changes_found=false
-  set +e
+  tweak_errexit
   if ! ${USE_ALT_GIT_ST}; then
     # ' M' is modified but not added.
     eval git status --porcelain ${GREPPERS} | grep "^ M " &> /dev/null
@@ -312,7 +312,7 @@ git_status_porcelain () {
     echo "WARNING: Unstaged changes found in $GIT_REPO"
   fi
 
-  set +e
+  tweak_errexit
   # 'M ' is added but not committed!
   eval git status --porcelain ${GREPPERS} | grep "^M  " &> /dev/null
   grep_result=$?
@@ -322,7 +322,7 @@ git_status_porcelain () {
     echo "WARNING: Uncommitted changes found in $GIT_REPO"
   fi
 
-  set +e
+  tweak_errexit
   eval git status --porcelain ${GREPPERS} | grep "^?? " &> /dev/null
   grep_result=$?
   reset_errexit
@@ -331,7 +331,7 @@ git_status_porcelain () {
     echo "WARNING: Untracked files found in $GIT_REPO"
   fi
 
-  set +e
+  tweak_errexit
   if ! ${USE_ALT_GIT_ST} && ! ${DIRTY_REPO}; then
     if [[ -n ${GREPPERS} ]]; then
       eval git status --porcelain ${GREPPERS} &> /dev/null
@@ -387,7 +387,7 @@ git_status_porcelain () {
   #  Your branch is ahead of 'origin/master' by 281 commits.
 
   # But don't care if not really a remote, i.e., local origin.
-  set +e
+  tweak_errexit
   # Need to use grep's [-P]erl-defined regex that includes the tab character.
   git remote -v | grep -P "^origin\t\/" > /dev/null
   grep_result=$?
@@ -407,7 +407,7 @@ git_status_porcelain () {
       # think it's stuck doing that. So this method only works if the
       # local branch is also master:
       if false; then
-        set +e
+        tweak_errexit
         git status | grep "^Your branch is up-to-date with" &> /dev/null
         grep_result=$?
         reset_errexit
@@ -457,7 +457,7 @@ git_status_porcelain () {
       #     master            pushes to master            (local out of date)
       if ! ${SKIP_REMOTE_CHECK} && [[ -n ${SKIP_REMOTE_CHECK} ]]; then
 
-        set +e
+        tweak_errexit
         # If we didn't --no-color the branch_name, we'd have to strip-color.
         #  stripcolors='/bin/sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"'
         GIT_PUSH_STALENESS=$(git remote show origin \
@@ -467,7 +467,7 @@ git_status_porcelain () {
         reset_errexit
         if [[ $grep_result -ne 0 ]]; then
 
-          set +e
+          tweak_errexit
           git remote show origin 2>&1 | grep "^ssh: Could not resolve hostname "
           grep_result=$?
           reset_errexit
@@ -488,13 +488,13 @@ git_status_porcelain () {
           return 1
         fi
 
-        set +e
+        tweak_errexit
         echo ${GIT_PUSH_STALENESS} | grep "(up to date)" &> /dev/null
         grep_result=$?
         reset_errexit
         if [[ $grep_result -ne 0 ]]; then
 
-          set +e
+          tweak_errexit
           echo ${GIT_PUSH_STALENESS} | grep "(local out of date)" &> /dev/null
           grep_result=$?
           reset_errexit
@@ -600,7 +600,7 @@ git_pull_hush () {
   )
   #echo "TARGET_BRANCH: ${TARGET_BRANCH}"
 
-  set +e
+  tweak_errexit
   TARGET_REFNAME_BRANCH_NAME=$(git rev-parse --abbrev-ref --symbolic-full-name @{u})
   reset_errexit
   #echo "TARGET_REFNAME_BRANCH_NAME: ${TARGET_REFNAME_BRANCH_NAME}"
@@ -616,7 +616,7 @@ git_pull_hush () {
   if [[ -z ${SOURCE_BRANCH} ]]; then
     echo "FATAL: What?! No \$SOURCE_BRANCH for SOURCE_REPO: ${SOURCE_REPO}"
     pushd ${SOURCE_REPO} &> /dev/null
-    set +e
+    tweak_errexit
     git -c color.ui=off status | grep "^rebase in progress" > /dev/null
     rebase_in_progress=$?
     reset_errexit
@@ -672,7 +672,7 @@ git_pull_hush () {
   # Also, not all repo's remote is on the stick -- for many, it's github, dummy.
 #  git remote set-url origin ${EMISSARY}/gooey/${TARGET_REPO}
   # Disable errexit because grep returns 1 if nothing matches.
-  set +e
+  tweak_errexit
 #  git fetch ${SOURCE_REPO} 2>&1 \
 #      | grep -v "^Fetching [a-zA-Z0-9]*$" \
 #      | grep -v "^From " \
@@ -716,7 +716,7 @@ git_pull_hush () {
     set +f
     GIT_OUTPUT=$(git pull --rebase --autostash $SOURCE_REPO 2>&1)
     set -f
-    set +e
+    tweak_errexit
     #echo ${GIT_OUTPUT}
     echo ${GIT_OUTPUT} \
       | grep -v "^ \* branch            HEAD       -> FETCH_HEAD$" \
@@ -727,7 +727,7 @@ git_pull_hush () {
   fi
 
   if true; then
-    set +e
+    tweak_errexit
     #echo git pull --rebase --autostash $SOURCE_REPO 2>&1
     # NOTE: The Current branch grep doesn't work if like "feature/topic".
     #       But I kinda like seeing that.

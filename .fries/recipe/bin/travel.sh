@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.10.04
+# Last Modified: 2017.10.16
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # FIXME/2017-02-08: Conflicts are not being caught!
@@ -12,7 +12,7 @@
 #   You can run "git stash pop" or "git stash drop" at any time.
 
 set -e
-USING_ERREXIT=true
+
 function errexit_cleanup () {
   echo
   echo "ERROR: The script failed!!"
@@ -32,6 +32,8 @@ source_deps() {
   source bash_base.sh
   # Load: ssh_agent_kick
   source ssh_util.sh
+  # Load: tweak_errexit, reset_errexit, etc.
+  source process_util.sh
 }
 source_deps
 
@@ -193,7 +195,7 @@ fi
 # ***
 
 echod () {
-  set +e
+  tweak_errexit
   ${DEBUG} && echo "$*"
   reset_errexit
 }
@@ -481,7 +483,7 @@ function soups_on () {
   fi
 
   if ${DETERMINE_TRAVEL_DIR}; then
-    set +e
+    tweak_errexit
     determine_stick_dir "${PLEASE_CHOOSE_PART}"
   fi
 
@@ -913,7 +915,7 @@ setup_private_ssh_directory () {
   fi
 
   # 2016-11-12: Check that PasswordAuthentication is disabled.
-  set +e
+  tweak_errexit
   grep "^PasswordAuthentication no$" /etc/ssh/sshd_config &> /dev/null
   exit_code=$?
   reset_errexit
@@ -932,7 +934,7 @@ setup_private_ssh_directory () {
 
   # chase_and_face sets up SSH keys and then later `git clone`s
   # private repos, so make sure we're ready for the latter.
-  set +e
+  tweak_errexit
   ssh-add -l | grep "^The agent has no identities.$"
   exit_code=$?
   reset_errexit
@@ -997,7 +999,7 @@ setup_private_anacron () {
 
 setup_private_etc_fstab () {
   if [[ -f ${USERS_CURLY}/dev/$(hostname)/etc/fstab ]]; then
-    set +e
+    tweak_errexit
     diff ${USERS_CURLY}/dev/$(hostname)/etc/fstab /etc/fstab &> /dev/null
     ECODE=$?
     reset_errexit
@@ -1014,7 +1016,7 @@ setup_private_etc_fstab () {
 
 setup_private_update_db_conf () {
   if [[ -f ${USERS_CURLY}/dev/$(hostname)/etc/updatedb.conf ]]; then
-    set +e
+    tweak_errexit
     diff ${USERS_CURLY}/dev/$(hostname)/etc/updatedb.conf /etc/updatedb.conf &> /dev/null
     ECODE=$?
     reset_errexit
@@ -1073,7 +1075,7 @@ locate_and_clone_missing_repo () {
         # Checkout the source.
         pushd ${HOME}/.elsewhere &> /dev/null
         local git_resp=""
-        set +e
+        tweak_errexit
         if [[ ! -d ${repo_name} ]]; then
           ##git clone ${remote_orig} ${check_repo}
           #git clone ${remote_orig} ${repo_name}
@@ -1097,7 +1099,7 @@ locate_and_clone_missing_repo () {
         # Use associate array key so user can choose different name than repo.
         ##git clone ${remote_orig}
         #git clone ${remote_orig} ${check_repo}
-        set +e
+        tweak_errexit
         #git_resp=$(git clone ${remote_orig} ${check_repo} 2>&1)
         # 2017-02-27: Taking a while on work laptop. Wanting to see progress.
         git_resp=$(git clone ${remote_orig} ${check_repo})
@@ -1140,7 +1142,7 @@ locate_and_clone_missing_repos_helper () {
 } # end: locate_and_clone_missing_repos_helper
 
 locate_and_clone_missing_repos_header () {
-  set +e
+  tweak_errexit
   command -v user_locate_and_clone_missing_repos_header &> /dev/null
   USER_CMD_EXIT_CODE=$?
   reset_errexit
@@ -1188,7 +1190,7 @@ locate_and_clone_missing_repos () {
   #   locate_and_clone_missing_repos_helper on your own.
   echo " user_locate_and_clone_missing_repos"
   # Call private fcns. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
-  set +e
+  tweak_errexit
   command -v user_locate_and_clone_missing_repos &> /dev/null
   USER_CMD_EXIT_CODE=$?
   reset_errexit
@@ -1205,7 +1207,7 @@ function chase_and_face () {
 
   if ${HAMSTERING}; then
     echo " killing hamsters"
-    set +e
+    tweak_errexit
     #sudo killall hamster-service hamster-indicator
     killall hamster-service hamster-indicator
     reset_errexit
@@ -1258,7 +1260,7 @@ function chase_and_face () {
 
   echo " user_do_chase_and_face"
   # Call private fcns. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
-  set +e
+  tweak_errexit
   command -v user_do_chase_and_face &> /dev/null
   EXIT_CODE=$?
   reset_errexit
@@ -1303,7 +1305,7 @@ function mount_curly_emissary_gooey () {
   if [[ ! -e ${EMISSARY}/.gooey ]]; then
     /bin/cp -a ${USERS_CURLY}/.encfs6.xml ${EMISSARY}/.gooey
   fi
-  set +e
+  tweak_errexit
   mount | grep ${EMISSARY}/gooey &> /dev/null
   retval=$?
   reset_errexit
@@ -1322,13 +1324,13 @@ function mount_curly_emissary_gooey () {
 
 function umount_curly_emissary_gooey () {
   #echo "GOOEY: Unmount"
-  set +e
+  tweak_errexit
   mount | grep ${EMISSARY}/gooey > /dev/null
   exit_code=$?
   reset_errexit
   if [[ ${exit_code} -eq 0 ]]; then
     sleep 0.1 # else umount fails.
-    set +e
+    tweak_errexit
     fusermount -u ${EMISSARY}/gooey
     exit_code=$?
     reset_errexit
@@ -1472,7 +1474,7 @@ function init_travel () {
 
   popd &> /dev/null
 
-  set +e
+  tweak_errexit
   command -v user_do_init_travel &> /dev/null
   EXIT_CODE=$?
   reset_errexit
@@ -1617,7 +1619,7 @@ function git_commit_dirty_sync_repos () {
 # *** Git: check 'n fail
 
 function git_status_porcelain_wrap () {
-  set +e
+  tweak_errexit
   USING_ERREXIT=false
   git_status_porcelain $1 ${SKIP_INTERNETS}
   exit_code=$?
@@ -1702,7 +1704,7 @@ function check_repos_statuses () {
   done
 
   # Call private fcns. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
-  set +e
+  tweak_errexit
   command -v user_do_check_repos_statuses &> /dev/null
   EXIT_CODE=$?
   reset_errexit
@@ -1927,7 +1929,7 @@ function packme () {
     make_plaintext
 
     # Call private fcn. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
-    set +e
+    tweak_errexit
     command -v user_do_packme &> /dev/null
     EXIT_CODE=$?
     reset_errexit
@@ -2053,7 +2055,7 @@ function update_hamster_db () {
     echo
     echo "update_hamster_db: HAMSTERING"
 
-    set +e
+    tweak_errexit
     command -v hamster-love > /dev/null
     RET_VAL=$?
     reset_errexit
@@ -2153,7 +2155,7 @@ function unpack () {
   # pull_git_repos knows 'emissary' and 'dev-machine'.
   pull_git_repos 'dev-machine'
 
-  set +e
+  tweak_errexit
   command -v user_do_unpack &> /dev/null
   EXIT_CODE=$?
   reset_errexit
@@ -2244,7 +2246,7 @@ function prepare_shim () {
   echo "  Copying: ${PREFIX}${TRAVEL_TASKS_PATH}"
   /bin/cp -aLf ${PREFIX}${TRAVEL_TASKS_PATH} .
 
-  set +e
+  tweak_errexit
   command -v user_do_prepare_shim &> /dev/null
   EXIT_CODE=$?
   reset_errexit

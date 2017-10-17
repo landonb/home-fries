@@ -2,7 +2,7 @@
 
 # File: setup_ubuntu.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.04
+# Last Modified: 2017.10.16
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -48,6 +48,8 @@ source_deps() {
   source "${curdir}/../lib/interact_util.sh"
   # Load: ensure_directory_hierarchy_exists
   source "${curdir}/../lib/path_util.sh"
+  # Load: tweak_errexit/reset_errexit
+  source "${curdir}/../lib/process_util.sh"
 }
 source_deps
 
@@ -426,7 +428,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       gsettings set org.mate.screensaver idle-activation-enabled false
       gsettings set org.mate.screensaver lock-enabled false
     elif $WM_IS_CINNAMON; then
-      set +ex
+      tweak_errexit +ex
       gsettings set org.cinnamon.desktop.screensaver lock-enabled false \
         &> /dev/null
       reset_errexit
@@ -1292,7 +1294,7 @@ setup_mint_17_stage_2_virtualbox_guest_additions () {
     return
   fi
 
-  set +e
+  tweak_errexit +e
   # NOTE: This doesn't work for checking $? (the 2&> replaces it?)
   #        ll /opt/VBoxGuestAdditions* 2&> /dev/null
   ls -la /opt/VBoxGuestAdditions* &> /dev/null
@@ -1336,7 +1338,7 @@ setup_mint_17_stage_2_virtualbox_guest_additions () {
   # installed from a different source or using a different type of
   # installer." Type 'yes' to continue.
 
-  set +e
+  tweak_errexit +e
   sudo sh ./VBoxLinuxAdditions.run
   echo "Run return code: $?"
   reset_errexit
@@ -1665,7 +1667,7 @@ stage_4_sshd_configure () {
 
   if [[ -e /etc/ssh/sshd_config ]]; then
     if [[ ${IS_HEADED_MACHINE_ANSWER} == "Y" ]]; then
-      set +e
+      tweak_errexit +e
       grep "PasswordAuthentication no" /etc/ssh/sshd_config &> /dev/null
       exit_code=$?
       reset_errexit
@@ -1706,7 +1708,7 @@ stage_4_wm_customize_mint () {
   # From the Mint Menu in the lower-left, remove the text and
   # change the icon (e.g., to a playing die with five pips showing).
 
-  set +ex
+  tweak_errexit +ex
   GSETTINGS_MENU="com.linuxmint.mintmenu"
   gsettings list-schemas | grep "${GSETTINGS_MENU}" &> /dev/null
   if [[ $? -ne 0 ]]; then
@@ -1844,7 +1846,7 @@ setup_ubuntu_go () {
   #   virtualbox
   #   kvm
   #if [[ `sudo virt-what` != 'virtualbox' ]]; then ...; fi
-  set +e
+  tweak_errexit +e
   IN_VIRTUALBOX_VM=false
   sudo virt-what | grep 'virtualbox' &> /dev/null
   if [[ $? -eq 0 ]]; then

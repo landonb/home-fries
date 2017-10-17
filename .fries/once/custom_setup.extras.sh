@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.04
+# Last Modified: 2017.10.16
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -12,7 +12,6 @@ if [[ "$0" == "$BASH_SOURCE" ]]; then
   # 2016-11-12: Calling script. Die on error, so we can fix it.
   # set -e
   set -o errexit
-  USING_ERREXIT=true
 else
   # Sourcing script.
   set +o errexit
@@ -29,6 +28,7 @@ source_deps() {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   source ${curdir}/../lib/bash_base.sh
   source ${curdir}/../lib/fries_util.sh
+  source ${curdir}/../lib/process_util.sh
 }
 source_deps
 
@@ -120,7 +120,7 @@ stage_4_dropbox_install () {
   pushd ${OPT_BIN} &> /dev/null
 
   if [[ -e ${OPT_BIN}/dropbox.py ]]; then
-    set +e
+    tweak_errexit
     grep "^# This file is part of nautilus-dropbox 2015.10.28.$" ${OPT_BIN}/dropbox.py &> /dev/null
     exit_code=$?
     reset_errexit
@@ -373,7 +373,7 @@ stage_4_quicktile_install () {
     pushd ${OPT_DLOADS}/quicktile &> /dev/null
     # ./quicktile.py # Writes: ~/.config/quicktile.cfg
     # It also spits out the help and returns an error code.
-    set +e
+    tweak_errexit
     ./quicktile.py
     reset_errexit
     # ./setup.py build
@@ -498,7 +498,7 @@ stage_4_hamster_time_tracker_setup () {
     exit 1
   fi
 
-  set +e
+  tweak_errexit
   pkill -f hamster-service
   pkill -f hamster-windows-service
   reset_errexit
@@ -896,7 +896,7 @@ virtualbox-${LATEST_VBOX_VERS_MAJOR}_${LATEST_VBOX_VERSION_FULL}~Ubuntu~${UBUNTU
 
   fi # end: if False
 
-  set +e
+  tweak_errexit
   command -v virtualbox_update.sh
   exit_code=$?
   reset_errexit
@@ -1247,7 +1247,7 @@ stage_4_disable_services () {
   # 2016.03.23: Samba's not installed by default;
   #             this is all a no-op, right?
 
-  set +e
+  tweak_errexit
   # Stop it now.
   sudo service smbd stop
   # Have it not start in the future.
@@ -1270,7 +1270,7 @@ stage_4_spotify_install () {
   # From:
   #  https://www.spotify.com/us/download/previews/
 
-  set +e
+  tweak_errexit
   grep "repository.spotify.com" /etc/apt/sources.list &> /dev/null
   exit_code=$?
   reset_errexit
@@ -1774,7 +1774,7 @@ stage_4_font_google_noto () {
 
   wget_resp=$(wget -N https://noto-website.storage.googleapis.com/pkgs/Noto-hinted.zip 2>&1)
 
-  set +e
+  tweak_errexit
   echo $wget_resp | grep "no newer than.*not retrieving" > /dev/null
   exit_code=$?
   reset_errexit
@@ -1817,7 +1817,7 @@ stage_4_sqlite3 () {
   unzip -o -d ${SQLITE_BASE} ${SQLITE_BASE}.zip
 
   if [[ -e /usr/bin/sqlite3 ]]; then
-    set +e
+    tweak_errexit
     diff ${SQLITE_BASE}/${SQLITE_BASE}/sqlite3 /usr/bin/sqlite3 &> /dev/null
     exit_code=$?
     reset_errexit
@@ -2436,7 +2436,7 @@ stage_4_digikam5_from_distro () {
   echo
   return
 
-  set +e
+  tweak_errexit
   command -v digikam5
   exit_code=$?
   reset_errexit
@@ -2680,7 +2680,7 @@ stage_4_python_35 () {
   stage_announcement "stage_4_python_35"
 
   # Only do this for machines without python3.5.
-  set +e
+  tweak_errexit
   command -v python3.5 &> /dev/null
   exit_code=$?
   reset_errexit
@@ -2779,7 +2779,7 @@ stage_4_android_studio () {
 
   # For Kernel Virtual Machine (KVM).
   sudo apt-get install -y qemu-kvm libvirt-bin bridge-utils virt-manager
-  set +e
+  tweak_errexit
   groups | grep libvirtd &> /dev/null
   exit_code=$?
   reset_errexit
@@ -2857,7 +2857,7 @@ stage_4_android_studio () {
   #
   # So remove OpenJDK,
   # and install the <cough> *proper* proprietary Java from Oracle.
-  set +e
+  tweak_errexit
   java -version 2>&1 | grep OpenJDK &> /dev/null
   exit_code=$?
   reset_errexit
@@ -2924,7 +2924,7 @@ stage_4_android_studio () {
     popd &> /dev/null
 
     #grep "[:\"]\/usr\/local\/games[:\"]" /etc/environment &> /dev/null
-    set +e
+    tweak_errexit
     grep "^JAVA_HOME=${OPT_BIN}/jdk$" /etc/environment &> /dev/null
     exit_code=$?
     reset_errexit
@@ -3077,7 +3077,7 @@ stage_4_google_drive_drive () {
 
   stage_announcement "stage_4_google_drive_drive"
 
-  set +e
+  tweak_errexit
   command -v drive
   exit_code=$?
   reset_errexit
@@ -3254,7 +3254,7 @@ stage_4_optipng () {
 
   stage_announcement "stage_4_optipng"
 
-  set +e
+  tweak_errexit
   command -v optipng
   exit_code=$?
   reset_errexit
@@ -3420,7 +3420,7 @@ stage_4_pass__libgpg_error () {
 
   wget -N ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.24.tar.gz
   wget -N ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.24.tar.gz.sig
-  set +e
+  tweak_errexit
   gpg --verify libgpg-error-1.24.tar.gz.sig
   exit_code=$?
   reset_errexit
@@ -3464,7 +3464,7 @@ stage_4_pass__libassuan () {
 
   wget -N ftp://ftp.gnupg.org/gcrypt/libassuan/libassuan-2.4.3.tar.bz2
   wget -N ftp://ftp.gnupg.org/gcrypt/libassuan/libassuan-2.4.3.tar.bz2.sig
-  set +e
+  tweak_errexit
   gpg --verify libassuan-2.4.3.tar.bz2.sig
   exit_code=$?
   reset_errexit
@@ -3509,7 +3509,7 @@ stage_4_pass__libksba () {
   wget -N ftp://ftp.gnupg.org/gcrypt/libksba/libksba-1.3.4.tar.bz2
   wget -N ftp://ftp.gnupg.org/gcrypt/libksba/libksba-1.3.4.tar.bz2.sig
 
-  set +e
+  tweak_errexit
   gpg --verify libksba-1.3.4.tar.bz2.sig
   exit_code=$?
   reset_errexit
@@ -3562,7 +3562,7 @@ stage_4_pass__libpth () {
 # 2016-08-17: Whhere's their public key?
 #  gpg: Signature made Thu 08 Jun 2006 01:18:31 PM CDT using DSA key ID A9C09E30
 #  gpg: Can't check signature: public key not found
-  set +e
+  tweak_errexit
   gpg --verify pth-${LIBPTH_VERS}.tar.gz.sig
   exit_code=$?
   reset_errexit
@@ -3607,7 +3607,7 @@ stage_4_pass__libgcrypt () {
   wget -N ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-${LIBGCRYPT_VERS}.tar.gz
   wget -N ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-${LIBGCRYPT_VERS}.tar.gz.sig
 
-  set +e
+  tweak_errexit
   gpg --verify libgcrypt-${LIBGCRYPT_VERS}.tar.gz.sig
   exit_code=$?
   reset_errexit
@@ -3686,7 +3686,7 @@ stage_4_pass__gnupg_2 () {
   wget -N https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-${GPG2_VERS}.tar.bz2.sig
   # You'll need the public key loaded. See:
   #   stage_4_setup_gnupg_public_key
-  set +e
+  tweak_errexit
   # gpg --verify gnupg-2.0.30.tar.bz2.sig gnupg-2.0.30.tar.bz2
   gpg --verify gnupg-${GPG2_VERS}.tar.bz2.sig
   exit_code=$?
@@ -3979,12 +3979,12 @@ stage_4_pass__password_store () {
 
   PASS_VERS="1.6.5"
 
-  set +e
+  tweak_errexit
   command -v pass
   exit_code=$?
   reset_errexit
   if [[ ${exit_code} -eq 0 ]]; then
-    set +e
+    tweak_errexit
     pass --version | grep "${PASS_VERS}"
     exit_code=$?
     reset_errexit
@@ -4313,7 +4313,7 @@ stage_4_hipchat_client () {
 
   stage_announcement "stage_4_hipchat_client"
 
-  set +e
+  tweak_errexit
   command -v hipchat4
   exit_code=$?
   reset_errexit
@@ -4345,7 +4345,7 @@ stage_4_install_docker () {
 
   stage_announcement "stage_4_install_docker"
 
-  set +e
+  tweak_errexit
   command -v docker
   exit_code=$?
   reset_errexit
@@ -4425,7 +4425,7 @@ stage_4_install_docker () {
   # Create a docker group so your user doesn't have to sudo to docker.
   # https://docs.docker.com/engine/installation/linux/ubuntulinux/#/create-a-docker-group
   # This group already exists, at least on xenial after installing docker.
-  set +e
+  tweak_errexit
   sudo groupadd docker
   reset_errexit
   sudo usermod -aG docker $USER
@@ -4491,12 +4491,12 @@ stage_4_install_docker_compose () {
   DKRCPS_VERS="1.9.0-rc1"
   #DKRCPS_VERS="1.9.0-rc4"
 
-  set +e
+  tweak_errexit
   command -v docker-compose
   exit_code=$?
   reset_errexit
   if [[ ${exit_code} -eq 0 ]]; then
-    set +e
+    tweak_errexit
     docker-compose --version | grep "docker-compose version ${DKRCPS_VERS}, build"
     exit_code=$?
     reset_errexit
@@ -4539,7 +4539,7 @@ stage_4_openshift_client () {
 
   stage_announcement "stage_4_openshift_client"
 
-  set +e
+  tweak_errexit
   command -v oc
   exit_code=$?
   reset_errexit
@@ -4593,12 +4593,12 @@ stage_4_jq_cli_json_processor () {
 
   JQ_VERS="jq-1.5"
 
-  set +e
+  tweak_errexit
   command -v jq
   exit_code=$?
   reset_errexit
   if [[ ${exit_code} -eq 0 ]]; then
-    set +e
+    tweak_errexit
     jq --version | grep "^${JQ_VERS}$"
     exit_code=$?
     reset_errexit
@@ -4635,12 +4635,12 @@ stage_4_gnome_encfs_manager () {
 
   ENCFS_VERS="1.9.1"
 
-  set +e
+  tweak_errexit
   command -v encfs
   exit_code=$?
   reset_errexit
   if [[ ${exit_code} -eq 0 ]]; then
-    set +e
+    tweak_errexit
     # encfs --version prints to stderr.
     encfs --version 2>&1 | grep "^encfs version ${ENCFS_VERS}$"
     exit_code=$?
@@ -4790,12 +4790,12 @@ stage_4_exosite_setup () {
 
   if false; then
     EXOLINE_VERS="0.10.0"
-    set +e
+    tweak_errexit
     command -v exo
     exit_code=$?
     reset_errexit
     if [[ ${exit_code} -eq 0 ]]; then
-      set +e
+      tweak_errexit
       exo --version | grep "^Exosite Command Line ${EXOLINE_VERS}$"
       exit_code=$?
       reset_errexit

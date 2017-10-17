@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.10.03
+# Last Modified: 2017.10.16
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # File: path_util.sh
@@ -101,7 +101,7 @@ flock_dir () {
     FLOCKING_TIMELIMIT=0
   fi
 
-  set +e # Stay on error
+  tweak_errexit +e # Stay on error
 
   local fcn_time_0=$(date +%s.%N)
 
@@ -253,7 +253,7 @@ ensure_directory_hierarchy_exists () {
   local DIR_PATH=$1
   local cur_path=${DIR_PATH}
   local last_dir=''
-  set +ex
+  tweak_errexit +ex
   while [[ -n ${cur_path} && ! -e ${cur_path} ]]; do
     mkdir ${cur_path} &> /dev/null
     if [[ $? -eq 0 ]]; then
