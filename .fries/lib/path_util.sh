@@ -242,6 +242,8 @@ flock_dir () {
     exit 1
   fi
 
+  reset_errexit
+
   return $not_got_lock
 }
 

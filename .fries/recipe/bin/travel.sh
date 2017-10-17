@@ -485,6 +485,7 @@ function soups_on () {
   if ${DETERMINE_TRAVEL_DIR}; then
     tweak_errexit
     determine_stick_dir "${PLEASE_CHOOSE_PART}"
+    reset_errexit
   fi
 
   if [[ ${REQUIRES_SYNC_REPOS} && ! ${SOURCED_SYNC_REPOS} ]]; then
