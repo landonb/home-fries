@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.10.03
+# Last Modified: 2017.10.16
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # File: process_util.sh
@@ -58,7 +58,7 @@ die () {
 #       herein. So use a variable to remember the setting.
 #
 reset_errexit () {
-  if $USING_ERREXIT; then
+  if ${USING_ERREXIT}; then
     #set -ex
     set -e
   else
@@ -67,9 +67,9 @@ reset_errexit () {
 }
 
 suss_errexit () {
-  shell_opts=$SHELLOPTS
+  local shell_opts=${SHELLOPTS}
   set +e
-  echo $shell_opts | grep errexit >/dev/null 2>&1
+  echo ${shell_opts} | grep errexit >/dev/null 2>&1
   if [[ $? -eq 0 ]]; then
     USING_ERREXIT=true
   else
@@ -78,6 +78,12 @@ suss_errexit () {
   if ${USING_ERREXIT}; then
 	  set -e
   fi
+}
+
+tweak_errexit () {
+  local flags="${1:-+e}"
+  suss_errexit
+  set ${flags}
 }
 
 # ============================================================================
