@@ -17,7 +17,8 @@ else
   # so don't die...? Seems weird...
   set +o errexit
 fi
-function errexit_cleanup () {
+
+errexit_cleanup () {
   echo
   echo "ERROR: The script failed!!"
   # No exit necessary, unless we want to specify status.
