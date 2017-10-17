@@ -10,10 +10,11 @@
 
 if [[ "$0" == "$BASH_SOURCE" ]]; then
   # 2016-11-12: Calling script. Die on error, so we can fix it.
-  # set -e
+  # This is same as `set -e`, just more verbose/explicit:
   set -o errexit
 else
-  # Sourcing script.
+  # 2017-10-16: Sourcing script and not running installers,
+  # so don't die...? Seems weird...
   set +o errexit
 fi
 function errexit_cleanup () {

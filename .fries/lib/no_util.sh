@@ -10,6 +10,8 @@
 
 # Usage: Source this script. Call its functions. Use its exports.
 
+# 2017-10-16: NOTE: The functions herein are orphaned; not called. I think.
+
 source_deps() {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   source ${curdir}/bash_base.sh
