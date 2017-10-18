@@ -20,17 +20,13 @@ while [[ $# > 1 ]]; do
   shift
 done
 
-echo "FILE: ${FILE}"
-
 # Filter out false matches from class method regex
-echo /bin/sed \
-  -i '' \
-  -E '/^(if|switch|function|module\.exports|it|describe)	.+language:js$/d' \
+/bin/sed -i -r \
+  '/^(if|switch|function|module\.exports|it|describe)	.+language:js$/d' \
   ${FILE}
 
 # Filter out false matches from object definition regex
-echo /bin/sed \
-  -i '' \
-  -E '/var[ 	]+[a-zA-Z0-9_$]+[ 	]+=[ 	]+require\(.+language:js$/d' \
+/bin/sed -i -r \
+  '/var[ 	]+[a-zA-Z0-9_$]+[ 	]+=[ 	]+require\(.+language:js$/d' \
   ${FILE}
 
