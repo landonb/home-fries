@@ -1,5 +1,6 @@
 #!/bin/bash
 # Last Modified: 2017-10-19
+# vim:tw=0:ts=2:sw=2:et:norl:
 #
 # Buggers. Oracle VirtualBox update wrapper.
 
@@ -17,6 +18,11 @@ fi
 if [[ ! -d ${OPT_DLOADS} ]]; then
   echo "Not a directory: ${OPT_DLOADS}"
   exit 1
+fi
+
+NO_DOOVER=true
+if [[ -z $1 || $1 != "-f" ]]; then
+  NO_DOOVER=false
 fi
 
 virtualbox_dubs_update () {
@@ -92,12 +98,14 @@ virtualbox_dubs_update () {
   fi
 
   if [[ -e ${OPT_DLOADS}/${LATEST_VBOX_DEB_PKG} ]]; then
-    echo
-    echo "Skipping VirtualBox install: Already up to date"
-    echo
-    echo "Remove download if you want to start over: ${OPT_DLOADS}/${LATEST_VBOX_DEB_PKG}"
-    echo
-    exit 0
+    if ! ${NO_DOOVER}; then
+      echo
+      echo "Skipping VirtualBox install: Already up to date"
+      echo
+      echo "Remove download or use '-f' if you want to start over: ${OPT_DLOADS}/${LATEST_VBOX_DEB_PKG}"
+      echo
+      exit 0
+    fi
   fi
 
   wget -N \
@@ -120,6 +128,12 @@ virtualbox_dubs_update () {
 ###sudo apt remove virtualbox virtualbox-5.0 virtualbox-4.*
 if false; then
 sudo apt-get remove virtualbox-5.0
+fi
+
+# FIXME/2017-10-19: And again. On Lenovo X201. Been 2 months since last updates (or power on).
+#  sudo apt-get remove --purge virtualbox-*
+if false; then
+sudo apt-get remove virtualbox-5.1
 fi
 
   # Remove old files.
