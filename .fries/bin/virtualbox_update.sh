@@ -132,6 +132,7 @@ fi
 
 # FIXME/2017-10-19: And again. On Lenovo X201. Been 2 months since last updates (or power on).
 #  sudo apt-get remove --purge virtualbox-*
+# 2017-10-19: Ha: On desktop I have 5.1, and was told to update to latest 5.1, not 5.2...
 if false; then
 sudo apt-get remove virtualbox-5.1
 fi
