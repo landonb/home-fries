@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.16
+# Last Modified: 2017.10.18
 # Project Page: https://github.com/landonb/home-fries
 # Summary: One Developer's Bash Profile [Home-🍟]
 # License: GPLv3
@@ -1980,7 +1980,15 @@ if xprop -root &> /dev/null; then
         # Here's the view of the bottom row:
         #  L-Ctrl|Fn|Win|Alt|--Space--|Alt|Menu|Ctrl|Browse-back|Up-arrow|Broforward
         #                                             Left-Arrow|Down-arw|Right-Arrow
-        xmodmap -e "keycode 166 = Delete" # brobackward
+        #xmodmap -e "keycode 166 = Delete" # brobackward
+        # Use "mouse-over-submenu" key between Right Alt and Ctrl.
+        xmodmap -e "keycode 135 = Delete"
+
+        #xmodmap -e "keycode 166 = 112" # pageup
+        #xmodmap -e "keycode 167 = 117" # pagedown
+        xmodmap -e "keycode 166 = Page_Up"
+        xmodmap -e "keycode 167 = Page_Down"
+
         # 2015.02.28: At some point, browser-back stopped working, and I used
         #             right-ctrl instead, but now browser back is remapping again.
         #               xmodmap -e "keycode 105 = Delete" # right-ctrl
