@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.16
+# Last Modified: 2017.10.19
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -5907,11 +5907,15 @@ stage_4_libreoffice () {
   #  sudo apt-get remove --purge libreoffice-common
   sudo apt-get remove --purge libreoffice*
 
+  # https://www.libreoffice.org/download/download/
+  #
   #LIBRE_LATEST="5.2.6"
   #LIBRE_LATESTT="5.2.6.2"
   #
-  LIBRE_LATEST="5.4.1"
-  LIBRE_LATESTT="5.4.1.2"
+  #LIBRE_LATEST="5.4.1"
+  #LIBRE_LATESTT="5.4.1.2"
+  LIBRE_LATEST="5.4.2"
+  LIBRE_LATESTT="5.4.2.2"
 
   wget -N http://download.documentfoundation.org/libreoffice/stable/${LIBRE_LATEST}/deb/x86_64/LibreOffice_${LIBRE_LATEST}_Linux_x86-64_deb.tar.gz
 
@@ -6296,8 +6300,10 @@ stage_4_fcn_meld () {
   stage_announcement "stage_4_fcn_meld"
 
   # Ubuntu 16.04+:
-  try_meld="meld-3.17.4"
-  try_major="3.17"
+  #try_meld="meld-3.17.4"
+  #try_major="3.17"
+  try_meld="meld-3.18.0"
+  try_major="3.18"
   source /etc/lsb-release
   if [[ $DISTRIB_CODENAME == 'rebecca' ]]; then
     # Mint 17.X is rebecca is trusty is Ubuntu 14.04.
@@ -6323,7 +6329,16 @@ stage_4_fcn_meld () {
   #   $OPT_BIN/meld
   # May be a redirection issue? I.e., wrapper script loads python module,
   #   but path is to old meld package.
-  if [[ $DISTRIB_CODENAME == 'rebecca' ]]; then
+  #
+  # 2017-10-19: On Mint 18.2/sonya, build works, but running meld does not:
+  #
+  #    $ /usr/bin/meld
+  #    Traceback (most recent call last):
+  #      File "/usr/bin/meld", line 71, in <module>
+  #        import meld.conf
+  #    ImportError: No module named 'meld'
+  #
+  if [[ $DISTRIB_CODENAME == 'rebecca' || $DISTRIB_CODENAME == 'sonya' ]]; then
     # The build fails on 14.04.
     #    $ sudo python3 setup.py install --prefix=/usr
     #    ...
@@ -6339,6 +6354,9 @@ stage_4_fcn_meld () {
     cd ${OPT_BIN}
     ln -s /srv/opt/.downloads/${try_meld}/bin/meld
     sudo mv /usr/bin/meld /usr/bin/TBD-meld
+    # 2017-10-19: This, too, so panel launcher works.
+    cd /usr/bin
+    sudo /bin/ln -s /srv/opt/.downloads/${try_meld}/bin/meld
   else
     cd ${try_meld}
     sudo apt-get install -y itstool
