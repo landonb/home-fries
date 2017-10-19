@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017-10-04
+# Last Modified: 2017-10-19
 #
 # Buggers. Oracle VirtualBox update wrapper.
 
@@ -49,6 +49,9 @@ virtualbox_dubs_update () {
     elif [[ $DISTRIB_CODENAME == 'sarah' ]]; then
       # Mint 18 is sarah is xenial 16.04.
       DISTRIB_CODENAME=xenial
+    elif [[ $DISTRIB_CODENAME == 'sonya' ]]; then
+      # Mint 18.2 is sarah is xenial 16.04.
+      DISTRIB_CODENAME=xenial
     else
       echo
       echo "WARNING: Unknown LinuxMint distro -- not Rebecca, nor Sarah, but: $DISTRIB_CODENAME"
@@ -82,6 +85,9 @@ virtualbox_dubs_update () {
     echo
     echo "           $DOWNL_PATH"
     echo
+    echo " using:"
+    echo
+    echo "   grep \"${DISTRIB_CODENAME}_amd64\" $DOWNL_PATH"
     exit 2
   fi
 
