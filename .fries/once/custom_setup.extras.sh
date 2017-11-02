@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.19
+# Last Modified: 2017.11.02
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -1744,14 +1744,15 @@ stage_4_font_typeface_hack () {
 
     pushd ${OPT_DLOADS} &> /dev/null
 
-    wget -N https://github.com/chrissimpkins/Hack/releases/download/v2.010/Hack-v2_010-ttf.zip
+    #wget -N https://github.com/chrissimpkins/Hack/releases/download/v2.010/Hack-v2_010-ttf.zip
+    wget -N https://github.com/source-foundry/Hack/releases/download/v3.000/Hack-v3.000-ttf.zip
     mkdir -p ~/.fonts
     # Use -f to "freshen" only those file that are newer in the archive.
     # Hrmm, -f doesn't do anything if the files don't already exist...
-    if [[ ! -e ~/.fonts/Hack-v2_010-ttf ]]; then
-      unzip -d ~/.fonts/Hack-v2_010-ttf Hack-v2_010-ttf.zip
+    if [[ ! -e ~/.fonts/Hack-v3.000-ttf ]]; then
+      unzip -d ~/.fonts/Hack-v3.000-ttf Hack-v3.000-ttf.zip
     else
-      unzip -f -d ~/.fonts/Hack-v2_010-ttf Hack-v2_010-ttf.zip
+      unzip -f -d ~/.fonts/Hack-v3.000-ttf Hack-v3.000-ttf.zip
     fi
 
     popd &> /dev/null
