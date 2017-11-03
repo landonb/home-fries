@@ -3,7 +3,7 @@
 
 # File: ~/.fries/once/installers/vim_from_source.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.03
+# Last Modified: 2017.11.03
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -34,8 +34,22 @@ function vim_clone_compile_install () {
     git pull
   fi
   # src/Make_mvc.mak
+
+  # 2017-11-03: If commant-t does not work, e.g., Ctrl-D responds:
+  #   Vim Ruby version: 2.3.1-p112
+  #   Expected version: 2.3.3-p222
+  # Make sure you build command-t with the system Ruby:
+  #
+  #   cd ~/.vim/bundle/command-t/ruby/command-t/ext/command-t
+  #   chruby system
+  #   ruby extconf.rb
+  #   make
+
+  # 2017-11-03: I am not sure these environs do anything,
+  #   since the build just uses the system ruby...
   export RUBY_VER=23
   export RUBY_VER_LONG=2.3.3
+
   make clean
   #./configure
   #make
@@ -46,6 +60,7 @@ function vim_clone_compile_install () {
   make install
   # Test with:
   #   :ruby puts RUBY_DESCRIPTION
+  #   :!/usr/bin/ruby -v
 
   popd &> /dev/null
 
