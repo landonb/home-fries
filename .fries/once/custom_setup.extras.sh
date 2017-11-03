@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.11.02
+# Last Modified: 2017.11.03
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -1516,6 +1516,9 @@ stage_4_install_ruby_install () {
   ruby-install --latest ruby 2.0.0-p648
   # 2017-08-15: Whoopie!
   ruby-install --latest ruby 2.4.0
+  # 2017-11-03: ...
+  ruby-install --latest ruby 2.4.2
+  # 2017-11-03: NOTE: You have to /bin/bash for chruby to see any new version!
 
   wget -O chruby-0.3.9.tar.gz https://github.com/postmodern/chruby/archive/v0.3.9.tar.gz
   tar -xzvf chruby-0.3.9.tar.gz
