@@ -6791,4 +6791,6 @@ if [[ "$0" == "$BASH_SOURCE" ]]; then
 #       the name of the script that's sourcing this script.
 fi
 
-# See: stage_4_fcn_template
+trap - EXIT
+
+# Jump: stage_4_fcn_template
