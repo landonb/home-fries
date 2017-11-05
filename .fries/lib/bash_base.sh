@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.10.03
+# Last Modified: 2017.11.04
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # File: bash_base.sh
@@ -67,7 +67,7 @@ trace() {
 
 script_finished_print_time () {
   local time_1=$(date +%s.%N)
-  $DEBUG_TRACE && echo ""
+  #$DEBUG_TRACE && echo ""
   $DEBUG_TRACE && printf "All done: Elapsed: %.2F mins.\n" \
       $(echo "($time_1 - $script_time_0) / 60.0" | bc -l)
 }
