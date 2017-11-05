@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.11.03
+# Last Modified: 2017.11.04
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -76,14 +76,16 @@ source ./installers/_announcement.sh
 
 # *** Don't Repeat Yourself.
 
-if sudo -n true 2>/dev/null; then
-  # Has sudo already.
-  :
-else
-  #echo
-  echo "LET'S GET THE PARTY STARTED"
-  sudo -v
-fi
+ready_sudo () {
+  if sudo -n true 2>/dev/null; then
+    # Has sudo already.
+    :
+  else
+    #echo
+    echo "LET'S GET THE PARTY STARTED"
+    sudo -v
+  fi
+}
 
 # *** Ensure expected directories exist.
 
@@ -6783,6 +6785,7 @@ setup_customize_extras_go () {
 
 if [[ "$0" == "$BASH_SOURCE" ]]; then
   # Only call the setup fcns. if this script is being run and not sourced.
+  ready_sudo
   setup_customize_extras_go
 # else, $BASH_SOURCE is not the name of this script; it's
 #       the name of the script that's sourcing this script.
