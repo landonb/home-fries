@@ -1741,31 +1741,52 @@ stage_4_font_typeface_hack () {
     return
   fi
 
-  stage_announcement "stage_4_font_typeface_hack"
-
   stage_4_indirect_user_fonts
 
-  if [[ ! -e ~/.fonts/Hack-v2_010-ttf/Hack-Regular.ttf ]]; then
+  stage_announcement "stage_4_font_typeface_hack"
 
-    pushd ${OPT_DLOADS} &> /dev/null
+  pushd ${OPT_DLOADS} &> /dev/null
 
-    #wget -N https://github.com/chrissimpkins/Hack/releases/download/v2.010/Hack-v2_010-ttf.zip
-    wget -N https://github.com/source-foundry/Hack/releases/download/v3.000/Hack-v3.000-ttf.zip
+  # FIXME/2017-11-04: Periodically look for updates. On this and other download-installs.
+  #   Perhaps: anacron job. Script name: refuse. Like, redo infuse? Or just infuse...
+  #     make infuse script that sources this file and runs certain functions...
+
+  #HACK_VERS_MAJOR=v2
+  #HACK_VERS_MINOR=010
+  HACK_VERS_MAJOR=v3
+  HACK_VERS_MINOR=000
+
+  HACK_VERS=${HACK_VERS_MAJOR}.${HACK_VERS_MINOR}
+  HACK_FILE=Hack-${HACK_VERS}-ttf
+
+  LATEST_VERS=$(
+    curl -s https://api.github.com/repos/source-foundry/Hack/releases/latest \
+      | jq -r '.tag_name'
+  )
+  if [[ "${LATEST_VERS}" != "${HACK_VERS}" ]]; then
+    echo "A new version of Hack! ${LATEST_VERS}"
+    # FIXME: Maybe adapt to their being a new version...
+    echo "MANUALLY FIX THIS TO CONTINUE, LAWYER DOG!!"
+    exit 1
+  fi
+
+  #if [[ ! -e ~/.fonts/Hack-${HACK_VERS_MAJOR}_${HACK_VERS_MINOR}-ttf/Hack-Regular.ttf ]]; then
+  if [[ ! -e ~/.fonts/Hack-${HACK_VERS_MAJOR}.${HACK_VERS_MINOR}-ttf/ttf/Hack-Regular.ttf ]]; then
+    wget -N https://github.com/source-foundry/Hack/releases/download/${HACK_VERS}/${HACK_FILE}.zip
     mkdir -p ~/.fonts
     # Use -f to "freshen" only those file that are newer in the archive.
     # Hrmm, -f doesn't do anything if the files don't already exist...
-    if [[ ! -e ~/.fonts/Hack-v3.000-ttf ]]; then
-      unzip -d ~/.fonts/Hack-v3.000-ttf Hack-v3.000-ttf.zip
+    if [[ ! -e ~/.fonts/${HACK_FILE} ]]; then
+      unzip -d ~/.fonts/${HACK_FILE} ${HACK_FILE}.zip
     else
-      unzip -f -d ~/.fonts/Hack-v3.000-ttf Hack-v3.000-ttf.zip
+      unzip -f -d ~/.fonts/${HACK_FILE} ${HACK_FILE}.zip
     fi
-
-    popd &> /dev/null
 
     # Build font information cache files.
     sudo fc-cache -fv
-
   fi
+
+  popd &> /dev/null
 
 } # end: stage_4_font_typeface_hack
 
