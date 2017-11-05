@@ -1684,7 +1684,7 @@ stage_4_indirect_user_fonts () {
     /bin/ln -s ${OPT_FONTS} ${HOME}/.fonts
   fi
 
-  sudo fc-cache -fv
+  #sudo fc-cache -fv
 
   popd &> /dev/null
 
@@ -1695,9 +1695,9 @@ stage_4_font_mania () {
     return
   fi
 
-  stage_announcement "stage_4_font_mania"
-
   stage_4_indirect_user_fonts
+
+  stage_announcement "stage_4_font_mania"
 
   do_update_cache=false
 
@@ -1774,9 +1774,9 @@ stage_4_font_google_noto () {
     return
   fi
 
-  stage_announcement "stage_4_font_google_noto"
-
   stage_4_indirect_user_fonts
+
+  stage_announcement "stage_4_font_google_noto"
 
   pushd ${OPT_DLOADS} &> /dev/null
 
