@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.11.04
+# Last Modified: 2017.11.11
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -5617,8 +5617,10 @@ stage_4_install_node_js () {
 
   #LATEST_VERS="v0.10.35"
   #LATEST_VERS="v6.9.1"
-  LATEST_VERS="v6.11.1"
-  #LATEST_VERS="v7.1.0"
+  #LATEST_VERS="v6.11.1"
+  ##LATEST_VERS="v7.1.0"
+  # 2017-11-11: Probably just want nvm.
+  LATEST_VERS="v8.9.1"
 
   # 2017-07-20: v6.9.1 was not x64?
   #wget -N http://nodejs.org/dist/${LATEST_VERS}/node-${LATEST_VERS}.tar.gz
@@ -5641,6 +5643,55 @@ stage_4_install_node_js () {
   popd &> /dev/null
 
 } # end: stage_4_install_node_js
+
+stage_4_install_nvm () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_install_nvm"
+
+  # See:
+  #  http://dareid.github.io/chakram/
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # 2017-11-11: npm install is not the path to installation:
+  #   $ npm install nvm
+  #   npm WARN deprecated nvm@0.0.4: This is NOT the correct nvm.
+  #     Visit http://nvm.sh and use the curl command to install it.
+
+  #curl https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh \
+  #curl https://raw.githubusercontent.com/creationix/nvm/v0.33.6/install.sh \
+  curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh \
+      --output nvm-creationix-install.sh
+  # FIXME: Inspect it!
+  #vim nvm-creationix-install.sh
+  chmod 755 nvm-creationix-install.sh
+  ./nvm-creationix-install.sh
+
+  # FIXME/2017-11-11: You need to edit/fix your bashrc:
+  #   $   ./nvm-creationix-install.sh
+  #   => nvm is already installed in ${HOME}/.nvm, trying to update using git
+  #   => => Compressing and cleaning up git repository
+  #
+  #   => Appending nvm source string to ${HOME}/.bashrc
+  #   => Appending bash_completion source string to ${HOME}/.bashrc
+  #   => Close and reopen your terminal to start using nvm or run the following to use it now:
+  #
+  #   export NVM_DIR="$HOME/.nvm"
+  #   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+  #   [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+  nvm install v6.9.4
+  #nvm install v6.11.3
+  #nvm install v8.5.0
+  #nvm install v8.7.0
+  nvm install v8.9.1
+
+  popd &> /dev/null
+
+} # end: stage_4_install_nvm
 
 stage_4_install_mocha () {
   if ${SKIP_EVERYTHING}; then
@@ -6447,7 +6498,7 @@ stage_4_long_live_silver_searcher_hoorah_ripgrep () {
   #  "  :/bin
   #  "  :/usr/games
   #  "  :/usr/local/games
-  #  "  :/home/landonb/.rvm/bin
+  #  "  :${HOME}/.rvm/bin
   cd /usr/local/bin
   # FIXME/2017-09-13: I am guessing you'll need a -f here the next time you install-OS.
   sudo /bin/ln -s /srv/opt/.downloads/ripgrep-${LATEST_BURNT_SUSHI_RIPGREP_VERSION}-i686-unknown-linux-musl/rg
@@ -6698,6 +6749,8 @@ setup_customize_extras_go () {
   stage_4_install_interactive_python_notebooks
 
   stage_4_install_node_js
+
+  stage_4_install_nvm
 
   stage_4_install_mocha
 
