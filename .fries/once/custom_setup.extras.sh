@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.11.11
+# Last Modified: 2017.11.17
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -5807,6 +5807,13 @@ stage_4_install_cassandra () {
   if ${SKIP_EVERYTHING}; then
     return
   fi
+
+  # 2017-11-17: Why did I install this?
+  #   It's not being used by anything, I don't think
+  #   (there's only the Test Cluster cluster)
+  #   and when I killed it, it freed up 4 GB!
+  #     sudo systemctl stop cassandra
+  #     sudo systemctl disable cassandra
 
   stage_announcement "stage_4_install_cassandra"
 
