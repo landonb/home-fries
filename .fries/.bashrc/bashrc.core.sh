@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.18
+# Last Modified: 2017.11.19
 # Project Page: https://github.com/landonb/home-fries
 # Summary: One Developer's Bash Profile [Home-🍟]
 # License: GPLv3
@@ -398,14 +398,8 @@ fi
 # Report status of terminated bg jobs immediately (same as set -b).
 set -o notify
 
-# Don't use ^D to exit.
-# set -o ignoreeof
-
 # Use case-insensitive filename globbing.
 shopt -s nocaseglob
-
-# Make bash append rather than overwrite the history on disk.
-# shopt -s histappend
 
 # When changing directory small typos can be ignored by bash
 # for example, cd /vr/lgo/apaache would find /var/log/apache.
@@ -440,19 +434,6 @@ fi
 # and it seems more useful for sysadmins doing typical adminy stuff and less anything I'm
 # missing out on.
 # Anyway, we'll enable it for now and see what happens....................................
-
-# History Options
-#################
-
-# Don't put duplicate lines in the history.
-# HISTCONTROL opts.: ignoredups ignorespace ignoreboth / erasedups
-export HISTCONTROL="ignoredups"
-
-# Ignore some controlling instructions.
-# export HISTIGNORE="[   ]*:&:bg:fg:exit"
-
-# Whenever displaying the prompt, write the previous line to disk.
-# export PROMPT_COMMAND="history -a"
 
 # SSH
 #####
@@ -2084,13 +2065,103 @@ fi
 export GPG_TTY=`tty`
 
 #########################
+# History Options
+#################
 
-# Show timestamps in bash history.
+# `history` shell variables
+# -------------------------
 
-export HISTTIMEFORMAT="%d/%m/%y %T "
+# Don't put duplicate lines in the history.
+# HISTCONTROL: colon-separated list of:
+#  ignorespace, ignoredups, or ignoreboth; erasedups.
+# 2017-11-19: Disabling. Point is to retain all!
+#export HISTCONTROL="ignoredups"
+
+# $HISTFILE: ~/.bash_history
 
 # 2017-02-20: HISTFILESIZE defaults to 500...
 export HISTFILESIZE=-1
+
+# HISTIGNORE: A colon-separated list of patterns.
+# - Normal shell pattern matching characters.
+# - `&' matches the previous history line.
+# - The second and subsequent lines of a multi-line compound
+#   command are not tested, but are added regardless. [Ha ha!]
+# 2017-11-19: From Someone Else's Dotfiles, I'm supposing:
+#  # Ignore some controlling instructions.
+#  export HISTIGNORE="[   ]*:&:bg:fg:exit"
+
+# 2017-11-19: More, please!
+# "When a shell with history enabled exits, the last $HISTSIZE lines
+#  are copied from the history list to $HISTFILE."
+# "The shell sets the default value to 500 after reading any startup files."
+export HISTSIZE=-1
+
+# Show timestamps in bash history.
+#  See `strftime` in `man bash` for format.
+#export HISTTIMEFORMAT="%d/%m/%y %T "
+# 2017-11-19: How did I overlook this for so long? Should be like `TTT`.
+export HISTTIMEFORMAT="%Y-%m-%d %T "
+
+# Whenever displaying the prompt, write the previous line to disk.
+# export PROMPT_COMMAND="history -a"
+
+# Related shell options: cmdhist, lithist.
+
+# `history` shell varible options
+# -------------------------------
+
+# 2016-09-24: Seriously? This is what's been hounding me forever?
+#             So that, e.g., `echo "!X"` works.
+#               $ set -o histexpand
+#               $ echo "!X"
+#               bash: !X: event not found
+#               $ echo !b
+#               echo bash
+#               bash
+#               $ set +o histexpand
+#               $ echo "!X"
+#               !X
+#             And I _rarely_ use !n to repeat a history command.
+#             Usually, I just up-arrow.
+#             Recently, I've been Ctrl-R'ing.
+#             But I'm always annoyed when a bang in a paragraph
+#             *confuses* the shell.
+# histexpand/-H: "Enable ! style history substitution.
+#                 On by default when the shell is interactive."
+set +o histexpand
+
+# Also: `set +/-history`. On by default.
+
+# `history` "optional shell behavior ... settings"
+# ------------------------------------------------
+
+# 2017-11-19: Bastards!
+# "If the histappend shell option is enabled..., the lines are appended to
+#  the history file, otherwise the history file is overwritten."
+# So make bash append rather than overwrite the history on disk.
+# 2017-11-19/MAYBE: The history file will only continue to grow! Watch it?
+shopt -s histappend
+
+# histreedit: "If set, and readline is being used, a user is given
+#  the opportunity to re-edit a failed history substitution."
+
+# histverify: Documented, but not part of my Bash! [2017-11-19]
+# "If set, and readline is being used, the results of history
+#  substitution are not immediately passed to the shell parser.
+#  Instead, the resulting line is loaded into the readline editing
+#  buffer, allowing further modification."
+
+#########################
+
+# 2015.08.30: Well, this is new: [lb] seeing Ctrl-D'ing to get outta
+#             Python propagating to Bash, which didn't usedta happen.
+#             So now force user to type `exit` to close Bash terminal.
+# 2016-09-23: Title better: Prevent Ctrl-D from exiting shell.
+# When you Ctrl-D, you'll see: `Use "exit" to leave the shell.`
+export IGNOREEOF=9999999
+# 2017-11-19: See also `set +ignoreeof` but that sets IGNOREEOF=10. #toofew
+# `set +o ignoreeof` clears IGNOREEOF; `set -o ignoreeof` sets IGNOREEOF=10.
 
 #########################
 
@@ -2109,33 +2180,6 @@ man() {
     LESS_TERMCAP_us=$(printf "\e[1;32m") \
     man "$@"
 }
-
-#########################
-
-# 2015.08.30: Well, this is new: [lb] seeing Ctrl-D'ing to get outta
-#             Python propagating to Bash, which didn't usedta happen.
-#             So now force user to type `exit` to close Bash terminal.
-# 2016-09-23: Title better: Prevent Ctrl-D from exiting shell.
-# When you Ctrl-D, you'll see: `Use "exit" to leave the shell.`
-export IGNOREEOF=9999999
-
-# 2016-09-24: Seriously? This is what's been hounding me forever?
-#             So that, e.g., `echo "!X"` works.
-#               $ set -o histexpand
-#               $ echo "!X"
-#               bash: !X: event not found
-#               $ echo !b
-#               echo bash
-#               bash
-#               $ set +o histexpand
-#               $ echo "!X"
-#               !X
-#             And I _rarely_ use !n to repeat a history command.
-#             Usually, I just up-arrow.
-#             Recently, I've been Ctrl-R'ing.
-#             But I'm always annoyed when a bang in a paragraph
-#             *confuses* the shell.
-set +o histexpand
 
 #########################
 
