@@ -403,7 +403,8 @@ shopt -s nocaseglob
 
 # When changing directory small typos can be ignored by bash
 # for example, cd /vr/lgo/apaache would find /var/log/apache.
-# shopt -s cdspell
+# 2017-11-19: Let's give this a try!
+shopt -s cdspell
 
 # Completion options
 ####################
