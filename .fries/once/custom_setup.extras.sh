@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.11.17
+# Last Modified: 2017.11.22
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -6514,6 +6514,25 @@ stage_4_long_live_silver_searcher_hoorah_ripgrep () {
 
 } # end: stage_4_long_live_silver_searcher_hoorah_ripgrep
 
+stage_4_install_vagrant () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_install_vagrant"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # 2017-11-22: Via:
+  #  https://www.vagrantup.com/downloads.html
+  wget -N https://releases.hashicorp.com/vagrant/2.0.1/vagrant_2.0.1_x86_64.deb?_ga=2.187996590.76193335.1511380178-644228641.1511380178
+
+  sudo dpkg -i vagrant_2.0.1_x86_64.deb?_ga=2.187996590.76193335.1511380178-644228641.1511380178
+
+  popd &> /dev/null
+
+} # end: stage_4_install_vagrant
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -6801,6 +6820,9 @@ setup_customize_extras_go () {
   # Grepper Need to Grep.
   stage_4_long_live_oh_what_ok_goodbye_awesomegrep
   stage_4_long_live_silver_searcher_hoorah_ripgrep
+
+  # 2017-11-22: How did I install this previously?
+  stage_4_install_vagrant
 
   # Add before this'n: stage_4_fcn_template.
 
