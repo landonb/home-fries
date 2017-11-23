@@ -444,6 +444,9 @@ stage_4_hamster_time_tracker_setup () {
 
   stage_announcement "stage_4_hamster_time_tracker_setup"
 
+# FIXME/2017-11-22: This whole ridiculous function needs to go away.
+#   See also the new hamster-lib, released Summer, 2016. Use that instead.
+
   # The application at `sudo apt-get install hamster-applet` is from 2010.
   # But it still seems better than the one on github. Just be sure to
   # also install hamster-indicator, in addition to hamster-applet.
@@ -522,6 +525,11 @@ stage_4_hamster_time_tracker_setup () {
     sudo /bin/cp -a \
         ${HAMSTER_PKGS}/overview_totals.py \
         ${HAMSTER_PKGS}/overview_totals.py.ORIG
+    # 2017-11-22: Bahhh. This is so dirty.
+    # FIXME: Use that new hamster instead! Which actually has an installer!
+    sudo /bin/cp -a \
+        ${HAMSTER_PKGS}/edit_activity.py \
+        ${HAMSTER_PKGS}/edit_activity.py.ORIG
   fi
 
   sudo /bin/cp -af \
@@ -530,6 +538,9 @@ stage_4_hamster_time_tracker_setup () {
   sudo /bin/cp -af \
       hamster-applet/src/hamster/overview_totals.py \
       ${HAMSTER_PKGS}/overview_totals.py
+  sudo /bin/cp -af \
+      hamster-applet/src/hamster/edit_activity.py \
+      ${HAMSTER_PKGS}/edit_activity.py
 
   popd &> /dev/null
 
