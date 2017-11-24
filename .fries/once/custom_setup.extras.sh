@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.11.22
+# Last Modified: 2017.11.23
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -4910,7 +4910,9 @@ stage_4_go_get_go () {
   #sudo apt-get dist-upgrade
 
   #GO_VERS="go1.8rc2"
-  GO_VERS="go1.8.1"
+  #GO_VERS="go1.8.1"
+  # 2017-11-23: Updating.
+  GO_VERS="go1.9.2"
   GO_TBAL="${GO_VERS}.linux-amd64.tar.gz"
   wget -N https://storage.googleapis.com/golang/${GO_TBAL}
   wget -N https://storage.googleapis.com/golang/${GO_TBAL}.sha256
