@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.11.23
+# Last Modified: 2017.12.05
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -6546,6 +6546,34 @@ stage_4_install_vagrant () {
 
 } # end: stage_4_install_vagrant
 
+stage_4_install_ffdiaporama () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_install_ffdiaporama"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # 2017-12-05: I found this at 2017-12-02 03:43 and used it to make
+  # a video of photos (with music!) that was presented to an audience
+  # at 2017-12-02 20:00 or thereabouts.
+
+  # ffDiaporama 2.1 / Latest stable release February 09 2014
+  #   http://ffdiaporama.tuxfamily.org/
+
+  sudo add-apt-repository -y ppa:ffdiaporamateam/stable
+  sudo apt-get update
+  sudo apt-get install -y ffdiaporama
+  sudo apt-get install -y ffdiaporama-texturemate
+  sudo apt-get install -y ffdiaporama-openclipart
+  # And then:
+  #   ffDiaporama &
+
+  popd &> /dev/null
+
+} # end: stage_4_install_ffdiaporama
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -6836,6 +6864,9 @@ setup_customize_extras_go () {
 
   # 2017-11-22: How did I install this previously?
   stage_4_install_vagrant
+
+  # 2017-12-05: Best, Most Awesome Photo-to-Video Software Ever!
+  stage_4_install_ffdiaporama
 
   # Add before this'n: stage_4_fcn_template.
 
