@@ -3,7 +3,7 @@
 
 # File: ~/.fries/once/installers/vim_from_source.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.11.08
+# Last Modified: 2017.12.05
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -59,8 +59,8 @@ function vim_clone_compile_install () {
   # - Add ruby for commandt
   # - Add python for ternjs
   ./configure \
-    --enable-rubyinterp=yes \
     --enable-python3interp=yes \
+    --enable-rubyinterp=yes \
     --prefix=${OPT_BIN:-/srv/opt/bin}
   # -j 3 to use 3 CPU cores to build.
   make -j 3
