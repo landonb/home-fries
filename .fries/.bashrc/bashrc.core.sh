@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.11.19
+# Last Modified: 2017.12.12
 # Project Page: https://github.com/landonb/home-fries
 # Summary: One Developer's Bash Profile [Home-🍟]
 # License: GPLv3
@@ -2354,6 +2354,10 @@ touch_datefile () {
 # 2017-02-07: Took you long enough!
 TTT () {
   echo "$(date +%Y-%m-%d)"
+}
+
+TTT. () {
+  echo "$(date +%Y.%m.%d)"
 }
 
 # 2017-02-27: Taking it even further.
