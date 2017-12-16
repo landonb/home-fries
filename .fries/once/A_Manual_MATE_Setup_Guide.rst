@@ -3,7 +3,7 @@ Manual Linux Distro Onboarding Instructions For Developers
 ##########################################################
 
 .. Author: Landon Bouma
-.. Last Modified: 2017.10.03
+.. Last Modified: 2017.12.16
 .. Project Page: https://github.com/landonb/home-fries
 
 Overview
@@ -397,7 +397,7 @@ A few ideas for configuring Firefox and Chrome:
   - http://www.linuxmint.com/searchengines.php
 
   - Then click on the Google icon beneath "Commercial Engines"
-    
+
   - (The page is
     http://www.linuxmint.com/searchengines/anse.php?sen=Google&c=y
     but it is blank unless loaded from the base page.)
@@ -405,7 +405,7 @@ A few ideas for configuring Firefox and Chrome:
 In ``chrome://settings/``:
 
 - On startup: [Select] Continue where you left off
-  
+
 - Appearance: [Deselect] Use system title bar and borders
 
 Configure Meld Preferences
@@ -426,7 +426,7 @@ Run Meld. Choose Preferences from the Meld menu. Click File Filters tab.
       Dubsacks Vim / Home Fries
 
     - Paths:
-      
+
     cmdt_paths dubs_cuts id_inner_a611_rsa* id_inner_bes_rsa* known_hosts fries-setup-mysql.pwd authorized_keys .trash .cache openterms.sh hamster-* hamster.bkups environment master_chef cron.daily cron.weekly cron.monthly Baby_Tubes_Files Backpacking_Files Bike_Files Bouma_Assets_II_FIXME Cooking_and_Consuming_Files Gaming_Files Health_Files Job_Hunting_Files Names_and_Faces_Files Packlists_Files Pending_Files Photography_Files
 
 #. Python bytecode

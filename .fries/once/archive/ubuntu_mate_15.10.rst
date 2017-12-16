@@ -12,7 +12,7 @@ VirtualBox New Machine
 ======================
 
  - The Wizard setup is simple.
-  
+
    - Give the machine a proper name and the
      OS and 32- or 64-bitness is detected.
 
@@ -34,7 +34,7 @@ VirtualBox New Machine
  - After finishing the Wizard, adjust the new machine's settings.
 
    - Shared Clipboard: Bidirectional
-  
+
    - Base Memory: 4096 MB or what you will, maybe just 3840
 
    - Processor(s): I'm generally happy sharing 2 of the 4
@@ -182,7 +182,7 @@ Open a MATE Terminal (via Applications > System Tools,
  - Turn off Show Menu Bar, if you want.
 
  - Set Profile Preferences:
-  
+
    x Allow bold text
 
    o Show menubar by default in new terminals
@@ -209,7 +209,7 @@ Update and Upgrade the OS
     gsettings set org.mate.screensaver lock-enabled false
 
     # Second, update and upgrade.
-    
+
     # 2016-03-23: `sudo apt-get update` terminates early with an error.
     #               "E: dpkg was interrupted, you must manually run
     #                'sudo dpkg --configure -a' to correct the problem."

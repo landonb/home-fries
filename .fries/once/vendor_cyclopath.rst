@@ -2,7 +2,7 @@ Manual Cyclopath Configuration Steps and Gotchas
 ================================================
 
 .. Author: Landon Bouma
-.. Last Modified: 2017.10.03
+.. Last Modified: 2017.12.16
 .. Project Page: https://github.com/landonb/home-fries
 
 After installing Cyclopath, perform manual configuration
@@ -101,13 +101,13 @@ Run Wireshark and set it up.
     - Choose "lo" as the capture interface.
 
     - For Capture Filter, type: ``host ccp``
-      
+
     - Click Close
-      
+
 - Add Color Highlights for the GET and OK packets.
-  
+
   - Find View > Coloring Rules...
-    
+
     - Create two filters at the top:
 
       - Name: HTTP XML GET
@@ -117,7 +117,7 @@ Run Wireshark and set it up.
       - Name: HTTP XML OK
 
         - Filter: ``xml && http.response.code == 200``
-          
+
       - You could choose dark green for ``GET``
         and dark blue for ``OK`` to make it easier
         to find Cyclopath packets in the trace.
