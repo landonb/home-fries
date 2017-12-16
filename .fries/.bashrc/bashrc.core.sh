@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.12.12
+# Last Modified: 2017.12.16
 # Project Page: https://github.com/landonb/home-fries
 # Summary: One Developer's Bash Profile [Home-🍟]
 # License: GPLv3
@@ -1801,6 +1801,10 @@ touchpad_twiddle () {
 
 touchpad_disable () {
   touchpad_twiddle 0
+  # 2017-12-16 02:38: Something has been leaving 0~Bracketed1~ Paste enabled.
+  #   This disables bracketed paste.
+  echo -ne '\e]12;#ffcc00\a'
+  echo -ne '\e]12;#ffffff\a'
 }
 
 touchpad_enable () {
