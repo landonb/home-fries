@@ -1441,24 +1441,24 @@ termdo-reset () {
 }
 
 termdo-cmd () {
-    determine_window_manager
-    local THIS_WINDOW_ID=$(xdotool getactivewindow)
-    local WINDOW_IDS=$(xdotool search --class "$WM_TERMINAL_APP")
-    local winid
-    for winid in $WINDOW_IDS; do
-        if [[ $THIS_WINDOW_ID -ne $winid ]]; then
-            local DESKTOP_NUM=$(xdotool get_desktop_for_window $winid 2> /dev/null)
-            if [[ $? -eq 0 ]]; then
-                xdotool key --window $winid ctrl+c
-                xdotool key --window $winid ctrl+d
-                xdotool type --window $winid "$1"
-                # Hrmm. 'Ctrl+c' and 'ctrl+c' are acceptable, but 'return' is not.
-                xdotool key --window $winid Return
-            fi
-        fi
-    done
-    # Now we can act locally after having acted globally.
-    eval $1
+  determine_window_manager
+  local THIS_WINDOW_ID=$(xdotool getactivewindow)
+  local WINDOW_IDS=$(xdotool search --class "$WM_TERMINAL_APP")
+  local winid
+  for winid in $WINDOW_IDS; do
+    if [[ $THIS_WINDOW_ID -ne $winid ]]; then
+      local DESKTOP_NUM=$(xdotool get_desktop_for_window $winid 2> /dev/null)
+      if [[ $? -eq 0 ]]; then
+        xdotool key --window $winid ctrl+c
+        xdotool key --window $winid ctrl+d
+        xdotool type --window $winid "$1"
+        # Hrmm. 'Ctrl+c' and 'ctrl+c' are acceptable, but 'return' is not.
+        xdotool key --window $winid Return
+      fi
+    fi
+  done
+  # Now we can act locally after having acted globally.
+  eval $1
 }
 
 termdo-bash-reset () {
@@ -2239,8 +2239,8 @@ disable_wakeup_on_lid () {
 #       gsettings get org.gnome.desktop.lockdown disable-lock-screen
 #         is false already!
 lock_screensaver_and_power_suspend () {
-
-  # 2016-10-25: Heck, why not! At least show some semblance of not being a complete idiot.
+  # 2016-10-25: Heck, why not! At least show some semblance of not being
+  # a complete idiot.
   termdo-all sudo -K
 
   source /etc/lsb-release
