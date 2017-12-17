@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.10.16
+# Last Modified: 2017.12.17
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # File: distro_util.sh
@@ -51,6 +51,7 @@ determine_window_manager () {
   WM_IS_XFCE=false
   WM_IS_MATE=false # Pronouced, mah-tay!
   WM_IS_UNKNOWN=false
+  WM_TERMINAL_APP=''
 
   tweak_errexit
   WIN_MGR_INFO=`wmctrl -m >/dev/null 2>&1`
