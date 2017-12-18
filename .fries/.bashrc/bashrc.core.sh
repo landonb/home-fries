@@ -1,6 +1,6 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.12.16
+# Last Modified: 2017.12.17
 # Project Page: https://github.com/landonb/home-fries
 # Summary: One Developer's Bash Profile [Home-🍟]
 # License: GPLv3
@@ -2066,7 +2066,7 @@ fi
 
 #########################
 
-# For pinentry (for vim-gunpg):
+# For pinentry (for vim-gnupg):
 export GPG_TTY=`tty`
 
 #########################
