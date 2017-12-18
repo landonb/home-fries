@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.12.05
+# Last Modified: 2017.12.17
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -6574,6 +6574,57 @@ stage_4_install_ffdiaporama () {
 
 } # end: stage_4_install_ffdiaporama
 
+stage_4_install_tomb_volume_encryption () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_install_tomb_volume_encryption"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  wget https://files.dyne.org/tomb/Tomb-2.4.tar.gz.asc
+
+  #?? sudo apt-key add oracle_vbox.asc
+  ##or more simply:
+  wget -q https://files.dyne.org/tomb/Tomb-2.4.tar.gz.asc -O- | sudo apt-key add -
+
+# ???:
+  wget https://files.dyne.org/tomb/Tomb-2.4.tar.gz.sha
+
+  wget -N https://files.dyne.org/tomb/Tomb-2.4.tar.gz
+
+
+  popd &> /dev/null
+
+} # end: stage_4_install_tomb_volume_encryption
+
+stage_4_install_gocryptfs () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_install_gocryptfs"
+
+
+# FIXME
+
+  GOCFS_VERS="v1.4.2"
+  BASE_DOWNLOAD="https://github.com/rfjakob/gocryptfs/releases/download"
+  BASE_VERS="${BASE_DOWNLOAD}/${GOCFS_VERS}"
+  wget -N ${BASE_VERS}/gocryptfs_${GOCFS_VERS}_linux-static_amd64.tar.gz
+  wget ${BASE_VERS}/gocryptfs_${GOCFS_VERS}_linux-static_amd64.tar.gz.asc
+
+go get -d github.com/rfjakob/gocryptfs
+cd $(go env GOPATH)/src/github.com/rfjakob/gocryptfs
+./build.bash
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  popd &> /dev/null
+
+} # end: stage_4_install_gocryptfs
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -6867,6 +6918,12 @@ setup_customize_extras_go () {
 
   # 2017-12-05: Best, Most Awesome Photo-to-Video Software Ever!
   stage_4_install_ffdiaporama
+
+  # 2017-12-17: TOMB BONE
+  #stage_4_install_tomb_volume_encryption
+
+  # 2017-12-17: I suppose I should use offical releases, not HEAD! Dummy!!
+  #stage_4_install_gocryptfs
 
   # Add before this'n: stage_4_fcn_template.
 
