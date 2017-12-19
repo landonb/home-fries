@@ -492,6 +492,7 @@ alias lll='ll --time-style=long-iso'  # 2017-07-10: Show timestamps always.
 alias lo='ll -rt'                     # Reverse sort by time.
 alias llo='lo --time-style=long-iso'  # 2017-07-10: You get the ideaa.
 alias lS='/bin/ls --color=auto -lhFaS' # Sort by size, from largest (show empties last).
+alias lS-='/bin/ls --color=auto -lFaS | sort -n -k5' # Sort by size, largest last.
 
 # 2017-10-12?
 alias t='tree'
