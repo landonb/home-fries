@@ -6725,6 +6725,46 @@ stage_4_install_pass_tomb_extension () {
 
 } # end: stage_4_install_pass_tomb_extension
 
+stage_4_desktop_keybindings () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_desktop_keybindings"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # You could also go to:
+  #
+  #   MATE Menu > System > Preferences > Hardware > Keyboard Shortcuts
+
+  # GUI dconf app:
+  #
+  #   sudo apt-get install dconf-editor
+
+  local custom0_name=$(dconf read /org/mate/desktop/keybindings/custom0/name)
+  if [[ -n "${custom0_name}" ]]; then
+    echo
+    echo "WARNING: Alreayd a custom0 keyboard shortcut"
+    echo
+  else
+    # MEH: 2017-12-19: I can't get dconf write to work:
+    #
+    #   $ dconf write \
+    #     /org/mate/desktop/keybindings/custom0/action \
+    #     'gvim --servername SAMPI --remote-silent /path/to/my/Notes.rst'
+    #
+    #   error: 0-4:unknown keyword
+    #
+    # And I did not find anything equivalent with gsettings.
+    #
+    # So just set these manually!
+  fi
+
+  popd &> /dev/null
+
+} # end: stage_4_desktop_keybindings
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -7026,6 +7066,8 @@ setup_customize_extras_go () {
   #stage_4_install_tomb_volume_encryption
 
   #stage_4_install_pass_tomb_extension
+
+  #stage_4_desktop_keybindings
 
   # Add before this'n: stage_4_fcn_template.
 
