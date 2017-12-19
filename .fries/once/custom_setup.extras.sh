@@ -6575,6 +6575,32 @@ stage_4_install_ffdiaporama () {
 
 } # end: stage_4_install_ffdiaporama
 
+stage_4_install_gocryptfs () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_install_gocryptfs"
+
+
+# FIXME
+
+  GOCFS_VERS="v1.4.2"
+  BASE_DOWNLOAD="https://github.com/rfjakob/gocryptfs/releases/download"
+  BASE_VERS="${BASE_DOWNLOAD}/${GOCFS_VERS}"
+  wget -N ${BASE_VERS}/gocryptfs_${GOCFS_VERS}_linux-static_amd64.tar.gz
+  wget ${BASE_VERS}/gocryptfs_${GOCFS_VERS}_linux-static_amd64.tar.gz.asc
+
+go get -d github.com/rfjakob/gocryptfs
+cd $(go env GOPATH)/src/github.com/rfjakob/gocryptfs
+./build.bash
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  popd &> /dev/null
+
+} # end: stage_4_install_gocryptfs
+
 stage_4_install_tomb_volume_encryption () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -6583,6 +6609,9 @@ stage_4_install_tomb_volume_encryption () {
   stage_announcement "stage_4_install_tomb_volume_encryption"
 
   pushd ${OPT_DLOADS} &> /dev/null
+
+  # If you ran setup_ubuntu.sh, these should already be installed:
+  sudo apt-get install -y zsh sudo gnupg cryptsetup pinentry-curses
 
   local TOMB_VERS="2.4"
 
@@ -6695,32 +6724,6 @@ stage_4_install_pass_tomb_extension () {
   popd &> /dev/null
 
 } # end: stage_4_install_pass_tomb_extension
-
-stage_4_install_gocryptfs () {
-  if ${SKIP_EVERYTHING}; then
-    return
-  fi
-
-  stage_announcement "stage_4_install_gocryptfs"
-
-
-# FIXME
-
-  GOCFS_VERS="v1.4.2"
-  BASE_DOWNLOAD="https://github.com/rfjakob/gocryptfs/releases/download"
-  BASE_VERS="${BASE_DOWNLOAD}/${GOCFS_VERS}"
-  wget -N ${BASE_VERS}/gocryptfs_${GOCFS_VERS}_linux-static_amd64.tar.gz
-  wget ${BASE_VERS}/gocryptfs_${GOCFS_VERS}_linux-static_amd64.tar.gz.asc
-
-go get -d github.com/rfjakob/gocryptfs
-cd $(go env GOPATH)/src/github.com/rfjakob/gocryptfs
-./build.bash
-
-  pushd ${OPT_DLOADS} &> /dev/null
-
-  popd &> /dev/null
-
-} # end: stage_4_install_gocryptfs
 
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
@@ -7016,11 +7019,11 @@ setup_customize_extras_go () {
   # 2017-12-05: Best, Most Awesome Photo-to-Video Software Ever!
   stage_4_install_ffdiaporama
 
-  # 2017-12-17: TOMB BONE
-  #stage_4_install_tomb_volume_encryption
-
   # 2017-12-17: I suppose I should use offical releases, not HEAD! Dummy!!
   #stage_4_install_gocryptfs
+
+  # 2017-12-17: TOMB BONE
+  #stage_4_install_tomb_volume_encryption
 
   #stage_4_install_pass_tomb_extension
 
