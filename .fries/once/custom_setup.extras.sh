@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.12.17
+# Last Modified: 2017.12.18
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -6167,7 +6167,7 @@ stage_4_abcde_cd_ripper () {
   #   	Steve McIntyre <stevem@chiark.greenend.org.uk>
   #   	Debian CD signing key <debian-cd@lists.debian.org>
   #   	  1024 bit DSA key 88C7C1F7, created: 1999-01-30 (revoked)
-  #   Keys 1-4 of 4 for "steve@einval.com".  Enter number(s), N)ext, or Q)uit > 
+  #   Keys 1-4 of 4 for "steve@einval.com".  Enter number(s), N)ext, or Q)uit >
   # Well, (1) and (2) are revoked. and (3) matches the key in HEADER.html.
   # Out of curiosity:
   #   $ gpg  --recv-key 587979573442684E
@@ -6203,7 +6203,7 @@ stage_4_abcde_cd_ripper () {
   # gpg:          There is no indication that the signature belongs to the owner.
   # Primary key fingerprint: CEBB 5230 1D61 7E91 0390  FE16 5879 7957 3442 684E
   tar xvzf abcde-2.8.1.tar.gz
-  
+
   # Wow! It's just bash scripts!
 
   # https://ubuntuforums.org/showthread.php?t=109429
@@ -6323,7 +6323,7 @@ stage_4_remarkable_markdown_ide () {
 
 # 2017-08-14: I upgraded from Linux Mint 18.0 to 18.2 and the Clock applet broke:
 #
-#    $ /usr/lib/mate-panel/clock-applet  
+#    $ /usr/lib/mate-panel/clock-applet
 #
 #    (clock-applet:16378): Gtk-ERROR **: GTK+ 2.x symbols detected.
 #      Using GTK+ 2.x and GTK+ 3 in the same process is not supported
