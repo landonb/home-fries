@@ -6583,21 +6583,117 @@ stage_4_install_tomb_volume_encryption () {
 
   pushd ${OPT_DLOADS} &> /dev/null
 
-  wget https://files.dyne.org/tomb/Tomb-2.4.tar.gz.asc
+  local TOMB_VERS="2.4"
 
-  #?? sudo apt-key add oracle_vbox.asc
-  ##or more simply:
-  wget -q https://files.dyne.org/tomb/Tomb-2.4.tar.gz.asc -O- | sudo apt-key add -
+  # Get it.
+  wget -N https://files.dyne.org/tomb/Tomb-${TOMB_VERS}.tar.gz
 
-# ???:
-  wget https://files.dyne.org/tomb/Tomb-2.4.tar.gz.sha
+  # Get it's checksum(s).
+  wget https://files.dyne.org/tomb/Tomb-${TOMB_VERS}.tar.gz.sha
+  # cat Tomb-${TOMB_VERS}.tar.gz.sha
+  # 7907775e563290afb56f3aa4b6297f6cf38a2cfafb8c6081c45c1fadd2e161c3  Tomb-2.4.tar.gz
+  #
+  # sha256sum Tomb-${TOMB_VERS}.tar.gz
+  # 7907775e563290afb56f3aa4b6297f6cf38a2cfafb8c6081c45c1fadd2e161c3  Tomb-2.4.tar.gz
+  if [[ "$(cat Tomb-${TOMB_VERS}.tar.gz.sha)" != "$(sha256sum Tomb-${TOMB_VERS}.tar.gz)" ]]; then
+    >&2 echo "ERROR: Checksum mismatch!"
+    exit 1
+  fi
 
-  wget -N https://files.dyne.org/tomb/Tomb-2.4.tar.gz
+  # 2017-12-17 19:41: Cannot get asc checking to work...
+  wget https://files.dyne.org/tomb/Tomb-${TOMB_VERS}.tar.gz.asc
+  #
+  # Tried:
+  #
+  #   $ gpg --import Tomb-${TOMB_VERS}.tar.gz.asc
+  #   gpg: no valid OpenPGP data found.
+  #   gpg: Total number processed: 0
+  #
+  # Tried:
+  #
+  #   $ sudo apt-key add - < Tomb-${TOMB_VERS}.tar.gz.asc
+  #   gpg: no valid OpenPGP data found.
+  #
+  # Did not try:
+  #
+  #   $ wget -q https://files.dyne.org/tomb/Tomb-${TOMB_VERS}.tar.gz.asc -O- \
+  #     | sudo apt-key add -
 
+  wget -N https://files.dyne.org/tomb/Tomb-${TOMB_VERS}.tar.gz
+
+  tar xvfz Tomb-${TOMB_VERS}.tar.gz
+
+  cd Tomb-${TOMB_VERS}
+  sudo make install
 
   popd &> /dev/null
 
 } # end: stage_4_install_tomb_volume_encryption
+
+stage_4_install_pass_tomb_extension () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_install_pass_tomb_extension"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  #git clone https://github.com/roddhjav/pass-tomb/
+  #cd pass-tomb
+  #sudo make install
+
+  # Stable version
+
+  local PTOMB_VERS="pass-tomb-1.1"
+
+  wget -N \
+    https://github.com/roddhjav/pass-tomb/releases/download/v1.1/${PTOMB_VERS}.tar.gz
+
+  wget \
+    https://github.com/roddhjav/pass-tomb/releases/download/v1.1/${PTOMB_VERS}.tar.gz.asc
+  # cat ${PTOMB_VERS}.tar.gz.asc
+  #
+  #   $ gpg --recv-keys 06A26D531D56C42D66805049C5469996F0DF68EC
+  #   gpg: no keyserver known (use option --keyserver)
+  #   gpg: keyserver receive failed: bad URI
+  #
+  #   $ gpg --keyserver https://pgp.mit.edu \
+  #     --recv-keys 06A26D531D56C42D66805049C5469996F0DF68EC
+  #   gpg: requesting key F0DF68EC from https server pgp.mit.edu
+  #   gpgkeys: protocol `https' not supported
+  #   gpg: no handler for keyserver scheme `https'
+  #   gpg: keyserver receive failed: keyserver error
+  #
+  gpg --keyserver pgp.mit.edu \
+      --recv-keys 06A26D531D56C42D66805049C5469996F0DF68EC
+  # Works:
+  #   gpg: requesting key F0DF68EC from hkp server pgp.mit.edu
+  #   gpg: key F0DF68EC: public key "Alexandre Pujol (Git) <alexandre@pujol.io>" imported
+  #   gpg: 3 marginal(s) needed, 1 complete(s) needed, PGP trust model
+  #   gpg: depth: 0  valid:   1  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 1u
+  #   gpg: Total number processed: 1
+  #   gpg:               imported: 1  (RSA: 1)
+  #
+  gpg --verify ${PTOMB_VERS}.tar.gz.asc
+  #   gpg: assuming signed data in `pass-tomb-1.1.tar.gz'
+  #   gpg: Signature made Sun 10 Dec 2017 10:21:26 AM CST using RSA key ID F0DF68EC
+  #   gpg: Good signature from "Alexandre Pujol (Git) <alexandre@pujol.io>"
+  #   gpg: WARNING: This key is not certified with a trusted signature!
+  #   gpg:          There is no indication that the signature belongs to the owner.
+  #   Primary key fingerprint: 06A2 6D53 1D56 C42D 6680  5049 C546 9996 F0DF 68EC
+  if [[ $? -ne 0 ]]; then
+    &2 echo "ERROR: Checksum mismatch!"
+    exit 1
+  fi
+
+  tar xvzf ${PTOMB_VERS}.tar.gz
+  cd ${PTOMB_VERS}
+  sudo make install
+
+  popd &> /dev/null
+
+} # end: stage_4_install_pass_tomb_extension
 
 stage_4_install_gocryptfs () {
   if ${SKIP_EVERYTHING}; then
@@ -6924,6 +7020,8 @@ setup_customize_extras_go () {
 
   # 2017-12-17: I suppose I should use offical releases, not HEAD! Dummy!!
   #stage_4_install_gocryptfs
+
+  #stage_4_install_pass_tomb_extension
 
   # Add before this'n: stage_4_fcn_template.
 
