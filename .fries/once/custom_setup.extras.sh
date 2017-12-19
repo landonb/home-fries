@@ -3,7 +3,7 @@
 
 # File: custom_setup.extras.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.12.18
+# Last Modified: 2017.12.19
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
@@ -4017,7 +4017,8 @@ stage_4_pass__password_store () {
 
   stage_announcement "stage_4_pass__password_store"
 
-  PASS_VERS="1.6.5"
+  #PASS_VERS="1.6.5"
+  PASS_VERS="1.7.1"
 
   tweak_errexit
   command -v pass
