@@ -2,7 +2,7 @@
 
 # File: setup_ubuntu.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.16
+# Last Modified: 2017.12.17
 # Project Page: https://github.com/landonb/home-fries
 # Summary: Linux Mint MATE Automated Developer Environment Setterupper.
 # License: GPLv3
@@ -951,7 +951,7 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
       simpleburn
       # abcde complains that cddb-tool not found. Is this close enough?
       python-cddb
-      # What's the `musicbrainz` equivalent?
+      # What is the `musicbrainz` equivalent?
       # Picard is a cross-platform music tagger written in Python.
       picard
       # libwebservice-musicbrainz-perl - XML based Web service API to the MusicBrainz database
