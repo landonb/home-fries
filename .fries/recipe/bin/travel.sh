@@ -151,6 +151,7 @@ fi
 if [[ -n ${SYNC_REPOS_PATH} ]]; then
   # Source this now so that sync_repos.sh can use, e.g., ${EMISSARY}.
   SYNC_REPOS_AGAIN=false
+  echod "Sourcing: ${SYNC_REPOS_PATH}"
   source "${SYNC_REPOS_PATH}"
   SOURCED_SYNC_REPOS=true
 else
@@ -1050,75 +1051,97 @@ locate_and_clone_missing_repo () {
       exit 1
     fi
   else
-    echo
-    echo "  ==================================================== "
-    echo "  MISSING: ${check_repo}"
-    echo "     REPO: ${remote_orig}"
-    parent_dir=$(dirname -- "${check_repo}")
-    repo_name=$(basename -- "${check_repo}")
-    if [[ ! -d ${parent_dir} ]]; then
-      echo
-      echo "  MKDIR: Creating new parent_dir: ${parent_dir}"
-      echo
-      mkdir -p ${parent_dir}
-    fi
-    if [[ -d ${parent_dir} ]]; then
-      echo "           fetching!"
-      if [[ ${parent_dir} == '/' ]]; then
-        if [[ ! -e ${check_repo} ]]; then
-          # FIXME/2016-11-14: Is this okay? It's the first ~/.elsewhere usage herein.
-          mkdir -p ${HOME}/.elsewhere
-        else
-          echo
-          echo "  ALERT: EXISTS: ~/.elsewhere/${check_repo}"
-          echo
-        fi
-        # Checkout the source.
-        pushd ${HOME}/.elsewhere &> /dev/null
-        local git_resp=""
-        tweak_errexit
-        if [[ ! -d ${repo_name} ]]; then
-          ##git clone ${remote_orig} ${check_repo}
-          #git clone ${remote_orig} ${repo_name}
-          #git_resp=$(git clone ${remote_orig} ${repo_name} 2>&1)
-          # 2017-02-27: Taking a while on work laptop. Wanting to see progress.
-          git_resp=$(git clone ${remote_orig} ${repo_name})
-        else
-          cd ${repo_name}
-          git_resp=$(git pull 2>&1)
-        fi
-        ret_code=$?
-        reset_errexit
-        check_git_clone_or_pull_error "${ret_code}" "${git_resp}"
-        popd &> /dev/null
-        # Create the symlink from the root dir.
-        pushd / &> /dev/null
-        sudo /bin/ln -sf ${HOME}/.elsewhere/${repo_name}
-        popd &> /dev/null
+    local check_syml=${check_repo}
+    while [[ ${check_syml} != '/' && ${check_syml} != '.' ]]; do
+      echod "check_syml: ${check_syml}"
+      if [[ -h ${check_syml} ]]; then
+        echo
+        echo "  ==================================================== "
+        echo "  DEAD LINK: ${check_repo}"
+        echo "       REPO: ${remote_orig}"
+        echo
+        echo "  Is that link pointing at an umounted filesystem?"
+        echo
+        break
       else
-        pushd ${parent_dir} &> /dev/null
-        # Use associate array key so user can choose different name than repo.
-        ##git clone ${remote_orig}
-        #git clone ${remote_orig} ${check_repo}
-        tweak_errexit
-        #git_resp=$(git clone ${remote_orig} ${check_repo} 2>&1)
-        # 2017-02-27: Taking a while on work laptop. Wanting to see progress.
-        git_resp=$(git clone ${remote_orig} ${check_repo})
-        ret_code=$?
-        reset_errexit
-        check_git_clone_or_pull_error "${ret_code}" "${git_resp}"
-        popd &> /dev/null
+        local check_syml=$(dirname ${check_syml})
       fi
-    else
+    done
+    if [[ ${check_syml} == '/' || ${check_syml} == '.' ]]; then
       echo
-      echo "WARNING: repo path not ready: ${check_repo} / because not dir: ${parent_dir}"
-      echo
-      echo "Maybe just try:"
-      echo
-      echo "      mkdir -p ${parent_dir}"
-      echo
-      # 2016-11-14: I added a mkdir above, so this shouldn't happen.
-      exit 1
+      echo "  ==================================================== "
+      echo "  MISSING: ${check_repo}"
+      echo "     REPO: ${remote_orig}"
+      parent_dir=$(dirname -- "${check_repo}")
+      repo_name=$(basename -- "${check_repo}")
+      if [[ ! -d ${parent_dir} ]]; then
+        echo
+        echo "  MKDIR: Creating new parent_dir: ${parent_dir}"
+        echo
+        mkdir -p ${parent_dir}
+      fi
+      if [[ -d ${parent_dir} ]]; then
+        echo "           fetching!"
+        if [[ ${parent_dir} == '/' ]]; then
+          if [[ ! -e ${check_repo} ]]; then
+            echod "mkdir -p ${HOME}/.elsewhere"
+            # FIXME/2016-11-14: Is this okay? It's the first ~/.elsewhere usage herein.
+            mkdir -p ${HOME}/.elsewhere
+          else
+            echo
+            echo "  ALERT: EXISTS: ~/.elsewhere/${check_repo}"
+            echo
+          fi
+          # Checkout the source.
+          pushd ${HOME}/.elsewhere &> /dev/null
+          local git_resp=""
+          tweak_errexit
+          if [[ ! -d ${repo_name} ]]; then
+            echod "git clone ${remote_orig} ${repo_name}"
+            ##git clone ${remote_orig} ${check_repo}
+            #git clone ${remote_orig} ${repo_name}
+            #git_resp=$(git clone ${remote_orig} ${repo_name} 2>&1)
+            # 2017-02-27: Taking a while on work laptop. Wanting to see progress.
+            git_resp=$(git clone ${remote_orig} ${repo_name})
+          else
+            echod "cd ${repo_name} && git pull"
+            cd ${repo_name}
+            git_resp=$(git pull 2>&1)
+          fi
+          ret_code=$?
+          reset_errexit
+          check_git_clone_or_pull_error "${ret_code}" "${git_resp}"
+          popd &> /dev/null
+          # Create the symlink from the root dir.
+          pushd / &> /dev/null
+          sudo /bin/ln -sf ${HOME}/.elsewhere/${repo_name}
+          popd &> /dev/null
+        else
+          pushd ${parent_dir} &> /dev/null
+          # Use associate array key so user can choose different name than repo.
+          ##git clone ${remote_orig}
+          #git clone ${remote_orig} ${check_repo}
+          tweak_errexit
+          #git_resp=$(git clone ${remote_orig} ${check_repo} 2>&1)
+          # 2017-02-27: Taking a while on work laptop. Wanting to see progress.
+          echod "git clone ${remote_orig} ${check_repo}"
+          git_resp=$(git clone ${remote_orig} ${check_repo})
+          ret_code=$?
+          reset_errexit
+          check_git_clone_or_pull_error "${ret_code}" "${git_resp}"
+          popd &> /dev/null
+        fi
+      else
+        echo
+        echo "WARNING: repo path not ready: ${check_repo} / because not dir: ${parent_dir}"
+        echo
+        echo "Maybe just try:"
+        echo
+        echo "      mkdir -p ${parent_dir}"
+        echo
+        # 2016-11-14: I added a mkdir above, so this shouldn't happen.
+        exit 1
+      fi
     fi
     echo " ==================================================== "
     echo
@@ -1135,8 +1158,8 @@ locate_and_clone_missing_repos_helper () {
     echo "---------------------------------------------------"
     # NOTE: The keys are unordered.
     for key in "${!GIT_REPO_SEEDS[@]}"; do
-      #echo " key  : $key"
-      #echo " value: ${GIT_REPO_SEEDS[$key]}"
+      echod " key  : $key"
+      echod " value: ${GIT_REPO_SEEDS[$key]}"
       locate_and_clone_missing_repo $key ${GIT_REPO_SEEDS[$key]}
     done
   fi
@@ -1167,8 +1190,11 @@ locate_and_clone_missing_repos () {
 
   locate_and_clone_missing_repos_header
 
+  echod "Locating GIT_REPO_SEEDS_0"
   locate_and_clone_missing_repos_helper GIT_REPO_SEEDS_0
+  echod "Locating GIT_REPO_SEEDS_1"
   locate_and_clone_missing_repos_helper GIT_REPO_SEEDS_1
+  echod "Locating VIM_REPO_SEEDS_"
   locate_and_clone_missing_repos_helper VIM_REPO_SEEDS_1
 
   # See if there's a user callback.
