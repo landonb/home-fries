@@ -1,5 +1,5 @@
 #!/bin/bash
-# Last Modified: 2017.10.16
+# Last Modified: 2017.12.19
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # FIXME/2017-02-08: Conflicts are not being caught!
@@ -41,8 +41,14 @@ source_deps
 
 # Enable a little more echo, if you want.
 # You can also add this to cfg/sync_repos.sh.
-DEBUG=false
-#DEBUG=true
+DEBUG=${DEBUG:-false}
+DEBUG=${DEBUG:-true}
+
+echod () {
+  tweak_errexit
+  ${DEBUG} && echo "$*"
+  reset_errexit
+}
 
 # WHATEVER: 2016-11-14: I enabled these to help
 #       debug but they're not work as expected.
@@ -193,12 +199,6 @@ else
 fi
 
 # ***
-
-echod () {
-  tweak_errexit
-  ${DEBUG} && echo "$*"
-  reset_errexit
-}
 
 echod "SOURCED_SYNC_REPOS: ${SOURCED_SYNC_REPOS}"
 
@@ -1166,11 +1166,6 @@ locate_and_clone_missing_repos_header () {
 locate_and_clone_missing_repos () {
 
   locate_and_clone_missing_repos_header
-
-  # DEVs: Setting DEBUG at the top of the file doesn't stick.
-  # So until that's fixed, here's a nice way to debug this fcn.
-  DEBUG=false
-  #DEBUG=true
 
   locate_and_clone_missing_repos_helper GIT_REPO_SEEDS_0
   locate_and_clone_missing_repos_helper GIT_REPO_SEEDS_1
