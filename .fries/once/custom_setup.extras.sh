@@ -3335,7 +3335,6 @@ stage_4_setup_gnupg_public_key () {
 
   # https://www.gnupg.org/signature_key.html
 echo "-----BEGIN PGP PUBLIC KEY BLOCK-----
-Version: GnuPG v2
 
 mQENBE0ti4EBCACqGtKlX9jI/enhlBdy2cyQP6Q7JoyxtaG6/ckAKWHYrqFTQk3I
 Ue8TuDrGT742XFncG9PoMBfJDUNltIPgKFn8E9tYQqAOlpSA25bOb30cA2ADkrjg
@@ -3349,89 +3348,64 @@ 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
-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
-Fhtncd/TBOwzfkkbxBNcVJuBPRtjZ3dlDbS4IPNsIIv2SuCIfQmA8qNGvWsAoIrJ
-90b2fzERCZkKtfkoyYA8fnNrBADhJ8RmIrKiCnDk3Tzk04nu6O8fp3ptrmnO7jlu
-vDfsEVsYRjyMbDnbnjCGu1PeFoP2HZ+H9lp4CaQbyjWh2JlvI9UOc72V16SFkV0r
-8k0euNQXHhhzXWIkfz4gwSbBkN2nO5+6cIVeKnsdyFYkQyVs+Q86/PMfjo7utyrc
-WLq1CAQAou3da1JR6+KJO4gUZVh2F1NoaVCEPAvlDhNV10/hwe5mS0kTjUJ1jMl5
-6mwAFvhFFF9saW+eAnrwIOHjopbdHrPBmTJlOnNMHVLJzFlqjihwRRZQyL8iNu2m
-farn9Mr28ut5BQmp0CnNEJ6hl0Cs7l2xagWFtlEK2II144vK3fG0J1dlcm5lciBL
-b2NoIChnbnVwZyBzaWcpIDxkZDlqbkBnbnUub3JnPohhBBMRAgAhAheABQkOFIf9
-BQJBvGheBgsJCAcDAgMVAgMDFgIBAh4BAAoJEGi3q4lXVI3NBJMAn01313ag0tgj
-rGUZtDlKYbmNIeMeAJ0UpVsjxpylBcSjsPE8MAki7Hb2Rw==
-=W3eM
+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
+P7av
+=ud/7
 -----END PGP PUBLIC KEY BLOCK-----" \
   | gpg --import
 } # end: stage_4_setup_gnupg_public_key
@@ -3458,18 +3432,21 @@ stage_4_pass__libgpg_error () {
   # For libassuan.
   # ftp://ftp.gnupg.org/gcrypt/libgpg-error/
 
-  wget -N ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.24.tar.gz
-  wget -N ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.24.tar.gz.sig
+  #local LIBGPG_ERROR_VERS='1.24'
+  local LIBGPG_ERROR_VERS='1.27'
+
+  wget -N ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-${LIBGPG_ERROR_VERS}.tar.gz
+  wget -N ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-${LIBGPG_ERROR_VERS}.tar.gz.sig
   tweak_errexit
-  gpg --verify libgpg-error-1.24.tar.gz.sig
+  gpg --verify libgpg-error-${LIBGPG_ERROR_VERS}.tar.gz.sig
   exit_code=$?
   reset_errexit
   if [[ ${exit_code} -ne 0 ]]; then
-    echo "FATAL: Failed to verify downloaded file signature: libgpg-error-1.24.tar.gz"
+    echo "FATAL: Failed to verify downloaded file signature: libgpg-error-${LIBGPG_ERROR_VERS}.tar.gz"
     exit 1
   fi
-  tar xvzf libgpg-error-1.24.tar.gz
-  cd libgpg-error-1.24/
+  tar xvzf libgpg-error-${LIBGPG_ERROR_VERS}.tar.gz
+  cd libgpg-error-${LIBGPG_ERROR_VERS}/
   ./configure
   #./configure --prefix=/usr
   make
@@ -3487,7 +3464,22 @@ stage_4_pass__libassuan () {
 
   stage_announcement "stage_4_pass__libassuan"
 
-  libassuan_path="/usr/local/lib/libassuan.so.0.7.3"
+  # For GPG2.
+  # ftp://ftp.gnupg.org/gcrypt/libassuan/
+
+  #local LIBASSUAN_VERS="2.4.3"
+  #local LIBASSUAN_VERS="2.4.5"
+  local LIBASSUAN_VERS="2.5.1"
+
+  # See also:
+  #
+  #   ll /usr/local/lib/libassuan*
+
+  #local LIBASSUAN_SO="0.7.3"
+  #local LIBASSUAN_SO="0.7.5"
+  local LIBASSUAN_SO="0.8.1"
+
+  libassuan_path="/usr/local/lib/libassuan.so.${LIBASSUAN_SO}"
   if [[ -f ${libassuan_path} ]]; then
     echo
     echo "${REINSTALL_OR_SKIP}: Already installed: ${libassuan_path}"
@@ -3499,21 +3491,18 @@ stage_4_pass__libassuan () {
 
   pushd ${OPT_DLOADS} &> /dev/null
 
-  # For GPG2.
-  # ftp://ftp.gnupg.org/gcrypt/libassuan/
-
-  wget -N ftp://ftp.gnupg.org/gcrypt/libassuan/libassuan-2.4.3.tar.bz2
-  wget -N ftp://ftp.gnupg.org/gcrypt/libassuan/libassuan-2.4.3.tar.bz2.sig
+  wget -N ftp://ftp.gnupg.org/gcrypt/libassuan/libassuan-${LIBASSUAN_VERS}.tar.bz2
+  wget -N ftp://ftp.gnupg.org/gcrypt/libassuan/libassuan-${LIBASSUAN_VERS}.tar.bz2.sig
   tweak_errexit
-  gpg --verify libassuan-2.4.3.tar.bz2.sig
+  gpg --verify libassuan-${LIBASSUAN_VERS}.tar.bz2.sig
   exit_code=$?
   reset_errexit
   if [[ ${exit_code} -ne 0 ]]; then
-    echo "FATAL: Failed to verify downloaded file signature: libassuan-2.4.3.tar.bz2"
+    echo "FATAL: Failed to verify downloaded file signature: libassuan-${LIBASSUAN_VERS}.tar.bz2"
     exit 1
   fi
-  tar xvjf libassuan-2.4.3.tar.bz2
-  cd libassuan-2.4.3/
+  tar xvjf libassuan-${LIBASSUAN_VERS}.tar.bz2
+  cd libassuan-${LIBASSUAN_VERS}/
   ./configure
   #./configure --prefix=/usr
   make
@@ -3531,7 +3520,20 @@ stage_4_pass__libksba () {
 
   stage_announcement "stage_4_pass__libksba"
 
-  libksba_path="/usr/local/lib/libksba.so.8.11.5"
+  # For GPG2.
+  # ftp://ftp.gnupg.org/gcrypt/libksba/
+
+  #local LIBKSBA_VERS="1.3.4"
+  local LIBKSBA_VERS="1.3.5"
+
+  # See also:
+  #
+  #   ll /usr/local/lib/libksba*
+
+  #local LIBKSBA_SO="8.11.5"
+  local LIBKSBA_SO="8.11.6"
+
+  libksba_path="/usr/local/lib/libksba.so.${LIBKSBA_SO}"
   if [[ -f ${libksba_path} ]]; then
     echo
     echo "${REINSTALL_OR_SKIP}: Already installed: ${libksba_path}"
@@ -3543,23 +3545,20 @@ stage_4_pass__libksba () {
 
   pushd ${OPT_DLOADS} &> /dev/null
 
-  # For GPG2.
-  # ftp://ftp.gnupg.org/gcrypt/libksba/
-
-  wget -N ftp://ftp.gnupg.org/gcrypt/libksba/libksba-1.3.4.tar.bz2
-  wget -N ftp://ftp.gnupg.org/gcrypt/libksba/libksba-1.3.4.tar.bz2.sig
+  wget -N ftp://ftp.gnupg.org/gcrypt/libksba/libksba-${LIBKSBA_VERS}.tar.bz2
+  wget -N ftp://ftp.gnupg.org/gcrypt/libksba/libksba-${LIBKSBA_VERS}.tar.bz2.sig
 
   tweak_errexit
-  gpg --verify libksba-1.3.4.tar.bz2.sig
+  gpg --verify libksba-${LIBKSBA_VERS}.tar.bz2.sig
   exit_code=$?
   reset_errexit
   if [[ ${exit_code} -ne 0 ]]; then
-    echo "FATAL: Failed to verify downloaded file signature: libksba-1.3.4.tar.bz2"
+    echo "FATAL: Failed to verify downloaded file signature: libksba-${LIBKSBA_VERS}.tar.bz2"
     exit 1
   fi
 
-  tar xvjf libksba-1.3.4.tar.bz2
-  cd libksba-1.3.4/
+  tar xvjf libksba-${LIBKSBA_VERS}.tar.bz2
+  cd libksba-${LIBKSBA_VERS}/
   ./configure
   #./configure --prefix=/usr
   make
@@ -3577,9 +3576,18 @@ stage_4_pass__libpth () {
 
   stage_announcement "stage_4_pass__libpth"
 
-  LIBPTH_VERS="2.0.7"
+  # For GPG2.
+  # ftp://ftp.gnu.org/gnu/pth/
 
-  libpth_path="/usr/local/lib/libpth.so.20.0.27"
+  local LIBPTH_VERS="2.0.7"
+
+  # See also:
+  #
+  #   ll /usr/local/lib/libpth*
+
+  local LIBPTH_SO="20.0.27"
+
+  libpth_path="/usr/local/lib/libpth.so.${LIBPTH_SO}"
   if [[ -f ${libpth_path} ]]; then
     echo
     echo "${REINSTALL_OR_SKIP}: Already installed: ${libpth_path}"
@@ -3591,15 +3599,13 @@ stage_4_pass__libpth () {
 
   pushd ${OPT_DLOADS} &> /dev/null
 
-  # For GPG2.
-  # ftp://ftp.gnu.org/gnu/pth/
   # 2016-08-17: I did not try this:
   #  sudo apt-get install -y libpth-dev
   wget -N ftp://ftp.gnu.org/gnu/pth/pth-${LIBPTH_VERS}.tar.gz
   wget -N ftp://ftp.gnu.org/gnu/pth/pth-${LIBPTH_VERS}.tar.gz.sig
 
 # 2016-11-14: I think this is fixed by stage_4_setup_gnupg_public_key.
-# 2016-08-17: Whhere's their public key?
+# 2016-08-17: Where's their public key?
 #  gpg: Signature made Thu 08 Jun 2006 01:18:31 PM CDT using DSA key ID A9C09E30
 #  gpg: Can't check signature: public key not found
   tweak_errexit
@@ -3630,9 +3636,26 @@ stage_4_pass__libgcrypt () {
 
   stage_announcement "stage_4_pass__libgcrypt"
 
-  LIBGCRYPT_VERS="1.7.3"
+  # For GPG2.
+  # ftp://ftp.gnupg.org/gcrypt/libgcrypt
 
-  lib_path="/usr/local/lib/libgcrypt.so.20.1.3"
+  #local LIBGCRYPT_VERS="1.7.3"
+  #local LIBGCRYPT_VERS="1.7.9"
+  local LIBGCRYPT_VERS="1.8.2"
+
+  # See also:
+  #
+  #   ll /usr/lib/libgcrypt*
+
+  #local LIBGCRYPT_SO="20.1.3"
+  #local LIBGCRYPT_SO="20.1.9"
+  local LIBGCRYPT_SO="20.2.2"
+
+  # See:
+  #
+  #   ll /usr/lib/libgcrypt*
+
+  lib_path="/usr/lib/libgcrypt.so.${LIBGCRYPT_SO}"
   if [[ -f ${lib_path} ]]; then
     echo
     echo "${REINSTALL_OR_SKIP}: Already installed: ${lib_path}"
@@ -3668,6 +3691,60 @@ stage_4_pass__libgcrypt () {
 
 } # end: stage_4_pass__libgcrypt
 
+stage_4_pass__libnpth () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_pass__libnpth"
+
+  # For GPG2.
+  # ftp://ftp.gnupg.org/gcrypt/npth/
+
+  local LIBNPTH_VERS="1.5"
+
+  # See also:
+  #
+  #   ll /usr/local/lib/libnpth*
+
+  local LIBNPTH_SO="0.1.1"
+
+  libnpth_path="/usr/local/lib/libnpth.so.${LIBNPTH_SO}"
+  if [[ -f ${libnpth_path} ]]; then
+    echo
+    echo "${REINSTALL_OR_SKIP}: Already installed: ${libnpth_path}"
+    echo
+    if ! ${FORCE_REINSTALL}; then
+      return
+    fi
+  fi
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  wget -N ftp://ftp.gnupg.org/gcrypt/npth/npth-${LIBNPTH_VERS}.tar.bz2.sig
+  wget -N ftp://ftp.gnupg.org/gcrypt/npth/npth-${LIBNPTH_VERS}.tar.bz2
+
+  tweak_errexit
+  gpg --verify npth-${LIBNPTH_VERS}.tar.bz2.sig
+  exit_code=$?
+  reset_errexit
+  if [[ ${exit_code} -ne 0 ]]; then
+    echo "FATAL: Failed to verify downloaded file signature: npth-${LIBNPTH_VERS}.tar.bz2.sig"
+    exit 1
+  fi
+
+  tar xvjf npth-${LIBNPTH_VERS}.tar.bz2
+  cd npth-${LIBNPTH_VERS}
+  ./configure
+  #./configure --prefix=/usr
+  make
+  make check
+  sudo make install
+
+  popd &> /dev/null
+
+} # end: stage_4_pass__libnpth
+
 stage_4_pass__gnupg_2 () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -3675,8 +3752,13 @@ stage_4_pass__gnupg_2 () {
 
   stage_announcement "stage_4_pass__gnupg_2"
 
-  #GPG2_VERS="2.0.30"
-  GPG2_VERS="2.1.15"
+  # For GPG2.
+  # ftp://ftp.gnupg.org/gcrypt/gnupg
+
+  #local GPG2_VERS="2.0.30"
+  #local GPG2_VERS="2.1.15"
+  #local GPG2_VERS="2.1.23"
+  local GPG2_VERS="2.2.3"
 
   gpg2_path="/usr/local/bin/gpg2"
   if [[ -f ${gpg2_path} ]]; then
@@ -3708,7 +3790,8 @@ stage_4_pass__gnupg_2 () {
   # Fortunately, this works:
   sudo apt-get install -y libpth-dev
   # From 2.0.30 to 2.1.15, new requirments.
-  sudo apt-get install -y libnpth0-dev
+  # 2017-12-19: See `stage_4_pass__libnpth`.
+  #sudo apt-get install -y libnpth0-dev
   # Not required.
   sudo apt-get install -y libgnutls-dev
 
@@ -3728,7 +3811,11 @@ stage_4_pass__gnupg_2 () {
   #   stage_4_setup_gnupg_public_key
   tweak_errexit
   # gpg --verify gnupg-2.0.30.tar.bz2.sig gnupg-2.0.30.tar.bz2
+
+  # FIXME/2017-12-19: $? is 0 but key expired!
+  #   gpg: Note: This key has expired!
   gpg --verify gnupg-${GPG2_VERS}.tar.bz2.sig
+
   exit_code=$?
   reset_errexit
   if [[ ${exit_code} -ne 0 ]]; then
@@ -3765,6 +3852,29 @@ stage_4_pass__gnupg_2 () {
   ./configure LDFLAGS="-L/usr/lib"
   make
   make check
+  # 2017-12-19: Weird. ./configure says:
+  #   checking for LIBGCRYPT - version >= 1.7.0... yes (1.8.2)
+  # But make check says:
+  #   t-recsel: Fatal: libgcrypt is too old (need 1.7.0, have 1.6.1)
+  #   FAIL: t-recsel
+  # Whatever. I installed anyway. And 2.0.30 is still what's installed... DUH FUH?
+  #   $ ll /usr/local/bin/gpg2
+  #   -rwxr-xr-x 1 root root 3.5M Aug 17  2016 /usr/local/bin/gpg2*
+  # Wait! What about my next comment? About weird error on 14.04 -- same machine.
+  #   But the paths are different now then from that comment -- I cannot
+  #   find the new gpg2 anywhere...
+  #   $ ll /usr/bin/gpg2
+  #   -rwxr-xr-x 1 root root 751K Mar 27  2015 /usr/bin/gpg2*
+  #   $ ll /usr/local/bin/gpg2
+  #   -rwxr-xr-x 1 root root 3.5M Aug 17  2016 /usr/local/bin/gpg2*
+  #
+  #   $ find . -type f -executable
+  #   ...
+  #   $ ./g10/gpg --version
+  #   gpg: Fatal: libgcrypt is too old (need 1.7.0, have 1.6.1)
+  # Whatever... I got `pass` updated from 1.6.5 to 1.7.1, and I don't need gpg2 > 2.0.30...
+  #   still, it bugs me this doesn't work... probably a 14.04-specific issue.
+
   sudo make install
 
   # WHATEVER: On 14.04, I had weird error. Doesn't seem to be an issue on 16.04.
@@ -3962,10 +4072,6 @@ stage_4_pass__util_linux () {
   #   # Still nothing.
   #   sudo apt-get -f install
 
-  #UTILL_VERS="2.28.1"
-  #UTILL_VERS="2.28.2"
-  UTILL_VERS="2.29"
-
   pushd ${OPT_DLOADS} &> /dev/null
 
   # 2016-08-17: Linux Mint 17.3:
@@ -3977,12 +4083,24 @@ stage_4_pass__util_linux () {
   #
   #   http://www.kernel.org/pub/linux/utils/util-linux/
 
+  #local UTILL_VERS="2.28.1"
+  #local UTILL_VERS="2.28.2"
+  #local UTILL_VERS="2.29"
+  local UTILL_VERS_MINOR="2.31"
+  local UTILL_VERS_HOTFX="2.31.1"
+
   sudo apt-get install -y libncurses5-dev
   # Avoid: /usr/bin/ld: cannot find -lncursesw
   sudo apt-get install -y libncursesw5-dev
 
   wget -N \
-    https://www.kernel.org/pub/linux/utils/util-linux/v${UTILL_VERS}/util-linux-${UTILL_VERS}.tar.xz
+    https://www.kernel.org/pub/linux/utils/util-linux/v${UTILL_VERS_MINOR}/util-linux-${UTILL_VERS_HOTFX}.tar.xz
+
+  # FIXME/2017-12-19: Verify this!
+  wget -N \
+    https://www.kernel.org/pub/linux/utils/util-linux/v${UTILL_VERS_MINOR}/util-linux-${UTILL_VERS_HOTFX}.tar.sign
+  # cat util-linux-2.31.1.tar.sign: a PGP signature.
+
   tar -xJvf util-linux-${UTILL_VERS}.tar.xz
   cd util-linux-${UTILL_VERS}
   # Just guessing here, as there are no build instructions.
@@ -3997,7 +4115,7 @@ stage_4_pass__util_linux () {
   #  DO NOT DO THIS:
   #    sudo make install
 
-  # YIKES!/2016-11-12: I probably shouldn't have install util-linux!
+  # YIKES!/2016-11-12: I probably shouldn't have installed util-linux!
 
   # FRAK! Didn't help:
   #
@@ -4017,8 +4135,8 @@ stage_4_pass__password_store () {
 
   stage_announcement "stage_4_pass__password_store"
 
-  #PASS_VERS="1.6.5"
-  PASS_VERS="1.7.1"
+  #local PASS_VERS="1.6.5"
+  local PASS_VERS="1.7.1"
 
   tweak_errexit
   command -v pass
@@ -4046,6 +4164,9 @@ stage_4_pass__password_store () {
 
   wget -N https://git.zx2c4.com/password-store/snapshot/password-store-${PASS_VERS}.tar.xz
   #tar xvzf password-store-${PASS_VERS}.tar.xz
+
+  # FIXME/2017-12-19: What about a signing key????
+
   tar --xz -xvf password-store-${PASS_VERS}.tar.xz
   cd password-store-${PASS_VERS}
   sudo make install
@@ -4187,6 +4308,8 @@ stage_4_password_store () {
   stage_4_pass__libpth
 
   stage_4_pass__libgcrypt
+
+  stage_4_pass__libnpth
 
   stage_4_pass__gnupg_2
 
@@ -6582,8 +6705,14 @@ stage_4_install_gocryptfs () {
 
   stage_announcement "stage_4_install_gocryptfs"
 
+  pushd ${OPT_DLOADS} &> /dev/null
 
-# FIXME
+  # Compile.
+  if false; then
+    go get -d github.com/rfjakob/gocryptfs
+    cd $(go env GOPATH)/src/github.com/rfjakob/gocryptfs
+    ./build.bash
+  fi
 
   GOCFS_VERS="v1.4.2"
   BASE_DOWNLOAD="https://github.com/rfjakob/gocryptfs/releases/download"
@@ -6591,11 +6720,18 @@ stage_4_install_gocryptfs () {
   wget -N ${BASE_VERS}/gocryptfs_${GOCFS_VERS}_linux-static_amd64.tar.gz
   wget ${BASE_VERS}/gocryptfs_${GOCFS_VERS}_linux-static_amd64.tar.gz.asc
 
-go get -d github.com/rfjakob/gocryptfs
-cd $(go env GOPATH)/src/github.com/rfjakob/gocryptfs
-./build.bash
+  # https://nuetzlich.net/gocryptfs/releases/
+  wget https://nuetzlich.net/gocryptfs-signing-key.pub
+  gpg --import gocryptfs-signing-key.pub
 
-  pushd ${OPT_DLOADS} &> /dev/null
+  gpg --verify gocryptfs_${GOCFS_VERS}_linux-static_amd64.tar.gz.asc
+  if [[ $? -ne 0 ]]; then
+    >&2 echo "ERROR: Verification failed!"
+    exit 1
+  fi
+
+  # Contains: gocryptfs, gocryptfs.1
+  tar -xvzf gocryptfs_${GOCFS_VERS}_linux-static_amd64.tar.gz -C ${OPT_BIN}
 
   popd &> /dev/null
 
@@ -6648,8 +6784,6 @@ stage_4_install_tomb_volume_encryption () {
   #
   #   $ wget -q https://files.dyne.org/tomb/Tomb-${TOMB_VERS}.tar.gz.asc -O- \
   #     | sudo apt-key add -
-
-  wget -N https://files.dyne.org/tomb/Tomb-${TOMB_VERS}.tar.gz
 
   tar xvfz Tomb-${TOMB_VERS}.tar.gz
 
@@ -6713,7 +6847,7 @@ stage_4_install_pass_tomb_extension () {
   #   gpg:          There is no indication that the signature belongs to the owner.
   #   Primary key fingerprint: 06A2 6D53 1D56 C42D 6680  5049 C546 9996 F0DF 68EC
   if [[ $? -ne 0 ]]; then
-    &2 echo "ERROR: Checksum mismatch!"
+    >&2 echo "ERROR: Checksum mismatch!"
     exit 1
   fi
 
@@ -7060,13 +7194,14 @@ setup_customize_extras_go () {
   stage_4_install_ffdiaporama
 
   # 2017-12-17: I suppose I should use offical releases, not HEAD! Dummy!!
-  #stage_4_install_gocryptfs
+  stage_4_install_gocryptfs
 
   # 2017-12-17: TOMB BONE
-  #stage_4_install_tomb_volume_encryption
+  stage_4_install_tomb_volume_encryption
 
-  #stage_4_install_pass_tomb_extension
+  stage_4_install_pass_tomb_extension
 
+  # 2017-12-19: Meh. I cannot get fcong or gsettings to automate this:
   #stage_4_desktop_keybindings
 
   # Add before this'n: stage_4_fcn_template.
