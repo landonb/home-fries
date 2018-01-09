@@ -1069,19 +1069,23 @@ git_infuse_assume_unchanging() {
 
   pushd $(dirname -- "${fpath}") &> /dev/null
 
-  git update-index --no-assume-unchanged "${fname}"
-  if [[ ! $(git ls-files --error-unmatch "${fname}" 2>/dev/null ) ]]; then
-    echo "${FUNCNAME[0]}: file not in git: ${fname}"
-    exit 1
-  fi
-  if [[ "${do_sym}" == true && ! -h "${fname}" ]]; then
-    local dirty_status=$(git status --porcelain "${fname}")
-    if [[ -n "${dirty_status}" ]]; then
-      echo "${FUNCNAME[0]}: git file is dirty: ${fname}"
+  # Only do this if file not already being ignored, else after --no-assume-unchanged,
+  # we detect file is dirty and exit 1, ugly.
+  if ! $(git ignored | grep "${fname}" > /dev/null); then
+    #git update-index --no-assume-unchanged "${fname}"
+    if [[ ! $(git ls-files --error-unmatch "${fname}" 2>/dev/null ) ]]; then
+      echo "${FUNCNAME[0]}: file not in git: ${fname}"
       exit 1
     fi
+    if [[ "${do_sym}" == true && ! -h "${fname}" ]]; then
+      local dirty_status=$(git status --porcelain "${fname}")
+      if [[ -n "${dirty_status}" ]]; then
+        echo "${FUNCNAME[0]}: git file is dirty: ${fname}"
+        exit 1
+      fi
+    fi
+    git update-index --assume-unchanged "${fname}"
   fi
-  git update-index --assume-unchanged "${fname}"
 
   /bin/rm "${fname}"
   /usr/bin/git checkout -- "${fname}"
