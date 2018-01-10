@@ -1105,9 +1105,9 @@ git_unfuse_symlink() {
   pushd $(dirname -- "${fpath}") &> /dev/null
   if [[ -h "${fname}" ]]; then
     /bin/rm "${fname}"
-    /bin/rm "${fname}-COMMIT"
+    /bin/rm -f "${fname}-COMMIT"
     /usr/bin/git checkout -- "${fname}"
-    git update-index --no-assume-unchanged "${fname}"
+    /usr/bin/git update-index --no-assume-unchanged "${fname}"
   fi
   popd &> /dev/null
 }
@@ -1117,8 +1117,8 @@ git_unfuse_hardcopy() {
   local fname=$(basename -- "${fpath}")
   pushd $(dirname -- "${fpath}") &> /dev/null
   if [[ -f "${fname}" ]]; then
-    /bin/rm "${fname}"
-    /bin/rm "${fname}-COMMIT"
+    #/bin/rm "${fname}"
+    /bin/rm -f "${fname}-COMMIT"
     /usr/bin/git checkout -- "${fname}"
     git update-index --no-assume-unchanged "${fname}"
   fi
