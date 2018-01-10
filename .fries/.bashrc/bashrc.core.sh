@@ -2219,26 +2219,19 @@ disable_wakeup_on_lid () {
 
 #########################
 
-# 2016-10-10: Starting in September sometime,
-# on both 14.04/rebecca/trusty and 16.04/sarah/xenial,
-# both my laptop and my desktop had stopped asking for
-# a password on resume from suspend.
+# 2016-10-10: Starting last month, on both 14.04/rebecca/trusty and
+# 16.04/sarah/xenial, both laptop and desktop stopped asking for
+# password on resume from suspend.
 #
-# This is a hacky work-around -- using the screen saver.
-# I don't know that the screensaver's lock is as secure as the window manager's lock.
-# FIXME/EXPLAIN: How does a screensaver lock and an encrypted home work?
-#                You can just physically connect to the machine somehow
-#                and read home directory files, can you?
-# In any case, this is the best I can do so far.
-
-# FIXME: This isn't the right URL but 'natchurally I didn't come up with any
-#   of the gnome-screensaver-command, dbus-send, or systemctl command.
-#   I just found them. 'natchurally.
+# This is a hacky work-around -- use the screen saver lock command.
+# Note that the unlock screen is different than the Window Manager's,
+# i.e., if you had gone though Mint Menu > Lock Screen.
+#
+# Might possibly be this bug 1 other person in known universe is seeing:
+#   "no password prompt after suspend, settings ignored"
 #     https://bugs.launchpad.net/linuxmint/+bug/1185681
-#   Hopeless links:
-#     http://askubuntu.com/questions/22735/disable-locking-the-screen-after-resuming-from-suspend
-#       gsettings get org.gnome.desktop.lockdown disable-lock-screen
-#         is false already!
+#
+# Not sure where I found the dbus-send trick.
 lock_screensaver_and_power_suspend () {
   # 2016-10-25: Heck, why not! At least show some semblance of not being
   # a complete idiot.
@@ -2259,10 +2252,15 @@ lock_screensaver_and_power_suspend () {
     echo "ERROR: Unknown distro. I refuse to Lock Screensaver and Power Suspend."
     return 1
   fi
+  # Sneak in enabling locking screen saver.
+  screensaver_lockon
 } # end: lock_screensaver_and_power_suspend
 
 lock_screensaver_and_do_nothing_else () {
   gnome-screensaver-command --lock
+  # I'm iffy about enabling locking screensaver on simple qq.
+  # But also thinking maybe yeah.
+  screensaver_lockon
 } # end: lock_screensaver_and_do_nothing_else
 
 # 2016-10-10: Seriously? `qq` isn't a command? Sweet!

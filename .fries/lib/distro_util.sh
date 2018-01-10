@@ -90,6 +90,36 @@ determine_window_manager () {
   #echo "WM_TERMINAL_APP: $WM_TERMINAL_APP"
 }
 
+screensaver_lockoff () {
+  determine_window_manager
+  if ${WM_IS_MATE}; then
+    # Disable screensaver and lock-out.
+    #  gsettings doesn't seem to stick 'til now.
+    #?: sudo gsettings set org.mate.screensaver lock-enabled false
+    # Or did it just require an apt-get update to finally work?
+    gsettings set org.mate.screensaver idle-activation-enabled false
+    gsettings set org.mate.screensaver lock-enabled false
+  elif ${WM_IS_CINNAMON}; then
+    tweak_errexit +ex
+    gsettings set org.cinnamon.desktop.screensaver lock-enabled false \
+      &> /dev/null
+    reset_errexit
+  fi
+}
+
+screensaver_lockon () {
+  determine_window_manager
+  if ${WM_IS_MATE}; then
+    gsettings set org.mate.screensaver idle-activation-enabled true
+    gsettings set org.mate.screensaver lock-enabled true
+  elif ${WM_IS_CINNAMON}; then
+    tweak_errexit +ex
+    gsettings set org.cinnamon.desktop.screensaver lock-enabled true \
+      &> /dev/null
+    reset_errexit
+  fi
+}
+
 # ============================================================================
 # *** Apache-related
 

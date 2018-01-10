@@ -42,7 +42,7 @@ source_deps() {
 
   # Load: array_in
   source "${curdir}/../lib/array_util.sh"
-  # Load: determine_window_manager
+  # Load: determine_window_manager / screensaver_lockoff / screensaver_lockon
   source "${curdir}/../lib/distro_util.sh"
   # Load: ask_yes_no_default
   source "${curdir}/../lib/interact_util.sh"
@@ -1871,6 +1871,8 @@ setup_ubuntu_go () {
 
   # Download, compile, and configure lots of software.
   setup_mint_17_stage_4_extras
+
+  screensaver_lockon
 
   print_install_time
 
