@@ -186,9 +186,7 @@ MAKE_CONF_DUMPS=false
 #MAKE_CONF_DUMPS=true
 
 user_home_conf_dump() {
-
   if ${MAKE_CONF_DUMPS} && [[ ${IS_HEADED_MACHINE_ANSWER} == "Y" ]]; then
-
     RELAT=$1
 
     /bin/mkdir -p $RELAT
@@ -216,7 +214,6 @@ user_home_conf_dump() {
     tar cvzf $RELAT-user_home_conf_dump.tar.gz $RELAT
 
   fi
-
 }
 
 # *** Print all environment variables, should the developer want to
@@ -262,15 +259,14 @@ fi
 
 # *** FIRST/FRESH BOOT: Upgrade and Install Packages
 
-setup_mint_17_stage_1_apt_get_install () {
-
+setup_mint_17_stage_1_confirm () {
   echo
-  echo "Welcome to the installer!"
+  echo 'Welcome to the installer!'
   echo
   #echo "We're going to install lots of packages and then reboot."
   #echo
   if ${DO_INSTALL_MYSQL}; then
-    echo "NOTE: The Mysql installer will ask you for a new password."
+    echo 'NOTE: The Mysql installer will ask you for a new password.'
     echo
   fi
   echo "Let's get moving, shall we?"
@@ -284,1001 +280,995 @@ setup_mint_17_stage_1_apt_get_install () {
   # Auto-answers 'Y':
   #ask_yes_no_default 'Y' 9999999999999999999999999999999
 
-  if [[ $the_choice != "Y" ]]; then
-
-    echo "Awesome! See ya!!"
+  if [[ $the_choice != 'Y' ]]; then
+    echo 'Awesome! See ya!!'
     exit 1
+  fi
+}
 
+setup_mint_17_stage_1_dump_conf () {
+  # Make a snapshot of the user's home directory.
+  #sudo apt-get install dconf-tools
+  sudo apt-get install -y dconf-cli
+  user_home_conf_dump "${SCRIPT_DIR}/conf_dump/new_01"
+}
+
+setup_mint_17_stage_1_disable_sudo_timeout () {
+  # Make sudo'ing a little easier (just ask once per terminal).
+
+  # Tweak sudoers: Instead of a five-minute sudo timeout, disable it.
+  # You'll be asked for a password once per terminal. If you care about
+  # sudo not being revoked after a timeout, just close your terminal when
+  # you're done with it, Silly. (Or run `sudo -K`
+  #       See: lock_screensaver_and_power_suspend)
+
+  if sudo grep "Defaults:$USER" /etc/sudoers 1> /dev/null; then
+    echo
+    echo 'Skipping: /etc/sudoers already edited.'
+    echo
   else
-
-    # *** Make a snapshot of the user's home directory.
-
-    #sudo apt-get install dconf-tools
-    sudo apt-get install -y dconf-cli
-    user_home_conf_dump "${SCRIPT_DIR}/conf_dump/new_01"
-
-    # *** Install wmctrl so we can determine the window manager.
-
-    sudo apt-get install -y wmctrl
-    # NOTE: In Mint MATE, calling gsettings now (before update/upgrade)
-    #       doesn't seem to stick. So we'll wait 'til a little later in
-    #       this function to call determine_window_manager and gsettings.
-
-    # Are we in a virtual machine?
-    sudo apt-get install -y virt-what
-    # FIXME: What about Are we in a chroot? Does it matter?
-
-    # *** Make sudo'ing a little easier (just ask once per terminal).
-
-    # Tweak sudoers: Instead of a five-minute sudo timeout, disable it.
-    # You'll be asked for a password once per terminal. If you care about
-    # sudo not being revoked after a timeout, just close your terminal when
-    # you're done with it, Silly.
-
-    if sudo grep "Defaults:$USER" /etc/sudoers 1> /dev/null; then
-      echo
-      echo "Skipping: /etc/sudoers already edited."
-      echo
-      echo "Sorry you have to run this script again... hahaha, sucker"
-      echo
-    else
-      sudo /bin/cp /etc/sudoers /etc/sudoers-ORIG
-      sudo chmod 0660 /etc/sudoers
-      # For more info on the Defaults, see `man sudoers`.
-      # - tty_tickets is on by default.
-      # - timestamp_timeout defaults to 5 (minutes).
-      # Note the sudo tee trick, since you can't run e.g.,
-      #       sudo echo "" >> to a write-protected file,
-      #      since the append command happens outside the sudo.
-      # Disable sudo password-entering timeout.
-      echo "
+    sudo /bin/cp /etc/sudoers /etc/sudoers-ORIG
+    sudo chmod 0660 /etc/sudoers
+    # For more info on the Defaults, see `man sudoers`.
+    # - tty_tickets is on by default.
+    # - timestamp_timeout defaults to 5 (minutes).
+    # Note the sudo tee trick, since you can't run e.g.,
+    #       sudo echo '' >> to a write-protected file,
+    #      since the append command happens outside the sudo.
+    # Disable sudo password-entering timeout.
+    echo "
 # Added by ${0}:${USER} at `date +%Y.%m.%d-%T`.
 Defaults tty_tickets
 Defaults:${USER} timestamp_timeout=-1
 # Is this safe? Passwordless chroot.
 ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 " | sudo tee -a /etc/sudoers &> /dev/null
-      sudo chmod 0440 /etc/sudoers
-    fi
+    sudo chmod 0440 /etc/sudoers
+  fi
 
-    sudo visudo -c
+  sudo visudo -c
+  if [[ $? -ne 0 ]]; then
+    echo 'WARNING: We messed up /etc/sudoers!'
+    echo
+    echo 'To recover: login as root, since sudo is broken,'
+    echo 'and restore the original file.'
+    echo
+    echo '$ su'
+    echo '$ /bin/cp /etc/sudoers-ORIG /etc/sudoers'
+    exit 1
+  fi
+}
+
+setup_mint_17_stage_1_dist_upgrade () {
+  # Upgrade and install packages.
+
+  # Update the cache.
+  sudo apt-get -y update
+
+  # Update all packages.
+  sudo apt-get -y upgrade
+
+  # Update distribution packages.
+  sudo apt-get -y dist-upgrade
+
+  source /etc/lsb-release
+  if [[ $DISTRIB_ID == 'Ubuntu' || $DISTRIB_ID == 'LinuxMint' ]]; then
+    # Ubuntu 16.04 LTS xenial
+    sudo apt-get install -y dkms build-essential
+  else
+    sudo apt-get install -y dkms build-essentials
+  fi
+  # 2016-04-04: I don't think you need to reboot here... do you??
+  #             There was a comment here earlier that a reboot was
+  #             necessary, but I lost track installing Ubuntu MATE 15.10
+  #             and maybe it's not necessary anymore....
+  #
+  # FIXME/NEXT-TIME: Well, except for this comment from apt-get install nginx, below:
+  #
+  # nginx and nginx-core fail if you don't reboot at some point
+  # i had installed build-essentials and dkms without rebooting
+  # and i ran apt-get dist-upgrade, too...
+  #
+  #Setting up nginx-core (1.9.3-1ubuntu1.1) ...
+  #Job for nginx.service failed because the control process exited with error code.
+  # See 'systemctl status nginx.service' and 'journalctl -xe' for details.
+  #invoke-rc.d: initscript nginx, action 'start' failed.
+  #dpkg: error processing package nginx-core (--configure):
+  # subprocess installed post-installation script returned error exit status 1
+  #dpkg: dependency problems prevent configuration of nginx:
+  # nginx depends on nginx-core (>= 1.9.3-1ubuntu1.1) | nginx-full (>= 1.9.3-1ubuntu1.1)
+  #   | nginx-light (>= 1.9.3-1ubuntu1.1) | nginx-extras (>= 1.9.3-1ubuntu1.1); however:
+  #  Package nginx-core is not configured yet.
+  #  Package nginx-full is not installed.
+  #  Package nginx-light is not installed.
+  #  Package nginx-extras is not installed.
+  # nginx depends on nginx-core (<< 1.9.3-1ubuntu1.1.1~) | nginx-full (<< 1.9.3-1ubuntu1.1.1~)
+  #   | nginx-light (<< 1.9.3-1ubuntu1.1.1~) | nginx-extras (<< 1.9.3-1ubuntu1.1.1~); however:
+  #  Package nginx-core is not configured yet.
+  #  Package nginx-full is not installed.
+  #  Package nginx-light is not installed.
+  #  Package nginx-extras is not installed.
+  #
+  #dpkg: error processing package nginx (--configure):
+  # dependency problems - leaving unconfigured
+  #Processing triggers for sgml-base (1.26+nmNo apport report written because
+  #the error message indicates its a followup error from a previous failure.
+  #                                                 u4ubuntu1) ...
+  #
+  #Errors were encountered while processing:
+  # nginx-core
+  # nginx
+  #E: Sub-process /usr/bin/dpkg returned an error code (1)
+  #
+  #
+  # So, well, you might need to reboot after all.....
+}
+
+setup_mint_17_stage_1_install_packages () {
+  # NOTE: This installs a lot of packages. The list has grown over the years.
+  #       It's a mix of packages needed for Cyclopath, packages that [lb]
+  #       likes, and most recently packages for other projects. It would be
+  #       tedious and unnecessary to cull the list; it only takes hard drive
+  #       space and doesn't waste computation resources to have all this
+  #       installed. So feel free to keep adding packages.
+
+  # -- Install MySQL early, because it's interactive.
+
+  if ${DO_INSTALL_MYSQL}; then
+    # NOTE: The Mysql package wants you to enter a password.
+    #       [lb] figured all package installers are not interactive,
+    #       but I guess there are some exceptions. Or maybe there's
+    #       an apt-get switch I'm missing.
+    #
+    # FIXME: You could use `expect` here to send the pwd to the terminal.
+    #
+    sudo apt-get install -y pwgen
+    if [[ ! -e ${SCRIPT_DIR}/fries-setup-mysql.pwd ]]; then
+      MYSQL_PASSWORD=$(pwgen -n 16 -s -N 1 -y)
+      echo "${MYSQL_PASSWORD}" > ${SCRIPT_DIR}/fries-setup-mysql.pwd
+    else
+      MYSQL_PASSWORD=`cat ${SCRIPT_DIR}/fries-setup-mysql.pwd`
+    fi
+    echo
+    echo '*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!'
+    echo "Try this for a Mysql password: ${MYSQL_PASSWORD}"
+    echo '*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!'
+    echo 'Which is saved also to the file: fries-setup-mysql.pwd'
+    echo
+    sudo apt-get -y install \
+      \
+      mysql-server
+  fi
+
+  # -- encfs warning (also interactive).
+
+  # -- Install postfix (also interactive).
+
+  # FIXME: Which package does this? It's another interactive installer.
+  # 2016.03.23: It's one of: libpam0g-dev openssh-server signing-party.
+  # You'll be prompted to "Please select the mail server configuration
+  #                        type that best meets your needs."
+  # Just choose "Internet Site", or even "Local only".
+
+  # For "System mail name" just use... I dunno, whatever, $USE_DOMAIN.
+
+  # -- Stop Apache.
+  #
+  # 2016-07-17: Cyclopath Resuscitation. apt-get install nginx fails
+  # because nginx cannot start because port 80 in use. Huh.
+
+  if [[ -f /etc/init.d/apache2 ]]; then
+    sudo /etc/init.d/apache2 stop
+  fi
+
+  # -- Install the rest of the packages.
+
+  # This remaining packages will install without need for human interaction.
+
+  # 2014.11.09: Differences between Mint 16 and Mint 17:
+  #   "Note, selecting 'apache2-dev' instead of 'apache2-threaded-dev'"
+  #   "Package libicu48 is not available, but is referred to by another pkg."
+  #     --> It's now 52.
+  #   "E: Unable to locate package postgresql-server-dev-9.1"
+  #   "E: Couldn't find any package by regex 'postgresql-server-dev-9.1'"
+  #     --> It's now 9.3.
+
+  # MAYBE: Categorize and Group these packages, possibly listing
+  #        the same package in different groups. I.e., make a
+  #        list of packages of Dubsacks VIM, another list of
+  #        packages for Cyclopath, a list of packages you use
+  #        for development, etc. For now, whatever, it's a big,
+  #        long list, but at least the list is an array so we
+  #        can add comments.
+
+  local CORE_PACKAGE_LIST=(
+
+    # Kernel goodies.
+    dkms
+    build-essential
+
+    # Vim (See later: Dubsacks Vim.)
+    vim-gtk
+    # Text columnizer.
+    par
+    # Ctags.
+    exuberant-ctags
+    # Ruby dev tools for Command-T.
+    ruby-dev
+
+    # `most` is pretty lame; author prefers `less`.
+    #most
+    # `less` is made better with color.
+    python-pygments
+
+    # The better grepper.
+    silversearcher-ag
+    # 2016-11-18 Well, why not be inclusive. Every now
+    # and then you copy and paste someone elses ack.
+    ack-grep
+
+    # Un-Zip-a-Dee-Doo-Dah
+    unzip
+
+    # All your repositories are belong to too many managers.
+    git
+    git-core
+
+    # One would think whois would be standard.
+    whois
+    # nslookup is... stale, to be polite. Use dig instead.
+
+    htop
+
+    # I like the build-in pass cmd better.
+    #keepassx
+
+    encfs
+    # I thought scrub was a default program, too; guess not.
+    # Also, if you're doing it right, you won't need scrub:
+    #   on disk, your data should *always* be encrypted;
+    #   it is only in memory or on screen that data should be
+    #   plain.
+    scrub
+    #
+    pinentry-gtk2
+    pinentry-doc
+
+    expect
+
+    gnupg2
+
+    pwgen
+
+    libpam0g-dev
+    openssh-server
+    signing-party
+
+    # 2016-07-17: Ubuntu missing bc. What a weirdo.
+    bc
+
+    # 2016-10-04: Missing until now? Not so surprising.
+    # Though surprising I did not face this in 16.04, just 14.04.
+    rake
+
+  ) # end: CORE_PACKAGE_LIST
+
+  local CORE_DESKTOP_LIST=(
+
+    # CLI OS and Window Manager customizers.
+    dconf-cli
+    gconf-editor
+    wmctrl
+    xdotool
+
+    # Awesomest graphical diff.
+    meld
+
+    # Eye of Gnome, a slideshow image viewer.
+    eog
+
+    # Hexadecimal file viewer.
+    ghex
+
+    # Hexadecimal diff.
+    vbindiff
+    #hexdiff
+
+    chromium-browser
+
+  ) # end: CORE_DESKTOP_LIST
+
+  local BIG_PACKAGE_LIST=(
+
+    logcheck
+    logcheck-database
+
+    logtail
+    # A colorful, more clever tail command.
+    multitail
+
+    socket
+
+    # Addition, non-core repo tools.
+    subversion
+    mercurial
+    # A beautiful, colorful git browser/helper.
+    tig
+
+    apache2
+    apache2-dev
+    apache2-utils
+
+    nginx
+
+    postgresql
+    postgresql-client
+
+    libxml2-dev
+    libjpeg-dev
+    libpng++-dev
+    imagemagick
+    libmagick++-dev
+    texlive
+    autoconf
+    vsftpd
+    libcurl3
+    pcregrep
+    gir1.2-gtop-2.0
+    libgd-dev
+    libxslt1-dev
+    xsltproc
+    libicu-dev
+
+    python-dev
+    python-setuptools
+    libapache2-mod-python
+    python-simplejson
+    python-logilab-common
+    python-gtk2
+    python-wnck
+    python-xlib
+    python-dbus
+    libpython3-dev
+
+    # 2016-04-04: I just had this error but I think I figured it out...
+    #     Setting up pylint (1.3.1-3ubuntu1) ...
+    #     ERROR: pylint is broken - called emacs-package-install
+    #            as a new-style add-on, but has no compat file.
+    # Install pylint for emacs.
+    # QUESTION: Why -for emacs-? I can lint from wherever I want....
+    #           I guess not that I lint, though, in Cyclopath we had a kazillion
+    #           errors and at my current emploer we (currently) do not lint.
+    pylint
+
+    # FIXME/MAYBE: Can/Should these be virtualenv-installed?
+    python-egenix-mxdatetime
+    python-egenix-mxtools
+    python-subversion
+    python-levenshtein
+
+    # Skipping: virtualenvwrapper (see: pip install instead)
+    #virtualenvwrapper
+    # Install via virtualenv and pip:
+    #  python-pytest
+    python-pytest
+    # FIXME: There are more python modules, like levenshtein,
+    #        that should be installed via virtualenv, too.
+    # For tox, install multiple Python versions.
+    #python2.6
+    #python3.2
+    #python3.3
+    # See pip (so we can install current version):
+    #  cookiecutter
+
+    # FIXME/MAYBE/MIGHT NOT MATTER: Just pip these in requirements.txts?
+    python-tox
+    python-coverage
+    python3-coverage
+    python-flake8
+    python3-flake8
+
+    libagg-dev
+    libedit-dev
+    mime-construct
+
+    libproj-dev
+    proj-bin
+    proj-data
+
+    libipc-signal-perl
+    libmime-types-perl
+    libproc-waitstat-perl
+
+    python-nltk
+    python-matplotlib
+    python-tk
+
+    # artha: off-line English thesaurus.
+    # 2016-03-23: What uses this? You, from the command line?
+    artha
+
+    fabric
+    # Know ye also there is a get-pip.py installer, too.
+    python-pip
+    python3-pip
+    python3-sphinx
+
+    curl
+
+    # Node.js package manager.
+    npm
+
+    autoconf2.13
+
+    # Color picker.
+    gcolor2
+
+    # Hopefully never: Windoes emulator and something about its browser.
+    #  wine
+    #  wine-gecko1.4
+
+    # Interactive bash debugger. To set a breakpoint:
+    #   source /usr/share/bashdb/bashdb-trace
+    #   _Dbg_debugger
+    # http://bashdb.sourceforge.net/
+    bashdb
+
+    # More exo stuff.
+    sqlite3
+    libsqlite3-dev
+    spatialite-bin
+    # Should already be installed:
+    #libspatialite5
+
+    unison
+
+    # exFAT, MS format used on 32GB+ flash drives.
+    exfat-fuse
+    exfat-utils
+
+    # ogrinfo et al
+    gdal-bin
+    gpx2shp
+
+    streamripper
+
+    # Maybe some day...
+    zsh
+
+    # For getting at automated emails sent by daemons.
+    #mail
+    #mutt
+    ##mutt-patched
+    #alpine
+    # You can also just do:
+    #  sudo cat /var/spool/mail/root
+    #  sudo tail -n 1000 /var/spool/mail/root
+    #  sudo grep "cron" /var/spool/mail/root
+
+    # GUI git log tool and commit comparison [visual diff] tool
+    gitk
+
+    # 2016-09-30: Weird. I swore this was already part of setup.
+    # 2016-10-03: I installed adb first, then android-tools-adb,
+    # and the latter uninstalled the former. Hmmm.
+    #adb
+    android-tools-adb
+
+    # Run `do-release-upgrade` to upgrade from one LTS to the
+    # next LTS [point release], e.g., from 14.04 to 16.04.1.
+    # (You can `do-release-upgrade -d` to upgrade to initial release,
+    # e.g., 16.04.)
+    # https://help.ubuntu.com/lts/serverguide/installing-upgrading.html#do-release-upgrade
+    # https://wiki.ubuntu.com/YakketyYak/ReleaseNotes
+    ubuntu-release-upgrader-core
+
+    inotify-tools
+
+    # 2017-05-23: What is with wanting to save color output to a file?
+    # ls --color=always | aha --black > ls-with-colors.html
+    aha
+    # You can also pygmentize exiting files.
+    #   pygmentize file.pl | \
+    #     grep -i --color=always version | \
+    #     aha --black > ls-with-colors.html
+
+  ) # end: BIG_PACKAGE_LIST
+
+  # 2016-09-26: What? I ran this script last Thursday, but did it not
+  #             do this BIG_DESKTOP_LIST? Wireshark was not installed.
+  #             Nor was dia. Nor anything else in this list! (dia,
+  #             inkscape; fakeroot was fine, as was thunderbird;
+  #             evince was not installed, nor akregator, nor any fonts:
+  #             ttf-ancient-fonts, fonts-cantarell, lmodern, ttf-*
+  #             (except ttf-bitstream-vera was okay), tv-fonts;
+  #             nor digikam-doc, cmake, qt4-qmake, qt5-qmake,
+  #             kdevplatform-dev, gnome-color-manager;
+  #             hamster-applet and hamster-indicator were installed;
+  #             finally, python-wxgtk2.8 IS NOT AVAILABLE!!!
+  #
+  #             HAHAHA, I bet you it failed because wxgtk2.8!!
+  #
+  #             FIXME: Is there not `set +e` set when running this script?
+  #
+  # FIXME: DELETE THIS COMMENT AFTER ANOTHER LINUX MINT 18 INSTALL
+  #        and verifying that, e.g., wireshark installed.
+  #        I'm pretty sure it was because of a package name with
+  #        a version that applied to Mint 17 but not to Mint 18.
+
+  local BIG_DESKTOP_LIST=(
+
+    # Excellent diagramming.
+    dia
+
+    # SVG editor.
+    inkscape
+
+    # Pencil Project is a prototyping tool that
+    # also support dia-ish diagram drawing.
+    #  http://pencil.evolus.vn
+    # But wait! The pencil package in Ubuntu is a different app.
+    #  No: pencil
+    #  See: stage_4_pencil_install
+
+    # Well, when I was your age, we called it Ethereal.
+    # NOTE: You will be prompted to answer Yes/No to should non-users be
+    #       able to capture packets. Default is No. Answer YES instead.
+    wireshark
+    # Woozuh, some funky root-faking mechanism Wireshark uses.
+    fakeroot
+    #
+    # Terminal-based Wireshark alternatives
+    ssldump
+    tshark
+
+    thunderbird
+    # Mutt bark bark better than mail (see also: elm)
+    mutt
+
+    # PDF/Document readers.
+    # 2015.02.26: [lb] cannot get okular to open any PDFs...
+    #             and all menu items but one are disabled,
+    #             and choosing it crashes okular.
+    #okular
+    # 2015.02.26: One PDF I opened with acroread does not
+    #             use the correct fonts... maybe because
+    #             the version is so old (and acroread is
+    #             no longer maintained). And, though I
+    #             thought evince was installed by default,
+    #             it appears not.
+    #             Ug. use libreoffice to print PDFs.
+    evince
+
+    akregator
+
+    # Symbola font for emojis.
+    ttf-ancient-fonts
+    # All the fonts.
+    fonts-cantarell
+    lmodern
+    ttf-aenigma
+    ttf-georgewilliams
+    ttf-bitstream-vera
+    ttf-sjfonts
+    tv-fonts
+    #ubuntustudio-font-meta
+
+    # Ok, the distro version lags and has bugs. We will build later from source.
+    #digikam
+    digikam-doc
+    # hrmmmm / 759 MB / for digikam
+    #kde-full
+    cmake
+    qt4-qmake
+    qt5-qmake
+    kdevplatform-dev
+    # Color mgmt.
+    gnome-color-manager
+    #dispcalgui
+
+    # Time tracking applet.
+    hamster-applet
+    hamster-indicator
+
+    # DVD burning software.
+    # Already installed.
+    #brasero
+
+    # For the qq command.
+    gnome-screensaver
+
+    # Webcam software.
+    # https://help.ubuntu.com/community/Webcam
+    cheese
+
+    # Lua scripting.
+    lua5.2
+    lua5.2-doc
+
+    # Yaml linter. Because you always wanted more Yaml in your life.
+    yamllint
+
+    # For abcde CD ripper.
+    cd-discid
+    # vorbis-tools is probably already installed:
+    vorbis-tools
+    # lame is for MP3s.
+    lame
+    # Audio extraction tools.
+    #   cdparanoia - audio extraction tool for sampling CDs
+    #   libcdio13 - library to read and control CD-ROM
+    #   icedax - Creates WAV files from audio CDs
+    #   flac - Free Lossless Audio Codec - command line tools
+    cdparanoia
+    libcdio13
+    icedax
+    flac
+    # mailx. Postfix. for cddb-tool
+    bsd-mailx
+    # Misc.
+    # cd-discid - CDDB DiscID utility
+    cd-discid
+    # id3v2 - A command line id3v2 tag editor
+    id3v2
+    # vorbis-tools - several Ogg Vorbis tools
+    vorbis-tools
+    # mkcue - Generates a CUE sheet from a CD
+    mkcue
+    # $ apt-cache search cdrtools
+    # simpleburn - Minimalistic application for burning and extracting CDs and DVDs
+    simpleburn
+    # abcde complains that cddb-tool not found. Is this close enough?
+    python-cddb
+    # What is the `musicbrainz` equivalent?
+    # Picard is a cross-platform music tagger written in Python.
+    picard
+    # libwebservice-musicbrainz-perl - XML based Web service API to the MusicBrainz database
+    libwebservice-musicbrainz-perl
+    # Needed for lame encoding.
+    # eyed3 - Display and manipulate id3-tags on the command-line
+    # python-eyed3 - Python module for id3-tags manipulation
+    eyed3
+
+    # mount.nfs
+    nfs-common
+
+  ) # end: BIG_DESKTOP_LIST
+
+  local BIG_DESKTOP_LIST_MINT_17=(
+    # wxPython. Widgets!
+    python-wxgtk2.8
+  ) # end: BIG_DESKTOP_LIST_MINT_17
+
+  local BIG_DESKTOP_LIST_MINT_18=(
+
+    python-wxgtk3.0
+
+    # On 14.04, ruby 1.9 is default. On 16.04, ruby 2.3 is default.
+    ruby2.3
+    ruby2.3-dev
+    ruby2.3-doc
+
+  ) # end: BIG_DESKTOP_LIST_MINT_18
+
+  local BIG_PACKAGE_LIST_LMINT_17X=(
+
+    postgresql-server-dev-9.3
+
+    apache2-mpm-worker
+
+    libicu52
+
+    ia32-libs
+
+    ttf-tuffy
+
+    libproj0
+    libspatialite5
+
+    kde-full
+    kde-workspace-dev
+
+    # NOTE: If you have two-step authentication enabled for Gmail,
+    #       rather than using your normal password, logon to google.com
+    #       and generate a special application password.
+    # checkgmail - alternative Gmail Notifier for Linux via Atom feeds
+    #   sudo perl -MCPAN -e 'install Crypt::SSLeay'
+    #   sudo perl -MCPAN -e 'install Crypt::Simple'
+    #   Needs a patch:
+    #     http://community.linuxmint.com/tutorial/view/1392
+    #     http://sourceforge.net/p/checkgmail/bugs/105/
+    #   but code is no longer maintained....
+    # mailnag
+    #   https://github.com/pulb/mailnag:
+    #   sudo add-apt-repository ppa:pulb/mailnag
+    #   # NOTE: To remove the repository:
+    #   #  sudo /bin/rm /etc/apt/sources.list.d/pulb-mailnag-trusty.list
+    #   sudo apt-get update
+    #   sudo apt-get install mailnag
+    # gmail-notify - Notify the arrival of new mail on Gmail
+    #   Returns: "Login appears to be invalid."
+    # Apps I did not try:
+    #   conduit - synchronization tool for GNOME
+    #   desktop-webmail - Webmail for Linux Desktops
+    #   enigmail - GPG support for Thunderbird and Debian Icedove
+    #   gm-notify - highly Ubuntu integrated GMail notifier
+    #   gnome-do-plugins - Extra functionality for GNOME Do
+    #   gnome-gmail - support for Gmail as the preferred email application in GNOME
+    #   mail-notification - mail notification in system tray
+    #   unity-webapps-gmail - Unity Webapp for Gmail
+    # Works fine:
+    #   gnome-gmail-notifier - A Gmail Inbox Notifier for the GNOME Desktop
+    gnome-gmail-notifier
+
+    # 2016-09-23: For some reason the desktop stopped being locked after suspend.
+    # For the xss-lock!
+    xscreensaver
+
+    # On 14.04, ruby 1.9 is default. On 16.04, ruby 2.3 is default.
+    ruby2.0
+    ruby2.0-dev
+    ruby2.0-doc
+
+  ) # end: BIG_PACKAGE_LIST_LMINT_17X
+
+  local BIG_PACKAGE_LIST_UMATE_15X=(
+
+    # MAYBE: Need any of the packages in BIG_PACKAGE_LIST_LMINT_17X?
+
+    # I tried gm-notify first and it works, and it doesn\'t use a
+    # tray icon, which is fine because my inbox is never empty and
+    # gnome-gmail-notifier\'s icon only indicates the non-emptiness
+    # of the inbox -- I\'d maybe care for an icon if there was a
+    # count of unread email, but really I just want a simple popup;
+    # and gm-nofity works fine. Not great, not bad, just fine; I\'d say
+    # I really like it if the desktop popup looked better, but that
+    # might be Gnome\'s fault, and the simplicity is starting to appeal
+    # to me. [-2016.03.25]
+    #  "gm-notify - highly Ubuntu integrated GMail notifier"
+    gm-notify
+    # I tried "gmail-notify" but it did not like my creds.
+    #  "gmail-notify - Notify the arrival of new mail on Gmail"
+    # There is also gnome-gmail which I did not try.
+    # "gnome-gmail - support for Gmail as the preferred email application in GNOME"
+
+  ) # end: BIG_PACKAGE_LIST_UMATE_15X
+
+  local BIG_PACKAGE_LIST_NOT_UBUNTU_16X=(
+
+    # On Ubuntu: eNote, selecting libgd-dev instead of libgd2-xpm-dev
+    libgd2-xpm-dev
+
+    # Ick. PHP *and* MySQL.
+    #libapache2-mod-php5
+    #php5-dev
+    #php5-mysql
+    #dh-make-php
+
+    python-logilab-astng
+
+    nspluginwrapper
+
+  ) # end: BIG_PACKAGE_LIST_NOT_UBUNTU_16X
+
+  local BIG_PACKAGE_LIST_UBUNTU_16X=(
+
+    # Cyclopath. runic.cs. apt-get is there, but not the other one.
+    aptitude
+
+    libgd-dev
+
+    # I am sure I no longer need anything doing with either php or mysql.
+    #libapache2-mod-php5
+    #php-mysql
+    #php7.0-mysql
+    # Not sure what this is but do not care.
+    #dh-make-php
+
+    # python-logilab-astng is python-astroid
+    python-astroid
+    python3-astroid
+
+    # Read a blog post that said to pull in the main multiverse
+    # but I still got an Unable to locate package response.
+    #  Add to /etc/apt/sources.list:
+    #   deb http://us.archive.ubuntu.com/ubuntu xenial main multiverse
+    #nspluginwrapper
+
+    #postgresql-server-dev-9.3
+    postgresql-server-dev-9.5
+
+    # Not Ubuntu 16.04:
+    #  apache2-mpm-worker
+    # Maybe?:
+    #  libapache2-mpm-itk
+
+    # Probably already installed:
+    #libicu52
+    libicu55
+
+    # No clue what equivalent(s) is(are) or if needed:
+    #  ia32-libs
+
+    #ttf-tuffy
+    # Maybe it is:
+    fonts-tuffy
+    # though I cannot imagine what it is for. LibreOffice?
+
+    # already installed:
+    #libproj0
+    libproj9
+    #libspatialite5
+    libspatialite7
+
+    # Cyclopath needs this to build Mapserver.
+    #  g++ ... -lselinux in is packages libselinux1 libselinux1-dev
+    libselinux1
+    libselinux1-dev
+    #  g++ ... -lgssapi_krb5 in is package libkrb5-dev
+    libkrb5-dev
+
+    # For fiona.
+    libgdal1-dev
+
+    # For Cyclopath flashclient build via fcsh.
+    # Follow symlinks on dpkg -S /usr/bin/java
+    #openjdk-8-jre-headless
+
+    # For Cyclopaths mr_do.
+    python-lxml
+
+  ) # end: BIG_PACKAGE_LIST_UBUNTU_16X
+
+  local BIG_PACKAGE_LIST_UBUNTU_1604_AND_BEYOND=(
+    # I.e., Ubuntu 16.04
+
+    digikam
+
+    # 2016-09-23: For some reason the desktop stopped being locked after suspend.
+    # For the xss-lock!
+    xscreensaver
+
+  ) # end: BIG_PACKAGE_LIST_UBUNTU_1604_AND_BEYOND
+
+  # 2016-07-17: Cyclopath Resuscitation. Why didn't a failed apt-get
+  # cause this script to die? I can't figure out where the errexit
+  # got taken away, but it did!
+  # 2016-09-26: I think I had the same issue with BIG_DESKTOP_LIST
+  # because python-wxgtk2.8. So adding USING_ERREXIT. Hrmmmmm.
+  USING_ERREXIT=true
+  reset_errexit
+
+  # One core package, and maybe
+  # One Giant MASSIVE package install.
+
+  sudo apt-get install -y ${CORE_PACKAGE_LIST[@]}
+  if [[ $? -ne 0 ]]; then
+    echo
+    echo "WARNING: FAILED: CORE_PACKAGE_LIST"
+    echo
+  fi
+
+  if [[ ${IS_HEADED_MACHINE_ANSWER} == "Y" ]]; then
+    sudo apt-get install -y ${CORE_DESKTOP_LIST[@]}
     if [[ $? -ne 0 ]]; then
-      echo "WARNING: We messed up /etc/sudoers!"
       echo
-      echo "To recover: login as root, since sudo is broken,"
-      echo "and restore the original file."
+      echo "WARNING: FAILED: CORE_DESKTOP_LIST"
       echo
-      echo "$ su"
-      echo "$ /bin/cp /etc/sudoers-ORIG /etc/sudoers"
-      exit 1
     fi
+  fi
 
-    # *** Upgrade and install packages.
+  if [[ ${INSTALL_ALL_PACKAGES_ANSWER} == "Y" ]]; then
 
-    # Update the cache.
-    sudo apt-get -y update
-
-    # Update all packages.
-    sudo apt-get -y upgrade
-
-    # Update distribution packages.
-    sudo apt-get -y dist-upgrade
+    # 2016-10-28: On mnemosyne, error said nginx and nginx-core
+    # failed to install, and something about a dpkg error.
+    # I rebooted and all is well.
+    sudo apt-get install -y ${BIG_PACKAGE_LIST[@]}
 
     source /etc/lsb-release
-    if [[ $DISTRIB_ID == 'Ubuntu' || $DISTRIB_ID == 'LinuxMint' ]]; then
-      # Ubuntu 16.04 LTS xenial
-      sudo apt-get install -y dkms build-essential
-    else
-      sudo apt-get install -y dkms build-essentials
-    fi
-    # 2016-04-04: I don't think you need to reboot here... do you??
-    #             There was a comment here earlier that a reboot was
-    #             necessary, but I lost track installing Ubuntu MATE 15.10
-    #             and maybe it's not necessary anymore....
-    #
-    # FIXME/NEXT-TIME: Well, except for this comment from apt-get install nginx, below:
-    #
-    # nginx and nginx-core fail if you don't reboot at some point
-    # i had installed build-essentials and dkms without rebooting
-    # and i ran apt-get dist-upgrade, too...
-    #
-    #Setting up nginx-core (1.9.3-1ubuntu1.1) ...
-    #Job for nginx.service failed because the control process exited with error code.
-    # See "systemctl status nginx.service" and "journalctl -xe" for details.
-    #invoke-rc.d: initscript nginx, action "start" failed.
-    #dpkg: error processing package nginx-core (--configure):
-    # subprocess installed post-installation script returned error exit status 1
-    #dpkg: dependency problems prevent configuration of nginx:
-    # nginx depends on nginx-core (>= 1.9.3-1ubuntu1.1) | nginx-full (>= 1.9.3-1ubuntu1.1)
-    #   | nginx-light (>= 1.9.3-1ubuntu1.1) | nginx-extras (>= 1.9.3-1ubuntu1.1); however:
-    #  Package nginx-core is not configured yet.
-    #  Package nginx-full is not installed.
-    #  Package nginx-light is not installed.
-    #  Package nginx-extras is not installed.
-    # nginx depends on nginx-core (<< 1.9.3-1ubuntu1.1.1~) | nginx-full (<< 1.9.3-1ubuntu1.1.1~)
-    #   | nginx-light (<< 1.9.3-1ubuntu1.1.1~) | nginx-extras (<< 1.9.3-1ubuntu1.1.1~); however:
-    #  Package nginx-core is not configured yet.
-    #  Package nginx-full is not installed.
-    #  Package nginx-light is not installed.
-    #  Package nginx-extras is not installed.
-    #
-    #dpkg: error processing package nginx (--configure):
-    # dependency problems - leaving unconfigured
-    #Processing triggers for sgml-base (1.26+nmNo apport report written because
-    #the error message indicates its a followup error from a previous failure.
-    #                                                 u4ubuntu1) ...
-    #
-    #Errors were encountered while processing:
-    # nginx-core
-    # nginx
-    #E: Sub-process /usr/bin/dpkg returned an error code (1)
-    #
-    #
-    # So, well, you might need to reboot after all.....
-
-    # *** Disable screen locking so user can move about the cabin freely.
-
-    determine_window_manager
-
-    if ${WM_IS_MATE} && [[ ${IS_HEADED_MACHINE_ANSWER} == "Y" ]]; then
-      # Disable screensaver and lock-out.
-      # gsettings doesn't seem to stick 'til now.
-      #?: sudo gsettings set org.mate.screensaver lock-enabled false
-      # Or did it just require an apt-get update to finally work?
-      gsettings set org.mate.screensaver idle-activation-enabled false
-      gsettings set org.mate.screensaver lock-enabled false
-    elif $WM_IS_CINNAMON; then
-      tweak_errexit +ex
-      gsettings set org.cinnamon.desktop.screensaver lock-enabled false \
-        &> /dev/null
-      reset_errexit
-    fi
-
-    # -- Install packages.
-
-    # NOTE: This installs a lot of packages. The list has grown over the years.
-    #       It's a mix of packages needed for Cyclopath, packages that [lb]
-    #       likes, and most recently packages for other projects. It would be
-    #       tedious and unnecessary to cull the list; it only takes hard drive
-    #       space and doesn't waste computation resources to have all this
-    #       installed. So feel free to keep adding packages.
-
-    # -- Install MySQL early, because it's interactive.
-
-    if ${DO_INSTALL_MYSQL}; then
-      # NOTE: The Mysql package wants you to enter a password.
-      #       [lb] figured all package installers are not interactive,
-      #       but I guess there are some exceptions. Or maybe there's
-      #       an apt-get switch I'm missing.
-      #
-      # FIXME: You could use `expect` here to send the pwd to the terminal.
-      #
-      sudo apt-get install -y pwgen
-      if [[ ! -e ${SCRIPT_DIR}/fries-setup-mysql.pwd ]]; then
-        MYSQL_PASSWORD=$(pwgen -n 16 -s -N 1 -y)
-        echo "${MYSQL_PASSWORD}" > ${SCRIPT_DIR}/fries-setup-mysql.pwd
-      else
-        MYSQL_PASSWORD=`cat ${SCRIPT_DIR}/fries-setup-mysql.pwd`
-      fi
-      echo
-      echo "*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!"
-      echo "Try this for a Mysql password: ${MYSQL_PASSWORD}"
-      echo "*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!"
-      echo "Which is saved also to the file: fries-setup-mysql.pwd"
-      echo
-      sudo apt-get -y install \
-        \
-        mysql-server
-    fi
-
-    # -- encfs warning (also interactive).
-
-    # -- Install postfix (also interactive).
-
-    # FIXME: Which package does this? It's another interactive installer.
-    # 2016.03.23: It's one of: libpam0g-dev openssh-server signing-party.
-    # You'll be prompted to "Please select the mail server configuration
-    #                        type that best meets your needs."
-    # Just choose "Internet Site", or even "Local only".
-
-    # For "System mail name" just use... I dunno, whatever, $USE_DOMAIN.
-
-    # -- Stop Apache.
-    #
-    # 2016-07-17: Cyclopath Resuscitation. apt-get install nginx fails
-    # because nginx cannot start because port 80 in use. Huh.
-
-    if [[ -f /etc/init.d/apache2 ]]; then
-      sudo /etc/init.d/apache2 stop
-    fi
-
-    # -- Install the rest of the packages.
-
-    # This remaining packages will install without need for human interaction.
-
-    # 2014.11.09: Differences between Mint 16 and Mint 17:
-    #   "Note, selecting 'apache2-dev' instead of 'apache2-threaded-dev'"
-    #   "Package libicu48 is not available, but is referred to by another pkg."
-    #     --> It's now 52.
-    #   "E: Unable to locate package postgresql-server-dev-9.1"
-    #   "E: Couldn't find any package by regex 'postgresql-server-dev-9.1'"
-    #     --> It's now 9.3.
-
-    # MAYBE: Categorize and Group these packages, possibly listing
-    #        the same package in different groups. I.e., make a
-    #        list of packages of Dubsacks VIM, another list of
-    #        packages for Cyclopath, a list of packages you use
-    #        for development, etc. For now, whatever, it's a big,
-    #        long list, but at least the list is an array so we
-    #        can add comments.
-
-    local CORE_PACKAGE_LIST=(
-
-      # Kernel goodies.
-      dkms
-      build-essential
-
-      # Vim (See later: Dubsacks Vim.)
-      vim-gtk
-      # Text columnizer.
-      par
-      # Ctags.
-      exuberant-ctags
-      # Ruby dev tools for Command-T.
-      ruby-dev
-
-      # `most` is pretty lame; author prefers `less`.
-      #most
-      # `less` is made better with color.
-      python-pygments
-
-      # The better grepper.
-      silversearcher-ag
-      # 2016-11-18 Well, why not be inclusive. Every now
-      # and then you copy and paste someone elses ack.
-      ack-grep
-
-      # Un-Zip-a-Dee-Doo-Dah
-      unzip
-
-      # All your repositories are belong to too many managers.
-      git
-      git-core
-
-      # One would think whois would be standard.
-      whois
-      # nslookup is... stale, to be polite. Use dig instead.
-
-      htop
-
-      # I like the build-in pass cmd better.
-      #keepassx
-
-      encfs
-      # I thought scrub was a default program, too; guess not.
-      # Also, if you're doing it right, you won't need scrub:
-      #   on disk, your data should *always* be encrypted;
-      #   it is only in memory or on screen that data should be
-      #   plain.
-      scrub
-      #
-      pinentry-gtk2
-      pinentry-doc
-
-      expect
-
-      gnupg2
-
-      pwgen
-
-      libpam0g-dev
-      openssh-server
-      signing-party
-
-      # 2016-07-17: Ubuntu missing bc. What a weirdo.
-      bc
-
-      # 2016-10-04: Missing until now? Not so surprising.
-      # Though surprising I did not face this in 16.04, just 14.04.
-      rake
-
-    ) # end: CORE_PACKAGE_LIST
-
-    local CORE_DESKTOP_LIST=(
-
-      # CLI OS and Window Manager customizers.
-      dconf-cli
-      gconf-editor
-      wmctrl
-      xdotool
-
-      # Awesomest graphical diff.
-      meld
-
-      # Eye of Gnome, a slideshow image viewer.
-      eog
-
-      # Hexadecimal file viewer.
-      ghex
-
-      # Hexadecimal diff.
-      vbindiff
-      #hexdiff
-
-      chromium-browser
-
-    ) # end: CORE_DESKTOP_LIST
-
-    local BIG_PACKAGE_LIST=(
-
-      logcheck
-      logcheck-database
-
-      logtail
-      # A colorful, more clever tail command.
-      multitail
-
-      socket
-
-      # Addition, non-core repo tools.
-      subversion
-      mercurial
-      # A beautiful, colorful git browser/helper.
-      tig
-
-      apache2
-      apache2-dev
-      apache2-utils
-
-      nginx
-
-      postgresql
-      postgresql-client
-
-      libxml2-dev
-      libjpeg-dev
-      libpng++-dev
-      imagemagick
-      libmagick++-dev
-      texlive
-      autoconf
-      vsftpd
-      libcurl3
-      pcregrep
-      gir1.2-gtop-2.0
-      libgd-dev
-      libxslt1-dev
-      xsltproc
-      libicu-dev
-
-      python-dev
-      python-setuptools
-      libapache2-mod-python
-      python-simplejson
-      python-logilab-common
-      python-gtk2
-      python-wnck
-      python-xlib
-      python-dbus
-      libpython3-dev
-
-      # 2016-04-04: I just had this error but I think I figured it out...
-      #     Setting up pylint (1.3.1-3ubuntu1) ...
-      #     ERROR: pylint is broken - called emacs-package-install
-      #            as a new-style add-on, but has no compat file.
-      # Install pylint for emacs.
-      # QUESTION: Why -for emacs-? I can lint from wherever I want....
-      #           I guess not that I lint, though, in Cyclopath we had a kazillion
-      #           errors and at my current emploer we (currently) do not lint.
-      pylint
-
-      # FIXME/MAYBE: Can/Should these be virtualenv-installed?
-      python-egenix-mxdatetime
-      python-egenix-mxtools
-      python-subversion
-      python-levenshtein
-
-      # Skipping: virtualenvwrapper (see: pip install instead)
-      #virtualenvwrapper
-      # Install via virtualenv and pip:
-      #  python-pytest
-      python-pytest
-      # FIXME: There are more python modules, like levenshtein,
-      #        that should be installed via virtualenv, too.
-      # For tox, install multiple Python versions.
-      #python2.6
-      #python3.2
-      #python3.3
-      # See pip (so we can install current version):
-      #  cookiecutter
-
-      # FIXME/MAYBE/MIGHT NOT MATTER: Just pip these in requirements.txts?
-      python-tox
-      python-coverage
-      python3-coverage
-      python-flake8
-      python3-flake8
-
-      libagg-dev
-      libedit-dev
-      mime-construct
-
-      libproj-dev
-      proj-bin
-      proj-data
-
-      libipc-signal-perl
-      libmime-types-perl
-      libproc-waitstat-perl
-
-      python-nltk
-      python-matplotlib
-      python-tk
-
-      # artha: off-line English thesaurus.
-      # 2016-03-23: What uses this? You, from the command line?
-      artha
-
-      fabric
-      # Know ye also there is a get-pip.py installer, too.
-      python-pip
-      python3-pip
-      python3-sphinx
-
-      curl
-
-      # Node.js package manager.
-      npm
-
-      autoconf2.13
-
-      # Color picker.
-      gcolor2
-
-      # Hopefully never: Windoes emulator and something about its browser.
-      #  wine
-      #  wine-gecko1.4
-
-      # Interactive bash debugger. To set a breakpoint:
-      #   source /usr/share/bashdb/bashdb-trace
-      #   _Dbg_debugger
-      # http://bashdb.sourceforge.net/
-      bashdb
-
-      # More exo stuff.
-      sqlite3
-      libsqlite3-dev
-      spatialite-bin
-      # Should already be installed:
-      #libspatialite5
-
-      unison
-
-      # exFAT, MS format used on 32GB+ flash drives.
-      exfat-fuse
-      exfat-utils
-
-      # ogrinfo et al
-      gdal-bin
-      gpx2shp
-
-      streamripper
-
-      # Maybe some day...
-      zsh
-
-      # For getting at automated emails sent by daemons.
-      #mail
-      #mutt
-      ##mutt-patched
-      #alpine
-      # You can also just do:
-      #  sudo cat /var/spool/mail/root
-      #  sudo tail -n 1000 /var/spool/mail/root
-      #  sudo grep "cron" /var/spool/mail/root
-
-      # GUI git log tool and commit comparison [visual diff] tool
-      gitk
-
-      # 2016-09-30: Weird. I swore this was already part of setup.
-      # 2016-10-03: I installed adb first, then android-tools-adb,
-      # and the latter uninstalled the former. Hmmm.
-      #adb
-      android-tools-adb
-
-      # Run `do-release-upgrade` to upgrade from one LTS to the
-      # next LTS [point release], e.g., from 14.04 to 16.04.1.
-      # (You can `do-release-upgrade -d` to upgrade to initial release,
-      # e.g., 16.04.)
-      # https://help.ubuntu.com/lts/serverguide/installing-upgrading.html#do-release-upgrade
-      # https://wiki.ubuntu.com/YakketyYak/ReleaseNotes
-      ubuntu-release-upgrader-core
-
-      inotify-tools
-
-      # 2017-05-23: What is with wanting to save color output to a file?
-      # ls --color=always | aha --black > ls-with-colors.html
-      aha
-      # You can also pygmentize exiting files.
-      #   pygmentize file.pl | \
-      #     grep -i --color=always version | \
-      #     aha --black > ls-with-colors.html
-
-    ) # end: BIG_PACKAGE_LIST
-
-    # 2016-09-26: What? I ran this script last Thursday, but did it not
-    #             do this BIG_DESKTOP_LIST? Wireshark was not installed.
-    #             Nor was dia. Nor anything else in this list! (dia,
-    #             inkscape; fakeroot was fine, as was thunderbird;
-    #             evince was not installed, nor akregator, nor any fonts:
-    #             ttf-ancient-fonts, fonts-cantarell, lmodern, ttf-*
-    #             (except ttf-bitstream-vera was okay), tv-fonts;
-    #             nor digikam-doc, cmake, qt4-qmake, qt5-qmake,
-    #             kdevplatform-dev, gnome-color-manager;
-    #             hamster-applet and hamster-indicator were installed;
-    #             finally, python-wxgtk2.8 IS NOT AVAILABLE!!!
-    #
-    #             HAHAHA, I bet you it failed because wxgtk2.8!!
-    #
-    #             FIXME: Is there not `set +e` set when running this script?
-    #
-    # FIXME: DELETE THIS COMMENT AFTER ANOTHER LINUX MINT 18 INSTALL
-    #        and verifying that, e.g., wireshark installed.
-    #        I'm pretty sure it was because of a package name with
-    #        a version that applied to Mint 17 but not to Mint 18.
-
-    local BIG_DESKTOP_LIST=(
-
-      # Excellent diagramming.
-      dia
-
-      # SVG editor.
-      inkscape
-
-      # Pencil Project is a prototyping tool that
-      # also support dia-ish diagram drawing.
-      #  http://pencil.evolus.vn
-      # But wait! The pencil package in Ubuntu is a different app.
-      #  No: pencil
-      #  See: stage_4_pencil_install
-
-      # Well, when I was your age, we called it Ethereal.
-      # NOTE: You will be prompted to answer Yes/No to should non-users be
-      #       able to capture packets. Default is No. Answer YES instead.
-      wireshark
-      # Woozuh, some funky root-faking mechanism Wireshark uses.
-      fakeroot
-      #
-      # Terminal-based Wireshark alternatives
-      ssldump
-      tshark
-
-      thunderbird
-      # Mutt bark bark better than mail (see also: elm)
-      mutt
-
-      # PDF/Document readers.
-      # 2015.02.26: [lb] cannot get okular to open any PDFs...
-      #             and all menu items but one are disabled,
-      #             and choosing it crashes okular.
-      #okular
-      # 2015.02.26: One PDF I opened with acroread does not
-      #             use the correct fonts... maybe because
-      #             the version is so old (and acroread is
-      #             no longer maintained). And, though I
-      #             thought evince was installed by default,
-      #             it appears not.
-      #             Ug. use libreoffice to print PDFs.
-      evince
-
-      akregator
-
-      # Symbola font for emojis.
-      ttf-ancient-fonts
-      # All the fonts.
-      fonts-cantarell
-      lmodern
-      ttf-aenigma
-      ttf-georgewilliams
-      ttf-bitstream-vera
-      ttf-sjfonts
-      tv-fonts
-      #ubuntustudio-font-meta
-
-      # Ok, the distro version lags and has bugs. We will build later from source.
-      #digikam
-      digikam-doc
-      # hrmmmm / 759 MB / for digikam
-      #kde-full
-      cmake
-      qt4-qmake
-      qt5-qmake
-      kdevplatform-dev
-      # Color mgmt.
-      gnome-color-manager
-      #dispcalgui
-
-      # Time tracking applet.
-      hamster-applet
-      hamster-indicator
-
-      # DVD burning software.
-      # Already installed.
-      #brasero
-
-      # For the qq command.
-      gnome-screensaver
-
-      # Webcam software.
-      # https://help.ubuntu.com/community/Webcam
-      cheese
-
-      # Lua scripting.
-      lua5.2
-      lua5.2-doc
-
-      # Yaml linter. Because you always wanted more Yaml in your life.
-      yamllint
-
-      # For abcde CD ripper.
-      cd-discid
-      # vorbis-tools is probably already installed:
-      vorbis-tools
-      # lame is for MP3s.
-      lame
-      # Audio extraction tools.
-      #   cdparanoia - audio extraction tool for sampling CDs
-      #   libcdio13 - library to read and control CD-ROM
-      #   icedax - Creates WAV files from audio CDs
-      #   flac - Free Lossless Audio Codec - command line tools
-      cdparanoia
-      libcdio13
-      icedax
-      flac
-      # mailx. Postfix. for cddb-tool
-      bsd-mailx
-      # Misc.
-      # cd-discid - CDDB DiscID utility
-      cd-discid
-      # id3v2 - A command line id3v2 tag editor
-      id3v2
-      # vorbis-tools - several Ogg Vorbis tools
-      vorbis-tools
-      # mkcue - Generates a CUE sheet from a CD
-      mkcue
-      # $ apt-cache search cdrtools
-      # simpleburn - Minimalistic application for burning and extracting CDs and DVDs
-      simpleburn
-      # abcde complains that cddb-tool not found. Is this close enough?
-      python-cddb
-      # What is the `musicbrainz` equivalent?
-      # Picard is a cross-platform music tagger written in Python.
-      picard
-      # libwebservice-musicbrainz-perl - XML based Web service API to the MusicBrainz database
-      libwebservice-musicbrainz-perl
-      # Needed for lame encoding.
-      # eyed3 - Display and manipulate id3-tags on the command-line
-      # python-eyed3 - Python module for id3-tags manipulation
-      eyed3
-
-      # mount.nfs
-      nfs-common
-
-    ) # end: BIG_DESKTOP_LIST
-
-    local BIG_DESKTOP_LIST_MINT_17=(
-      # wxPython. Widgets!
-      python-wxgtk2.8
-    ) # end: BIG_DESKTOP_LIST_MINT_17
-
-    local BIG_DESKTOP_LIST_MINT_18=(
-
-      python-wxgtk3.0
-
-      # On 14.04, ruby 1.9 is default. On 16.04, ruby 2.3 is default.
-      ruby2.3
-      ruby2.3-dev
-      ruby2.3-doc
-
-    ) # end: BIG_DESKTOP_LIST_MINT_18
-
-    local BIG_PACKAGE_LIST_LMINT_17X=(
-
-      postgresql-server-dev-9.3
-
-      apache2-mpm-worker
-
-      libicu52
-
-      ia32-libs
-
-      ttf-tuffy
-
-      libproj0
-      libspatialite5
-
-      kde-full
-      kde-workspace-dev
-
-      # NOTE: If you have two-step authentication enabled for Gmail,
-      #       rather than using your normal password, logon to google.com
-      #       and generate a special application password.
-      # checkgmail - alternative Gmail Notifier for Linux via Atom feeds
-      #   sudo perl -MCPAN -e 'install Crypt::SSLeay'
-      #   sudo perl -MCPAN -e 'install Crypt::Simple'
-      #   Needs a patch:
-      #     http://community.linuxmint.com/tutorial/view/1392
-      #     http://sourceforge.net/p/checkgmail/bugs/105/
-      #   but code is no longer maintained....
-      # mailnag
-      #   https://github.com/pulb/mailnag:
-      #   sudo add-apt-repository ppa:pulb/mailnag
-      #   # NOTE: To remove the repository:
-      #   #  sudo /bin/rm /etc/apt/sources.list.d/pulb-mailnag-trusty.list
-      #   sudo apt-get update
-      #   sudo apt-get install mailnag
-      # gmail-notify - Notify the arrival of new mail on Gmail
-      #   Returns: "Login appears to be invalid."
-      # Apps I did not try:
-      #   conduit - synchronization tool for GNOME
-      #   desktop-webmail - Webmail for Linux Desktops
-      #   enigmail - GPG support for Thunderbird and Debian Icedove
-      #   gm-notify - highly Ubuntu integrated GMail notifier
-      #   gnome-do-plugins - Extra functionality for GNOME Do
-      #   gnome-gmail - support for Gmail as the preferred email application in GNOME
-      #   mail-notification - mail notification in system tray
-      #   unity-webapps-gmail - Unity Webapp for Gmail
-      # Works fine:
-      #   gnome-gmail-notifier - A Gmail Inbox Notifier for the GNOME Desktop
-      gnome-gmail-notifier
-
-      # 2016-09-23: For some reason the desktop stopped being locked after suspend.
-      # For the xss-lock!
-      xscreensaver
-
-      # On 14.04, ruby 1.9 is default. On 16.04, ruby 2.3 is default.
-      ruby2.0
-      ruby2.0-dev
-      ruby2.0-doc
-
-    ) # end: BIG_PACKAGE_LIST_LMINT_17X
-
-    local BIG_PACKAGE_LIST_UMATE_15X=(
-
-      # MAYBE: Need any of the packages in BIG_PACKAGE_LIST_LMINT_17X?
-
-      # I tried gm-notify first and it works, and it doesn\'t use a
-      # tray icon, which is fine because my inbox is never empty and
-      # gnome-gmail-notifier\'s icon only indicates the non-emptiness
-      # of the inbox -- I\'d maybe care for an icon if there was a
-      # count of unread email, but really I just want a simple popup;
-      # and gm-nofity works fine. Not great, not bad, just fine; I\'d say
-      # I really like it if the desktop popup looked better, but that
-      # might be Gnome\'s fault, and the simplicity is starting to appeal
-      # to me. [-2016.03.25]
-      #  "gm-notify - highly Ubuntu integrated GMail notifier"
-      gm-notify
-      # I tried "gmail-notify" but it did not like my creds.
-      #  "gmail-notify - Notify the arrival of new mail on Gmail"
-      # There is also gnome-gmail which I did not try.
-      # "gnome-gmail - support for Gmail as the preferred email application in GNOME"
-
-    ) # end: BIG_PACKAGE_LIST_UMATE_15X
-
-    local BIG_PACKAGE_LIST_NOT_UBUNTU_16X=(
-
-      # On Ubuntu: eNote, selecting libgd-dev instead of libgd2-xpm-dev
-      libgd2-xpm-dev
-
-      # Ick. PHP *and* MySQL.
-      #libapache2-mod-php5
-      #php5-dev
-      #php5-mysql
-      #dh-make-php
-
-      python-logilab-astng
-
-      nspluginwrapper
-
-    ) # end: BIG_PACKAGE_LIST_NOT_UBUNTU_16X
-
-    local BIG_PACKAGE_LIST_UBUNTU_16X=(
-
-      # Cyclopath. runic.cs. apt-get is there, but not the other one.
-      aptitude
-
-      libgd-dev
-
-      # I am sure I no longer need anything doing with either php or mysql.
-      #libapache2-mod-php5
-      #php-mysql
-      #php7.0-mysql
-      # Not sure what this is but do not care.
-      #dh-make-php
-
-      # python-logilab-astng is python-astroid
-      python-astroid
-      python3-astroid
-
-      # Read a blog post that said to pull in the main multiverse
-      # but I still got an Unable to locate package response.
-      #  Add to /etc/apt/sources.list:
-      #   deb http://us.archive.ubuntu.com/ubuntu xenial main multiverse
-      #nspluginwrapper
-
-      #postgresql-server-dev-9.3
-      postgresql-server-dev-9.5
-
-      # Not Ubuntu 16.04:
-      #  apache2-mpm-worker
-      # Maybe?:
-      #  libapache2-mpm-itk
-
-      # Probably already installed:
-      #libicu52
-      libicu55
-
-      # No clue what equivalent(s) is(are) or if needed:
-      #  ia32-libs
-
-      #ttf-tuffy
-      # Maybe it is:
-      fonts-tuffy
-      # though I cannot imagine what it is for. LibreOffice?
-
-      # already installed:
-      #libproj0
-      libproj9
-      #libspatialite5
-      libspatialite7
-
-      # Cyclopath needs this to build Mapserver.
-      #  g++ ... -lselinux in is packages libselinux1 libselinux1-dev
-      libselinux1
-      libselinux1-dev
-      #  g++ ... -lgssapi_krb5 in is package libkrb5-dev
-      libkrb5-dev
-
-      # For fiona.
-      libgdal1-dev
-
-      # For Cyclopath flashclient build via fcsh.
-      # Follow symlinks on dpkg -S /usr/bin/java
-      #openjdk-8-jre-headless
-
-      # For Cyclopaths mr_do.
-      python-lxml
-
-    ) # end: BIG_PACKAGE_LIST_UBUNTU_16X
-
-    local BIG_PACKAGE_LIST_UBUNTU_1604_AND_BEYOND=(
-      # I.e., Ubuntu 16.04
-
-      digikam
-
-      # 2016-09-23: For some reason the desktop stopped being locked after suspend.
-      # For the xss-lock!
-      xscreensaver
-
-    ) # end: BIG_PACKAGE_LIST_UBUNTU_1604_AND_BEYOND
-
-    # 2016-07-17: Cyclopath Resuscitation. Why didn't a failed apt-get
-    # cause this script to die? I can't figure out where the errexit
-    # got taken away, but it did!
-    # 2016-09-26: I think I had the same issue with BIG_DESKTOP_LIST
-    # because python-wxgtk2.8. So adding USING_ERREXIT. Hrmmmmm.
-    USING_ERREXIT=true
-    reset_errexit
-
-    # One core package, and maybe
-    # One Giant MASSIVE package install.
-
-    sudo apt-get install -y ${CORE_PACKAGE_LIST[@]}
-    if [[ $? -ne 0 ]]; then
-      echo
-      echo "WARNING: FAILED: CORE_PACKAGE_LIST"
-      echo
-    fi
-
-    if [[ ${IS_HEADED_MACHINE_ANSWER} == "Y" ]]; then
-      sudo apt-get install -y ${CORE_DESKTOP_LIST[@]}
+    # 2016-09-26: The Ubuntu 16.04 package list is obviously compatible with Mint 18!
+    if [[ $DISTRIB_ID == 'Ubuntu' || ( $DISTRIB_ID == 'LinuxMint' && $DISTRIB_RELEASE -ge 18 ) ]]; then
+      sudo apt-get install -y ${BIG_PACKAGE_LIST_UBUNTU_16X[@]}
       if [[ $? -ne 0 ]]; then
         echo
-        echo "WARNING: FAILED: CORE_DESKTOP_LIST"
+        echo "WARNING: FAILED: BIG_PACKAGE_LIST_UBUNTU_16X"
+        echo
+      fi
+    else
+      sudo apt-get install -y ${BIG_PACKAGE_LIST_NOT_UBUNTU_16X[@]}
+      if [[ $? -ne 0 ]]; then
+        echo
+        echo "WARNING: SKIPPING: BIG_PACKAGE_LIST_NOT_UBUNTU_16X"
         echo
       fi
     fi
+    if [[ $DISTRIB_ID == 'LinuxMint' && $DISTRIB_RELEASE -ge 18 ]]; then
+      # 2016-09-26: FIXME: This won't work forever, will it?
+      #             Or will Mint always increment ordinally to an integer?
+      sudo apt-get install -y ${BIG_PACKAGE_LIST_UBUNTU_1604_AND_BEYOND[@]}
+      if [[ $? -ne 0 ]]; then
+        echo
+        echo "WARNING: FAILED: BIG_PACKAGE_LIST_UBUNTU_1604_AND_BEYOND"
+        echo
+      fi
+    fi
+    if [[ ${IS_HEADED_MACHINE_ANSWER} == "Y" ]]; then
+      echo
+      echo "SUCCESS: YES INSTALLING: BIG_DESKTOP_LIST"
+      echo
+      sudo apt-get install -y ${BIG_DESKTOP_LIST[@]}
+      if [[ $? -ne 0 ]]; then
+        echo
+        echo "WARNING: FAILED: BIG_DESKTOP_LIST"
+        echo
+      fi
 
-    if [[ ${INSTALL_ALL_PACKAGES_ANSWER} == "Y" ]]; then
-
-      # 2016-10-28: On mnemosyne, error said nginx and nginx-core
-      # failed to install, and something about a dpkg error.
-      # I rebooted and all is well.
-      sudo apt-get install -y ${BIG_PACKAGE_LIST[@]}
-
-      source /etc/lsb-release
-      # 2016-09-26: The Ubuntu 16.04 package list is obviously compatible with Mint 18!
-      if [[ $DISTRIB_ID == 'Ubuntu' || ( $DISTRIB_ID == 'LinuxMint' && $DISTRIB_RELEASE -ge 18 ) ]]; then
-        sudo apt-get install -y ${BIG_PACKAGE_LIST_UBUNTU_16X[@]}
+      if [[ $DISTRIB_ID == 'LinuxMint' && $DISTRIB_RELEASE -lt 18 ]]; then
+        sudo apt-get install -y ${BIG_DESKTOP_LIST_MINT_17[@]}
         if [[ $? -ne 0 ]]; then
           echo
-          echo "WARNING: FAILED: BIG_PACKAGE_LIST_UBUNTU_16X"
+          echo "WARNING: FAILED: BIG_DESKTOP_LIST_MINT_17"
+          echo
+        fi
+      elif [[ $DISTRIB_ID == 'LinuxMint' && $DISTRIB_RELEASE -ge 18 ]]; then
+        sudo apt-get install -y ${BIG_DESKTOP_LIST_MINT_18[@]}
+        if [[ $? -ne 0 ]]; then
+          echo
+          echo "WARNING: FAILED: BIG_DESKTOP_LIST_MINT_18"
           echo
         fi
       else
-        sudo apt-get install -y ${BIG_PACKAGE_LIST_NOT_UBUNTU_16X[@]}
-        if [[ $? -ne 0 ]]; then
           echo
-          echo "WARNING: SKIPPING: BIG_PACKAGE_LIST_NOT_UBUNTU_16X"
+          echo "WARNING: FAILED: NOT MINT: NOT INSTALLING BIG_DESKTOP_LIST_MINT_*"
           echo
-        fi
       fi
-      if [[ $DISTRIB_ID == 'LinuxMint' && $DISTRIB_RELEASE -ge 18 ]]; then
-        # 2016-09-26: FIXME: This won't work forever, will it?
-        #             Or will Mint always increment ordinally to an integer?
-        sudo apt-get install -y ${BIG_PACKAGE_LIST_UBUNTU_1604_AND_BEYOND[@]}
-        if [[ $? -ne 0 ]]; then
-          echo
-          echo "WARNING: FAILED: BIG_PACKAGE_LIST_UBUNTU_1604_AND_BEYOND"
-          echo
-        fi
-      fi
-      if [[ ${IS_HEADED_MACHINE_ANSWER} == "Y" ]]; then
-        echo
-        echo "SUCCESS: YES INSTALLING: BIG_DESKTOP_LIST"
-        echo
-        sudo apt-get install -y ${BIG_DESKTOP_LIST[@]}
-        if [[ $? -ne 0 ]]; then
-          echo
-          echo "WARNING: FAILED: BIG_DESKTOP_LIST"
-          echo
-        fi
 
-        if [[ $DISTRIB_ID == 'LinuxMint' && $DISTRIB_RELEASE -lt 18 ]]; then
-          sudo apt-get install -y ${BIG_DESKTOP_LIST_MINT_17[@]}
-          if [[ $? -ne 0 ]]; then
-            echo
-            echo "WARNING: FAILED: BIG_DESKTOP_LIST_MINT_17"
-            echo
-          fi
-        elif [[ $DISTRIB_ID == 'LinuxMint' && $DISTRIB_RELEASE -ge 18 ]]; then
-          sudo apt-get install -y ${BIG_DESKTOP_LIST_MINT_18[@]}
-          if [[ $? -ne 0 ]]; then
-            echo
-            echo "WARNING: FAILED: BIG_DESKTOP_LIST_MINT_18"
-            echo
-          fi
-        else
-            echo
-            echo "WARNING: FAILED: NOT MINT: NOT INSTALLING BIG_DESKTOP_LIST_MINT_*"
-            echo
-        fi
-
-      else
-        # FIXME/2016-09-26: Tracking issue not installing BIG_DESKTOP_LIST
-        echo
-        echo "WARNING: NOT INSTALLING: BIG_DESKTOP_LIST"
-        echo
-      fi
+    else
+      # FIXME/2016-09-26: Tracking issue not installing BIG_DESKTOP_LIST
+      echo
+      echo "WARNING: NOT INSTALLING: BIG_DESKTOP_LIST"
+      echo
     fi
+  fi
 
-    if [[ ${INSTALL_ALL_PACKAGES_ANSWER} == "Y" ]]; then
-      sudo apt-get install -y apt-file
-      sudo apt-file update
-    fi
+  if [[ ${INSTALL_ALL_PACKAGES_ANSWER} == "Y" ]]; then
+    sudo apt-get install -y apt-file
+    sudo apt-file update
+  fi
 
-    # Install additional MATE theme, like BlackMATE. We don't change themes,
-    # but it's nice to be able to see what the other themes look like.
+  # Install additional MATE theme, like BlackMATE. We don't change themes,
+  # but it's nice to be able to see what the other themes look like.
 
-    if $WM_IS_MATE; then
-      sudo apt-get install -y mate-themes
-    fi
-
-    # All done.
-
-  fi # upgrade all packages and install extras that we need
-
+  if $WM_IS_MATE; then
+    sudo apt-get install -y mate-themes
+  fi
 } # end: setup_mint_17_stage_1_apt_get_install
+
+setup_mint_17_stage_1_apt_get_install () {
+  setup_mint_17_stage_1_confirm
+
+  setup_mint_17_stage_1_dump_conf
+
+  # *** Install wmctrl so we can determine the window manager.
+
+  sudo apt-get install -y wmctrl
+  # NOTE: In Mint MATE, calling gsettings now (before update/upgrade)
+  #       doesn't seem to stick. So we'll wait 'til a little later in
+  #       this function to call determine_window_manager and gsettings.
+
+  # Are we in a virtual machine?
+  sudo apt-get install -y virt-what
+  # FIXME: What about Are we in a chroot? Does it matter?
+
+  setup_mint_17_stage_1_disable_sudo_timeout
+
+  setup_mint_17_stage_1_dist_upgrade
+
+  # Disable screen locking so user can move about the cabin freely.
+  screensaver_lockoff
+
+  setup_mint_17_stage_1_install_packages
+}
 
 # ------------------------------------------
 # STAGE 2
@@ -1286,7 +1276,6 @@ ${USER} ALL= NOPASSWD: /usr/sbin/chroot
 # *** SECOND BOOT: Install Guest Additions
 
 setup_mint_17_stage_2_virtualbox_guest_additions () {
-
   if ! ${IN_VIRTUALBOX_VM}; then
     echo
     echo "ERROR: VBoxGuestAddition: Skipping Stage 2: Not a VirtualBox."
@@ -1360,7 +1349,6 @@ setup_mint_17_stage_2_virtualbox_guest_additions () {
     /sbin/shutdown -r now
     exit 0
   fi
-
 } # end: setup_mint_17_stage_2_virtualbox_guest_additions
 
 # ------------------------------------------
@@ -1369,7 +1357,6 @@ setup_mint_17_stage_2_virtualbox_guest_additions () {
 # *** THIRD BOOT: Setup Bash and Home Scripts and User Groups
 
 setup_mint_17_stage_3_groups_etc () {
-
   # Setup user group(s) and user-group associations.
 
   # Let the user access any mounted VBox drives.
@@ -1529,7 +1516,6 @@ setup_mint_17_stage_3_groups_etc () {
   # 2017-04-04: How have I never had a problem with this?
   # Already in "plugdev", but "fuse" is "nuse" to me.
   sudo usermod -a -G plugdev,fuse ${USER}
-
 } # end: setup_mint_17_stage_3_groups_etc
 
 # ------------------------------------------
@@ -1538,7 +1524,6 @@ setup_mint_17_stage_3_groups_etc () {
 # *** FOURTH BOOT: Configure Window Manager and Compile and Install Apps.
 
 setup_mint_17_stage_4_extras () {
-
   # *** Make a snapshot of the user's home directory, maybe.
 
   user_home_conf_dump "${SCRIPT_DIR}/conf_dump/usr_04"
@@ -1643,11 +1628,9 @@ setup_mint_17_stage_4_extras () {
   echo "#######################################################"
 
   # All done.
-
 } # end: setup_mint_17_stage_4_extras
 
 stage_4_sshd_configure () {
-
   # Setup sshd.
 
   # If you didn't apt-get install openssh-server, this file isn't there.
@@ -1700,11 +1683,9 @@ stage_4_sshd_configure () {
   fi
 
   echo "sshd setup"
-
 } # end: stage_4_sshd_configure
 
 stage_4_wm_customize_mint () {
-
   # From the Mint Menu in the lower-left, remove the text and
   # change the icon (e.g., to a playing die with five pips showing).
 
@@ -1807,7 +1788,6 @@ stage_4_wm_customize_mint () {
   #   means -- is it just non-compositing, or is it something more?).
   #
   gsettings set com.linuxmint.desktop mate-window-manager 'marco-compton'
-
 } # end: stage_4_wm_customize_mint
 
 # ==============================================================
@@ -1817,7 +1797,6 @@ stage_4_wm_customize_mint () {
 #     Or source this script and run it yourself.
 
 setup_ubuntu_go () {
-
   if [[ -z ${INSTALL_ALL_PACKAGES_ANSWER+x} ]]; then
     echo
     echo "Is this a dev machine? Do you want all the dev packages?"
@@ -1912,17 +1891,19 @@ setup_ubuntu_go () {
   fi
 
   exit 0
-
 } # end: setup_ubuntu_go
 
-# Only run when not being sourced.
-if [[ "$0" == "$BASH_SOURCE" ]]; then
-  setup_ubuntu_go
-else
-  echo "WARNING: setup_ubuntu.sh was sourced."
-  echo "BEWARE the \`exit\`s"
-fi
+main () {
+  # Only run when not being sourced.
+  if [[ "$0" == "$BASH_SOURCE" ]]; then
+    setup_ubuntu_go
+  else
+    echo "WARNING: setup_ubuntu.sh was sourced."
+    echo "BEWARE the \`exit\`s"
+  fi
+}
 
-# Vim modeline:
+main
+
 # vim:tw=0:ts=2:sw=2:et:norl:
 
