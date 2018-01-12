@@ -599,7 +599,9 @@ alias ag='ag --smart-case --hidden'
 #   ERR: Too many matches in somefile. Skipping the rest of this file.
 # which come on stderr from each process thread and ends up interleaving
 # with the results, making the output messy and unpredicatable.
-# So that Vim can predictably parse the output, we use this shim of a fcn.
+# So that Vim can predictably parse the output, use this shim of a fcn.,
+# i.e., from Vim as `set grepprg=ag_peek`. (2018-01-12: Deprecated;
+# favor just inlining in the .vim file.)
 function ag_peek () {
   ag -A 0 -B 0 --hidden --follow --max-count 1 $* 2> /dev/null
 }
