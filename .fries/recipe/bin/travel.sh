@@ -1059,13 +1059,16 @@ locate_and_clone_missing_repo () {
         echo "  ==================================================== "
         echo "  DEAD LINK: ${check_repo}"
         echo "       REPO: ${remote_orig}"
+        echo "       SYML: ${check_syml}"
         echo
         echo "  Is that link pointing at an umounted filesystem?"
         echo
+# 2018-01-16 02:58: FIXME: What is this break for?
+#   I deleted /work/client/blah and this found /work (a symlink) and complained,
+#   but if I remove it, chase_and_face will re-populate the blah/.
         break
-      else
-        local check_syml=$(dirname ${check_syml})
       fi
+      local check_syml=$(dirname ${check_syml})
     done
     if [[ ${check_syml} == '/' || ${check_syml} == '.' ]]; then
       echo
