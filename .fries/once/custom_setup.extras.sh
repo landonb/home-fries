@@ -1531,6 +1531,8 @@ stage_4_install_ruby_install () {
   ruby-install --latest ruby 2.4.0
   # 2017-11-03: ...
   ruby-install --latest ruby 2.4.2
+  # 2018-01-18: ...
+  ruby-install --latest ruby 2.5
   # 2017-11-03: NOTE: You have to /bin/bash for chruby to see any new version!
 
   wget -O chruby-0.3.9.tar.gz https://github.com/postmodern/chruby/archive/v0.3.9.tar.gz
