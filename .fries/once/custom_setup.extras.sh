@@ -6906,6 +6906,35 @@ stage_4_desktop_keybindings () {
 
 } # end: stage_4_desktop_keybindings
 
+stage_4_wine_playonlinux () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_wine_playonlinux"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # 2018-01-21 17:50: playonlinux. does not install 14.04, but did 16.04
+  #
+  # Playonlinux is a ``wine`` front end, but not related to WineHQ.::
+  #   https://www.playonlinux.com/
+  #   https://en.wikipedia.org/wiki/PlayOnLinux
+  #
+  # I got playonlinux installed, but I could not get the front end GUI
+  #   to successfully install Firefox (I'd go through the Wizard, and
+  #   then it'd fail).
+  # WHATEVER: I was only going to use wine to access Xfinity on Linux
+  #   to watch the Vikings game... but my phone generally works fine.
+  if false; then
+    sudo apt-get install playonlinux
+    sudo apt-get install wine-mono0.0.8
+  fi
+
+  popd &> /dev/null
+
+} # end: stage_4_wine_playonlinux
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -7210,6 +7239,9 @@ setup_customize_extras_go () {
 
   # 2017-12-19: Meh. I cannot get fcong or gsettings to automate this:
   #stage_4_desktop_keybindings
+
+  # 2018-01-24: playonlinux.
+  #stage_4_wine_playonlinux
 
   # Add before this'n: stage_4_fcn_template.
 
