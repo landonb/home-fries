@@ -5536,6 +5536,11 @@ stage_4_install_google_earth () {
 
   stage_announcement "stage_4_install_google_earth"
 
+# FIXME/2018-01-23:
+#   # Fix `sudo apt-get update` failures.
+#   sudo /bin/rm /etc/apt/sources.list.d/mongodb-org-3.4.list
+#   sudo /bin/rm /etc/apt/sources.list.d/google-earth.list
+
   pushd ${OPT_DLOADS} &> /dev/null
 
   wget -N https://dl.google.com/dl/earth/client/current/google-earth-stable_current_amd64.deb
