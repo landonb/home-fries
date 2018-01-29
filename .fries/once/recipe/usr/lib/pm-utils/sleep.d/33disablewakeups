@@ -83,7 +83,7 @@ case $1 in
   ;;
 
   *)
-    echo "Somebody is calling me totally wrong."
+    echo "33disablewakeups: Somebody is calling me totally wrong!"
   ;;
 
 esac
