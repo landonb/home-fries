@@ -772,7 +772,11 @@ git_pull_hush () {
       echo "=============================================="
       echo "✗ ✗ ✗ ERROR DETECTOROMETER! ★ ☆ ☆ ☆ ☆ 1 STAR!!"
       echo
+      echo "ERROR:"
       echo "${ERROR}"
+      echo
+      echo "PULLOUT:"
+      echo "${PULLOUT}"
       echo
       echo "ERROR: You lose!"
       echo "=============================================="
