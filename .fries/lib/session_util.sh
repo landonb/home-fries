@@ -153,6 +153,22 @@ home_fries_configure_shell_options() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+pm-latest() {
+  # NOTE: In lieu of a /var/log/pm-suspend.log, which you won't find
+  #       on Ubuntu, use journalctl to see when system was last woke.
+  #       (2018-01-29: (lb): I use this for back-filling hamster if
+  #       I forget when I got to work, resumed, and started working.)
+  journalctl -b 0 -r -t systemd-sleep \
+    | grep -m 1 "Suspending system...$" \
+    | awk '{print "Suspend at "$1" "$2" "$3}'
+
+  journalctl -b 0 -r -t systemd-sleep \
+    | grep -m 1 "System resumed.$" \
+    | awk '{print "Resumed at "$1" "$2" "$3}'
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 main() {
   source_deps
 }
