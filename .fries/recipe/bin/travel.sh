@@ -1242,6 +1242,8 @@ function chase_and_face () {
     reset_errexit
   fi
 
+  mount_curly_emissary_gooey
+
   echo " setup_private_fries_bash..."
   setup_private_fries_bash
 
@@ -1296,6 +1298,8 @@ function chase_and_face () {
   if [[ ${EXIT_CODE} -eq 0 ]]; then
     user_do_chase_and_face
   fi
+
+  umount_curly_emissary_gooey
 
   #echo "DONE"
 
