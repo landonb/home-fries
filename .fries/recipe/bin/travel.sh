@@ -131,6 +131,7 @@ AUTO_GIT_ALL=()
 declare -A GTSTOK_GIT_REPOS
 declare -A GIT_REPO_SEEDS_0
 declare -A GIT_REPO_SEEDS_1
+declare -A VIM_REPO_SEEDS_0
 declare -A VIM_REPO_SEEDS_1
 
 # Look for sync_repos.sh.
@@ -1181,6 +1182,7 @@ locate_and_clone_missing_repos_header () {
     TOTES_REPOS=$((0 \
       + ${#GIT_REPO_SEEDS_0[@]} \
       + ${#GIT_REPO_SEEDS_1[@]} \
+      + ${#VIM_REPO_SEEDS_0[@]} \
       + ${#VIM_REPO_SEEDS_1[@]} \
     ))
     echo "==================================================="
@@ -1193,11 +1195,13 @@ locate_and_clone_missing_repos () {
 
   locate_and_clone_missing_repos_header
 
-  echod "Locating GIT_REPO_SEEDS_0"
+  echod "Cloning project in GIT_REPO_SEEDS_0"
   locate_and_clone_missing_repos_helper GIT_REPO_SEEDS_0
-  echod "Locating GIT_REPO_SEEDS_1"
+  echod "Cloning project in GIT_REPO_SEEDS_1"
   locate_and_clone_missing_repos_helper GIT_REPO_SEEDS_1
-  echod "Locating VIM_REPO_SEEDS_"
+  echod "Cloning project in VIM_REPO_SEEDS_0"
+  locate_and_clone_missing_repos_helper VIM_REPO_SEEDS_0
+  echod "Cloning project in VIM_REPO_SEEDS_1"
   locate_and_clone_missing_repos_helper VIM_REPO_SEEDS_1
 
   # See if there's a user callback.
