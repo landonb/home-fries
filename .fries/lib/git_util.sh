@@ -750,6 +750,7 @@ git_pull_hush () {
     #   how-to-store-standard-error-in-a-variable-in-a-bash-script
     # For some reason, the semicolon is needed.
     #  "The '{}' does I/O redirection over the enclosed commands."
+    # 2018-01-28: Ahahahah! Don't run this is another git repo, or you clobber it!
     PULLOUT=$(
       {
         git pull --rebase --autostash ${SOURCE_REPO} 2>&1
@@ -768,21 +769,21 @@ git_pull_hush () {
     #       error appeared on the terminal, but mixed in with evertyhing
     #       else).
 
-    if [[ `echo ${PULLOUT} | grep -i "error" -` ]]; then
+    if [[ `echo "${PULLOUT}" | grep -i "error" -` ]]; then
       echo "=============================================="
       echo "✗ ✗ ✗ ERROR DETECTOROMETER! ★ ☆ ☆ ☆ ☆ 1 STAR!!"
-      echo
-      echo "ERROR:"
-      echo "${ERROR}"
-      echo
-      echo "PULLOUT:"
-      echo "${PULLOUT}"
       echo
       echo "CURWD:"
       echo "$(pwd)"
       echo
       echo "COMMAND:"
       echo "git pull --rebase --autostash ${SOURCE_REPO}"
+      echo
+      echo "PULLOUT:"
+      echo "${PULLOUT}"
+      echo
+      echo "ERROR:"
+      echo "${ERROR}"
       echo
       echo "ERROR: You lose!"
       echo "=============================================="
