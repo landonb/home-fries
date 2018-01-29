@@ -778,6 +778,12 @@ git_pull_hush () {
       echo "PULLOUT:"
       echo "${PULLOUT}"
       echo
+      echo "CURWD:"
+      echo "$(pwd)"
+      echo
+      echo "COMMAND:"
+      echo "git pull --rebase --autostash ${SOURCE_REPO}"
+      echo
       echo "ERROR: You lose!"
       echo "=============================================="
     fi
