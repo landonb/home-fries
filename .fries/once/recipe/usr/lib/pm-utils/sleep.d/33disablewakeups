@@ -2,10 +2,11 @@
 
 # File: 33disablewakeups
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.03
 # Project Page: https://github.com/landonb/home-fries
 # License: GPLv3
 # Summary: Smart Bash Startup Script
+
+# USAGE/2018-01-29: I've only needed this script on a Lenovo X201.
 
 # For details on this file and pm-utils, see: `man pm-suspend`
 #
