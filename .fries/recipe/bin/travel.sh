@@ -1055,7 +1055,9 @@ locate_and_clone_missing_repo () {
     local check_syml=${check_repo}
     while [[ ${check_syml} != '/' && ${check_syml} != '.' ]]; do
       echod "check_syml: ${check_syml}"
-      if [[ -h ${check_syml} ]]; then
+      if [[ -h ${check_syml} && ! -e ${check_syml} ]]; then
+        # This checks if the destination is under a symlink,
+        # and that symlink is broken!
         echo
         echo "  ==================================================== "
         echo "  DEAD LINK: ${check_repo}"
@@ -1064,9 +1066,6 @@ locate_and_clone_missing_repo () {
         echo
         echo "  Is that link pointing at an umounted filesystem?"
         echo
-# 2018-01-16 02:58: FIXME: What is this break for?
-#   I deleted /work/client/blah and this found /work (a symlink) and complained,
-#   but if I remove it, chase_and_face will re-populate the blah/.
         break
       fi
       local check_syml=$(dirname ${check_syml})
