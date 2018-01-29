@@ -30,6 +30,7 @@ source_deps() {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   source ${curdir}/../lib/bash_base.sh
   source ${curdir}/../lib/fries_util.sh
+  #source ${curdir}/../lib/paths_util.sh
   source ${curdir}/../lib/process_util.sh
 }
 source_deps

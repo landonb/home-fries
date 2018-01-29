@@ -6,12 +6,14 @@
 # License: GPLv3
 # vim:tw=0:ts=2:sw=2:et:norl:
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 source_deps() {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   DEBUG_TRACE=false \
     source ${curdir}/bash_base.sh
   # Load: path_add_part
-  source ${curdir}/path_util.sh
+  source ${curdir}/paths_util.sh
 
   # See:
   #   https://github.com/postmodern/ruby-install
@@ -76,66 +78,8 @@ source_deps() {
     HOMEFRIES_WARNINGS=false
   fi
 }
-source_deps
 
-# Here we monkey patch the chruby function -- we replace
-# the chruby fcn. with our own wrapper function.
-# MAYBE: I should probably just submit a pull request.
-#
-# PROBLEM: If the ruby version is not the 0 patch level (e.g., 2.3.0),
-#   chruby doesn't include all the gem paths. For example, should you
-#   `chruby 2.3.3`, GEM_PATH includes the 2.3.3/ directory, but gem install
-#   stashed everything under the 2.3.0/ directory, so we have to add that
-#   back in.
-
-# Do a little Bash trickery: Spit out the original function and set it up
-#   under a new name. We use `tail -n +2` to remove the original function
-#   name but leave the function body, e.g., leave out ``chruby_use ()\n``.
-
-orig_chruby_use () {
-  :
-}
-if declare -f chruby_use &> /dev/null; then
-  eval "$(echo "orig_chruby_use()"; declare -f chruby_use | tail -n +2)"
-else
-  $HOMEFRIES_WARNINGS && echo "WARNING: chruby_use() not found"
-fi
-
-# And here's our
-#   MONKEY PATCH!
-chruby_use () {
-  orig_chruby_use $*
-  # See chruby_use in
-  #   /usr/local/share/chruby/chruby.sh
-  # MAYBE: If you need to cleanup old paths, something like this:
-  if false; then
-    export GEM_PATH="$(\
-      echo ${GEM_PATH} \
-        | /bin/sed -r "s@:?${GEM_HOME}[^:]*:@:@g" \
-        | /bin/sed -r s/^:// \
-        | /bin/sed -r s/:$//
-    )"
-  fi
-  # Check if patch version.
-  PATCH_NUM=$(ruby -e "puts RUBY_VERSION.split('.')[2]")
-  if [[ ${PATCH_NUM} -gt 0 ]]; then
-    # NOTE/2016-12-11: If there's a .ruby-version file in the current
-    #   directory, running *any* command might invoke us, since auto.sh
-    #   sets a trap on DEBUG which runs before every command. Just FYI.
-    # MAYBE: Silence this echo. For now, curious when this fcn. is triggered.
-    echo "Monkey patching!"
-    ruby_set_gem_path
-    # WRONG:
-    #RUBY_ROOT_ZERO=$(echo ${RUBY_ROOT} | /bin/sed -r s/-${RUBY_VERSION}$/-${RUBY_MINOR_ZERO}/)
-    #export PATH="${PATH}:${RUBY_ROOT_ZERO}/bin"
-    #export PATH="${PATH}:${GEM_HOME/${RUBY_VERSION}/${RUBY_MINOR_ZERO}}/bin"
-    local gem_ruby_bin="${GEM_HOME/${RUBY_VERSION}/${RUBY_MINOR_ZERO}}/bin"
-    #if [[ ":${PATH}:" != *":${gem_ruby_bin}:"* ]]; then
-    #  export PATH="${PATH}:${gem_ruby_bin}"
-    #fi
-    path_add_part ${gem_ruby_bin}
-  fi
-}
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 ruby_set_gem_path () {
   local GEM_PATHS=()
@@ -223,7 +167,69 @@ ruby_set_gem_path () {
   fi
 
 }
-ruby_set_gem_path
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Here we monkey patch the chruby function -- we replace
+# the chruby fcn. with our own wrapper function.
+# MAYBE: I should probably just submit a pull request.
+#
+# PROBLEM: If the ruby version is not the 0 patch level (e.g., 2.3.0),
+#   chruby doesn't include all the gem paths. For example, should you
+#   `chruby 2.3.3`, GEM_PATH includes the 2.3.3/ directory, but gem install
+#   stashed everything under the 2.3.0/ directory, so we have to add that
+#   back in.
+
+# Do a little Bash trickery: Spit out the original function and set it up
+#   under a new name. We use `tail -n +2` to remove the original function
+#   name but leave the function body, e.g., leave out ``chruby_use ()\n``.
+
+orig_chruby_use () {
+  :
+}
+if declare -f chruby_use &> /dev/null; then
+  eval "$(echo "orig_chruby_use()"; declare -f chruby_use | tail -n +2)"
+else
+  $HOMEFRIES_WARNINGS && echo "WARNING: chruby_use() not found"
+fi
+
+# And here's our
+#   MONKEY PATCH!
+chruby_use () {
+  orig_chruby_use $*
+  # See chruby_use in
+  #   /usr/local/share/chruby/chruby.sh
+  # MAYBE: If you need to cleanup old paths, something like this:
+  if false; then
+    export GEM_PATH="$(\
+      echo ${GEM_PATH} \
+        | /bin/sed -r "s@:?${GEM_HOME}[^:]*:@:@g" \
+        | /bin/sed -r s/^:// \
+        | /bin/sed -r s/:$//
+    )"
+  fi
+  # Check if patch version.
+  PATCH_NUM=$(ruby -e "puts RUBY_VERSION.split('.')[2]")
+  if [[ ${PATCH_NUM} -gt 0 ]]; then
+    # NOTE/2016-12-11: If there's a .ruby-version file in the current
+    #   directory, running *any* command might invoke us, since auto.sh
+    #   sets a trap on DEBUG which runs before every command. Just FYI.
+    # MAYBE: Silence this echo. For now, curious when this fcn. is triggered.
+    echo "Monkey patching!"
+    ruby_set_gem_path
+    # WRONG:
+    #RUBY_ROOT_ZERO=$(echo ${RUBY_ROOT} | /bin/sed -r s/-${RUBY_VERSION}$/-${RUBY_MINOR_ZERO}/)
+    #export PATH="${PATH}:${RUBY_ROOT_ZERO}/bin"
+    #export PATH="${PATH}:${GEM_HOME/${RUBY_VERSION}/${RUBY_MINOR_ZERO}}/bin"
+    local gem_ruby_bin="${GEM_HOME/${RUBY_VERSION}/${RUBY_MINOR_ZERO}}/bin"
+    #if [[ ":${PATH}:" != *":${gem_ruby_bin}:"* ]]; then
+    #  export PATH="${PATH}:${gem_ruby_bin}"
+    #fi
+    path_add_part ${gem_ruby_bin}
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # 2017-06-19: So confused.
 # At work, `cmd rspec` indicates ???.
@@ -244,8 +250,12 @@ ruby_set_rspec_alias () {
 # 2017-06-25 18:24
 # alias rake=/home/landonb/.rubies/ruby-2.3.3/bin/rake
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 main() {
-  :
+  source_deps
+
+  ruby_set_gem_path
 }
 
 main "$@"

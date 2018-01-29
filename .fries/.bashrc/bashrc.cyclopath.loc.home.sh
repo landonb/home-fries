@@ -8,7 +8,7 @@
 # This script is loaded by bashrc.cyclopath.base.sh.
 
 # Load: path_add_part
-source path_util.sh
+source paths_util.sh
 
 # In a chroot, [lb] sees "hostname: Name or service not known"
 #  MACHINE_DOMAIN=`hostname --domain`

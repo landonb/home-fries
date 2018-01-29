@@ -10,7 +10,8 @@
 
 # Usage: Source this script. Call its functions. Use its exports.
 
-# ============================================================================
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # *** Bash array contains
 
 # Named after flashclient.utils.misc.Collection.array_in:
@@ -29,7 +30,8 @@ array_in () {
   return 1
 }
 
-# ============================================================================
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # *** Bash array multidimensionalization
 
 # In Bash, arrays are one-dimensional, though they allow multiple word entries.
@@ -90,6 +92,40 @@ arr2_fcn_iter () {
     fi
   done
 }
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Also remember: In Bash, to handle spaces when iterating over an array, iterate the indices.
+echo_list () {
+  local list=$1
+  if [[ -z ${list} ]]; then
+    declare -a list
+  fi
+  for ((i = 0; i < ${#list[@]}; i++)); do
+    local elem="${list[$i]}"
+    echo "elem: ${elem}"
+  done
+}
+
+# MEH: A dict is not an array, but I'm not making a dict_util.sh (yet?). [2018-01-29]
+echo_dict () {
+  # Per https://www.mail-archive.com/bug-bash@gnu.org/msg01774.html,
+  #  and what [Bash's] Chet says: Cannot encode an array var into the env.
+  # Meaning: You cannot pass an associate array in bash. E.g., this won't work:
+  #   dict=$1
+  #   if [[ -z ${dict} ]]; then
+  #     declare -A dict
+  #   fi
+  # [lb] not sure there's a work around, other than, say, using Ruby or Perl
+  # to write shell scripts.
+  declare -A dict
+  for i in "${!dict[@]}"; do
+    echo "key  : $i"
+    echo "value: ${dict[$i]}"
+  done
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main() {
   #alias elem_in_arr=array_in

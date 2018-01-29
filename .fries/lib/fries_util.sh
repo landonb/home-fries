@@ -11,12 +11,15 @@
 # Usage: Source this script. Call its functions. Use its exports.
 # NOTE/2017-10-03: This particular script has no useful fcns, just environs.
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 source_deps() {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   source ${curdir}/process_util.sh
 }
 
-# ============================================================================
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # *** Dubsacks-related
 
 # -- Local resources, downloaded. Where they go.
@@ -35,6 +38,191 @@ default_opt_paths() {
   # 2016-11-12: Keeping stuff off the SSD.
   OPT_LARGER=/srv/opt/LARGE
 }
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# *** Dubsacks-installed tools
+
+# --- Completion options
+
+home_fries_init_completions() {
+  # These completion tuning parameters change the behavior of bash_completion.
+
+  # Access remotely checked-out files over passwordless ssh for CVS.
+  # COMP_CVS_REMOTE=1
+
+  # Avoid stripping description in --option=description of './configure --help'.
+  # COMP_CONFIGURE_HINTS=1
+
+  # Define to avoid flattening internal contents of tar files.
+  # COMP_TAR_INTERNAL_PATHS=1
+
+  # If this shell is interactive, turn on programmable completion enhancements.
+  # Any completions you add in ~/.bash_completion are sourced last.
+  # case $- in
+  #   *i*) [[ -f /etc/bash_completion ]] && . /etc/bash_completion ;;
+  # esac
+
+  # 2016-06-28: An article suggested sourcing /etc/bash_completion
+  # https://stackoverflow.com/questions/68372/what-is-your-single-most-favorite-command-line-trick-using-bash
+  if [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+  # Not sure I need it, though. I read the file (/usr/share/bash-completion/bash_completion)
+  # and it seems more useful for sysadmins doing typical adminy stuff and less anything I'm
+  # missing out on.
+  # Anyway, we'll enable it for now and see what happens................................
+}
+
+# --- Re-enable better Bash tab auto-completion.
+
+home_fries_direxpand_completions() {
+  # With thanks to:
+  #   http://askubuntu.com/questions/70750/
+  #     how-to-get-bash-to-stop-escaping-during-tab-completion
+  # 2014.01.22: In older Bash, e.g., in Fedora 14, if you typed
+  #  $ ll /home/$USER/<TAB>
+  # your home dir would be listed and the shell prompt would change to, e.g.,
+  #  $ ll /home/yourname/
+  # but in newer Bash, a <TAB> completion attempt results in
+  #  $ ll /home/\$USER/
+  # which is completely useless. So revert to the old behavior.
+  # And using &> since this option isn't available on older OSes
+  # (which already default to the (subjectively) "better" behavior).
+  shopt -s direxpand &> /dev/null
+}
+
+# --- Generic completions
+
+home_fries_load_completions() {
+  # Bash command completion (for dub's apps).
+  if [[ -d ${HOMEFRIES_DIR}/bin/completions ]]; then
+    # 2016-06-28: Currently just ./termdub_completion.
+    # 2016-10-30: Now with `exo` command completion.
+    # 2016-11-16: sourcing a glob doesn't work for symlinks.
+    #   source ${HOMEFRIES_DIR}/bin/completions/*
+    # I though a find -exec would work, but nope.
+    #   find ${HOMEFRIES_DIR}/bin/completions/ ! -type d -exec bash -c "source {}" \;
+    # So then just iterate, I suppose.
+    while IFS= read -r -d '' file; do
+      #echo "file = $file"
+      source $file
+    done < <(find ${HOMEFRIES_DIR}/bin/completions/* -maxdepth 1 ! -path . -print0)
+  fi
+}
+
+# --- SDKMAN
+
+home_fries_load_sdkman() {
+  # 2017-02-25: Such Yellers! The SDKMAN! installer appended this to .bashrc:
+  #   #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+  if [[ -d "${HOME}/.sdkman" ]]; then
+    export SDKMAN_DIR="${HOME}/.sdkman"
+    [[ -s "${HOME}/.sdkman/bin/sdkman-init.sh" ]] && source "/home/landonb/.sdkman/bin/sdkman-init.sh"
+  fi
+}
+
+# --- NVM
+
+home_fries_load_nvm_and_completion() {
+  # 2017-07-20: What nvm writes to the end of ~/.bashrc.
+  #  curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash
+  if [[ -d $HOME/.nvm ]]; then
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# LD_LIBRARY_PATH
+
+home_fries_append_ld_library_path() {
+  # 2015.01.20: This seems really weird, having to set LD_LIBRARY_PATH.
+  #             In Cyclopath, we set this for gdal and geos when
+  #             we startup pyserver, but we don't set this for
+  #             any user programs... is there something we could
+  #             do via `./configure` or `make` or `make install`
+  #             so we don't have to specify this?
+  # Set the library path, lest:
+  #   expect: error while loading shared libraries: libexpect5.45.so:
+  #     cannot open shared object file: No such file or directory
+  # Do this before the SSH function, which expects expect.
+  if [[ ":${LD_LIBRARY_PATH}:" != *":/usr/lib/expect5.45:"* ]]; then
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/lib/expect5.45
+  fi
+}
+
+# SQLITE3 / LD_LIBRARY_PATH / SELECT load_extension()/.load
+
+home_fries_alias_ld_library_path_cmds() {
+  # 2016-05-03: sqlite3 looks for extensions in the local dir and at
+  #             LD_LIBRARY_PATH, but the latter isn't really set up,
+  #             e.g., on one machine, it's "/usr/lib/expect5.45:" and
+  #             doesn't include the standard system library directory,
+  #             /usr/local/lib.
+  #
+  # We could set LD_LIBRARY_PATH:
+  #
+  #   export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
+  #
+  # but some blogs I saw don't think you should eff with the ell-d path.
+  #
+  #   ftp://linuxmafia.com/kb/Admin/ld-lib-path.html
+  #
+  # We can alias sqlite3 instead, which is probably the solution with
+  # the least impact:
+  #
+  alias sqlite3='LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib sqlite3'
+  #
+  # however, scripts that call sqlite3 (like hamster-briefs) still have the
+  # issue. I guess we'll just let them deal...
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Crontab shortcuts.
+
+configure_crontab () {
+  alias ct='crontab -e -u $USER'
+
+  local vim_editor=""
+  if [[ -e "/usr/bin/vim.basic" ]]; then
+    vim_editor=/usr/bin/vim.basic
+  elif [[ -e "/usr/bin/vim.tiny" ]]; then
+    vim_editor=/usr/bin/vim.tiny
+  fi
+  # 2015.01.25: FIXME: Not sure what best to use...
+  vim_editor=/usr/bin/vim
+  if [[ -n ${vim_editor} ]]; then
+    alias ct-www='\
+      ${DUBS_TRACE} && echo "ct-www" ; \
+      sudo -u ${httpd_user} \
+        SELECTED_EDITOR=${vim_editor} \
+        crontab -e -u $httpd_user'
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Default Editor for git, cron, etc.
+
+home_fries_export_editor_vim() {
+  # When you run crontab, it calls /usr/bin/sensible-editor to run an editor.
+  # You can set the editor using /usr/bin/select-editor.
+  # For machines without the latter installed, set the EDITOR variable.
+  # The EDITOR variable also works with git.
+  if [[ -e '/usr/bin/vim.basic' ]]; then
+     export EDITOR='/usr/bin/vim.basic'
+  elif [[ -e '/usr/bin/vim' ]]; then
+     export EDITOR='/usr/bin/vim'
+  else
+     echo "WARNING: bashrc.core.sh: did not set EDITOR: No vim found"
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main() {
   source_deps

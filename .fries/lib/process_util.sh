@@ -1,5 +1,4 @@
 #!/bin/bash
-# Last Modified: 2017.10.16
 # vim:tw=0:ts=2:sw=2:et:norl:
 
 # File: process_util.sh
@@ -221,11 +220,12 @@ killsomething () {
   #somethings=`ps aux | grep "${something}" | awk '{print $2}'`
   # Let's exclude the grep process that our grep is what is.
   local somethings=`ps aux | grep "${something}" | grep -v "\<grep\>" | awk '{print $2}'`
-  # NOTE: The quotes in awk are loosely placed: similarly: `... | awk {'print $2'}`
+  # NOTE: The quotes in awk are loosely placed:
+  #         similarly: `... | awk {'print $2'}`
   if [[ "$somethings" != "" ]]; then
     # FIXME: From command, line these two echos make sense; from another script, no.
-    #echo $(ps aux | grep "${something}" | grep -v "\<grep\>")
-    #echo "Killing: $somethings"
+    ${DUBS_TRACE} && echo $(ps aux | grep "${something}" | grep -v "\<grep\>")
+    ${DUBS_TRACE} && echo "Killing: $somethings"
     echo $somethings | xargs sudo kill -s 9 >/dev/null 2>&1
   fi
   return 0

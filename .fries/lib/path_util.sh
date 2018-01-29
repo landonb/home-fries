@@ -10,12 +10,15 @@
 
 # Usage: Source this script. Call its functions. Use its exports.
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 source_deps() {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   source ${curdir}/process_util.sh
 }
 
-# ============================================================================
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # *** Path-related
 
 # When you run a Bash script, generally:
@@ -32,41 +35,8 @@ dir_resolve () {
   echo "${dir_resolved}"
 }
 
-# ============================================================================
-# *** PATH builder
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-path_add_part () {
-  local path_part="$1"
-  if [[ -d "${path_part}" ]]; then
-    # We could do nothing if the path part is already indicated:
-    #
-    #   if [[ ":$PATH:" != *":${path_part}:"* ]]; then
-    #     ..
-    #   fi
-    #
-    # but path_add_part guarantees the new part is positioned
-    # at first place, so remove it first.
-    #
-    # Substitute: s/^prefix://
-    PATH=${PATH#${path_part}:}
-    # Substitute: s/:suffix$//
-    PATH=${PATH%:${path_part}}
-    # Substitute: s/^sole-path$//
-    if [[ ${PATH} == ${path_part} ]]; then
-      PATH=""
-    fi
-    # Substitute: s/:inside:/:/
-    PATH=${PATH/:${path_part}:/:}
-    # Now we're ready to prepend it.
-    PATH="${path_part}:${PATH}"
-    #
-    export PATH
-  #else
-  #  echo "path_add_part: Not a directory: ${path_part}"
-  fi
-}
-
-# ============================================================================
 # *** Call ista Flock hart
 
 # Tries to mkdir a directory that's being used as a process lock.
@@ -247,7 +217,8 @@ flock_dir () {
   return $not_got_lock
 }
 
-# ============================================================================
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # *** Make Directory Hierarchy, Possibly Using sudo.
 
 # Verify or create a directory, possibly sudo'ing to do so.
@@ -288,7 +259,8 @@ ensure_directory_hierarchy_exists () {
   fi
 }
 
-# ============================================================================
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # *** Misc.
 
 symlink_or_not () {
@@ -297,7 +269,8 @@ symlink_or_not () {
   /bin/ln -sf $1
 }
 
-# ============================================================================
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # *** Main.
 
 main() {

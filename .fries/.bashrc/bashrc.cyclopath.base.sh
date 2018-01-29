@@ -15,6 +15,7 @@ source ${HARD_PATH}/bashrc.cyclopath.loc.work.sh
 
 # Load: dir_resolve, path_add_part
 source path_util.sh
+source paths_util.sh
 
 # MAGIC_NUMBER/SYNC_ME: 'minnesota' is our default psql schema.
 # You can still access other schemas in the database (read: the

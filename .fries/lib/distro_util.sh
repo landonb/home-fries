@@ -10,14 +10,36 @@
 
 # Usage: Source this script. Call its functions. Use its exports.
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 source_deps() {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   source ${curdir}/bash_base.sh
   source ${curdir}/process_util.sh
 }
 
-# ============================================================================
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # *** Ubuntu-related
+
+distro_complain_not_ubuntu_or_red_hat() {
+  if [[ -e /proc/version ]]; then
+    if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
+      # echo Ubuntu!
+      : # no-op
+    elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
+      # echo Red Hat!
+      : # noop
+    else
+      echo "WARNING: Unknown OS flavor ‘$(cat /proc/version)’"
+      echo "Please comment out this gripe or update the file ‘$(basename -- "$0")’"
+    fi
+  else
+    # /proc/version does not exist.
+    # echo Chroot!
+    : # nop
+  fi
+}
 
 suss_distro() {
   # 2017-05-03: Disabling. Nothing uses any of these vars, AFAICT.
@@ -40,7 +62,8 @@ suss_distro() {
   fi
 }
 
-# ============================================================================
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # *** Window Manager Wat.
 
 # NOTE: VirtualBox does not supply a graphics driver for Cinnamon 2.0,
@@ -90,10 +113,14 @@ determine_window_manager () {
   #echo "WM_TERMINAL_APP: $WM_TERMINAL_APP"
 }
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# *** Screen saver on/off
+
 screensaver_lockoff () {
   determine_window_manager
   if ${WM_IS_MATE}; then
-    # Disable screensaver and lock-out.
+    # Disable screen saver and lock-out.
     #  gsettings doesn't seem to stick 'til now.
     #?: sudo gsettings set org.mate.screensaver lock-enabled false
     # Or did it just require an apt-get update to finally work?
@@ -120,7 +147,8 @@ screensaver_lockon () {
   fi
 }
 
-# ============================================================================
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # *** Apache-related
 
 suss_apache() {
@@ -161,7 +189,8 @@ ccp_apache_reload () {
   fi
 }
 
-# ============================================================================
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # *** Python-related
 
 # Determine the Python version-path.
@@ -227,7 +256,8 @@ suss_python() {
   PYVERSABBR2=py${PYVERS_RAW2}
 }
 
-# ============================================================================
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # *** Postgres-related
 
 suss_postgres() {
@@ -253,6 +283,8 @@ suss_postgres() {
   fi # else, psql not installed (yet).
   reset_errexit
 }
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main() {
   source_deps

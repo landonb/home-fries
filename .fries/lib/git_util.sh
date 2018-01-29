@@ -1137,6 +1137,24 @@ git_unfuse_hardcopy() {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# git-remote-v-all
+
+# Recursively find all git repos in a directory and print their path and remote URLs.
+git-remote-v-all() {
+  [[ ! -d "$1" ]] && >&2 echo "Please specify a directory!" && return 1
+  local once=false
+  for git_path in $(find "$1" -type d -iname ".git"); do
+    ${once} && echo
+    repo_path=$(dirname ${git_path})
+    echo ${repo_path}
+    pushd ${repo_path} &> /dev/null
+    git remote -v
+    popd &> /dev/null
+    once=true
+  done
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main() {
   source_deps
