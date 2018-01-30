@@ -77,7 +77,9 @@ Dia                     (from Add to Panel > Application Launcher... > Graphics)
 ---------------------   -----------------------------------------------------------------------
 Take Screenshot         (from Add to Panel > Application Launcher... > Accessories)
 ---------------------   -----------------------------------------------------------------------
-Chromium                (from Add to Panel > Application Launcher... > Internet)
+Digikam5                (from Add to Panel > Custom Application Launcher)
+                        /srv/opt/bin/digikam5
+                        ~/.icons/hicolor/48x48/apps/appimagekit-digikam.png
 ---------------------   -----------------------------------------------------------------------
 Arduino IDE             (from Add to Panel > Custom Application Launcher)
                         /srv/opt/.downloads/arduino-1.6.12/arduino
@@ -88,9 +90,7 @@ Opera                   (from Add to Panel > Application Launcher... > Internet)
 GIMP Image Editor       (from Add to Panel > Application Launcher... > Graphics)
                         gimp-2.8 %U
 ---------------------   -----------------------------------------------------------------------
-Digikam5                (from Add to Panel > Custom Application Launcher)
-                        /srv/opt/bin/digikam5
-                        ~/.icons/hicolor/48x48/apps/appimagekit-digikam.png
+Chromium                (from Add to Panel > Application Launcher... > Internet)
 ---------------------   -----------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------
 **Right-justified**
@@ -112,9 +112,9 @@ Custom launchers:
 
 - Chrome
 
-  - HINT: If Chrome windows open but don't have focus, use a custom launcher:
+  - HINT: If Chrome windows open but don't have focus, use a custom launcher::
 
-  - ``/home/landonb/.fries/bin/chrome_shim.sh``
+    /home/user/.fries/bin/chrome_shim.sh
 
 - Dubsacks gVim/GVim:
 
@@ -139,29 +139,29 @@ Custom launchers:
 
 .. 2016-10-19: New links.
 
-- Termdub Dbms:
+- Termdub Dbms::
 
-  - ``/bin/bash -c "${HOME}/.fries/bin/termdub.py -t dbms -x 1486"``
+  /bin/bash -c "${HOME}/.fries/bin/termdub.py -t dbms -x 1486"
 
 - Termbud Toppers:
 
-  - X201:
+  - X201::
 
-    - ``/bin/bash -c "DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 1486"``
+    /bin/bash -c "DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 1486"
 
-  - T460:
+  - T460::
 
-    - ``/bin/bash -c "DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 2020"``
+    /bin/bash -c "DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 2020"
 
 - Termdub Bottoms:
 
-  - X201:
+  - X201::
 
-    - ``/bin/bash -c "DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 0 -y 1080"``
+    /bin/bash -c "DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 0 -y 1080"
 
-  - T460:
+  - T460::
 
-    - ``/bin/bash -c "DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 0 -y 1180"``
+    /bin/bash -c "DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 0 -y 1180"
 
 See also:
 
