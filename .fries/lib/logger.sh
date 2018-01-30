@@ -44,47 +44,47 @@ log_msg () {
     #echo "${FCN_COLOR} $@"
     #RIGHT_NOW=$(date +%Y-%m-%d.%H.%M.%S)
     RIGHT_NOW=$(date +%Y-%m-%d@%T)
-    echo -e "${MINTGREEN}${font_underline_bash}[${FCN_LABEL}]${font_normal_bash} ${RIGHT_NOW} ${font_bold_bash}$*${font_normal_bash}"
+    echo -e "${FG_MINTGREEN}${FONT_UNDERLINE}[${FCN_LABEL}]${FONT_NORMAL} ${RIGHT_NOW} ${FONT_BOLD}$*${FONT_NORMAL}"
   fi
 }
 
 fatal () {
-  log_msg ${LOG_LEVEL_FATAL} ${HOTPINK} FATL $*
+  log_msg ${LOG_LEVEL_FATAL} ${FG_HOTPINK} FATL $*
 }
 
 critical () {
-  log_msg ${LOG_LEVEL_CRITICAL} ${HOTPINK} CRIT $*
+  log_msg ${LOG_LEVEL_CRITICAL} ${FG_HOTPINK} CRIT $*
 }
 
 error () {
-  log_msg ${LOG_LEVEL_ERROR} ${ORANGE} ERRR $*
+  log_msg ${LOG_LEVEL_ERROR} ${FG_ORANGE} ERRR $*
 }
 
 warning () {
-  log_msg ${LOG_LEVEL_WARNING} ${LIGHTRED} WARN $*
+  log_msg ${LOG_LEVEL_WARNING} ${FG_LIGHTRED} WARN $*
 }
 
 warn () {
-  log_msg ${LOG_LEVEL_WARNING} ${LIGHTRED} WARN $*
+  log_msg ${LOG_LEVEL_WARNING} ${FG_LIGHTRED} WARN $*
 }
 
 notice () {
-  log_msg ${LOG_LEVEL_NOTICE} ${JADE} NOTC $*
+  log_msg ${LOG_LEVEL_NOTICE} ${FG_JADE} NOTC $*
 }
 
 info () {
-  log_msg ${LOG_LEVEL_INFO} ${JADE} INFO $*
+  log_msg ${LOG_LEVEL_INFO} ${FG_JADE} INFO $*
 }
 
 trace () {
-  log_msg ${LOG_LEVEL_TRACE} ${JADE} TRCE $*
+  log_msg ${LOG_LEVEL_TRACE} ${FG_JADE} TRCE $*
 }
 
 debug () {
-  log_msg ${LOG_LEVEL_DEBUG} ${JADE} DBUG $*
+  log_msg ${LOG_LEVEL_DEBUG} ${FG_JADE} DBUG $*
 }
 
 verbose () {
-  log_msg ${LOG_LEVEL_VERBOSE} ${JADE} VERB $*
+  log_msg ${LOG_LEVEL_VERBOSE} ${FG_JADE} VERB $*
 }
 

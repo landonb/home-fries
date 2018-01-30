@@ -163,7 +163,7 @@ prepare_grep_exclude () {
         # been committed.
         #DIVERGENTS+=("WARNING: Possibly accidentally committed divergent file: ${ref_file}")
         DIVERGENTS+=(\
-          "\t${LAVENDER}${font_bold_bash}DIVERGENT:  ${font_underline_bash}${ref_file}${font_normal_bash}"\
+          "\t${FG_LAVENDER}${FONT_BOLD}DIVERGENT:  ${FONT_UNDERLINE}${ref_file}${FONT_NORMAL}"\
         )
       else
         : # git status will show that it diffs.

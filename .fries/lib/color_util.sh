@@ -13,47 +13,57 @@ create_colors() {
   ### for windows... use colors that don't make your eyes bleed :)
   # NOTE/2017-05-03: Single quotes do not work. What's up with that?
   #   E.g., export PINK='\\033[38;5;211m'
-  export PINK="\033[38;5;211m"
-  export ORANGE="\033[38;5;203m"
-  # 2016-10-09: SKYBLUE broken.
-  #export SKYBLUE="\033[38;5;111m"
-  export MEDIUMGREY="\033[38;5;246m"
-  export LAVENDER="\033[38;5;183m"
-  export TAN="\033[38;5;179m"
-  export FOREST="\033[38;5;22m"
-  export MAROON="\033[38;5;52m"
-  export HOTPINK="\033[38;5;198m"
-  export MINTGREEN="\033[38;5;121m"
-  export LIGHTORANGE="\033[38;5;215m"
-  export LIGHTRED="\033[38;5;203m"
-  export JADE="\033[38;5;35m"
-  export LIME="\033[38;5;154m"
+  export FG_PINK="\033[38;5;211m"
+  export FG_ORANGE="\033[38;5;203m"
+  # 2016-10-09: FG_SKYBLUE broken.
+  #export FG_SKYBLUE="\033[38;5;111m"
+  export FG_MEDIUMGREY="\033[38;5;246m"
+  export FG_LAVENDER="\033[38;5;183m"
+  export FG_TAN="\033[38;5;179m"
+  export FG_FOREST="\033[38;5;22m"
+  export FG_MAROON="\033[38;5;52m"
+  export FG_HOTPINK="\033[38;5;198m"
+  export FG_MINTGREEN="\033[38;5;121m"
+  export FG_LIGHTORANGE="\033[38;5;215m"
+  export FG_LIGHTRED="\033[38;5;203m"
+  export FG_JADE="\033[38;5;35m"
+  export FG_LIME="\033[38;5;154m"
   ### background colors
-  export PINK_BG="\033[48;5;211m"
-  export ORANGE_BG="\033[48;5;203m"
-  export SKYBLUE_BG="\033[48;5;111m"
-  export MEDIUMGREY_BG="\033[48;5;246m"
-  export LAVENDER_BG="\033[48;5;183m"
-  export TAN_BG="\033[48;5;179m"
-  export FOREST_BG="\033[48;5;22m"
-  export MAROON_BG="\033[48;5;52m"
-  export HOTPINK_BG="\033[48;5;198m"
-  export MINTGREEN_BG="\033[48;5;121m"
-  export LIGHTORANGE_BG="\033[48;5;215m"
-  export LIGHTRED_BG="\033[48;5;203m"
-  export JADE_BG="\033[48;5;35m"
-  export LIME_BG="\033[48;5;154m"
+  export BG_PINK="\033[48;5;211m"
+  export BG_ORANGE="\033[48;5;203m"
+  export BG_SKYBLUE="\033[48;5;111m"
+  export BG_MEDIUMGREY="\033[48;5;246m"
+  export BG_LAVENDER="\033[48;5;183m"
+  export BG_TAN="\033[48;5;179m"
+  export BG_FOREST="\033[48;5;22m"
+  export BG_MAROON="\033[48;5;52m"
+  export BG_HOTPINK="\033[48;5;198m"
+  export BG_MINTGREEN="\033[48;5;121m"
+  export BG_LIGHTORANGE="\033[48;5;215m"
+  export BG_LIGHTRED="\033[48;5;203m"
+  export BG_JADE="\033[48;5;35m"
+  export BG_LIME="\033[48;5;154m"
 }
 
 create_ornaments() {
   # 2016-08-15: `tput` discovers the right sequences to send to the terminal:
-  export font_bold_tput=$(tput bold)
-  export font_normal_tput=$(tput sgr0)
-  export font_bold_bash="\033[1m"
-  export font_normal_bash="\033[0m"
-  export font_underline_bash="\033[4m"
-# FIXME: Better names? Like, TERM_BOLD, TERM_NORMAL, etc.?
-  #export UNDERLINE="\033[4m"
+  export TPUT_BOLD=$(tput bold)
+  export TPUT_NORMAL=$(tput sgr0)
+  export TPUT_NORM=${TPUT_BOLD}
+
+  # 2018-01-30: (lb): Still not sure the best way to name these. I like
+  # FONT_ or TERM_ prefix best, I suppose. Or shorter MK_ for brevity?
+  export FONT_NORMAL="\033[0m"
+  export FONT_BOLD="\033[1m"
+  export FONT_UNDERLINE="\033[4m"
+  # Aliases.
+  #  Ug. I can't decide what I like best.
+  #  Trying 4-letter "whats" and also MK_ "For Markup" prefix.
+  export FONT_NORM=${FONT_NORMAL}
+  export FONT_LINE=${FONT_UNDERLINE}
+  export MK_NORM=${FONT_NORMAL}
+  export MK_BOLD=${FONT_BOLD}
+  export MK_LINE=${FONT_UNDERLINE}
 }
 
 create_strip_colors() {
@@ -64,43 +74,43 @@ create_strip_colors() {
 
 create_base_color_names() {
   TERM_COLOR_NAMES=()
-  TERM_COLOR_NAMES+=('PINK')
-  TERM_COLOR_NAMES+=('ORANGE')
-  #TERM_COLOR_NAMES+=('SKYBLUE')
-  TERM_COLOR_NAMES+=('MEDIUMGREY')
-  TERM_COLOR_NAMES+=('LAVENDER')
-  TERM_COLOR_NAMES+=('TAN')
-  TERM_COLOR_NAMES+=('FOREST')
-  TERM_COLOR_NAMES+=('MAROON')
-  TERM_COLOR_NAMES+=('HOTPINK')
-  TERM_COLOR_NAMES+=('MINTGREEN')
-  TERM_COLOR_NAMES+=('LIGHTORANGE')
-  TERM_COLOR_NAMES+=('LIGHTRED')
-  TERM_COLOR_NAMES+=('JADE')
-  TERM_COLOR_NAMES+=('LIME')
-  TERM_COLOR_NAMES+=('PINK_BG')
-  TERM_COLOR_NAMES+=('ORANGE_BG')
-  TERM_COLOR_NAMES+=('SKYBLUE_BG')
-  TERM_COLOR_NAMES+=('MEDIUMGREY_BG')
-  TERM_COLOR_NAMES+=('LAVENDER_BG')
-  TERM_COLOR_NAMES+=('TAN_BG')
-  TERM_COLOR_NAMES+=('FOREST_BG')
-  TERM_COLOR_NAMES+=('MAROON_BG')
-  TERM_COLOR_NAMES+=('HOTPINK_BG')
-  TERM_COLOR_NAMES+=('MINTGREEN_BG')
-  TERM_COLOR_NAMES+=('LIGHTORANGE_BG')
-  TERM_COLOR_NAMES+=('LIGHTRED_BG')
-  TERM_COLOR_NAMES+=('JADE_BG')
-  TERM_COLOR_NAMES+=('LIME_BG')
-  TERM_COLOR_NAMES+=('UNDERLINE')
+  TERM_COLOR_NAMES+=('FG_PINK')
+  TERM_COLOR_NAMES+=('FG_ORANGE')
+  #TERM_COLOR_NAMES+=('FG_SKYBLUE')
+  TERM_COLOR_NAMES+=('FG_MEDIUMGREY')
+  TERM_COLOR_NAMES+=('FG_LAVENDER')
+  TERM_COLOR_NAMES+=('FG_TAN')
+  TERM_COLOR_NAMES+=('FG_FOREST')
+  TERM_COLOR_NAMES+=('FG_MAROON')
+  TERM_COLOR_NAMES+=('FG_HOTPINK')
+  TERM_COLOR_NAMES+=('FG_MINTGREEN')
+  TERM_COLOR_NAMES+=('FG_LIGHTORANGE')
+  TERM_COLOR_NAMES+=('FG_LIGHTRED')
+  TERM_COLOR_NAMES+=('FG_JADE')
+  TERM_COLOR_NAMES+=('FG_LIME')
+  TERM_COLOR_NAMES+=('BG_PINK')
+  TERM_COLOR_NAMES+=('BG_ORANGE')
+  TERM_COLOR_NAMES+=('BG_SKYBLUE')
+  TERM_COLOR_NAMES+=('BG_MEDIUMGREY')
+  TERM_COLOR_NAMES+=('BG_LAVENDER')
+  TERM_COLOR_NAMES+=('BG_TAN')
+  TERM_COLOR_NAMES+=('BG_FOREST')
+  TERM_COLOR_NAMES+=('BG_MAROON')
+  TERM_COLOR_NAMES+=('BG_HOTPINK')
+  TERM_COLOR_NAMES+=('BG_MINTGREEN')
+  TERM_COLOR_NAMES+=('BG_LIGHTORANGE')
+  TERM_COLOR_NAMES+=('BG_LIGHTRED')
+  TERM_COLOR_NAMES+=('BG_JADE')
+  TERM_COLOR_NAMES+=('BG_LIME')
 }
 
 test_colors () {
   create_base_color_names
   for ((i = 0; i < ${#TERM_COLOR_NAMES[@]}; i++)); do
-    local color_nom="${TERM_COLOR_NAMES[$i]}"
+    local nom="${TERM_COLOR_NAMES[$i]}"
     # BASH: `!` uses a variable's value as other variable's name.
-    echo -e "Some ${!color_nom}COLOR ${font_underline_bash}is ${font_bold_bash}nice${font_normal_bash} surely [${color_nom}]."
+    echo -e \
+      "Some ${!nom}COLOR ${MK_LINE}is ${MK_BOLD}nice${MK_NORM} surely [${nom}]."
   done
 }
 
@@ -108,7 +118,7 @@ test_colors () {
 #
 #   - Combining foreground and background
 #
-#     export PRI_A=${HOTPINK}${MEDIUMGREY_BG}${UNDERLINE}
+#     export PRI_A=${FG_HOTPINK}${BG_MEDIUMGREY}${MK_UNDERLINE}
 #
 #   - Raw
 #
@@ -116,7 +126,7 @@ test_colors () {
 #
 #   - Using exported environs
 #
-#     echo -e "Some ${MINTGREEN}COLOR ${font_underline_bash}is ${font_bold_bash}nice${font_normal_bash} surely."
+#     echo -e "Some ${MINTGREEN}COLOR ${MK_underline_bash}is ${MK_bold_bash}nice${MK_normal_bash} surely."
 #
 # Hints:
 #
