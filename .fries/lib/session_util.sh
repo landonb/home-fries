@@ -165,6 +165,30 @@ pm-latest() {
   journalctl -b 0 -r -t systemd-sleep \
     | grep -m 1 "System resumed.$" \
     | awk '{print "Resumed at "$1" "$2" "$3}'
+
+  # Ha. You can determine when the screen saver was unlocked by looking
+  # in the auth log. But I do not think the screen saver lock time is
+  # recorded.
+  #
+  # If you wanted, you could run a screen saver monitor to record this event:
+  #
+  #   dbus-monitor --session "type='signal',interface='org.gnome.ScreenSaver'" \
+  #    | ( while true; do \
+  #          read X \
+  #          if echo "$X" | grep "boolean true" &> /dev/null; then \
+  #            echo "Screen locked on $(date)" > $HOME/lock_screen.log \
+  #          fi \
+  #        done \
+  #      )
+  #
+  #   Respek: https://askubuntu.com/questions/435069/
+  #     how-can-i-know-when-my-screen-was-locked-last-time
+  #
+  # Use `tac` ("cat" backwards) to "concatenate and print files in reverse".
+  tac /var/log/auth.log \
+    | grep -m 1 \
+      "gnome-screensaver-dialog: gkr-pam: unlocked login keyring" \
+    | awk '{print "Unlockd at "$1" "$2" "$3}'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
