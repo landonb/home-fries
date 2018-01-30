@@ -154,17 +154,32 @@ home_fries_configure_shell_options() {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 pm-latest() {
-  # NOTE: In lieu of a /var/log/pm-suspend.log, which you won't find
-  #       on Ubuntu, use journalctl to see when system was last woke.
-  #       (2018-01-29: (lb): I use this for back-filling hamster if
-  #       I forget when I got to work, resumed, and started working.)
-  journalctl -b 0 -r -t systemd-sleep \
-    | grep -m 1 "Suspending system...$" \
-    | awk '{print "Suspend at "$1" "$2" "$3}'
+  if command -v journalctl &> /dev/null; then
+    # NOTE: In lieu of a /var/log/pm-suspend.log, which you won't find
+    #       on Ubuntu, use journalctl to see when system was last woke.
+    #       (2018-01-29: (lb): I use this for back-filling hamster if
+    #       I forget when I got to work, resumed, and started working.)
+    journalctl -b 0 -r -t systemd-sleep \
+      | grep -m 1 "Suspending system...$" \
+      | awk '{print "Suspend at "$1" "$2" "$3}'
 
-  journalctl -b 0 -r -t systemd-sleep \
-    | grep -m 1 "System resumed.$" \
-    | awk '{print "Resumed at "$1" "$2" "$3}'
+    journalctl -b 0 -r -t systemd-sleep \
+      | grep -m 1 "System resumed.$" \
+      | awk '{print "Resumed at "$1" "$2" "$3}'
+  else
+    # E.g.,
+    #  Wed Jan  3 13:04:19 CST 2018: Awake.
+    #  Wed Jan  3 13:04:19 CST 2018: Running hooks for resume
+    #  Wed Jan  3 13:04:19 CST 2018: Finished.
+    #  Thu Jan  4 22:55:36 CST 2018: Running hooks for suspend.
+    #  Thu Jan  4 22:55:37 CST 2018: performing suspend
+    tac /var/log/pm-suspend.log \
+      | grep -m 1 ": Running hooks for suspend\.$" \
+      | awk '{print "Suspend at "$2" "$3" "$4}'
+    tac /var/log/pm-suspend.log \
+      | grep -m 1 ": Awake\.$" \
+      | awk '{print "Resumed at "$2" "$3" "$4}'
+  fi
 
   # Ha. You can determine when the screen saver was unlocked by looking
   # in the auth log. But I do not think the screen saver lock time is
