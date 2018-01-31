@@ -4654,9 +4654,11 @@ stage_4_install_docker_compose () {
 # 2016-11-13 06:36:57 ERROR 403: Forbidden.
 
   #DKRCPS_VERS="1.8.1"
-# 2016-11-13: Leave at rc1, which is installed, until this 403 error goes away.
-  DKRCPS_VERS="1.9.0-rc1"
+  # 2016-11-13: Leave at rc1, which is installed, until this 403 error goes away.
   #DKRCPS_VERS="1.9.0-rc4"
+  #DKRCPS_VERS="1.9.0-rc1"
+  # 2018-01-31: Trying 10 greater!
+  DKRCPS_VERS="1.19.0-rc2"
 
   tweak_errexit
   command -v docker-compose
@@ -4685,15 +4687,20 @@ stage_4_install_docker_compose () {
   DC_REMOTE="https://github.com/docker/compose/releases/download/${DKRCPS_VERS}"
   #curl -L ${DC_REMOTE}/${DC_BIN} | sudo tee /usr/local/bin/docker-compose
   wget -N ${DC_REMOTE}/${DC_BIN}
+
   #sudo cp -a ${DC_BIN} /usr/local/bin/docker-compose
   #sudo chmod +x /usr/local/bin/docker-compose
   chmod +x ${DC_BIN}
-  /bin/ln -s ${OPT_DLOADS}/${DC_BIN} ${OPT_BIN}/docker-compose
+  /bin/ln -sf ${OPT_DLOADS}/${DC_BIN} ${OPT_BIN}/docker-compose
 
   # 2016-10-25:
   docker-compose --version
   ##docker-compose version: 1.8.1
   #docker-compose version: 1.9.0-rc1
+
+  # Completion.
+  # NOTE: Generally we'd use ${HOMEFRIES_DIR}...
+  curl -L https://raw.githubusercontent.com/docker/compose/${DKRCPS_VERS}/contrib/completion/bash/docker-compose -o ${HOME}/.fries/bin/completions/docker-compose
 
   popd &> /dev/null
 
@@ -6901,6 +6908,7 @@ stage_4_desktop_keybindings () {
     # And I did not find anything equivalent with gsettings.
     #
     # So just set these manually!
+    :
   fi
 
   popd &> /dev/null
