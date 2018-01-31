@@ -1054,11 +1054,11 @@ function cis_git() {
 # 2017-10-03: An infuse function, for overlaying private files atop a repo.
 git_infuse_gitignore_local() {
   [[ -z "$1" ]] && echo "${FUNCNAME[0]}: missing param" && exit 1
-  if [[ ! -e .git/info/exclude ]]; then
-    echo "WARNING: Cannot infuse .gitignore.local under $(pwd -P)"
+  if [[ ! -d .git/info ]]; then
+    echo "WARNING: Cannot infuse .gitignore.local under $(pwd -P): no .git/info"
     return
   fi
-  if [[ -f .git/info/exclude ]]; then
+  if [[ -f .git/info/exclude || -h .git/info/exclude ]]; then
     pushd .git/info &> /dev/null
     /bin/rm exclude
     /bin/ln -sf "$1" "exclude"
