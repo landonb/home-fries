@@ -252,7 +252,11 @@ git_status_porcelain () {
   #    GREPPERS='| grep -v " travel.sh$"'
   #echo "GREPPERS: ${GREPPERS}"
 
+# FIXME/2018-02-08 04:20: Remove all refs to USE_ALT_GIT_ST.
   USE_ALT_GIT_ST=false
+# FIXME/2018-02-08 04:19: I nixxed this "feature"!
+# FIXME/2018-02-08: NO MORE OF THIS! Use ignored files thingy.
+#   git update-index --[no-]assumed-unchanged
   if [[ ${#GTSTOK_GIT_REPOS[@]} -gt 0 ]]; then
     #echo "No. of GTSTOK_GIT_REPOS: ${#GTSTOK_GIT_REPOS[@]}"
     #echo "Checking for: GIT_REPO: ${GIT_REPO}"
@@ -301,6 +305,7 @@ git_status_porcelain () {
       unstaged_changes_found=true
     fi
   else
+# FIXME/2018-02-08 04:20: Remove this block; and USE_ALT_GIT_ST refs.
     git-st.sh &> /dev/null
     if [[ $? -ne 0 ]]; then
       unstaged_changes_found=true
@@ -332,6 +337,7 @@ git_status_porcelain () {
   fi
 
   tweak_errexit
+# FIXME/2018-02-08 04:20: Remove this ref to USE_ALT_GIT_ST.
   if ! ${USE_ALT_GIT_ST} && ! ${DIRTY_REPO}; then
     if [[ -n ${GREPPERS} ]]; then
       eval git status --porcelain ${GREPPERS} &> /dev/null

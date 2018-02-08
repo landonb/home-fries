@@ -128,7 +128,11 @@ ENCFS_GIT_ITERS=()
 ENCFS_VIM_ITERS=()
 AUTO_GIT_ONE=()
 AUTO_GIT_ALL=()
-declare -A GTSTOK_GIT_REPOS
+
+# FIXME/2018-02-08: NO MORE OF THIS! Use ignored files thingy.
+#   git update-index --[no-]assumed-unchanged
+#declare -A GTSTOK_GIT_REPOS
+
 declare -A GIT_REPO_SEEDS_0
 declare -A GIT_REPO_SEEDS_1
 declare -A VIM_REPO_SEEDS_0
