@@ -39,7 +39,8 @@
 
 # Bash and Vim symlinks.
 !.bashrc
-!.vimrc
+# 2018-02-08: I'm gonna leave installing Dubsacks Vim as a separate exercise.
+#!.vimrc
 
 # 3. Finally, add general ignore rules
 #    (which will just apply to ~/.fries).
