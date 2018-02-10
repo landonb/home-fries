@@ -26,38 +26,43 @@ as this file.
 Install Linux
 =============
 
+---------------------
 VirtualBox vs. Native
-^^^^^^^^^^^^^^^^^^^^^
+---------------------
 
-First decide if you'd like to setup Linux natively or within
-a virtual machine.
+Decide if you'd like to setup Linux natively or within a virtual machine.
 
 VirtualBox is great if you'd like to setup Linux quickly and not
 have to mess around with hardware. And if your machine runs another
 OS, like Windows or Mac OS, VirtualBox (or another virtualizer) is
 pretty awesome, because you can easily jump between OSes.
 
-But be aware, especially if you're on a laptop or a machine without
-too many resources to spare. The VM can usually only use up to half
-of the processors cores, which usually isn't a problem, except when
-you're compiling lots of code. Nonetheless, it's easy to get a VM
-running, and if you find a problem with performance in the future,
-then you can decide if you want to go native.
+But eventually you'll probably want to go native. Just do it!
+Running Linux on your metal is fast and reliable, and you won't have
+to worry about limited resources, e.g., if you host machine does
+not have a ton of memory.
 
+--------------
 Download Linux
-^^^^^^^^^^^^^^
+--------------
 
-`Download the 64-bit Ubuntu 14.04 (Trusty Tahr) desktop installer
+Download the `64-bit Ubuntu 14.04 (Trusty Tahr) desktop installer
 <http://releases.ubuntu.com/14.04/>`__
 or your favorite binary-compatible distribution,
 such as `Linux Mint 17.1 "Rebecca" - Mate (64-bit)
 <http://www.linuxmint.com/edition.php?id=174>`__.
 
+[2018-02-10: This file is way out of date. Ubuntu 17.10 has been
+out for a bit, and Ubuntu 18.04 is mere months away. You'll want
+to install 18.04, which'll be supported (and receive security updates)
+for five years, until April, 2023.]
+
 - Be sure to get the desktop install image and not the server installer.
   The latter doesn't include a modern desktop environment.
 
+----------------------------------
 Setup VirtualBox or a Bootable USB
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+----------------------------------
 
 Install VirtualBox
 ~~~~~~~~~~~~~~~~~~
@@ -70,7 +75,7 @@ and install it on your host machine.
 
 Create a 64-bit Ubuntu machine.
 
-.. todo:: Document VM setup and options
+.. todo: Document VM setup and options
 
 If your host OS does not natively support mounting ISO files
 (ahem, Windows), download and install an ISO mounter.
@@ -87,7 +92,7 @@ Mount the Linux installer ISO and fire up the virtual machine.
 
 Install Linux.
 
-.. todo:: Document Linux install and options.
+.. todo: Document Linux install and options.
 
 Skip to the section `Configure Linux to Your Taste`_.
 
@@ -123,8 +128,9 @@ So if you try formatting the stick using an application on Windows
 and it doesn't work, you'll want to try again using
 *USB Image Writer*.
 
+-------------------------
 Create a Dual-Boot Laptop
-^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------
 
 .. note:: Follow these instructions if you'd like to setup a
           dual-boot machine. Skip this section if you're using
@@ -190,8 +196,9 @@ If you'd like to setup a dual boot laptop, follow these steps.
      see two partitions for Linux — one for ``swap``, and one for
      ``/`` — but choosing either one boots into Linux.
 
+----------------------------
 Accessing your Windows Files
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------
 
 .. note:: If you setup a dual-boot machine and would like access
           to your Windows files from Linux, follow these steps.
@@ -265,8 +272,9 @@ script in the same directory as this document.
       configuring Pidgin to start on boot, and much, much more.
       You'll want to look at the file to see everything it does.
 
+------------------------------
 Run Linux Configuration Script
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------------
 
 .. note:: Skip this if you'll setup and configure Linux on your own.
           Otherwise, you may be interested in running a script to
@@ -361,8 +369,9 @@ Here's a brief overview of what the script does:
 
        - And so much more!
 
+-------------------------------------------------
 Setup Bash and Vim (or Your Favorite Text Editor)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------------------------
 
 If you're looking for a full-featured Vim IDE, check out
 `Dubsacks Vim <https://github.com/landonb/dubsacks>`__.
@@ -380,8 +389,9 @@ that also live in the same project as this document.
 The Bash scripts are tailored for a particular developer,
 but you still might find a few copy-and-take-aways.
 
+----------------------
 Superuser Bash Profile
-^^^^^^^^^^^^^^^^^^^^^^
+----------------------
 
 If you want your superuser account to have a similar shell
 setup as your user account, make a link to your profile.
@@ -402,8 +412,9 @@ well.)
   #  sudo /bin/ln -s $HOME/.vim /root/.vim
   #  sudo /bin/ln -s $HOME/.vimrc /root/.vimrc
 
+---------------------------
 Add Gmail Account to Pidgin
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------
 
 If you'd like to use Pidgin as your chat client with Gmail, follow these steps.
 
@@ -445,7 +456,7 @@ Relay Postfix Email via smtp.gmail.com
 If you'd like to configure Linux to use your gmail account
 to send email from your machine, follow these instructions.
 
-.. todo:: Verify these instructions.
+.. todo: Verify these instructions.
 
 Install postfix and a few addition packages.
 
@@ -545,11 +556,13 @@ Visit https://www.google.com/accounts/DisplayUnlockCaptcha
 
 Thanks to: https://rtcamp.com/tutorials/linux/ubuntu-postfix-gmail-smtp/
 
+===================
 Miscellaneous Notes
--------------------
+===================
 
+--------------------
 Updates and Upgrades
-^^^^^^^^^^^^^^^^^^^^
+--------------------
 
 .. code-block:: bash
 
@@ -564,8 +577,9 @@ Updates and Upgrades
 
 or just run Update Manager, which usually lives in the notifications panel.
 
+-------------------
 Backups and Syncing
-^^^^^^^^^^^^^^^^^^^
+-------------------
 
 You'll probably want to setup a backup scheme and possibly a syncing
 scheme so you don't lose personal data or data you haven't committed
@@ -622,8 +636,9 @@ cool tool called ``unison`` to sync files between the two machines.
     ``unison my_project`` will sync files according to the profile
     specified in ``~/.unison/my_project.prf``.
 
+-------------
 Grepping Code
-^^^^^^^^^^^^^
+-------------
 
 The built-in ``grep`` commands are generally great except when they're
 not, such as when you want to be able to ignore specific file paths.
@@ -667,8 +682,9 @@ except that defining word boundaries uses the PCRE syntax.
 
 See more at: https://github.com/ervandew/ag
 
+-----------------
 Lenovo Laptops...
-^^^^^^^^^^^^^^^^^
+-----------------
 
 Lenovo combines the function keys (Fn, or Fkeys)
 and the hardware-specific keys (like volume up and down)
@@ -683,8 +699,9 @@ my laptop are iconed with the hardware function, and
 not the Fn marking (it's really very small!), so I'll
 have to rely on my memory map and not the keyboard markings.
 
+---------------------------------------------
 Passwordless, Unhibernateable, Encrypted Swap
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------------------
 
 If you setup an encrypted home directory, the installer
 set up an encrypted swap to complement it. Verify this.
@@ -728,6 +745,7 @@ Based on
 
 https://github.com/marvinpinto/windows-throwaway-image
 
+------------
 Boot Windows
 ------------
 
@@ -744,6 +762,7 @@ confirmation. Don't worry if it eventually times out and gives up.
 After the machine boots up, you'll be prompted to choose the network
 location. Select either Home or Work.
 
+------------
 Setup the VM
 ------------
 
@@ -774,6 +793,7 @@ Setup the VM
 
     The network name cannot be found.
 
+--------------
 Install Things
 --------------
 
@@ -788,9 +808,9 @@ https://www.google.com/chrome/browser/desktop/index.html
 - Install chocolatey and puppet on the guest machine.
   Open a terminal as Administrator::
 
-  @echo off
-  @powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))" && SET PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin
-  choco install -y puppet
+    @echo off
+    @powershell -NoProfile -ExecutionPolicy unrestricted -Command "iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))" && SET PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin
+    choco install -y puppet
 
 - Open a new Administrator terminal window and use chocolatey to install
   a few basic Windows essentials.
@@ -833,6 +853,7 @@ https://www.google.com/chrome/browser/desktop/index.html
 
   https://bitbucket.org/maproom/qmapshack/downloads/
 
+---------
 Rebooting
 ---------
 
@@ -841,6 +862,7 @@ or from the host terminal::
 
   vagrant reload
 
+---------
 Packaging
 ---------
 
@@ -853,6 +875,7 @@ Packaging
   ##cd /tmp
   ##rm -rf /tmp/win7-custom-image
 
+-------
 Copying
 -------
 

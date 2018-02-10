@@ -18,5 +18,5 @@ Feature Overview
 Check out the source... nothing really mind blowing, just basic Bash.
 Now go out and play. Or read the
 `tedious Linux development environment setup guide
-<https://github.com/landonb/home-fries/blob/master/.fries/once/README.rst>`__.
+<https://github.com/landonb/home-fries/blob/master/.fries/once/A_Linux_Setup_Guide_For_Devs.rst>`__.
 
