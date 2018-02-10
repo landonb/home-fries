@@ -749,10 +749,16 @@ https://github.com/marvinpinto/windows-throwaway-image
 Boot Windows
 ------------
 
-Use my ``Vagrantfile``::
+Use this `Vagrantfile
+<https://gist.github.com/landonb/f1639d9a2c9a764831bde51f48ea05f4>`__
+and this `WRM script
+<https://gist.github.com/landonb/93de25cb1e5e999037536b6a267f8c6b>`__
+and run::
 
-  cp -ar path/to/windows/vagrantbox-setup vag
-  cd vag
+  mkdir -p path/to/vagrantbox-setup
+  cd path/to/vagrantbox-setup
+  wget https://gist.githubusercontent.com/landonb/f1639d9a2c9a764831bde51f48ea05f4/raw/1638c8e664c7aeda7bd723e7723500486d88d750/Vagrantfile
+  wget https://gist.githubusercontent.com/landonb/93de25cb1e5e999037536b6a267f8c6b/raw/8400e33600d9a6c89558573a8e46ee78bf413118/winrm.bat
   vagrant up
 
 The VirtualBox machine should boot, and the ``vargrant`` executable
