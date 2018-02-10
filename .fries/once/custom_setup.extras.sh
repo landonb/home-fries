@@ -5924,7 +5924,10 @@ stage_4_install_visual_studio_code () {
   wget -N https://go.microsoft.com/fwlink/?LinkID=760868
   /bin/mv index.html\?LinkID=760868 code_1.7.2-1479766213_amd64.deb
   # FIXME: Where's their signature??
-  sudo dpkg -i code_1.7.2-1479766213_amd64.deb
+  #sudo dpkg -i code_1.7.2-1479766213_amd64.deb
+  # Alternatively: just go to web site and download.
+  sudo dpkg -i ~/Downloads/code_1.20.0-1518023506_amd64.deb
+  /bin/rm ~/Downloads/code_1.20.0-1518023506_amd64.deb
 
   # How obnoxious! Or pretentious. They called it `code`. Bwah.
   # To run:
