@@ -5146,6 +5146,11 @@ stage_4_go_get_crap () {
   # 2017-01-05
   go get github.com/landonb/gocovmerge
 
+  # This is somewhat cute. Not sure how useful.
+  # FIXME/2018-02-09 18:37: Add to Travel migrate, not once-setup!
+  # git@github.com:jingweno/ccat.git
+  go get -u github.com/jingweno/ccat
+
   #popd &> /dev/null
 
 } # end: stage_4_go_get_crap
