@@ -751,7 +751,7 @@ Boot Windows
 
 Use my ``Vagrantfile``::
 
-  cp -ar /kit/sturdy/windows/vagrantbox-setup vag
+  cp -ar path/to/windows/vagrantbox-setup vag
   cd vag
   vagrant up
 
@@ -799,7 +799,7 @@ Install Things
 
 - Install Google Chrome.
 
-https://www.google.com/chrome/browser/desktop/index.html
+  https://www.google.com/chrome/browser/desktop/index.html
 
 - Install Intel USB 3.0 drivers.
 
