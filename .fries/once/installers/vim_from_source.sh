@@ -53,12 +53,12 @@ function vim_clone_compile_install () {
   export RUBY_VER_LONG=2.3.3
 
   make clean
-  #./configure
-  #make
-  #sudo make install
+  # See `./configure --help`
   # - Add ruby for commandt
-  # - Add python for ternjs
+  # - Add python3 for ternjs
+  # - Add python2 for vim-instanbul
   ./configure \
+    --enable-pythoninterp=yes \
     --enable-python3interp=yes \
     --enable-rubyinterp=yes \
     --prefix=${OPT_BIN:-/srv/opt/bin}
