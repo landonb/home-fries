@@ -183,11 +183,6 @@ home_fries_create_aliases_general() {
   # FIXME: Should I make sure just to do this if a gnome/mate terminal?
   alias bash='DUBS_STARTIN=$(dir_resolve $(pwd -P)) /bin/bash'
 
-  # 2016-10-12: This is temporary? We'll see.
-  if [[ -f ~/.fries/bin/packme ]]; then
-    alias pckme="packme"
-  fi
-
   # *** Stream editing
 
   alias sed='sed -r'        # Use extended regex.
