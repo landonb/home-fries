@@ -2311,8 +2311,10 @@ soups_on $*
 #echo
 #echo 'Success!'
 
+echo "Why is popoff slow sometimes?"
 # Unhook errexit_cleanup.
 trap - EXIT
+echo "- Done untrapping."
 
 exit 0
 
