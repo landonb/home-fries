@@ -480,7 +480,7 @@ cpln () {
 # }
 
 cp_basedir_check () {
-  # We could check for existance of one or more of the config files, like
+  # We could check for existence of one or more of the config files, like
   # pyserver/CONFIG and/or flashclient/Conf_Instance.as. But we check for
   # pyserver/VERSION.py, which is created when you make flashclient. So
   # this verifies that the config files exist and that the client may have
