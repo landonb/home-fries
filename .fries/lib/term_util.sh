@@ -237,6 +237,17 @@ invoked_from_terminal () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+get_terminal_window_ids () {
+  # 2018-02-14: `xdotool search` is returning 1 more than the number of
+  # mate-terminals. I thought it was if I ran bash within bash within a
+  # terminal, but that wasn't the case. Not sure what it is. But there's
+  # another way we can get exactly what we want, with `wmctrl` instead.
+  #   xdotool search --class "${WM_TERMINAL_APP}"
+  wmctrl -l -x | grep "${WM_TERMINAL_APP}" | awk '{print $1}'
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # Send commands to all the terminal windows.
 
 # But first,
@@ -265,7 +276,7 @@ invoked_from_terminal () {
 termdo-all () {
   determine_window_manager
   local THIS_WINDOW_ID=$(xdotool getactivewindow)
-  local WINDOW_IDS=$(xdotool search --class "$WM_TERMINAL_APP")
+  local WINDOW_IDS=$(get_terminal_window_ids)
   local winid
   for winid in ${WINDOW_IDS}; do
     # Don't send the command to this window, at least not yet, since it'll
@@ -277,27 +288,32 @@ termdo-all () {
       # for the fakey, it's 0, and also xdotool returns 1.
       if [[ $? -eq 0 ]]; then
         # This was my first attempt, before realizing the obvious.
-        if false; then
-          xdotool windowactivate --sync $winid
-          sleep .1
-          xdotool type "echo 'Hello buddy'
-#"
-          # Hold on a millisec, otherwise I've seen, e.g., the trailing
-          # character end up in another terminal.
-          sleep .2
-        fi
+        #   if false; then
+        #     xdotool windowactivate --sync $winid
+        #     sleep .1
+        #     xdotool type "echo 'Hello buddy'
+        ##"
+        #     # Hold on a millisec, otherwise I've seen, e.g., the trailing
+        #     # character end up in another terminal.
+        #     sleep .2
+        #   fi
         # And then this is the obvious:
 
         # Oh, wait, the type and key commands take a window argument...
         # NOTE: Without the quotes, e.g., xdotool type --window $winid $*,
         #       you'll have issues, e.g., xdotool sudo -K
         #       shows up in terminals as, sudo-K: command not found
-        xdotool type --window $winid "$*"
+        # NOTE: If you've bash'ed within a session, you'll find all 'em.
+        #       And you'll xdotool them all. But not a big deal?
+        xdotool windowactivate --sync ${winid} type "$*"
         # Note that 'type' isn't always good with newlines, so use 'key'.
-        xdotool key --window $winid Return
+        # 2018-02-14 16:42: Revisit that comment. Docs make it seem like newlines ok.
+        xdotool windowactivate --sync ${winid} key Return
       fi
     fi
   done
+  # Bring original window back to focus.
+  xdotool windowactivate --sync ${THIS_WINDOW_ID}
   # Now we can do what we did to the rest to ourselves.
   eval $*
 }
@@ -311,7 +327,7 @@ fi
 termdo-reset () {
   determine_window_manager
   local THIS_WINDOW_ID=$(xdotool getactivewindow)
-  local WINDOW_IDS=$(xdotool search --class "$WM_TERMINAL_APP")
+  local WINDOW_IDS=$(get_terminal_window_ids)
   local winid
   for winid in $WINDOW_IDS; do
     if [[ $THIS_WINDOW_ID -ne $winid ]]; then
@@ -323,14 +339,15 @@ termdo-reset () {
         # the ctrl-c, killing this fcn., but not until after all the other
         # terminals also got their fill.
 
-        xdotool key --window $winid ctrl+c
-
-        xdotool type --window $winid "cd $1"
+        xdotool windowactivate --sync ${winid} key ctrl+c
+        xdotool windowactivate --sync ${winid} type "cd $1"
         # Hrmm. 'Ctrl+c' and 'ctrl+c' are acceptable, but 'return' is not.
-        xdotool key --window $winid Return
+        xdotool windowactivate --sync ${winid} key Return
       fi
     fi
   done
+  # Bring original window back to focus.
+  xdotool windowactivate --sync ${THIS_WINDOW_ID}
   # Now we can act locally after having acted globally.
   cd $1
 }
@@ -338,20 +355,23 @@ termdo-reset () {
 termdo-cmd () {
   determine_window_manager
   local THIS_WINDOW_ID=$(xdotool getactivewindow)
-  local WINDOW_IDS=$(xdotool search --class "$WM_TERMINAL_APP")
+  local WINDOW_IDS=$(get_terminal_window_ids)
   local winid
   for winid in $WINDOW_IDS; do
     if [[ $THIS_WINDOW_ID -ne ${winid} ]]; then
       local DESKTOP_NUM=$(xdotool get_desktop_for_window ${winid} 2> /dev/null)
       if [[ $? -eq 0 ]]; then
-        xdotool key --window $winid ctrl+c
-        xdotool key --window $winid ctrl+d
-        xdotool type --window $winid "$1"
+
+        xdotool windowactivate --sync ${winid} key ctrl+c
+        xdotool windowactivate --sync ${winid} key ctrl+d
+        xdotool windowactivate --sync ${winid} type "$1"
         # Hrmm. 'Ctrl+c' and 'ctrl+c' are acceptable, but 'return' is not.
-        xdotool key --window $winid Return
+        xdotool windowactivate --sync ${winid} key Return
       fi
     fi
   done
+  # Bring original window back to focus.
+  xdotool windowactivate --sync ${THIS_WINDOW_ID}
   # Now we can act locally after having acted globally.
   eval $1
 }
