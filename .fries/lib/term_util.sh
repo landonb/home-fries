@@ -69,8 +69,8 @@ function dubs_set_terminal_prompt() {
   #       to pass this environment variable to us.
   # NOTE: To test gnome-terminal, run it from your home directory, otherwise it
   #       won't find your bash scripts.
-  if [[ "$ssh_host" == "" ]]; then
-    if [[ "$DUBS_TERMNAME" != "" ]]; then
+  if [[ "${ssh_host}" == "" ]]; then
+    if [[ "${DUBS_TERMNAME}" != "" ]]; then
       titlebar="\[\e]0;${DUBS_TERMNAME}\a\]"
     elif [[ $(stat -c %i /) -eq 2 ]]; then
       # Not in chroot jail.
@@ -232,7 +232,7 @@ invoked_from_terminal () {
     bashed=1
   fi
 
-  return $bashed
+  return ${bashed}
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -267,12 +267,12 @@ termdo-all () {
   local THIS_WINDOW_ID=$(xdotool getactivewindow)
   local WINDOW_IDS=$(xdotool search --class "$WM_TERMINAL_APP")
   local winid
-  for winid in $WINDOW_IDS; do
+  for winid in ${WINDOW_IDS}; do
     # Don't send the command to this window, at least not yet, since it'll
     # end up on stdin of this fcn. and won't be honored as a bash command.
-    if [[ $THIS_WINDOW_ID -ne $winid ]]; then
+    if [[ ${THIS_WINDOW_ID} -ne ${winid} ]]; then
       # See if this is a legit window or not.
-      local DESKTOP_NUM=$(xdotool get_desktop_for_window $winid 2> /dev/null)
+      local DESKTOP_NUM=$(xdotool get_desktop_for_window ${winid} 2> /dev/null)
       # For real terminal, the number is 0 or greater;
       # for the fakey, it's 0, and also xdotool returns 1.
       if [[ $? -eq 0 ]]; then
@@ -341,8 +341,8 @@ termdo-cmd () {
   local WINDOW_IDS=$(xdotool search --class "$WM_TERMINAL_APP")
   local winid
   for winid in $WINDOW_IDS; do
-    if [[ $THIS_WINDOW_ID -ne $winid ]]; then
-      local DESKTOP_NUM=$(xdotool get_desktop_for_window $winid 2> /dev/null)
+    if [[ $THIS_WINDOW_ID -ne ${winid} ]]; then
+      local DESKTOP_NUM=$(xdotool get_desktop_for_window ${winid} 2> /dev/null)
       if [[ $? -eq 0 ]]; then
         xdotool key --window $winid ctrl+c
         xdotool key --window $winid ctrl+d
