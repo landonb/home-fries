@@ -198,13 +198,6 @@ home_fries_create_aliases_general() {
   if [[ $EUID -eq 0 ]]; then
     alias vi="vim"
   fi
-
-  # *** Other goodies.
-
-  if command -v ccat; then
-    # 2018-02-10 20:01: Not sure I'll want this, but forcing myself to try.
-    alias cat=ccat
-  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
