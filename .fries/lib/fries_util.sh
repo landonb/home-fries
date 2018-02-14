@@ -106,7 +106,11 @@ home_fries_load_completions() {
     # So then just iterate, I suppose.
     while IFS= read -r -d '' file; do
       #echo "file = $file"
-      source $file
+      # Check that the file exists (could be broken symlink
+      # (e.g., symlink to unmounted encfs on fresh boot)).
+      if [[ -e ${file} ]]; then
+        source ${file}
+      fi
     done < <(find ${HOMEFRIES_DIR}/bin/completions/* -maxdepth 1 ! -path . -print0)
   fi
 }
