@@ -52,6 +52,13 @@ touchpad_disable () {
   touchpad_twiddle 0
   # 2017-12-16 02:38: Something has been leaving 0~Bracketed1~ Paste enabled.
   #   This disables bracketed paste.
+  # 2018-02-14 01:12: I've also noticed a problem with mouse state getting
+  # stuck weird and then mouse clicking not working, but Alt-tab does, so
+  # Alt-tab to a terminal, then run touchpad_disable, then mouse recovers...
+  # what in the world did I do? Happens once or twice a day sometimes....
+  # I also saw a right-click get into weird state where mouse didn't work,
+  # nor Alt-tab, but after another right-click, I could Alt-Tab and then
+  # run this command to fix things. Seriously, what??
   echo -ne '\e]12;#ffcc00\a'
   echo -ne '\e]12;#ffffff\a'
 }
