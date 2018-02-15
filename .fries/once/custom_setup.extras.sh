@@ -5866,7 +5866,8 @@ stage_4_install_npm_apps () {
   nvm use v8.9.1
 
   # 2018-02-15: Gitmoji CLI for using emojis on commits.
-  npm i -g gitmoji-cli
+  # 2018-02-15: MEH: This actually seems pretty useless.
+  #npm i -g gitmoji-cli
 
   popd &> /dev/null
 
