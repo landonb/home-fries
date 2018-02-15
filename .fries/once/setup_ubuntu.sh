@@ -773,6 +773,9 @@ setup_mint_17_stage_1_install_packages () {
     #     grep -i --color=always version | \
     #     aha --black > ls-with-colors.html
 
+    tmux
+    xclip
+
   ) # end: BIG_PACKAGE_LIST
 
   # 2016-09-26: What? I ran this script last Thursday, but did it not

@@ -6975,6 +6975,25 @@ stage_4_wine_playonlinux () {
 
 } # end: stage_4_wine_playonlinux
 
+stage_4_tmux () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_tmux"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  sudo apt-get install -y tmux
+  sudo apt-get install -y xclip
+
+  chruby 2.3.3
+  gem install tmuxinator
+
+  popd &> /dev/null
+
+} # end: stage_4_tmux
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -7284,6 +7303,8 @@ setup_customize_extras_go () {
 
   # 2018-01-24: playonlinux.
   #stage_4_wine_playonlinux
+
+  stage_4_tmux
 
   # Add before this'n: stage_4_fcn_template.
 
