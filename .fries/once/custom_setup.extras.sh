@@ -5850,6 +5850,28 @@ stage_4_install_nvm () {
 
 } # end: stage_4_install_nvm
 
+stage_4_install_npm_apps () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_install_npm_apps"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  #nvm use v6.9.4
+  #nvm use v6.11.3
+  #nvm use v8.5.0
+  #nvm use v8.7.0
+  nvm use v8.9.1
+
+  # 2018-02-15: Gitmoji CLI for using emojis on commits.
+  npm i -g gitmoji-cli
+
+  popd &> /dev/null
+
+} # end: stage_4_install_npm_apps
+
 stage_4_install_mocha () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -7196,6 +7218,8 @@ setup_customize_extras_go () {
   stage_4_install_node_js
 
   stage_4_install_nvm
+
+  stage_4_install_npm_apps
 
   stage_4_install_mocha
 
