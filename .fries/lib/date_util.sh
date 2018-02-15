@@ -22,12 +22,20 @@ touch_datefile () {
 }
 
 # 2017-02-07: Took you long enough!
-TTT () {
+TTT- () {
   echo "$(date +%Y-%m-%d)"
+}
+
+TTT () {
+  TTT-
 }
 
 TTT. () {
   echo "$(date +%Y.%m.%d)"
+}
+
+TTT_ () {
+  echo "$(date +%Y_%m_%d)"
 }
 
 # 2017-02-27: Taking it even further.
