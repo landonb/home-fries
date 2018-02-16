@@ -158,6 +158,16 @@ reperms () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+if false; then
+  iterate_files_with_spaces_example () {
+    while IFS= read -d $'\0' -r file ; do
+      printf 'File found: %s\n' "$file"
+    done < <(find . -iname 'foo*' -print0)
+  }
+fi
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 main() {
   : #source_deps
 }
