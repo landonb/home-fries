@@ -126,6 +126,10 @@ screensaver_lockoff () {
     # Or did it just require an apt-get update to finally work?
     gsettings set org.mate.screensaver idle-activation-enabled false
     gsettings set org.mate.screensaver lock-enabled false
+    # 2018-03-01: Still not quite working... missing sleep-display-ac?
+    #   gsettings list-recursively | grep sleep
+    #   gsettings list-recursively | grep idle
+    gsettings set org.mate.power-manager sleep-display-ac 0
   elif ${WM_IS_CINNAMON}; then
     tweak_errexit +ex
     gsettings set org.cinnamon.desktop.screensaver lock-enabled false \
@@ -139,6 +143,8 @@ screensaver_lockon () {
   if ${WM_IS_MATE}; then
     gsettings set org.mate.screensaver idle-activation-enabled true
     gsettings set org.mate.screensaver lock-enabled true
+    # 2018-03-01: 30 minutes, sleep display.
+    gsettings set org.mate.power-manager sleep-display-ac 1800
   elif ${WM_IS_CINNAMON}; then
     tweak_errexit +ex
     gsettings set org.cinnamon.desktop.screensaver lock-enabled true \
