@@ -130,6 +130,9 @@ screensaver_lockoff () {
     #   gsettings list-recursively | grep sleep
     #   gsettings list-recursively | grep idle
     gsettings set org.mate.power-manager sleep-display-ac 0
+    # 2018-03-02: Bah. Try 10-folding the idle-delay.
+    # Huh: 2 hours is the max. So 130 gets floored to 120.
+    gsettings set org.mate.session idle-delay 130
   elif ${WM_IS_CINNAMON}; then
     tweak_errexit +ex
     gsettings set org.cinnamon.desktop.screensaver lock-enabled false \
