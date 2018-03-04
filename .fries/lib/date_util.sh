@@ -98,6 +98,10 @@ TTT-tt () {
   echo "$(date '+%Y-%m-%d-%H:%M:%S')"
 }
 
+TTT-tt1 () {
+  echo "$(date '+%Y-%m-%d %H:%M:%S')"
+}
+
 TTT_tt () {
   echo "$(date '+%Y-%m-%d_%H:%M:%S')"
 }
