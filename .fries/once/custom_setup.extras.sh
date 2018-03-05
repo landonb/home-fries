@@ -2513,7 +2513,9 @@ stage_4_digikam_install_appimage () {
 
   pushd ${OPT_DLOADS} &> /dev/null
 
-  wget -N https://download.kde.org/stable/digikam/digikam-5.5.0-01-x86-64.appimage
+  local digikam_vers='5.8.0'
+
+  wget -N https://download.kde.org/stable/digikam/digikam-${digikam_vers}-01-x86-64.appimage
 
   cd ${OPT_BIN}
 
@@ -2523,7 +2525,7 @@ stage_4_digikam_install_appimage () {
   #   KDE Development Platform: 4.14.2
   #   digiKam: 4.14.0
 
-  /bin/ln -s ${OPT_DLOADS}/digikam-5.5.0-01-x86-64.appimage digikam5
+  /bin/ln -sf ${OPT_DLOADS}/digikam-${digikam_vers}-01-x86-64.appimage digikam5
 
   # $ digikam5 &
   # -- Use 'help' as CLI argument to know all available options
