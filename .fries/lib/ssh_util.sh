@@ -84,7 +84,7 @@ ssh_agent_kick () {
       # Test: ssh-agent -k # then, open a terminal.
     }
     # Set global variable telling caller if we called ssh-add.
-    export SSH_ENV_FRESH=false
+    #export SSH_ENV_FRESH=false
     # Source SSH settings, if applicable
     if [[ -f "${SSH_ENV}" ]]; then
       . "${SSH_ENV}" > /dev/null
