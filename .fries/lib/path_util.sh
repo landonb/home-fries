@@ -15,6 +15,8 @@
 source_deps() {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   source ${curdir}/process_util.sh
+  # Load: warn, etc.
+  source ${curdir}/logger.sh
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -261,12 +263,71 @@ ensure_directory_hierarchy_exists () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# *** Misc.
+symlink_infuse_file() {
+  local source_f="$1"
+  local target_f="$2"
+  if [[ ! -e "${target_f}" ]]; then
+    if [[ -f "${source_f}" ]]; then
+      info "Symlinking anew: ${source_f}"
+      /bin/ln -s "${source_f}" "${target_f}"
+    else
+      warn "Symlink source_f is not file: ${source_f}"
+    fi
+  elif [[ ! -h "${target_f}" ]]; then
+    warn "Symlink target exists but not symlink: ${target_f}"
+    # User/caller should fix this manually.
+  else
+    # Already a symlink; okay to overwrite!
+# FIXME/2018-03-05: There will be issue if symlink exists and is to dir...
+    info "Symlinking again: ${source_f}"
+    /bin/ln -sf "${source_f}" "${target_f}"
+  fi
+}
 
-symlink_or_not () {
-  local target="$1"
-  local link_name="${2:-`basename $1`}"
-  /bin/ln -sf $1
+symlink_infuses_files_first() {
+  local target_f="$1"
+  shift
+  if [[ ! -e "${target_f}" || -h "${target_f}" ]]; then
+    local source_f
+    local found_one=false
+    for source_f in "$@"; do
+      if [[ -e ${source_f} ]]; then
+        info "Symlinking: ${source_f}"
+        /bin/ln -sf "${source_f}" "${target_f}"
+        found_one=true
+        break
+      else
+        info "Optional not found: ${source_f}"
+      fi
+    done
+    if ! ${found_one}; then
+      warn "No symlink source found! See previous info-level messages."
+    fi
+  else
+    warn "Symlink target exists but is not symlink: ${target_f}"
+  fi
+}
+
+# MEH: I could probably DRY symlink_infuse_file and symlink_infuse_dir.
+symlink_infuse_dir() {
+  local source_f="$1"
+  local target_f="$2"
+  if [[ ! -e "${target_f}" ]]; then
+    if [[ -d "${source_f}" ]]; then
+      info "Symlinking anew: ${source_f}"
+      /bin/ln -s "${source_f}" "${target_f}"
+    else
+      warn "Symlink source_f is not directory: ${source_f}"
+    fi
+  elif [[ ! -h "${target_f}" ]]; then
+    warn "Symlink target exists but not symlink: ${target_f}"
+    # User/caller should fix this manually.
+  else
+    # Already a symlink; but since to a directory, remove it first.
+    info "Symlinking again: ${source_f}"
+    /bin/rm "${target_f}"
+    /bin/ln -s "${source_f}" "${target_f}"
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
