@@ -83,12 +83,15 @@ ssh_agent_kick () {
       fi
       # Test: ssh-agent -k # then, open a terminal.
     }
+    # Set global variable telling caller if we called ssh-add.
+    SSH_ENV_FRESH=false
     # Source SSH settings, if applicable
     if [[ -f "${SSH_ENV}" ]]; then
       . "${SSH_ENV}" > /dev/null
       #ps ${SSH_AGENT_PID} doesn't work under Cygwin.
       ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
         start_agent
+        SSH_ENV_FRESH=true
       }
     else
       start_agent
