@@ -31,6 +31,10 @@ Configure MATE panel(s).
  - Or do whatever you want — group windows, use workspaces,
    whatever makes you happiest.
 
+ - Window List Content: Right-click empty space in Window List panel.
+   Choose "Show windows from current workspace" if you'd like to not
+   see all Windows from any workspace.
+
 Landon's Preferred Panel Layout
 -------------------------------
 
