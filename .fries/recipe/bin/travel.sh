@@ -957,7 +957,6 @@ setup_private_ssh_directory () {
 } # end: setup_private_ssh_directory
 
 setup_private_hamster_db () {
-
   if ${HAMSTERING}; then
     # Set up the hamster.db -- each machine gets its own database file,
     # since you'll want to deliberately merge hamster files together.
@@ -984,11 +983,9 @@ setup_private_hamster_db () {
         ~/.local/share/hamster-applet/hamster.db
     fi
   fi
-
 } # end: setup_private_hamster_db
 
 setup_private_anacron () {
-
   # Anacron backup script.
   # The author uses .anacron just to back up data on the main, master_chef, machine.
   # So just setup anacron on the main development machine, but not on satellites.
@@ -1042,8 +1039,8 @@ setup_private_update_db_conf () {
 } # end: setup_private_update_db_conf
 
 locate_and_clone_missing_repo () {
-  check_repo=$1
-  remote_orig=$2
+  local check_repo=$1
+  local remote_orig=$2
   echod "    CHECK: ${check_repo}"
   echod "     REPO: ${remote_orig}"
   if [[ -d ${check_repo} ]]; then
@@ -1079,8 +1076,8 @@ locate_and_clone_missing_repo () {
       echo "  ==================================================== "
       echo "  MISSING: ${check_repo}"
       echo "     REPO: ${remote_orig}"
-      parent_dir=$(dirname -- "${check_repo}")
-      repo_name=$(basename -- "${check_repo}")
+      local parent_dir=$(dirname -- "${check_repo}")
+      local repo_name=$(basename -- "${check_repo}")
       if [[ ! -d ${parent_dir} ]]; then
         echo
         echo "  MKDIR: Creating new parent_dir: ${parent_dir}"
@@ -1089,6 +1086,7 @@ locate_and_clone_missing_repo () {
       fi
       if [[ -d ${parent_dir} ]]; then
         echo "           fetching!"
+        local ret_code
         if [[ ${parent_dir} == '/' ]]; then
           if [[ ! -e ${check_repo} ]]; then
             echod "mkdir -p ${HOME}/.elsewhere"
@@ -1175,7 +1173,7 @@ locate_and_clone_missing_repos_helper () {
 locate_and_clone_missing_repos_header () {
   tweak_errexit
   command -v user_locate_and_clone_missing_repos_header &> /dev/null
-  USER_CMD_EXIT_CODE=$?
+  local USER_CMD_EXIT_CODE=$?
   reset_errexit
   if [[ ${USER_CMD_EXIT_CODE} -eq 0 ]]; then
     # This is just a dumb override so I can include my private
@@ -1224,7 +1222,7 @@ locate_and_clone_missing_repos () {
   # Call private fcns. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
   tweak_errexit
   command -v user_locate_and_clone_missing_repos &> /dev/null
-  USER_CMD_EXIT_CODE=$?
+  local USER_CMD_EXIT_CODE=$?
   reset_errexit
   if [[ ${USER_CMD_EXIT_CODE} -eq 0 ]]; then
     user_locate_and_clone_missing_repos
@@ -1296,7 +1294,7 @@ function chase_and_face () {
   # Call private fcns. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
   tweak_errexit
   command -v user_do_chase_and_face &> /dev/null
-  EXIT_CODE=$?
+  local EXIT_CODE=$?
   reset_errexit
   if [[ ${EXIT_CODE} -eq 0 ]]; then
     user_do_chase_and_face
@@ -1383,7 +1381,7 @@ function umount_curly_emissary_gooey () {
 
 function populate_singular_repo () {
   ENCFS_GIT_REPO=$1
-  ENCFS_REL_PATH=$(echo ${ENCFS_GIT_REPO} | /bin/sed s/^.//)
+  local ENCFS_REL_PATH=$(echo ${ENCFS_GIT_REPO} | /bin/sed s/^.//)
   if [[ ! -e "${ENCFS_REL_PATH}/.git" ]]; then
     #echo " ${ENCFS_GIT_REPO}"
     echo " ${ENCFS_REL_PATH}"
@@ -1397,11 +1395,11 @@ function populate_singular_repo () {
 function populate_gardened_repo () {
   ENCFS_GIT_ITER=$1
   echo " ENCFS_GIT_ITER: ${ENCFS_GIT_ITER}"
-  ENCFS_REL_PATH=$(echo ${ENCFS_GIT_ITER} | /bin/sed s/^.//)
+  local ENCFS_REL_PATH=$(echo ${ENCFS_GIT_ITER} | /bin/sed s/^.//)
   echo " ${ENCFS_REL_PATH}"
   # We don't -type d so that you can use symlinks.
   while IFS= read -r -d '' fpath; do
-    TARGET_BASE=$(basename -- "${fpath}")
+    local TARGET_BASE=$(basename -- "${fpath}")
     TARGET_PATH="${ENCFS_REL_PATH}/${TARGET_BASE}"
     if [[ ! -d ${fpath}/.git ]]; then
       echo " skipping (no .git): $(pwd -P)/${TARGET_PATH}"
@@ -1424,7 +1422,6 @@ function populate_gardened_repo () {
 }
 
 function init_travel () {
-
   if [[ -z ${TRAVEL_DIR} ]]; then
     echo
     echo "FAIL: TRAVEL_DIR not defined"
@@ -1512,7 +1509,7 @@ function init_travel () {
 
   tweak_errexit
   command -v user_do_init_travel &> /dev/null
-  EXIT_CODE=$?
+  local EXIT_CODE=$?
   reset_errexit
   if [[ ${EXIT_CODE} -eq 0 ]]; then
     user_do_init_travel
@@ -1685,7 +1682,7 @@ function check_gardened_repo () {
       echo "  - Skipping .git-less directory: ${fpath}"
       :
     else
-      TARGET_BASE=$(basename -- "${fpath}")
+      local TARGET_BASE=$(basename -- "${fpath}")
       if [[ ${TARGET_BASE#TBD-} != ${TARGET_BASE} ]]; then
         echo "  - Skipping resource with TBD-*: ${fpath}"
         :
@@ -1742,7 +1739,7 @@ function check_repos_statuses () {
   # Call private fcns. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
   tweak_errexit
   command -v user_do_check_repos_statuses &> /dev/null
-  EXIT_CODE=$?
+  local EXIT_CODE=$?
   reset_errexit
   if [[ ${EXIT_CODE} -eq 0 ]]; then
     user_do_check_repos_statuses
@@ -1775,11 +1772,11 @@ function git_issues_review {
 function pull_gardened_repo () {
   ENCFS_GIT_ITER="$1"
   PREFIX="$2"
-  ABS_PATH="${ENCFS_GIT_ITER}"
-  ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
+  local ABS_PATH="${ENCFS_GIT_ITER}"
+  local ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
   echo " ${ENCFS_REL_PATH}"
   while IFS= read -r -d '' fpath; do
-    TARGET_BASE=$(basename -- "${fpath}")
+    local TARGET_BASE=$(basename -- "${fpath}")
     TARGET_PATH="${ENCFS_REL_PATH}/${TARGET_BASE}"
     if [[ -d ${TARGET_PATH}/.git && ! -h ${TARGET_PATH} ]]; then
       if [[ ${TARGET_BASE#TBD-} == ${TARGET_BASE} ]]; then
@@ -1799,7 +1796,6 @@ function pull_gardened_repo () {
 }
 
 function pull_git_repos () {
-
   if [[ $1 == 'emissary' ]]; then
     #TO_EMISSARY=true
     PREFIX=""
@@ -1816,7 +1812,7 @@ function pull_git_repos () {
   echo "Pulling singular git repos..."
   for ((i = 0; i < ${#ENCFS_GIT_REPOS[@]}; i++)); do
     ABS_PATH="${ENCFS_GIT_REPOS[$i]}"
-    ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
+    local ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
     # MAYBE/2016-12-12: Ignore symlinks?
     #if [[ -d ${ENCFS_REL_PATH} && ! -h ${ENCFS_REL_PATH} ]]; then
       #echo " SOURCE_PATH: ${PREFIX}${ABS_PATH}"
@@ -1967,7 +1963,7 @@ function packme () {
     # Call private fcn. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
     tweak_errexit
     command -v user_do_packme &> /dev/null
-    EXIT_CODE=$?
+    local EXIT_CODE=$?
     reset_errexit
     if [[ ${EXIT_CODE} -eq 0 ]]; then
       user_do_packme
@@ -2193,7 +2189,7 @@ function unpack () {
 
   tweak_errexit
   command -v user_do_unpack &> /dev/null
-  EXIT_CODE=$?
+  local EXIT_CODE=$?
   reset_errexit
   if [[ ${EXIT_CODE} -eq 0 ]]; then
     user_do_unpack
@@ -2284,7 +2280,7 @@ function prepare_shim () {
 
   tweak_errexit
   command -v user_do_prepare_shim &> /dev/null
-  EXIT_CODE=$?
+  local EXIT_CODE=$?
   reset_errexit
   if [[ ${EXIT_CODE} -eq 0 ]]; then
     user_do_prepare_shim
