@@ -2229,10 +2229,11 @@ soups_on $*
 #echo
 #echo 'Success!'
 
-echo "Why is popoff slow sometimes?"
 # Unhook errexit_cleanup.
 trap - EXIT
-echo "- Done untrapping."
+# 2018-03-05: Weird. I put an echo here because popoff can be slow
+# to run, and I wanted to trace the lag. It brought me here. After
+# the echo, the script can still take a second or two to wrap up.
 
 exit 0
 
