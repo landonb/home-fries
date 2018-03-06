@@ -26,6 +26,8 @@
 # Script Setup
 # ============
 
+bashrc_time_0=$(date +%s.%N)
+
 export DUBS_TRACE=false
 #export DUBS_TRACE=true
 
@@ -210,4 +212,20 @@ fi
 unset hard_path
 unset machfile
 unset userfile
+
+# Show startup stats if we already polluted console with ``expect`` stuff,
+# or if being run in tmuxinator.
+if ( [[ ! -z ${SSH_ENV_FRESH+x} ]] && ${SSH_ENV_FRESH} ) || \
+   ( [[ "${TERM}" == "screen" || "${TERM}" == "screen-256color" ]] && \
+     [[ -n "${TMUX}" ]] ) \
+then
+  source 'logger.sh'
+  export LOG_LEVEL=LOG_LEVEL_NOTICE
+  bashrc_time_n=$(date +%s.%N)
+  time_elapsed=$(echo "$bashrc_time_n - $bashrc_time_0" | bc -l)
+  notice "Elapsed: $time_elapsed secs."
+  unset bashrc_time_n
+  unset time_elapsed
+fi
+unset bashrc_time_0
 
