@@ -43,18 +43,18 @@ ssh_agent_kick () {
       # Weird. With Stdin, ssh-add opens a GUI window, rather than
       # asking for your passphrase on the command line.
       #  find $HOME/.ssh -name "*_rsa" -maxdepth 1 | xargs /usr/bin/ssh-add
-      rsa_keys=`ls $HOME/.ssh/*_rsa 2> /dev/null`
+      local rsa_keys=`ls $HOME/.ssh/*_rsa 2> /dev/null`
       if [[ -n $rsa_keys ]]; then
         for pvt_key in $(/bin/ls $HOME/.ssh/*_rsa $HOME/.ssh/*_dsa 2> /dev/null); do
-          sent_passphrase=false
-          secret_name=$(basename -- "${pvt_key}")
           if [[    -n "$SSH_SECRETS" \
                 && -d "$SSH_SECRETS" \
                 && -e "$SSH_SECRETS/$secret_name" ]]; then
+          local sent_passphrase=false
+          local secret_name=$(basename -- "${pvt_key}")
             if [[ $(command -v expect > /dev/null && echo true) ]]; then
               # CUTE! If your $pphrase has a bracket in it, e.g., "1234[", expect complains:
               #        "missing close-bracket while executing send "1234["
-              pphrase=$(cat ${SSH_SECRETS}/${secret_name})
+              local pphrase=$(cat ${SSH_SECRETS}/${secret_name})
               /usr/bin/expect -c " \
               spawn /usr/bin/ssh-add ${pvt_key}; \
               expect \"Enter passphrase for /home/${USER}/.ssh/${secret_name}:\"; \
