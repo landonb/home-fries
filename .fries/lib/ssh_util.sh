@@ -10,10 +10,19 @@
 
 # Usage: Source this script. Call its functions. Use its exports.
 
+# Load: determine_window_manager
+source_deps() {
+  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
+  # Load: warn
+  source ${curdir}/logger.sh
+}
+
 # ============================================================================
 # *** Kick that ssh-agent.
 
 ssh_agent_kick () {
+  local old_level=${LOG_LEVEL}
+  LOG_LEVEL=LOG_LEVEL_NOTICE
   if [[ $EUID -ne 0 \
      && "dumb" != "${TERM}" \
      && -e "$HOME/.ssh" ]]; then
@@ -55,17 +64,17 @@ ssh_agent_kick () {
               unset pphrase
               sent_passphrase=true
             else
-              echo "NOTICE: no expect: ignoring: ${SSH_SECRETS}/${pvt_key}"
+              notice "no expect: ignoring: ${SSH_SECRETS}/${pvt_key}"
             fi
           elif [[ ! -d "$SSH_SECRETS" ]]; then
             if [[ -z $SSH_SECRETS ]]; then
-              echo "NOTICE: No SSH_SECRETS directory defined."
+              notice 'No SSH_SECRETS directory defined.'
             else
-              echo "NOTICE: No directory at: $SSH_SECRETS"
+              notice "No directory at: $SSH_SECRETS"
             fi
-            echo "        Set this up yourself."
-            echo "        To test again: ssh-agent -k"
-            echo "          and then open a new terminal."
+            notice '        Set this up yourself.'
+            notice '        To test again: ssh-agent -k'
+            notice '          and then open a new terminal.'
           fi
           if ! ${sent_passphrase}; then
             /usr/bin/ssh-add $pvt_key
@@ -85,6 +94,7 @@ ssh_agent_kick () {
       start_agent;
     fi
   fi
+  LOG_LEVEL=${old_level}
 } # end: ssh_agent_kick
 
 main() {
