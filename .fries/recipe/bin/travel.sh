@@ -796,88 +796,10 @@ setup_private_vim_bundle_dubs_project_tray () {
 
 } # end: setup_private_vim_bundle_dubs_project_tray
 
-# FIXME: Privatize this.
 setup_private_dot_files () {
-
-  pushd ${HOME} &> /dev/null
-
-  # Common dotfiles are symlinked below.
-  # Feel free to add to this list; just
-  #  respect the isn't-there-don't-care policy.
-
-  if [[ ! -e .cobra.yaml ]]; then
-    if [[ -f ${USERS_CURLY}/home/.cobra.yaml ]]; then
-      /bin/ln -s ${USERS_CURLY}/home/.cobra.yaml
-    fi
+  if [[ -x ${USERS_CURLY}/infuse ]]; then
+    ${USERS_CURLY}/infuse
   fi
-
-  if [[ ! -e .cookiecutterrc ]]; then
-    if [[ -f ${USERS_CURLY}/home/.cookiecutterrc ]]; then
-      /bin/ln -s ${USERS_CURLY}/home/.cookiecutterrc
-    fi
-  fi
-
-  if [[ ! -e .ctags ]]; then
-    if [[ -f ${USERS_CURLY}/home/.ctags ]]; then
-      /bin/ln -s ${USERS_CURLY}/home/.ctags
-    fi
-  fi
-
-  if [[ ! -e .gitconfig ]]; then
-    NORMALD_GITCONFIG="${USERS_CURLY}/home/.gitconfig"
-    MACHINE_GITCONFIG="${NORMALD_GITCONFIG}-$(hostname)"
-    if [[ -e ${MACHINE_GITCONFIG} ]]; then
-      /bin/ln -s ${MACHINE_GITCONFIG} .gitconfig
-    elif [[ -e ${NORMALD_GITCONFIG} ]]; then
-      /bin/ln -s ${NORMALD_GITCONFIG}
-    # else, user has not set up their .gitconfig, whatever.
-    fi
-  fi
-
-  if [[ ! -e .inputrc ]]; then
-    if [[ -f ${USERS_CURLY}/home/.inputrc ]]; then
-      /bin/ln -s ${USERS_CURLY}/home/.inputrc
-    fi
-  fi
-
-  # Skipping: .local/share/hamster-applet/
-  # See: setup_private_hamster_db
-
-  if [[ ! -e .multitail.conf ]]; then
-    if [[ -f ${USERS_CURLY}/home/.multitail.conf ]]; then
-      /bin/ln -s ${USERS_CURLY}/home/.multitail.conf
-    fi
-  fi
-
-  if [[ ! -e mm.cfg ]]; then
-    if [[ -f ${USERS_CURLY}/home/mm.cfg ]]; then
-      /bin/ln -s ${USERS_CURLY}/home/mm.cfg
-    fi
-  fi
-
-  # Skipping: Pictures/
-  #  You could do something like:
-  #    gsettings set org.mate.background picture-filename \
-  #      ${USERS_CURLY}/home/Pictures/.backgrounds/nice_pic.jpg
-
-  if [[ ! -e .psqlrc ]]; then
-    if [[ -f ${USERS_CURLY}/home/.psqlrc ]]; then
-      /bin/ln -s ${USERS_CURLY}/home/.psqlrc
-    fi
-  fi
-
-  if [[ ! -e .sqliterc ]]; then
-    MACHINE_SQLITERC="${USERS_CURLY}/home/.sqliterc-$(hostname)"
-    if [[ -e ${MACHINE_SQLITERC} ]]; then
-      /bin/ln -s ${MACHINE_SQLITERC} .sqliterc
-    elif [[ -e ${USERS_CURLY}/home/.sqliterc ]]; then
-      /bin/ln -s ${USERS_CURLY}/home/.sqliterc
-    # else, same as above, whatever, deal.
-    fi
-  fi
-
-  popd &> /dev/null
-
 } # end: setup_private_dot_files
 
 setup_private_ssh_directory () {
