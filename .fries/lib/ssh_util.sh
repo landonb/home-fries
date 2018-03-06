@@ -22,7 +22,7 @@ source_deps() {
 
 ssh_agent_kick () {
   local old_level=${LOG_LEVEL}
-  LOG_LEVEL=LOG_LEVEL_NOTICE
+  export LOG_LEVEL=LOG_LEVEL_NOTICE
   if [[ ${EUID} -ne 0 \
      && "dumb" != "${TERM}" \
      && -e "${HOME}/.ssh" ]]; then
@@ -97,7 +97,7 @@ ssh_agent_kick () {
       start_agent
     fi
   fi
-  LOG_LEVEL=${old_level}
+  export LOG_LEVEL=${old_level}
 } # end: ssh_agent_kick
 
 main() {
