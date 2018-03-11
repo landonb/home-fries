@@ -6996,6 +6996,31 @@ stage_4_tmux () {
 
 } # end: stage_4_tmux
 
+stage_4_yarn () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_yarn"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # https://yarnpkg.com/
+
+  curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg \
+    | sudo apt-key add -
+
+  echo "deb https://dl.yarnpkg.com/debian/ stable main" \
+    | sudo tee /etc/apt/sources.list.d/yarn.list
+
+  sudo apt-get update
+
+  sudo apt-get install -y yarn
+
+  popd &> /dev/null
+
+} # end: stage_4_yarn
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -7307,6 +7332,8 @@ setup_customize_extras_go () {
   #stage_4_wine_playonlinux
 
   stage_4_tmux
+
+  stage_4_yarn
 
   # Add before this'n: stage_4_fcn_template.
 
