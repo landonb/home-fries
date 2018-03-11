@@ -936,6 +936,8 @@ setup_mint_17_stage_1_install_packages () {
     # mount.nfs
     nfs-common
 
+    shellcheck
+
   ) # end: BIG_DESKTOP_LIST
 
   local BIG_DESKTOP_LIST_MINT_17=(
