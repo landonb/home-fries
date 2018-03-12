@@ -165,6 +165,7 @@ desktop-notification-off () {
 }
 
 # NOTE: notify-send still sometimes works after disabling notifications.
+#       It seems to eventually stick, though.
 desktop-notification-test () {
   notify-send -i face-wink 'Wut Wut!' "Hello, Notified User!"
 }
