@@ -220,7 +220,7 @@ if ( [[ ! -z ${SSH_ENV_FRESH+x} ]] && ${SSH_ENV_FRESH} ) || \
      [[ -n "${TMUX}" ]] ) \
 then
   source 'logger.sh'
-  export LOG_LEVEL=LOG_LEVEL_NOTICE
+  export LOG_LEVEL=${LOG_LEVEL_NOTICE}
   bashrc_time_n=$(date +%s.%N)
   time_elapsed=$(echo "$bashrc_time_n - $bashrc_time_0" | bc -l)
   notice "Elapsed: $time_elapsed secs."
