@@ -756,6 +756,7 @@ setup_private_vim_bundle_dubs_edit_juice () {
 
 } # end: setup_private_vim_bundle_dubs_edit_juice
 
+# FIXME/2018-03-13: Move to private infuser.
 setup_private_vim_bundle_dubs () {
 
   if [[ -e ${HOME}/.vim/bundle/dubs_all ]]; then
