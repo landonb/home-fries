@@ -109,6 +109,9 @@ lock_screensaver_and_power_suspend () {
   fi
   # Sneak in enabling locking screen saver.
   screensaver_lockon
+
+  # Show desktop / Minimize all windows
+  xdotool key ctrl+alt+d
 } # end: lock_screensaver_and_power_suspend
 
 lock_screensaver_and_do_nothing_else () {
