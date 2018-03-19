@@ -701,6 +701,15 @@ git_pull_hush () {
   git fetch --all \
       | grep -v "^Fetching [a-zA-Z0-9]*$" \
       | grep -v "^ \* branch "
+
+  # FOLLOW-UP/2018-03-19: This updates remote branches based on branches from
+  # same remote in other directory. I think.
+  # FIXME/2018-03-19: Do this overwrite remote branches? I.e., if you
+  #   update your local directory, then pull from an old directory, do
+  #   the remotes you just fetched get overwrit?
+  echo git fetch ${SOURCE_REPO}
+  git fetch ${SOURCE_REPO}
+
   reset_errexit
 ##  git remote update
   # This could be dangerous if you're pulling in the wrong direction...
