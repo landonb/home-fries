@@ -608,6 +608,17 @@ git_pull_hush () {
   #echo "TARGET_BRANCH: ${TARGET_BRANCH}"
 
   tweak_errexit
+  # FIXME/2018-03-19 08:54:
+  #   fatal: HEAD does not point to a branch
+  # happens when you pull rebased branch and end up in a rebase!
+  #   cd ${TARGET_REPO}
+  #   git rebase --abort
+  #   # Will this always be origin? When you fetch from path, do you update remotes?
+  #   #    Looks like you do!
+  #   git reset --hard origin/${BRANCH}
+  # FIXME/2018-03-19: When this creates error, it's next sync repo that fails!
+  #   I.e., we should detect error __here__ and fail, and not error propogate to
+  #   another context!
   TARGET_REFNAME_BRANCH_NAME=$(git rev-parse --abbrev-ref --symbolic-full-name @{u})
   reset_errexit
   #echo "TARGET_REFNAME_BRANCH_NAME: ${TARGET_REFNAME_BRANCH_NAME}"
