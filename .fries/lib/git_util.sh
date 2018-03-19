@@ -633,7 +633,7 @@ git_pull_hush () {
       echo "  cdd ${SOURCE_REPO}"
       echo "  git rebase --abort"
     else
-      git st
+      git status
     fi
     popd &> /dev/null
     return 1
