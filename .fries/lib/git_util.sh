@@ -489,6 +489,7 @@ git_status_porcelain () {
           echo "cwd: $(pwd -P)"
           echo "branch_name=\"${branch_name}\""
           echo "git remote show origin | grep \"^\\W*\${branch_name}\\W\\+pushes to\\W\\+\${branch_name}\\W\\+\""
+          where
           # AHAHAHA/2017-09-08: This happened because I hadn't pushed yet.
           #   A simple `git push origin` finished wiring the remote....
           return 1
