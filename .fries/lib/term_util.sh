@@ -385,6 +385,7 @@ termdo-sudo-reset () {
   # so really you should always be sudo-promted.
   # But maybe the answer is really a confirm prompt,
   # not a password prompt (like in Windows, ewwwww!). -summer2016
+  termdo-all "echo termdo-sudo-reset says"
   termdo-all sudo -K
 }
 

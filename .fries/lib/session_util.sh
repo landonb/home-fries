@@ -82,6 +82,7 @@ termdo-bash-reset () {
 lock_screensaver_and_power_suspend () {
   # 2016-10-25: Heck, why not! At least show some semblance of not being
   # a complete idiot.
+  termdo-all "echo lock_screensaver_and_power_suspend says"
   termdo-all sudo -K
   # 2018-02-19: Tmux, Too!
   # NOTE: pane_id returns, e.g., %0, %1, %2; pane_index returns 1, 2, 3.
@@ -89,6 +90,7 @@ lock_screensaver_and_power_suspend () {
     # Test echoes:
     #   echo "pane: ${_pane}"
     #   tmux send-keys -t ${_pane} "echo 'pane: ${_pane}'" Enter
+    tmux send-keys -t ${_pane} "echo 'pane: ${_pane}'" Enter
     tmux send-keys -t ${_pane} "sudo -K" Enter
   done
 
