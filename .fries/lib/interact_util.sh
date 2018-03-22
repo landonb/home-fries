@@ -132,6 +132,24 @@ ask_yes_no_default () {
 #  ask_yes_no_default 'Y'
 #  echo $the_choice
 
+# ============================================================================
+
+# Invert screen colors. Useful for alerting thyself from thine script.
+flicker() {
+  # SETUP: sudo apt-get install xcalib
+  # SOURCE: https://github.com/OpenICC/xcalib
+  # RELATED: https://github.com/zoltanp/xrandr-invert-colors
+  xcalib -invert -alter
+  # NOTE: If you have multiple screens, you need to target them specially,
+  #       e.g., to make both monitors flicker:
+  #
+  #         xcalib -i -a -s 0 && xcalib -i -a -s 1
+}
+
+alias invert='flicker'
+
+# ============================================================================
+
 main() {
   source_deps
 }

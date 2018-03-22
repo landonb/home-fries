@@ -941,6 +941,10 @@ setup_mint_17_stage_1_install_packages () {
     # Huh? Could swear this was by default.
     gthumb
 
+    # Flicker the screen! (I'm using in CI script to indicate when build is ready.)
+    #   xcalib -invert -alter
+    xcalib
+
   ) # end: BIG_DESKTOP_LIST
 
   local BIG_DESKTOP_LIST_MINT_17=(
