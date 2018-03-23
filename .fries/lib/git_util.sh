@@ -743,8 +743,9 @@ git_fetch_remote_travel () {
   if ${SKIP_INTERNETS}; then
     git fetch ${TRAVEL_REMOTE} --prune
   else
-#    local git_says=$(git fetch --all --prune 2>&1 > /dev/null)
-    local git_says=$(git fetch --all --prune 2>&1) && true
+    local git_says
+#    git_says=$(git fetch --all --prune 2>&1 > /dev/null)
+    git_says=$(git fetch --all --prune 2>&1) && true
     local fetch_success=$?
     verbose "git fetch says:\n${git_says}"
     # Use `&& true` in case grep does not match anything,
@@ -827,7 +828,19 @@ git_must_not_rebasing () {
 
 git_issue_complain_rebasing () {
   local source_branch="$1"
+  # WEIRD?: I thought to set default one needed colon, e.g., ${2:-default}
+  #   but seems to work find without...
   local target_repo="${2-$(pwd)}"
+  local git_says="${3}"
+
+
+
+
+
+
+# FIXME: This message not quite right, depends on error message.
+# make 2+ functions and grep for specific error
+# I wonder, too, if git has specific error codes? the overwritten error code is 1.
   FRIES_GIT_ISSUES_RESOLUTIONS+=("==============================================")
   FRIES_GIT_ISSUES_RESOLUTIONS+=("✗ ✗ ✗ ERROR DETECTOROMETER! ★ ☆ ☆ ☆ ☆ 1 STAR!!")
   FRIES_GIT_ISSUES_RESOLUTIONS+=("Whoa! Under __rebase__, try again, foo!")
@@ -844,8 +857,39 @@ git_issue_complain_rebasing () {
 # FIXME/2018-03-23 14:18: What about checking all branches??
   FRIES_GIT_ISSUES_RESOLUTIONS+=("    git reset --hard ${TRAVEL_REMOTE}/${source_branch}")
   FRIES_GIT_ISSUES_RESOLUTIONS+=("==============================================")
+
   warn "Skipping branch in rebase!"
   warn " ${target_repo}"
+
+
+# FIXME: If you have unstaged changes that'll be overwrit:
+#
+# FIXME: See Travel.go: You can check for unstaged commits before trying to merge.
+#        Or just duck type and let merge fail...
+
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("==============================================")
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("✗ ✗ ✗ ERROR DETECTOROMETER! ★ ☆ ☆ ☆ ☆ 1 STAR!!")
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("Whoa! Unstaged changes, foo!")
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("  SKIPPING: ${target_repo}")
+#  FRIES_GIT_ISSUES_RESOLUTIONS+=("  If you want what's being travelled, abort-n-force!")
+# FIXME: Will I need to mount if I'm an running unpack??
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("    ./travel mount")
+  #FRIES_GIT_ISSUES_RESOLUTIONS+=("    cdd ${target_repo}")
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("    cdd $(pwd -P)")
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("    git status # sanity check")
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("    git stash push")
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("    git fetch ${TRAVEL_REMOTE} --prune")
+# FIXME/2018-03-23 14:17: This is not always correct: rebase could be against different branch.
+# FIXME/2018-03-23 14:18: What about checking all branches??
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("    git merge --ff-only ${TRAVEL_REMOTE}/${source_branch}")
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("    git stash pop")
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("==============================================")
+
+  warn "Skipping branch with unstage commits!"
+  warn " ${target_repo}"
+
+
+
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -903,7 +947,8 @@ git_merge_ff_only () {
   # For a nice fast-forward vs. --no-ff article, see:
   #   https://ariya.io/2013/09/fast-forward-git-merge
 
-  local git_says=$(git merge --ff-only ${TRAVEL_REMOTE}/${source_branch} 2>&1) && true
+  local git_says
+  git_says=$(git merge --ff-only ${TRAVEL_REMOTE}/${source_branch} 2>&1) && true
   local merge_success=$?
 
   verbose "git merge says:\n${git_says}"
@@ -920,6 +965,14 @@ git_merge_ff_only () {
     | grep -P -v "^ \d+ insertions?\(\+\)$" \
     | grep -P -v "^ \d+ deletions?\(-\)$" \
   )"
+
+# FIXME: need to grep for error here, before wha?
+#error: Your local changes to the following files would be overwritten by merge:
+#	cfg/sync_repos.sh
+#	cfg/travel_tasks.sh
+#Please commit your changes or stash them before you merge.
+#Aborting
+
   [[ -n ${culled} ]] && notice "git merge wha?\n${culled}"
   local changes="$(echo "${git_says}" | grep -P " \| +\d+ [+-]+$")"
   # 2018-03-23: Would you like something more muted, or vibrant? Trying vibrant.
@@ -929,7 +982,7 @@ git_merge_ff_only () {
   # (lb): Not quite sure why git_must_not_rebasing would not have failed first.
   #   Does this happen?
   if [[ ${merge_success} -ne 0 ]]; then
-    git_issue_complain_rebasing "${source_branch}" "${target_repo}"
+    git_issue_complain_rebasing "${source_branch}" "${target_repo}" "${git_says}"
   fi
 
 #  [[ -n "${target_repo}" ]] && popd &> /dev/null

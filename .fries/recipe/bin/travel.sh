@@ -939,7 +939,7 @@ setup_private_anacron () {
   if [[ -e ${USERS_CURLY}/master_chef ]]; then
     if [[ -d ${USERS_CURLY}/home/.anacron ]]; then
       if [[ -e ~/.anacron ]]; then
-        echo "  Skipping: Already exists: ~/.anacron"
+        debug "  Skipping: Already exists: ~/.anacron"
       else
         /bin/ln -sf ${USERS_CURLY}/home/.anacron ~/.anacron
       fi
@@ -1104,9 +1104,9 @@ locate_and_clone_missing_repos_helper () {
   declare -n GIT_REPO_SEEDS=$1
 
   if [[ ${#GIT_REPO_SEEDS[@]} -gt 0 ]]; then
-    echo "---------------------------------------------------"
-    echo "No. of git repos in group $1: ${#GIT_REPO_SEEDS[@]}"
-    echo "---------------------------------------------------"
+    trace "---------------------------------------------------"
+    trace "No. of git repos in group $1: ${#GIT_REPO_SEEDS[@]}"
+    trace "---------------------------------------------------"
     # NOTE: The keys are unordered.
     for key in "${!GIT_REPO_SEEDS[@]}"; do
       echod " key  : $key"
@@ -1132,14 +1132,13 @@ locate_and_clone_missing_repos_header () {
       + ${#VIM_REPO_SEEDS_0[@]} \
       + ${#VIM_REPO_SEEDS_1[@]} \
     ))
-    echo "==================================================="
-    echo "Number of git repository seeds: ${TOTES_REPOS}"
-    echo "==================================================="
+    info "==================================================="
+    info "Number of git repository seeds: ${TOTES_REPOS}"
+    info "==================================================="
   fi
 }
 
 locate_and_clone_missing_repos () {
-
   locate_and_clone_missing_repos_header
 
   echod "Cloning project in GIT_REPO_SEEDS_0"
@@ -1164,7 +1163,7 @@ locate_and_clone_missing_repos () {
   #   repos (for cosmetic purposes, e.g., logging), in which case make
   #   a custom fcn., user_locate_and_clone_missing_repos, and call
   #   locate_and_clone_missing_repos_helper on your own.
-  echo " user_locate_and_clone_missing_repos"
+  trace " user_locate_and_clone_missing_repos"
   # Call private fcns. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
   tweak_errexit
   command -v user_locate_and_clone_missing_repos &> /dev/null
@@ -1177,12 +1176,10 @@ locate_and_clone_missing_repos () {
 } # end: locate_and_clone_missing_repos
 
 function chase_and_face () {
-
-  #echo
-  echo "Refacing ~/${PRIVATE_REPO}..."
+  info "Refacing ~/${PRIVATE_REPO}..."
 
   if ${HAMSTERING}; then
-    echo " killing hamsters"
+    trace " killing hamsters"
     tweak_errexit
     #sudo killall hamster-service hamster-indicator
     killall hamster-service hamster-indicator
@@ -1191,52 +1188,52 @@ function chase_and_face () {
 
   mount_curly_emissary_gooey
 
-  echo " setup_private_fries_bash..."
+  trace " setup_private_fries_bash..."
   setup_private_fries_bash
 
-  echo " setup_private_curly_work"
+  trace " setup_private_curly_work"
   setup_private_curly_work
 
-  echo " setup_private_vim_spell"
+  trace " setup_private_vim_spell"
   setup_private_vim_spell
 
-  echo " setup_private_vim_bundle"
+  trace " setup_private_vim_bundle"
   setup_private_vim_bundle
 
-  echo " setup_private_vim_bundle_dubs_all"
+  trace " setup_private_vim_bundle_dubs_all"
   setup_private_vim_bundle_dubs_all
 
-  echo " setup_private_vim_bundle_dubs_edit_juice"
+  trace " setup_private_vim_bundle_dubs_edit_juice"
   setup_private_vim_bundle_dubs_edit_juice
 
-  echo " setup_private_vim_bundle_dubs_project_tray"
+  trace " setup_private_vim_bundle_dubs_project_tray"
   setup_private_vim_bundle_dubs_project_tray
 
-  echo " setup_private_vim_bundle_dubs"
+  trace " setup_private_vim_bundle_dubs"
   setup_private_vim_bundle_dubs
 
-  echo " setup_private_dot_files"
+  trace " setup_private_dot_files"
   setup_private_dot_files
 
-  echo " setup_private_ssh_directory"
+  trace " setup_private_ssh_directory"
   setup_private_ssh_directory
 
-  echo " setup_private_hamster_db"
+  trace " setup_private_hamster_db"
   setup_private_hamster_db
 
-  echo " setup_private_anacron"
+  trace " setup_private_anacron"
   setup_private_anacron
 
-  echo " setup_private_etc_fstab"
+  trace " setup_private_etc_fstab"
   setup_private_etc_fstab
 
-  echo " setup_private_update_db_conf"
+  trace " setup_private_update_db_conf"
   setup_private_update_db_conf
 
-  echo " locate_and_clone_missing_repos"
+  trace " locate_and_clone_missing_repos"
   locate_and_clone_missing_repos
 
-  echo " user_do_chase_and_face"
+  trace " user_do_chase_and_face"
   # Call private fcns. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
   tweak_errexit
   command -v user_do_chase_and_face &> /dev/null
@@ -1248,10 +1245,8 @@ function chase_and_face () {
 
   umount_curly_emissary_gooey
 
-  #echo "DONE"
-
   if ${HAMSTERING}; then
-    echo "Unleashing the hamster"
+    info "${FONT_UNDERLINE}Unleashing the hamster${FONT_NORMAL}!"
     #hamster-indicator &
     # Blather warning.
     #   $ hamster-indicator &
@@ -1263,7 +1258,6 @@ function chase_and_face () {
     #    layout.set_markup(text)
     hamster-indicator &> /dev/null &
   fi
-
 } # end: chase_and_face
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -1277,7 +1271,7 @@ function mount_curly_emissary_gooey_explicit () {
 }
 
 function mount_curly_emissary_gooey () {
-  #echo "GOOEY: Mount"
+  #trace "GOOEY: Mount"
   # Make the gooey candy center.
   mkdir -p ${EMISSARY}/gooey
   mkdir -p ${EMISSARY}/.gooey
@@ -1303,7 +1297,7 @@ function mount_curly_emissary_gooey () {
 }
 
 function umount_curly_emissary_gooey () {
-  #echo "GOOEY: Unmount"
+  #trace "GOOEY: Unmount"
   tweak_errexit
   mount | grep ${EMISSARY}/gooey > /dev/null
   local exit_code=$?
@@ -1373,8 +1367,8 @@ function populate_gardened_repo () {
 
 function init_travel () {
   if [[ -z ${TRAVEL_DIR} ]]; then
-    echo
-    echo "FAIL: TRAVEL_DIR not defined"
+    error
+    error "FAIL: TRAVEL_DIR not defined"
     exit 1
   fi
 
@@ -1397,16 +1391,16 @@ function init_travel () {
     #  fi
     #fi
   elif [[ -e ${EMISSARY} ]]; then
-    echo
-    echo "FAIL: EMISSARY exists and is not a directory: ${EMISSARY}"
+    error
+    error "FAIL: EMISSARY exists and is not a directory: ${EMISSARY}"
     exit 1
   fi
 
   if [[ ! -e ${EMISSARY} ]]; then
-    echo "Creating emissary at ${EMISSARY}"
+    info "Creating emissary at ${EMISSARY}"
     mkdir -p ${EMISSARY}
   else
-    echo "Found emissary at ${EMISSARY}"
+    info "Found emissary at ${EMISSARY}"
   fi
 
   mount_curly_emissary_gooey
@@ -1417,18 +1411,18 @@ function init_travel () {
 
   # 2016-09-28: So, like, Bash 4 seems pretty rad, if not ((kludged)).
   #             Decades and decades of cruft! I absolutely love it!!!
-  echo "Populating singular git repos..."
+  trace "Populating singular git repos..."
   for ((i = 0; i < ${#ENCFS_GIT_REPOS[@]}; i++)); do
     populate_singular_repo ${ENCFS_GIT_REPOS[$i]}
   done
   if ${INCLUDE_ENCFS_OFF_REPOS}; then
-    echo "Populating singular OFF repos..."
+    trace "Populating singular OFF repos..."
     for ((i = 0; i < ${#ENCFS_OFF_REPOS[@]}; i++)); do
       populate_singular_repo ${ENCFS_OFF_REPOS[$i]}
     done
   fi
 
-  echo "Populating gardened git repos..."
+  trace "Populating gardened git repos..."
   for ((i = 0; i < ${#ENCFS_GIT_ITERS[@]}; i++)); do
     populate_gardened_repo ${ENCFS_GIT_ITERS[$i]}
 #    #echo " ${ENCFS_GIT_ITERS[$i]}"
@@ -1450,7 +1444,7 @@ function init_travel () {
 #      fi
 #    done < <(find ${ENCFS_GIT_ITERS[$i]} -maxdepth 1 ! -path . -print0)
   done
-  echo "Populating gardened vim repos..."
+  trace "Populating gardened vim repos..."
   for ((i = 0; i < ${#ENCFS_VIM_ITERS[@]}; i++)); do
     populate_gardened_repo ${ENCFS_VIM_ITERS[$i]}
   done
@@ -1466,9 +1460,9 @@ function init_travel () {
   fi
 
   if ${INCLUDE_ENCFS_OFF_REPOS}; then
-    echo "Calculating travel size..."
+    info "Calculating travel size..."
     du_cmd="du -m -d 1 ${EMISSARY}/gooey | sort -nr"
-    echo ${du_cmd}
+    info ${du_cmd}
     eval ${du_cmd}
   fi
 
@@ -1483,7 +1477,7 @@ function init_travel () {
 
 function update_git () {
 
-  echo "Installing/Updating git"
+  info "Installing/Updating git"
   sudo add-apt-repository -y ppa:git-core/ppa
   sudo apt-get update
   sudo apt-get install -y git
@@ -1496,11 +1490,11 @@ function update_git () {
 # packme
 
 function create_umount_script () {
-  #echo "umount ${TRAVEL_DIR}" > ${USERS_CURLY}/popoff.sh
+  #trace "umount ${TRAVEL_DIR}" > ${USERS_CURLY}/popoff.sh
   #chmod 775 ${USERS_CURLY}/popoff.sh
 
   # 2016-11-04: Oh, yerp.
-  #echo "umount ${TRAVEL_DIR}" > ${HOME}/.fries/recipe/bin/popoff.sh
+  #trace "umount ${TRAVEL_DIR}" > ${HOME}/.fries/recipe/bin/popoff.sh
   cat > ${HOME}/.fries/recipe/bin/popoff.sh << EOF
 #!/bin/bash
 SCRIPT_DIR="\$(dirname \${BASH_SOURCE[0]})"
@@ -1670,7 +1664,7 @@ function check_repos_statuses () {
       GREPPERS="${GREPPERS} | grep -v \" git_util.sh\$\""
       GREPPERS="${GREPPERS} | grep -v \" .fries/lib/git_util.sh\$\""
       #
-      #echo "GREPPERS: ${GREPPERS}"
+      #trace "GREPPERS: ${GREPPERS}"
     fi
     #git_status_porcelain_wrap "$(basename -- "${ENCFS_GIT_REPOS[$i]}")"
     git_status_porcelain_wrap "${ENCFS_GIT_REPOS[$i]}"
@@ -1727,7 +1721,7 @@ function git_issues_review {
       done
       echo
     fi
-#    trap - EXIT
+    trap - EXIT
     exit 1
   fi
 }
@@ -1747,8 +1741,8 @@ function pull_gardened_repo () {
       if [[ ${TARGET_BASE#TBD-} == ${TARGET_BASE} ]]; then
         debug "  $fpath"
         SOURCE_PATH="${PREFIX}${ABS_PATH}/$(basename -- "${fpath}")"
-        #echo "\${SOURCE_PATH}: ${SOURCE_PATH}"
-        #echo "\${TARGET_PATH}: ${TARGET_PATH}"
+        #debug "\${SOURCE_PATH}: ${SOURCE_PATH}"
+        #debug "\${TARGET_PATH}: ${TARGET_PATH}"
         git_pull_hush "${SOURCE_PATH}" "${TARGET_PATH}"
       else
         debug "  skipping (TBD-*): ${fpath}"
@@ -1770,7 +1764,7 @@ function pull_git_repos () {
     PREFIX="${EMISSARY}/gooey"
     pushd / &> /dev/null
   else
-    echo "WHAT: pull_git_repos excepted argument 'emissary' or 'dev-machine'."
+    error "WHAT: pull_git_repos excepted argument 'emissary' or 'dev-machine'."
     exit 1
   fi
 
@@ -1807,14 +1801,14 @@ function make_plaintext () {
 
   if [[ -e ${PLAINPATH} ]]; then
     if [[ ! -d ${PLAINPATH} ]]; then
-      echo
-      echo "UNEXPECTED: PLAINPATH not a directory: ${PLAINPATH}"
+      error
+      error "UNEXPECTED: PLAINPATH not a directory: ${PLAINPATH}"
       exit 1
     fi
     if [[ -e ${PLAIN_TBD} ]]; then
-      echo
-      echo "FATALLY UNEXPECTED: plain intermediate exists at"
-      echo "  ${PLAIN_TBD}"
+      error
+      error "FATALLY UNEXPECTED: plain intermediate exists at"
+      error "  ${PLAIN_TBD}"
       exit 1
     fi
     # We'll delete the old archives later.
@@ -1860,12 +1854,12 @@ function make_plaintext () {
       #echo " ok"
 #      echo
     else
-      #echo
-      #echo "FATAL: Indicated plaintext archive not found at: ${ARCHIVE_SRC}"
+      #error
+      #error "FATAL: Indicated plaintext archive not found at: ${ARCHIVE_SRC}"
       #exit 1
-      echo
-      echo "NOTICE: Mkdir'ing plaintext archive not found at: ${ARCHIVE_SRC}"
-      echo
+      info
+      info "NOTICE: Mkdir'ing plaintext archive not found at: ${ARCHIVE_SRC}"
+      info
       mkdir ${ARCHIVE_SRC}
     fi
   done
@@ -1874,11 +1868,11 @@ function make_plaintext () {
 
 function packme () {
 
-  #echo "Let's count"'!'
-  #echo "- # of. PLAINTEXT_ARCHIVES: ${#PLAINTEXT_ARCHIVES[@]}"
-  #echo "- # of.    ENCFS_GIT_REPOS: ${#ENCFS_GIT_REPOS[@]}"
-  #echo "- # of.    ENCFS_GIT_ITERS: ${#ENCFS_GIT_ITERS[@]}"
-  #echo "- # of.    ENCFS_VIM_ITERS: ${#ENCFS_VIM_ITERS[@]}"
+  #trace "Let's count"'!'
+  #trace "- # of. PLAINTEXT_ARCHIVES: ${#PLAINTEXT_ARCHIVES[@]}"
+  #trace "- # of.    ENCFS_GIT_REPOS: ${#ENCFS_GIT_REPOS[@]}"
+  #trace "- # of.    ENCFS_GIT_ITERS: ${#ENCFS_GIT_ITERS[@]}"
+  #trace "- # of.    ENCFS_VIM_ITERS: ${#ENCFS_VIM_ITERS[@]}"
 
   # We can be smart about certain files that change often and
   # don't need meaningful commit messages and automatically
@@ -1904,9 +1898,9 @@ function packme () {
   fi
 
   if [[ ! -d ${EMISSARY} ]]; then
-    echo
-    echo "FAIL: No \${EMISSARY} defined."
-    echo "Have you run \`$0 init_travel\`?"
+    error
+    error "FAIL: No \${EMISSARY} defined."
+    error "Have you run \`$0 init_travel\`?"
     exit 1
   fi
 
@@ -1914,7 +1908,7 @@ function packme () {
 
     # Just pull ${USERS_CURLY}.
     mount_curly_emissary_gooey
-    echo "Pulling into: ${EMISSARY}/gooey${USERS_CURLY}"
+    trace "Pulling into: ${EMISSARY}/gooey${USERS_CURLY}"
     git_pull_hush ${USERS_CURLY} ${EMISSARY}/gooey${USERS_CURLY}
     umount_curly_emissary_gooey
 
@@ -1948,9 +1942,9 @@ function packme () {
       # BEWARE: Enabling COPY_PRIVATE_REPO_PLAIN is dangerous because it exposes
       #         the ENCFS pwd for the ${USERS_CURLY} project.
       #         I.e., this script in plain text can be read to get encfs pwd.
-      echo
-      echo "WARNING: Copying *unencrypted* ${USERS_CURLY}s."
-      echo
+      warn
+      warn "WARNING: Copying *unencrypted* ${USERS_CURLY}s."
+      warn
       echo -n "Copying travel scripts... "
       mkdir -p ${TRAVEL_DIR}/e-scripts
       /bin/cp -aLf ${USERS_CURLY}/*.sh ${TRAVEL_DIR}/e-scripts
@@ -2021,7 +2015,7 @@ function unpack_plaintext_archives () {
 
     mkdir -p ${TARGETPATH}
     pushd ${TARGETPATH} &> /dev/null
-    info "Unpacking plain to: ${TARGETPATH}"
+    info "Unpacking plain to: ${FG_LAVENDER}${TARGETPATH}"
 
     # Unpack all plaintext archives.
     # And include dot-prefixed files.
@@ -2029,7 +2023,7 @@ function unpack_plaintext_archives () {
 
     for zpath in ${fpath}/*.tar.gz; do
       if [[ $(basename -- "${zpath}") != '*.tar.gz' ]]; then
-        echo " tar xzf${TAR_VERBOSE} ${zpath}"
+        debug " tar xzf${TAR_VERBOSE} ${zpath}"
         tar xzf${TAR_VERBOSE} ${zpath}
       # else, No such file or directory
       fi
@@ -2047,98 +2041,106 @@ function unpack_plaintext_archives () {
 } # end: unpack_plaintext_archives
 
 function update_hamster_db () {
-
-  if ${HAMSTERING}; then
-
-    echo
-    echo "update_hamster_db: HAMSTERING"
-
-    tweak_errexit
-    command -v hamster-love > /dev/null
-    RET_VAL=$?
-    reset_errexit
-    if [[ ${RET_VAL} -eq 0 ]]; then
-
-      #pushd ${USERS_CURLY}/bin &> /dev/null
-
-      # 2016-09-28: I've used Dropbox in the past, but now I just USB stick
-      # FIXME: Make USB vs. Dropbox optionable.
-      #ensure_dropbox_running
-
-      # A simple search procedure for finding the best more recent hamster.db.
-
-      CURLY_PATH=${USERS_CURLY}/home/.local/share/hamster-applet
-
-      CANDIDATES=()
-
-      # Consider any hamster.dbs in ${USERS_CURLY}, now that it's been git pull'ed.
-      shopt -s nullglob
-      CANDIDATES+=(${USERS_CURLY}/home/.local/share/hamster-applet/hamster-*)
-      shopt -u nullglob
-
-      # Consider any hamster.dbs at the root of the travel directory.
-      if [[ -n ${TRAVEL_DIR} && -d ${TRAVEL_DIR} ]]; then
-        shopt -s nullglob
-        CANDIDATES+=(${TRAVEL_DIR}/hamster-*)
-        shopt -u nullglob
-      fi
-
-      # Consider any hamster.dbs in the dropbox.
-      if [[ -d ${HOME}/Dropbox ]]; then
-        while IFS= read -r -d '' file; do
-          CANDIDATES+=("${file}")
-        done < <(find ${HOME}/Dropbox -maxdepth 1 -type f -name 'hamster-*' -print0)
-      fi
-
-      LATEST_HAMMY=''
-      for candidate in "${CANDIDATES[@]}"; do
-        #echo "candidate: ${candidate}"
-        if [[ -z ${LATEST_HAMMY} ]]; then
-          #echo "first candidate: ${candidate}"
-          LATEST_HAMMY="${candidate}"
-        elif [[ ${candidate} -nt ${LATEST_HAMMY} ]]; then
-          #echo "newer candidate: ${candidate}"
-          LATEST_HAMMY="${candidate}"
-        fi
-      done
-      # FIXME/2016-10-27: Weird. After an unpack at home, the older
-      # hamster-larry.db was touched somehow and shows up newer than. dahfuh?
-      echo "LATEST_HAMMY: ${LATEST_HAMMY}"
-
-      if [[ -n ${LATEST_HAMMY} ]]; then
-        echo
-        echo "hamster love says:"
-        echo
-        hamster-love ${LATEST_HAMMY} ${CURLY_PATH}/hamster-$(hostname).db
-        echo
-        echo 'hamstered!'
-      else
-        echo "Skipping hamster-love: did not find appropriately most recent replacement."
-      fi
-
-      echo
-
-      #popd &> /dev/null
-
-    else
-
-      echo "WARNING: Hamster found but not hamster-love"
-
-    fi
-
-  else
-
-    #echo "update_hamster_db: not HAMSTERING"
-    :
-
+  if ! ${HAMSTERING}; then
+    info "update_hamster_db: not HAMSTERING"
+    return
   fi
 
+  notice "update_hamster_db: ${BG_GREEN} 🐹  🐹  🐹  << HAMSTER TIME! >> 🐹  🐹  🐹  "
+
+  # FIXME/2018-03-23: Replace tweak_errexit hacks with $(subshell) && true
+  tweak_errexit
+  command -v hamster-love > /dev/null
+  RET_VAL=$?
+  reset_errexit
+
+  if [[ ${RET_VAL} -ne 0 ]]; then
+    warn "WARNING: Hamstering enabled but hamster-love not found"
+    return
+  fi
+
+  #pushd ${USERS_CURLY}/bin &> /dev/null
+
+  # 2016-09-28: I've used Dropbox in the past, but now I just USB stick
+  # FIXME: Make USB vs. Dropbox optionable.
+  #ensure_dropbox_running
+
+  # A simple search procedure for finding the best more recent hamster.db.
+
+  CURLY_PATH=${USERS_CURLY}/home/.local/share/hamster-applet
+
+  CANDIDATES=()
+
+  # Consider any hamster.dbs in ${USERS_CURLY}, now that it's been git pull'ed.
+  shopt -s nullglob
+  CANDIDATES+=(${USERS_CURLY}/home/.local/share/hamster-applet/hamster-*)
+  shopt -u nullglob
+
+  # Consider any hamster.dbs at the root of the travel directory.
+  if [[ -n ${TRAVEL_DIR} && -d ${TRAVEL_DIR} ]]; then
+    shopt -s nullglob
+    CANDIDATES+=(${TRAVEL_DIR}/hamster-*)
+    shopt -u nullglob
+  fi
+
+  # Consider any hamster.dbs in the dropbox.
+  if [[ -d ${HOME}/Dropbox ]]; then
+    while IFS= read -r -d '' file; do
+      CANDIDATES+=("${file}")
+    done < <(find ${HOME}/Dropbox -maxdepth 1 -type f -name 'hamster-*' -print0)
+  fi
+
+  LATEST_HAMMY=''
+  for candidate in "${CANDIDATES[@]}"; do
+    #debug "candidate: ${candidate}"
+    if [[ -z ${LATEST_HAMMY} ]]; then
+      #debug "first candidate: ${candidate}"
+      LATEST_HAMMY="${candidate}"
+    elif [[ ${candidate} -nt ${LATEST_HAMMY} ]]; then
+      #debug "newer candidate: ${candidate}"
+      LATEST_HAMMY="${candidate}"
+    fi
+  done
+  # FIXME/2016-10-27: Weird. After an unpack at home, the older
+  # hamster-larry.db was touched somehow and shows up newer than. dahfuh?
+  info "LATEST_HAMMY: ${FG_LAVENDER}${LATEST_HAMMY}"
+
+  if [[ -n ${LATEST_HAMMY} ]]; then
+#        echo
+#        echo "hamster love says:"
+#        echo
+#        hamster-love ${LATEST_HAMMY} ${CURLY_PATH}/hamster-$(hostname).db
+#        echo
+#        echo 'hamstered!'
+#    echo "love_says=\$(hamster-love ${LATEST_HAMMY} ${CURLY_PATH}/hamster-$(hostname).db)"
+
+    # FIXME: hamster-love --option to not ask to replace, maybe --no
+    if false; then
+      local love_says=$(hamster-love ${LATEST_HAMMY} ${CURLY_PATH}/hamster-$(hostname).db)
+      #info "hamster love says:\n${love_says}"
+      #info "hamster love says:\n${BG_PINK}${FG_MAROON}${love_says}"
+      info \
+        "${BG_PINK}${FG_MAROON}🍁  🍁  🍁   hamster love says:  🍁  🍁  🍁                ${FONT_NORMAL}" \
+        "\n${love_says}" \
+        "\n ${BG_PINK}${FG_MAROON}                                                                               "
+    fi
+# FOR NOW, cannot pretty-print in color...
+    info "${BG_PINK}${FG_MAROON}🍁  🍁  🍁   hamster love says:  🍁  🍁  🍁                ${FONT_NORMAL}"
+    hamster-love ${LATEST_HAMMY} ${CURLY_PATH}/hamster-$(hostname).db
+    info " ${BG_PINK}${FG_MAROON}                                                                               "
+
+
+  else
+    info "Skipping hamster-love: did not find appropriately most recent replacement."
+  fi
+#  echo
+  #popd &> /dev/null
 } # end: update_hamster_db
 
 function unpack () {
 
   if [[ ! -d ${EMISSARY} ]]; then
-    echo "FATAL: The emissary directory was not found at ${EMISSARY}."
+    error "FATAL: The emissary directory was not found at ${EMISSARY}."
     exit 1
   fi
 
@@ -2199,7 +2201,7 @@ function prepare_shim () {
     exit 1
   fi
 
-  echo "Making: ${USERS_CURLY}/TBD-shim"
+  info "Making: ${USERS_CURLY}/TBD-shim"
 
   mkdir -p ${USERS_CURLY}/TBD-shim
 
@@ -2212,9 +2214,9 @@ function prepare_shim () {
   if [[ $git_result -eq 0 ]]; then
     # travel.sh is dirty; use it and not the travel one.
     USE_GOOEY=false
-    echo " Using local $(basename -- "${SCRIPT_ABS_PATH}")"
+    trace " Using local $(basename -- "${SCRIPT_ABS_PATH}")"
   else
-    echo " Using gooey $(basename -- "${SCRIPT_ABS_PATH}")"
+    trace " Using gooey $(basename -- "${SCRIPT_ABS_PATH}")"
   fi
 
   PREFIX=""
@@ -2223,24 +2225,24 @@ function prepare_shim () {
     mount_curly_emissary_gooey
   fi
 
-  echo "  Copying: ${PREFIX}${SCRIPT_ABS_PATH}"
+  debug "  Copying: ${PREFIX}${SCRIPT_ABS_PATH}"
 
   /bin/cp -aLf ${PREFIX}${SCRIPT_ABS_PATH} travel_shim.sh
   chmod 775 travel_shim.sh
 
-  echo "  Copying: ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/curly_util.sh"
+  debug "  Copying: ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/curly_util.sh"
   /bin/cp -aLf ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/curly_util.sh .
 
-  echo "  Copying: ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/logger.sh"
+  debug "  Copying: ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/logger.sh"
   /bin/cp -aLf ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/logger.sh .
 
-  echo "  Copying: ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/git_util.sh"
+  debug "  Copying: ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/git_util.sh"
   /bin/cp -aLf ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/git_util.sh .
 
-  echo "  Copying: ${PREFIX}${SYNC_REPOS_PATH}"
+  debug "  Copying: ${PREFIX}${SYNC_REPOS_PATH}"
   /bin/cp -aLf ${PREFIX}${SYNC_REPOS_PATH} .
 
-  echo "  Copying: ${PREFIX}${TRAVEL_TASKS_PATH}"
+  debug "  Copying: ${PREFIX}${TRAVEL_TASKS_PATH}"
   /bin/cp -aLf ${PREFIX}${TRAVEL_TASKS_PATH} .
 
   tweak_errexit
@@ -2255,11 +2257,9 @@ function prepare_shim () {
     umount_curly_emissary_gooey
   fi
 
+
+# FIXME/2018-03-23 17:53: Use new pushd/popd logic!
   popd &> /dev/null
-
-  # REVIEW/2016-12-07: What's the point of this echo?
-  echo ${USERS_CURLY}
-
 } # end: prepare_shim
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
