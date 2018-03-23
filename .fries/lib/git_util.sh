@@ -912,19 +912,19 @@ git_merge_ff_only () {
     | grep -v "^Updating [a-f0-9]\{7\}\.\.[a-f0-9]\{7\}$" \
     | grep -v "^Fast-forward$" \
     | grep -P -v " \| \d+ \+?-?" \
-    | grep -P -v "^ \d+ file changed, \d+ insertion\(\+\), \d+ deletion\(-\)$" \
-    | grep -P -v "^ \d+ file changed, \d+ insertion\(\+\)$" \
-    | grep -P -v "^ \d+ file changed, \d+ deletion\(-\)$" \
-    | grep -P -v "^ \d+ insertion\(\+\), \d+ deletion\(-\)$" \
-    | grep -P -v "^ \d+ file changed$" \
-    | grep -P -v "^ \d+ insertion\(\+\)$" \
-    | grep -P -v "^ \d+ deletion\(-\)$" \
+    | grep -P -v "^ \d+ files? changed, \d+ insertions?\(\+\), \d+ deletions?\(-\)$" \
+    | grep -P -v "^ \d+ files? changed, \d+ insertions?\(\+\)$" \
+    | grep -P -v "^ \d+ files? changed, \d+ deletions?\(-\)$" \
+    | grep -P -v "^ \d+ insertions?\(\+\), \d+ deletions?\(-\)$" \
+    | grep -P -v "^ \d+ files? changed$" \
+    | grep -P -v "^ \d+ insertions?\(\+\)$" \
+    | grep -P -v "^ \d+ deletions?\(-\)$" \
   )"
   [[ -n ${culled} ]] && notice "git merge wha?\n${culled}"
   local changes="$(echo "${git_says}" | grep -P " \| \d+ \+?-?")"
   # 2018-03-23: Would you like something more muted, or vibrant? Trying vibrant.
   #[[ -n ${changes} ]] && notice " ${BG_DARKGRAY}${changes}"
-  [[ -n ${changes} ]] && notice " ${BG_BLUE}${changes}"
+  [[ -n ${changes} ]] && notice "\n ${BG_BLUE}${changes}"
 
   # (lb): Not quite sure why git_must_not_rebasing would not have failed first.
   #   Does this happen?
