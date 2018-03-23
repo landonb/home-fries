@@ -1707,7 +1707,7 @@ function git_issues_review {
   if ${FRIES_GIT_ISSUES_DETECTED} || \
     [[ ${#FRIES_GIT_ISSUES_RESOLUTIONS[@]} -gt 0 ]] \
   ; then
-    warn "FIZKNUCKLE: Travel encountered one or more git issues."
+    warn "GRIZZLY! Travel encountered one or more git issues."
     notice
     notice "It could be dirty files, untracted files, behind branches, rebase issues, etc."
     notice "Helpful commands to fix the issue(s) should follow. If not, scroll up."
