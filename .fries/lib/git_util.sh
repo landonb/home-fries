@@ -911,7 +911,7 @@ git_merge_ff_only () {
     | grep -v "^Already up to date.$" \
     | grep -v "^Updating [a-f0-9]\{7\}\.\.[a-f0-9]\{7\}$" \
     | grep -v "^Fast-forward$" \
-    | grep -P -v " \| \d+ \+?-?" \
+    | grep -P -v " \| +\d+ [+-]+$" \
     | grep -P -v "^ \d+ files? changed, \d+ insertions?\(\+\), \d+ deletions?\(-\)$" \
     | grep -P -v "^ \d+ files? changed, \d+ insertions?\(\+\)$" \
     | grep -P -v "^ \d+ files? changed, \d+ deletions?\(-\)$" \
@@ -921,7 +921,7 @@ git_merge_ff_only () {
     | grep -P -v "^ \d+ deletions?\(-\)$" \
   )"
   [[ -n ${culled} ]] && notice "git merge wha?\n${culled}"
-  local changes="$(echo "${git_says}" | grep -P " \| \d+ \+?-?")"
+  local changes="$(echo "${git_says}" | grep -P " \| +\d+ [+-]+$")"
   # 2018-03-23: Would you like something more muted, or vibrant? Trying vibrant.
   #[[ -n ${changes} ]] && notice " ${BG_DARKGRAY}${changes}"
   [[ -n ${changes} ]] && notice "  changes!\n ${BG_BLUE}${changes}"
