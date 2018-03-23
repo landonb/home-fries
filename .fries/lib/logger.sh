@@ -54,7 +54,7 @@ log_msg () {
 }
 
 fatal () {
-  log_msg ${LOG_LEVEL_FATAL} "${FG_HOTPINK}${MK_BOLD}" FATL "$*"
+  log_msg ${LOG_LEVEL_FATAL} "${BG_HOTPINK}${MK_BOLD}" FATL "$*"
 }
 
 critical () {
@@ -70,11 +70,11 @@ warning () {
 }
 
 warn () {
-  log_msg ${LOG_LEVEL_WARNING} "${FG_LIGHTRED}${MK_BOLD}" WARN "$*"
+  log_msg ${LOG_LEVEL_WARNING} "${FG_PINK}${MK_BOLD}" WARN "$*"
 }
 
 notice () {
-  log_msg ${LOG_LEVEL_NOTICE} ${FG_MINTGREEN} NOTC "$*"
+  log_msg ${LOG_LEVEL_NOTICE} ${FG_LIME} NOTC "$*"
 }
 
 info () {
@@ -86,10 +86,10 @@ trace () {
 }
 
 debug () {
-  log_msg ${LOG_LEVEL_DEBUG} ${FG_JADE} DBUG "$*"
+  log_msg ${LOG_LEVEL_DEBUG} ${FG_MEDIUMGREY} DBUG "$*"
 }
 
 verbose () {
-  log_msg ${LOG_LEVEL_VERBOSE} ${FG_JADE} VERB "$*"
+  log_msg ${LOG_LEVEL_VERBOSE} ${FG_MEDIUMGREY} VERB "$*"
 }
 

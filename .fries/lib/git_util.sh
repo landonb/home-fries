@@ -96,8 +96,8 @@ git_check_generic_file () {
     :
   fi
 
-  popd &> /dev/null
-
+#  popd &> /dev/null
+  popd_perhaps "${REPO_PATH}"
 } # end: git_check_generic_file
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -140,7 +140,7 @@ git_commit_generic_file () {
       echo -n "HEY, HEY: Your ${cur_dir}/${repo_file} is dirty. Wanna check it in? [y/n] "
       read -e YES_OR_NO
     else
-      echo "Committing dirty file: ${cur_dir}/${repo_file}"
+      info "Committing dirty file: ${FG_LAVENDER}${cur_dir}/${repo_file}"
       YES_OR_NO="Y"
     fi
     if [[ ${YES_OR_NO^^} == "Y" ]]; then
@@ -167,8 +167,8 @@ git_commit_generic_file () {
     fi
   fi
 
-  popd &> /dev/null
-
+#  popd &> /dev/null
+  popd_perhaps "${REPO_PATH}"
 } # end: git_commit_generic_file
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -181,66 +181,85 @@ git_commit_all_dirty_files () {
 
   REPO_PATH="$1"
 
-  if [[ -e ${REPO_PATH} ]]; then
-
-    echo "Checking for git dirtiness at: ${REPO_PATH}"
-
-#    pushd ${REPO_PATH} &> /dev/null
-    pushd_or_die "${REPO_PATH}"
-
-    tweak_errexit
-
-    # We ignore untracted files here because they cannot be added
-    # by a generic `git add -u` -- in fact, git should complain.
-    #
-    # So auto-commit works on existing git files, but not on new ones.
-    #
-    # (However, `git add --all` adds untracked files, but rather than
-    # automate this, don't. Because user might really want to update
-    # .gitignore instead, or might still be considering where an un-
-    # tracked file should reside.)
-
-    # Also, either grep pattern should work:
-    #
-    #   git status --porcelain | grep "^\W*M\W*" &> /dev/null
-    #   git status --porcelain | grep "^[^\?]" &> /dev/null
-    #
-    # but I'm ignorant of anything other than the two codes,
-    # '?? filename', and ' M filename', so let's be inclusive and
-    # just ignore new files, rather than being exclusive and only
-    # looking for modified files. If there are untracted files, a
-    # later call to git_status_porcelain on the same repo will die.
-    #git status --porcelain | grep "^\W*M\W*" &> /dev/null
-# FIXME/2018-03-22: Verify porcelain usage (vs. plumbing).
-    git status --porcelain | grep "^[^\?]" &> /dev/null
-    local grep_result=$?
-    reset_errexit
-
-    if [[ ${grep_result} -eq 0 ]]; then
-      # It's dirty.
-      echo
-      if ! ${AUTO_COMMIT_FILES}; then
-        echo -n "HEY, HEY: Your ${REPO_PATH} is dirty. Wanna check it all in? [y/n] "
-        read -e YES_OR_NO
-      else
-        echo "HEY, HEY: Your ${REPO_PATH} is dirty. Let's check that in for ya."
-        YES_OR_NO="Y"
-      fi
-      if [[ ${YES_OR_NO^^} == "Y" ]]; then
-        git add -u
-        git commit -m "Auto-commit by Curly." &> /dev/null
-        echo 'Committed!'
-      fi
-      echo
-    fi
-    popd &> /dev/null
-  else
+  if [[ ! -e ${REPO_PATH} ]]; then
     warn
     warn "WARNING: Skipping ${REPO_PATH}: Not found"
     warn
+# Is this right?
+    return 1
   fi
 
+
+
+  info "Checking for git dirtiness at: ${FG_LAVENDER}${REPO_PATH}"
+
+#    pushd ${REPO_PATH} &> /dev/null
+  pushd_or_die "${REPO_PATH}"
+
+  tweak_errexit
+
+  # We ignore untracted files here because they cannot be added
+  # by a generic `git add -u` -- in fact, git should complain.
+  #
+  # So auto-commit works on existing git files, but not on new ones.
+  #
+  # (However, `git add --all` adds untracked files, but rather than
+  # automate this, don't. Because user might really want to update
+  # .gitignore instead, or might still be considering where an un-
+  # tracked file should reside.)
+
+  # Also, either grep pattern should work:
+  #
+  #   git status --porcelain | grep "^\W*M\W*" &> /dev/null
+  #   git status --porcelain | grep "^[^\?]" &> /dev/null
+  #
+  # but I'm ignorant of anything other than the two codes,
+  # '?? filename', and ' M filename', so let's be inclusive and
+  # just ignore new files, rather than being exclusive and only
+  # looking for modified files. If there are untracted files, a
+  # later call to git_status_porcelain on the same repo will die.
+  #git status --porcelain | grep "^\W*M\W*" &> /dev/null
+# FIXME/2018-03-22: Verify porcelain usage (vs. plumbing).
+  git status --porcelain | grep "^[^\?]" &> /dev/null
+  local grep_result=$?
+  reset_errexit
+
+  if [[ ${grep_result} -eq 0 ]]; then
+    # It's dirty.
+    echo
+    if ! ${AUTO_COMMIT_FILES}; then
+      echo -n "HEY, HEY: Your ${REPO_PATH} is dirty. Wanna check it all in? [y/n] "
+      read -e YES_OR_NO
+    else
+      notice "HEY, HEY:" \
+        "Your ${FONT_UNDERLINE}${FG_LAVENDER}${REPO_PATH}${FONT_NORMAL} is dirty." \
+        "Let's check that in for ya."
+      YES_OR_NO="Y"
+    fi
+    if [[ ${YES_OR_NO^^} == "Y" ]]; then
+      git add -u
+      git commit -m "Auto-commit by Curly." &> /dev/null
+      echo 'Committed!'
+    fi
+    echo
+  fi
+#    popd &> /dev/null
+  popd_perhaps "${REPO_PATH}"
 } # end: git_commit_all_dirty_files
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+echo_cyclones_light_on_light () {
+  #echo -e "${BG_FOREST}${FG_LIGHTRED}$(printf '🌀 %.0s' {1..36})${FONT_NORMAL}"
+  #echo -e "${BG_FOREST}${FG_LIGHTORANGE}$(printf '🌀 %.0s' {1..36})${FONT_NORMAL}"
+  echo -e "${BG_LIGHTRED}${FG_LIGHTORANGE}$(printf '🌀 %.0s' {1..36})${FONT_NORMAL}"
+}
+
+echo_cyclones_forange () {
+  #echo -e "${BG_FOREST}${FG_LIGHTRED}$(printf '🌀 %.0s' {1..36})${FONT_NORMAL}"
+  echo -e "${BG_FOREST}${FG_LIGHTORANGE}$(printf '🌀 %.0s' {1..36})${FONT_NORMAL}"
+  #echo -e "${BG_LIGHTRED}${FG_LIGHTORANGE}$(printf '🌀 %.0s' {1..36})${FONT_NORMAL}"
+}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # git_status_porcelain
@@ -354,16 +373,25 @@ git_status_porcelain () {
   reset_errexit
 
   if ${dirty_repo}; then
-    echo "STOPPING: Dirty things found in $working_dir"
-    echo "========================================="
+#echo_octothorpes_maroon_on_lime
+#info "🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀"
+#echo_cyclones_white_on_red
+echo
+#echo_cyclones_light_on_light
+echo_cyclones_forange
+echo
+    warn "SKIPPING REPO: Dirty things found in ${working_dir}"
+    # Although we print this copy-pasta later, at end of script,
+    # it's nice to do so at runtime so user can get started resolving
+    # conflicts before travel.sh finishes running.
+#    warn "========================================="
     echo
     echo "  cdd $(pwd) && git add -p"
-    echo
-    echo "========================================="
+#    warn "========================================="
     if ! ${SKIP_GIT_DIRTY}; then
       # FIXME: This message pertains to travel.sh.
-      echo "Please fix. Or run with -D (skip all git warnings)"
-      echo "            or run with -DD (skip warnings about $0)"
+#      warn "Please fix. Or run with -D (skip all git warnings)"
+#      warn "            or run with -DD (skip warnings about $0)"
       FRIES_GIT_ISSUES_DETECTED=true
       export FRIES_GIT_ISSUES_DETECTED
       FRIES_GIT_ISSUES_RESOLUTIONS+=("cdd $(pwd) && git add -p")
@@ -372,9 +400,15 @@ git_status_porcelain () {
         return 1
       fi
     else
-      echo "Skipping."
       echo
+      warn "This is your only warning, per your -D'esire!"
+#      warn
     fi
+echo
+#echo_octothorpes_maroon_on_lime
+#echo_cyclones_white_on_red
+echo_cyclones_forange
+echo
     GIT_DIRTY_FILES_FOUND=true
     export GIT_DIRTY_FILES_FOUND
   fi
@@ -436,7 +470,9 @@ git_status_porcelain () {
             echo "Please fix. Or run with -D (skip all git warnings)"
             FRIES_GIT_ISSUES_DETECTED=true
             export FRIES_GIT_ISSUES_DETECTED
-            FRIES_GIT_ISSUES_RESOLUTIONS+=("cdd $(pwd) && git push origin ${branch_name} && popd")
+            FRIES_GIT_ISSUES_RESOLUTIONS+=( \
+              "cdd $(pwd) && git push origin ${branch_name} && popd"
+            )
 #            export FRIES_GIT_ISSUES_RESOLUTIONS
             if ${FRIES_FAIL_ON_GIT_ISSUE}; then
               return 1
@@ -519,6 +555,7 @@ git_status_porcelain () {
             echo
           else
             warn "WARNING: Branch is ahead of origin/${branch_name} at $working_dir"
+# FIXME/2018-03-23: This looks like a block of code elsewhere in this self-same file!
             echo "=============================================================="
             echo
             echo "  cdd $(pwd) && git push origin ${branch_name} && popd"
@@ -529,7 +566,9 @@ git_status_porcelain () {
               echo "Please fix. Or run with -D (skip all git warnings)"
               FRIES_GIT_ISSUES_DETECTED=true
               export FRIES_GIT_ISSUES_DETECTED
-              FRIES_GIT_ISSUES_RESOLUTIONS+=("cdd $(pwd) && git push origin ${branch_name} && popd")
+              FRIES_GIT_ISSUES_RESOLUTIONS+=( \
+                "cdd $(pwd) && git push origin ${branch_name} && popd"
+              )
 #              export FRIES_GIT_ISSUES_RESOLUTIONS
               if ${FRIES_FAIL_ON_GIT_ISSUE}; then
                 return 1
@@ -688,7 +727,8 @@ git_set_remote_travel () {
     : # no-op
   fi
 
-  [[ -n ${target_repo} ]] && popd &> /dev/null
+#  [[ -n ${target_repo} ]] && popd &> /dev/null
+  popd_perhaps "${target_repo}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -713,7 +753,8 @@ git_fetch_remote_travel () {
       && true
   fi
 
-  [[ -n ${target_repo} ]] && popd &> /dev/null
+#  [[ -n ${target_repo} ]] && popd &> /dev/null
+  popd_perhaps "${target_repo}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -785,11 +826,15 @@ git_issue_complain_rebasing () {
   FRIES_GIT_ISSUES_RESOLUTIONS+=("Whoa! Under __rebase__, try again, foo!")
   FRIES_GIT_ISSUES_RESOLUTIONS+=("  SKIPPING: ${target_repo}")
   FRIES_GIT_ISSUES_RESOLUTIONS+=("  If you want what's being travelled, abort-n-force!")
+# FIXME: Will I need to mount if I'm an running unpack??
   FRIES_GIT_ISSUES_RESOLUTIONS+=("    ./travel mount")
-  FRIES_GIT_ISSUES_RESOLUTIONS+=("    cdd ${target_repo}")
+  #FRIES_GIT_ISSUES_RESOLUTIONS+=("    cdd ${target_repo}")
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("    cdd $(pwd -P)")
   FRIES_GIT_ISSUES_RESOLUTIONS+=("    git status # sanity check")
   FRIES_GIT_ISSUES_RESOLUTIONS+=("    git rebase --abort")
   FRIES_GIT_ISSUES_RESOLUTIONS+=("    git fetch ${TRAVEL_REMOTE} --prune")
+# FIXME/2018-03-23 14:17: This is not always correct: rebase could be against different branch.
+# FIXME/2018-03-23 14:18: What about checking all branches??
   FRIES_GIT_ISSUES_RESOLUTIONS+=("    git reset --hard ${TRAVEL_REMOTE}/${source_branch}")
   FRIES_GIT_ISSUES_RESOLUTIONS+=("==============================================")
   warn "Skipping branch in rebase!"
@@ -797,6 +842,10 @@ git_issue_complain_rebasing () {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+echo_octothorpes_maroon_on_lime () {
+  echo -e "${BG_LIME}${FG_MAROON}$(printf '#%.0s' {1..77})${FONT_NORMAL}"
+}
 
 git_change_branches_if_necessary () {
   local source_branch="$1"
@@ -807,22 +856,30 @@ git_change_branches_if_necessary () {
   pushd_or_die "${target_repo}"
 
   if [[ "${source_branch}" != "${target_branch}" ]]; then
-    echo "############################################################################"
-    echo "🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀"
-    echo "############################################################################"
-    echo "NOTE: \${source_branch} != \${target_branch}"
+    echo_octothorpes_maroon_on_lime
+    #info "🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀"
+    #echo_octothorpes_maroon_on_lime
+    notice "NOTE: \${source_branch} != \${target_branch}"
     echo
-    echo "  ... changing branches..."
+    echo " WRKD: $(pwd -P)"
     echo
-    git checkout ${source_branch}
+    echo " Changing branches: ${source_branch} => ${target_branch}"
     echo
+    /usr/bin/git checkout ${source_branch} &> /dev/null && true
+    if [[ $? -ne 0 ]]; then
+# FIXME: On unpack, this might need/want to be origin/, not travel/ !
+      /usr/bin/git checkout --track ${TRAVEL_REMOTE}/${source_branch}
+    fi
     echo "Changed!"
-    echo "############################################################################"
-    echo "🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀"
-    echo "############################################################################"
+    echo
+    #echo_octothorpes_maroon_on_lime
+    #info "🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀"
+    echo_octothorpes_maroon_on_lime
 # FIXME/2018-03-22: Adding to this array may prevent travel from continuing? I.e., the -D workaround?
 #   Or are these msgs printed after everything and do not prevent finishing?
-    FRIES_GIT_ISSUES_RESOLUTIONS+=("JUST FYI: Changed branches: ${source_branch} / ${target_repo}")
+    FRIES_GIT_ISSUES_RESOLUTIONS+=( \
+      "JUST FYI: Changed branches: ${source_branch} / ${target_repo}"
+    )
   fi
 
 #  [[ -n "${target_repo}" ]] && popd &> /dev/null
@@ -907,25 +964,27 @@ git_pull_hush () {
 #echo "cwd: $(pwd -P)"
 ## FIXME/2018-03-23 12:50: Should this be && true, or should it be || true?? latter seems correct
 ## THE && true means errexit not working from this fcn. or any it calls??
+##### IT DEPENDS! Use && true so errcode is preserved...
 ##  git_must_not_rebasing "${source_branch}" "${target_repo}" && true
 ##  git_must_not_rebasing "${source_branch}" "${target_repo}" && false
 ##  git_must_not_rebasing "${source_branch}" "${target_repo}"
-  git_must_not_rebasing "${source_branch}" "${target_repo}" || true
+  git_must_not_rebasing "${source_branch}" "${target_repo}" && true
   local okay=$?
 #echo FOO
 #  [[ ${okay} -ne 0 ]] && echo FAIL || echo OKAY
   if [[ ${okay} -ne 0 ]]; then
+    # The fcn. we just called that failed will have spit out a warning
+    # and added to the final FRIES_GIT_ISSUES_RESOLUTIONS array.
 #    popd &> /dev/null
     popd_perhaps "${target_repo}"
     return
   fi
 #echo BAH
 
-#popd &> /dev/null
-popd_perhaps "${target_repo}"
-return
-
-exit
+##popd &> /dev/null
+#popd_perhaps "${target_repo}"
+#return
+#exit
 
   # There is a conundrum/enigma/riddle/puzzle/brain-teaser/problem/puzzlement
   # when it comes to what to do about clarifying branches -- should we check
@@ -934,10 +993,16 @@ exit
   # It also feels really, really tedious.
   # FIXME/2018-03-22 22:07: Consider checking all branches for rebase needs!
 
-  git_change_branches_if_necessary "${source_branch}" "${target_branch}" "${target_repo}"
+#  git_change_branches_if_necessary "${source_branch}" "${target_branch}" "${target_repo}"
+  git_change_branches_if_necessary "${source_branch}" "${target_branch}"
+
+popd_perhaps "${target_repo}"
+return
+exit
 
   # Fast-forward merge (no new commits!) or complain (later).
-  git_merge_ff_only "${source_branch}" "${target_repo}"
+#  git_merge_ff_only "${source_branch}" "${target_repo}"
+  git_merge_ff_only "${source_branch}"
 
 #  popd &> /dev/null
   popd_perhaps "${target_repo}"
@@ -1016,7 +1081,8 @@ git-flip-master () {
 
   if [[ ! -d ../${master_path}/.git ]]; then
       echo "FATAL: Cannot suss paths, ya dingus."
-      [[ -n ${REL_PREFIX} ]] && popd &> /dev/null
+#      [[ -n ${REL_PREFIX} ]] && popd &> /dev/null
+      popd_perhaps "${REL_PREFIX}"
       return 1
   fi
 
@@ -1061,7 +1127,7 @@ echo "FIXME: \`rake tagGitRepo\` should wait for build to complete..."
 #  popd &> /dev/null
   popd_perhaps "../${master_path}"
 
-  [[ -n ${REL_PREFIX} ]] && popd &> /dev/null
+#  [[ -n ${REL_PREFIX} ]] && popd &> /dev/null
   popd_perhaps "${REL_PREFIX}"
 }
 

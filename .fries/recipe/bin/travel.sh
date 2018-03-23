@@ -544,9 +544,15 @@ function soups_on () {
     # Run the command.
     eval "$TRAVEL_CMD"
     local setup_time_n=$(date +%s.%N)
-    time_elapsed=$(echo "scale=2; ($setup_time_n - $setup_time_0) * 100 / 100" | bc -l)
-    #echo
-    info "${FONT_BOLD}${BG_FOREST}Elapsed: $time_elapsed secs."
+    time_elapsed=$(\
+      echo "scale=2; ($setup_time_n - $setup_time_0) * 100 / 100" | bc -l
+    )
+    # Only show elapsed time if more than a split second, or whatever.
+    # Use `bc` to output 0 or 1, and use ``(( ... ))`` so Bash interprets
+    # the result as false or true respectively.
+    if (( $(echo "${time_elapsed} > 0.25" | bc -l) )); then
+      info "${FONT_BOLD}${BG_FOREST}Elapsed: $time_elapsed secs."
+    fi
   elif ! ${ASKED_FOR_HELP}; then
     warn 'Nothing to do!'
   fi
@@ -1267,7 +1273,7 @@ function chase_and_face () {
 
 function mount_curly_emissary_gooey_explicit () {
   mount_curly_emissary_gooey
-  echo "gooey mounted at: ${EMISSARY}/gooey"
+  info "gooey mounted at: ${FG_LAVENDER}${EMISSARY}/gooey"
 }
 
 function mount_curly_emissary_gooey () {
@@ -1621,15 +1627,15 @@ function check_gardened_repo () {
   while IFS= read -r -d '' fpath; do
     # 2016-12-08: Adding ! -h, should be fine, and faster.
     if [[ -h ${fpath} ]]; then
-      debug "  - Skipping symlinked something: ${fpath}"
+      verbose "  - Skipping symlinked something: ${fpath}"
       :
     elif [[ ! -d ${fpath}/.git ]]; then
-      debug "  - Skipping .git-less directory: ${fpath}"
+      verbose "  - Skipping .git-less directory: ${fpath}"
       :
     else
       local TARGET_BASE=$(basename -- "${fpath}")
       if [[ ${TARGET_BASE#TBD-} != ${TARGET_BASE} ]]; then
-        debug "  - Skipping resource with TBD-*: ${fpath}"
+        verbose "  - Skipping resource with TBD-*: ${fpath}"
         :
       else
         debug "  ${fpath}"
@@ -1694,20 +1700,34 @@ function check_repos_statuses () {
 } # end: check_repos_statuses
 
 function git_issues_review {
-  if ${FRIES_GIT_ISSUES_DETECTED}; then
-    echo "FIZATAL: One or more git issues was detected. See prior log."
-    echo "Could be dirty files, untracted files, and/or behind branches."
-    echo "Please fix. Or run with -D (skip all git warnings)"
-    echo "            or run with -DD (skip warnings about $0)"
-    echo
-    echo "#################"
-    echo " Give this a try "
-    echo "#################"
-    echo
-    for ((i = 0; i < ${#FRIES_GIT_ISSUES_RESOLUTIONS[@]}; i++)); do
-      RESOLUTION_CMD="  ${FRIES_GIT_ISSUES_RESOLUTIONS[$i]}"
-      echo "${RESOLUTION_CMD}"
-    done
+  # NOTE/2018-03-23: This method often called twice, once after the initial
+  # repo check step, and then again after syncing. I'm curious if it really
+  # needs to run both times, or if it should just run once, at the end of the
+  # script.
+  if ${FRIES_GIT_ISSUES_DETECTED} || \
+    [[ ${#FRIES_GIT_ISSUES_RESOLUTIONS[@]} -gt 0 ]] \
+  ; then
+    warn "FIZKNUCKLE: Travel encountered one or more git issues."
+    notice
+    notice "It could be dirty files, untracted files, behind branches, rebase issues, etc."
+    notice "Helpful commands to fix the issue(s) should follow. If not, scroll up."
+    notice
+    notice "Please fix. Or run with -D (skip all git warnings)"
+    notice "            or run with -DD (skip warnings about $0)"
+    notice
+#    notice "#################"
+#    notice " Give this a try "
+#    notice "#################"
+    if [[ ${#FRIES_GIT_ISSUES_RESOLUTIONS[@]} -gt 0 ]]; then
+      notice "Give this a try:"
+      echo
+      for ((i = 0; i < ${#FRIES_GIT_ISSUES_RESOLUTIONS[@]}; i++)); do
+        RESOLUTION_CMD="  ${FRIES_GIT_ISSUES_RESOLUTIONS[$i]}"
+        echo "${RESOLUTION_CMD}"
+      done
+      echo
+    fi
+#    trap - EXIT
     exit 1
   fi
 }
@@ -1719,22 +1739,22 @@ function pull_gardened_repo () {
   PREFIX="$2"
   local ABS_PATH="${ENCFS_GIT_ITER}"
   local ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
-  echo " ${ENCFS_REL_PATH}"
+  debug " ${ENCFS_REL_PATH}"
   while IFS= read -r -d '' fpath; do
     local TARGET_BASE=$(basename -- "${fpath}")
     TARGET_PATH="${ENCFS_REL_PATH}/${TARGET_BASE}"
     if [[ -d ${TARGET_PATH}/.git && ! -h ${TARGET_PATH} ]]; then
       if [[ ${TARGET_BASE#TBD-} == ${TARGET_BASE} ]]; then
-        echo "  $fpath"
+        debug "  $fpath"
         SOURCE_PATH="${PREFIX}${ABS_PATH}/$(basename -- "${fpath}")"
         #echo "\${SOURCE_PATH}: ${SOURCE_PATH}"
         #echo "\${TARGET_PATH}: ${TARGET_PATH}"
         git_pull_hush "${SOURCE_PATH}" "${TARGET_PATH}"
       else
-        echo "  skipping (TBD-*): ${fpath}"
+        debug "  skipping (TBD-*): ${fpath}"
       fi
     else
-      #echo "  skipping (not .git/, or symlink): $fpath"
+      #debug "  skipping (not .git/, or symlink): $fpath"
       :
     fi
   done < <(find /${ENCFS_REL_PATH} -maxdepth 1 ! -path . -print0)
@@ -1823,7 +1843,8 @@ function make_plaintext () {
     ARCHIVE_REL=$(echo ${ARCHIVE_SRC} | /bin/sed s/^.//)
 
     if [[ -e ${ARCHIVE_SRC} ]]; then
-      echo -n " tarring: ${ARCHIVE_SRC}"
+#      echo -n " tarring: ${ARCHIVE_SRC}"
+      debug " tarring: ${FG_LAVENDER}${ARCHIVE_SRC}"
       pushd / &> /dev/null
       # Note: Missing files cause tar errors. If this happens, consider:
       #         --ignore-failed-read
@@ -1837,7 +1858,7 @@ function make_plaintext () {
          ${ARCHIVE_REL}
       popd &> /dev/null
       #echo " ok"
-      echo
+#      echo
     else
       #echo
       #echo "FATAL: Indicated plaintext archive not found at: ${ARCHIVE_SRC}"
@@ -1878,6 +1899,8 @@ function packme () {
     # FIXME/2018-03-23: Split out side effect here: git_commit_generic_file
     check_repos_statuses
 
+    info "${BG_PINK}${FG_MAROON}" \
+      "🍁  🍁  🍁   Done checking repos for dirt  🍁  🍁  🍁  "
   fi
 
   if [[ ! -d ${EMISSARY} ]]; then
@@ -1964,7 +1987,6 @@ function packme () {
   #history -ps "umount ${TRAVEL_DIR}" # unfortunately, a no-op
 
   git_issues_review
-
 } # end: packme
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -2163,7 +2185,6 @@ function unpack () {
   echo
 
   git_issues_review
-
 } # end: unpack
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
