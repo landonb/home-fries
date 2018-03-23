@@ -29,6 +29,7 @@ must_sourced() {
 where () {
   local frame=0
   while caller $frame; do
+    # NOTE: In some cases, this call with end the program...
     ((frame++));
   done
   echo "$*"

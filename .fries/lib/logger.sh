@@ -44,47 +44,52 @@ log_msg () {
     #echo "${FCN_COLOR} $@"
     #RIGHT_NOW=$(date +%Y-%m-%d.%H.%M.%S)
     RIGHT_NOW=$(date +%Y-%m-%d@%T)
-    echo -e "${FG_MINTGREEN}${FONT_UNDERLINE}[${FCN_LABEL}]${FONT_NORMAL} ${RIGHT_NOW} ${FONT_BOLD}$*${FONT_NORMAL}"
+    local bold_maybe=''
+    [[ ${FCN_LEVEL} -ge ${LOG_LEVEL_WARNING} ]] && bold_maybe=${FONT_BOLD}
+    local invert_maybe=''
+    [[ ${FCN_LEVEL} -ge ${LOG_LEVEL_WARNING} ]] && invert_maybe=${BG_MAROON}
+    [[ ${FCN_LEVEL} -ge ${LOG_LEVEL_ERROR} ]] && invert_maybe=${BG_HOTPINK}
+    echo -e "${FCN_COLOR}${FONT_UNDERLINE}[${FCN_LABEL}]${FONT_NORMAL} ${RIGHT_NOW} ${bold_maybe}${invert_maybe}$*${FONT_NORMAL}"
   fi
 }
 
 fatal () {
-  log_msg ${LOG_LEVEL_FATAL} ${FG_HOTPINK} FATL $*
+  log_msg ${LOG_LEVEL_FATAL} "${FG_HOTPINK}${MK_BOLD}" FATL "$*"
 }
 
 critical () {
-  log_msg ${LOG_LEVEL_CRITICAL} ${FG_HOTPINK} CRIT $*
+  log_msg ${LOG_LEVEL_CRITICAL} "${FG_HOTPINK}${MK_BOLD}" CRIT "$*"
 }
 
 error () {
-  log_msg ${LOG_LEVEL_ERROR} ${FG_ORANGE} ERRR $*
+  log_msg ${LOG_LEVEL_ERROR} "${FG_ORANGE}${MK_BOLD}" ERRR "$*"
 }
 
 warning () {
-  log_msg ${LOG_LEVEL_WARNING} ${FG_LIGHTRED} WARN $*
+  log_msg ${LOG_LEVEL_WARNING} "${FG_LIGHTRED}${MK_BOLD}" WARN "$*"
 }
 
 warn () {
-  log_msg ${LOG_LEVEL_WARNING} ${FG_LIGHTRED} WARN $*
+  log_msg ${LOG_LEVEL_WARNING} "${FG_LIGHTRED}${MK_BOLD}" WARN "$*"
 }
 
 notice () {
-  log_msg ${LOG_LEVEL_NOTICE} ${FG_JADE} NOTC $*
+  log_msg ${LOG_LEVEL_NOTICE} ${FG_MINTGREEN} NOTC "$*"
 }
 
 info () {
-  log_msg ${LOG_LEVEL_INFO} ${FG_JADE} INFO $*
+  log_msg ${LOG_LEVEL_INFO} ${FG_MINTGREEN} INFO "$*"
 }
 
 trace () {
-  log_msg ${LOG_LEVEL_TRACE} ${FG_JADE} TRCE $*
+  log_msg ${LOG_LEVEL_TRACE} ${FG_JADE} TRCE "$*"
 }
 
 debug () {
-  log_msg ${LOG_LEVEL_DEBUG} ${FG_JADE} DBUG $*
+  log_msg ${LOG_LEVEL_DEBUG} ${FG_JADE} DBUG "$*"
 }
 
 verbose () {
-  log_msg ${LOG_LEVEL_VERBOSE} ${FG_JADE} VERB $*
+  log_msg ${LOG_LEVEL_VERBOSE} ${FG_JADE} VERB "$*"
 }
 

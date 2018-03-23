@@ -78,7 +78,7 @@ setup_users_curly_path () {
   fi
   USERS_BNAME=$(basename -- "${USERS_CURLY}")
   #echo
-  echo "Using curly destination at: ${USERS_CURLY}"
+  info "Using curly destination at: ${FG_LAVENDER}${USERS_CURLY}"
 } # end: setup_users_curly_path
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

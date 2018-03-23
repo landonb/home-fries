@@ -161,11 +161,11 @@ if [[ -n ${SYNC_REPOS_PATH} ]]; then
   source "${SYNC_REPOS_PATH}"
   SOURCED_SYNC_REPOS=true
 else
-  echo
-  echo "==============================="
-  echo "NOTICE: sync_repos.sh not found"
-  echo "==============================="
-  echo
+  error
+  error "==============================="
+  error "NOTICE: sync_repos.sh not found"
+  error "==============================="
+  error
   SOURCED_SYNC_REPOS=false
 fi
 
@@ -200,8 +200,8 @@ fi
 if [[ -n ${TRAVEL_TASKS_PATH} ]]; then
   source "${TRAVEL_TASKS_PATH}"
 else
-  echo "NOTICE: travel_tasks.sh not found"
-  echo ${USERS_CURLY}/cfg/travel_tasks.sh
+  warn "NOTICE: travel_tasks.sh not found"
+  warn ${USERS_CURLY}/cfg/travel_tasks.sh
   SOURCED_TRAVEL_TASKS=false
 fi
 
@@ -496,8 +496,8 @@ function soups_on () {
   fi
 
   if [[ ${REQUIRES_SYNC_REPOS} && ! ${SOURCED_SYNC_REPOS} ]]; then
-    echo
-    echo "ERROR: Missing repo_syncs.sh."
+    error
+    error "ERROR: Missing repo_syncs.sh."
     trap - EXIT
     exit 1
   fi
@@ -508,8 +508,8 @@ function soups_on () {
   fi
 
   if [[ ${REQUIRES_CRAPPDWORD} && -z ${CRAPWORD} ]]; then
-    echo
-    echo "FATAL: Please set CRAPWORD. Maybe in repo_syncs.sh"
+    error
+    error "FATAL: Please set CRAPWORD. Maybe in repo_syncs.sh"
     trap - EXIT
     exit 1
   fi
@@ -517,14 +517,14 @@ function soups_on () {
   # Make sure the staging/destination exists.
   mkdir -p ${STAGING_DIR}
 
-  echod
-  #echo "Two-way travel directory: ${TRAVEL_DIR}"
+  #echod
+  #info "Two-way travel directory: ${TRAVEL_DIR}"
   if [[ -z ${EMISSARY} && ${DETERMINE_TRAVEL_DIR} == false ]]; then
-    echo "Two-way travel directory: ${EMISSARY} [not needed for this command]"
+    info "Two-way travel directory: ${EMISSARY} [not needed for this command]"
   else
-    echo "Two-way travel directory: ${EMISSARY}"
+    info "Two-way travel directory: ${FG_LAVENDER}${EMISSARY}"
   fi
-  echo "One-way unpack (staging): ${STAGING_DIR}"
+  info "One-way unpack (staging): ${FG_LAVENDER}${STAGING_DIR}"
 
   if [[ -n ${TRAVEL_CMD} && ${UNKNOWN_ARG} = false ]]; then
     # Run the command.
@@ -532,11 +532,10 @@ function soups_on () {
     local setup_time_n=$(date +%s.%N)
     time_elapsed=$(echo "scale=2; ($setup_time_n - $setup_time_0) * 100 / 100" | bc -l)
     #echo
-    echo "Elapsed: $time_elapsed secs."
+    info "${FONT_BOLD}${BG_FOREST}Elapsed: $time_elapsed secs."
   elif ! ${ASKED_FOR_HELP}; then
-    echo 'Nothing to do!'
+    warn 'Nothing to do!'
   fi
-
 } # end: soups_on
 
 function determine_stick_dir () {
@@ -845,7 +844,10 @@ setup_private_ssh_directory () {
     chmod 600 ~/.ssh/config ~/.ssh/known_hosts* ~/.ssh/authorized_keys ~/.ssh/environment
   fi
 
+  local exit_code
+
   # 2016-11-12: Check that PasswordAuthentication is disabled.
+# FIXME/2018-03-23: Change all tweak_errexit to `&& true`?
   tweak_errexit
   grep "^PasswordAuthentication no$" /etc/ssh/sshd_config &> /dev/null
   exit_code=$?
@@ -929,9 +931,9 @@ setup_private_etc_fstab () {
   if [[ -f ${USERS_CURLY}/dev/$(hostname)/etc/fstab ]]; then
     tweak_errexit
     diff ${USERS_CURLY}/dev/$(hostname)/etc/fstab /etc/fstab &> /dev/null
-    ECODE=$?
+    local exit_code=$?
     reset_errexit
-    if [[ ${ECODE} -ne 0 ]]; then
+    if [[ ${exit_code} -ne 0 ]]; then
       echo "BKUPPING: /etc/fstab [to replace with: ${USERS_CURLY}/dev/$(hostname)/etc/fstab]"
       sudo /bin/mv /etc/fstab /etc/fstab-${BACKUP_POSTFIX}
       sudo /bin/cp -a ${USERS_CURLY}/dev/$(hostname)/etc/fstab /etc/fstab
@@ -946,9 +948,9 @@ setup_private_update_db_conf () {
   if [[ -f ${USERS_CURLY}/dev/$(hostname)/etc/updatedb.conf ]]; then
     tweak_errexit
     diff ${USERS_CURLY}/dev/$(hostname)/etc/updatedb.conf /etc/updatedb.conf &> /dev/null
-    ECODE=$?
+    local exit_code=$?
     reset_errexit
-    if [[ ${ECODE} -ne 0 ]]; then
+    if [[ ${exit_code} -ne 0 ]]; then
       if [[ -e /etc/updatedb.conf ]]; then
         echo "BKUPPING: /etc/updatedb.conf"
         sudo /bin/mv /etc/updatedb.conf /etc/updatedb.conf-${BACKUP_POSTFIX}
@@ -1023,22 +1025,22 @@ locate_and_clone_missing_repo () {
           fi
           # Checkout the source.
           pushd ${HOME}/.elsewhere &> /dev/null
-          local git_resp=""
-          tweak_errexit
+          local git_resp
+#          tweak_errexit
           if [[ ! -d ${repo_name} ]]; then
             echod "git clone ${remote_orig} ${repo_name}"
             ##git clone ${remote_orig} ${check_repo}
             #git clone ${remote_orig} ${repo_name}
             #git_resp=$(git clone ${remote_orig} ${repo_name} 2>&1)
             # 2017-02-27: Taking a while on work laptop. Wanting to see progress.
-            git_resp=$(git clone ${remote_orig} ${repo_name})
+            git_resp=$(git clone ${remote_orig} ${repo_name}) && true
           else
             echod "cd ${repo_name} && git pull"
             cd ${repo_name}
-            git_resp=$(git pull 2>&1)
+            git_resp=$(git pull 2>&1) && true
           fi
           ret_code=$?
-          reset_errexit
+#          reset_errexit
           check_git_clone_or_pull_error "${ret_code}" "${git_resp}"
           popd &> /dev/null
           # Create the symlink from the root dir.
@@ -1050,13 +1052,13 @@ locate_and_clone_missing_repo () {
           # Use associate array key so user can choose different name than repo.
           ##git clone ${remote_orig}
           #git clone ${remote_orig} ${check_repo}
-          tweak_errexit
+#          tweak_errexit
           #git_resp=$(git clone ${remote_orig} ${check_repo} 2>&1)
           # 2017-02-27: Taking a while on work laptop. Wanting to see progress.
           echod "git clone ${remote_orig} ${check_repo}"
-          git_resp=$(git clone ${remote_orig} ${check_repo})
+          git_resp=$(git clone ${remote_orig} ${check_repo}) && true
           ret_code=$?
-          reset_errexit
+#          reset_errexit
           check_git_clone_or_pull_error "${ret_code}" "${git_resp}"
           popd &> /dev/null
         fi
@@ -1097,9 +1099,9 @@ locate_and_clone_missing_repos_helper () {
 locate_and_clone_missing_repos_header () {
   tweak_errexit
   command -v user_locate_and_clone_missing_repos_header &> /dev/null
-  local USER_CMD_EXIT_CODE=$?
+  local exit_code=$?
   reset_errexit
-  if [[ ${USER_CMD_EXIT_CODE} -eq 0 ]]; then
+  if [[ ${exit_code} -eq 0 ]]; then
     # This is just a dumb override so I can include my private
     # repo lookups in the total count. So clunky.
     user_locate_and_clone_missing_repos_header
@@ -1146,9 +1148,9 @@ locate_and_clone_missing_repos () {
   # Call private fcns. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
   tweak_errexit
   command -v user_locate_and_clone_missing_repos &> /dev/null
-  local USER_CMD_EXIT_CODE=$?
+  local exit_code=$?
   reset_errexit
-  if [[ ${USER_CMD_EXIT_CODE} -eq 0 ]]; then
+  if [[ ${exit_code} -eq 0 ]]; then
     user_locate_and_clone_missing_repos
   fi
 
@@ -1218,9 +1220,9 @@ function chase_and_face () {
   # Call private fcns. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
   tweak_errexit
   command -v user_do_chase_and_face &> /dev/null
-  local EXIT_CODE=$?
+  local exit_code=$?
   reset_errexit
-  if [[ ${EXIT_CODE} -eq 0 ]]; then
+  if [[ ${exit_code} -eq 0 ]]; then
     user_do_chase_and_face
   fi
 
@@ -1276,7 +1278,7 @@ function mount_curly_emissary_gooey () {
     echo "${CRAPWORD}" | encfs -S --standard ${EMISSARY}/.gooey ${EMISSARY}/gooey
   else
     # else, already mounted; maybe the last operation failed?
-    echo "Looks like gooey is already mounted."
+    info "Looks like gooey is already mounted."
   fi
 }
 
@@ -1284,22 +1286,26 @@ function umount_curly_emissary_gooey () {
   #echo "GOOEY: Unmount"
   tweak_errexit
   mount | grep ${EMISSARY}/gooey > /dev/null
-  exit_code=$?
+  local exit_code=$?
   reset_errexit
   if [[ ${exit_code} -eq 0 ]]; then
     sleep 0.1 # else umount fails.
-    tweak_errexit
-    fusermount -u ${EMISSARY}/gooey
-    exit_code=$?
-    reset_errexit
+    local umntput
+    umntput=$(fusermount -u ${EMISSARY}/gooey 2>&1) && true
+    local exit_code=$?
     if [[ ${exit_code} -ne 0 ]]; then
+      warn ${umntput}
       echo
       echo "MEH: Could not umount the encfs. Try:"
-      echo "  fuser -c ${EMISSARY}/gooey 2>&1"
-      echo " and you can get the process ID with: echo \$\$"
+      echo
+      echo "    fuser -c ${EMISSARY}/gooey 2>&1"
+      echo
+      echo " and you can get the process ID with:"
+      echo
+      echo "    echo \$\$"
     fi
   else
-    echo "The Encfs is not mounted."
+    info "The Encfs is not mounted."
   fi
 }
 
@@ -1433,9 +1439,9 @@ function init_travel () {
 
   tweak_errexit
   command -v user_do_init_travel &> /dev/null
-  local EXIT_CODE=$?
+  local exit_code=$?
   reset_errexit
-  if [[ ${EXIT_CODE} -eq 0 ]]; then
+  if [[ ${exit_code} -eq 0 ]]; then
     user_do_init_travel
   fi
 
@@ -1497,18 +1503,18 @@ function git_commit_hamster () {
     HAMSTER_DB_REL="home/.local/share/hamster-applet/hamster-$(hostname).db"
     HAMSTER_DB_ABS="${USERS_CURLY}/${HAMSTER_DB_REL}"
     if [[ -e ${HAMSTER_DB_ABS} ]]; then
-      echo "Checking Hamster.db..."
+      trace "Checking Hamster.db..."
       git_commit_generic_file \
         "${HAMSTER_DB_ABS}" \
         "Update hamster-$(hostname).db during packme."
     else
-      echo
-      echo "WARNING: Skipping hamster.db: No hamster.db at:"
-      echo "  ${HAMSTER_DB_ABS}"
-      echo
+      warn
+      warn "WARNING: Skipping hamster.db: No hamster.db at:"
+      warn "  ${HAMSTER_DB_ABS}"
+      warn
     fi
   else
-    echo "Not Hamstering."
+    warn "Not Hamstering."
   fi
 } # end: git_commit_hamster
 
@@ -1516,7 +1522,7 @@ function git_commit_vim_spell () {
   VIM_SPELL_REL="home/.vim/spell/en.utf-8.add"
   VIM_SPELL_ABS="${USERS_CURLY}/${VIM_SPELL_REL}"
   if [[ -e ${VIM_SPELL_ABS} ]]; then
-    echo "Checking Vim spell..."
+    trace "Checking Vim spell..."
 
     # Sort the spell file, for easy diff'ing, meld'ing, or better yet merging.
     # The .vimrc startup file will remake the .spl file when you restart Vim.
@@ -1531,10 +1537,10 @@ function git_commit_vim_spell () {
       "${VIM_SPELL_ABS}" \
       "Commit Vim spell during packme."
   else
-    echo
-    echo "WARNING: Skipping .vim/spell: No en.utf-8.add at:"
-    echo "  ${VIM_SPELL_ABS}"
-    echo
+    warn
+    warn "WARNING: Skipping .vim/spell: No en.utf-8.add at:"
+    warn "  ${VIM_SPELL_ABS}"
+    warn
   fi
 } # end: git_commit_vim_spell
 
@@ -1542,32 +1548,32 @@ function git_commit_vimprojects () {
   VIMPROJECTS_REL="home/.vim/bundle/dubs_all/.vimprojects"
   VIMPROJECTS_ABS="${USERS_CURLY}/${VIMPROJECTS_REL}"
   if [[ -e ${VIMPROJECTS_ABS} ]]; then
-    echo "Checking .vimprojects..."
+    trace "Checking .vimprojects..."
       # FIXME/2017-05-09/TRANSITION-TO-TRAVEL: Should indicate from what machine
       #   and maybe what operation (unless it's always packme).
       git_commit_generic_file \
         "${VIMPROJECTS_ABS}" \
         "Commit .vimprojects during packme."
   else
-    echo
-    echo "WARNING: Skipping .vimprojects: Nothing at:"
-    echo "  ${VIMPROJECTS_ABS}"
-    echo
+    warn
+    warn "WARNING: Skipping .vimprojects: Nothing at:"
+    warn "  ${VIMPROJECTS_ABS}"
+    warn
   fi
 } # end: git_commit_vimprojects
 
 function git_commit_dirty_sync_repos () {
 
-  echo "Checking single dirty files..."
+  trace "Checking single dirty files..."
   for ((i = 0; i < ${#AUTO_GIT_ONE[@]}; i++)); do
-    echo " ${AUTO_GIT_ONE[$i]}"
+    debug " ${AUTO_GIT_ONE[$i]}"
     DIRTY_BNAME=$(basename -- "${AUTO_GIT_ONE[$i]}")
     git_commit_generic_file "${AUTO_GIT_ONE[$i]}" "Update ${DIRTY_BNAME}."
   done
 
-  echo "Checking all repos' dirty files..."
+  trace "Checking all repos' dirty files..."
   for ((i = 0; i < ${#AUTO_GIT_ALL[@]}; i++)); do
-    echo " ${AUTO_GIT_ALL[$i]}"
+    debug " ${AUTO_GIT_ALL[$i]}"
     git_commit_all_dirty_files "${AUTO_GIT_ALL[$i]}" "Update all of ${AUTO_GIT_ALL[$i]}."
   done
 
@@ -1580,16 +1586,16 @@ function git_status_porcelain_wrap () {
   tweak_errexit
   USING_ERREXIT=false
   git_status_porcelain ${working_dir} ${SKIP_INTERNETS}
-  exit_code=$?
+  local exit_code=$?
   USING_ERREXIT=true
   reset_errexit
   if [[ ${exit_code} -ne 0 ]]; then
-    echo "ERROR: git_status_porcelain failed."
-    #echo "exit_code: ${exit_code}"
+    error "ERROR: git_status_porcelain failed."
+    #error "exit_code: ${exit_code}"
     if [[ ${exit_code} -eq 2 ]]; then
       local script_name=$(basename -- "$0")
-      echo "Are you internetted? If not, try:"
-      echo "  ${script_name} packme -s"
+      warn "Are you internetted? If not, try:"
+      warn "  ${script_name} packme -s"
     fi
     exit ${exit_code}
   fi
@@ -1597,22 +1603,22 @@ function git_status_porcelain_wrap () {
 
 function check_gardened_repo () {
   ENCFS_GIT_ITER=$1
-  echo " top-level: ${ENCFS_GIT_ITER}"
+  debug " top-level: ${ENCFS_GIT_ITER}"
   while IFS= read -r -d '' fpath; do
     # 2016-12-08: Adding ! -h, should be fine, and faster.
     if [[ -h ${fpath} ]]; then
-      echo "  - Skipping symlinked something: ${fpath}"
+      debug "  - Skipping symlinked something: ${fpath}"
       :
     elif [[ ! -d ${fpath}/.git ]]; then
-      echo "  - Skipping .git-less directory: ${fpath}"
+      debug "  - Skipping .git-less directory: ${fpath}"
       :
     else
       local TARGET_BASE=$(basename -- "${fpath}")
       if [[ ${TARGET_BASE#TBD-} != ${TARGET_BASE} ]]; then
-        echo "  - Skipping resource with TBD-*: ${fpath}"
+        debug "  - Skipping resource with TBD-*: ${fpath}"
         :
       else
-        echo "  ${fpath}"
+        debug "  ${fpath}"
         pushd ${fpath} &> /dev/null
         git_status_porcelain_wrap "${fpath}"
         popd &> /dev/null
@@ -1625,9 +1631,9 @@ function check_repos_statuses () {
 
   # Skipping: PLAINTEXT_ARCHIVES
 
-  echo "Checking one-level repos..."
+  trace "Checking one-level repos..."
   for ((i = 0; i < ${#ENCFS_GIT_REPOS[@]}; i++)); do
-    echo " ${ENCFS_GIT_REPOS[$i]}"
+    debug " ${ENCFS_GIT_REPOS[$i]}"
     pushd ${ENCFS_GIT_REPOS[$i]} &> /dev/null
     GREPPERS=''
     if [[ ${SKIP_THIS_DIRTY} = true && ${ENCFS_GIT_REPOS[$i]} == ${FRIES_ABS_DIRN} ]]; then
@@ -1651,12 +1657,12 @@ function check_repos_statuses () {
     popd &> /dev/null
   done
 
-  echo "Checking gardened git repos..."
+  trace "Checking gardened git repos..."
   for ((i = 0; i < ${#ENCFS_GIT_ITERS[@]}; i++)); do
     check_gardened_repo "${ENCFS_GIT_ITERS[$i]}"
   done
 
-  echo "Checking gardened Vim repos..."
+  trace "Checking gardened Vim repos..."
   for ((i = 0; i < ${#ENCFS_VIM_ITERS[@]}; i++)); do
     check_gardened_repo "${ENCFS_VIM_ITERS[$i]}"
   done
@@ -1664,9 +1670,9 @@ function check_repos_statuses () {
   # Call private fcns. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
   tweak_errexit
   command -v user_do_check_repos_statuses &> /dev/null
-  local EXIT_CODE=$?
+  local exit_code=$?
   reset_errexit
-  if [[ ${EXIT_CODE} -eq 0 ]]; then
+  if [[ ${exit_code} -eq 0 ]]; then
     user_do_check_repos_statuses
   fi
 
@@ -1734,27 +1740,30 @@ function pull_git_repos () {
     exit 1
   fi
 
-  echo "Pulling singular git repos..."
+  trace "Pulling singular git repos..."
   for ((i = 0; i < ${#ENCFS_GIT_REPOS[@]}; i++)); do
     ABS_PATH="${ENCFS_GIT_REPOS[$i]}"
     local ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
     # MAYBE/2016-12-12: Ignore symlinks?
     #if [[ -d ${ENCFS_REL_PATH} && ! -h ${ENCFS_REL_PATH} ]]; then
-      #echo " SOURCE_PATH: ${PREFIX}${ABS_PATH}"
-      #echo " TARGET_PATH: ${ENCFS_REL_PATH}"
-      echo " ${ENCFS_REL_PATH}"
+      #debug " SOURCE_PATH: ${PREFIX}${ABS_PATH}"
+      #debug " TARGET_PATH: ${ENCFS_REL_PATH}"
+      debug " ${ENCFS_REL_PATH}"
+echo YES
+fatal " In cwd: $(pwd -P)"
       git_pull_hush "${PREFIX}${ABS_PATH}" "${ENCFS_REL_PATH}"
+echo NOO
     #else
-    #  echo " not dir/symlink: ${ENCFS_REL_PATH}"
+    #  debug " not dir/symlink: ${ENCFS_REL_PATH}"
     #fi
   done
 
-  echo "Pulling gardened git repos..."
+  trace "Pulling gardened git repos..."
   for ((i = 0; i < ${#ENCFS_GIT_ITERS[@]}; i++)); do
     pull_gardened_repo "${ENCFS_GIT_ITERS[$i]}" "${PREFIX}"
   done
 
-  echo "Pulling gardened Vim repos..."
+  trace "Pulling gardened Vim repos..."
   for ((i = 0; i < ${#ENCFS_VIM_ITERS[@]}; i++)); do
     pull_gardened_repo "${ENCFS_VIM_ITERS[$i]}" "${PREFIX}"
   done
@@ -1788,7 +1797,7 @@ function make_plaintext () {
   echo $(hostname) > ${PLAINPATH}/packered_hostname
   echo ${USER} > ${PLAINPATH}/packered_username
 
-  echo "Packing plainly to: ${PLAINPATH}"
+  info "Packing plainly to: ${PLAINPATH}"
 
   for ((i = 0; i < ${#PLAINTEXT_ARCHIVES[@]}; i++)); do
 
@@ -1889,9 +1898,9 @@ function packme () {
     # Call private fcn. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
     tweak_errexit
     command -v user_do_packme &> /dev/null
-    local EXIT_CODE=$?
+    local exit_code=$?
     reset_errexit
-    if [[ ${EXIT_CODE} -eq 0 ]]; then
+    if [[ ${exit_code} -eq 0 ]]; then
       user_do_packme
     fi
 
@@ -1981,7 +1990,7 @@ function unpack_plaintext_archives () {
 
     mkdir -p ${TARGETPATH}
     pushd ${TARGETPATH} &> /dev/null
-    echo "Unpacking plain to: ${TARGETPATH}"
+    info "Unpacking plain to: ${TARGETPATH}"
 
     # Unpack all plaintext archives.
     # And include dot-prefixed files.
@@ -2115,9 +2124,9 @@ function unpack () {
 
   tweak_errexit
   command -v user_do_unpack &> /dev/null
-  local EXIT_CODE=$?
+  local exit_code=$?
   reset_errexit
-  if [[ ${EXIT_CODE} -eq 0 ]]; then
+  if [[ ${exit_code} -eq 0 ]]; then
     user_do_unpack
   fi
 
@@ -2206,9 +2215,9 @@ function prepare_shim () {
 
   tweak_errexit
   command -v user_do_prepare_shim &> /dev/null
-  local EXIT_CODE=$?
+  local exit_code=$?
   reset_errexit
-  if [[ ${EXIT_CODE} -eq 0 ]]; then
+  if [[ ${exit_code} -eq 0 ]]; then
     user_do_prepare_shim
   fi
 

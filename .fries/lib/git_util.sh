@@ -29,44 +29,44 @@ source_deps() {
 
 # FIXME/2017-06-24: When translating for Go, make generic/work on any target dir.
 find_git_parent () {
-  FILE_PATH=$1
-  #echo "find_git_parent: FILE_PATH: ${1}"
-  if [[ -z ${FILE_PATH} ]]; then
+  local file_path="$1"
+  #echo "find_git_parent: file_path: ${1}"
+  if [[ -z "${file_path}" ]]; then
     # Assume curdir, I suppose.
-    FILE_PATH="."
+    file_path="."
   fi
   # Crap, if symlink, blows up, because prefix of git status doesn't match.
-  REL_PATH=$(dirname -- "${FILE_PATH}")
-  REL_PREFIX=""
-  #echo "find_git_parent: REL_PATH/2: ${REL_PATH}"
-  DOUBLE_DOWN=false
-  if [[ ${REL_PATH} == '.' ]]; then
-    DOUBLE_DOWN=true
-    #echo "find_git_parent: REL_PATH/2b: ${REL_PATH}"
+  local rel_path=$(dirname -- "${file_path}")
+  REL_PREFIX=''
+  #echo "find_git_parent: rel_path/2: ${rel_path}"
+  local double_down=false
+  if [[ ${rel_path} == '.' ]]; then
+    double_down=true
+    #echo "find_git_parent: rel_path/2b: ${rel_path}"
   fi
   REPO_PATH=""
-  while [[ ${REL_PATH} != '/' || ${REL_PATH} != '.' ]]; do
-    #echo "find_git_parent: REL_PATH/3: ${REL_PATH}"
-    if [[ -d "${REL_PATH}/.git" ]]; then
-      REPO_PATH=${REL_PATH}
+  while [[ ${rel_path} != '/' || ${rel_path} != '.' ]]; do
+    #echo "find_git_parent: rel_path/3: ${rel_path}"
+    if [[ -d "${rel_path}/.git" ]]; then
+      REPO_PATH=${rel_path}
       break
     else
       # Keep looping.
-      if ! ${DOUBLE_DOWN}; then
-        REL_PATH=$(dirname -- "${REL_PATH}")
+      if ! ${double_down}; then
+        rel_path=$(dirname -- "${rel_path}")
       else
-        ABS_PATH=$(readlink -f -- "${REL_PATH}")
-        if [[ ${ABS_PATH} == '/' ]]; then
-          #warn "WARNING: find_git_parent: No parent found for ${FILE_PATH}"
+        local abs_path=$(readlink -f -- "${rel_path}")
+        if [[ ${abs_path} == '/' ]]; then
+          #warn "WARNING: find_git_parent: No parent found for ${file_path}"
           break
         fi
-        REL_PATH=../${REL_PATH}
+        rel_path=../${rel_path}
         REL_PREFIX=../${REL_PREFIX}
       fi
     fi
   done
   #echo "find_git_parent: REPO_PATH: ${REPO_PATH}"
-  #echo "find_git_parent: REL_PATH: ${REL_PATH}"
+  #echo "find_git_parent: rel_path: ${rel_path}"
   #echo "find_git_parent: REL_PREFIX: ${REL_PREFIX}"
 }
 
@@ -76,21 +76,21 @@ find_git_parent () {
 git_check_generic_file () {
   # git_check_generic_file "file-path"
 
-  REPO_FILE=$1
+  local repo_file="$1"
   # Set REPO_PATH.
-  find_git_parent ${REPO_FILE}
+  find_git_parent ${repo_file}
   # Strip the git path from the absolute file path.
-  REPO_FILE=${REPO_FILE#${REPO_PATH}/}
+  repo_file=${repo_file#${REPO_PATH}/}
 
   pushd ${REPO_PATH} &> /dev/null
 
   tweak_errexit
 # FIXME/2018-03-22: Verify porcelain usage (vs. plumbing).
-  git status --porcelain ${REPO_FILE} | grep "^\W*M\W*${REPO_FILE}" &> /dev/null
-  grep_result=$?
+  git status --porcelain ${repo_file} | grep "^\W*M\W*${repo_file}" &> /dev/null
+  local grep_result=$?
   reset_errexit
 
-  if [[ $grep_result -eq 0 ]]; then
+  if [[ ${grep_result} -eq 0 ]]; then
     # It's dirty.
     :
   fi
@@ -107,48 +107,49 @@ git_commit_generic_file () {
 
   # MEH: DRY: First part of this fcn is: git_check_generic_file
 
-  REPO_FILE=$1
-  COMMITMSG=$2
-  if [[ -z ${COMMITMSG} ]]; then
-    echo "WRONG: git_commit_generic_file REPO_FILE COMMITMSG"
+  local repo_file="$1"
+  local commit_msg="$2"
+  if [[ -z ${commit_msg} ]]; then
+    echo "WRONG: git_commit_generic_file repo_file commit_msg"
     return 1
   fi
   # Set REPO_PATH.
-  find_git_parent ${REPO_FILE}
+  find_git_parent ${repo_file}
   # Strip the git path from the absolute file path.
-  REPO_FILE=${REPO_FILE#${REPO_PATH}/}
+  repo_file=${repo_file#${REPO_PATH}/}
 
   #echo "Repo base: ${REPO_PATH}"
-  #echo "Repo file: ${REPO_FILE}"
+  #echo "Repo file: ${repo_file}"
 
   pushd ${REPO_PATH} &> /dev/null
 
   tweak_errexit
 # FIXME/2018-03-22: Verify porcelain usage (vs. plumbing).
-  git status --porcelain ${REPO_FILE} | grep "^\W*M\W*${REPO_FILE}" &> /dev/null
-  grep_result=$?
+# FIXME/2018-03-23: Replace tweak_errexit/reset_errexit with && true.
+  git status --porcelain ${repo_file} | grep "^\W*M\W*${repo_file}" &> /dev/null
+  local grep_result=$?
   reset_errexit
 
-  if [[ $grep_result -eq 0 ]]; then
+  if [[ ${grep_result} -eq 0 ]]; then
     # It's dirty.
-    CUR_DIR=$(basename -- $(pwd -P))
+    local cur_dir=$(basename -- $(pwd -P))
     if ! ${AUTO_COMMIT_FILES}; then
       echo
-      echo -n "HEY, HEY: Your ${CUR_DIR}/${REPO_FILE} is dirty. Wanna check it in? [y/n] "
+      echo -n "HEY, HEY: Your ${cur_dir}/${repo_file} is dirty. Wanna check it in? [y/n] "
       read -e YES_OR_NO
     else
-      echo "Committing dirty file: ${CUR_DIR}/${REPO_FILE}"
+      echo "Committing dirty file: ${cur_dir}/${repo_file}"
       YES_OR_NO="Y"
     fi
     if [[ ${YES_OR_NO^^} == "Y" ]]; then
-      git add ${REPO_FILE}
+      git add ${repo_file}
       # FIXME/2017-04-13: Probably shouldn't redirect to netherspace here.
       #   U	source/landonb/Unfiled_Notes.rst
       #   error: Committing is not possible because you have unmerged files.
       #   hint: Fix them up in the work tree, and then use 'git add/rm <file>'
       #   hint: as appropriate to mark resolution and make a commit.
       #   fatal: Exiting because of an unresolved conflict.
-      git commit -m "${COMMITMSG}" &> /dev/null
+      git commit -m "${commit_msg}" &> /dev/null
       # FIXME: travel fails on uncommitted changes!
       #        (Last night I had a conflict that I took home, because `packme`
       #        didn't complain, so at home I resolved it, but I forgot to do
@@ -176,7 +177,7 @@ git_commit_all_dirty_files () {
   # 2016-10-18: I considered adding a `git add --all`, but that
   #             really isn't always desirable...
 
-  REPO_PATH=$1
+  REPO_PATH="$1"
 
   if [[ -e ${REPO_PATH} ]]; then
 
@@ -208,11 +209,10 @@ git_commit_all_dirty_files () {
     #git status --porcelain | grep "^\W*M\W*" &> /dev/null
 # FIXME/2018-03-22: Verify porcelain usage (vs. plumbing).
     git status --porcelain | grep "^[^\?]" &> /dev/null
-
-    grep_result=$?
+    local grep_result=$?
     reset_errexit
 
-    if [[ $grep_result -eq 0 ]]; then
+    if [[ ${grep_result} -eq 0 ]]; then
       # It's dirty.
       echo
       if ! ${AUTO_COMMIT_FILES}; then
@@ -231,9 +231,9 @@ git_commit_all_dirty_files () {
     fi
     popd &> /dev/null
   else
-    echo
+    warn
     warn "WARNING: Skipping ${REPO_PATH}: Not found"
-    echo
+    warn
   fi
 
 } # end: git_commit_all_dirty_files
@@ -250,7 +250,7 @@ git_commit_all_dirty_files () {
 # NOTE: This fcn. expects to be run from the root of the git repo.
 git_status_porcelain () {
   local working_dir="$1"
-  local SKIP_REMOTE_CHECK=$2
+  local skip_remote_check=$2
 
   # MAYBE: Don't be a stickler?
   #  local working_dir="${1-$(pwd)}"
@@ -282,7 +282,7 @@ git_status_porcelain () {
 
   # ***
 
-  DIRTY_REPO=false
+  local dirty_repo=false
 
 # FIXME/2018-03-23: Replace `git status --porcelain` with proper plumbing.
 
@@ -298,17 +298,19 @@ git_status_porcelain () {
   fi
   reset_errexit
   if ${unstaged_changes_found}; then
-    DIRTY_REPO=true
+    dirty_repo=true
     warn "WARNING: Unstaged changes found in $working_dir"
   fi
+
+  local grep_result
 
   # 'M ' is added but not committed!
   tweak_errexit
   eval git status --porcelain ${GREPPERS} | grep "^M  " &> /dev/null
   grep_result=$?
   reset_errexit
-  if [[ $grep_result -eq 0 ]]; then
-    DIRTY_REPO=true
+  if [[ ${grep_result} -eq 0 ]]; then
+    dirty_repo=true
     warn "WARNING: Uncommitted changes found in $working_dir"
   fi
 
@@ -317,36 +319,36 @@ git_status_porcelain () {
   eval git status --porcelain ${GREPPERS} | grep "^?? " &> /dev/null
   grep_result=$?
   reset_errexit
-  if [[ $grep_result -eq 0 ]]; then
-    DIRTY_REPO=true
+  if [[ ${grep_result} -eq 0 ]]; then
+    dirty_repo=true
     warn "WARNING: Untracked files found in $working_dir"
   fi
 
   tweak_errexit
-  if ! ${DIRTY_REPO}; then
+  if ! ${dirty_repo}; then
     if [[ -n ${GREPPERS} ]]; then
       eval git status --porcelain ${GREPPERS} &> /dev/null
       if [[ $? -eq 0 ]]; then
         warn "WARNING: git status --porcelain: non-zero exit"
-        DIRTY_REPO=true
+        dirty_repo=true
       fi
     else
-      n_bytes=$(git status --porcelain | wc -c)
+      local n_bytes=$(git status --porcelain | wc -c)
       if [[ ${n_bytes} -gt 0 ]]; then
         warn "WARNING: git status --porcelain: n_bytes > 0"
-        DIRTY_REPO=true
+        dirty_repo=true
       fi
     fi
   else
     eval git status --porcelain ${GREPPERS} | grep -v "^ M " &> /dev/null
     if [[ $? -eq 0 ]]; then
         warn "WARNING: git status --porcelain: grepped"
-      DIRTY_REPO=true
+      dirty_repo=true
     fi
   fi
   reset_errexit
 
-  if ${DIRTY_REPO}; then
+  if ${dirty_repo}; then
     echo "STOPPING: Dirty things found in $working_dir"
     echo "========================================="
     echo
@@ -399,14 +401,14 @@ git_status_porcelain () {
   grep_result=$?
   reset_errexit
 
-  if [[ $grep_result -ne 0 ]]; then
+  if [[ ${grep_result} -ne 0 ]]; then
     # Not a local origin.
 
     if [[ -n $(git remote -v) ]]; then
       # Not a remote-less repo.
 
-      #branch_name=$(git branch --no-color | head -n 1 | /bin/sed 's/^\*\? *//')
-      branch_name=$(git branch --no-color | grep \* | cut -d ' ' -f2)
+      #local branch_name=$(git branch --no-color | head -n 1 | /bin/sed 's/^\*\? *//')
+      local branch_name=$(git branch --no-color | grep \* | cut -d ' ' -f2)
       #echo "branch_name: ${branch_name}"
 
       # git status always compares against origin/master, or at least I
@@ -417,7 +419,7 @@ git_status_porcelain () {
         git status | grep "^Your branch is up-to-date with" &> /dev/null
         grep_result=$?
         reset_errexit
-        if [[ $grep_result -ne 0 ]]; then
+        if [[ ${grep_result} -ne 0 ]]; then
           warn "WARNING: Branch is behind origin/${branch_name} at $working_dir"
           echo "============================================================"
           echo
@@ -461,23 +463,23 @@ git_status_porcelain () {
       #   Local refs configured for 'git push':
       #     feature/CLIENT-86 pushes to feature/CLIENT-86 (up to date)
       #     master            pushes to master            (local out of date)
-      if ! ${SKIP_REMOTE_CHECK} && [[ -n ${SKIP_REMOTE_CHECK} ]]; then
+      if ! ${skip_remote_check} && [[ -n ${skip_remote_check} ]]; then
 
         tweak_errexit
         # If we didn't --no-color the branch_name, we'd have to strip-color.
         #  stripcolors='/bin/sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"'
-        GIT_PUSH_STALENESS=$(git remote show origin \
+        local git_push_staleness=$(git remote show origin \
           | grep "^\W*${branch_name}\W\+pushes to\W\+${branch_name}\W\+")
 
         grep_result=$?
         reset_errexit
-        if [[ $grep_result -ne 0 ]]; then
+        if [[ ${grep_result} -ne 0 ]]; then
 
           tweak_errexit
           git remote show origin 2>&1 | grep "^ssh: Could not resolve hostname "
           grep_result=$?
           reset_errexit
-          if [[ $grep_result -eq 0 ]]; then
+          if [[ ${grep_result} -eq 0 ]]; then
             echo "ERROR: It looks like you're offline."
             return 2
           fi
@@ -496,16 +498,16 @@ git_status_porcelain () {
         fi
 
         tweak_errexit
-        echo ${GIT_PUSH_STALENESS} | grep "(up to date)" &> /dev/null
+        echo ${git_push_staleness} | grep "(up to date)" &> /dev/null
         grep_result=$?
         reset_errexit
-        if [[ $grep_result -ne 0 ]]; then
+        if [[ ${grep_result} -ne 0 ]]; then
 
           tweak_errexit
-          echo ${GIT_PUSH_STALENESS} | grep "(local out of date)" &> /dev/null
+          echo ${git_push_staleness} | grep "(local out of date)" &> /dev/null
           grep_result=$?
           reset_errexit
-          if [[ $grep_result -eq 0 ]]; then
+          if [[ ${grep_result} -eq 0 ]]; then
             echo "WHATEVER: Branch is behind origin/${branch_name} at $working_dir"
             echo "          You can git pull if you want to."
             echo "          But this script don't care."
@@ -579,15 +581,15 @@ git_dir_check () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 must_be_git_dirs () {
-  SOURCE_REPO="$1"
-  TARGET_REPO="${2-$(pwd)}"
+  local source_repo="$1"
+  local target_repo="${2-$(pwd)}"
 
   local a_problem=0
 
-  git_dir_check "${SOURCE_REPO}"
+  git_dir_check "${source_repo}"
   [[ $? -ne 0 ]] && a_problem=1
 
-  git_dir_check "${TARGET_REPO}"
+  git_dir_check "${target_repo}"
   [[ $? -ne 0 ]] && a_problem=1
 
   return ${a_problem}
@@ -628,51 +630,79 @@ git_checkedout_remote_branch_name () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 git_set_remote_travel () {
-  SOURCE_REPO="$1"
-  TARGET_REPO="${2-$(pwd)}"
+  local source_repo="$1"
+  local target_repo="${2-$(pwd)}"
 
-  [[ -n ${TARGET_REPO} ]] && pushd "${TARGET_REPO}" &> /dev/null
+  [[ -n ${target_repo} ]] && pushd "${target_repo}" &> /dev/null
 
   # (lb): Minder to self: a $(subprocess) failure does not tickle +e errexit.
-  local travel_remote=$(git remote get-url ${TRAVEL_REMOTE} 2> /dev/null)
+  #
+  # (lb): Anecdotal reminders:
+  #
+  #   The use of `local` disables errexit for the subprocess,
+  #   but the return value is not captured, e.g.,
+  #
+  #     set -e
+  #     local remote_url=$(git remote get-url unknown_name 2> /dev/null)
+  #     local remote_exists=$?
+  #     echo ${remote_exists}
+  #     # OUTPUT: 0
+  #
+  #   Because the return value is that of the `local` command.
+  #
+  #   Whereas if you don't use local, e.g., the exit code is nonzero, and
+  #   since errexit is on, our script exits!
+  #
+  #     set -e
+  #     remote_url=$(git remote get-url unknown_name 2> /dev/null)
+  #     echo "Unreachable!"
+  #
+  #   The trick is to declare `local` first, then to set the variable,
+  #   and to also use `&& true` which will disable errexit for the subshell.
+  local remote_url
+  remote_url=$(git remote get-url ${TRAVEL_REMOTE} 2> /dev/null) && true
   local remote_exists=$?
 
-  debug "git_set_remote_travel: ${TARGET_REPO}"
+  #debug "  git_set_remote_travel:"
+  #debug "   target: ${target_repo}"
+  #debug "   remote: ${remote_url}"
+  #debug "   exists: ${remote_exists}"
 
   if [[ ${remote_exists} -ne 0 ]]; then
-    notice 'Wiring "travel" remote for first time!'
-    git remote add travel "${SOURCE_REPO}"
-  elif [[ "${travel_remote}" != "${SOURCE_REPO}" ]]; then
-    notice "Rewiring the \"travel\" remote / was: ${travel_remote}"
-    git remote set-url travel "${SOURCE_REPO}"
+    debug '  Wiring the "travel" remote for first time!'
+    git remote add travel "${source_repo}"
+  elif [[ "${remote_url}" != "${source_repo}" ]]; then
+    debug "  Rewiring the \"travel\" remote url / was: ${remote_url}"
+    git remote set-url travel "${source_repo}"
   else
-    notice 'The "travel" remote is already correct!'
+    debug '  The "travel" remote url is already correct!'
   fi
 
-  [[ -n ${TARGET_REPO} ]] && popd &> /dev/null
+  [[ -n ${target_repo} ]] && popd &> /dev/null
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 git_fetch_remote_travel () {
-  TARGET_REPO="${1-$(pwd)}"
+  local target_repo="${1-$(pwd)}"
 
-  [[ -n ${TARGET_REPO} ]] && pushd "${TARGET_REPO}" &> /dev/null
+  [[ -n ${target_repo} ]] && pushd "${target_repo}" &> /dev/null
 
   # Assuming git_set_remote_travel was called previously,
   # lest there is no travel remote.
-  git fetch ${TRAVEL_REMOTE} --prune
+  if ${SKIP_INTERNETS}; then
+    git fetch ${TRAVEL_REMOTE} --prune
+  else
+    local resp=$(git fetch --all --prune)
+    # Use `&& true` in case grep does not match anything,
+    # so as not to tickle errexit.
+    echo "$resp" \
+      | grep -v "^Fetching [a-zA-Z0-9]*$" \
+      | grep -v "^ \* branch " \
+      && true
+  fi
 
-  # FIXME/2018-03-22 20:41: Do I need to filter stdout?
-#  # Disable errexit because grep returns 1 if nothing matches.
-#  tweak_errexit
-#  #git fetch --all \
-#  git fetch travel --prune
-#      | grep -v "^Fetching [a-zA-Z0-9]*$" \
-#      | grep -v "^ \* branch "
-#  reset_errexit
-
-  [[ -n ${TARGET_REPO} ]] && popd &> /dev/null
+  [[ -n ${target_repo} ]] && popd &> /dev/null
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -684,67 +714,68 @@ git_is_rebase_in_progress () {
   #   (test -d ".git/rebase-merge" || test -d ".git/rebase-apply") || die "No!"
   # Or we could be super naive, and porcelain, and git-n-grep:
   #   git -c color.ui=off status | grep "^rebase in progress" > /dev/null
-  # Or we could use our plumbing knowledge and do it most rightly:
-  local _nothingness=$(\
-    test -d "$(git rev-parse --git-path rebase-merge)" || \
-    test -d "$(git rev-parse --git-path rebase-apply)" \
-  )
-  local rebase_in_progress=$?
+  # Or we could use our plumbing knowledge and do it most rightly.
+  #   (Note we use `&& test` so command does not tickle errexit.
+  test -d "$(git rev-parse --git-path rebase-merge)" || \
+    test -d "$(git rev-parse --git-path rebase-apply)" && \
+    true
+  # Non-zero (1) if not rebasing, (0) otherwise.
+  local is_rebasing=$?
 
   [[ -n "$1" ]] && popd &> /dev/null
 
-  return ${rebase_in_progress}
+  return ${is_rebasing}
 }
 
 git_must_not_rebasing () {
-  SOURCE_BRANCH="$1"
-  TARGET_REPO="${2-$(pwd)}"
-  git_is_rebase_in_progress "${TARGET_REPO}"
-echo BAR
-  if [[ $? -eq 0 ]]; then
-    git_issue_complain_rebasing "${SOURCE_BRANCH}" "${TARGET_REPO}"
-echo BAR1
+  local source_branch="$1"
+  local target_repo="${2-$(pwd)}"
+  git_is_rebase_in_progress "${target_repo}"
+  local in_rebase=$?
+  if [[ ${in_rebase} -eq 0 ]]; then
+    git_issue_complain_rebasing "${source_branch}" "${target_repo}"
     return 1
   fi
-echo BAR0
   return 0
 }
 
 git_issue_complain_rebasing () {
-  SOURCE_BRANCH="$1"
-  TARGET_REPO="${2-$(pwd)}"
+  local source_branch="$1"
+  local target_repo="${2-$(pwd)}"
   FRIES_GIT_ISSUES_RESOLUTIONS+=("==============================================")
   FRIES_GIT_ISSUES_RESOLUTIONS+=("✗ ✗ ✗ ERROR DETECTOROMETER! ★ ☆ ☆ ☆ ☆ 1 STAR!!")
   FRIES_GIT_ISSUES_RESOLUTIONS+=("Whoa! Under __rebase__, try again, foo!")
-  FRIES_GIT_ISSUES_RESOLUTIONS+=("  SKIPPING: ${TARGET_REPO}")
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("  SKIPPING: ${target_repo}")
   FRIES_GIT_ISSUES_RESOLUTIONS+=("  If you want what's being travelled, abort-n-force!")
   FRIES_GIT_ISSUES_RESOLUTIONS+=("    ./travel mount")
-  FRIES_GIT_ISSUES_RESOLUTIONS+=("    cdd ${TARGET_REPO}")
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("    cdd ${target_repo}")
   FRIES_GIT_ISSUES_RESOLUTIONS+=("    git status # sanity check")
   FRIES_GIT_ISSUES_RESOLUTIONS+=("    git rebase --abort")
   FRIES_GIT_ISSUES_RESOLUTIONS+=("    git fetch ${TRAVEL_REMOTE} --prune")
-  FRIES_GIT_ISSUES_RESOLUTIONS+=("    git reset --hard ${TRAVEL_REMOTE}/${SOURCE_BRANCH}")
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("    git reset --hard ${TRAVEL_REMOTE}/${source_branch}")
   FRIES_GIT_ISSUES_RESOLUTIONS+=("==============================================")
+  warn "Skipping branch in rebase!"
+  warn " ${target_repo}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 git_change_branches_if_necessary () {
-  SOURCE_BRANCH="$1"
-  TARGET_BRANCH="$2"
-  TARGET_REPO="${3-$(pwd)}"
+  local source_branch="$1"
+  local target_branch="$2"
+  local target_repo="${3-$(pwd)}"
 
-  [[ -n "${TARGET_REPO}" ]] && pushd "${TARGET_REPO}" &> /dev/null
+  [[ -n "${target_repo}" ]] && pushd "${target_repo}" &> /dev/null
 
-  if [[ "${SOURCE_BRANCH}" != "${TARGET_BRANCH}" ]]; then
+  if [[ "${source_branch}" != "${target_branch}" ]]; then
     echo "############################################################################"
     echo "🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀"
     echo "############################################################################"
-    echo "NOTE: \${SOURCE_BRANCH} != \${TARGET_BRANCH}"
+    echo "NOTE: \${source_branch} != \${target_branch}"
     echo
     echo "  ... changing branches..."
     echo
-    git checkout ${SOURCE_BRANCH}
+    git checkout ${source_branch}
     echo
     echo "Changed!"
     echo "############################################################################"
@@ -752,19 +783,19 @@ git_change_branches_if_necessary () {
     echo "############################################################################"
 # FIXME/2018-03-22: Adding to this array may prevent travel from continuing? I.e., the -D workaround?
 #   Or are these msgs printed after everything and do not prevent finishing?
-    FRIES_GIT_ISSUES_RESOLUTIONS+=("JUST FYI: Changed branches: ${SOURCE_BRANCH} / ${TARGET_REPO}")
+    FRIES_GIT_ISSUES_RESOLUTIONS+=("JUST FYI: Changed branches: ${source_branch} / ${target_repo}")
   fi
 
-  [[ -n "${TARGET_REPO}" ]] && popd &> /dev/null
+  [[ -n "${target_repo}" ]] && popd &> /dev/null
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 git_merge_ff_only () {
-  SOURCE_BRANCH="$1"
-  TARGET_REPO="${2-$(pwd)}"
+  local source_branch="$1"
+  local target_repo="${2-$(pwd)}"
 
-  [[ -n "${TARGET_REPO}" ]] && pushd "${TARGET_REPO}" &> /dev/null
+  [[ -n "${target_repo}" ]] && pushd "${target_repo}" &> /dev/null
 
   # A non fast-forward merge will at least create a new commit at HEAD,
   #   even if the branch being merged is strictly ahead of the current
@@ -784,54 +815,64 @@ git_merge_ff_only () {
   #   https://ariya.io/2013/09/fast-forward-git-merge
 
   tweak_errexit
-  git merge --ff-only ${TRAVEL_REMOTE}/${SOURCE_BRANCH}
-  merge_success=$?
+  git merge --ff-only ${TRAVEL_REMOTE}/${source_branch}
+  local merge_success=$?
   reset_errexit
-#  git pull --rebase --autostash ${SOURCE_REPO} 2>&1 \
+#  git pull --rebase --autostash ${source_repo} 2>&1 \
 #        | grep -v "^ \* branch            HEAD       -> FETCH_HEAD$" \
 #        | grep -v "^Already up-to-date.$" \
 #        | grep -v "^Current branch [a-zA-Z0-9]* is up to date.$" \
-#        | grep -v "^From .*${TARGET_REPO}$"
+#        | grep -v "^From .*${target_repo}$"
 #  PULLOUT=$(
 #    {
-#      git pull --rebase --autostash ${SOURCE_REPO} 2>&1
+#      git pull --rebase --autostash ${source_repo} 2>&1
 #    } 2>&1
 #  )
 
   # (lb): Not quite sure why git_must_not_rebasing would not have failed first.
   #   Does this happen?
   if [[ ${merge_success} -ne 0 ]]; then
-    git_issue_complain_rebasing "${SOURCE_BRANCH}" "${TARGET_REPO}"
+    git_issue_complain_rebasing "${source_branch}" "${target_repo}"
   fi
 
-  [[ -n "${TARGET_REPO}" ]] && popd &> /dev/null
+  [[ -n "${target_repo}" ]] && popd &> /dev/null
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 git_pull_hush () {
-  SOURCE_REPO="$1"
-  TARGET_REPO="${2-$(pwd)}"
+  local source_repo="$1"
+  local target_repo="${2-$(pwd)}"
 
-  must_be_git_dirs "${SOURCE_REPO}" "${TARGET_REPO}"
+  must_be_git_dirs "${source_repo}" "${target_repo}"
   [[ $? -ne 0 ]] && return
 
-  local SOURCE_BRANCH=$(git_checkedout_branch_name "${SOURCE_REPO}")
-  # The TARGET_BRANCH is obviously changing, if we can do so nondestructively.
-  local TARGET_BRANCH=$(git_checkedout_branch_name "${TARGET_REPO}")
+  local source_branch=$(git_checkedout_branch_name "${source_repo}")
+  # The target_branch is obviously changing, if we can do so nondestructively.
+  local target_branch=$(git_checkedout_branch_name "${target_repo}")
 
-  pushd "${TARGET_REPO}" &> /dev/null
+  pushd "${target_repo}" &> /dev/null
 
   # 2018-03-22: Set a remote to the sync device. There's always only 1,
   # apparently. I think this'll work well.
-  git_set_remote_travel "${SOURCE_REPO}"
+  git_set_remote_travel "${source_repo}"
 
   git_fetch_remote_travel
 
 echo BAH
-  git_must_not_rebasing "${SOURCE_BRANCH}" "${TARGET_REPO}"
-  [[ $? -ne 0 ]] && return
+  git_must_not_rebasing "${source_branch}" "${target_repo}" && true
+  local okay=$?
+echo FOO
+  [[ ${okay} -ne 0 ]] && echo FAIL || echo OKAY
+  if [[ ${okay} -ne 0 ]]; then
+    popd &> /dev/null
+    return
+  fi
 echo BAH
+
+return
+
+exit
 
   # There is a conundrum/enigma/riddle/puzzle/brain-teaser/problem/puzzlement
   # when it comes to what to do about clarifying branches -- should we check
@@ -840,10 +881,10 @@ echo BAH
   # It also feels really, really tedious.
   # FIXME/2018-03-22 22:07: Consider checking all branches for rebase needs!
 
-  git_change_branches_if_necessary "${SOURCE_BRANCH}" "${TARGET_BRANCH}" "${TARGET_REPO}"
+  git_change_branches_if_necessary "${source_branch}" "${target_branch}" "${target_repo}"
 
   # Fast-forward merge (no new commits!) or complain (later).
-  git_merge_ff_only "${SOURCE_BRANCH}" "${TARGET_REPO}"
+  git_merge_ff_only "${source_branch}" "${target_repo}"
 
   popd &> /dev/null
 } # end: git_pull_hush
@@ -857,8 +898,8 @@ echo BAH
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 check_git_clone_or_pull_error () {
-  ret_code=$1
-  git_resp=$2
+  local ret_code=$1
+  local git_resp="$2"
   if [[ ${ret_code} -ne 0 ]]; then
     local failed=true
     if ${NO_NETWORK_OKAY}; then
@@ -869,10 +910,10 @@ check_git_clone_or_pull_error () {
       #   Cloning into '/exo/clients/openshift/origin'... ssh: Could not resolve hostname github.com:
       #     Temporary fa fatal: Could not read from remote repository. Please make sure you have the
       #     correct access rights and the repository exists.
-      #echo $git_resp | grep "ssh: Could not resolve hostname" > /dev/null && failed=false
-      echo $git_resp | grep "Could not resolve host" > /dev/null && failed=false
+      #echo ${git_resp} | grep "ssh: Could not resolve hostname" > /dev/null && failed=false
+      echo ${git_resp} | grep "Could not resolve host" > /dev/null && failed=false
     fi
-    if $failed; then
+    if ${failed}; then
       echo ${git_resp}
       echo
       echo "FATAL: git operation failed."
@@ -910,11 +951,11 @@ git-flip-master () {
     pushd ${REL_PREFIX} &> /dev/null
   fi
 
-  project_name=$(basename -- $(pwd -P))
+  local project_name=$(basename -- $(pwd -P))
 
-  branch_name=$(git branch --no-color | head -n 1 | /bin/sed 's/^\*\? *//')
+  local branch_name=$(git branch --no-color | head -n 1 | /bin/sed 's/^\*\? *//')
 
-  master_path="master+${project_name}"
+  local master_path="master+${project_name}"
 
   echo "Merging \"${branch_name}\" into ${master_path} and pushing to origin."
 
@@ -974,19 +1015,19 @@ git-jockey () {
   #echo "REPO_PATH: $REPO_PATH"
   if [[ -n $REPO_PATH ]]; then
     # Just the basics, I suppose.
-    TOPLEVEL_COMMON_FILE=()
-    TOPLEVEL_COMMON_FILE+=(".ignore")
-    TOPLEVEL_COMMON_FILE+=(".agignore")
-    TOPLEVEL_COMMON_FILE+=(".gitignore")
-    TOPLEVEL_COMMON_FILE+=("README.rst")
+    local toplevel_common_file=()
+    toplevel_common_file+=(".ignore")
+    toplevel_common_file+=(".agignore")
+    toplevel_common_file+=(".gitignore")
+    toplevel_common_file+=("README.rst")
     #echo "Checking single dirty files..."
-    for ((i = 0; i < ${#TOPLEVEL_COMMON_FILE[@]}; i++)); do
-      DIRTY_BNAME=$(basename -- "${TOPLEVEL_COMMON_FILE[$i]}")
+    for ((i = 0; i < ${#toplevel_common_file[@]}; i++)); do
+      DIRTY_BNAME=$(basename -- "${toplevel_common_file[$i]}")
       if [[ -f $REPO_PATH/${DIRTY_BNAME} ]]; then
         echo "Checking ${DIRTY_BNAME}"
         AUTO_COMMIT_FILES=true \
           git_commit_generic_file \
-            "${TOPLEVEL_COMMON_FILE[$i]}" \
+            "${toplevel_common_file[$i]}" \
             "Update ${DIRTY_BNAME}."
       else
         echo "Skipping ${DIRTY_BNAME}"
@@ -1018,14 +1059,14 @@ git-jockey () {
 git_status_all () {
   local subdir
   for subdir in $(find . -name ".git" -type d); do
-    gitst=$(git --git-dir=$subdir --work-tree=$subdir/.. status --short)
-    if [[ -n $gitst ]]; then
+    local gitst=$(git --git-dir=$subdir --work-tree=$subdir/.. status --short)
+    if [[ -n ${gitst} ]]; then
       echo
       echo "====================================================="
       echo "Dirty project: $subdir"
       echo
       # We could just echo, but the we've lost any coloring.
-      # Ok: echo $gitst
+      # Ok: echo ${gitst}
       # Better: run git again.
       #git --git-dir=$subdir --work-tree=$subdir/.. status
       git --git-dir=$subdir --work-tree=$subdir/.. status --short
@@ -1046,8 +1087,8 @@ function cis_git() {
   # counterpart, "checkout". I just don't want to `git co -- oops` without
   # an undo, like home 🍟
   local gitted=false
-  if [[ $1 == "co" ]]; then
-    if [[ $2 == "--" ]]; then
+  if [[ "$1" == "co" ]]; then
+    if [[ "$2" == "--" ]]; then
       echo -n "Are you sure this is absolutely what you want? [Y/n] "
       read -e YES_OR_NO
       if [[ ${YES_OR_NO^^} =~ ^Y.* || -z ${YES_OR_NO} ]]; then
@@ -1059,7 +1100,7 @@ function cis_git() {
       fi
     fi
   fi
-  if ! $gitted; then
+  if ! ${gitted}; then
     # FIXME/2017-06-06: So that Home-fries is universal,
     #                    need to get git's locale another way.
 
@@ -1098,15 +1139,19 @@ git_infuse_gitignore_local() {
 }
 
 git_infuse_assume_unchanging() {
-  [[ -z "$1" ]] && (echo "${FUNCNAME[0]}: missing param" && exit 1) || local opath="$1"
+  local fpath
+  local fname
+  local opath
+  local do_sym
+  [[ -z "$1" ]] && (echo "${FUNCNAME[0]}: missing param" && exit 1) || opath="$1"
   if [[ -z "$2" ]]; then
-    local fpath='.'
-    local fname=$(basename -- "${opath}")
+    fpath='.'
+    fname=$(basename -- "${opath}")
   else
-    local fpath="$2"
-    local fname=$(basename -- "${fpath}")
+    fpath="$2"
+    fname=$(basename -- "${fpath}")
   fi
-  [[ "$3" == "1" ]] && local do_sym=false || local do_sym=true
+  [[ "$3" == "1" ]] && do_sym=false || do_sym=true
 
   pushd $(dirname -- "${fpath}") &> /dev/null
 
@@ -1132,7 +1177,7 @@ git_infuse_assume_unchanging() {
   /bin/rm "${fname}"
   /usr/bin/git checkout -- "${fname}"
   /bin/cp "${fname}" "${fname}-COMMIT"
-  if $do_sym; then
+  if ${do_sym}; then
     /bin/ln -sf "${opath}" "${fname}"
   else
     /bin/cp -a "${opath}" "${fname}"
@@ -1142,7 +1187,8 @@ git_infuse_assume_unchanging() {
 }
 
 git_unfuse_symlink() {
-  [[ -z "$1" ]] && (echo "${FUNCNAME[0]}: missing param" && exit 1) || local fpath="$1"
+  local fpath
+  [[ -z "$1" ]] && (echo "${FUNCNAME[0]}: missing param" && exit 1) || fpath="$1"
   local fname=$(basename -- "${fpath}")
   pushd $(dirname -- "${fpath}") &> /dev/null
   if [[ -h "${fname}" ]]; then
@@ -1155,7 +1201,8 @@ git_unfuse_symlink() {
 }
 
 git_unfuse_hardcopy() {
-  [[ -z "$1" ]] && (echo "${FUNCNAME[0]}: missing param" && exit 1) || local fpath="$1"
+  local fpath
+  [[ -z "$1" ]] && (echo "${FUNCNAME[0]}: missing param" && exit 1) || fpath="$1"
   local fname=$(basename -- "${fpath}")
   pushd $(dirname -- "${fpath}") &> /dev/null
   if [[ -f "${fname}" ]]; then
@@ -1173,10 +1220,11 @@ git_unfuse_hardcopy() {
 # Recursively find all git repos in a directory and print their path and remote URLs.
 git-remote-v-all() {
   [[ ! -d "$1" ]] && >&2 echo "Please specify a directory!" && return 1
+  local git_path
   local once=false
   for git_path in $(find "$1" -type d -iname ".git"); do
     ${once} && echo
-    repo_path=$(dirname ${git_path})
+    local repo_path=$(dirname ${git_path})
     echo ${repo_path}
     pushd ${repo_path} &> /dev/null
     git remote -v
