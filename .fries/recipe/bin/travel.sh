@@ -101,7 +101,7 @@ else
   echo "WARNING: Missing logger.sh"
 fi
 #LOG_LEVEL=${LOG_LEVEL_ERROR}
-LOG_LEVEL=${LOG_LEVEL_DEBUG}
+LOG_LEVEL=${LOG_LEVEL:-${LOG_LEVEL_DEBUG}}
 
 # Load: setup_users_curly_path
 if [[ -e ${HOME}/.fries/lib/curly_util.sh ]]; then

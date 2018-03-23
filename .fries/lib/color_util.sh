@@ -43,6 +43,43 @@ create_colors() {
   export BG_LIGHTRED="\033[48;5;203m"
   export BG_JADE="\033[48;5;35m"
   export BG_LIME="\033[48;5;154m"
+
+  # 2018-03-23: Aha!
+  #   https://misc.flogisoft.com/bash/tip_colors_and_formatting
+
+  export FG_BLACK="\033[30m"
+  export FG_RED="\033[31m"
+  export FG_GREEN="\033[32m"
+  export FG_YELLOW="\033[33m"
+  export FG_BLUE="\033[34m"
+  export FG_MAGENTA="\033[35m"
+  export FG_CYAN="\033[36m"
+  export FG_LIGHTGRAY="\033[37m"
+  export FG_DARKGRAY="\033[90m"
+  export FG_LIGHTRED="\033[91m"
+  export FG_LIGHTGREEN="\033[92m"
+  export FG_LIGHTYELLOW="\033[93m"
+  export FG_LIGHTBLUE="\033[94m"
+  export FG_LIGHTMAGENTA="\033[95m"
+  export FG_LIGHTCYAN="\033[96m"
+  export FG_WHITE="\033[97m"
+
+  export BG_BLACK="\033[40m"
+  export BG_RED="\033[41m"
+  export BG_GREEN="\033[42m"
+  export BG_YELLOW="\033[43m"
+  export BG_BLUE="\033[44m"
+  export BG_MAGENTA="\033[45m"
+  export BG_CYAN="\033[46m"
+  export BG_LIGHTGRAY="\033[47m"
+  export BG_DARKGRAY="\033[100m"
+  export BG_LIGHTRED="\033[101m"
+  export BG_LIGHTGREEN="\033[102m"
+  export BG_LIGHTYELLOW="\033[103m"
+  export BG_LIGHTBLUE="\033[104m"
+  export BG_LIGHTMAGENTA="\033[105m"
+  export BG_LIGHTCYAN="\033[106m"
+  export BG_WHITE="\033[107m"
 }
 
 create_ornaments() {
@@ -56,6 +93,17 @@ create_ornaments() {
   export FONT_NORMAL="\033[0m"
   export FONT_BOLD="\033[1m"
   export FONT_UNDERLINE="\033[4m"
+  # Gnome/Mate do not support blink, <sigh>.
+  export FONT_BLINK="\033[5m"
+  export FONT_INVERT="\033[7m"
+  export FONT_HIDDEN="\033[8m"
+
+  export RESET_BOLD="\033[21m"
+  export RESET_DIM="\033[22m"
+  export RESET_UNDERLINED="\033[24m"
+  export RESET_BLINK="\033[25m"
+  export RESET_REVERSE="\033[27m"
+  export RESET_HIDDEN="\033[28m"
   # Aliases.
   #  Ug. I can't decide what I like best.
   #  Trying 4-letter "whats" and also MK_ "For Markup" prefix.
@@ -88,6 +136,7 @@ create_base_color_names() {
   TERM_COLOR_NAMES+=('FG_LIGHTRED')
   TERM_COLOR_NAMES+=('FG_JADE')
   TERM_COLOR_NAMES+=('FG_LIME')
+
   TERM_COLOR_NAMES+=('BG_PINK')
   TERM_COLOR_NAMES+=('BG_ORANGE')
   TERM_COLOR_NAMES+=('BG_SKYBLUE')
@@ -102,6 +151,40 @@ create_base_color_names() {
   TERM_COLOR_NAMES+=('BG_LIGHTRED')
   TERM_COLOR_NAMES+=('BG_JADE')
   TERM_COLOR_NAMES+=('BG_LIME')
+
+  TERM_COLOR_NAMES+=('FG_BLACK')
+  TERM_COLOR_NAMES+=('FG_RED')
+  TERM_COLOR_NAMES+=('FG_GREEN')
+  TERM_COLOR_NAMES+=('FG_YELLOW')
+  TERM_COLOR_NAMES+=('FG_BLUE')
+  TERM_COLOR_NAMES+=('FG_MAGENTA')
+  TERM_COLOR_NAMES+=('FG_CYAN')
+  TERM_COLOR_NAMES+=('FG_LIGHTGRAY')
+  TERM_COLOR_NAMES+=('FG_DARKGRAY')
+  TERM_COLOR_NAMES+=('FG_LIGHTRED')
+  TERM_COLOR_NAMES+=('FG_LIGHTGREEN')
+  TERM_COLOR_NAMES+=('FG_LIGHTYELLOW')
+  TERM_COLOR_NAMES+=('FG_LIGHTBLUE')
+  TERM_COLOR_NAMES+=('FG_LIGHTMAGENTA')
+  TERM_COLOR_NAMES+=('FG_LIGHTCYAN')
+  TERM_COLOR_NAMES+=('FG_WHITE')
+
+  TERM_COLOR_NAMES+=('BG_BLACK')
+  TERM_COLOR_NAMES+=('BG_RED')
+  TERM_COLOR_NAMES+=('BG_GREEN')
+  TERM_COLOR_NAMES+=('BG_YELLOW')
+  TERM_COLOR_NAMES+=('BG_BLUE')
+  TERM_COLOR_NAMES+=('BG_MAGENTA')
+  TERM_COLOR_NAMES+=('BG_CYAN')
+  TERM_COLOR_NAMES+=('BG_LIGHTGRAY')
+  TERM_COLOR_NAMES+=('BG_DARKGRAY')
+  TERM_COLOR_NAMES+=('BG_LIGHTRED')
+  TERM_COLOR_NAMES+=('BG_LIGHTGREEN')
+  TERM_COLOR_NAMES+=('BG_LIGHTYELLOW')
+  TERM_COLOR_NAMES+=('BG_LIGHTBLUE')
+  TERM_COLOR_NAMES+=('BG_LIGHTMAGENTA')
+  TERM_COLOR_NAMES+=('BG_LIGHTCYAN')
+  TERM_COLOR_NAMES+=('BG_WHITE')
 }
 
 test_colors () {

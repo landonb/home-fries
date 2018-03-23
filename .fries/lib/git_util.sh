@@ -189,11 +189,8 @@ git_commit_all_dirty_files () {
     return 1
   fi
 
-
-
   info "Checking for git dirtiness at: ${FG_LAVENDER}${REPO_PATH}"
 
-#    pushd ${REPO_PATH} &> /dev/null
   pushd_or_die "${REPO_PATH}"
 
   tweak_errexit
@@ -226,24 +223,27 @@ git_commit_all_dirty_files () {
 
   if [[ ${grep_result} -eq 0 ]]; then
     # It's dirty.
-    echo
     if ! ${AUTO_COMMIT_FILES}; then
+      echo
       echo -n "HEY, HEY: Your ${REPO_PATH} is dirty. Wanna check it all in? [y/n] "
       read -e YES_OR_NO
+      echo
     else
-      notice "HEY, HEY:" \
-        "Your ${FONT_UNDERLINE}${FG_LAVENDER}${REPO_PATH}${FONT_NORMAL} is dirty." \
-        "Let's check that in for ya."
+#      notice "HEY, HEY:" \
+#        "Your ${FONT_UNDERLINE}${FG_LAVENDER}${REPO_PATH}${FONT_NORMAL} is dirty." \
+#        "Let's check that in for ya."
+#  #[[ -n ${changes} ]] && notice " ${BG_DARKGRAY}${changes}"
+#        "Auto-commit dirty file(s): ${FONT_UNDERLINE}${FG_LAVENDER}${REPO_PATH}${FONT_NORMAL}"
+      notice \
+        "Auto-commit dirty file(s): ${FONT_UNDERLINE}${BG_DARKGRAY}${REPO_PATH}${FONT_NORMAL}"
       YES_OR_NO="Y"
     fi
     if [[ ${YES_OR_NO^^} == "Y" ]]; then
       git add -u
       git commit -m "Auto-commit by Curly." &> /dev/null
-      echo 'Committed!'
+      verbose 'Committed!'
     fi
-    echo
   fi
-#    popd &> /dev/null
   popd_perhaps "${REPO_PATH}"
 } # end: git_commit_all_dirty_files
 
@@ -736,7 +736,6 @@ git_set_remote_travel () {
 git_fetch_remote_travel () {
   local target_repo="${1-$(pwd)}"
 
-#  [[ -n ${target_repo} ]] && pushd "${target_repo}" &> /dev/null
   pushd_or_die "${target_repo}"
 
   # Assuming git_set_remote_travel was called previously,
@@ -744,16 +743,24 @@ git_fetch_remote_travel () {
   if ${SKIP_INTERNETS}; then
     git fetch ${TRAVEL_REMOTE} --prune
   else
-    local resp=$(git fetch --all --prune)
+#    local git_says=$(git fetch --all --prune 2>&1 > /dev/null)
+    local git_says=$(git fetch --all --prune 2>&1) && true
+    local fetch_success=$?
+    verbose "git fetch says:\n${git_says}"
     # Use `&& true` in case grep does not match anything,
     # so as not to tickle errexit.
-    echo "$resp" \
-      | grep -v "^Fetching [a-zA-Z0-9]*$" \
-      | grep -v "^ \* branch " \
-      && true
+     local culled="$(echo "${git_says}" \
+      | grep -v "^Fetching " \
+      | grep -v "^From " \
+      | grep -v " \+[a-f0-9]\{7\}\.\.[a-f0-9]\{7\}.*->.*" \
+    )"
+    [[ -n ${culled} ]] && notice "git fetch wha?\n${culled}"
+
+    if [[ ${fetch_success} -ne 0 ]]; then
+      error "Unexpected fetch failure! ${git_says}"
+    fi
   fi
 
-#  [[ -n ${target_repo} ]] && popd &> /dev/null
   popd_perhaps "${target_repo}"
 }
 
@@ -852,7 +859,6 @@ git_change_branches_if_necessary () {
   local target_branch="$2"
   local target_repo="${3-$(pwd)}"
 
-#  [[ -n "${target_repo}" ]] && pushd "${target_repo}" &> /dev/null
   pushd_or_die "${target_repo}"
 
   if [[ "${source_branch}" != "${target_branch}" ]]; then
@@ -892,40 +898,33 @@ git_merge_ff_only () {
   local source_branch="$1"
   local target_repo="${2-$(pwd)}"
 
-#  [[ -n "${target_repo}" ]] && pushd "${target_repo}" &> /dev/null
   pushd_or_die "${target_repo}"
 
-  # A non fast-forward merge will at least create a new commit at HEAD,
-  #   even if the branch being merged is strictly ahead of the current
-  #   branch. (And in the case that the branch being merged has commits
-  #   that the current branch does not have, a rebase might be initiated.)
-  # So only fast-forward; if not, user has to resolve.
-  #   Probably a rebase issue.
-  #     Like, I totally endorse rebasing,
-  #       I use it all the time to make sane PRs,
-  #       but then it's up to you to know the source
-  #       of truth.
-  #       Unless, MAYBE:
-  #         --option to indicate that repo with youngest HEAD (latest commit)
-  #         is source of truth, and to automatically run
-  #           `git reset --hard travel/<branch>` ?
-  # For a nice fast-forward vs. --no-ff article, checkout:
+  # For a nice fast-forward vs. --no-ff article, see:
   #   https://ariya.io/2013/09/fast-forward-git-merge
 
-  tweak_errexit
-  git merge --ff-only ${TRAVEL_REMOTE}/${source_branch}
+  local git_says=$(git merge --ff-only ${TRAVEL_REMOTE}/${source_branch} 2>&1) && true
   local merge_success=$?
-  reset_errexit
-#  git pull --rebase --autostash ${source_repo} 2>&1 \
-#        | grep -v "^ \* branch            HEAD       -> FETCH_HEAD$" \
-#        | grep -v "^Already up-to-date.$" \
-#        | grep -v "^Current branch [a-zA-Z0-9]* is up to date.$" \
-#        | grep -v "^From .*${target_repo}$"
-#  PULLOUT=$(
-#    {
-#      git pull --rebase --autostash ${source_repo} 2>&1
-#    } 2>&1
-#  )
+
+  verbose "git merge says:\n${git_says}"
+  local culled="$(echo "${git_says}" \
+    | grep -v "^Already up to date.$" \
+    | grep -v "^Updating [a-f0-9]\{7\}\.\.[a-f0-9]\{7\}$" \
+    | grep -v "^Fast-forward$" \
+    | grep -P -v " \| \d+ \+?-?" \
+    | grep -P -v "^ \d+ file changed, \d+ insertion\(\+\), \d+ deletion\(-\)$" \
+    | grep -P -v "^ \d+ file changed, \d+ insertion\(\+\)$" \
+    | grep -P -v "^ \d+ file changed, \d+ deletion\(-\)$" \
+    | grep -P -v "^ \d+ insertion\(\+\), \d+ deletion\(-\)$" \
+    | grep -P -v "^ \d+ file changed$" \
+    | grep -P -v "^ \d+ insertion\(\+\)$" \
+    | grep -P -v "^ \d+ deletion\(-\)$" \
+  )"
+  [[ -n ${culled} ]] && notice "git merge wha?\n${culled}"
+  local changes="$(echo "${git_says}" | grep -P " \| \d+ \+?-?")"
+  # 2018-03-23: Would you like something more muted, or vibrant? Trying vibrant.
+  #[[ -n ${changes} ]] && notice " ${BG_DARKGRAY}${changes}"
+  [[ -n ${changes} ]] && notice " ${BG_BLUE}${changes}"
 
   # (lb): Not quite sure why git_must_not_rebasing would not have failed first.
   #   Does this happen?
@@ -979,7 +978,6 @@ git_pull_hush () {
     popd_perhaps "${target_repo}"
     return
   fi
-#echo BAH
 
 ##popd &> /dev/null
 #popd_perhaps "${target_repo}"
