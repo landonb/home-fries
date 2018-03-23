@@ -1778,9 +1778,7 @@ function pull_git_repos () {
   for ((i = 0; i < ${#ENCFS_VIM_ITERS[@]}; i++)); do
     pull_gardened_repo "${ENCFS_VIM_ITERS[$i]}" "${PREFIX}"
   done
-echo DONE?
   popd &> /dev/null
-echo DONE!
 } # end: pull_git_repos
 
 # *** Plaintext: archive
@@ -1808,7 +1806,7 @@ function make_plaintext () {
   echo $(hostname) > ${PLAINPATH}/packered_hostname
   echo ${USER} > ${PLAINPATH}/packered_username
 
-  info "Packing plainly to: ${PLAINPATH}"
+  info "Packing plainly to: ${FG_LAVENDER}${PLAINPATH}"
 
   for ((i = 0; i < ${#PLAINTEXT_ARCHIVES[@]}; i++)); do
 
@@ -1901,12 +1899,11 @@ function packme () {
 
     mount_curly_emissary_gooey
 
-echo HEREERE
     pull_git_repos 'emissary'
-echo YES
+
     # Sets: ${PLAIN_TBD}
     make_plaintext
-echo NOO
+
     # Call private fcn. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
     tweak_errexit
     command -v user_do_packme &> /dev/null

@@ -82,7 +82,8 @@ git_check_generic_file () {
   # Strip the git path from the absolute file path.
   repo_file=${repo_file#${REPO_PATH}/}
 
-  pushd ${REPO_PATH} &> /dev/null
+#  pushd ${REPO_PATH} &> /dev/null
+  pushd_or_die "${REPO_PATH}"
 
   tweak_errexit
 # FIXME/2018-03-22: Verify porcelain usage (vs. plumbing).
@@ -121,7 +122,8 @@ git_commit_generic_file () {
   #echo "Repo base: ${REPO_PATH}"
   #echo "Repo file: ${repo_file}"
 
-  pushd ${REPO_PATH} &> /dev/null
+#  pushd ${REPO_PATH} &> /dev/null
+  pushd_or_die "${REPO_PATH}"
 
   tweak_errexit
 # FIXME/2018-03-22: Verify porcelain usage (vs. plumbing).
@@ -183,7 +185,9 @@ git_commit_all_dirty_files () {
 
     echo "Checking for git dirtiness at: ${REPO_PATH}"
 
-    pushd ${REPO_PATH} &> /dev/null
+#    pushd ${REPO_PATH} &> /dev/null
+    pushd_or_die "${REPO_PATH}"
+
     tweak_errexit
 
     # We ignore untracted files here because they cannot be added
@@ -254,8 +258,9 @@ git_status_porcelain () {
 
   # MAYBE: Don't be a stickler?
   #  local working_dir="${1-$(pwd)}"
-  #  pushd "${working_repo}" &> /dev/null
+#  #  pushd "${working_repo}" &> /dev/null
   #  popd &> /dev/null
+  #  pushd_or_die "${working_repo}"
 
   # ***
 
@@ -571,7 +576,8 @@ git_dir_check () {
     warn "${no_git_yo_msg}"
     FRIES_GIT_ISSUES_RESOLUTIONS+=("${no_git_yo_msg}")
   else
-    pushd "${REPO_PATH}" &> /dev/null
+#    pushd "${REPO_PATH}" &> /dev/null
+    pushd_or_die "${REPO_PATH}"
     git rev-parse --git-dir &> /dev/null && dir_okay=0 || dir_okay=1
     popd &> /dev/null
   fi
@@ -605,7 +611,8 @@ git_checkedout_branch_name () {
   #   is corrupt, most likely. I made a new sync-stick.
   # 2018-03-22: Ha! How have I been so naive? Avoid porcelain!
   #   git status | head -n 1 | grep "^On branch" | /bin/sed -r "s/^On branch //"
-  [[ -n "$1" ]] && pushd "$1" &> /dev/null
+#  [[ -n "$1" ]] && pushd "$1" &> /dev/null
+  pushd_or_die "$1"
   local branch_name=$(git rev-parse --abbrev-ref HEAD)
   [[ -n "$1" ]] && popd &> /dev/null
   echo "${branch_name}"
@@ -618,7 +625,8 @@ git_checkedout_branch_name () {
 git_checkedout_remote_branch_name () {
   # Include the name of the remote, e.g., not just feature/foo,
   # but origin/feature/foo.
-  [[ -n "$1" ]] && pushd "$1" &> /dev/null
+#  [[ -n "$1" ]] && pushd "$1" &> /dev/null
+  pushd_or_die "$1"
 #  # FIXME/2018-03-22: Remove tweak_errexit/reset_errexit; don't think you need.
 #  #tweak_errexit
   local remote_branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{u})
@@ -633,7 +641,8 @@ git_set_remote_travel () {
   local source_repo="$1"
   local target_repo="${2-$(pwd)}"
 
-  [[ -n ${target_repo} ]] && pushd "${target_repo}" &> /dev/null
+#  [[ -n ${target_repo} ]] && pushd "${target_repo}" &> /dev/null
+  pushd_or_die "${target_repo}"
 
   # (lb): Minder to self: a $(subprocess) failure does not tickle +e errexit.
   #
@@ -675,7 +684,8 @@ git_set_remote_travel () {
     debug "  Rewiring the \"travel\" remote url / was: ${remote_url}"
     git remote set-url travel "${source_repo}"
   else
-    debug '  The "travel" remote url is already correct!'
+    #debug '  The "travel" remote url is already correct!'
+    : # no-op
   fi
 
   [[ -n ${target_repo} ]] && popd &> /dev/null
@@ -686,7 +696,8 @@ git_set_remote_travel () {
 git_fetch_remote_travel () {
   local target_repo="${1-$(pwd)}"
 
-  [[ -n ${target_repo} ]] && pushd "${target_repo}" &> /dev/null
+#  [[ -n ${target_repo} ]] && pushd "${target_repo}" &> /dev/null
+  pushd_or_die "${target_repo}"
 
   # Assuming git_set_remote_travel was called previously,
   # lest there is no travel remote.
@@ -707,23 +718,34 @@ git_fetch_remote_travel () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# A note on errexit: If you call this fcn. (or a fcn. that calls this fcn.)
+#   and if you use `&& true` or `|| true`, errexit will be disabled (though
+#   you'll still see it in SHELLOPTS). Which means that a `cd` or `pushd` that
+#   fails will not stop the function from proceeding.
+# Consequently, we either need to check for error on pushd, so that we don't
+#   call popd later when we didn't change directories in the first place; or
+#   we need to store the current working directory and use cd instead of popd.
+
+# FIXME/2018-03-23 13:13: Verify all pushd usage in git_util.sh and travel.sh.
+
+pushd_or_die () {
+  [[ -z "$1" ]] && return
+  pushd "$1" &> /dev/null
+  [[ $? -ne 0 ]] && error "No such path: $1" && error " working dir: $(pwd -P)" && die
+  # Be sure to return a zero success value: If we left the `$? -ne 0`
+  # as the last line, it'll trigger errexit!
+  return 0
+}
+
+popd_perhaps () {
+  [[ -z "$1" ]] && return
+  popd &> /dev/null
+  [[ $? -ne 0 ]] && error "Unexpected popd failure in: $(pwd -P)" && die
+  return 0
+}
+
 git_is_rebase_in_progress () {
-#  set -e
-#  set +e
-echo "SHLLO: ${SHELLOPTS}"
-  local restore_cwd=$(pwd -P)
-  cd "$1"
-  echo $?
-echo "1: ${1}"
-echo "SHLLO: ${SHELLOPTS}"
-  cd $1
-  echo $?
-echo "1: ${1}"
-#  [[ -n "$1" ]] && pushd "$1" &> /dev/null
-#  [[ -n "$1" ]] && pushd "$1"
-  pushd "$1"
-#  [[ -n "$1" ]] && echo YES
-fatal "CWD/21: $(pwd -P)"
+  pushd_or_die "$1"
 
   # During a rebase, git uses new directories, so we could check the filesystem:
   #   (test -d ".git/rebase-merge" || test -d ".git/rebase-apply") || die "No!"
@@ -731,20 +753,13 @@ fatal "CWD/21: $(pwd -P)"
   #   git -c color.ui=off status | grep "^rebase in progress" > /dev/null
   # Or we could use our plumbing knowledge and do it most rightly.
   #   (Note we use `&& test` so command does not tickle errexit.
-  test -d "$(git rev-parse --git-path rebase-merge)" || \
-    test -d "$(git rev-parse --git-path rebase-apply)" && \
-    true
+  (test -d "$(git rev-parse --git-path rebase-merge)" || \
+   test -d "$(git rev-parse --git-path rebase-apply)" \
+  ) && true
   # Non-zero (1) if not rebasing, (0) otherwise.
   local is_rebasing=$?
 
-fatal "CWD/23: $(pwd -P)"
-echo "1: ${1}"
-  [[ -n "$1" ]] && popd
-#  [[ -n "$1" ]] && popd &> /dev/null
-#  [[ -n "$1" ]] && echo YES
-fatal "CWD/22: $(pwd -P)"
-
-  cd ${restore_cwd}
+  popd_perhaps "$1"
 
   return ${is_rebasing}
 }
@@ -752,7 +767,8 @@ fatal "CWD/22: $(pwd -P)"
 git_must_not_rebasing () {
   local source_branch="$1"
   local target_repo="${2-$(pwd)}"
-  git_is_rebase_in_progress "${target_repo}"
+#  git_is_rebase_in_progress "${target_repo}"
+  git_is_rebase_in_progress
   local in_rebase=$?
   if [[ ${in_rebase} -eq 0 ]]; then
     git_issue_complain_rebasing "${source_branch}" "${target_repo}"
@@ -787,7 +803,8 @@ git_change_branches_if_necessary () {
   local target_branch="$2"
   local target_repo="${3-$(pwd)}"
 
-  [[ -n "${target_repo}" ]] && pushd "${target_repo}" &> /dev/null
+#  [[ -n "${target_repo}" ]] && pushd "${target_repo}" &> /dev/null
+  pushd_or_die "${target_repo}"
 
   if [[ "${source_branch}" != "${target_branch}" ]]; then
     echo "############################################################################"
@@ -808,7 +825,8 @@ git_change_branches_if_necessary () {
     FRIES_GIT_ISSUES_RESOLUTIONS+=("JUST FYI: Changed branches: ${source_branch} / ${target_repo}")
   fi
 
-  [[ -n "${target_repo}" ]] && popd &> /dev/null
+#  [[ -n "${target_repo}" ]] && popd &> /dev/null
+  popd_perhaps "${target_repo}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -817,7 +835,8 @@ git_merge_ff_only () {
   local source_branch="$1"
   local target_repo="${2-$(pwd)}"
 
-  [[ -n "${target_repo}" ]] && pushd "${target_repo}" &> /dev/null
+#  [[ -n "${target_repo}" ]] && pushd "${target_repo}" &> /dev/null
+  pushd_or_die "${target_repo}"
 
   # A non fast-forward merge will at least create a new commit at HEAD,
   #   even if the branch being merged is strictly ahead of the current
@@ -857,7 +876,8 @@ git_merge_ff_only () {
     git_issue_complain_rebasing "${source_branch}" "${target_repo}"
   fi
 
-  [[ -n "${target_repo}" ]] && popd &> /dev/null
+#  [[ -n "${target_repo}" ]] && popd &> /dev/null
+  popd_perhaps "${target_repo}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -873,43 +893,36 @@ git_pull_hush () {
   # The target_branch is obviously changing, if we can do so nondestructively.
   local target_branch=$(git_checkedout_branch_name "${target_repo}")
 
-fatal "CWD/1: $(pwd -P)"
-  pushd "${target_repo}" &> /dev/null
-fatal "CWD/2: $(pwd -P)"
+#  pushd "${target_repo}" &> /dev/null
+  pushd_or_die "${target_repo}"
 
   # 2018-03-22: Set a remote to the sync device. There's always only 1,
   # apparently. I think this'll work well.
   git_set_remote_travel "${source_repo}"
-fatal "CWD/11: $(pwd -P)"
 
   git_fetch_remote_travel
-fatal "CWD/12: $(pwd -P)"
 
-#echo TESTTTTTTT
-#cd path/to/nowhere
-#echo STILL_HERE
-
-echo BAH
-# FIXME/2018-03-23 12:50: Should this be && true, or should it be || true?? latter seems correct
-# THE && true means errexit not working from this fcn. or any it calls??
-#  git_must_not_rebasing "${source_branch}" "${target_repo}" && true
-#  git_must_not_rebasing "${source_branch}" "${target_repo}" && false
-  git_must_not_rebasing "${source_branch}" "${target_repo}"
+#echo "source_branch: ${source_branch}"
+#echo "target_repo: ${target_repo}"
+#echo "cwd: $(pwd -P)"
+## FIXME/2018-03-23 12:50: Should this be && true, or should it be || true?? latter seems correct
+## THE && true means errexit not working from this fcn. or any it calls??
+##  git_must_not_rebasing "${source_branch}" "${target_repo}" && true
+##  git_must_not_rebasing "${source_branch}" "${target_repo}" && false
+##  git_must_not_rebasing "${source_branch}" "${target_repo}"
+  git_must_not_rebasing "${source_branch}" "${target_repo}" || true
   local okay=$?
-fatal "CWD/13: $(pwd -P)"
-echo FOO
-  [[ ${okay} -ne 0 ]] && echo FAIL || echo OKAY
+#echo FOO
+#  [[ ${okay} -ne 0 ]] && echo FAIL || echo OKAY
   if [[ ${okay} -ne 0 ]]; then
-fatal "CWD/3: $(pwd -P)"
-    popd &> /dev/null
-fatal "CWD/4: $(pwd -P)"
+#    popd &> /dev/null
+    popd_perhaps "${target_repo}"
     return
   fi
-echo BAH
+#echo BAH
 
-fatal "CWD/5: $(pwd -P)"
-popd &> /dev/null
-fatal "CWD/6: $(pwd -P)"
+#popd &> /dev/null
+popd_perhaps "${target_repo}"
 return
 
 exit
@@ -926,7 +939,8 @@ exit
   # Fast-forward merge (no new commits!) or complain (later).
   git_merge_ff_only "${source_branch}" "${target_repo}"
 
-  popd &> /dev/null
+#  popd &> /dev/null
+  popd_perhaps "${target_repo}"
 } # end: git_pull_hush
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -987,9 +1001,10 @@ git-flip-master () {
   # FIXME: From root of project, cd'ing into subfolder??
   echo "git-flip-master: \${REL_PREFIX}: ${REL_PREFIX}"
   # sets: REL_PREFIX
-  if [[ -n ${REL_PREFIX} ]]; then
-    pushd ${REL_PREFIX} &> /dev/null
-  fi
+#  if [[ -n ${REL_PREFIX} ]]; then
+#    pushd ${REL_PREFIX} &> /dev/null
+#  fi
+  pushd_or_die "${REL_PREFIX}"
 
   local project_name=$(basename -- $(pwd -P))
 
@@ -1008,8 +1023,9 @@ git-flip-master () {
   echo git push origin ${branch_name}
   git push origin ${branch_name}
 
-  echo pushd ../${master_path}
-  pushd ../${master_path} &> /dev/null
+  echo "pushd_or_die ../${master_path}"
+#  pushd ../${master_path} &> /dev/null
+  pushd_or_die "../${master_path}"
 
   # Since the master branch is published, don't rebase or you'll
   # rewrite history.
@@ -1041,10 +1057,12 @@ echo "FIXME: \`rake tagGitRepo\` should wait for build to complete..."
     fi
   fi
 
-  echo popd
-  popd &> /dev/null
+#  echo popd
+#  popd &> /dev/null
+  popd_perhaps "../${master_path}"
 
   [[ -n ${REL_PREFIX} ]] && popd &> /dev/null
+  popd_perhaps "${REL_PREFIX}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -1170,10 +1188,12 @@ git_infuse_gitignore_local() {
     return
   fi
   if [[ -f .git/info/exclude || -h .git/info/exclude ]]; then
-    pushd .git/info &> /dev/null
+#    pushd .git/info &> /dev/null
+    pushd_or_die ".git/info"
     /bin/rm exclude
     /bin/ln -sf "$1" "exclude"
-    popd &> /dev/null
+#    popd &> /dev/null
+    popd_perhaps ".git/info"
   fi
   /bin/ln -sf .git/info/exclude .gitignore.local
 }
@@ -1193,7 +1213,9 @@ git_infuse_assume_unchanging() {
   fi
   [[ "$3" == "1" ]] && do_sym=false || do_sym=true
 
-  pushd $(dirname -- "${fpath}") &> /dev/null
+#  pushd $(dirname -- "${fpath}") &> /dev/null
+  local pdir=$(dirname -- "${fpath}")
+  pushd_or_die "${pdir}"
 
   # Only do this if file not already being ignored, else after --no-assume-unchanged,
   # we detect file is dirty and exit 1, ugly.
@@ -1223,35 +1245,45 @@ git_infuse_assume_unchanging() {
     /bin/cp -a "${opath}" "${fname}"
   fi
 
-  popd &> /dev/null
+#  popd &> /dev/null
+  popd_perhaps "${pdir}"
 }
 
 git_unfuse_symlink() {
   local fpath
   [[ -z "$1" ]] && (echo "${FUNCNAME[0]}: missing param" && exit 1) || fpath="$1"
   local fname=$(basename -- "${fpath}")
-  pushd $(dirname -- "${fpath}") &> /dev/null
+#  pushd $(dirname -- "${fpath}") &> /dev/null
+#  pushd_or_die $(dirname -- "${fpath}")
+  local pdir=$(dirname -- "${fpath}")
+  pushd_or_die "${pdir}"
+
   if [[ -h "${fname}" ]]; then
     /bin/rm "${fname}"
     /bin/rm -f "${fname}-COMMIT"
     /usr/bin/git checkout -- "${fname}"
     /usr/bin/git update-index --no-assume-unchanged "${fname}"
   fi
-  popd &> /dev/null
+#  popd &> /dev/null
+  popd_perhaps "${pdir}"
 }
 
 git_unfuse_hardcopy() {
   local fpath
   [[ -z "$1" ]] && (echo "${FUNCNAME[0]}: missing param" && exit 1) || fpath="$1"
   local fname=$(basename -- "${fpath}")
-  pushd $(dirname -- "${fpath}") &> /dev/null
+#  pushd $(dirname -- "${fpath}") &> /dev/null
+#  pushd_or_die $(dirname -- "${fpath}")
+  local pdir=$(dirname -- "${fpath}")
+  pushd_or_die "${pdir}"
   if [[ -f "${fname}" ]]; then
     #/bin/rm "${fname}"
     /bin/rm -f "${fname}-COMMIT"
     /usr/bin/git checkout -- "${fname}"
     git update-index --no-assume-unchanged "${fname}"
   fi
-  popd &> /dev/null
+#  popd &> /dev/null
+  popd_perhaps "${pdir}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -1266,9 +1298,11 @@ git-remote-v-all() {
     ${once} && echo
     local repo_path=$(dirname ${git_path})
     echo ${repo_path}
-    pushd ${repo_path} &> /dev/null
+#    pushd ${repo_path} &> /dev/null
+    pushd_or_die ${repo_path}
     git remote -v
-    popd &> /dev/null
+#    popd &> /dev/null
+    popd_perhaps "${pdir}"
     once=true
   done
 }
