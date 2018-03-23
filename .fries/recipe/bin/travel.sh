@@ -13,6 +13,20 @@
 
 set -e
 
+# FIXME/2018-03-23 12:53: TRY THESE:
+#Use set -o nounset (a.k.a. set -u) to exit when your script tries to use undeclared variables.
+#set -u
+#set -o pipefail
+
+# FIXME/2018-03-23 12:53: Compare these to how you do it elsewhere.
+## Set magic variables for current file & dir
+#__dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+#__file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
+#__base="$(basename ${__file} .sh)"
+#__root="$(cd "$(dirname "${__dir}")" && pwd)" # <-- change this as it depends on your app
+#arg1="${1:-}"
+
+
 function errexit_cleanup () {
   echo
   echo "ERROR: The script failed!!"
@@ -1749,10 +1763,7 @@ function pull_git_repos () {
       #debug " SOURCE_PATH: ${PREFIX}${ABS_PATH}"
       #debug " TARGET_PATH: ${ENCFS_REL_PATH}"
       debug " ${ENCFS_REL_PATH}"
-echo YES
-fatal " In cwd: $(pwd -P)"
       git_pull_hush "${PREFIX}${ABS_PATH}" "${ENCFS_REL_PATH}"
-echo NOO
     #else
     #  debug " not dir/symlink: ${ENCFS_REL_PATH}"
     #fi
@@ -1767,9 +1778,9 @@ echo NOO
   for ((i = 0; i < ${#ENCFS_VIM_ITERS[@]}; i++)); do
     pull_gardened_repo "${ENCFS_VIM_ITERS[$i]}" "${PREFIX}"
   done
-
+echo DONE?
   popd &> /dev/null
-
+echo DONE!
 } # end: pull_git_repos
 
 # *** Plaintext: archive
@@ -1890,11 +1901,12 @@ function packme () {
 
     mount_curly_emissary_gooey
 
+echo HEREERE
     pull_git_repos 'emissary'
-
+echo YES
     # Sets: ${PLAIN_TBD}
     make_plaintext
-
+echo NOO
     # Call private fcn. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
     tweak_errexit
     command -v user_do_packme &> /dev/null

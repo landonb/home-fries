@@ -708,7 +708,22 @@ git_fetch_remote_travel () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 git_is_rebase_in_progress () {
-  [[ -n "$1" ]] && pushd "$1" &> /dev/null
+#  set -e
+#  set +e
+echo "SHLLO: ${SHELLOPTS}"
+  local restore_cwd=$(pwd -P)
+  cd "$1"
+  echo $?
+echo "1: ${1}"
+echo "SHLLO: ${SHELLOPTS}"
+  cd $1
+  echo $?
+echo "1: ${1}"
+#  [[ -n "$1" ]] && pushd "$1" &> /dev/null
+#  [[ -n "$1" ]] && pushd "$1"
+  pushd "$1"
+#  [[ -n "$1" ]] && echo YES
+fatal "CWD/21: $(pwd -P)"
 
   # During a rebase, git uses new directories, so we could check the filesystem:
   #   (test -d ".git/rebase-merge" || test -d ".git/rebase-apply") || die "No!"
@@ -722,7 +737,14 @@ git_is_rebase_in_progress () {
   # Non-zero (1) if not rebasing, (0) otherwise.
   local is_rebasing=$?
 
-  [[ -n "$1" ]] && popd &> /dev/null
+fatal "CWD/23: $(pwd -P)"
+echo "1: ${1}"
+  [[ -n "$1" ]] && popd
+#  [[ -n "$1" ]] && popd &> /dev/null
+#  [[ -n "$1" ]] && echo YES
+fatal "CWD/22: $(pwd -P)"
+
+  cd ${restore_cwd}
 
   return ${is_rebasing}
 }
@@ -851,25 +873,43 @@ git_pull_hush () {
   # The target_branch is obviously changing, if we can do so nondestructively.
   local target_branch=$(git_checkedout_branch_name "${target_repo}")
 
+fatal "CWD/1: $(pwd -P)"
   pushd "${target_repo}" &> /dev/null
+fatal "CWD/2: $(pwd -P)"
 
   # 2018-03-22: Set a remote to the sync device. There's always only 1,
   # apparently. I think this'll work well.
   git_set_remote_travel "${source_repo}"
+fatal "CWD/11: $(pwd -P)"
 
   git_fetch_remote_travel
+fatal "CWD/12: $(pwd -P)"
+
+#echo TESTTTTTTT
+#cd path/to/nowhere
+#echo STILL_HERE
 
 echo BAH
-  git_must_not_rebasing "${source_branch}" "${target_repo}" && true
+# FIXME/2018-03-23 12:50: Should this be && true, or should it be || true?? latter seems correct
+# THE && true means errexit not working from this fcn. or any it calls??
+#  git_must_not_rebasing "${source_branch}" "${target_repo}" && true
+#  git_must_not_rebasing "${source_branch}" "${target_repo}" && false
+  git_must_not_rebasing "${source_branch}" "${target_repo}"
   local okay=$?
+fatal "CWD/13: $(pwd -P)"
 echo FOO
   [[ ${okay} -ne 0 ]] && echo FAIL || echo OKAY
   if [[ ${okay} -ne 0 ]]; then
+fatal "CWD/3: $(pwd -P)"
     popd &> /dev/null
+fatal "CWD/4: $(pwd -P)"
     return
   fi
 echo BAH
 
+fatal "CWD/5: $(pwd -P)"
+popd &> /dev/null
+fatal "CWD/6: $(pwd -P)"
 return
 
 exit
