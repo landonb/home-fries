@@ -17,6 +17,9 @@ function errexit_cleanup () {
   echo
   echo "ERROR: The script failed!!"
   # No exit necessary, unless we want to specify status.
+  # Also note that a stacktrace (where) is useless here,
+  # as a trap function has nothing above it (other than
+  # Bash, I suppose).
   exit 1
 }
 trap errexit_cleanup EXIT
@@ -83,6 +86,8 @@ elif [[ -e logger.sh ]]; then
 else
   echo "WARNING: Missing logger.sh"
 fi
+#LOG_LEVEL=${LOG_LEVEL_ERROR}
+LOG_LEVEL=${LOG_LEVEL_DEBUG}
 
 # Load: setup_users_curly_path
 if [[ -e ${HOME}/.fries/lib/curly_util.sh ]]; then
@@ -128,10 +133,6 @@ ENCFS_GIT_ITERS=()
 ENCFS_VIM_ITERS=()
 AUTO_GIT_ONE=()
 AUTO_GIT_ALL=()
-
-# FIXME/2018-02-08: NO MORE OF THIS! Use ignored files thingy.
-#   git update-index --[no-]assumed-unchanged
-#declare -A GTSTOK_GIT_REPOS
 
 declare -A GIT_REPO_SEEDS_0
 declare -A GIT_REPO_SEEDS_1
@@ -1575,9 +1576,10 @@ function git_commit_dirty_sync_repos () {
 # *** Git: check 'n fail
 
 function git_status_porcelain_wrap () {
+  local working_dir="$1"
   tweak_errexit
   USING_ERREXIT=false
-  git_status_porcelain $1 ${SKIP_INTERNETS}
+  git_status_porcelain ${working_dir} ${SKIP_INTERNETS}
   exit_code=$?
   USING_ERREXIT=true
   reset_errexit
@@ -1855,6 +1857,7 @@ function packme () {
     # now and force the user to meaningfully commit those changes.
     # (This is repos like: home-fries, ${PRIVATE_REPO_}, dubsacks vim,
     #  and other personal- and work-related repositories.)
+    # FIXME/2018-03-23: Split out side effect here: git_commit_generic_file
     check_repos_statuses
 
   fi

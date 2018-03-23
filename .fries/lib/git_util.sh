@@ -10,6 +10,8 @@
 
 # Usage: Source this script. Call its functions. Use its exports.
 
+TRAVEL_REMOTE="travel"
+
 source_deps() {
   # source defaults to the current directory, but the caller's,
   # so this won't always work:
@@ -19,6 +21,7 @@ source_deps() {
   source ${curdir}/bash_base.sh
   # Load: die, reset_errexit, tweak_errexit
   source ${curdir}/process_util.sh
+  source ${curdir}/logger.sh
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -54,7 +57,7 @@ find_git_parent () {
       else
         ABS_PATH=$(readlink -f -- "${REL_PATH}")
         if [[ ${ABS_PATH} == '/' ]]; then
-          #echo "WARNING: find_git_parent: No parent found for ${FILE_PATH}"
+          #warn "WARNING: find_git_parent: No parent found for ${FILE_PATH}"
           break
         fi
         REL_PATH=../${REL_PATH}
@@ -82,6 +85,7 @@ git_check_generic_file () {
   pushd ${REPO_PATH} &> /dev/null
 
   tweak_errexit
+# FIXME/2018-03-22: Verify porcelain usage (vs. plumbing).
   git status --porcelain ${REPO_FILE} | grep "^\W*M\W*${REPO_FILE}" &> /dev/null
   grep_result=$?
   reset_errexit
@@ -120,6 +124,7 @@ git_commit_generic_file () {
   pushd ${REPO_PATH} &> /dev/null
 
   tweak_errexit
+# FIXME/2018-03-22: Verify porcelain usage (vs. plumbing).
   git status --porcelain ${REPO_FILE} | grep "^\W*M\W*${REPO_FILE}" &> /dev/null
   grep_result=$?
   reset_errexit
@@ -201,6 +206,7 @@ git_commit_all_dirty_files () {
     # looking for modified files. If there are untracted files, a
     # later call to git_status_porcelain on the same repo will die.
     #git status --porcelain | grep "^\W*M\W*" &> /dev/null
+# FIXME/2018-03-22: Verify porcelain usage (vs. plumbing).
     git status --porcelain | grep "^[^\?]" &> /dev/null
 
     grep_result=$?
@@ -226,7 +232,7 @@ git_commit_all_dirty_files () {
     popd &> /dev/null
   else
     echo
-    echo "WARNING: Skipping ${REPO_PATH}: Not found"
+    warn "WARNING: Skipping ${REPO_PATH}: Not found"
     echo
   fi
 
@@ -237,43 +243,27 @@ git_commit_all_dirty_files () {
 
 # *** Git: check 'n commit, maybe
 
-# NOTE: This fcn. expects to be at the root of the git repo.
+# FIXME/2018-03-22: This function is obnoxiously long. And complex.
+#   And why is it porcelain and not plumbing?
+# FIXME/2018-03-22: Verify porcelain usage (vs. plumbing).
+
+# NOTE: This fcn. expects to be run from the root of the git repo.
 git_status_porcelain () {
+  local working_dir="$1"
+  local SKIP_REMOTE_CHECK=$2
 
-  GIT_REPO=$1
-  SKIP_REMOTE_CHECK=$2
-
-  # NOTE: It's not super easy to pass associative arrays in Bash.
-  #       Instead, pass via GTSTOK_GIT_REPOS.
-
-  #echo "GIT_REPO: ${GIT_REPO}"
-
-  # Caller can set GREPPERS to ignore specific dirty files, e.g.,
-  #    GREPPERS='| grep -v " travel.sh$"'
-  #echo "GREPPERS: ${GREPPERS}"
-
-# FIXME/2018-02-08 04:20: Remove all refs to USE_ALT_GIT_ST.
-  USE_ALT_GIT_ST=false
-# FIXME/2018-02-08 04:19: I nixxed this "feature"!
-# FIXME/2018-02-08: NO MORE OF THIS! Use ignored files thingy.
-#   git update-index --[no-]assumed-unchanged
-  if [[ ${#GTSTOK_GIT_REPOS[@]} -gt 0 ]]; then
-    #echo "No. of GTSTOK_GIT_REPOS: ${#GTSTOK_GIT_REPOS[@]}"
-    #echo "Checking for: GIT_REPO: ${GIT_REPO}"
-    if [[ ${GTSTOK_GIT_REPOS[${GIT_REPO}]} == true ]]; then
-      # Haha, this is so wrong:
-      #   GREPPERS='| grep -v ".GTSTOK$"'
-      USE_ALT_GIT_ST=true
-    fi
-  fi
-  #echo "GREPPERS: ${GREPPERS}"
-  #echo "USE_ALT_GIT_ST: ${USE_ALT_GIT_ST}"
+  # MAYBE: Don't be a stickler?
+  #  local working_dir="${1-$(pwd)}"
+  #  pushd "${working_repo}" &> /dev/null
+  #  popd &> /dev/null
 
   # ***
 
   # MAYBE: Does this commits of known knowns feel awkward here?
+  #   [2018-03-23 00:08: I think perhaps I meant, use an infuser/plugin?]
 
   # Be helpful! We can take care of the known knowns.
+# FIXME/2018-03-23: This is an obnoxious side effect. Shouldn't get committed here.
 
   git_commit_generic_file \
     ".ignore" \
@@ -294,74 +284,70 @@ git_status_porcelain () {
 
   DIRTY_REPO=false
 
+# FIXME/2018-03-23: Replace `git status --porcelain` with proper plumbing.
+
+# FIX THIS
   # Use eval's below because of the GREPPERS.
 
   unstaged_changes_found=false
+  # ' M' is modified but not added.
   tweak_errexit
-  if ! ${USE_ALT_GIT_ST}; then
-    # ' M' is modified but not added.
-    eval git status --porcelain ${GREPPERS} | grep "^ M " &> /dev/null
-    if [[ $? -eq 0 ]]; then
-      unstaged_changes_found=true
-    fi
-  else
-# FIXME/2018-02-08 04:20: Remove this block; and USE_ALT_GIT_ST refs.
-    git-st.sh &> /dev/null
-    if [[ $? -ne 0 ]]; then
-      unstaged_changes_found=true
-    fi
+  eval git status --porcelain ${GREPPERS} | grep "^ M " &> /dev/null
+  if [[ $? -eq 0 ]]; then
+    unstaged_changes_found=true
   fi
   reset_errexit
   if ${unstaged_changes_found}; then
     DIRTY_REPO=true
-    echo "WARNING: Unstaged changes found in $GIT_REPO"
+    warn "WARNING: Unstaged changes found in $working_dir"
   fi
 
-  tweak_errexit
   # 'M ' is added but not committed!
+  tweak_errexit
   eval git status --porcelain ${GREPPERS} | grep "^M  " &> /dev/null
   grep_result=$?
   reset_errexit
   if [[ $grep_result -eq 0 ]]; then
     DIRTY_REPO=true
-    echo "WARNING: Uncommitted changes found in $GIT_REPO"
+    warn "WARNING: Uncommitted changes found in $working_dir"
   fi
 
+  # '^?? ' is untracked.
   tweak_errexit
   eval git status --porcelain ${GREPPERS} | grep "^?? " &> /dev/null
   grep_result=$?
   reset_errexit
   if [[ $grep_result -eq 0 ]]; then
     DIRTY_REPO=true
-    echo "WARNING: Untracked files found in $GIT_REPO"
+    warn "WARNING: Untracked files found in $working_dir"
   fi
 
   tweak_errexit
-# FIXME/2018-02-08 04:20: Remove this ref to USE_ALT_GIT_ST.
-  if ! ${USE_ALT_GIT_ST} && ! ${DIRTY_REPO}; then
+  if ! ${DIRTY_REPO}; then
     if [[ -n ${GREPPERS} ]]; then
       eval git status --porcelain ${GREPPERS} &> /dev/null
       if [[ $? -eq 0 ]]; then
-        echo "WARNING: git status --porcelain: non-zero exit"
+        warn "WARNING: git status --porcelain: non-zero exit"
         DIRTY_REPO=true
       fi
     else
       n_bytes=$(git status --porcelain | wc -c)
       if [[ ${n_bytes} -gt 0 ]]; then
-        echo "WARNING: git status --porcelain: n_bytes > 0"
+        warn "WARNING: git status --porcelain: n_bytes > 0"
         DIRTY_REPO=true
       fi
     fi
   else
     eval git status --porcelain ${GREPPERS} | grep -v "^ M " &> /dev/null
     if [[ $? -eq 0 ]]; then
-        echo "WARNING: git status --porcelain: grepped"
+        warn "WARNING: git status --porcelain: grepped"
       DIRTY_REPO=true
     fi
   fi
   reset_errexit
+
   if ${DIRTY_REPO}; then
-    echo "STOPPING: Dirty things found in $GIT_REPO"
+    echo "STOPPING: Dirty things found in $working_dir"
     echo "========================================="
     echo
     echo "  cdd $(pwd) && git add -p"
@@ -374,7 +360,7 @@ git_status_porcelain () {
       FRIES_GIT_ISSUES_DETECTED=true
       export FRIES_GIT_ISSUES_DETECTED
       FRIES_GIT_ISSUES_RESOLUTIONS+=("cdd $(pwd) && git add -p")
-      export FRIES_GIT_ISSUES_RESOLUTIONS
+#      export FRIES_GIT_ISSUES_RESOLUTIONS
       if ${FRIES_FAIL_ON_GIT_ISSUE}; then
         return 1
       fi
@@ -395,6 +381,20 @@ git_status_porcelain () {
   # But don't care if not really a remote, i.e., local origin.
   tweak_errexit
   # Need to use grep's [-P]erl-defined regex that includes the tab character.
+  #
+
+
+
+
+
+
+# FIXME/2018-03-23 00:28: Using 'origin' is wrong! See: TRAVEL_REMOTE
+#
+
+
+
+
+
   git remote -v | grep -P "^origin\t\/" > /dev/null
   grep_result=$?
   reset_errexit
@@ -418,7 +418,7 @@ git_status_porcelain () {
         grep_result=$?
         reset_errexit
         if [[ $grep_result -ne 0 ]]; then
-          echo "WARNING: Branch is behind origin/${branch_name} at $GIT_REPO"
+          warn "WARNING: Branch is behind origin/${branch_name} at $working_dir"
           echo "============================================================"
           echo
           echo "  cdd $(pwd) && git push origin ${branch_name} && popd"
@@ -430,7 +430,7 @@ git_status_porcelain () {
             FRIES_GIT_ISSUES_DETECTED=true
             export FRIES_GIT_ISSUES_DETECTED
             FRIES_GIT_ISSUES_RESOLUTIONS+=("cdd $(pwd) && git push origin ${branch_name} && popd")
-            export FRIES_GIT_ISSUES_RESOLUTIONS
+#            export FRIES_GIT_ISSUES_RESOLUTIONS
             if ${FRIES_FAIL_ON_GIT_ISSUE}; then
               return 1
             fi
@@ -506,12 +506,12 @@ git_status_porcelain () {
           grep_result=$?
           reset_errexit
           if [[ $grep_result -eq 0 ]]; then
-            echo "WHATEVER: Branch is behind origin/${branch_name} at $GIT_REPO"
+            echo "WHATEVER: Branch is behind origin/${branch_name} at $working_dir"
             echo "          You can git pull if you want to."
             echo "          But this script don't care."
             echo
           else
-            echo "WARNING: Branch is ahead of origin/${branch_name} at $GIT_REPO"
+            warn "WARNING: Branch is ahead of origin/${branch_name} at $working_dir"
             echo "=============================================================="
             echo
             echo "  cdd $(pwd) && git push origin ${branch_name} && popd"
@@ -523,7 +523,7 @@ git_status_porcelain () {
               FRIES_GIT_ISSUES_DETECTED=true
               export FRIES_GIT_ISSUES_DETECTED
               FRIES_GIT_ISSUES_RESOLUTIONS+=("cdd $(pwd) && git push origin ${branch_name} && popd")
-              export FRIES_GIT_ISSUES_RESOLUTIONS
+#              export FRIES_GIT_ISSUES_RESOLUTIONS
               if ${FRIES_FAIL_ON_GIT_ISSUE}; then
                 return 1
               fi
@@ -541,181 +541,202 @@ git_status_porcelain () {
 
 } # end: git_status_porcelain
 
+# FIXME/2018-03-22: END VERY LONG FUNCTION!!! WAY TOO LONG! tldrdon'tgetit!
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-# git_dir_check
+
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 git_dir_check () {
-  REPO_PATH=$1
-  if [[ ! -d ${REPO_PATH} ]]; then
-    SKIP_GIT_PULL=true
-    echo
-    echo "WARNING: Not a directory: ${REPO_PATH}"
-    echo " In cwd: $(pwd -P)"
-    die "WARNING: Not a directory: ${REPO_PATH}"
-  elif [[ ! -d ${REPO_PATH}/.git ]]; then
-    SKIP_GIT_PULL=true
-    echo
-    echo "WARNING: No .git/ found at: $(pwd -P)/${REPO_PATH}/.git"
+  REPO_PATH="$1"
+  local dir_okay=0
+  if [[ ! -d "${REPO_PATH}" ]]; then
+    dir_okay=1
+    fatal
+    fatal "Not a directory: ${REPO_PATH}"
+    fatal " In cwd: $(pwd -P)"
+    # This code path is inconceivable!
+    die "I died!"
+    exit 123 # unreachable. But just in case.
+  elif [[ ! -d "${REPO_PATH}/.git" ]]; then
+    dir_okay=1
+    local no_git_yo_msg="WARNING: No .git/ found at: $(pwd -P)/${REPO_PATH}/.git"
+    warn
+    warn "${no_git_yo_msg}"
+    FRIES_GIT_ISSUES_RESOLUTIONS+=("${no_git_yo_msg}")
+  else
+    pushd "${REPO_PATH}" &> /dev/null
+    git rev-parse --git-dir &> /dev/null && dir_okay=0 || dir_okay=1
+    popd &> /dev/null
   fi
+  return ${dir_okay}
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-# git_pull_hush
 
-git_pull_hush () {
-  SOURCE_REPO=$1
-  TARGET_REPO=$2
+must_be_git_dirs () {
+  SOURCE_REPO="$1"
+  TARGET_REPO="${2-$(pwd)}"
 
-  SKIP_GIT_PULL=false
-  git_dir_check ${SOURCE_REPO}
-  git_dir_check ${TARGET_REPO}
-  if ${SKIP_GIT_PULL}; then
-    if ${SKIP_GIT_DIRTY}; then
-      echo "Skipping"
-      echo
-      return 0
-    else
-      return 1
-    fi
-  fi
+  local a_problem=0
 
-  # 2017-04-04: I did not hit <CR> after ``popoff`` and plugged the USB stick,
-  #   then started getting errors (where signal 7 is a bus error, meaning the
-  #   hardware or the filesystem or something is corrupt, most likely...).
+  git_dir_check "${SOURCE_REPO}"
+  [[ $? -ne 0 ]] && a_problem=1
+
+  git_dir_check "${TARGET_REPO}"
+  [[ $? -ne 0 ]] && a_problem=1
+
+  return ${a_problem}
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+git_checkedout_branch_name () {
+  # 2017-04-04: I unplugged the USB stick before ``popoff``
+  #   (forgot to hit <CR>) and then got errors on unpack herein:
   #     error: git-status died of signal 7
+  #   signal 7 is a bus error, meaning hardware or filesystem or something
+  #   is corrupt, most likely. I made a new sync-stick.
+  # 2018-03-22: Ha! How have I been so naive? Avoid porcelain!
+  #   git status | head -n 1 | grep "^On branch" | /bin/sed -r "s/^On branch //"
+  [[ -n "$1" ]] && pushd "$1" &> /dev/null
+  local branch_name=$(git rev-parse --abbrev-ref HEAD)
+  [[ -n "$1" ]] && popd &> /dev/null
+  echo "${branch_name}"
+}
 
-  # FIXME/2017-09-07: This fcn. should really just try to do a fast-forward
-  # merge, and if that fails, then bug the user.
-  # - Either the user forgot to unpack, so their local branch is diverged
-  #   from what's on the stick; or
-  # - The user packme'ed, rebased locally, and packme'ed again, in which
-  #   case the branches have diverged; or
-  # - The user switched branches locally, so the branches don't match; or
-  # - The user switched branches on one machine, packme'ed, forgot to
-  #   unpack, and then packme's -- the branches won't match.
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-  pushd ${SOURCE_REPO} &> /dev/null
-  SOURCE_BRANCH=$(\
-    git status | head -n 1 | grep "^On branch" | /bin/sed -r "s/^On branch //" \
-  )
-  popd &> /dev/null
+# I don't need this fcn. Reports the tracking branch, (generally 'upstream)
+#   I think, because @{u}. [Not quite sure what that is; *tracking* remote?]
+git_checkedout_remote_branch_name () {
+  # Include the name of the remote, e.g., not just feature/foo,
+  # but origin/feature/foo.
+  [[ -n "$1" ]] && pushd "$1" &> /dev/null
+#  # FIXME/2018-03-22: Remove tweak_errexit/reset_errexit; don't think you need.
+#  #tweak_errexit
+  local remote_branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{u})
+#  #reset_errexit
+  [[ -n "$1" ]] && popd &> /dev/null
+  echo "${remote_branch}"
+}
 
-  pushd ${TARGET_REPO} &> /dev/null
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-  TARGET_BRANCH=$(\
-    git status | head -n 1 | grep "^On branch" | /bin/sed -r "s/^On branch //" \
-  )
-  #echo "TARGET_BRANCH: ${TARGET_BRANCH}"
+git_set_remote_travel () {
+  SOURCE_REPO="$1"
+  TARGET_REPO="${2-$(pwd)}"
 
-  tweak_errexit
-  # FIXME/2018-03-19 08:54:
-  #   fatal: HEAD does not point to a branch
-  # happens when you pull rebased branch and end up in a rebase!
-  #   cd ${TARGET_REPO}
-  #   git rebase --abort
-  #   # Will this always be origin? When you fetch from path, do you update remotes?
-  #   #    Looks like you do!
-  #   git reset --hard origin/${BRANCH}
-  # FIXME/2018-03-19: When this creates error, it's next sync repo that fails!
-  #   I.e., we should detect error __here__ and fail, and not error propogate to
-  #   another context!
-  TARGET_REFNAME_BRANCH_NAME=$(git rev-parse --abbrev-ref --symbolic-full-name @{u})
-  reset_errexit
-  #echo "TARGET_REFNAME_BRANCH_NAME: ${TARGET_REFNAME_BRANCH_NAME}"
+  [[ -n ${TARGET_REPO} ]] && pushd "${TARGET_REPO}" &> /dev/null
 
-  # This is empty string and errexit 1 on stick.
-  #TARGET_REFNAME=$(git config branch.`git name-rev --name-only HEAD`.remote)
-  #TARGET_REFNAME=$(dirname -- "${TARGET_REFNAME_BRANCH_NAME}")
-  TARGET_REFNAME=$(echo "$TARGET_REFNAME_BRANCH_NAME" | cut -d "/" -f2)
-  #echo "TARGET_REFNAME: ${TARGET_REFNAME}"
+  # (lb): Minder to self: a $(subprocess) failure does not tickle +e errexit.
+  local travel_remote=$(git remote get-url ${TRAVEL_REMOTE} 2> /dev/null)
+  local remote_exists=$?
 
-  # 2016-09-28: Being extra paranoid because if the branches don't match,
-  #             pull don't care! This is really confusing/worrying to me.
-  if [[ -z ${SOURCE_BRANCH} ]]; then
-    echo "FATAL: What?! No \$SOURCE_BRANCH for SOURCE_REPO: ${SOURCE_REPO}"
-    pushd ${SOURCE_REPO} &> /dev/null
-    tweak_errexit
-    git -c color.ui=off status | grep "^rebase in progress" > /dev/null
-    rebase_in_progress=$?
-    reset_errexit
-    if [[ ${rebase_in_progress} -eq 0 ]]; then
-      echo "Looks like a rebase is in progress"
-      echo
-      echo "  cdd ${SOURCE_REPO}"
-      echo "  git rebase --abort"
-    else
-      git status
-    fi
-    popd &> /dev/null
-    return 1
-  fi
-  if [[ -z ${TARGET_BRANCH} ]]; then
-    echo "FATAL: What?! No \$TARGET_BRANCH for TARGET_REPO: ${TARGET_REPO}"
-    return 1
-  fi
-  if false; then
-    if [[ ${SOURCE_BRANCH} != ${TARGET_BRANCH} ]]; then
-      echo "FATAL: \${SOURCE_BRANCH} != \${TARGET_BRANCH}"
-      echo " SOURCE_BRANCH: ${SOURCE_BRANCH}"
-      echo " TARGET_BRANCH: ${TARGET_BRANCH}"
-      echo
-      echo "You may need to change branches:"
-      echo
-      #echo "  #pushd $(pwd -P) && git checkout --track origin/${SOURCE_BRANCH}"
-      #echo " or maybe it's the other one"
-      #echo "  #pushd ${SOURCE_REPO} && git checkout --track origin/${SOURCE_BRANCH}"
-      #echo " but really it might be this"
-      echo "  pushd $(pwd -P)"
-      #echo "  git remote set-url origin /${SOURCE_REPO}"
-      #echo "  git pull -a"
-      echo "  git pull"
-      #echo "  git checkout -b feature/${SOURCE_BRANCH} --track origin/master"
-      #echo "   or maybe just"
-      #echo "  git checkout -b ${SOURCE_BRANCH} --track origin/master"
-      # Using `--track origin/` is archaic (<1.6.6?) usage.
-      #echo "  git checkout --track origin/${SOURCE_BRANCH}"
-      echo "  git checkout ${SOURCE_BRANCH}"
-      return 1
-    fi
+  debug "git_set_remote_travel: ${TARGET_REPO}"
+
+  if [[ ${remote_exists} -ne 0 ]]; then
+    notice 'Wiring "travel" remote for first time!'
+    git remote add travel "${SOURCE_REPO}"
+  elif [[ "${travel_remote}" != "${SOURCE_REPO}" ]]; then
+    notice "Rewiring the \"travel\" remote / was: ${travel_remote}"
+    git remote set-url travel "${SOURCE_REPO}"
+  else
+    notice 'The "travel" remote is already correct!'
   fi
 
-  # 2017-09-25: ...
-  # --all doesn't work if your stick mounts at different locations, e.g.,
-  #   /media/$USER/at_work and /media/$USER/at_home...
-#  echo "\${SOURCE_BRANCH}: ${SOURCE_BRANCH}"
-#  echo "\${TARGET_REPO}: ${TARGET_REPO}"
-#  echo "\${EMISSARY}: ${EMISSARY}"
-  # Argh... also, only do on local repos pointing at stick;
-  #   the repos on the stick point to the locals, sans EMISSARY/gooey
-  # Also, not all repo's remote is on the stick -- for many, it's github, dummy.
-#  git remote set-url origin ${EMISSARY}/gooey/${TARGET_REPO}
-  # Disable errexit because grep returns 1 if nothing matches.
-  tweak_errexit
-#  git fetch ${SOURCE_REPO} 2>&1 \
+  [[ -n ${TARGET_REPO} ]] && popd &> /dev/null
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+git_fetch_remote_travel () {
+  TARGET_REPO="${1-$(pwd)}"
+
+  [[ -n ${TARGET_REPO} ]] && pushd "${TARGET_REPO}" &> /dev/null
+
+  # Assuming git_set_remote_travel was called previously,
+  # lest there is no travel remote.
+  git fetch ${TRAVEL_REMOTE} --prune
+
+  # FIXME/2018-03-22 20:41: Do I need to filter stdout?
+#  # Disable errexit because grep returns 1 if nothing matches.
+#  tweak_errexit
+#  #git fetch --all \
+#  git fetch travel --prune
 #      | grep -v "^Fetching [a-zA-Z0-9]*$" \
-#      | grep -v "^From " \
 #      | grep -v "^ \* branch "
-  # 2017-10-16: This is hanging. No ping github.com!
-  #   [Or ping google... drrr, new WiFi network added last week had
-  #    connect-automatically enabled by default, you scurvy bastards!]
-  git fetch --all \
-      | grep -v "^Fetching [a-zA-Z0-9]*$" \
-      | grep -v "^ \* branch "
+#  reset_errexit
 
-  # FOLLOW-UP/2018-03-19: This updates remote branches based on branches from
-  # same remote in other directory. I think.
-  # FIXME/2018-03-19: Do this overwrite remote branches? I.e., if you
-  #   update your local directory, then pull from an old directory, do
-  #   the remotes you just fetched get overwrit?
-  echo git fetch ${SOURCE_REPO}
-  git fetch ${SOURCE_REPO}
+  [[ -n ${TARGET_REPO} ]] && popd &> /dev/null
+}
 
-  reset_errexit
-##  git remote update
-  # This could be dangerous if you're pulling in the wrong direction...
-  #git remote prune origin
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-  if [[ ${SOURCE_BRANCH} != ${TARGET_BRANCH} ]]; then
+git_is_rebase_in_progress () {
+  [[ -n "$1" ]] && pushd "$1" &> /dev/null
+
+  # During a rebase, git uses new directories, so we could check the filesystem:
+  #   (test -d ".git/rebase-merge" || test -d ".git/rebase-apply") || die "No!"
+  # Or we could be super naive, and porcelain, and git-n-grep:
+  #   git -c color.ui=off status | grep "^rebase in progress" > /dev/null
+  # Or we could use our plumbing knowledge and do it most rightly:
+  local _nothingness=$(\
+    test -d "$(git rev-parse --git-path rebase-merge)" || \
+    test -d "$(git rev-parse --git-path rebase-apply)" \
+  )
+  local rebase_in_progress=$?
+
+  [[ -n "$1" ]] && popd &> /dev/null
+
+  return ${rebase_in_progress}
+}
+
+git_must_not_rebasing () {
+  SOURCE_BRANCH="$1"
+  TARGET_REPO="${2-$(pwd)}"
+  git_is_rebase_in_progress "${TARGET_REPO}"
+echo BAR
+  if [[ $? -eq 0 ]]; then
+    git_issue_complain_rebasing "${SOURCE_BRANCH}" "${TARGET_REPO}"
+echo BAR1
+    return 1
+  fi
+echo BAR0
+  return 0
+}
+
+git_issue_complain_rebasing () {
+  SOURCE_BRANCH="$1"
+  TARGET_REPO="${2-$(pwd)}"
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("==============================================")
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("✗ ✗ ✗ ERROR DETECTOROMETER! ★ ☆ ☆ ☆ ☆ 1 STAR!!")
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("Whoa! Under __rebase__, try again, foo!")
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("  SKIPPING: ${TARGET_REPO}")
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("  If you want what's being travelled, abort-n-force!")
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("    ./travel mount")
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("    cdd ${TARGET_REPO}")
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("    git status # sanity check")
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("    git rebase --abort")
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("    git fetch ${TRAVEL_REMOTE} --prune")
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("    git reset --hard ${TRAVEL_REMOTE}/${SOURCE_BRANCH}")
+  FRIES_GIT_ISSUES_RESOLUTIONS+=("==============================================")
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+git_change_branches_if_necessary () {
+  SOURCE_BRANCH="$1"
+  TARGET_BRANCH="$2"
+  TARGET_REPO="${3-$(pwd)}"
+
+  [[ -n "${TARGET_REPO}" ]] && pushd "${TARGET_REPO}" &> /dev/null
+
+  if [[ "${SOURCE_BRANCH}" != "${TARGET_BRANCH}" ]]; then
     echo "############################################################################"
     echo "🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀"
     echo "############################################################################"
@@ -729,127 +750,109 @@ git_pull_hush () {
     echo "############################################################################"
     echo "🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀"
     echo "############################################################################"
+# FIXME/2018-03-22: Adding to this array may prevent travel from continuing? I.e., the -D workaround?
+#   Or are these msgs printed after everything and do not prevent finishing?
+    FRIES_GIT_ISSUES_RESOLUTIONS+=("JUST FYI: Changed branches: ${SOURCE_BRANCH} / ${TARGET_REPO}")
   fi
 
-  #echo "cd $(pwd) && git pull --rebase --autostash $SOURCE_REPO"
+  [[ -n "${TARGET_REPO}" ]] && popd &> /dev/null
+}
 
-  # Disable the glob (noglob), or the '*' that git prints will
-  # be turned into a directory listing of the current directory. Ha!
-  if false; then
-    # Argh, I wanted to record the output so that I could leave `set -e`
-    # on for the git pull -- IN CASE IT FAILS! -- but want happened to
-    # my newlines? They're gone! Or maybe that's the fault of `set +f`,
-    # but with noglob, the '*' in the git reponse gets expanded. Not funny.
-    set +f
-    GIT_OUTPUT=$(git pull --rebase --autostash $SOURCE_REPO 2>&1)
-    set -f
-    tweak_errexit
-    #echo ${GIT_OUTPUT}
-    echo ${GIT_OUTPUT} \
-      | grep -v "^ \* branch            HEAD       -> FETCH_HEAD$" \
-      | grep -v "^Already up-to-date.$" \
-      | grep -v "^Current branch [a-zA-Z0-9]* is up to date.$" \
-      | grep -v "^From .*${TARGET_REPO}$"
-    reset_errexit
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+git_merge_ff_only () {
+  SOURCE_BRANCH="$1"
+  TARGET_REPO="${2-$(pwd)}"
+
+  [[ -n "${TARGET_REPO}" ]] && pushd "${TARGET_REPO}" &> /dev/null
+
+  # A non fast-forward merge will at least create a new commit at HEAD,
+  #   even if the branch being merged is strictly ahead of the current
+  #   branch. (And in the case that the branch being merged has commits
+  #   that the current branch does not have, a rebase might be initiated.)
+  # So only fast-forward; if not, user has to resolve.
+  #   Probably a rebase issue.
+  #     Like, I totally endorse rebasing,
+  #       I use it all the time to make sane PRs,
+  #       but then it's up to you to know the source
+  #       of truth.
+  #       Unless, MAYBE:
+  #         --option to indicate that repo with youngest HEAD (latest commit)
+  #         is source of truth, and to automatically run
+  #           `git reset --hard travel/<branch>` ?
+  # For a nice fast-forward vs. --no-ff article, checkout:
+  #   https://ariya.io/2013/09/fast-forward-git-merge
+
+  tweak_errexit
+  git merge --ff-only ${TRAVEL_REMOTE}/${SOURCE_BRANCH}
+  merge_success=$?
+  reset_errexit
+#  git pull --rebase --autostash ${SOURCE_REPO} 2>&1 \
+#        | grep -v "^ \* branch            HEAD       -> FETCH_HEAD$" \
+#        | grep -v "^Already up-to-date.$" \
+#        | grep -v "^Current branch [a-zA-Z0-9]* is up to date.$" \
+#        | grep -v "^From .*${TARGET_REPO}$"
+#  PULLOUT=$(
+#    {
+#      git pull --rebase --autostash ${SOURCE_REPO} 2>&1
+#    } 2>&1
+#  )
+
+  # (lb): Not quite sure why git_must_not_rebasing would not have failed first.
+  #   Does this happen?
+  if [[ ${merge_success} -ne 0 ]]; then
+    git_issue_complain_rebasing "${SOURCE_BRANCH}" "${TARGET_REPO}"
   fi
 
-  if true; then
-    tweak_errexit
-    #echo git pull --rebase --autostash $SOURCE_REPO 2>&1
-    # NOTE: The Current branch grep doesn't work if like "feature/topic".
-    #       But I kinda like seeing that.
-    #       I wonder if just ignoring master is ok (normally show branch?).
+  [[ -n "${TARGET_REPO}" ]] && popd &> /dev/null
+}
 
-    # 2017-08-04: Until I figure this out better, so two git pulls.
-    # The first is in the clear, so it's output goes to the terminal,
-    # minus some of the normal blather (really, just the list of files
-    # that get pulled (followed by pluses and minuses) and any errors.
-    git pull --rebase --autostash ${SOURCE_REPO} 2>&1 \
-          | grep -v "^ \* branch            HEAD       -> FETCH_HEAD$" \
-          | grep -v "^Already up-to-date.$" \
-          | grep -v "^Current branch [a-zA-Z0-9]* is up to date.$" \
-          | grep -v "^From .*${TARGET_REPO}$"
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-    # Next, we'll run git pull again but capture the output, to check for "error".
+git_pull_hush () {
+  SOURCE_REPO="$1"
+  TARGET_REPO="${2-$(pwd)}"
 
-    # Cool, dog!
-    #  https://stackoverflow.com/questions/962255/
-    #   how-to-store-standard-error-in-a-variable-in-a-bash-script
-    # For some reason, the semicolon is needed.
-    #  "The '{}' does I/O redirection over the enclosed commands."
-    # 2018-01-28: Ahahahah! Don't run this is another git repo, or you clobber it!
-    PULLOUT=$(
-      {
-        git pull --rebase --autostash ${SOURCE_REPO} 2>&1
-      } 2>&1
-    )
-    # Note: We cannot just capture stderr, e.g.,
-    #         } 2>&1 >/dev/null
-    #       because git seems to dump normal messages to stderr,
-    #       hence the 2>&1 in the git command (at least I think
-    #       that's what's going on).
-    #       So rather than saying, if nothing is on stderr, there's
-    #       no error, we just combine all output, look for what we
-    #       know about, and hope we don't miss anything (because, on
-    #       2017-08-04, I realized `unpack` was not working on two
-    #       different repos, but I wasn't being informed (though the
-    #       error appeared on the terminal, but mixed in with evertyhing
-    #       else).
+  must_be_git_dirs "${SOURCE_REPO}" "${TARGET_REPO}"
+  [[ $? -ne 0 ]] && return
 
-    if [[ `echo "${PULLOUT}" | grep -i "error" -` ]]; then
-      echo "=============================================="
-      echo "✗ ✗ ✗ ERROR DETECTOROMETER! ★ ☆ ☆ ☆ ☆ 1 STAR!!"
-      echo
-      echo "CURWD:"
-      echo "$(pwd)"
-      echo
-      echo "COMMAND:"
-      echo "git pull --rebase --autostash ${SOURCE_REPO}"
-      echo
-      echo "PULLOUT:"
-      echo "${PULLOUT}"
-      echo
-      echo "ERROR:"
-      echo "${ERROR}"
-      echo
-      echo "ERROR: You lose!"
-      echo "=============================================="
-    fi
-    # 2016-11-05: Check afterwards to see if there was an unresolved merge conflict.
-    git -c color.ui=off status | grep "^rebase in progress" > /dev/null
-    rebase_in_progress=$?
-    if [[ ${rebase_in_progress} -ne 0 ]]; then
-      git -c color.ui=off status | grep "^You are currently rebasing.$" > /dev/null
-      rebase_in_progress=$?
-    fi
-    reset_errexit
-    if [[ ${rebase_in_progress} -eq 0 ]]; then
-      echo
-      echo "WARNING: rebase problem in ${TARGET_REPO}"
-      echo
-      FRIES_GIT_ISSUES_DETECTED=true
-      export FRIES_GIT_ISSUES_DETECTED
-      # FIXME/2017-09-07: Address this is new Travel project.
-      FRIES_GIT_ISSUES_RESOLUTIONS+=("travel mount && cdd $(pwd) && git st")
-      FRIES_GIT_ISSUES_RESOLUTIONS+=("# Did you packme and then rebase and then packme again?")
-      FRIES_GIT_ISSUES_RESOLUTIONS+=("# - Or did you forget to unpack first?")
-      FRIES_GIT_ISSUES_RESOLUTIONS+=("# Maybe just chuck the conflict?:")
-      FRIES_GIT_ISSUES_RESOLUTIONS+=("   ./travel mount")
-      FRIES_GIT_ISSUES_RESOLUTIONS+=("   cdd $(pwd)")
-      FRIES_GIT_ISSUES_RESOLUTIONS+=("   git st")
-      FRIES_GIT_ISSUES_RESOLUTIONS+=("   git rebase --abort")
-      FRIES_GIT_ISSUES_RESOLUTIONS+=("   git fetch ${TARGET_REFNAME}")
-      FRIES_GIT_ISSUES_RESOLUTIONS+=("   git reset --hard ${TARGET_REFNAME_BRANCH_NAME}")
-      export FRIES_GIT_ISSUES_RESOLUTIONS
-      if ${FRIES_FAIL_ON_GIT_ISSUE}; then
-        return 1
-      fi
-    fi
-  fi
+  local SOURCE_BRANCH=$(git_checkedout_branch_name "${SOURCE_REPO}")
+  # The TARGET_BRANCH is obviously changing, if we can do so nondestructively.
+  local TARGET_BRANCH=$(git_checkedout_branch_name "${TARGET_REPO}")
+
+  pushd "${TARGET_REPO}" &> /dev/null
+
+  # 2018-03-22: Set a remote to the sync device. There's always only 1,
+  # apparently. I think this'll work well.
+  git_set_remote_travel "${SOURCE_REPO}"
+
+  git_fetch_remote_travel
+
+echo BAH
+  git_must_not_rebasing "${SOURCE_BRANCH}" "${TARGET_REPO}"
+  [[ $? -ne 0 ]] && return
+echo BAH
+
+  # There is a conundrum/enigma/riddle/puzzle/brain-teaser/problem/puzzlement
+  # when it comes to what to do about clarifying branches -- should we check
+  # every branch for changes, try to fast-forward, and complain if we cannot?
+  # That actually seems like the most approriate thing to do!
+  # It also feels really, really tedious.
+  # FIXME/2018-03-22 22:07: Consider checking all branches for rebase needs!
+
+  git_change_branches_if_necessary "${SOURCE_BRANCH}" "${TARGET_BRANCH}" "${TARGET_REPO}"
+
+  # Fast-forward merge (no new commits!) or complain (later).
+  git_merge_ff_only "${SOURCE_BRANCH}" "${TARGET_REPO}"
 
   popd &> /dev/null
-
 } # end: git_pull_hush
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -876,7 +879,7 @@ check_git_clone_or_pull_error () {
       exit 1
     else
       echo
-      echo "WARNING: git operation failed:"
+      warn "WARNING: git operation failed:"
       echo
       echo ${git_resp}
     fi
@@ -1082,7 +1085,7 @@ function cis_git() {
 git_infuse_gitignore_local() {
   [[ -z "$1" ]] && echo "${FUNCNAME[0]}: missing param" && exit 1
   if [[ ! -d .git/info ]]; then
-    echo "WARNING: Cannot infuse .gitignore.local under $(pwd -P): no .git/info"
+    warn "WARNING: Cannot infuse .gitignore.local under $(pwd -P): no .git/info"
     return
   fi
   if [[ -f .git/info/exclude || -h .git/info/exclude ]]; then
@@ -1116,6 +1119,7 @@ git_infuse_assume_unchanging() {
       exit 1
     fi
     if [[ "${do_sym}" == true && ! -h "${fname}" ]]; then
+# FIXME/2018-03-22: Verify porcelain usage (vs. plumbing).
       local dirty_status=$(git status --porcelain "${fname}")
       if [[ -n "${dirty_status}" ]]; then
         echo "${FUNCNAME[0]}: git file is dirty: ${fname}"
@@ -1185,6 +1189,9 @@ git-remote-v-all() {
 
 main() {
   source_deps
+
+  SKIP_GIT_DIRTY=false
+  export SKIP_GIT_DIRTY
 
   FRIES_GIT_ISSUES_DETECTED=false
   export FRIES_GIT_ISSUES_DETECTED
