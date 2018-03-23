@@ -863,7 +863,7 @@ git_change_branches_if_necessary () {
     echo
     echo " WRKD: $(pwd -P)"
     echo
-    echo " Changing branches: ${source_branch} => ${target_branch}"
+    echo " Changing branches: ${target_branch} => ${source_branch}"
     echo
     /usr/bin/git checkout ${source_branch} &> /dev/null && true
     if [[ $? -ne 0 ]]; then
@@ -996,9 +996,9 @@ git_pull_hush () {
 #  git_change_branches_if_necessary "${source_branch}" "${target_branch}" "${target_repo}"
   git_change_branches_if_necessary "${source_branch}" "${target_branch}"
 
-popd_perhaps "${target_repo}"
-return
-exit
+#popd_perhaps "${target_repo}"
+#return
+#exit
 
   # Fast-forward merge (no new commits!) or complain (later).
 #  git_merge_ff_only "${source_branch}" "${target_repo}"
