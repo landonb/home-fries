@@ -970,8 +970,8 @@ git_merge_ff_only () {
   local changes_bin="$(echo "${git_says}" | grep -P " \| Bin \d+ -> \d+ bytes$")"
   # 2018-03-23: Would you like something more muted, or vibrant? Trying vibrant.
   #[[ -n ${changes_txt} ]] && notice " ${BG_DARKGRAY}${changes_txt}"
-  [[ -n ${changes_txt} ]] && notice "  changes!\n${BG_BLUE}${changes_txt}"
-  [[ -n ${changes_bin} ]] && notice "  changes!\n${BG_BLUE}${changes_bin}"
+  [[ -n ${changes_txt} ]] && info "  changes!\n${BG_BLUE}${changes_txt}"
+  [[ -n ${changes_bin} ]] && info "  changes!\n${BG_BLUE}${changes_bin}"
 
   # (lb): Not quite sure why git_must_not_rebasing would not have failed first.
   #   Does this happen?
