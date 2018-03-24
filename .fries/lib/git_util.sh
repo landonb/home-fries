@@ -475,7 +475,6 @@ echo
             FRIES_GIT_ISSUES_RESOLUTIONS+=( \
               "cdd $(pwd) && git push origin ${branch_name} && popd"
             )
-#            export FRIES_GIT_ISSUES_RESOLUTIONS
             if ${FRIES_FAIL_ON_GIT_ISSUE}; then
               return 1
             fi
