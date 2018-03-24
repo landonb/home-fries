@@ -795,7 +795,7 @@ git_fetch_remote_travel () {
       | grep -v "^From " \
       | grep -v " \+[a-f0-9]\{7\}\.\.[a-f0-9]\{7\}.*->.*" \
     )"
-    [[ -n ${culled} ]] && notice "git fetch wha?\n${culled}"
+    [[ -n ${culled} ]] && warn "git fetch wha?\n${culled}"
 
     if [[ ${fetch_success} -ne 0 ]]; then
       error "Unexpected fetch failure! ${git_says}"
@@ -1013,7 +1013,7 @@ git_merge_ff_only () {
 #Please commit your changes or stash them before you merge.
 #Aborting
 
-  [[ -n ${culled} ]] && notice "git merge wha?\n${culled}"
+  [[ -n ${culled} ]] && warn "git merge wha?\n${culled}"
   local changes="$(echo "${git_says}" | grep -P " \| +\d+ [+-]+$")"
   # 2018-03-23: Would you like something more muted, or vibrant? Trying vibrant.
   #[[ -n ${changes} ]] && notice " ${BG_DARKGRAY}${changes}"
