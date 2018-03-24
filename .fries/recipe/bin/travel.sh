@@ -1595,10 +1595,33 @@ function git_commit_dirty_sync_repos () {
 
 # *** Git: check 'n fail
 
+function git_pre_status_auto_commit () {
+  # MAYBE: Does this commits of known knowns feel awkward here?
+  #   [2018-03-23 00:08: I think perhaps I meant, use an infuser/plugin?]
+
+  # Be helpful! We can take care of the known knowns.
+
+  git_commit_generic_file \
+    ".ignore" \
+    "Update .ignore."
+    #"Update .ignore during packme."
+
+  git_commit_generic_file \
+    ".agignore" \
+    "Update .agignore."
+    #"Update .agignore during packme."
+
+  git_commit_generic_file \
+    ".gitignore" \
+    "Update .gitignore."
+    #"Update .gitignore during packme."
+}
+
 function git_status_porcelain_wrap () {
   local working_dir="$1"
   tweak_errexit
   USING_ERREXIT=false
+  git_pre_status_auto_commit
   git_status_porcelain ${working_dir} ${SKIP_INTERNETS}
   local exit_code=$?
   USING_ERREXIT=true

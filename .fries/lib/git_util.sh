@@ -281,31 +281,6 @@ git_status_porcelain () {
   #  popd &> /dev/null
   #  pushd_or_die "${working_repo}"
 
-  # ***
-
-  # MAYBE: Does this commits of known knowns feel awkward here?
-  #   [2018-03-23 00:08: I think perhaps I meant, use an infuser/plugin?]
-
-  # Be helpful! We can take care of the known knowns.
-# FIXME/2018-03-23: This is an obnoxious side effect. Shouldn't get committed here.
-
-  git_commit_generic_file \
-    ".ignore" \
-    "Update .ignore."
-    #"Update .ignore during packme."
-
-  git_commit_generic_file \
-    ".agignore" \
-    "Update .agignore."
-    #"Update .agignore during packme."
-
-  git_commit_generic_file \
-    ".gitignore" \
-    "Update .gitignore."
-    #"Update .gitignore during packme."
-
-  # ***
-
   local dirty_repo=false
 
 # FIXME/2018-03-23: Replace `git status --porcelain` with proper plumbing.
@@ -348,6 +323,7 @@ git_status_porcelain () {
     warn "WARNING: Untracked files found in $working_dir"
   fi
 
+  # GREPPERS are used to ignore specific files, like travel.sh, and this file.
   tweak_errexit
   if ! ${dirty_repo}; then
     if [[ -n ${GREPPERS} ]]; then
@@ -420,7 +396,7 @@ echo
   #  Your branch is ahead of 'origin/master' by 281 commits.
 
   # But don't care if not really a remote, i.e., local origin.
-  tweak_errexit
+#  tweak_errexit
   # Need to use grep's [-P]erl-defined regex that includes the tab character.
   #
 
@@ -435,12 +411,37 @@ echo
 
 
 
+# FIXME: HEREHERHEREHRERHERHERHEHE
+#  git remote -v | grep -P "^origin\t\/" > /dev/null && true
+#  grep_result=$?
+#  reset_errexit
 
-  git remote -v | grep -P "^origin\t\/" > /dev/null
-  grep_result=$?
-  reset_errexit
+##  git remote -v | grep -P "^origin\t\/" > /dev/null && true
+## OH! The had the slash to match local path only??
+#  git remote -v | grep -P "^origin\t" > /dev/null && true
+#  local has_origin=$?
+##  git remote -v | grep -P "^${TRAVEL_REMOTE}\t\/" > /dev/null && true
+##  has_travel=$?
 
-  if [[ ${grep_result} -ne 0 ]]; then
+## git remote get-url origin
+## FIXME: see if remote matches...
+##echo "working_dir: $working_dir"
+
+#  local use_remote='origin'
+#  [[ ${has_origin} -ne 0 ]] && use_remote='travel'
+
+
+  git remote -v | grep -P "^origin\t" > /dev/null && true
+  local has_origin=$?
+
+  # Note the / slash, which would be the start of a local path, and not, e.g., ssh://.
+  git remote -v | grep -P "^origin\t\/" > /dev/null && true
+  local has_local_origin=$?
+
+
+#  if [[ ${grep_result} -ne 0 ]]; then
+#  if true; then
+  if [[ ${has_local_origin} -eq 0 ]] && [[ ${has_origin} -ne 0 ]]; then
     # Not a local origin.
 
     if [[ -n $(git remote -v) ]]; then
@@ -468,7 +469,7 @@ echo
           echo "============================================================"
           if ! ${SKIP_GIT_DIRTY}; then
             # FIXME: This message pertains to travel.sh.
-            echo "Please fix. Or run with -D (skip all git warnings)"
+#            echo "Please fix. Or run with -D (skip all git warnings)"
             FRIES_GIT_ISSUES_DETECTED=true
             export FRIES_GIT_ISSUES_DETECTED
             FRIES_GIT_ISSUES_RESOLUTIONS+=( \
@@ -511,17 +512,37 @@ echo
 # FIXME: This path is being followed when only remote is travel!
 
         tweak_errexit
+#echo BOOB
+
         # If we didn't --no-color the branch_name, we'd have to strip-color.
         #  stripcolors='/bin/sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"'
-        local git_push_staleness=$(git remote show origin \
+#        local git_push_staleness=$(git remote show origin \
+#          | grep "^\W*${branch_name}\W\+pushes to\W\+${branch_name}\W\+")
+#echo git remote show ${use_remote}
+#git remote show ${use_remote}
+# ?????
+        local git_push_staleness=$(git remote show ${use_remote} \
           | grep "^\W*${branch_name}\W\+pushes to\W\+${branch_name}\W\+")
 
         grep_result=$?
+
+#echo YES
+
+# git remote show <> will indicate state of branches:
+#    master pushes to master (up to date)
+#    master pushes to master (fast-forwardable)   # local ahead of remote
+#    master pushes to master (local out of date)  # local behind remote!
+
         reset_errexit
+
+
+        debug "git_push_staleness: ${git_push_staleness}"
+
         if [[ ${grep_result} -ne 0 ]]; then
 
           tweak_errexit
-          git remote show origin 2>&1 | grep "^ssh: Could not resolve hostname "
+#          git remote show origin 2>&1 | grep "^ssh: Could not resolve hostname "
+          git remote show ${use_remote} 2>&1 | grep "^ssh: Could not resolve hostname "
           grep_result=$?
           reset_errexit
           if [[ ${grep_result} -eq 0 ]]; then
@@ -531,11 +552,11 @@ echo
 
           echo "ERROR: Unexpected: Could not find \"${branch_name} pushes to ${branch_name}\""
           echo "                   in the output of"
-          echo "                      git remote show origin"
+          echo "                      git remote show ${use_remote}"
           echo
           echo "cwd: $(pwd -P)"
           echo "branch_name=\"${branch_name}\""
-          echo "git remote show origin | grep \"^\\W*\${branch_name}\\W\\+pushes to\\W\\+\${branch_name}\\W\\+\""
+          echo "git remote show ${use_remote} | grep \"^\\W*\${branch_name}\\W\\+pushes to\\W\\+\${branch_name}\\W\\+\""
           where
           # AHAHAHA/2017-09-08: This happened because I hadn't pushed yet.
           #   A simple `git push origin` finished wiring the remote....
@@ -553,31 +574,32 @@ echo
           grep_result=$?
           reset_errexit
           if [[ ${grep_result} -eq 0 ]]; then
-            echo "WHATEVER: Branch is behind origin/${branch_name} at $working_dir"
+            echo "WHATEVER: Branch is behind ${use_remote}/${branch_name} at $working_dir"
             echo "          You can git pull if you want to."
             echo "          But this script don't care."
             echo
           else
 
 # THIS IS HAPPENING
-echo ORIGIN
-git remote show origin
-echo HUH
+#echo ORIGIN
+#git remote show origin
+#git remote show ${use_remote}
+#echo HUH
 
-            warn "WARNING: Branch is ahead of origin/${branch_name} at $working_dir"
+            warn "WARNING: Branch is ahead of ${use_remote}/${branch_name} at $working_dir"
 # FIXME/2018-03-23: This looks like a block of code elsewhere in this self-same file!
             echo "=============================================================="
             echo
-            echo "  cdd $(pwd) && git push origin ${branch_name} && popd"
+            echo "  cdd $(pwd) && git push ${use_remote} ${branch_name} && popd"
             echo
             echo "=============================================================="
             if ! ${SKIP_GIT_DIRTY}; then
               # FIXME: This message pertains to travel.sh.
-              echo "Please fix. Or run with -D (skip all git warnings)"
+#              echo "Please fix. Or run with -D (skip all git warnings)"
               FRIES_GIT_ISSUES_DETECTED=true
               export FRIES_GIT_ISSUES_DETECTED
               FRIES_GIT_ISSUES_RESOLUTIONS+=( \
-                "cdd $(pwd) && git push origin ${branch_name} && popd"
+                "cdd $(pwd) && git push ${use_remote} ${branch_name} && popd"
               )
 #              export FRIES_GIT_ISSUES_RESOLUTIONS
               if ${FRIES_FAIL_ON_GIT_ISSUE}; then
@@ -592,6 +614,9 @@ echo HUH
           export GIT_DIRTY_FILES_FOUND
         fi
       fi
+    else
+      # A remote-less repo.
+      error "Unexpected path: remote-less repo: $(pwd -P)"
     fi
   fi
 
