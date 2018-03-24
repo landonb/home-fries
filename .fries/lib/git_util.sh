@@ -189,7 +189,7 @@ git_commit_all_dirty_files () {
     return 1
   fi
 
-  info "Checking for git dirtiness at: ${FG_LAVENDER}${REPO_PATH}"
+  debug "  Checking for git dirtiness at: ${FG_LAVENDER}${REPO_PATH}"
 
   pushd_or_die "${REPO_PATH}"
 
@@ -249,16 +249,14 @@ git_commit_all_dirty_files () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-echo_cyclones_light_on_light () {
-  #echo -e "${BG_FOREST}${FG_LIGHTRED}$(printf '🌀 %.0s' {1..36})${FONT_NORMAL}"
-  #echo -e "${BG_FOREST}${FG_LIGHTORANGE}$(printf '🌀 %.0s' {1..36})${FONT_NORMAL}"
-  echo -e "${BG_LIGHTRED}${FG_LIGHTORANGE}$(printf '🌀 %.0s' {1..36})${FONT_NORMAL}"
-}
-
 echo_cyclones_forange () {
-  #echo -e "${BG_FOREST}${FG_LIGHTRED}$(printf '🌀 %.0s' {1..36})${FONT_NORMAL}"
+  # Atrocious:
+  #  echo -e "${BG_FOREST}${FG_LIGHTRED}$(printf '🌀 %.0s' {1..36})${FONT_NORMAL}"
+  #  echo -e "${BG_FOREST}${FG_LIGHTORANGE}$(printf '🌀 %.0s' {1..36})${FONT_NORMAL}"
+  # Not too bad:
+  #  echo -e "${BG_FOREST}${FG_LIGHTORANGE}$(printf '🌀 %.0s' {1..36})${FONT_NORMAL}"
+  #  echo -e "${BG_LIGHTRED}${FG_LIGHTORANGE}$(printf '🌀 %.0s' {1..36})${FONT_NORMAL}"
   echo -e "${BG_FOREST}${FG_LIGHTORANGE}$(printf '🌀 %.0s' {1..36})${FONT_NORMAL}"
-  #echo -e "${BG_LIGHTRED}${FG_LIGHTORANGE}$(printf '🌀 %.0s' {1..36})${FONT_NORMAL}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -268,22 +266,17 @@ echo_cyclones_forange () {
 
 # FIXME/2018-03-22: This function is obnoxiously long. And complex.
 #   And why is it porcelain and not plumbing?
-# FIXME/2018-03-22: Verify porcelain usage (vs. plumbing).
+# FIXME/2018-03-22: Verify --porcelain usage (vs. plumbing).
 
 # NOTE: This fcn. expects to be run from the root of the git repo.
 git_status_porcelain () {
   local working_dir="$1"
   local skip_remote_check=$2
 
-  # MAYBE: Don't be a stickler?
-  #  local working_dir="${1-$(pwd)}"
-#  #  pushd "${working_repo}" &> /dev/null
-  #  popd &> /dev/null
-  #  pushd_or_die "${working_repo}"
-
   local dirty_repo=false
+  local dirty_warn
 
-# FIXME/2018-03-23: Replace `git status --porcelain` with proper plumbing.
+# FIXME/2018-03-23: Replace `git status --porcelain` with proper plumbing. Or, ?
 
 # FIX THIS
   # Use eval's below because of the GREPPERS.
@@ -298,19 +291,19 @@ git_status_porcelain () {
   reset_errexit
   if ${unstaged_changes_found}; then
     dirty_repo=true
-    warn "WARNING: Unstaged changes found in $working_dir"
+    dirty_warn="WARNING: Unstaged changes found in $working_dir"
   fi
 
   local grep_result
 
-  # 'M ' is added but not committed!
+  # 'M ' is added but not committed.
   tweak_errexit
   eval git status --porcelain ${GREPPERS} | grep "^M  " &> /dev/null
   grep_result=$?
   reset_errexit
   if [[ ${grep_result} -eq 0 ]]; then
     dirty_repo=true
-    warn "WARNING: Uncommitted changes found in $working_dir"
+    dirty_warn="WARNING: Uncommitted changes found in $working_dir"
   fi
 
   # '^?? ' is untracked.
@@ -320,7 +313,7 @@ git_status_porcelain () {
   reset_errexit
   if [[ ${grep_result} -eq 0 ]]; then
     dirty_repo=true
-    warn "WARNING: Untracked files found in $working_dir"
+    dirty_warn="WARNING: Untracked files found in $working_dir"
   fi
 
   # GREPPERS are used to ignore specific files, like travel.sh, and this file.
@@ -329,107 +322,59 @@ git_status_porcelain () {
     if [[ -n ${GREPPERS} ]]; then
       eval git status --porcelain ${GREPPERS} &> /dev/null
       if [[ $? -eq 0 ]]; then
-        warn "WARNING: git status --porcelain: non-zero exit"
         dirty_repo=true
+        dirty_warn="WARNING: git status --porcelain: non-zero exit"
       fi
     else
       local n_bytes=$(git status --porcelain | wc -c)
       if [[ ${n_bytes} -gt 0 ]]; then
-        warn "WARNING: git status --porcelain: n_bytes > 0"
         dirty_repo=true
+        dirty_warn="WARNING: git status --porcelain: n_bytes > 0"
       fi
     fi
   else
     eval git status --porcelain ${GREPPERS} | grep -v "^ M " &> /dev/null
     if [[ $? -eq 0 ]]; then
-        warn "WARNING: git status --porcelain: grepped"
       dirty_repo=true
+      dirty_warn="WARNING: git status --porcelain: grepped"
     fi
   fi
   reset_errexit
 
   if ${dirty_repo}; then
-#echo_octothorpes_maroon_on_lime
-#info "🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀"
-#echo_cyclones_white_on_red
-echo
-#echo_cyclones_light_on_light
-echo_cyclones_forange
-echo
-    warn "SKIPPING REPO: Dirty things found in ${working_dir}"
+    echo
+    echo_cyclones_forange
+    echo
+    warn "${dirty_warn}"
+
+# DUPLICATE_MESSAGE FIXME/2018-03-24
+#    warn "SKIPPING REPO: Dirty things found in ${working_dir}"
+
     # Although we print this copy-pasta later, at end of script,
     # it's nice to do so at runtime so user can get started resolving
     # conflicts before travel.sh finishes running.
-#    warn "========================================="
     echo
     echo "  cdd $(pwd) && git add -p"
-#    warn "========================================="
     if ! ${SKIP_GIT_DIRTY}; then
-      # FIXME: This message pertains to travel.sh.
-#      warn "Please fix. Or run with -D (skip all git warnings)"
-#      warn "            or run with -DD (skip warnings about $0)"
       FRIES_GIT_ISSUES_DETECTED=true
       export FRIES_GIT_ISSUES_DETECTED
       FRIES_GIT_ISSUES_RESOLUTIONS+=("cdd $(pwd) && git add -p")
-#      export FRIES_GIT_ISSUES_RESOLUTIONS
       if ${FRIES_FAIL_ON_GIT_ISSUE}; then
         return 1
       fi
     else
       echo
       warn "This is your only warning, per your -D'esire!"
-#      warn
     fi
-echo
-#echo_octothorpes_maroon_on_lime
-#echo_cyclones_white_on_red
-echo_cyclones_forange
-echo
+
+    echo
+    echo_cyclones_forange
+    echo
+
     GIT_DIRTY_FILES_FOUND=true
-    export GIT_DIRTY_FILES_FOUND
+# Is this export necessary?
+#    export GIT_DIRTY_FILES_FOUND
   fi
-
-  # Is this branch behind its remote?
-  # E.g.s,
-  #  Your branch is up-to-date with 'origin/master'.
-  # and
-  #  Your branch is ahead of 'origin/master' by 281 commits.
-
-  # But don't care if not really a remote, i.e., local origin.
-#  tweak_errexit
-  # Need to use grep's [-P]erl-defined regex that includes the tab character.
-  #
-
-
-
-
-
-
-# FIXME/2018-03-23 00:28: Using 'origin' is wrong! See: TRAVEL_REMOTE
-#
-
-
-
-
-# FIXME: HEREHERHEREHRERHERHERHEHE
-#  git remote -v | grep -P "^origin\t\/" > /dev/null && true
-#  grep_result=$?
-#  reset_errexit
-
-##  git remote -v | grep -P "^origin\t\/" > /dev/null && true
-## OH! The had the slash to match local path only??
-#  git remote -v | grep -P "^origin\t" > /dev/null && true
-#  local has_origin=$?
-##  git remote -v | grep -P "^${TRAVEL_REMOTE}\t\/" > /dev/null && true
-##  has_travel=$?
-
-## git remote get-url origin
-## FIXME: see if remote matches...
-##echo "working_dir: $working_dir"
-
-#  local use_remote='origin'
-#  [[ ${has_origin} -ne 0 ]] && use_remote='travel'
-
 
   git remote -v | grep -P "^origin\t" > /dev/null && true
   local has_origin=$?

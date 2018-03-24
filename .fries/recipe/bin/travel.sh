@@ -1586,14 +1586,14 @@ function git_commit_vimprojects () {
 
 function git_commit_dirty_sync_repos () {
 
-  trace "Checking single dirty files..."
+  trace "Checking single dirty files for auto-consumability..."
   for ((i = 0; i < ${#AUTO_GIT_ONE[@]}; i++)); do
     debug " ${AUTO_GIT_ONE[$i]}"
     DIRTY_BNAME=$(basename -- "${AUTO_GIT_ONE[$i]}")
     git_commit_generic_file "${AUTO_GIT_ONE[$i]}" "Update ${DIRTY_BNAME}."
   done
 
-  trace "Checking all repos' dirty files..."
+  trace "Auto-committing all repos' consumable dirty files..."
   for ((i = 0; i < ${#AUTO_GIT_ALL[@]}; i++)); do
     debug " ${AUTO_GIT_ALL[$i]}"
     git_commit_all_dirty_files "${AUTO_GIT_ALL[$i]}" "Update all of ${AUTO_GIT_ALL[$i]}."
