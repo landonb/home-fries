@@ -140,7 +140,7 @@ git_commit_generic_file () {
       echo -n "HEY, HEY: Your ${cur_dir}/${repo_file} is dirty. Wanna check it in? [y/n] "
       read -e YES_OR_NO
     else
-      info "Committing dirty file: ${FG_LAVENDER}${cur_dir}/${repo_file}"
+      trace " Committing dirty file: ${FG_LAVENDER}${cur_dir}/${repo_file}"
       YES_OR_NO="Y"
     fi
     if [[ ${YES_OR_NO^^} == "Y" ]]; then
@@ -162,9 +162,14 @@ git_commit_generic_file () {
       #   hint: as appropriate to mark resolution and make a commit.
       #   fatal: Exiting because of an unresolved conflict.
       if ! ${AUTO_COMMIT_FILES}; then
+# FIXME/2018-03-24: Stray echo. Change to logger? Does this affect travel?
         echo 'Committed!'
       fi
     fi
+  else
+    # The file is not dirty.
+    : # no-op
+    trace " not dirty"
   fi
 
 #  popd &> /dev/null

@@ -1543,6 +1543,7 @@ function git_commit_hamster () {
 function git_commit_vim_spell () {
   VIM_SPELL_REL="home/.vim/spell/en.utf-8.add"
   VIM_SPELL_ABS="${USERS_CURLY}/${VIM_SPELL_REL}"
+
   if [[ -e ${VIM_SPELL_ABS} ]]; then
     trace "Checking Vim spell..."
 
@@ -1585,8 +1586,8 @@ function git_commit_vimprojects () {
 } # end: git_commit_vimprojects
 
 function git_commit_dirty_sync_repos () {
-
   trace "Checking single dirty files for auto-consumability..."
+
   for ((i = 0; i < ${#AUTO_GIT_ONE[@]}; i++)); do
     debug " ${AUTO_GIT_ONE[$i]}"
     DIRTY_BNAME=$(basename -- "${AUTO_GIT_ONE[$i]}")
@@ -1598,7 +1599,6 @@ function git_commit_dirty_sync_repos () {
     debug " ${AUTO_GIT_ALL[$i]}"
     git_commit_all_dirty_files "${AUTO_GIT_ALL[$i]}" "Update all of ${AUTO_GIT_ALL[$i]}."
   done
-
 } # end: git_commit_dirty_sync_repos
 
 # *** Git: check 'n fail
