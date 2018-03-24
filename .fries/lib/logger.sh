@@ -43,7 +43,7 @@ log_msg () {
   if [[ ${FCN_LEVEL} -ge ${LOG_LEVEL} ]]; then
     #echo "${FCN_COLOR} $@"
     #RIGHT_NOW=$(date +%Y-%m-%d.%H.%M.%S)
-    RIGHT_NOW=$(date +%Y-%m-%d@%T)
+    RIGHT_NOW=$(date "+%Y-%m-%d @ %T")
     local bold_maybe=''
     [[ ${FCN_LEVEL} -ge ${LOG_LEVEL_WARNING} ]] && bold_maybe=${FONT_BOLD}
     local invert_maybe=''
