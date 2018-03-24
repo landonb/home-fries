@@ -168,8 +168,8 @@ git_commit_generic_file () {
     fi
   else
     # The file is not dirty.
+    #trace "  not dirty"
     : # no-op
-    trace " not dirty"
   fi
 
 #  popd &> /dev/null
