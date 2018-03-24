@@ -894,7 +894,8 @@ git_issue_complain_rebasing () {
   #FRIES_GIT_ISSUES_RESOLUTIONS+=("    cdd ${target_repo}")
   FRIES_GIT_ISSUES_RESOLUTIONS+=("    cdd $(pwd -P)")
   FRIES_GIT_ISSUES_RESOLUTIONS+=("    git status # sanity check")
-  FRIES_GIT_ISSUES_RESOLUTIONS+=("    git rebase --abort")
+  # 2018-03-23: The repo should not be in rebase, unless user did that themselves.
+  #FRIES_GIT_ISSUES_RESOLUTIONS+=("    git rebase --abort")
   FRIES_GIT_ISSUES_RESOLUTIONS+=("    git fetch ${TRAVEL_REMOTE} --prune")
 # FIXME/2018-03-23 14:17: This is not always correct: rebase could be against different branch.
 # FIXME/2018-03-23 14:18: What about checking all branches??
