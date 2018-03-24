@@ -446,9 +446,10 @@ echo
     if [[ -n $(git remote -v) ]]; then
       # Not a remote-less repo.
 
-      #local branch_name=$(git branch --no-color | head -n 1 | /bin/sed 's/^\*\? *//')
-      local branch_name=$(git branch --no-color | grep \* | cut -d ' ' -f2)
-      #echo "branch_name: ${branch_name}"
+#      #local branch_name=$(git branch --no-color | head -n 1 | /bin/sed 's/^\*\? *//')
+#      local branch_name=$(git branch --no-color | grep \* | cut -d ' ' -f2)
+#      #echo "branch_name: ${branch_name}"
+      local branch_name=$(git_checkedout_branch_name)
 
       # git status always compares against origin/master, or at least I
       # think it's stuck doing that. So this method only works if the
@@ -506,6 +507,9 @@ echo
       #     master            pushes to master            (local out of date)
       if ! ${skip_remote_check} && [[ -n ${skip_remote_check} ]]; then
 
+
+# FIXME: This path is being followed when only remote is travel!
+
         tweak_errexit
         # If we didn't --no-color the branch_name, we'd have to strip-color.
         #  stripcolors='/bin/sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"'
@@ -554,6 +558,12 @@ echo
             echo "          But this script don't care."
             echo
           else
+
+# THIS IS HAPPENING
+echo ORIGIN
+git remote show origin
+echo HUH
+
             warn "WARNING: Branch is ahead of origin/${branch_name} at $working_dir"
 # FIXME/2018-03-23: This looks like a block of code elsewhere in this self-same file!
             echo "=============================================================="
@@ -650,10 +660,15 @@ git_checkedout_branch_name () {
   #   is corrupt, most likely. I made a new sync-stick.
   # 2018-03-22: Ha! How have I been so naive? Avoid porcelain!
   #   git status | head -n 1 | grep "^On branch" | /bin/sed -r "s/^On branch //"
+  # And this magic!
+  #   local branch_name=$(git branch --no-color | grep \* | cut -d ' ' -f2)
+  # How many ways did I do it differently herein??
+  #   local branch_name=$(git branch --no-color | head -n 1 | /bin/sed 's/^\*\? *//')
 #  [[ -n "$1" ]] && pushd "$1" &> /dev/null
   pushd_or_die "$1"
   local branch_name=$(git rev-parse --abbrev-ref HEAD)
-  [[ -n "$1" ]] && popd &> /dev/null
+#  [[ -n "$1" ]] && popd &> /dev/null
+  popd_perhaps "$1"
   echo "${branch_name}"
 }
 
@@ -670,7 +685,8 @@ git_checkedout_remote_branch_name () {
 #  #tweak_errexit
   local remote_branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{u})
 #  #reset_errexit
-  [[ -n "$1" ]] && popd &> /dev/null
+#  [[ -n "$1" ]] && popd &> /dev/null
+  popd_perhaps "$1"
   echo "${remote_branch}"
 }
 
@@ -1124,7 +1140,8 @@ git-flip-master () {
 
   local project_name=$(basename -- $(pwd -P))
 
-  local branch_name=$(git branch --no-color | head -n 1 | /bin/sed 's/^\*\? *//')
+#  local branch_name=$(git branch --no-color | head -n 1 | /bin/sed 's/^\*\? *//')
+  local branch_name=$(git_checkedout_branch_name)
 
   local master_path="master+${project_name}"
 
