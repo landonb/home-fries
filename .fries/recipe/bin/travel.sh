@@ -26,7 +26,6 @@ set -e
 #__root="$(cd "$(dirname "${__dir}")" && pwd)" # <-- change this as it depends on your app
 #arg1="${1:-}"
 
-
 function errexit_cleanup () {
   echo
   echo "ERROR: The script failed!!"
@@ -38,6 +37,15 @@ function errexit_cleanup () {
 }
 trap errexit_cleanup EXIT
 
+# FIXME/2018-03-24: You're sourcing these here, and then later,
+#   but here is first and has less flexibility! (I'm guessing I
+#   added source_deps last; but I'm confused why I don't try
+#   harder to make sure these are available -- assumes you got
+#   your Bash and your Home Fries all set up appropriately!)
+#
+# FIXME/EXPLAIN/2018-03-24: Or does this have to do with the .waffle/TBD-shim??
+#   i.e., source what's around you.... UNDERSTAND THIS BETTER.
+#
 source_deps() {
   # NOTE: We symlink ~/.fries/recipe/bin from ~/.fries/bin
   #       so cannot rely on ${BASH_SOURCE[0]} to figure out
@@ -2253,8 +2261,17 @@ function prepare_shim () {
   /bin/cp -aLf ${PREFIX}${SCRIPT_ABS_PATH} travel_shim.sh
   chmod 775 travel_shim.sh
 
+  # MAINTAIN/2018-03-24: Keep these copies updated with whatever libs you add!
+  # FIXME/EXPLAIN/2018-03-24: Are these missing from the shim-shim?
+  #     source bash_base.sh
+  #     source ssh_util.sh
+  #     source process_util.sh
+
   debug "  Copying: ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/curly_util.sh"
   /bin/cp -aLf ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/curly_util.sh .
+
+  debug "  Copying: ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/color_util.sh"
+  /bin/cp -aLf ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/color_util.sh .
 
   debug "  Copying: ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/logger.sh"
   /bin/cp -aLf ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/logger.sh .
