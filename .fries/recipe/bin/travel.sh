@@ -1806,29 +1806,42 @@ function pull_git_repos () {
   fi
 
   trace "Pulling singular git repos..."
-  for ((i = 0; i < ${#ENCFS_GIT_REPOS[@]}; i++)); do
-    ABS_PATH="${ENCFS_GIT_REPOS[$i]}"
-    local ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
-    # MAYBE/2016-12-12: Ignore symlinks?
-    #if [[ -d ${ENCFS_REL_PATH} && ! -h ${ENCFS_REL_PATH} ]]; then
-      #debug " SOURCE_PATH: ${PREFIX}${ABS_PATH}"
-      #debug " TARGET_PATH: ${ENCFS_REL_PATH}"
-      debug " ${ENCFS_REL_PATH}"
-      git_pull_hush "${PREFIX}${ABS_PATH}" "${ENCFS_REL_PATH}"
-    #else
-    #  debug " not dir/symlink: ${ENCFS_REL_PATH}"
-    #fi
-  done
+  if [[ ${#ENCFS_GIT_REPOS[@]} -gt 0 ]]; then
+    for ((i = 0; i < ${#ENCFS_GIT_REPOS[@]}; i++)); do
+      ABS_PATH="${ENCFS_GIT_REPOS[$i]}"
+      local ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
+      # MAYBE/2016-12-12: Ignore symlinks?
+      #if [[ -d ${ENCFS_REL_PATH} && ! -h ${ENCFS_REL_PATH} ]]; then
+        #debug " SOURCE_PATH: ${PREFIX}${ABS_PATH}"
+        #debug " TARGET_PATH: ${ENCFS_REL_PATH}"
+        debug " ${ENCFS_REL_PATH}"
+        git_pull_hush "${PREFIX}${ABS_PATH}" "${ENCFS_REL_PATH}"
+      #else
+      #  debug " not dir/symlink: ${ENCFS_REL_PATH}"
+      #fi
+    done
+  else
+    debug " ** No git repos singular"
+  fi
 
   trace "Pulling gardened git repos..."
-  for ((i = 0; i < ${#ENCFS_GIT_ITERS[@]}; i++)); do
-    pull_gardened_repo "${ENCFS_GIT_ITERS[$i]}" "${PREFIX}"
-  done
+  if [[ ${#ENCFS_GIT_ITERS[@]} -gt 0 ]]; then
+    for ((i = 0; i < ${#ENCFS_GIT_ITERS[@]}; i++)); do
+      pull_gardened_repo "${ENCFS_GIT_ITERS[$i]}" "${PREFIX}"
+    done
+  else
+    debug " ** No git repos gardened"
+  fi
 
   trace "Pulling gardened Vim repos..."
-  for ((i = 0; i < ${#ENCFS_VIM_ITERS[@]}; i++)); do
-    pull_gardened_repo "${ENCFS_VIM_ITERS[$i]}" "${PREFIX}"
-  done
+  if [[ ${#ENCFS_VIM_ITERS[@]} -gt 0 ]]; then
+    for ((i = 0; i < ${#ENCFS_VIM_ITERS[@]}; i++)); do
+      pull_gardened_repo "${ENCFS_VIM_ITERS[$i]}" "${PREFIX}"
+    done
+  else
+    debug " ** No Vim repos gardened"
+  fi
+
   popd &> /dev/null
 } # end: pull_git_repos
 
