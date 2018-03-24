@@ -1703,14 +1703,22 @@ function check_repos_statuses () {
   done
 
   trace "Checking gardened git repos..."
-  for ((i = 0; i < ${#ENCFS_GIT_ITERS[@]}; i++)); do
-    check_gardened_repo "${ENCFS_GIT_ITERS[$i]}"
-  done
+  if [[ ${#ENCFS_GIT_ITERS[@]} -gt 0 ]]; then
+    for ((i = 0; i < ${#ENCFS_GIT_ITERS[@]}; i++)); do
+      check_gardened_repo "${ENCFS_GIT_ITERS[$i]}"
+    done
+  else
+    debug " ** No git repos gardened"
+  fi
 
   trace "Checking gardened Vim repos..."
-  for ((i = 0; i < ${#ENCFS_VIM_ITERS[@]}; i++)); do
-    check_gardened_repo "${ENCFS_VIM_ITERS[$i]}"
-  done
+  if [[ ${#ENCFS_VIM_ITERS[@]} -gt 0 ]]; then
+    for ((i = 0; i < ${#ENCFS_VIM_ITERS[@]}; i++)); do
+      check_gardened_repo "${ENCFS_VIM_ITERS[$i]}"
+    done
+  else
+    debug " ** No git repos gardened"
+  fi
 
   # Call private fcns. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
   tweak_errexit
@@ -1732,6 +1740,7 @@ function git_issues_review {
   if ${FRIES_GIT_ISSUES_DETECTED} || \
     [[ ${#FRIES_GIT_ISSUES_RESOLUTIONS[@]} -gt 0 ]] \
   ; then
+    echo
     warn "GRIZZLY! Travel encountered one or more git issues."
     notice
     notice "It could be dirty files, untracted files, behind branches, rebase issues, etc."
@@ -1740,9 +1749,6 @@ function git_issues_review {
     notice "Please fix. Or run with -D (skip all git warnings)"
     notice "            or run with -DD (skip warnings about $0)"
     notice
-#    notice "#################"
-#    notice " Give this a try "
-#    notice "#################"
     if [[ ${#FRIES_GIT_ISSUES_RESOLUTIONS[@]} -gt 0 ]]; then
       notice "Give this a try:"
       echo
@@ -1913,6 +1919,9 @@ function packme () {
   git_commit_vimprojects
 
   if ! ${SKIP_DIRTY_CHECK}; then
+
+    info "${BG_PINK}${FG_MAROON}" \
+      "🏄  🌠  🌠   Looking for dirt!  🏄  🌠  🌠  "
 
     # Commit whatever's listed in user's privatey cfg/sync_repos.sh.
     git_commit_dirty_sync_repos
