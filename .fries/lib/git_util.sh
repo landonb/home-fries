@@ -784,16 +784,19 @@ git_fetch_remote_travel () {
     git fetch ${TRAVEL_REMOTE} --prune
   else
     local git_says
-#    git_says=$(git fetch --all --prune 2>&1 > /dev/null)
     git_says=$(git fetch --all --prune 2>&1) && true
     local fetch_success=$?
     verbose "git fetch says:\n${git_says}"
     # Use `&& true` in case grep does not match anything,
     # so as not to tickle errexit.
+    # 2018-03-23: Is the "has become dangling" message meaningful to me?
      local culled="$(echo "${git_says}" \
       | grep -v "^Fetching " \
       | grep -v "^From " \
-      | grep -v " \+[a-f0-9]\{7\}\.\.[a-f0-9]\{7\}.*->.*" \
+      | grep -v "+\? *[a-f0-9]\{7,8\}\.\{2,3\}[a-f0-9]\{7,8\}.*->.*" \
+      | grep -v -P '\* \[new branch\] +.* -> .*' \
+      | grep -v "^- \[deleted\] \+(none) \+-> .*" \
+      | grep -v "(refs/remotes/origin/HEAD has become dangling)" \
     )"
     [[ -n ${culled} ]] && warn "git fetch wha?\n${culled}"
 
@@ -994,9 +997,10 @@ git_merge_ff_only () {
   verbose "git merge says:\n${git_says}"
   local culled="$(echo "${git_says}" \
     | grep -v "^Already up to date.$" \
-    | grep -v "^Updating [a-f0-9]\{7\}\.\.[a-f0-9]\{7\}$" \
+    | grep -v "^Updating [a-f0-9]\{7,8\}\.\.[a-f0-9]\{7,8\}$" \
     | grep -v "^Fast-forward$" \
     | grep -P -v " \| +\d+ [+-]+$" \
+    | grep -P -v " \| Bin \d+ -> \d+ bytes$" \
     | grep -P -v "^ \d+ files? changed, \d+ insertions?\(\+\), \d+ deletions?\(-\)$" \
     | grep -P -v "^ \d+ files? changed, \d+ insertions?\(\+\)$" \
     | grep -P -v "^ \d+ files? changed, \d+ deletions?\(-\)$" \
@@ -1006,6 +1010,7 @@ git_merge_ff_only () {
     | grep -P -v "^ \d+ deletions?\(-\)$" \
   )"
 
+  # FIXME/2018-03-23 21:30: YO!
 # FIXME: need to grep for error here, before wha?
 #error: Your local changes to the following files would be overwritten by merge:
 #	cfg/sync_repos.sh
@@ -1014,10 +1019,13 @@ git_merge_ff_only () {
 #Aborting
 
   [[ -n ${culled} ]] && warn "git merge wha?\n${culled}"
-  local changes="$(echo "${git_says}" | grep -P " \| +\d+ [+-]+$")"
+  # The grep -P option only works on one pattern grep, so cannot use -e, eh?
+  local changes_txt="$(echo "${git_says}" | grep -P " \| +\d+ [+-]+$")"
+  local changes_bin="$(echo "${git_says}" | grep -P " \| Bin \d+ -> \d+ bytes$")"
   # 2018-03-23: Would you like something more muted, or vibrant? Trying vibrant.
-  #[[ -n ${changes} ]] && notice " ${BG_DARKGRAY}${changes}"
-  [[ -n ${changes} ]] && notice "  changes!\n${BG_BLUE}${changes}"
+  #[[ -n ${changes_txt} ]] && notice " ${BG_DARKGRAY}${changes_txt}"
+  [[ -n ${changes_txt} ]] && notice "  changes!\n${BG_BLUE}${changes_txt}"
+  [[ -n ${changes_bin} ]] && notice "  changes!\n${BG_BLUE}${changes_bin}"
 
   # (lb): Not quite sure why git_must_not_rebasing would not have failed first.
   #   Does this happen?
