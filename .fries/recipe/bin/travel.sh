@@ -601,6 +601,8 @@ function determine_stick_dir () {
     done
     if [[ ${#CANDIDATES[@]} -eq 1 ]]; then
       TRAVEL_DIR=${CANDIDATES[0]}
+    elif ${CAN_IGNORE_TRAVEL_DIR}; then
+      return 0
     else
       echo "More than one path found under /media/${USER}/"
       echo "Please choose the correct path ${PLEASE_CHOOSE_PART}."
