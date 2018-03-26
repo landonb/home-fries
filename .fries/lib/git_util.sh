@@ -945,20 +945,24 @@ git_merge_ff_only () {
   git_says=$(git merge --ff-only ${TRAVEL_REMOTE}/${source_branch} 2>&1) && true
   local merge_success=$?
 
+  local pattern_txt='^ \S* *\| +\d+ ?[+-]*$'
+  local pattern_bin='^ \S* *\| +Bin \d+ -> \d+ bytes$'
+
   verbose "git merge says:\n${git_says}"
   local culled="$(echo "${git_says}" \
     | grep -v "^Already up to date.$" \
     | grep -v "^Updating [a-f0-9]\{7,8\}\.\.[a-f0-9]\{7,8\}$" \
     | grep -v "^Fast-forward$" \
-    | grep -P -v " \| +\d+ [+-]+$" \
-    | grep -P -v " \| Bin \d+ -> \d+ bytes$" \
     | grep -P -v "^ \d+ files? changed, \d+ insertions?\(\+\), \d+ deletions?\(-\)$" \
     | grep -P -v "^ \d+ files? changed, \d+ insertions?\(\+\)$" \
     | grep -P -v "^ \d+ files? changed, \d+ deletions?\(-\)$" \
     | grep -P -v "^ \d+ insertions?\(\+\), \d+ deletions?\(-\)$" \
     | grep -P -v "^ \d+ files? changed$" \
+    | grep -P -v " create mode \d+ \S+$" \
     | grep -P -v "^ \d+ insertions?\(\+\)$" \
     | grep -P -v "^ \d+ deletions?\(-\)$" \
+    | grep -P -v "${pattern_txt}" \
+    | grep -P -v "${pattern_bin}" \
   )"
 
   # FIXME/2018-03-23 21:30: YO!
@@ -971,8 +975,8 @@ git_merge_ff_only () {
 
   [[ -n ${culled} ]] && warn "git merge wha?\n${culled}"
   # The grep -P option only works on one pattern grep, so cannot use -e, eh?
-  local changes_txt="$(echo "${git_says}" | grep -P " \| +\d+ [+-]+$")"
-  local changes_bin="$(echo "${git_says}" | grep -P " \| Bin \d+ -> \d+ bytes$")"
+  local changes_txt="$(echo "${git_says}" | grep -P "${pattern_txt}")"
+  local changes_bin="$(echo "${git_says}" | grep -P "${pattern_bin}")"
   # 2018-03-23: Would you like something more muted, or vibrant? Trying vibrant.
   #[[ -n ${changes_txt} ]] && notice " ${BG_DARKGRAY}${changes_txt}"
   [[ -n ${changes_txt} ]] && info "  changes!\n${BG_BLUE}${changes_txt}"
