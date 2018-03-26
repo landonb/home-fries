@@ -975,25 +975,24 @@ git_merge_ff_only () {
 #Aborting
 
   [[ -n ${culled} ]] && warn "git merge wha?\n${culled}"
-  # The grep -P option only works on one pattern grep, so cannot use -e, eh?
-#  local changes_txt="$(echo "${git_says}" | grep -P "${pattern_txt}")"
-#  local changes_bin="$(echo "${git_says}" | grep -P "${pattern_bin}")"
-
-  local changes_txt=\
-    "$(echo "${git_says}" | grep -P "${pattern_txt}" | /bin/sed "s/\$/${FONT_NORMAL}/g")"
-  local changes_bin=\
-    "$(echo "${git_says}" | grep -P "${pattern_bin}" | /bin/sed "s/\$/${FONT_NORMAL}/g")"
-
-# WORKS:
-# echo " .fries/lib/git_util.sh | 4 ++--" | grep -P "${pattern_txt}" | /bin/sed ":a;N;\$!ba;s/\n/${FONT_NORMAL}\n/g"
-
-#sed ':a;N;$!ba;s/\n/ /g'
-#https://stackoverflow.com/questions/1251999/how-can-i-replace-a-newline-n-using-sed
-
   # 2018-03-23: Would you like something more muted, or vibrant? Trying vibrant.
-  #[[ -n ${changes_txt} ]] && notice " ${BG_DARKGRAY}${changes_txt}"
-  #[[ -n ${changes_txt} ]] && info "  changes!\n${BG_BLUE}${changes_txt}"
-  #[[ -n ${changes_bin} ]] && info "  changes!\n${BG_BLUE}${changes_bin}"
+  #   2018-03-26: It's taking time to tweak the vibrant, colorful display to nice.
+  # NOTE: The grep -P option only works on one pattern grep, so cannot use -e, eh?
+  # 2018-03-26: First attempt, naive, first line has black bg between last char and NL,
+  # but subsequent lines have changed background color to end of line, seems weird:
+  #   local changes_txt="$(echo "${git_says}" | grep -P "${pattern_txt}")"
+  #   local changes_bin="$(echo "${git_says}" | grep -P "${pattern_bin}")"
+  # So use sed to sandwich each line with color changes.
+  local grep_sed_sed=' \
+    /bin/sed "s/\$/\\${FONT_NORMAL}/g" \
+    | /bin/sed "s/^/\\${BG_BLUE}/g" \
+  '
+  local changes_txt="$( \
+    eval "echo \"${git_says}\" | grep -P \"${pattern_txt}\" | ${grep_sed_sed}" \
+  )"
+  local changes_bin="$( \
+    eval "echo \"${git_says}\" | grep -P \"${pattern_bin}\" | ${grep_sed_sed}" \
+  )"
   [[ -n ${changes_txt} ]] && info "Changes! in ${working_dir}\n${BG_BLUE}${changes_txt}"
   [[ -n ${changes_bin} ]] && info "Changes! in ${working_dir}\n${BG_BLUE}${changes_bin}"
 
