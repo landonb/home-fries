@@ -36,7 +36,6 @@ UNIQUE_TIME=$(date +%Y%m%d-%Hh%Mm%Ss)
 
 function soups_finished_dinners_over_report_time {
   if [[ -n "${SETUP_TIME_N}" ]]; then
-echo "ALREADY SET"
     # Already been in through here and printed elapsed time.
     # (We want plain echoes to be last output, not run time.)
     return
@@ -1946,6 +1945,9 @@ function packme () {
 
   if ! ${SKIP_DIRTY_CHECK}; then
 
+    # Don't print elapsed time yet.
+    SETUP_TIME_N='0'
+
     info "${BG_PINK}${FG_MAROON}" \
       "🏄  🌠  🌠   Looking for dirt!  🏄  🌠  🌠  "
 
@@ -1961,6 +1963,9 @@ function packme () {
 
     info "${BG_PINK}${FG_MAROON}" \
       "🍁  🍁  🍁   Done checking repos for dirt  🍁  🍁  🍁  "
+
+    # Next time, then we can print elapsed time.
+    SETUP_TIME_N=''
   fi
 
   if [[ ! -d ${EMISSARY} ]]; then
