@@ -30,10 +30,17 @@ set -e
 
 # Start a timer.
 setup_time_0=$(date +%s.%N)
+setup_time_n=''
 
 UNIQUE_TIME=$(date +%Y%m%d-%Hh%Mm%Ss)
 
 function soups_finished_dinners_over_report_time {
+  if [[ -n "${setup_time_n}" ]]; then
+    # Already been in through here and printed elapsed time.
+    # (We want plain echoes to be last output, not run time.)
+    return
+  fi
+
   local setup_time_n=$(date +%s.%N)
   local time_elapsed=$(\
     echo "scale=2; ($setup_time_n - $setup_time_0) * 100 / 100" | bc -l
@@ -1738,6 +1745,8 @@ function check_repos_statuses () {
     user_do_check_repos_statuses
   fi
 
+  soups_finished_dinners_over_report_time
+
   git_issues_review
 } # end: check_repos_statuses
 
@@ -1749,7 +1758,6 @@ function git_issues_review {
   if ${FRIES_GIT_ISSUES_DETECTED} || \
     [[ ${#FRIES_GIT_ISSUES_RESOLUTIONS[@]} -gt 0 ]] \
   ; then
-    soups_finished_dinners_over_report_time
     echo
     warn "GRIZZLY! Travel encountered one or more git issues."
     notice
@@ -2018,6 +2026,8 @@ function packme () {
 
   create_umount_script
 
+  soups_finished_dinners_over_report_time
+
   echo
   echo "Plaintext on the stick:"
   echo
@@ -2234,6 +2244,8 @@ function unpack () {
   chase_and_face
 
   create_umount_script
+
+  soups_finished_dinners_over_report_time
 
   #echo
   #echo "encrypted repos rebased from emissaries."
