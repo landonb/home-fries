@@ -1490,6 +1490,10 @@ stage_4_all_the_young_pips () {
   sudo pip2 install passlib
   sudo pip3 install passlib
 
+  # 2018-03-26: glances (`top`/`htop` alternative).
+  sudo pip2 install glances
+  sudo pip3 install glances
+
   umask ${was_umask}
 
   popd &> /dev/null
