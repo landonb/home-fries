@@ -980,9 +980,9 @@ git_merge_ff_only () {
 #  local changes_bin="$(echo "${git_says}" | grep -P "${pattern_bin}")"
 
   local changes_txt=\
-    "$(echo \"${git_says}\" | grep -P \"${pattern_txt}\" | /bin/sed ':a;N;\$!ba;s/\\n/${FONT_NORMAL}\n/g')"
+    "$(echo "${git_says}" | grep -P "${pattern_txt}" | /bin/sed ':a;N;\$!ba;s/\\n/${FONT_NORMAL}\\n/g')"
   local changes_bin=\
-    "$(echo \"${git_says}\" | grep -P \"${pattern_bin}\" | /bin/sed ':a;N;\$!ba;s/\\n/${FONT_NORMAL}\n/g')"
+    "$(echo "${git_says}" | grep -P "${pattern_bin}" | /bin/sed ':a;N;\$!ba;s/\\n/${FONT_NORMAL}\\n/g')"
 
 
 # WORKS:
