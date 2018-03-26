@@ -29,21 +29,21 @@ set -e
 # ***
 
 # Start a timer.
-setup_time_0=$(date +%s.%N)
-setup_time_n=''
+SETUP_TIME_0=$(date +%s.%N)
+SETUP_TIME_N=''
 
 UNIQUE_TIME=$(date +%Y%m%d-%Hh%Mm%Ss)
 
 function soups_finished_dinners_over_report_time {
-  if [[ -n "${setup_time_n}" ]]; then
+  if [[ -n "${SETUP_TIME_N}" ]]; then
     # Already been in through here and printed elapsed time.
     # (We want plain echoes to be last output, not run time.)
     return
   fi
 
-  local setup_time_n=$(date +%s.%N)
+  SETUP_TIME_N=$(date +%s.%N)
   local time_elapsed=$(\
-    echo "scale=2; ($setup_time_n - $setup_time_0) * 100 / 100" | bc -l
+    echo "scale=2; ($SETUP_TIME_N - $SETUP_TIME_0) * 100 / 100" | bc -l
   )
   # Only show elapsed time if more than a split second, or whatever.
   # Use `bc` to output 0 or 1, and use ``(( ... ))`` so Bash interprets
@@ -1905,7 +1905,6 @@ function make_plaintext () {
     ARCHIVE_REL=$(echo ${ARCHIVE_SRC} | /bin/sed s/^.//)
 
     if [[ -e ${ARCHIVE_SRC} ]]; then
-#      echo -n " tarring: ${ARCHIVE_SRC}"
       debug " tarring: ${FG_LAVENDER}${ARCHIVE_SRC}"
       pushd / &> /dev/null
       # Note: Missing files cause tar errors. If this happens, consider:
@@ -1919,12 +1918,7 @@ function make_plaintext () {
         --exclude="*/TBD-*" \
          ${ARCHIVE_REL}
       popd &> /dev/null
-      #echo " ok"
-#      echo
     else
-      #error
-      #error "FATAL: Indicated plaintext archive not found at: ${ARCHIVE_SRC}"
-      #exit 1
       info
       info "NOTICE: Mkdir'ing plaintext archive not found at: ${ARCHIVE_SRC}"
       info
