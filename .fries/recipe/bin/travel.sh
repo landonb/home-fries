@@ -67,6 +67,8 @@ function errexit_cleanup () {
 }
 trap errexit_cleanup EXIT
 
+# ***
+
 # FIXME/2018-03-24: You're sourcing these here, and then later,
 #   but here is first and has less flexibility! (I'm guessing I
 #   added source_deps last; but I'm confused why I don't try
@@ -282,6 +284,13 @@ if ${DEBUG}; then                             # E.g.,
   echo "  PRIVATE_REPO : $PRIVATE_REPO"       #  .theirs
   echo "  PRIVATE_REPO_: $PRIVATE_REPO_"      #  theirs
 fi
+
+# ***
+
+EMISSARY=
+PLAINPATH=
+PLAIN_TBD=
+CANDIDATES=()
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -582,14 +591,14 @@ function soups_on () {
 
 function determine_stick_dir () {
 
-  local PLEASE_CHOOSE_PART=$1
+  local please_choose_part=$1
 
   shopt -s dotglob
   shopt -s nullglob
-  local MOUNTED_DIRS=(/media/${USER}/*)
+  local mounted_dirs=(/media/${USER}/*)
   shopt -u dotglob
   shopt -u nullglob
-  if [[ ${#MOUNTED_DIRS[@]} -eq 0 ]]; then
+  if [[ ${#mounted_dirs[@]} -eq 0 ]]; then
     if ! ${CAN_IGNORE_TRAVEL_DIR}; then
       echo "Nothing mounted under /media/${USER}/"
       echo -n "Please specify the dually-accessible sync directory: "
@@ -597,11 +606,11 @@ function determine_stick_dir () {
     else
       return 0
     fi
-  elif [[ ${#MOUNTED_DIRS[@]} -eq 1 ]]; then
-    TRAVEL_DIR=${MOUNTED_DIRS[0]}
+  elif [[ ${#mounted_dirs[@]} -eq 1 ]]; then
+    TRAVEL_DIR=${mounted_dirs[0]}
   else
     CANDIDATES=()
-    for fpath in "${MOUNTED_DIRS[@]}"; do
+    for fpath in "${mounted_dirs[@]}"; do
       # Use -r to check that path is readable. Just because.
       if [[ -r ${fpath} ]]; then
         echod "Examining mounted path: ${fpath}"
@@ -618,10 +627,13 @@ function determine_stick_dir () {
     elif ${CAN_IGNORE_TRAVEL_DIR}; then
       return 0
     else
+      # FIXME/2018-03-26: YA KNOW! You could just use all CANDIDATES,
+      # since they all have -emissary path and are all Travel lockers!
+
       echo "More than one path found under /media/${USER}/"
-      echo "Please choose the correct path ${PLEASE_CHOOSE_PART}."
+      echo "Please choose the correct path ${please_choose_part}."
       echo "(You also just might need to mount your sync stick.)"
-      for fpath in "${MOUNTED_DIRS[@]}"; do
+      for fpath in "${mounted_dirs[@]}"; do
         echo -n "Is this your path?: ${fpath} [y/n] "
         read -n 1 -e YES_OR_NO
         if [[ ${YES_OR_NO^^} == "Y" ]]; then
@@ -1321,21 +1333,31 @@ function mount_curly_emissary_gooey () {
 }
 
 function umount_curly_emissary_gooey () {
-  #trace "GOOEY: Unmount"
-
-  if [[ "${EMISSARY}" == '' ]]; then
+  if [[ -n "${EMISSARY}" ]]; then
+    umount_curly_emissary_gooey_one "${EMISSARY}"
+  elif [[ \
+    ${TRAVEL_CMD} == "umount_curly_emissary_gooey" \
+    && ${#CANDIDATES[@]} -gt 0 \
+  ]]; then
+    local emissary
+    for lemissary in "${CANDIDATES[@]}"; do
+      umount_curly_emissary_gooey_one "${lemissary}"
+    done
+  else
     info "EMISSARY not set, so nothing to unmount, sucker."
     return 1
   fi
+}
 
-  tweak_errexit
-  mount | grep ${EMISSARY}/gooey > /dev/null
+function umount_curly_emissary_gooey_one () {
+  local lemissary="$1"
+
+  mount | grep ${lemissary}/gooey > /dev/null && true
   local exit_code=$?
-  reset_errexit
   if [[ ${exit_code} -eq 0 ]]; then
     sleep 0.1 # else umount fails.
     local umntput
-    umntput=$(fusermount -u ${EMISSARY}/gooey 2>&1) && true
+    umntput=$(fusermount -u ${lemissary}/gooey 2>&1) && true
     local exit_code=$?
     if [[ ${exit_code} -ne 0 ]]; then
       warn ${umntput}
@@ -1344,18 +1366,28 @@ function umount_curly_emissary_gooey () {
       echo
       echo "MEH: Travel could not umount the encfs using:"
       echo
-      echo "    fusermount -u ${EMISSARY}/gooey"
+      echo "    fusermount -u ${lemissary}/gooey"
       echo
       echo " You could identify the processes keeping it open:"
       echo
-      echo "    fuser -c ${EMISSARY}/gooey 2>&1"
+      echo "    fuser -c ${lemissary}/gooey 2>&1"
       echo
       echo " and then can get the process ID using:"
       echo
       echo "    echo \$\$"
     fi
   else
-    info "The Encfs is not mounted."
+    info "No Encfs mounted at: ${lemissary}/gooey"
+  fi
+
+  # 2018-03-26: Make sense here?
+  mount | grep ${lemissary} > /dev/null && true
+  local exit_code=$?
+  if [[ ${exit_code} -eq 0 ]]; then
+    umount ${lemissary}
+    notice "Unmounted: ${lemissary}"
+  else
+    info "There but not mounted: ${lemissary}"
   fi
 }
 
@@ -1529,16 +1561,33 @@ function create_umount_script () {
   #trace "umount ${TRAVEL_DIR}" > ${USERS_CURLY}/popoff.sh
   #chmod 775 ${USERS_CURLY}/popoff.sh
 
+  # FIXME/2018-03-26: (Or fix in Travel 2.0): Not all TRAVEL_DIRs are mounted,
+  # i.e., when testing locally. So don't add `umount` below if doesn't apply.
+  #   Might also want to reset the popoff script and remove umount later.
+  #   Also, why do I need the umount? Doesn't the travel-umount command do that??
+
   # 2016-11-04: Oh, yerp.
   #trace "umount ${TRAVEL_DIR}" > ${HOME}/.fries/recipe/bin/popoff.sh
   cat > ${HOME}/.fries/recipe/bin/popoff.sh << EOF
 #!/bin/bash
+# NOTE: This is a generated file.
+#
+#  DO NOT CHECK IN
+#
+#    See:
+#
+#      create_umount_script
+#
 SCRIPT_DIR="\$(dirname \${BASH_SOURCE[0]})"
 \${SCRIPT_DIR}/travel umount
 if [[ -d ${TRAVEL_DIR} ]]; then
-  umount ${TRAVEL_DIR}
+  mount | grep ${TRAVEL_DIR} &> /dev/null && true
+  retval=$?
+  if [[ $retval -eq 0 ]]; then
+    umount ${TRAVEL_DIR}
+  fi
 else
-  echo "Travel device is not mounted."
+  info "Last-used travel device is no longer mounted at: ${TRAVEL_DIR}"
 fi
 unset SCRIPT_DIR
 EOF
@@ -2129,10 +2178,10 @@ function update_hamster_db () {
   # FIXME/2018-03-23: Replace tweak_errexit hacks with $(subshell) && true
   tweak_errexit
   command -v hamster-love > /dev/null
-  RET_VAL=$?
+  local ret_val=$?
   reset_errexit
 
-  if [[ ${RET_VAL} -ne 0 ]]; then
+  if [[ ${ret_val} -ne 0 ]]; then
     warn "WARNING: Hamstering enabled but hamster-love not found"
     return
   fi
@@ -2147,29 +2196,30 @@ function update_hamster_db () {
 
   CURLY_PATH=${USERS_CURLY}/home/.local/share/hamster-applet
 
-  CANDIDATES=()
+  local candidates=()
 
   # Consider any hamster.dbs in ${USERS_CURLY}, now that it's been git pull'ed.
   shopt -s nullglob
-  CANDIDATES+=(${USERS_CURLY}/home/.local/share/hamster-applet/hamster-*)
+  candidates+=(${USERS_CURLY}/home/.local/share/hamster-applet/hamster-*)
   shopt -u nullglob
 
   # Consider any hamster.dbs at the root of the travel directory.
   if [[ -n ${TRAVEL_DIR} && -d ${TRAVEL_DIR} ]]; then
     shopt -s nullglob
-    CANDIDATES+=(${TRAVEL_DIR}/hamster-*)
+    candidates+=(${TRAVEL_DIR}/hamster-*)
     shopt -u nullglob
   fi
 
   # Consider any hamster.dbs in the dropbox.
   if [[ -d ${HOME}/Dropbox ]]; then
     while IFS= read -r -d '' file; do
-      CANDIDATES+=("${file}")
+      candidates+=("${file}")
     done < <(find ${HOME}/Dropbox -maxdepth 1 -type f -name 'hamster-*' -print0)
   fi
 
   LATEST_HAMMY=''
-  for candidate in "${CANDIDATES[@]}"; do
+  local candidate
+  for candidate in "${candidates[@]}"; do
     #debug "candidate: ${candidate}"
     if [[ -z ${LATEST_HAMMY} ]]; then
       #debug "first candidate: ${candidate}"
