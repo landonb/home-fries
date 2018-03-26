@@ -976,8 +976,17 @@ git_merge_ff_only () {
 
   [[ -n ${culled} ]] && warn "git merge wha?\n${culled}"
   # The grep -P option only works on one pattern grep, so cannot use -e, eh?
-  local changes_txt="$(echo "${git_says}" | grep -P "${pattern_txt}")"
-  local changes_bin="$(echo "${git_says}" | grep -P "${pattern_bin}")"
+#  local changes_txt="$(echo "${git_says}" | grep -P "${pattern_txt}")"
+#  local changes_bin="$(echo "${git_says}" | grep -P "${pattern_bin}")"
+
+  local changes_txt=\
+    "$(echo "${git_says}" | grep -P "${pattern_txt}") | sed ':a;N;$!ba;s/\n/${FONT_NORMAL}\n/g'"
+  local changes_bin=\
+    "$(echo "${git_says}" | grep -P "${pattern_bin}") | sed ':a;N;$!ba;s/\n/${FONT_NORMAL}\n/g'"
+
+#sed ':a;N;$!ba;s/\n/ /g'
+#https://stackoverflow.com/questions/1251999/how-can-i-replace-a-newline-n-using-sed
+
   # 2018-03-23: Would you like something more muted, or vibrant? Trying vibrant.
   #[[ -n ${changes_txt} ]] && notice " ${BG_DARKGRAY}${changes_txt}"
   #[[ -n ${changes_txt} ]] && info "  changes!\n${BG_BLUE}${changes_txt}"
