@@ -1794,11 +1794,11 @@ function pull_gardened_repo () {
     TARGET_PATH="${ENCFS_REL_PATH}/${TARGET_BASE}"
     if [[ -d ${TARGET_PATH}/.git && ! -h ${TARGET_PATH} ]]; then
       if [[ ${TARGET_BASE#TBD-} == ${TARGET_BASE} ]]; then
-        debug "  $fpath"
+        debug "  ${fpath}"
         SOURCE_PATH="${PREFIX}${ABS_PATH}/$(basename -- "${fpath}")"
         #debug "\${SOURCE_PATH}: ${SOURCE_PATH}"
         #debug "\${TARGET_PATH}: ${TARGET_PATH}"
-        git_pull_hush "${SOURCE_PATH}" "${TARGET_PATH}"
+        git_pull_hush "${SOURCE_PATH}" "${TARGET_PATH}" "${fpath}"
       else
         debug "  skipping (TBD-*): ${fpath}"
       fi
@@ -1833,7 +1833,7 @@ function pull_git_repos () {
         #debug " SOURCE_PATH: ${PREFIX}${ABS_PATH}"
         #debug " TARGET_PATH: ${ENCFS_REL_PATH}"
         debug " ${ENCFS_REL_PATH}"
-        git_pull_hush "${PREFIX}${ABS_PATH}" "${ENCFS_REL_PATH}"
+        git_pull_hush "${PREFIX}${ABS_PATH}" "${ENCFS_REL_PATH}" "${ABS_PATH}"
       #else
       #  debug " not dir/symlink: ${ENCFS_REL_PATH}"
       #fi
@@ -1980,7 +1980,7 @@ function packme () {
     # Just pull ${USERS_CURLY}.
     mount_curly_emissary_gooey
     trace "Pulling into: ${EMISSARY}/gooey${USERS_CURLY}"
-    git_pull_hush ${USERS_CURLY} ${EMISSARY}/gooey${USERS_CURLY}
+    git_pull_hush "${USERS_CURLY}" "${EMISSARY}/gooey${USERS_CURLY}" "${USERS_CURLY}"
     umount_curly_emissary_gooey
 
   else

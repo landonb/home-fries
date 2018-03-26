@@ -935,6 +935,7 @@ git_change_branches_if_necessary () {
 git_merge_ff_only () {
   local source_branch="$1"
   local target_repo="${2-$(pwd)}"
+  local working_dir="${3-$2}"
 
   pushd_or_die "${target_repo}"
 
@@ -979,8 +980,10 @@ git_merge_ff_only () {
   local changes_bin="$(echo "${git_says}" | grep -P "${pattern_bin}")"
   # 2018-03-23: Would you like something more muted, or vibrant? Trying vibrant.
   #[[ -n ${changes_txt} ]] && notice " ${BG_DARKGRAY}${changes_txt}"
-  [[ -n ${changes_txt} ]] && info "  changes!\n${BG_BLUE}${changes_txt}"
-  [[ -n ${changes_bin} ]] && info "  changes!\n${BG_BLUE}${changes_bin}"
+  #[[ -n ${changes_txt} ]] && info "  changes!\n${BG_BLUE}${changes_txt}"
+  #[[ -n ${changes_bin} ]] && info "  changes!\n${BG_BLUE}${changes_bin}"
+  [[ -n ${changes_txt} ]] && info "Changes! in ${working_dir}\n${BG_BLUE}${changes_txt}"
+  [[ -n ${changes_bin} ]] && info "Changes! in ${working_dir}\n${BG_BLUE}${changes_bin}"
 
   # (lb): Not quite sure why git_must_not_rebasing would not have failed first.
   #   Does this happen?
@@ -997,6 +1000,7 @@ git_merge_ff_only () {
 git_pull_hush () {
   local source_repo="$1"
   local target_repo="${2-$(pwd)}"
+  local working_dir="${3-$2}"
 
   must_be_git_dirs "${source_repo}" "${target_repo}"
   [[ $? -ne 0 ]] && return
@@ -1055,8 +1059,9 @@ git_pull_hush () {
 #exit
 
   # Fast-forward merge (no new commits!) or complain (later).
-#  git_merge_ff_only "${source_branch}" "${target_repo}"
-  git_merge_ff_only "${source_branch}"
+##  git_merge_ff_only "${source_branch}" "${target_repo}"
+#  git_merge_ff_only "${source_branch}"
+  git_merge_ff_only "${source_branch}" "$(pwd)" "${working_dir}"
 
 #  popd &> /dev/null
   popd_perhaps "${target_repo}"
