@@ -1324,7 +1324,7 @@ function umount_curly_emissary_gooey () {
   #trace "GOOEY: Unmount"
 
   if [[ "${EMISSARY}" == '' ]]; then
-    info "\${EMISSARY} not set, so nothing to unmount, sucker."
+    info "EMISSARY not set, so nothing to unmount, sucker."
     return 1
   fi
 
