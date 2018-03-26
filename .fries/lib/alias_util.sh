@@ -12,7 +12,8 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 source_deps() {
-  :
+  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
+  source ${curdir}/logger.sh
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -264,11 +265,74 @@ home_fries_create_aliases_rg_options() {
   }
 }
 
+home_fries_create_aliases_rg_tag_wrap() {
+  # 2018-03-26: Fancy ag/rg wrapper makes jumping to search result seamless!
+  #   https://github.com/aykamko/tag
+  #
+  #   OPTIONS             Default/Choices
+  #   ------------------  --------------------------------------------------------
+  #   TAG_SEARCH_PROG     ag | rg
+  #   TAG_ALIAS_FILE      /tmp/tag_aliases
+  #   TAG_ALIAS_PREFIX    e                 [e.g., ``e1`` opens first match]
+  #   TAG_CMD_FMT_STRING  vim \
+  #                         -c 'call cursor({{.LineNumber}}, {{.ColumnNumber}})' \
+  #                         '{{.Filename}}'
+
+  local engine='rg'
+
+  if ! hash ${engine} 2>/dev/null; then
+    warn "No Silver Search or Rip Grep found [${engine}]"
+    return 1
+  fi
+
+  # Choices: ag, rg
+  export TAG_SEARCH_PROG=${engine}
+
+  tag() {
+    command tag "$@"
+    source ${TAG_ALIAS_FILE:-/tmp/tag_aliases} 2>/dev/null
+  }
+
+  local rg_wrap_with_options=" \
+    tag \
+      --smart-case \
+      --hidden \
+      --colors 'path:fg:yellow' \
+      --colors 'path:style:bold' \
+      --colors 'line:fg:green' \
+      --colors 'line:style:bold' \
+      --colors 'match:bg:white' \
+  "
+
+  # rgt -- Open search result in Vim in current terminal.
+  alias rgt="\
+    TAG_CMD_FMT_STRING=\"
+      vim -c 'call cursor({{.LineNumber}}, {{.ColumnNumber}})' '{{.Filename}}'
+    \" \
+    ${rg_wrap_with_options} \
+  "
+
+  # rgg -- Open search result in specific Gvim window, and switch to it.
+  # FIXME/2018-03-26: The servername, SAMPI, is hardcoded: Make Home Fries $var.
+  # NOTE: (lb): I could not get "-c 'call cursor()" to work in same call as
+  #       --remote-silent, so split into two calls, latter using --remote-send.
+  alias rgg="\
+    TAG_CMD_FMT_STRING=' \
+      true \
+      && gvim --servername SAMPI --remote-silent \"{{.Filename}}\" \
+      && gvim --servername SAMPI --remote-send \
+        \"<ESC>:call cursor({{.LineNumber}}, {{.ColumnNumber}})<CR>\" \
+      && xdotool search --name SAMPI windowactivate \
+    ' \
+    ${rg_wrap_with_options} \
+  "
+}
 
 home_fries_create_aliases_greppers() {
   home_fries_create_aliases_grep_and_egrep
   home_fries_create_aliases_ag_options
   home_fries_create_aliases_rg_options
+  home_fries_create_aliases_rg_tag_wrap
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -354,7 +418,7 @@ home_fries_create_aliases_tab_completion() {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main() {
-  : #source_deps
+  source_deps
 }
 
 main "$@"

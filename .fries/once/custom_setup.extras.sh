@@ -7021,6 +7021,22 @@ stage_4_yarn () {
 
 } # end: stage_4_yarn
 
+stage_4_ag_rg_tag () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_ag_rg_tag"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  go get -u github.com/aykamko/tag
+  go install github.com/aykamko/tag
+
+  popd &> /dev/null
+
+} # end: stage_4_ag_rg_tag
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -7334,6 +7350,8 @@ setup_customize_extras_go () {
   stage_4_tmux
 
   stage_4_yarn
+
+  stage_4_ag_rg_tag
 
   # Add before this'n: stage_4_fcn_template.
 
