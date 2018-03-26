@@ -202,7 +202,7 @@ home_fries_create_aliases_general() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_create_aliases_greppers() {
+home_fries_create_aliases_grep_and_egrep() {
   alias grep='grep --color' # Show differences in colour.
 
   # Preferred grep switches and excludes.
@@ -213,7 +213,9 @@ home_fries_create_aliases_greppers() {
     alias eg='egrep -n -R -i --color --exclude-from="$HOME/.grepignore"'
     alias egi='egrep -n -R --color --exclude-from="$HOME/.grepignore"'
   fi
+}
 
+home_fries_create_aliases_ag_options() {
   # The Silver Search.
   # Always allow lowercase, and, more broadly, all smartcase.
   alias ag='ag --smart-case --hidden'
@@ -228,7 +230,9 @@ home_fries_create_aliases_greppers() {
   function ag_peek () {
     ag -A 0 -B 0 --hidden --follow --max-count 1 $* 2> /dev/null
   }
+}
 
+home_fries_create_aliases_rg_options() {
   # 2017-09-13: ripgrep!
   # https://github.com/BurntSushi/ripgrep
   # I'm only doing this because The Silver Searcher is identifying
@@ -258,6 +262,13 @@ home_fries_create_aliases_greppers() {
   function rg_peek () {
     rg -A 0 -B 0 --hidden --follow --max-count 1 $* 2> /dev/null
   }
+}
+
+
+home_fries_create_aliases_greppers() {
+  home_fries_create_aliases_grep_and_egrep
+  home_fries_create_aliases_ag_options
+  home_fries_create_aliases_rg_options
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
