@@ -1333,6 +1333,8 @@ function umount_curly_emissary_gooey () {
     local exit_code=$?
     if [[ ${exit_code} -ne 0 ]]; then
       warn ${umntput}
+      soups_finished_dinners_over_report_time
+
       echo
       echo "MEH: Could not umount the encfs. Try:"
       echo
@@ -1745,8 +1747,6 @@ function check_repos_statuses () {
     user_do_check_repos_statuses
   fi
 
-  soups_finished_dinners_over_report_time
-
   git_issues_review
 } # end: check_repos_statuses
 
@@ -1758,6 +1758,8 @@ function git_issues_review {
   if ${FRIES_GIT_ISSUES_DETECTED} || \
     [[ ${#FRIES_GIT_ISSUES_RESOLUTIONS[@]} -gt 0 ]] \
   ; then
+    soups_finished_dinners_over_report_time
+
     echo
     warn "GRIZZLY! Travel encountered one or more git issues."
     notice
@@ -1944,10 +1946,6 @@ function packme () {
   git_commit_vimprojects
 
   if ! ${SKIP_DIRTY_CHECK}; then
-
-    # Don't print elapsed time yet.
-    SETUP_TIME_N='0'
-
     info "${BG_PINK}${FG_MAROON}" \
       "🏄  🌠  🌠   Looking for dirt!  🏄  🌠  🌠  "
 
@@ -1963,9 +1961,6 @@ function packme () {
 
     info "${BG_PINK}${FG_MAROON}" \
       "🍁  🍁  🍁   Done checking repos for dirt  🍁  🍁  🍁  "
-
-    # Next time, then we can print elapsed time.
-    SETUP_TIME_N=''
   fi
 
   if [[ ! -d ${EMISSARY} ]]; then
