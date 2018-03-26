@@ -999,9 +999,9 @@ git_merge_ff_only () {
     eval "echo \"${git_says}\" | grep -P \"${pattern_bin}\" | ${grep_sed_sed}" \
   )"
   [[ -n ${changes_txt} ]] && \
-    info "Changes! in ${FG_LAVENDER}${working_dir}\n${BG_BLUE}${changes_txt}"
+    info "Changes! in: ${FG_LAVENDER}${working_dir}\n${BG_BLUE}${changes_txt}"
   [[ -n ${changes_bin} ]] && \
-    info "Changes! in ${FG_LAVENDER}${working_dir}\n${BG_BLUE}${changes_bin}"
+    info "Changes! in: ${FG_LAVENDER}${working_dir}\n${BG_BLUE}${changes_bin}"
 
   # (lb): Not quite sure why git_must_not_rebasing would not have failed first.
   #   Does this happen?
