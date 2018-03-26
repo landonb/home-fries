@@ -36,6 +36,7 @@ UNIQUE_TIME=$(date +%Y%m%d-%Hh%Mm%Ss)
 
 function soups_finished_dinners_over_report_time {
   if [[ -n "${SETUP_TIME_N}" ]]; then
+echo "ALREADY SET"
     # Already been in through here and printed elapsed time.
     # (We want plain echoes to be last output, not run time.)
     return
@@ -49,7 +50,7 @@ function soups_finished_dinners_over_report_time {
   # Use `bc` to output 0 or 1, and use ``(( ... ))`` so Bash interprets
   # the result as false or true respectively.
   if (( $(echo "${time_elapsed} > 0.25" | bc -l) )); then
-    info "${FONT_BOLD}${BG_FOREST}Elapsed: $time_elapsed secs."
+    info "${FONT_BOLD}${BG_FOREST}Elapsed: ${time_elapsed} secs."
   fi
 }
 
