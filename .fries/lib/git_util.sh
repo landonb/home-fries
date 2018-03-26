@@ -946,7 +946,10 @@ git_merge_ff_only () {
   git_says=$(git merge --ff-only ${TRAVEL_REMOTE}/${source_branch} 2>&1) && true
   local merge_success=$?
 
-  local pattern_txt='^ \S* *\| +\d+ ?[+-]*$'
+  # 2018-03-26 16:41: Weird: was this directory moved, hence the => ?
+  #    src/js/{ => solutions}/settings/constants.js       |  85 ++-
+  #local pattern_txt='^ \S* *\| +\d+ ?[+-]*$'
+  local pattern_txt='^ [^\|]+\| +\d+ ?[+-]*$'
   local pattern_bin='^ \S* *\| +Bin \d+ -> \d+ bytes$'
 
   verbose "git merge says:\n${git_says}"
@@ -959,7 +962,9 @@ git_merge_ff_only () {
     | grep -P -v "^ \d+ files? changed, \d+ deletions?\(-\)$" \
     | grep -P -v "^ \d+ insertions?\(\+\), \d+ deletions?\(-\)$" \
     | grep -P -v "^ \d+ files? changed$" \
+    | grep -P -v " rename .* \(\d+%\)$" \
     | grep -P -v " create mode \d+ \S+$" \
+    | grep -P -v " delete mode \d+ \S+$" \
     | grep -P -v "^ \d+ insertions?\(\+\)$" \
     | grep -P -v "^ \d+ deletions?\(-\)$" \
     | grep -P -v "${pattern_txt}" \
