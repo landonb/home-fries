@@ -1322,6 +1322,12 @@ function mount_curly_emissary_gooey () {
 
 function umount_curly_emissary_gooey () {
   #trace "GOOEY: Unmount"
+
+  if [[ "${EMISSARY}" == '' ]]; then
+    info "\${EMISSARY} not set, so nothing to unmount, sucker."
+    return 1
+  fi
+
   tweak_errexit
   mount | grep ${EMISSARY}/gooey > /dev/null
   local exit_code=$?
@@ -1336,11 +1342,15 @@ function umount_curly_emissary_gooey () {
       soups_finished_dinners_over_report_time
 
       echo
-      echo "MEH: Could not umount the encfs. Try:"
+      echo "MEH: Travel could not umount the encfs using:"
+      echo
+      echo "    fusermount -u ${EMISSARY}/gooey"
+      echo
+      echo " You could identify the processes keeping it open:"
       echo
       echo "    fuser -c ${EMISSARY}/gooey 2>&1"
       echo
-      echo " and you can get the process ID with:"
+      echo " and then can get the process ID using:"
       echo
       echo "    echo \$\$"
     fi
