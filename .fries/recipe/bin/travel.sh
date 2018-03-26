@@ -26,9 +26,32 @@ set -e
 #__root="$(cd "$(dirname "${__dir}")" && pwd)" # <-- change this as it depends on your app
 #arg1="${1:-}"
 
+# ***
+
+# Start a timer.
+setup_time_0=$(date +%s.%N)
+
+UNIQUE_TIME=$(date +%Y%m%d-%Hh%Mm%Ss)
+
+function soups_finished_dinners_over_report_time {
+  local setup_time_n=$(date +%s.%N)
+  local time_elapsed=$(\
+    echo "scale=2; ($setup_time_n - $setup_time_0) * 100 / 100" | bc -l
+  )
+  # Only show elapsed time if more than a split second, or whatever.
+  # Use `bc` to output 0 or 1, and use ``(( ... ))`` so Bash interprets
+  # the result as false or true respectively.
+  if (( $(echo "${time_elapsed} > 0.25" | bc -l) )); then
+    info "${FONT_BOLD}${BG_FOREST}Elapsed: $time_elapsed secs."
+  fi
+}
+
+# ***
+
 function errexit_cleanup () {
   echo
   echo "ERROR: The script failed!!"
+  soups_finished_dinners_over_report_time
   # No exit necessary, unless we want to specify status.
   # Also note that a stacktrace (where) is useless here,
   # as a trap function has nothing above it (other than
@@ -81,13 +104,6 @@ echod () {
 #set +x
 #set +E
 #set +T
-
-# ***
-
-# Start a timer.
-setup_time_0=$(date +%s.%N)
-
-UNIQUE_TIME=$(date +%Y%m%d-%Hh%Mm%Ss)
 
 # ***
 
@@ -551,16 +567,7 @@ function soups_on () {
   if [[ -n ${TRAVEL_CMD} && ${UNKNOWN_ARG} = false ]]; then
     # Run the command.
     eval "$TRAVEL_CMD"
-    local setup_time_n=$(date +%s.%N)
-    time_elapsed=$(\
-      echo "scale=2; ($setup_time_n - $setup_time_0) * 100 / 100" | bc -l
-    )
-    # Only show elapsed time if more than a split second, or whatever.
-    # Use `bc` to output 0 or 1, and use ``(( ... ))`` so Bash interprets
-    # the result as false or true respectively.
-    if (( $(echo "${time_elapsed} > 0.25" | bc -l) )); then
-      info "${FONT_BOLD}${BG_FOREST}Elapsed: $time_elapsed secs."
-    fi
+    soups_finished_dinners_over_report_time
   elif ! ${ASKED_FOR_HELP}; then
     warn 'Nothing to do!'
   fi
@@ -1742,6 +1749,7 @@ function git_issues_review {
   if ${FRIES_GIT_ISSUES_DETECTED} || \
     [[ ${#FRIES_GIT_ISSUES_RESOLUTIONS[@]} -gt 0 ]] \
   ; then
+    soups_finished_dinners_over_report_time
     echo
     warn "GRIZZLY! Travel encountered one or more git issues."
     notice
