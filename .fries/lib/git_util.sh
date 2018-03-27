@@ -272,14 +272,6 @@ echo_cyclones_frgreen () {
   echo -e "${BG_ORANGE}${FG_LIGHTGREEN}$(printf '🌀 %.0s' {1..36})${FONT_NORMAL}"
 }
 
-echo_cyclones_bjade () {
-  echo -e "${BG_JADE}${FG_LIGHTGREEN}$(printf '🌀 %.0s' {1..36})${FONT_NORMAL}"
-}
-
-echo_cyclones_byellow () {
-  echo -e "${BG_YELLOW}${FG_LIGHTGREEN}$(printf '🌀 %.0s' {1..36})${FONT_NORMAL}"
-}
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # git_status_porcelain
 
@@ -365,9 +357,6 @@ git_status_porcelain () {
   if ${dirty_repo}; then
     echo
     echo_cyclones_forange
-#    echo_cyclones_bmaroon
-#    echo_cyclones_frgreen
-#    echo_cyclones_bjade
     echo
     warn "${dirty_warn}"
 
@@ -392,9 +381,6 @@ git_status_porcelain () {
     fi
 
     echo
-#    echo_cyclones_forange
-#    echo_cyclones_bjade
-#    echo_cyclones_byellow
     echo_cyclones_bmaroon
     echo
 
