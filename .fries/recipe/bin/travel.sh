@@ -571,10 +571,14 @@ function soups_on () {
   # Make sure the staging/destination exists.
   mkdir -p ${STAGING_DIR}
 
-  #echod
-  #info "Two-way travel directory: ${TRAVEL_DIR}"
-  if [[ -z ${EMISSARY} && ${DETERMINE_TRAVEL_DIR} == false ]]; then
-    info "Two-way travel directory: ${EMISSARY} [not needed for this command]"
+  if [[ -z "${EMISSARY}" ]]; then
+    if ! ${DETERMINE_TRAVEL_DIR}; then
+      info "Two-way travel directory: <not present> [not needed for this command]"
+    elif ${CAN_IGNORE_TRAVEL_DIR}; then
+      info "Two-way travel directory: <not present> [not needed & can be skipped]"
+    else
+      info "Two-way travel directory: <not present> [AND PROBABLY GONNA BE ISSUE]"
+    fi
   else
     info "Two-way travel directory: ${FG_LAVENDER}${EMISSARY}"
   fi
@@ -595,7 +599,15 @@ function determine_stick_dir () {
 
   shopt -s dotglob
   shopt -s nullglob
+
+  # FIXME/2018-03-26: Also checked attached but unmounted devices!
+  #   E.g., if I attach sync-stick, packme, then popoff, but do not
+  #   physically remove device, if I packme again, and if there's a
+  #   local alternative (with a -gooey directory), travel will pack
+  #   to the local place and not tell you there's a stick attached
+  #   that potentially might be the locker you want!
   local mounted_dirs=(/media/${USER}/*)
+
   shopt -u dotglob
   shopt -u nullglob
   if [[ ${#mounted_dirs[@]} -eq 0 ]]; then
@@ -1341,7 +1353,7 @@ function umount_curly_emissary_gooey () {
   ]]; then
     local emissary
     for lemissary in "${CANDIDATES[@]}"; do
-      umount_curly_emissary_gooey_one "${lemissary}"
+      umount_curly_emissary_gooey_one "${lemissary}/${PRIVATE_REPO_}-emissary"
     done
   else
     info "EMISSARY not set, so nothing to unmount, sucker."
@@ -1351,44 +1363,47 @@ function umount_curly_emissary_gooey () {
 
 function umount_curly_emissary_gooey_one () {
   local lemissary="$1"
-
-  mount | grep ${lemissary}/gooey > /dev/null && true
+  local gooey_mntpt="${lemissary}/gooey"
+  mount | grep ${gooey_mntpt} > /dev/null && true
   local exit_code=$?
   if [[ ${exit_code} -eq 0 ]]; then
     sleep 0.1 # else umount fails.
     local umntput
-    umntput=$(fusermount -u ${lemissary}/gooey 2>&1) && true
+    umntput=$(fusermount -u ${gooey_mntpt} 2>&1) && true
     local exit_code=$?
-    if [[ ${exit_code} -ne 0 ]]; then
+    if [[ ${exit_code} -eq 0 ]]; then
+      info "Unmounted: ${FG_LAVENDER}${gooey_mntpt}"
+    else
       warn ${umntput}
       soups_finished_dinners_over_report_time
 
       echo
       echo "MEH: Travel could not umount the encfs using:"
       echo
-      echo "    fusermount -u ${lemissary}/gooey"
+      echo "    fusermount -u ${gooey_mntpt}"
       echo
       echo " You could identify the processes keeping it open:"
       echo
-      echo "    fuser -c ${lemissary}/gooey 2>&1"
+      echo "    fuser -c ${gooey_mntpt} 2>&1"
       echo
       echo " and then can get the process ID using:"
       echo
       echo "    echo \$\$"
     fi
   else
-    info "No Encfs mounted at: ${lemissary}/gooey"
+    info "No Encfs mount point for: ${FG_LAVENDER}${gooey_mntpt}"
   fi
 
   # 2018-03-26: Make sense here?
-  mount | grep ${lemissary} > /dev/null && true
-  local exit_code=$?
-  if [[ ${exit_code} -eq 0 ]]; then
-    umount ${lemissary}
-    notice "Unmounted: ${lemissary}"
-  else
-    info "There but not mounted: ${lemissary}"
-  fi
+# NO, because this is the stick itself, not the enfcs, and this fcn. umounts encfs only
+#  mount | grep ${lemissary} > /dev/null && true
+#  local exit_code=$?
+#  if [[ ${exit_code} -eq 0 ]]; then
+#    umount ${lemissary}
+#    notice "Unmounted: ${lemissary}"
+#  else
+#    info "Exists, but not a mount point: ${lemissary}"
+#  fi
 }
 
 function populate_singular_repo () {
@@ -1566,6 +1581,12 @@ function create_umount_script () {
   #   Might also want to reset the popoff script and remove umount later.
   #   Also, why do I need the umount? Doesn't the travel-umount command do that??
 
+  # NOTES/2018-03-26: Slowly remembering: popoff is an ENCFS and USB unmount,
+  # whereas Travel itself normally just mounts/unmounts the ENCFS.
+  # E.g., you plug in the USB, and it's either mounted automatically, or
+  # the user does in manually. So Travel does not mount the device; but it
+  # can unmount it! So there's a little mis-parity happening.
+
   # 2016-11-04: Oh, yerp.
   #trace "umount ${TRAVEL_DIR}" > ${HOME}/.fries/recipe/bin/popoff.sh
   cat > ${HOME}/.fries/recipe/bin/popoff.sh << EOF
@@ -1578,19 +1599,24 @@ function create_umount_script () {
 #
 #      create_umount_script
 #
+source logger.sh
 SCRIPT_DIR="\$(dirname \${BASH_SOURCE[0]})"
 \${SCRIPT_DIR}/travel umount
 if [[ -d ${TRAVEL_DIR} ]]; then
   mount | grep ${TRAVEL_DIR} &> /dev/null && true
-  retval=$?
-  if [[ $retval -eq 0 ]]; then
+  retval=\$?
+  if [[ \${retval} -eq 0 ]]; then
     umount ${TRAVEL_DIR}
+    info "Umounted travel directory: ${TRAVEL_DIR}"
+  else
+    info "No travel dir to unmount: ${TRAVEL_DIR}"
   fi
 else
   info "Last-used travel device is no longer mounted at: ${TRAVEL_DIR}"
 fi
 unset SCRIPT_DIR
 EOF
+
   chmod 775 ${HOME}/.fries/recipe/bin/popoff.sh
 }
 
