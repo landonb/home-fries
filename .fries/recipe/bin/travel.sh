@@ -1607,12 +1607,12 @@ if [[ -d ${TRAVEL_DIR} ]]; then
   retval=\$?
   if [[ \${retval} -eq 0 ]]; then
     umount ${TRAVEL_DIR}
-    info "Umounted travel directory: ${TRAVEL_DIR}"
+    info "Uounted travel directory: ${FG_LAVENDER}${TRAVEL_DIR}"
   else
-    info "No travel dir to unmount: ${TRAVEL_DIR}"
+    info "No travel dir to unmount: ${FG_LAVENDER}${TRAVEL_DIR}"
   fi
 else
-  info "Last-used travel device is no longer mounted at: ${TRAVEL_DIR}"
+  info "Last-used travel no longer mounted at: ${FG_LAVENDER}${TRAVEL_DIR}"
 fi
 unset SCRIPT_DIR
 EOF
