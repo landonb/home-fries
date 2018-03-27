@@ -1779,12 +1779,19 @@ function check_repos_statuses () {
 
   # Skipping: PLAINTEXT_ARCHIVES
 
+  local i
+
   trace "Checking one-level repos..."
   for ((i = 0; i < ${#ENCFS_GIT_REPOS[@]}; i++)); do
     debug " ${ENCFS_GIT_REPOS[$i]}"
     pushd ${ENCFS_GIT_REPOS[$i]} &> /dev/null
     GREPPERS=''
-    if [[ ${SKIP_THIS_DIRTY} = true && ${ENCFS_GIT_REPOS[$i]} == ${FRIES_ABS_DIRN} ]]; then
+    if [[ \
+      ${SKIP_THIS_DIRTY} = true && \
+      ${ENCFS_GIT_REPOS[$i]} == ${FRIES_ABS_DIRN} \
+    ]]; then
+      # FIXME/2018-03-26: Ermmmmm... this is really Travel-specific
+
       # Tell git_status_porcelain to ignore this dirty file, travel.sh.
       THIS_SCRIPT_NAME=$(basename -- "${SCRIPT_ABS_PATH}")
       #GREPPERS='| grep -v " travel.sh$"'
@@ -1804,6 +1811,16 @@ function check_repos_statuses () {
     git_status_porcelain_wrap "${ENCFS_GIT_REPOS[$i]}"
     popd &> /dev/null
   done
+
+  if ${INCLUDE_ENCFS_OFF_REPOS}; then
+    trace "Checking one-level OFF repos..."
+    for ((i = 0; i < ${#ENCFS_OFF_REPOS[@]}; i++)); do
+      debug " ${ENCFS_OFF_REPOS[$i]}"
+      pushd ${ENCFS_OFF_REPOS[$i]} &> /dev/null
+      git_status_porcelain_wrap "${ENCFS_OFF_REPOS[$i]}"
+      popd &> /dev/null
+    done
+  fi
 
   trace "Checking gardened git repos..."
   if [[ ${#ENCFS_GIT_ITERS[@]} -gt 0 ]]; then
