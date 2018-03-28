@@ -1008,7 +1008,7 @@ setup_private_etc_fstab () {
       sudo chmod 644 /etc/fstab
     fi
   else
-    echo "Skipping: No fstab for $(hostname)"
+    trace "  Skipping: No fstab for ${FG_LAVENDER}$(hostname)"
   fi
 } # end: setup_private_etc_fstab
 
@@ -1028,7 +1028,7 @@ setup_private_update_db_conf () {
       sudo chmod 644 /etc/updatedb.conf
     fi
   else
-    echo "Skipping: No updatedb.conf for $(hostname)"
+    trace "Skipping: No updatedb.conf for ${FG_LAVENDER}$(hostname)"
   fi
 } # end: setup_private_update_db_conf
 
