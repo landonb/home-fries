@@ -945,6 +945,9 @@ setup_mint_17_stage_1_install_packages () {
     #   xcalib -invert -alter
     xcalib
 
+    # Terminal weather.
+    ansiweather
+
   ) # end: BIG_DESKTOP_LIST
 
   local BIG_DESKTOP_LIST_MINT_17=(
