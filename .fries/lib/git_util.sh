@@ -761,7 +761,7 @@ git_fetch_remote_travel () {
     )"
 
     [[ -n ${culled} ]] && warn "git fetch wha?\n${culled}"
-    [[ -n ${culled} ]] && [[ ${LOG_LEVEL} -gt ${LOG_LEVEL_VERBOSE} ]] && \\
+    [[ -n ${culled} ]] && [[ ${LOG_LEVEL} -gt ${LOG_LEVEL_VERBOSE} ]] && \
       notice "git fetch says:\n${git_says}"
 
     if [[ ${fetch_success} -ne 0 ]]; then
