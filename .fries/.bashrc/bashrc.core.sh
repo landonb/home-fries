@@ -266,6 +266,9 @@ home_fries_up() {
   unset home_fries_load_nvm_and_completion
 
   #########################
+
+  # 2018-03-28: Trying direnv (to eventually replace/enhance gogo, perhaps).
+  eval "$(direnv hook bash)"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

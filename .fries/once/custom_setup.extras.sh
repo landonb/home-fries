@@ -7071,6 +7071,72 @@ stage_4_whereami () {
 
 } # end: stage_4_whereami
 
+stage_4_direnv () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_direnv"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # Very cool localized (directory-specific) environment changes.
+  #
+  #   https://github.com/direnv/direnv
+  #
+  #   https://direnv.net/
+  #
+  # Sort of like an app of mine, gogo
+  #
+  #   https://github.com/landonb/pyocalypse-gogo
+  #
+  # But more powerful.
+  #
+  #   - It runs automatically when you cd into a directory with a .direnv file.
+  #
+  #   -It runs before every command. (Or, it wraps every command and runs it
+  #     from its Go code.)
+  #
+  #   - You have to whitelist dirs to indicate that you trust the .direnv therein.
+  #
+  # Other apps similar to direnv:
+  #
+  #   https://github.com/kennethreitz/autoenv
+  #
+  #   https://github.com/sebglazebrook/aliases
+  #
+  #   https://github.com/jamesob/desk
+  #
+  # Other apps similar to gogo:
+  #
+  #   # One could replicate gogo using direnv and bashmarks:
+  #   https://github.com/huyng/bashmarks
+
+  # FIXME: DRY: Put this block in Bash "stdlib" fcn.
+  if [[ ! -d ${OPT_DLOADS}/direnv ]]; then
+    pushd ${OPT_DLOADS} &> /dev/null
+    # http://github.com/ssokolow/quicktile/tarball/master
+    git clone git://github.com/direnv/direnv
+    cd direnv
+  else
+    pushd ${OPT_DLOADS}/direnv &> /dev/null
+    git pull origin
+  fi
+
+  go get -u github.com/BurntSushi/toml
+  go get -u github.com/direnv/go-dotenv
+
+  # DESTDIR defaults to: /usr/local
+  #sudo make install
+  DESTDIR=${HOME}/.local make install
+  # DOCS say:
+  #   "or symlink ./direnv into the $PATH"
+  # but not sure what that means. We need to build the code, right?
+
+  popd &> /dev/null
+
+} # end: stage_4_direnv
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -7388,6 +7454,8 @@ setup_customize_extras_go () {
   stage_4_ag_rg_tag
 
   stage_4_whereami
+
+  stage_4_direnv
 
   # Add before this'n: stage_4_fcn_template.
 
