@@ -1612,7 +1612,7 @@ if [[ -d ${TRAVEL_DIR} ]]; then
     info "No travel dir to unmount: ${FG_LAVENDER}${TRAVEL_DIR}"
   fi
 else
-  info "Last-used travel no longer mounted at: ${FG_LAVENDER}${TRAVEL_DIR}"
+  info "Last-used travel not mnt: ${FG_LAVENDER}${TRAVEL_DIR}"
 fi
 unset SCRIPT_DIR
 EOF
