@@ -756,10 +756,13 @@ git_fetch_remote_travel () {
       | grep -v "+\? *[a-f0-9]\{7,8\}\.\{2,3\}[a-f0-9]\{7,8\}.*->.*" \
       | grep -v -P '\* \[new branch\] +.* -> .*' \
       | grep -v -P '\* \[new tag\] +.* -> .*' \
-      | grep -v "^- \[deleted\] \+(none) \+-> .*" \
+      | grep -v "^ \?- \[deleted\] \+(none) \+-> .*" \
       | grep -v "(refs/remotes/origin/HEAD has become dangling)" \
     )"
+
     [[ -n ${culled} ]] && warn "git fetch wha?\n${culled}"
+    [[ -n ${culled} ]] && [[ ${LOG_LEVEL} -gt ${LOG_LEVEL_VERBOSE} ]] && \\
+      notice "git fetch says:\n${git_says}"
 
     if [[ ${fetch_success} -ne 0 ]]; then
       error "Unexpected fetch failure! ${git_says}"
@@ -961,12 +964,14 @@ git_merge_ff_only () {
   #    src/js/{ => solutions}/settings/constants.js       |  85 ++-
   #local pattern_txt='^ \S* *\| +\d+ ?[+-]*$'
   local pattern_txt='^ [^\|]+\| +\d+ ?[+-]*$'
-  local pattern_bin='^ \S* *\| +Bin \d+ -> \d+ bytes$'
+  #local pattern_bin='^ \S* *\| +Bin \d+ -> \d+ bytes$'
+  #  | grep -P -v " +\S+ +\| +Bin$" \
+  local pattern_bin='^ \S* *\| +Bin( \d+ -> \d+ bytes)?$'
 
   verbose "git merge says:\n${git_says}"
   local culled="$(echo "${git_says}" \
     | grep -v "^Already up to date.$" \
-    | grep -v "^Updating [a-f0-9]\{7,8\}\.\.[a-f0-9]\{7,8\}$" \
+    | grep -v "^Updating [a-f0-9]\{7,10\}\.\.[a-f0-9]\{7,10\}$" \
     | grep -v "^Fast-forward$" \
     | grep -P -v "^ \d+ files? changed, \d+ insertions?\(\+\), \d+ deletions?\(-\)$" \
     | grep -P -v "^ \d+ files? changed, \d+ insertions?\(\+\)$" \
@@ -991,6 +996,9 @@ git_merge_ff_only () {
 #Aborting
 
   [[ -n ${culled} ]] && warn "git merge wha?\n${culled}"
+  [[ -n ${culled} ]] && [[ ${LOG_LEVEL} -gt ${LOG_LEVEL_VERBOSE} ]] && \
+    notice "git merge says:\n${git_says}"
+
   # 2018-03-23: Would you like something more muted, or vibrant? Trying vibrant.
   #   2018-03-26: It's taking time to tweak the vibrant, colorful display to nice.
   # NOTE: The grep -P option only works on one pattern grep, so cannot use -e, eh?
