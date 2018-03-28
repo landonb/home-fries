@@ -1542,11 +1542,14 @@ function init_travel () {
     user_do_init_travel
   fi
 
-  if ${INCLUDE_ENCFS_OFF_REPOS}; then
-    info "Calculating travel size..."
-    du_cmd="du -m -d 1 ${EMISSARY}/gooey | sort -nr"
-    info ${du_cmd}
-    eval ${du_cmd}
+  # FIXME/2018-03-28: Make special command just for this. Or delete.
+  if false; then
+    if ${INCLUDE_ENCFS_OFF_REPOS}; then
+      info "Calculating travel size..."
+      du_cmd="du -m -d 1 ${EMISSARY}/gooey | sort -nr"
+      info ${du_cmd}
+      eval ${du_cmd}
+    fi
   fi
 
   umount_curly_emissary_gooey
