@@ -1967,6 +1967,20 @@ function pull_git_repos () {
     debug " ** No Vim repos gardened"
   fi
 
+  if ${INCLUDE_ENCFS_OFF_REPOS}; then
+    trace "Pulling singular OFF repos..."
+    if [[ ${#ENCFS_OFF_REPOS[@]} -gt 0 ]]; then
+      for ((i = 0; i < ${#ENCFS_OFF_REPOS[@]}; i++)); do
+        ABS_PATH="${ENCFS_OFF_REPOS[$i]}"
+        local ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
+        debug " ${ENCFS_REL_PATH}"
+        git_pull_hush "${PREFIX}${ABS_PATH}" "${ENCFS_REL_PATH}" "${ABS_PATH}"
+      done
+    else
+      debug " ** No OFF repos singular"
+    fi
+  fi
+
   popd &> /dev/null
 } # end: pull_git_repos
 
