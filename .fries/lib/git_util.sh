@@ -356,8 +356,9 @@ git_status_porcelain () {
 
   if ${dirty_repo}; then
     echo
-    echo_cyclones_forange
-    echo
+    #echo_cyclones_forange
+    echo_cyclones_bmaroon
+   echo
     warn "${dirty_warn}"
 
 # DUPLICATE_MESSAGE FIXME/2018-03-24
@@ -382,6 +383,7 @@ git_status_porcelain () {
 
     echo
     echo_cyclones_bmaroon
+    #echo_cyclones_forange
     echo
 
     GIT_DIRTY_FILES_FOUND=true
