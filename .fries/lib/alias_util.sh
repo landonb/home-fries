@@ -199,6 +199,9 @@ home_fries_create_aliases_general() {
   if [[ $EUID -eq 0 ]]; then
     alias vi="vim"
   fi
+
+  # 2018-03-28: From MarkM. Except it doesn't quite work for me....
+  #alias v='${EDITOR} $(fc -s) ' # edit results of last command
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
