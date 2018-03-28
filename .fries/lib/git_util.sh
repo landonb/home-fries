@@ -755,6 +755,7 @@ git_fetch_remote_travel () {
       | grep -v "^From " \
       | grep -v "+\? *[a-f0-9]\{7,8\}\.\{2,3\}[a-f0-9]\{7,8\}.*->.*" \
       | grep -v -P '\* \[new branch\] +.* -> .*' \
+      | grep -v -P '\* \[new tag\] +.* -> .*' \
       | grep -v "^- \[deleted\] \+(none) \+-> .*" \
       | grep -v "(refs/remotes/origin/HEAD has become dangling)" \
     )"
