@@ -8,6 +8,10 @@
 # From: https://github.com/ginatrapani/todo.txt-cli/wiki/Tips-and-Tricks
 # See also hex-to-xterm converter: http://www.frexx.de/xterm-256-notes/
 
+# See also similar libraries:
+#
+#   https://github.com/paoloantinori/hhighlighter
+
 create_colors() {
   ### === HIGH-COLOR === compatible with most terms including putty
   ### for windows... use colors that don't make your eyes bleed :)
