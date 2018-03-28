@@ -717,13 +717,13 @@ git_set_remote_travel () {
   #debug "   exists: ${remote_exists}"
 
   if [[ ${remote_exists} -ne 0 ]]; then
-    debug '  Wiring the "travel" remote for first time!'
-    git remote add travel "${source_repo}"
+    debug "  Wiring the \"${TRAVEL_REMOTE}\" remote for first time!"
+    git remote add ${TRAVEL_REMOTE} "${source_repo}"
   elif [[ "${remote_url}" != "${source_repo}" ]]; then
-    debug "  Rewiring the \"travel\" remote url / was: ${remote_url}"
-    git remote set-url travel "${source_repo}"
+    debug "  Rewiring the \"${TRAVEL_REMOTE}\" remote url / was: ${remote_url}"
+    git remote set-url ${TRAVEL_REMOTE} "${source_repo}"
   else
-    #debug '  The "travel" remote url is already correct!'
+    #debug "  The \"${TRAVEL_REMOTE}\" remote url is already correct!"
     : # no-op
   fi
 
