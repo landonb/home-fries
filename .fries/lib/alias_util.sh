@@ -158,9 +158,13 @@ home_fries_create_aliases_general() {
 
   # The `whoami` is just `id -un` in disguise.
   # Here are its lesser known sibling commands.
-  # alias whereami=is an actual package you can install.
-  alias whereami="echo 'How should I know?' ; \
-                /usr/bin/python /usr/lib/command-not-found whereami"
+  #
+  # 2018-03-28: There's a package for that!
+  #   ## alias whereami=is an actual package you can install.
+  #   # alias whereami="echo 'How should I know?' ; \
+  #   #   /usr/bin/python /usr/lib/command-not-found whereami"
+  #   npm install -g @rafaelrinaldi/whereami
+  #
   alias howami="echo 'Doing well. Thanks for asking.' ; \
                 /usr/bin/python /usr/lib/command-not-found howami"
   alias whatami="echo 'Neither plant nor animal.' ; \

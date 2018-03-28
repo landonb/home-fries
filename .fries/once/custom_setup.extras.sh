@@ -7041,6 +7041,36 @@ stage_4_ag_rg_tag () {
 
 } # end: stage_4_ag_rg_tag
 
+stage_4_whereami () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_whereami"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # 2018-03-28 12:15: Geolocation of your machine via its IP!
+  #
+  # But seems to be wayyyyy off!
+  #
+  #   $ whereami # from work wifi
+  #   42.4645,-83.3763
+  #
+  #   $ whereami -f human
+  #   Michigan, United States
+  #
+  # Google Maps puts it at "City of Farmington Hills- Heritage Park",
+  # outside Detroit... but I'm in Minnesota!
+  #
+  # So not really sure the utility of this app!
+
+  npm install -g @rafaelrinaldi/whereami
+
+  popd &> /dev/null
+
+} # end: stage_4_whereami
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -7356,6 +7386,8 @@ setup_customize_extras_go () {
   stage_4_yarn
 
   stage_4_ag_rg_tag
+
+  stage_4_whereami
 
   # Add before this'n: stage_4_fcn_template.
 
