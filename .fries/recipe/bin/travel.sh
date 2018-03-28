@@ -1606,7 +1606,7 @@ if [[ -d ${TRAVEL_DIR} ]]; then
   retval=\$?
   if [[ \${retval} -eq 0 ]]; then
     umount ${TRAVEL_DIR}
-    info "Uounted travel directory: ${FG_LAVENDER}${TRAVEL_DIR}"
+    info "Umountd travel directory: ${FG_LAVENDER}${TRAVEL_DIR}"
   else
     info "No travel dir to unmount: ${FG_LAVENDER}${TRAVEL_DIR}"
   fi
