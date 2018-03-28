@@ -981,6 +981,7 @@ git_merge_ff_only () {
     | grep -P -v " rename .* \(\d+%\)$" \
     | grep -P -v " create mode \d+ \S+$" \
     | grep -P -v " delete mode \d+ \S+$" \
+    | grep -P -v " mode change \d+ => \d+ \S+$" \
     | grep -P -v "^ \d+ insertions?\(\+\)$" \
     | grep -P -v "^ \d+ deletions?\(-\)$" \
     | grep -P -v "${pattern_txt}" \
