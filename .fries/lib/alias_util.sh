@@ -267,6 +267,7 @@ home_fries_create_aliases_rg_options() {
 
 home_fries_create_aliases_rg_tag_wrap() {
   # 2018-03-26: Fancy ag/rg wrapper makes jumping to search result seamless!
+  #
   #   https://github.com/aykamko/tag
   #
   #   OPTIONS             Default/Choices
