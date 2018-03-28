@@ -1094,7 +1094,6 @@ locate_and_clone_missing_repo () {
           # Checkout the source.
           pushd ${HOME}/.elsewhere &> /dev/null
           local git_resp
-#          tweak_errexit
           if [[ ! -d ${repo_name} ]]; then
             echod "git clone ${remote_orig} ${repo_name}"
             ##git clone ${remote_orig} ${check_repo}
@@ -1108,7 +1107,6 @@ locate_and_clone_missing_repo () {
             git_resp=$(git pull 2>&1) && true
           fi
           ret_code=$?
-#          reset_errexit
           check_git_clone_or_pull_error "${ret_code}" "${git_resp}"
           popd &> /dev/null
           # Create the symlink from the root dir.
@@ -1120,13 +1118,11 @@ locate_and_clone_missing_repo () {
           # Use associate array key so user can choose different name than repo.
           ##git clone ${remote_orig}
           #git clone ${remote_orig} ${check_repo}
-#          tweak_errexit
           #git_resp=$(git clone ${remote_orig} ${check_repo} 2>&1)
           # 2017-02-27: Taking a while on work laptop. Wanting to see progress.
           echod "git clone ${remote_orig} ${check_repo}"
           git_resp=$(git clone ${remote_orig} ${check_repo}) && true
           ret_code=$?
-#          reset_errexit
           check_git_clone_or_pull_error "${ret_code}" "${git_resp}"
           popd &> /dev/null
         fi
