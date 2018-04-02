@@ -936,6 +936,7 @@ setup_mint_17_stage_1_install_packages () {
     # mount.nfs
     nfs-common
 
+    # NOTE: Not in 14.04: shellcheck.
     shellcheck
 
     # Huh? Could swear this was by default.
@@ -946,6 +947,7 @@ setup_mint_17_stage_1_install_packages () {
     xcalib
 
     # Terminal weather.
+    # NOTE: Not in 14.04: ansiweather.
     ansiweather
 
   ) # end: BIG_DESKTOP_LIST

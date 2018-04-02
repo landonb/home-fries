@@ -5589,6 +5589,7 @@ stage_4_install_opera () {
   # And it works! Ug.
 
   # wget https://www.opera.com/download/get/?id=40294&location=411&nothanks=yes&sub=marine
+  #
   # What, open Firefox and have user fetch it?
   #
   #  firefox https://opera.com
@@ -5597,6 +5598,12 @@ stage_4_install_opera () {
   #  # Asks to install to apt, writes
   #  #   /etc/apt/sources.list.d/opera-stable.list
   #  #   deb https://deb.opera.com/opera-stable/ stable non-free #Opera Browser (final releases)
+  #
+  # WTF/2018-03-30 08:27: When I run apt-get install on any package,
+  #   something recreates
+  #     /etc/apt/sources.list.d/opera-stable.list
+  #   which is generating complaints.
+  #   Who is doing that?? I want to delete the source, I though I could just delete it!
 
   popd &> /dev/null
 
