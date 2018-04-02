@@ -966,7 +966,8 @@ git_merge_ff_only () {
   local pattern_txt='^ [^\|]+\| +\d+ ?[+-]*$'
   #local pattern_bin='^ \S* *\| +Bin \d+ -> \d+ bytes$'
   #  | grep -P -v " +\S+ +\| +Bin$" \
-  local pattern_bin='^ \S* *\| +Bin( \d+ -> \d+ bytes)?$'
+  #local pattern_bin='^ \S* *\| +Bin( \d+ -> \d+ bytes)?$'
+  local pattern_bin='^ \S*( => \S*)? *\| +Bin( \d+ -> \d+ bytes)?$'
 
   verbose "git merge says:\n${git_says}"
   local culled="$(echo "${git_says}" \
@@ -1019,9 +1020,9 @@ git_merge_ff_only () {
     eval "echo \"${git_says}\" | grep -P \"${pattern_bin}\" | ${grep_sed_sed}" \
   )"
   [[ -n ${changes_txt} ]] && \
-    info "Changes! in: ${FG_LAVENDER}${working_dir}\n${FG_WHITE}${changes_txt}"
+    info "Changes! in txt: ${FG_LAVENDER}${working_dir}\n${FG_WHITE}${changes_txt}"
   [[ -n ${changes_bin} ]] && \
-    info "Changes! in: ${FG_LAVENDER}${working_dir}\n${FG_WHITE}${changes_bin}"
+    info "Changes! in bin: ${FG_LAVENDER}${working_dir}\n${FG_WHITE}${changes_bin}"
 
   # (lb): Not quite sure why git_must_not_rebasing would not have failed first.
   #   Does this happen?
