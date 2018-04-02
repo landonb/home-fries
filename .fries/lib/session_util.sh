@@ -257,6 +257,14 @@ pm-latest() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# Test if Bash function exists.
+fn_exists() {
+  type -t $1 > /dev/null
+}
+alias function_exists=fn_exists
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 main() {
   source_deps
 }
