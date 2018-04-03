@@ -186,6 +186,7 @@ home_fries_create_aliases_general() {
 
   # 2016-06-28: Stay in same dir when launching bash.
   # FIXME: Should I make sure just to do this if a gnome/mate terminal?
+  # 2018-04-03: Is it really kosher to alias bash??
   alias bash='DUBS_STARTIN=$(dir_resolve $(pwd -P)) /bin/bash'
 
   # *** Stream editing
