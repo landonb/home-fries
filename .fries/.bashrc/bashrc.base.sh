@@ -53,6 +53,14 @@ elif [[ -f "/etc/bash.bashrc" ]]; then
   . /etc/bash.bashrc
 fi
 
+# This Developer's Basic Bash Profile
+# ===================================
+
+# Load the basic script. Defines aliases, configures things,
+# adjusts the terminal prompt, and adds a few functions.
+
+source ${hard_path}/bashrc.core.sh
+
 # Machine-specific Profiles
 # =========================
 
@@ -102,14 +110,6 @@ else
   $DUBS_TRACE && echo "User is root"
 
 fi
-
-# This Developer's Basic Bash Profile
-# ===================================
-
-# Load the basic script. Defines aliases, configures things,
-# adjusts the terminal prompt, and adds a few functions.
-
-source ${hard_path}/bashrc.core.sh
 
 # Additional Fancy -- Project Specific Profiles
 # =============================================
