@@ -61,8 +61,21 @@ touchpad_disable () {
   # I also saw a right-click get into weird state where mouse didn't work,
   # nor Alt-tab, but after another right-click, I could Alt-Tab and then
   # run this command to fix things. Seriously, what??
+  # 2018-04-03 11:54: DUDE?!: I cannot disable bracketed paste on 14.04!!
+  #   I exited and restarted Bash and it went away, but I'm getting tired
+  #   of it cropping up! [2018-04-03 14:10: I compiled Bash 4.4 from scratch,
+  #   upgrading from 4.3.11(1)-release to 4.4.18(1)-release. Wait and see if
+  #   it works, though I cannot prove a negative. So if I never see this issue
+  #   again, I won't know for sure if upgrading solved it. At least not without
+  #   being able to knowingly recreate the problem.]
   echo -ne '\e]12;#ffcc00\a'
   echo -ne '\e]12;#ffffff\a'
+  # https://askubuntu.com/questions/662222/why-bracketed-paste-mode-is-enabled-sporadically-in-my-terminal-scree
+  # 2018-04-03: Haha, when I copied this from the web, it had a typo:
+  #   bind 'set-enable-bracketed-paste off'
+  # which for some reason masked all 'p' characters, e.g., I'd copy-paste
+  # a word with 'p' in it, and the 'p' wouldn't be pasted!
+  bind 'set enable-bracketed-paste off'
 }
 
 touchpad_enable () {
