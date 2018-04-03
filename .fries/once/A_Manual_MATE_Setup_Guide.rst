@@ -2,10 +2,7 @@
 Manual Linux Distro Onboarding Instructions For Developers
 ##########################################################
 
-.. Author: Landon Bouma
-.. Last Modified: 2017.12.16
-.. Project Page: https://github.com/landonb/home-fries
-
+========
 Overview
 ========
 
@@ -13,6 +10,7 @@ There are a few Linux stand up tasks that cannot be automated.
 
 So, after running ``setup_mint.sh``, follow these steps.
 
+=====================
 Configure MATE Panels
 =====================
 
@@ -120,52 +118,26 @@ Custom launchers:
 
     /home/user/.fries/bin/chrome_shim.sh
 
-- Dubsacks gVim/GVim:
+- Notes file in GVim, e.g.,::
 
-  - ``gvim --servername SAMPI --remote-silent path/to/notes.rst``
+    gvim --servername SAMPI --remote-silent path/to/notes.rst
 
-  - Icon: Default: ``/usr/share/icons/Mint-X/apps/48/vim.png``
-    Or see under ``~/.curly/home/.fries/once/assets/``
+  - Change default icon (e.g., ``/usr/share/icons/Mint-X/apps/48/vim.png``)
+    to whatever of your choosing.
 
-- Terminal:
+- Basic Terminal::
 
-  - ``/bin/bash -c "/usr/bin/mate-terminal"`` (or just ``mate-terminal``)
+    /bin/bash -c "/usr/bin/mate-terminal"
 
-.. - Termdub Dbms:
-..   - ``/bin/bash -c "/home/<USERNAME>/.fries/bin/termdub.py -t dbms"``
-..   - Icon: ``/usr/share/icons/Humanity/apps/48/utilities-terminal.svg``
-..
-.. - Termdub Logs:
-..   - ``/bin/bash -c "/home/<USERNAME>/.fries/bin/termdub.py -t logs"``
-..
-.. - Termdub Logc:
-..   - ``/bin/bash -c "/home/<USERNAME>/.fries/bin/termdub.py -t logc"``
+  - Or more simply::
 
-.. 2016-10-19: New links.
+    mate-terminal
 
-- Termdub Dbms::
+- Example Termdub::
 
-  /bin/bash -c "${HOME}/.fries/bin/termdub.py -t dbms -x 1486"
+    /bin/bash -c "${HOME}/.fries/bin/termdub.py -t dbms -x 1486 -y 0"
 
-- Termbud Toppers:
-
-  - X201::
-
-    /bin/bash -c "DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 1486"
-
-  - T460::
-
-    /bin/bash -c "DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 2020"
-
-- Termdub Bottoms:
-
-  - X201::
-
-    /bin/bash -c "DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 0 -y 1080"
-
-  - T460::
-
-    /bin/bash -c "DUBS_STARTIN=$(readlink ~/.waffle/work/user-current-project) ${HOME}/.fries/bin/termdub.py -t dbms -x 0 -y 1180"
+  - ``termdub.py`` is a wrapper that sizes and positions the terminal window.
 
 See also:
 
@@ -179,9 +151,11 @@ See also:
     firefox.desktop
     ...
 
+===================
 Add Browser Plugins
 ===================
 
+-------
 Gesture
 -------
 
@@ -195,6 +169,7 @@ Juice up your mouse control with a gesture plugin.
    - `CrxMouse for Google Chrome
      <https://chrome.google.com/webstore/detail/crxmouse/jlgkpaicikihijadgifklkbpdajbkhjo>`__
 
+-----
 HTTPS
 -----
 
@@ -209,6 +184,7 @@ your browser requests try to use https.
    - `HTTPS Everywhere for Chrome
      <https://www.eff.org/https-everywhere>`__
 
+------------
 Center Image
 ------------
 
@@ -217,6 +193,7 @@ Center Image
   - `Image in the center
     <https://chrome.google.com/webstore/detail/image-in-the-center/kcpejamelebpigblebnbabhndaaffjok?hl=en>`__
 
+-----
 Regex
 -----
 
@@ -239,6 +216,7 @@ The Chrome plugin works well, though.
   - Type ``Alt+Shift+F`` to open the finder, and
     ``Enter`` and ``Shift-Enter`` to navigate.
 
+------------
 Ctrl+Shift+C
 ------------
 
@@ -296,6 +274,7 @@ text, remap the key command.
    (obscuring Text Switch Directions, which is not a feature
    you'll probably use if you stick to Latin text).
 
+----------
 Keep Alive
 ----------
 
@@ -336,6 +315,7 @@ Click it and add your rickrollredirect.
 
 ``https://www.stupidbank.com`` -> ``https://www.youtube.com/watch?v=dQw4w9WgXcQ``
 
+--------------------
 Backspace to go Back
 --------------------
 
@@ -357,6 +337,7 @@ NOTE: I don't have a preference to either plugin.
 Both popped up when I searched for a solution.
 I installed "Backspace to go Back" and it worked.
 
+--------------------
 Scrum for Trello.com
 --------------------
 
@@ -368,6 +349,7 @@ http://scrumfortrello.com/
 
 - Firefox
 
+--------------------------------------
 Chrome tabbed landing page replacement
 --------------------------------------
 
@@ -381,6 +363,7 @@ sites to the list.
 
 https://chrome.google.com/webstore/detail/speed-dial-fvd-new-tab-pa/llaficoajjainaijghjlofdfmbjpebpa?brand=CHBD&gclid=EAIaIQobChMI993or42i1QIV1YKzCh2YUAPNEAAYASABEgJcHfD_BwE&dclid=CO7gqrGNotUCFU1YDAodJ5oFzw
 
+======================
 Configure Web Browsers
 ======================
 
@@ -411,71 +394,4 @@ In ``chrome://settings/``:
 - On startup: [Select] Continue where you left off
 
 - Appearance: [Deselect] Use system title bar and borders
-
-Configure Meld Preferences
-==========================
-
-Note: The meld settings are written to ~/.gconf/apps/meld/%gconf.xml.
-
-(And while we could maybe just copy/paste that file, since Meld
-changes between distros, it's probably wiser/easier to just do
-this manually.)
-
-Run Meld. Choose Preferences from the Meld menu. Click File Filters tab.
-
-#. Dubsacks Vim / Home Fries
-
-    - Title:
-
-      Dubsacks Vim / Home Fries
-
-    - Paths:
-
-    cmdt_paths dubs_cuts id_inner_a611_rsa* id_inner_bes_rsa* known_hosts fries-setup-mysql.pwd authorized_keys .trash .cache openterms.sh hamster-* hamster.bkups environment master_chef cron.daily cron.weekly cron.monthly Baby_Tubes_Files Backpacking_Files Bike_Files Bouma_Assets_II_FIXME Cooking_and_Consuming_Files Gaming_Files Health_Files Job_Hunting_Files Names_and_Faces_Files Packlists_Files Pending_Files Photography_Files
-
-#. Python bytecode
-
-    - Title:
-
-      Python bytecode
-
-    - Paths:
-
-      __pycache__
-
-#. Cyclopath
-
-    - Title:
-
-      Cyclopath
-
-    - Paths:
-
-      FW.build_main.mxml.pid
-
-#. tags
-
-    - Title:
-
-      tags
-
-    - Paths:
-
-      tags
-
-Other Steps
-===========
-
-I didn't move everything to this file, just the stuff
-I figured I'd always want.
-
-See: A_General_Linux_Setup_Guide_For_Devs.rst
-
-- Gmail notifier plugin [maybe browser toast notifications are good enough?]
-
-- Add Gmail account to Pidgin [I've been having Pidgin issues lately;
-  I've heard that I always appear offline?]
-
-- Relay Postfix Email via smtp.gmail.com [doesn't seem necessary
-  unless I was to write an app or service to needs to email]
 
