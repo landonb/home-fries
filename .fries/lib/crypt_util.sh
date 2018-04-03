@@ -102,6 +102,8 @@ updatedb_ecryptfs () {
 daemonize_gpg_agent () {
   ps -C gpg-agent &> /dev/null
   if [[ $? -ne 0 ]]; then
+    # 2018-04-03 00:23: On 14.04 Desktop with Issues:
+    #   gpg-agent[17654]: Fatal: libgcrypt is too old (need 1.7.0, have 1.6.1)
     local eff_off_gkr=$(gpg-agent --daemon)
     eval "$eff_off_gkr"
   fi
