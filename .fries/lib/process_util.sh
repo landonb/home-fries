@@ -212,6 +212,8 @@ wait_bg_tasks () {
 # EXPLAIN/FIXME: Why doesn't bash_core.sh just use what's in bash_base.sh
 #                and share like a normal script?
 killsomething () {
+  #[[ -z $1 ]] && warn 'Not killing nothing!' && return 1
+  [[ -z $1 ]] && echo 'Not killing nothing!' && return 1
   local something=$1
   ${DUBS_TRACE} && echo "killsomething: $something"
   # The $2 is the awk way of saying, second column. I.e., ps aux shows
