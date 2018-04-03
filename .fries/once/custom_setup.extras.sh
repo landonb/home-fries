@@ -7265,6 +7265,128 @@ stage_4_direnv () {
 
 } # end: stage_4_direnv
 
+stage_4_build_bash () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_build_bash"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # 2018-04-03 11:58: Fix the bracketed paste issue on 14.04??
+
+  # 2018-04-03: Having issues with v1 still on old 14.04, so use gpg2.
+  #local mgpg='gpg'
+  local mgpg='gpg2'
+
+  wget -O ${OPT_DLOADS}/bash-chet-gpgkey.asc http://tiswww.cwru.edu/~chet/gpgkey.asc
+  ${mgpg} --import ${OPT_DLOADS}/bash-chet-gpgkey.asc
+
+  local readline_ver=7.0
+  wget -N https://ftp.gnu.org/gnu/readline/readline-${readline_ver}.tar.gz
+  wget -N https://ftp.gnu.org/gnu/readline/readline-${readline_ver}.tar.gz.sig
+
+  ${mgpg} --verify readline-${readline_ver}.tar.gz.sig
+  # gpg: Good signature from "Chet Ramey <chet@cwru.edu>" [unknown]
+  if [[ $? -ne 0 ]]; then
+    >&2 echo "ERROR: Verification failed!"
+    exit 1
+  fi
+
+  tar xvzf readline-${readline_ver}.tar.gz
+  cd readline-${readline_ver}
+
+  ./configure && make
+  sudo make install
+  sudo ldconfig
+
+  # $ bash --version
+  # GNU bash, version 4.3.11(1)-release (x86_64-pc-linux-gnu)
+  # $ ldd /bin/bash | grep readline
+  # # Nothing!
+  #
+  # $ /srv/opt/.downloads/bash-4.4.18/bash --version
+  # GNU bash, version 4.4.18(1)-release (x86_64-unknown-linux-gnu)
+  # $ /srv/opt/.downloads/bash-4.4.18/bash
+  # $ echo $BASH_VERSION
+  # 4.4.18(1)-release
+  # $ ldd /srv/opt/.downloads/bash-4.4.18/bash
+	# libreadline.so.7 => /usr/local/lib/libreadline.so.7 (0x00007ffa41dd5000)
+  # ...
+
+  cd ${OPT_DLOADS}
+
+  local bash_ver=4.4.18
+  wget -N https://mirrors.tripadvisor.com/gnu/bash/bash-${bash_ver}.tar.gz
+  wget -N https://mirrors.tripadvisor.com/gnu/bash/bash-${bash_ver}.tar.gz.sig
+
+  ${mgpg} --verify bash-${bash_ver}.tar.gz.sig
+  # gpg: Good signature from "Chet Ramey <chet@cwru.edu>" [unknown]
+  if [[ $? -ne 0 ]]; then
+    >&2 echo "ERROR: Verification failed!"
+    exit 1
+  fi
+
+  tar xvzf bash-${bash_ver}.tar.gz
+  cd bash-${bash_ver}
+
+  # http://www.linuxfromscratch.org/lfs/view/development/chapter06/bash.html
+
+  make clean
+
+  # Specify LDFLAGS to avoid errors, such as:
+  #
+  #   /srv/opt/.downloads/bash-4.4.18/bashhist.c:324:
+  #     undefined reference to `history_lines_read_from_file'
+  #
+
+  LDFLAGS="-L/usr/local/lib" \
+    ./configure \
+      --prefix=/usr/local \
+      --docdir=/usr/local/share/doc/bash-4.4.18 \
+      --without-bash-malloc \
+      --with-installed-readline \
+      LDFLAGS="-L/usr/local/lib"
+
+  make
+
+  # To prepare the tests, ensure that the nobody user can write to the sources tree.
+  #chown -Rv nobody .
+  #su nobody -s /bin/bash -c "PATH=$PATH make tests"
+  cd ${OPT_DLOADS}
+  /bin/cp -ar bash-${bash_ver} bash-${bash_ver}-TEST
+  cd bash-${bash_ver}-TEST
+  sudo chown -Rv nobody .
+  # Run the tests as the nobody user.
+  sudo -- su
+  su -c nobody -s /bin/bash -c "PATH=$PATH make tests"
+  # ...
+  # Testing /srv/opt/.downloads/bash-4.4.18/bash
+
+  # FIXME/2018-04-03: Do this, eventually.
+  #   For now, just testing intentionally.
+  #   E.g., call this bash from MATE panel launchers,
+  #   which is how I usually open terminals.
+  if false;
+    # Install the package.
+    make install
+    # Move the main executable to /bin.
+    mv -vf /usr/bin/bash /bin
+    # The article suggests this to run the new bash:
+    #   "Run the newly compiled bash program..."
+    #     exec /bin/bash --login +h
+    # Which seems excessive (just call /bin/bash?).
+    # Doesn't -l/--login interactive shell happen by default?
+    # And the +h is documented. +H says to load Bash history. TEVS.
+  else
+    /bin/ln -sf ${OPT_DLOADS}/bash-${bash_ver}-TEST/bash ${OPT_BIN}
+  fi
+
+  popd &> /dev/null
+
+} # end: stage_4_build_bash
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -7584,6 +7706,8 @@ setup_customize_extras_go () {
   stage_4_whereami
 
   stage_4_direnv
+
+  stage_4_build_bash
 
   # Add before this'n: stage_4_fcn_template.
 
