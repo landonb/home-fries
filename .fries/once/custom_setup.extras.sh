@@ -3767,6 +3767,12 @@ stage_4_pass__gnupg_2 () {
   #local GPG2_VERS="2.0.30"
   #local GPG2_VERS="2.1.15"
   #local GPG2_VERS="2.1.23"
+  # FIXME/2018-04-03: Huh?
+  #   @desktop $ gpg2 --version
+  #   gpg (GnuPG) 2.0.30
+  #   @laptop  $ gpg2 --version
+  #   gpg (GnuPG) 2.1.15
+  # so how come this says 2.2.3??
   local GPG2_VERS="2.2.3"
 
   gpg2_path="/usr/local/bin/gpg2"
@@ -6997,8 +7003,61 @@ stage_4_tmux () {
 
   pushd ${OPT_DLOADS} &> /dev/null
 
-  sudo apt-get install -y tmux
+  #sudo apt-get install -y tmux
   sudo apt-get install -y xclip
+
+  # 2018-04-02: Ubuntu 14.04 (about to be deprecated?)
+  #   sudo apt-get install -y libevent1-dev
+  # Oh, wait:
+  #   "tmux depends on libevent 2.x."
+  local libevent_uri="https://github.com/libevent/libevent/releases/download"
+  local libevent_ver=2.1.8
+  local libevent_dir="libevent-${libevent_ver}-stable"
+  local libevent_tar="${libevent_dir}.tar.gz"
+  wget -N ${libevent_uri}/release-${libevent_ver}-stable/${libevent_tar}
+  wget ${libevent_uri}/release-${libevent_ver}-stable/${libevent_tar}.asc
+
+  # 2018-04-03: Having issues with v1 still on old 14.04.
+  #local mgpg='gpg'
+  local mgpg='gpg2'
+  # From key ID copied from GitHub:
+  ${mgpg} --keyserver hkp://keys.gnupg.net --recv-keys 0xB86086848EF8686D
+  ${mgpg} --verify ${libevent_tar}.asc
+  if [[ $? -ne 0 ]]; then
+    >&2 echo "ERROR: Verification failed!"
+    exit 1
+  fi
+
+  tar xvf ${libevent_tar}
+  cd ${libevent_dir}
+  ./configure && make
+  sudo make install
+
+  cd ${OPT_DLOADS}
+
+  # 2018-04-03 00:35: Meh: I think I just needed to kill old tmux server,
+  # but had problems initially with 2.6. 2.4 probably works fine (tmuxinator
+  # says avoid 2.5, though).
+  #local latest_tmux=2.6
+  # Appease tmuxinator and avoid 2.5.
+  local latest_tmux=2.4
+  # tmux hangs (needs kill -s 9!) and tmuxinator needs Ctrl-C...
+  #  tmux server is still running in background, though...
+  #local latest_tmux=2.1
+  wget -N https://github.com/tmux/tmux/releases/download/${latest_tmux}/tmux-${latest_tmux}.tar.gz
+  tar xvzf tmux-${latest_tmux}.tar.gz
+  cd tmux-${latest_tmux}
+  ./configure && make
+  sudo make install
+  # $ tmux -V
+  # YAS!:
+  # tmux 2.4
+
+# killall -9 tmux
+
+  # man tmux:
+  #   cd ${OPT_DLOADS}/tmux-${latest_tmux}
+  #   nroff -mdoc tmux.1 | less
 
   chruby 2.3.3
   gem install tmuxinator
