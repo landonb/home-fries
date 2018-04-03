@@ -7006,18 +7006,58 @@ stage_4_tmux () {
   #sudo apt-get install -y tmux
   sudo apt-get install -y xclip
 
-  # 2018-04-02: Ubuntu 14.04 (about to be deprecated?)
-  #   sudo apt-get install -y libevent1-dev
-  # Oh, wait:
-  #   "tmux depends on libevent 2.x."
+  # 2018-04-02: Just 1 year of support left on Ubuntu 14.04, so I know
+  # I need to update the desktop soon, which is why I don't like having
+  # to build code from scratch just for 14.04! I'd rather aptitude just
+  # have it. Alas! 14.04's repo has tmux v1.8, and the nice "pretty +
+  # versatile" .tmux config I use, from github.com/gpakosz/.tmux, requires
+  # tmux >= 2.1. And note that a plugin I like, tmuxinator, requires >= 1.8,
+  # except 2.5.
+
+  # So here it is, tmux built from scratch!
+
+  # Note, too: "tmux depends on libevent 2.x."
+
+  # 2018-04-03: Huh. I thought I didn't find libevent2 in the 14.04 repo,
+  # so I built it from scratch, but now looking again, I'm pretty sure
+  # it's `libevent-dev`:
+  #
+  #   $ apt-cache search libevent
+  #   libevent-2.0-5 - Asynchronous event notification library
+  #   libevent-core-2.0-5 - Asynchronous event notification library (core)
+  #   libevent-dbg - Asynchronous event notification library (debug symbols)
+  #   libevent-dev - Asynchronous event notification library (development files)
+  #   ...
+  #   libevent-1.4-2 - asynchronous event notification library
+  #   libevent-core-1.4-2 - asynchronous event notification library (core)
+  #   libevent1-dev - development libraries, header files and docs for libevent
+  #
+  # Argh, whatever, here it is, libevent from scratch, not a big deal,
+  # except! Rabbit hole! U tried tmux 2.6 first, and then 2.4, but both
+  # choked on the .tmux.config. 2.3 works, though, but not with libevent 2.1!
+  # I suppose I could try tmux 2.4 and 2.6 with libevent 2.0 but I finally got
+  # things working, so nuts to any more fiddling.
+
   local libevent_uri="https://github.com/libevent/libevent/releases/download"
-  local libevent_ver=2.1.8
+
+  # 2018-04-03: Latest stable 2.1 release, albeit tmux seems happier with 2.0.
+  # libevent-2.1.so.6 / libevent-2.1.so.6.0.2
+  #local libevent_ver=2.1.8
+
+  # tmux 2.3 complains when compiled against 2.1.8:
+  #   $ tmux -V
+  #   tmux: error while loading shared libraries: libevent-2.1.so.6:
+  #    cannot open shared object file: No such file or directory
+  # even though I verified it's there!
+
+  # libevent-2.0.so.5 / libevent-2.0.so.5.1.9
+  local libevent_ver=2.0.22
   local libevent_dir="libevent-${libevent_ver}-stable"
   local libevent_tar="${libevent_dir}.tar.gz"
   wget -N ${libevent_uri}/release-${libevent_ver}-stable/${libevent_tar}
   wget ${libevent_uri}/release-${libevent_ver}-stable/${libevent_tar}.asc
 
-  # 2018-04-03: Having issues with v1 still on old 14.04.
+  # 2018-04-03: Having issues with v1 still on old 14.04, so use gpg2.
   #local mgpg='gpg'
   local mgpg='gpg2'
   # From key ID copied from GitHub:
@@ -7035,15 +7075,22 @@ stage_4_tmux () {
 
   cd ${OPT_DLOADS}
 
-  # 2018-04-03 00:35: Meh: I think I just needed to kill old tmux server,
-  # but had problems initially with 2.6. 2.4 probably works fine (tmuxinator
-  # says avoid 2.5, though).
+  # I tried tmux 2.6 with libevent 2.1, but choked when run.
   #local latest_tmux=2.6
-  # Appease tmuxinator and avoid 2.5.
-  local latest_tmux=2.4
-  # tmux hangs (needs kill -s 9!) and tmuxinator needs Ctrl-C...
-  #  tmux server is still running in background, though...
-  #local latest_tmux=2.1
+  # Appease tmuxinator and avoid 2.5. Didn't try:
+  #  local latest_tmux=2.6
+  # I tried tmux 2.4 with libevent 2.1, but choked on gpakosz/.tmux.conf.
+  #local latest_tmux=2.4
+  # HINT: When `tmux` on bootstrap, Ctrl-C doesn't work, so
+  #     kill -s 9
+  #   all its processes, or maybe
+  #     killall -9 tmux
+  #   or more brutally:
+  #     killsomething tmux
+  local latest_tmux=2.3
+  # I didn't try 2.2 or 2.1, but 2.1 is what runs on 16.04 laptop.
+  #  local latest_tmux=2.2
+  #  local latest_tmux=2.1
   wget -N https://github.com/tmux/tmux/releases/download/${latest_tmux}/tmux-${latest_tmux}.tar.gz
   tar xvzf tmux-${latest_tmux}.tar.gz
   cd tmux-${latest_tmux}
@@ -7051,13 +7098,28 @@ stage_4_tmux () {
   sudo make install
   # $ tmux -V
   # YAS!:
-  # tmux 2.4
+  # tmux 2.3
 
-# killall -9 tmux
+  # NOTE: I saw what look like configure saying it didn't find LIBEVENT:
+  #   ...
+  #   checking for LIBEVENT... no
+  #   checking for library containing event_init... -levent
+  #   checking event.h usability... yes
+  #   checking event.h presence... yes
+  #   checking for event.h... yes
+  #   ...
+  # But I think the LIBEVENT is an environ. Especially because
+  # subsequent lines suggest the library was found. And because
+  # configure should fail if libevent no present, right?
+  # I also added an LDFLAGS option, but it didn't change outcome:
+  #   ./configure LIBEVENT_LIBS="-L/usr/local/lib"
 
-  # man tmux:
-  #   cd ${OPT_DLOADS}/tmux-${latest_tmux}
-  #   nroff -mdoc tmux.1 | less
+  # Read the docs!
+  #
+  #   man tmux:
+  #
+  #     cd ${OPT_DLOADS}/tmux-${latest_tmux}
+  #     nroff -mdoc tmux.1 | less
 
   chruby 2.3.3
   gem install tmuxinator
