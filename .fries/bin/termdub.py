@@ -45,7 +45,7 @@ Right Half of Screen       path/to/this/script/termdub.py -t rhs
 Top Half of Screen         path/to/this/script/termdub.py -t logs
 Bottom Half of Screen      path/to/this/script/termdub.py -t logc
 Large and Square Window    path/to/this/script/termdub.py -t dbms
-Miniature Window           path/to/this/script/termdub.py -t mini 
+Miniature Window           path/to/this/script/termdub.py -t mini
 ------------------------   --------------------------------------
 
 Example Usage: As Panel Launchers
@@ -54,10 +54,10 @@ Example Usage: As Panel Launchers
 Make panel launchers for those sizes you find
 useful, so you can easily open new terminals::
 
-   Gnome [menubar] 
-     < Applications 
-     < System Tools 
-     < Terminal [Right-click and choose] Add this launcher to Panel 
+   Gnome [menubar]
+     < Applications
+     < System Tools
+     < Terminal [Right-click and choose] Add this launcher to Panel
 
 Add one new launcher for each window size you like,
 and then right-click each new launcher and edit the
@@ -121,8 +121,8 @@ class Termdub_Parser(optparse.OptionParser):
          help='if main display is below other displays, specify offset')
 
    # FIXME: Add
-   # DUBS_TERMNAME="" DUBS_STARTIN="" DUBS_STARTUP="" 
-   # to options, since the gnome shortcut keeps running 
+   # DUBS_TERMNAME="" DUBS_STARTIN="" DUBS_STARTUP=""
+   # to options, since the gnome shortcut keeps running
    # DUBS_STARTUP for the first window (winpdb)...
    # and I can't pass an env var to termdub from the
    # gnome applet, for whatever reason.
@@ -425,22 +425,22 @@ class Termdub(object):
       # Python3.3 adds universal_newlines, which defaults to False and causes
       # raw binary stream to be returned. But we want to read strings.
       try:
-         p = subprocess.Popen([the_cmd], 
-                              shell=True, 
+         p = subprocess.Popen([the_cmd],
+                              shell=True,
                               # bufsize=bufsize,
-                              stdin=subprocess.PIPE, 
-                              stdout=subprocess.PIPE, 
-                              stderr=subprocess.STDOUT, 
+                              stdin=subprocess.PIPE,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.STDOUT,
                               close_fds=True,
                               universal_newlines=True)
 
       except TypeError as e:
-         p = subprocess.Popen([the_cmd], 
-                              shell=True, 
+         p = subprocess.Popen([the_cmd],
+                              shell=True,
                               # bufsize=bufsize,
-                              stdin=subprocess.PIPE, 
-                              stdout=subprocess.PIPE, 
-                              stderr=subprocess.STDOUT, 
+                              stdin=subprocess.PIPE,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.STDOUT,
                               close_fds=True)
       (sin, sout_err) = (p.stdin, p.stdout)
       while True:
