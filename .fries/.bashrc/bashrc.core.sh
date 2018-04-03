@@ -182,7 +182,7 @@ home_fries_up() {
 
   #########################
 
-  # Configure the terminal prompt and colors.
+  # Configure the terminal prompt and colors. (From term_util.sh)
 
   # Set `PS1=` to customize the terminal prompt.
   dubs_set_terminal_prompt
@@ -195,6 +195,9 @@ home_fries_up() {
   # Fix the colors used by `ls -C` to be less annoying.
   dubs_fix_terminal_colors
   unset dubs_fix_terminal_colors
+
+  dubs_source_tmuxinator
+  unset dubs_source_tmuxinator
 
   #########################
 

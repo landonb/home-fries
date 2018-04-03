@@ -15,6 +15,8 @@ source_deps() {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   # determine_window_manager
   source ${curdir}/distro_util.sh
+  #
+  source ${curdir}/logger.sh
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -428,7 +430,32 @@ default_yes_question() {
 
 # NOTE: You can also precede the echo:
 #         >&2 echo "blah"
-echoerr () { echo "$@" 1>&2; }
+echoerr() { echo "$@" 1>&2; }
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+dubs_source_tmuxinator() {
+  local tmux_bin
+  tmux_bin=$(command -v tmuxinator 2> /dev/null)
+  if [[ $? -eq 0 ]]; then
+    # tmux_bin is, e.g., ${HOME}/.gem/ruby/2.3.3/bin/tmuxinator
+    local tmux_vers
+    tmux_vers=$(tmuxinator -v | /bin/sed 's/^tmuxinator //')
+    if [[ $? -eq 0 ]]; then
+      # NOTE: Gem.user_dir is not right, e.g., ~/.gem/ruby/2.3.0.
+      local ruby_gem_path=$(ruby -rubygems -e 'puts Gem.dir')
+      local tmux_bash
+      tmux_bash="${ruby_gem_path}/gems/tmuxinator-${tmux_vers}/completion/tmuxinator.bash"
+      if [[ -f ${tmux_bash} ]]; then
+        source ${tmux_bash}
+      else
+        warn "WARNING: so such file: ${tmux_bash}"
+      fi
+    else
+      warn "WEIRD: tmuxinator exists but tmuxinator -v errors?"
+    fi
+  fi
+}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
