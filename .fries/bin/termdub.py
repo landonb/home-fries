@@ -618,11 +618,17 @@ class Termdub(object):
       print('Opening %s: %s: %dx%d+%d+%d.'
             % (the_terminal, target, lines_wide, lines_tall, offset_w, offset_h,))
 
-      the_cmd = ('%s %s --geometry %s' 
+      specific_bash = ''
+      dubsacks_bash4_4 = '/srv/opt/bin/bash'
+      if os.path.exists(dubsacks_bash4_4):
+         specific_bash = '-e %s' % (dubsacks_bash4_4,)
+
+      the_cmd = ('%s %s --geometry %s %s'
                  % (the_terminal,
                     termname,
-                    geom_opt,))
-      #print('the_cmd: %s' % (the_cmd,))
+                    geom_opt,
+                    specific_bash,))
+      print('the_cmd: %s' % (the_cmd,))
 
       try:
          p = subprocess.Popen(the_cmd, shell=True, universal_newlines=True)
