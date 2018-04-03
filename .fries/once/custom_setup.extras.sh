@@ -7124,9 +7124,36 @@ stage_4_tmux () {
   chruby 2.3.3
   gem install tmuxinator
 
+  # Add tmuxinator/completion/tmuxinator.bash
+  #   to Bash completions directory.
+  add_to_completions_tmuxinator
+
   popd &> /dev/null
 
 } # end: stage_4_tmux
+
+add_to_completions_tmuxinator() {
+  local tmux_bin
+  tmux_bin=$(command -v tmuxinator 2> /dev/null)
+  if [[ $? -eq 0 ]]; then
+    # tmux_bin is, e.g., ${HOME}/.gem/ruby/2.3.3/bin/tmuxinator
+    local tmux_vers
+    tmux_vers=$(tmuxinator -v | /bin/sed 's/^tmuxinator //')
+    if [[ $? -eq 0 ]]; then
+      # NOTE: Gem.user_dir is not right, e.g., ~/.gem/ruby/2.3.0.
+      local ruby_gem_path=$(ruby -rubygems -e 'puts Gem.dir')
+      local tmux_bash
+      tmux_bash="${ruby_gem_path}/gems/tmuxinator-${tmux_vers}/completion/tmuxinator.bash"
+      if [[ -f ${tmux_bash} ]]; then
+        /bin/ln -sf "${tmux_bash}" "${HOME}/.fries/bin/completions"
+      else
+        warn "WARNING: so such file: ${tmux_bash}"
+      fi
+    else
+      warn "WEIRD: tmuxinator exists but tmuxinator -v errors?"
+    fi
+  fi
+}
 
 stage_4_yarn () {
   if ${SKIP_EVERYTHING}; then

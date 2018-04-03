@@ -196,9 +196,6 @@ home_fries_up() {
   dubs_fix_terminal_colors
   unset dubs_fix_terminal_colors
 
-  dubs_source_tmuxinator
-  unset dubs_source_tmuxinator
-
   #########################
 
   # Setup distro-agnostic Python and Apache wrappers, aliases, and environs.
