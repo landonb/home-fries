@@ -1,0 +1,40 @@
+#!/bin/bash
+#  vim:tw=0:ts=2:sw=2:et:norl:ft=bash
+
+git-get() {
+  ##set -e
+  #tweak_errexit -e
+
+  if [[ $(git remote get-url origin 2> /dev/null) ]]; then
+    echo 'Fetching origin'
+    git fetch origin
+  fi
+  if [[ $(git remote get-url upstream 2> /dev/null) ]]; then
+    echo 'Fetching upstream'
+    git fetch upstream
+  fi
+
+  # Bash for loop split on newlines...
+  # overkill because remote names do not have spaces.
+  local IFS=$'\n' 
+  local remote
+  for remote in $(git remote | sort); do
+    #echo ${remote}
+    if [[ "${remote}" != 'origin' \
+       && "${remote}" != 'upstream' \
+       && "${remote}" != 'travel' ]]; then
+    echo "Fetching ${remote}"
+    git fetch ${remote}
+  fi
+  done
+  unset IFS
+
+  #reset_errexit
+}
+
+main() {
+  git-get
+}
+
+main "$@"
+
