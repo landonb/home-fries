@@ -7057,11 +7057,20 @@ stage_4_tmux () {
   wget -N ${libevent_uri}/release-${libevent_ver}-stable/${libevent_tar}
   wget ${libevent_uri}/release-${libevent_ver}-stable/${libevent_tar}.asc
 
+  # FIXME/2018-04-04: I cannot find the public key need to verify!
+  #
   # 2018-04-03: Having issues with v1 still on old 14.04, so use gpg2.
   #local mgpg='gpg'
   local mgpg='gpg2'
   # From key ID copied from GitHub:
-  ${mgpg} --keyserver hkp://keys.gnupg.net --recv-keys 0xB86086848EF8686D
+  #
+  # 2018-04-04: I thought this worked on desktop yesterday, but
+  # today unable to verify download on laptop...
+  #
+  #${mgpg} --keyserver hkp://keys.gnupg.net --recv-keys 0xB86086848EF8686D
+  # curl https://github.com/<username>.keys
+  #curl https://github.com/azat.keys | ${mgpg} --import -
+  #curl https://api.github.com/azat/gpg_keys
   ${mgpg} --verify ${libevent_tar}.asc
   if [[ $? -ne 0 ]]; then
     >&2 echo "ERROR: Verification failed!"
