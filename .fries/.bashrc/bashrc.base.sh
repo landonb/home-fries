@@ -243,9 +243,14 @@ main() {
   source_deps
   unset source_deps
 
+  # FIXME/2018-04-04: This is a hack until I figure out something better.
+  export HOME_FRIES_PRELOAD=true
+  source_private
+
   source_fries
   unset source_fries
 
+  export HOME_FRIES_PRELOAD=false
   source_private
   unset source_private
 
