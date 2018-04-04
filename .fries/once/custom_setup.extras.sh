@@ -7342,6 +7342,14 @@ stage_4_build_bash () {
 	# libreadline.so.7 => /usr/local/lib/libreadline.so.7 (0x00007ffa41dd5000)
   # ...
 
+  # Bash Changelog (since bash-1.14.7).
+  #
+  #   https://git.savannah.gnu.org/cgit/bash.git/plain/NEWS?id=a0c0a00fc419b7bc08202a79134fcd5bc0427071
+  #
+  # Bash 4.4 Changes
+  #
+  #   https://fossbytes.com/gnu-bash-4-4-released-new-features-changes/
+
   cd ${OPT_DLOADS}
 
   local bash_ver=4.4.18
@@ -7378,18 +7386,22 @@ stage_4_build_bash () {
 
   make
 
-  # To prepare the tests, ensure that the nobody user can write to the sources tree.
-  #chown -Rv nobody .
-  #su nobody -s /bin/bash -c "PATH=$PATH make tests"
-  cd ${OPT_DLOADS}
-  /bin/cp -ar bash-${bash_ver} bash-${bash_ver}-TEST
-  cd bash-${bash_ver}-TEST
-  sudo chown -Rv nobody .
-  # Run the tests as the nobody user.
-  sudo -- su
-  su -c nobody -s /bin/bash -c "PATH=$PATH make tests"
-  # ...
-  # Testing /srv/opt/.downloads/bash-4.4.18/bash
+  if false; then
+    # To prepare the tests, ensure that the nobody user can write to the sources tree.
+    #chown -Rv nobody .
+    #su nobody -s /bin/bash -c "PATH=$PATH make tests"
+    cd ${OPT_DLOADS}
+    /bin/cp -ar bash-${bash_ver} bash-${bash_ver}-TEST
+    cd bash-${bash_ver}-TEST
+    sudo chown -Rv nobody .
+    # Run the tests as the nobody user.
+    sudo -- su
+    su -c nobody -s /bin/bash -c "PATH=$PATH make tests"
+    # ...
+    # Testing /srv/opt/.downloads/bash-4.4.18/bash
+    # ...
+    exit
+  fi
 
   # FIXME/2018-04-03: Do this, eventually.
   #   For now, just testing intentionally.
