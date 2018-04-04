@@ -44,72 +44,72 @@ hard_path=$(dirname $(readlink -f -- "${BASH_SOURCE}"))
 # System-wide Profile
 # ===================
 
-# Source global definitions.
-if [[ -f "/etc/bashrc" ]]; then
-  # Fedora.
-  . /etc/bashrc
-elif [[ -f "/etc/bash.bashrc" ]]; then
-  # Debian/Ubuntu.
-  . /etc/bash.bashrc
-fi
+source_deps() {
+  # Source global definitions.
+  if [[ -f "/etc/bashrc" ]]; then
+    # Fedora.
+    . /etc/bashrc
+  elif [[ -f "/etc/bash.bashrc" ]]; then
+    # Debian/Ubuntu.
+    . /etc/bash.bashrc
+  fi
+}
 
 # This Developer's Basic Bash Profile
 # ===================================
 
-# Load the basic script. Defines aliases, configures things,
-# adjusts the terminal prompt, and adds a few functions.
-
-source ${hard_path}/bashrc.core.sh
+source_fries() {
+  # Load the basic script. Defines aliases, configures things,
+  # adjusts the terminal prompt, and adds a few functions.
+  source ${hard_path}/bashrc.core.sh
+}
 
 # Machine-specific Profiles
 # =========================
 
-# Load the machine-specific scripts first so their exports are visible.
+source_private() {
+  # Load the machine-specific scripts first so their exports are visible.
 
-if [[ $EUID -ne 0 ]]; then
+  if [[ $EUID -ne 0 ]]; then
+    $DUBS_TRACE && echo "User is not root"
 
-  $DUBS_TRACE && echo "User is not root"
+    # Load a private, uncommitted bash profile script, maybe.
 
-  # Load a private, uncommitted bash profile script, maybe.
+    # Rather than assuming we're in the user's home, e.g.,
+    #  if [[ -f "./somefile" ]] ...
+    # use the `echo` trick:
+    if [[ -f `echo ${hard_path}/bashrx.private.sh` ]]; then
+      $DUBS_TRACE && echo "Loading private resource script: bashrx.private.sh"
+      source ${hard_path}/bashrx.private.sh
+    fi
 
-  # Rather than assuming we're in the user's home, e.g.,
-  #  if [[ -f "./somefile" ]] ...
-  # use the `echo` trick:
-  if [[ -f `echo ${hard_path}/bashrx.private.sh` ]]; then
-    $DUBS_TRACE && echo "Loading private resource script: bashrx.private.sh"
-    source ${hard_path}/bashrx.private.sh
-  fi
+    # Load a machine-specific, private, uncommitted script, maybe.
 
-  # Load a machine-specific, private, uncommitted script, maybe.
+    # EXPLAIN: Is there a difference between $(hostname) and $HOSTNAME?
+    #          One is a command and one is an environment variable.
+    #          But does it matter which one we use?
+    machfile=`echo ${hard_path}/bashrx.private.$HOSTNAME.sh`
 
-  # EXPLAIN: Is there a difference between $(hostname) and $HOSTNAME?
-  #          One is a command and one is an environment variable.
-  #          But does it matter which one we use?
-  machfile=`echo ${hard_path}/bashrx.private.$HOSTNAME.sh`
+    if [[ -f "$machfile" ]]; then
+      $DUBS_TRACE && echo "Loading machine-specific resource script: $machfile"
+      source $machfile
+    else
+      $DUBS_TRACE && echo "Did not find a machine-specific resource: $machfile"
+    fi
 
-  if [[ -f "$machfile" ]]; then
-    $DUBS_TRACE && echo "Loading machine-specific resource script: $machfile"
-    source $machfile
+    userfile=`echo ${hard_path}/bashrx.private.$USER.sh`
+
+    if [[ -f "$userfile" ]]; then
+      $DUBS_TRACE && echo "Loading user-specific resource script: $userfile"
+      source $userfile
+    else
+      $DUBS_TRACE && echo "Did not find a user-specific resource: $userfile"
+    fi
   else
-    $DUBS_TRACE && echo "Did not find a machine-specific resource: $machfile"
+    # If the user is root, we'll just load the core script, and nothing fancy.
+    $DUBS_TRACE && echo "User is root"
   fi
-
-  userfile=`echo ${hard_path}/bashrx.private.$USER.sh`
-
-  if [[ -f "$userfile" ]]; then
-    $DUBS_TRACE && echo "Loading user-specific resource script: $userfile"
-    source $userfile
-  else
-    $DUBS_TRACE && echo "Did not find a user-specific resource: $userfile"
-  fi
-
-else
-
-  # If the user is root, we'll just load the core script, and nothing fancy.
-
-  $DUBS_TRACE && echo "User is root"
-
-fi
+}
 
 # Additional Fancy -- Project Specific Profiles
 # =============================================
@@ -135,8 +135,6 @@ source_projects () {
     done
   fi
 }
-source_projects
-unset source_projects
 
 source_projects0 () {
   # Load scripts named like bashrc0.*.base.sh, even for root.
@@ -159,81 +157,110 @@ source_projects0 () {
     fi
   done
 }
-source_projects0
-unset source_projects0
 
 # Additional Fancy -- Starting Directory and Kickoff Command
 # ==========================================================
 
-# See the script:
-#
-#   ~/.fries/bin/termdub.py
-#
-# which sets the DUBS_* environment variables to tell us what
-# to do once a new terminal is ready. The three options are:
-#
-#   DUBS_STARTIN  -- Where to `cd`.
-#   DUBS_STARTUP  -- Some command to run.
-#   DUBS_TERMNAME -- Title of the terminal window.
+start_somewhere_something() {
+  # See the script:
+  #
+  #   ~/.fries/bin/termdub.py
+  #
+  # which sets the DUBS_* environment variables to tell us what
+  # to do once a new terminal is ready. The three options are:
+  #
+  #   DUBS_STARTIN  -- Where to `cd`.
+  #   DUBS_STARTUP  -- Some command to run.
+  #   DUBS_TERMNAME -- Title of the terminal window.
 
-if [[ $EUID -ne 0 ]]; then
-  # Start out in the preferred development directory.
-  if [[ -n "$DUBS_STARTIN" ]]; then
-    cd $DUBS_STARTIN
-  elif [[ -d "$DUBS_STARTIN_DEFAULT" ]]; then
-    cd $DUBS_STARTIN_DEFAULT
-  fi
-  # See: ${hard_path}/.fries/bin/openterms.sh for usage.
-  if [[ -n "$DUBS_STARTUP" ]]; then
-    # Add the command we're about to execute to the command history (so if the
-    # user Ctrl-C's the process, then can easily re-execute it).
-    # See also: history -c, which clears the history.
-    history -s $DUBS_STARTUP
-    # Run the command.
-    # FIXME: Does this hang the startup script? I.e., we're running the command
-    #        from this script... so this better be the last command we run!
-    #$DUBS_STARTUP
-    eval "$DUBS_STARTUP"
-  fi
+  if [[ $EUID -ne 0 ]]; then
+    # Start out in the preferred development directory.
+    if [[ -n "$DUBS_STARTIN" ]]; then
+      cd $DUBS_STARTIN
+    elif [[ -d "$DUBS_STARTIN_DEFAULT" ]]; then
+      cd $DUBS_STARTIN_DEFAULT
+    fi
+    # See: ${hard_path}/.fries/bin/openterms.sh for usage.
+    if [[ -n "$DUBS_STARTUP" ]]; then
+      # Add the command we're about to execute to the command history (so if the
+      # user Ctrl-C's the process, then can easily re-execute it).
+      # See also: history -c, which clears the history.
+      history -s $DUBS_STARTUP
+      # Run the command.
+      # FIXME: Does this hang the startup script? I.e., we're running the command
+      #        from this script... so this better be the last command we run!
+      #$DUBS_STARTUP
+      eval "$DUBS_STARTUP"
+    fi
 
-  # The variables have served us well; now whack 'em.
-  export DUBS_STARTIN=''
-  export DUBS_STARTUP=''
-  export DUBS_TERMNAME=''
-fi
+    # The variables have served us well; now whack 'em.
+    export DUBS_STARTIN=''
+    export DUBS_STARTUP=''
+    export DUBS_TERMNAME=''
+  fi
+}
 
 # Cleanup
 # =======
 
-# I thought you had to `export` variables for them to persist,
-# but I guess that's not the case when variables are defined
-# in a sourced Bash profile and not defined within a function.
+home_fries_bashrc_cleanup() {
+  # I thought you had to `export` variables for them to persist,
+  # but I guess that's not the case when variables are defined
+  # in a sourced Bash profile and not defined within a function.
 
-unset hard_path
-unset machfile
-unset userfile
+  unset hard_path
+  unset machfile
+  unset userfile
 
-# Show startup stats if we already polluted console with ``expect`` stuff,
-# or if being run in tmuxinator.
-if ( [[ ! -z ${SSH_ENV_FRESH+x} ]] && ${SSH_ENV_FRESH} ) || \
-   ( [[ "${TERM}" == "screen" || "${TERM}" == "screen-256color" ]] && \
-     [[ -n "${TMUX}" ]] ) \
-then
-  source 'logger.sh'
-  export LOG_LEVEL=${LOG_LEVEL_NOTICE}
-  bashrc_time_n=$(date +%s.%N)
-  time_elapsed=$(echo "$bashrc_time_n - $bashrc_time_0" | bc -l)
-  notice "Elapsed: $time_elapsed secs."
-  unset bashrc_time_n
-  unset time_elapsed
-fi
-unset bashrc_time_0
+  # Show startup stats if we already polluted console with ``expect`` stuff,
+  # or if being run in tmuxinator.
+  if ( [[ ! -z ${SSH_ENV_FRESH+x} ]] && ${SSH_ENV_FRESH} ) || \
+     ( [[ "${TERM}" == "screen" || "${TERM}" == "screen-256color" ]] && \
+       [[ -n "${TMUX}" ]] ) \
+  then
+    source 'logger.sh'
+    export LOG_LEVEL=${LOG_LEVEL_NOTICE}
+    bashrc_time_n=$(date +%s.%N)
+    time_elapsed=$(echo "$bashrc_time_n - $bashrc_time_0" | bc -l)
+    notice "Elapsed: $time_elapsed secs."
+    unset bashrc_time_n
+    unset time_elapsed
+  fi
+  unset bashrc_time_0
 
-# Tell user when running non-standard Bash.
-# E.g., $0 == '/srv/opt/bin/bash', if you custom built
-#   Bash 4.4 from ~/.fries/once/custom_setup.extras.sh.
-if [[ "$0" != 'bash' && "$0" != '/bin/bash' ]]; then
-  notice "This bash is a ${FG_LIGHTGREEN}${MK_LINE}special${RESET_UNDERLINED} bash!${MK_NORM}" \
-    "Version: ${FG_LIGHTYELLOW}${MK_LINE}${MK_BOLD}${BASH_VERSION}"
-fi
+  # Tell user when running non-standard Bash.
+  # E.g., $0 == '/srv/opt/bin/bash', if you custom built
+  #   Bash 4.4 from ~/.fries/once/custom_setup.extras.sh.
+  if [[ "$0" != 'bash' && "$0" != '/bin/bash' ]]; then
+    notice "This bash is a ${FG_LIGHTGREEN}${MK_LINE}special${RESET_UNDERLINED} bash!${MK_NORM}" \
+      "Version: ${FG_LIGHTYELLOW}${MK_LINE}${MK_BOLD}${BASH_VERSION}"
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+main() {
+  source_deps
+  unset source_deps
+
+  source_fries
+  unset source_fries
+
+  source_private
+  unset source_private
+
+  source_projects
+  unset source_projects
+
+  source_projects0
+  unset source_projects0
+
+  start_somewhere_something
+  unset start_somewhere_something
+
+  home_fries_bashrc_cleanup
+  unset home_fries_bashrc_cleanup
+}
+
+main "$@"
 
