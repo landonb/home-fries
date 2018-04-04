@@ -107,7 +107,7 @@ daemonize_gpg_agent () {
     local eff_off_gkr
     eff_off_gkr=$(gpg-agent --daemon 2>&1 /dev/null)
     if [[ $? -eq 0 ]]; then
-      eval "$eff_off_gkr"
+      eval "${eff_off_gkr}"
     else
       # else, do I care?
       echo 'Unable to start gpg-agent'
