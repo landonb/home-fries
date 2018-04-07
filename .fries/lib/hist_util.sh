@@ -43,6 +43,28 @@ home_fries_configure_history() {
   # 2017-11-19: From Someone Else's Dotfiles, I'm supposing:
   #  # Ignore some controlling instructions.
   #  export HISTIGNORE="[   ]*:&:bg:fg:exit"
+  # 2018-04-07: Ignore commands that start with whitespace:
+  #  export HISTIGNORE="[ \t]*"
+  # 2018-04-07: Ignore `pass insert` commands:
+  #  export HISTIGNORE="pass insert *"
+  # 2018-04-07: Ignore all `pass` commands (don't bleed names).
+  # Note that we use 2 patterns because latter pattern doesn't not match
+  # space, because the '*' is a glob match (1+ chars), and not a reg ex
+  # (0+ of chars inside brackets). However! That means "[ \t]*pass *"
+  # matches, e.g., " echo pass word". Ug... I guess we'll just do the
+  # basic ignore; so be careful to not prepend your `pass` commands with
+  # whitespace.
+  #  export HISTIGNORE="pass *:[ \t]*pass *"
+  export HISTIGNORE="pass *"
+  # NOTE: HISTIGNORE only matches against first line of command.
+  #       So if you have, e.g., a multi-line pass insert command:
+  #         echo '<password>
+  #         YYYY-MM-DD / https://<domain> / <login> / <password> / <notes>
+  #         ' | pass insert -m 'foo/bar'
+  #       You gotta do something more sophisticated. E.g., post-process
+  #       the history file before it hits your dotfiles repo. See:
+  #         ~/.fries/bin/.bash_history_filter.awk
+  #       for more advanced filtering.
 
   # 2017-11-19: More, please!
   # "When a shell with history enabled exits, the last $HISTSIZE lines
