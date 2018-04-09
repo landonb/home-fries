@@ -6579,6 +6579,79 @@ stage_4_update_mate_panel () {
 
 } # end: stage_4_update_mate_panel
 
+stage_4_gtkplus () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_gtkplus"
+
+  >&2 echo
+  >&2 echo "WARNING: Never implemented: stage_4_gtkplus"
+  >&2 echo
+  return
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  local gtk_src_uri
+  local gtk_ver_maj
+  local gtk_ver_min
+  gtk_src_uri='http://ftp.gnome.org/pub/gnome/sources/gtk+'
+  gtk_ver_maj='3.22'
+  gtk_ver_min='3.22.29'
+
+  local gtk_url_tar
+  local gtk_url_sha
+  local gtk_url_nwz
+  gtk_url_tar="gtk+-${gtk_ver_min}.tar.xz"
+  gtk_url_sha="gtk+-${gtk_ver_min}.sha256sum"
+  gtk_url_nwz="gtk+-${gtk_ver_min}.news"
+
+  wget -N "${gtk_src_uri}/${gtk_ver_maj}/${gtk_url_tar}"
+  wget -N "${gtk_src_uri}/${gtk_ver_maj}/${gtk_url_sha}"
+  wget -N "${gtk_src_uri}/${gtk_ver_maj}/${gtk_url_nwz}"
+
+  local reported_sha
+  #reported_sha="$(cat ${gtk_url_sha} | grep -e ${gtk_url_tar} | awk '{print $1}')"
+  reported_sha="$(cat ${gtk_url_sha} | grep -e ${gtk_url_tar})"
+  if [[ "${reported_sha}" != "$(sha256sum ${gtk_url_tar})" ]]; then
+    >&2 echo "ERROR: Checksum mismatch!"
+    exit 1
+  fi
+
+  tar xvf "${gtk_url_tar}"
+  cd "gtk+-${gtk_ver_min}"
+
+  CPPFLAGS="-I/opt/gtk/include"
+  LDFLAGS="-L/opt/gtk/lib"
+  PKG_CONFIG_PATH="/opt/gtk/lib/pkgconfig"
+  export CPPFLAGS LDFLAGS PKG_CONFIG_PATH
+
+  # Something something too many dependencies. I'll wait to upgrade to 18.04, thank you!
+
+  ./configure --prefix=/opt/gtk
+
+  # configure: error: Package requirements (
+  #   glib-2.0 >= 2.49.4
+  #   atk >= 2.15.1
+  #   pango >= 1.37.3
+  #   cairo >= 1.14.0
+  #   cairo-gobject >= 1.14.0
+  #   gdk-pixbuf-2.0 >= 2.30.0
+  # ) were not met:
+  # Requested 'glib-2.0 >= 2.49.4' but version of GLib is 2.40.2
+  # Requested 'atk >= 2.15.1' but version of Atk is 2.10.0
+  # Requested 'pango >= 1.37.3' but version of Pango is 1.36.3
+  # Requested 'cairo >= 1.14.0' but version of cairo is 1.13.1
+  # Requested 'cairo-gobject >= 1.14.0' but version of cairo-gobject is 1.13.1
+
+  make
+  make install
+
+  popd &> /dev/null
+
+} # end: stage_4_gtkplus
+
 stage_4_fcn_meld () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -7717,6 +7790,8 @@ setup_customize_extras_go () {
   # 2017-08-14: Added this but not enabling; may/may not be necessary.
   #stage_4_update_mate_panel
 
+  # 2018-04-08: Preface that thought.
+  stage_4_gtkplus
   # 2017-09-06: Why, oh why, do I run such an old OS...
   stage_4_fcn_meld
 
