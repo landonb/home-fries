@@ -6659,11 +6659,15 @@ stage_4_fcn_meld () {
 
   stage_announcement "stage_4_fcn_meld"
 
+  local try_meld
+  local try_major
   # Ubuntu 16.04+:
   #try_meld="meld-3.17.4"
   #try_major="3.17"
-  try_meld="meld-3.18.0"
-  try_major="3.18"
+  #try_meld="meld-3.18.0"
+  #try_major="3.18"
+  try_meld="meld-3.19.0"
+  try_major="3.19"
   source /etc/lsb-release
   if [[ $DISTRIB_CODENAME == 'rebecca' ]]; then
     # Mint 17.X is rebecca is trusty is Ubuntu 14.04.
@@ -6672,8 +6676,12 @@ stage_4_fcn_meld () {
     #   unable to execute 'gtk-update-icon-cache': No such file or directory
     #   error: command 'gtk-update-icon-cache' failed with exit status 1
     # Or, if you run bin/meld, you'll see, e.g.,:
-    #    $ meld-3.15.3/bin/meld
-    #    Meld requires GTK+ 3.14 or higher.
+    #   $ meld-3.15.3/bin/meld
+    #   Meld requires GTK+ 3.14 or higher.
+    # On 14.04:
+    #   dpkg -l libgtk*
+    # says:
+    #   libgtk-3-0:amd64  3.10.8~8+qiana  ...
     try_meld="meld-3.14.2"
     try_major="3.14"
   fi
