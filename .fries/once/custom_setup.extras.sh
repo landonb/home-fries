@@ -7516,6 +7516,31 @@ stage_4_build_bash () {
 
 } # end: stage_4_build_bash
 
+stage_4_font_fira_code () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_fcn_template"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  local fira_code_vers
+  local fira_code_base
+  local fira_code_zip
+
+  fira_code_vers='1.205'
+  fira_code_base="https://github.com/tonsky/FiraCode/releases/download/${fira_code_vers}"
+  fira_code_dir="FiraCode_${fira_code_vers}"
+
+  wget -N "${fira_code_base}/${fira_code_dir}.zip"
+
+  unzip -d ${fira_code_dir} ${fira_code_dir}.zip
+
+  popd &> /dev/null
+
+} # end: stage_4_fcn_template
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
