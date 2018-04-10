@@ -1,5 +1,9 @@
 #!/bin/awk -f
 
+# USAGE:
+#
+#   awk -f .bash_history_filter.awk ~/.bash_history > .bash_history_clean
+
 function clear_histentry() {
   timestamp = ""
   arraysize = 0
