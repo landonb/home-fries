@@ -7521,7 +7521,10 @@ stage_4_font_fira_code () {
     return
   fi
 
-  stage_announcement "stage_4_fcn_template"
+  stage_announcement "stage_4_font_fira_code"
+
+echo "FIXME/2018-04-12: NOT IMPLEMENTED"
+return
 
   pushd ${OPT_DLOADS} &> /dev/null
 
