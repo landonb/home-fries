@@ -1891,13 +1891,16 @@ function pull_gardened_repo () {
   PREFIX="$2"
   local ABS_PATH="${ENCFS_GIT_ITER}"
   local ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
-  debug " ${ENCFS_REL_PATH}"
+ #debug " ${ENCFS_REL_PATH}"
+  debug "├ ${ENCFS_REL_PATH}"
+  #debug "─ ${ENCFS_REL_PATH}"
   while IFS= read -r -d '' fpath; do
     local TARGET_BASE=$(basename -- "${fpath}")
     TARGET_PATH="${ENCFS_REL_PATH}/${TARGET_BASE}"
     if [[ -d ${TARGET_PATH}/.git && ! -h ${TARGET_PATH} ]]; then
       if [[ ${TARGET_BASE#TBD-} == ${TARGET_BASE} ]]; then
-        debug "  ${fpath}"
+       #debug "  ${fpath}"
+        debug "├┼─${fpath}"
         SOURCE_PATH="${PREFIX}${ABS_PATH}/$(basename -- "${fpath}")"
         #debug "\${SOURCE_PATH}: ${SOURCE_PATH}"
         #debug "\${TARGET_PATH}: ${TARGET_PATH}"
