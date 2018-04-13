@@ -950,6 +950,13 @@ setup_mint_17_stage_1_install_packages () {
     # NOTE: Not in 14.04: ansiweather.
     ansiweather
 
+    # E.g.,
+    #   charmap --font="Hack Regular 9"
+    gucharmap
+
+    # 2018-04-12: Seriously?
+    traceroute
+
   ) # end: BIG_DESKTOP_LIST
 
   local BIG_DESKTOP_LIST_MINT_17=(
