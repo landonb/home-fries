@@ -1935,7 +1935,8 @@ function pull_git_repos () {
       #if [[ -d ${ENCFS_REL_PATH} && ! -h ${ENCFS_REL_PATH} ]]; then
         #debug " SOURCE_PATH: ${PREFIX}${ABS_PATH}"
         #debug " TARGET_PATH: ${ENCFS_REL_PATH}"
-        debug " ${ENCFS_REL_PATH}"
+        #debug " ${ENCFS_REL_PATH}"
+        debug "├ ${ENCFS_REL_PATH}"
         git_pull_hush "${PREFIX}${ABS_PATH}" "${ENCFS_REL_PATH}" "${ABS_PATH}"
       #else
       #  debug " not dir/symlink: ${ENCFS_REL_PATH}"
