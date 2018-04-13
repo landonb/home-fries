@@ -7542,7 +7542,75 @@ return
 
   popd &> /dev/null
 
-} # end: stage_4_fcn_template
+} # end: stage_4_font_fira_code
+
+stage_4_xcalib () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_xcalib"
+
+  # NOTE/2018-04-12: xcalib seems to only work on 1 screen/monitor,
+  # and not all, and specifying different display or screens still
+  # just causes the invert to happen on one monitor.
+  #
+  #   ./xcalib -invert -alter -s 0
+  #   ./xcalib -invert -alter -s 1
+  #   ./xcalib -invert -alter -o 0
+  #   ./xcalib -invert -alter -o 1
+  #   ./xcalib -invert -alter -display :0.0
+  #   ./xcalib -invert -alter -display :0.1
+  #   ./xcalib -invert -alter -display :1.0
+  #   ./xcalib -invert -alter -display :1.1
+
+  if [[ ! -d ${OPT_DLOADS}/xcalib ]]; then
+    pushd ${OPT_DLOADS} &> /dev/null
+    # https://github.com/OpenICC/xcalib
+    git clone git@github.com:OpenICC/xcalib.git
+  else
+    pushd ${OPT_DLOADS}/xcalib &> /dev/null
+    git pull origin
+  fi
+  popd &> /dev/null
+
+  pushd ${OPT_DLOADS}/xcalib &> /dev/null
+  make xcalib
+  # USAGE:
+  #   ./xcalib -invert -alter
+  popd &> /dev/null
+
+} # end: stage_4_xcalib
+
+stage_4_xrandr_invert_colors () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_xrandr_invert_colors"
+
+  if [[ ! -d ${OPT_DLOADS}/xrandr-invert-colors ]]; then
+    pushd ${OPT_DLOADS} &> /dev/null
+    # https://github.com/zoltanp/xrandr-invert-colors
+    git clone git@github.com:zoltanp/xrandr-invert-colors.git
+  else
+    pushd ${OPT_DLOADS}/xrandr-invert-colors &> /dev/null
+    git pull origin
+  fi
+  popd &> /dev/null
+
+  pushd ${OPT_DLOADS}/xrandr-invert-colors &> /dev/null
+
+  make
+  # USAGE:
+  #
+  #   ./xrandr-invert-colors.bin
+
+  /bin/ln -sf ${OPT_DLOADS}/xrandr-invert-colors/xrandr-invert-colors.bin ${OPT_BIN}
+
+  popd &> /dev/null
+
+} # end: stage_4_xrandr_invert_colors
 
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
@@ -7867,6 +7935,10 @@ setup_customize_extras_go () {
   stage_4_direnv
 
   stage_4_build_bash
+
+  stage_4_xcalib
+
+  stage_4_xrandr_invert_colors
 
   # Add before this'n: stage_4_fcn_template.
 
