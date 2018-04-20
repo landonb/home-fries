@@ -7612,6 +7612,51 @@ stage_4_xrandr_invert_colors () {
 
 } # end: stage_4_xrandr_invert_colors
 
+stage_4_install_cryfs () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_install_cryfs"
+
+  if [[ ! -d ${OPT_DLOADS}/cryfs ]]; then
+    pushd ${OPT_DLOADS} &> /dev/null
+    # https://github.com/cryfs/cryfs
+    git clone git@github.com:cryfs/cryfs.git
+  else
+    pushd ${OPT_DLOADS}/cryfs &> /dev/null
+    git pull origin
+  fi
+  popd &> /dev/null
+
+  pushd ${OPT_DLOADS}/cryfs &> /dev/null
+
+  sudo apt-get install -y \
+    git \
+    g++ \
+    cmake \
+    make \
+    libcurl4-openssl-dev \
+    libboost-filesystem-dev \
+    libboost-system-dev \
+    libboost-chrono-dev \
+    libboost-program-options-dev \
+    libboost-thread-dev \
+    libcrypto++-dev \
+    libssl-dev \
+    libfuse-dev \
+    python
+
+  mkdir cmake && cd cmake
+  cmake ..
+  make
+
+  sudo make install
+
+  popd &> /dev/null
+
+} # end: stage_4_install_cryfs
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -7939,6 +7984,8 @@ setup_customize_extras_go () {
   stage_4_xcalib
 
   stage_4_xrandr_invert_colors
+
+  stage_4_install_cryfs
 
   # Add before this'n: stage_4_fcn_template.
 
