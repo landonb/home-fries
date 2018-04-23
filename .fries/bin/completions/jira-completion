@@ -1,0 +1,6 @@
+# vim:tw=0:ts=2:sw=2:et:norl:ft=bash:
+
+if ``command -v jira >/dev/null 2>&1``; then
+  eval "$(jira --completion-script-bash)"
+fi
+
