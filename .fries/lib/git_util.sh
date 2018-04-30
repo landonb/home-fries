@@ -1058,7 +1058,7 @@ git_pull_hush () {
   git_fetch_remote_travel
 
   if [[ -x ./.travel.sh ]]; then
-    ./.travel.sh infuse
+    ./.travel.sh unfuse
   fi
 
 #echo "source_branch: ${source_branch}"
@@ -1107,7 +1107,7 @@ git_pull_hush () {
   git_merge_ff_only "${source_branch}" "$(pwd)" "${working_dir}"
 
   if [[ -x ./.travel.sh ]]; then
-    ./.travel.sh unfuse
+    ./.travel.sh infuse
   fi
 
 #  popd &> /dev/null
