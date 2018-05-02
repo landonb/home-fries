@@ -82,7 +82,6 @@ git_check_generic_file () {
   # Strip the git path from the absolute file path.
   repo_file=${repo_file#${REPO_PATH}/}
 
-#  pushd ${REPO_PATH} &> /dev/null
   pushd_or_die "${REPO_PATH}"
 
   tweak_errexit
@@ -96,7 +95,6 @@ git_check_generic_file () {
     :
   fi
 
-#  popd &> /dev/null
   popd_perhaps "${REPO_PATH}"
 } # end: git_check_generic_file
 
@@ -122,7 +120,6 @@ git_commit_generic_file () {
   #echo "Repo base: ${REPO_PATH}"
   #echo "Repo file: ${repo_file}"
 
-#  pushd ${REPO_PATH} &> /dev/null
   pushd_or_die "${REPO_PATH}"
 
   tweak_errexit
@@ -172,7 +169,6 @@ git_commit_generic_file () {
     : # no-op
   fi
 
-#  popd &> /dev/null
   popd_perhaps "${REPO_PATH}"
 } # end: git_commit_generic_file
 
@@ -609,7 +605,6 @@ git_dir_check () {
     warn "${no_git_yo_msg}"
     FRIES_GIT_ISSUES_RESOLUTIONS+=("${no_git_yo_msg}")
   else
-#    pushd "${REPO_PATH}" &> /dev/null
     pushd_or_die "${REPO_PATH}"
     git rev-parse --git-dir &> /dev/null && dir_okay=0 || dir_okay=1
     popd &> /dev/null
@@ -648,10 +643,8 @@ git_checkedout_branch_name () {
   #   local branch_name=$(git branch --no-color | grep \* | cut -d ' ' -f2)
   # How many ways did I do it differently herein??
   #   local branch_name=$(git branch --no-color | head -n 1 | /bin/sed 's/^\*\? *//')
-#  [[ -n "$1" ]] && pushd "$1" &> /dev/null
   pushd_or_die "$1"
   local branch_name=$(git rev-parse --abbrev-ref HEAD)
-#  [[ -n "$1" ]] && popd &> /dev/null
   popd_perhaps "$1"
   echo "${branch_name}"
 }
@@ -663,13 +656,11 @@ git_checkedout_branch_name () {
 git_checkedout_remote_branch_name () {
   # Include the name of the remote, e.g., not just feature/foo,
   # but origin/feature/foo.
-#  [[ -n "$1" ]] && pushd "$1" &> /dev/null
   pushd_or_die "$1"
 #  # FIXME/2018-03-22: Remove tweak_errexit/reset_errexit; don't think you need.
 #  #tweak_errexit
   local remote_branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{u})
 #  #reset_errexit
-#  [[ -n "$1" ]] && popd &> /dev/null
   popd_perhaps "$1"
   echo "${remote_branch}"
 }
@@ -680,7 +671,6 @@ git_set_remote_travel () {
   local source_repo="$1"
   local target_repo="${2-$(pwd)}"
 
-#  [[ -n ${target_repo} ]] && pushd "${target_repo}" &> /dev/null
   pushd_or_die "${target_repo}"
 
   # (lb): Minder to self: a $(subprocess) failure does not tickle +e errexit.
@@ -727,7 +717,6 @@ git_set_remote_travel () {
     : # no-op
   fi
 
-#  [[ -n ${target_repo} ]] && popd &> /dev/null
   popd_perhaps "${target_repo}"
 }
 
@@ -940,7 +929,6 @@ git_change_branches_if_necessary () {
     )
   fi
 
-#  [[ -n "${target_repo}" ]] && popd &> /dev/null
   popd_perhaps "${target_repo}"
 }
 
@@ -1030,7 +1018,6 @@ git_merge_ff_only () {
     git_issue_complain_rebasing "${source_branch}" "${target_repo}" "${git_says}"
   fi
 
-#  [[ -n "${target_repo}" ]] && popd &> /dev/null
   popd_perhaps "${target_repo}"
 }
 
@@ -1048,7 +1035,6 @@ git_pull_hush () {
   # The target_branch is obviously changing, if we can do so nondestructively.
   local target_branch=$(git_checkedout_branch_name "${target_repo}")
 
-#  pushd "${target_repo}" &> /dev/null
   pushd_or_die "${target_repo}"
 
   # 2018-03-22: Set a remote to the sync device. There's always only 1,
@@ -1072,20 +1058,12 @@ git_pull_hush () {
 ##  git_must_not_rebasing "${source_branch}" "${target_repo}"
   git_must_not_rebasing "${source_branch}" "${target_repo}" && true
   local okay=$?
-#echo FOO
-#  [[ ${okay} -ne 0 ]] && echo FAIL || echo OKAY
   if [[ ${okay} -ne 0 ]]; then
     # The fcn. we just called that failed will have spit out a warning
     # and added to the final FRIES_GIT_ISSUES_RESOLUTIONS array.
-#    popd &> /dev/null
     popd_perhaps "${target_repo}"
     return
   fi
-
-##popd &> /dev/null
-#popd_perhaps "${target_repo}"
-#return
-#exit
 
   # There is a conundrum/enigma/riddle/puzzle/brain-teaser/problem/puzzlement
   # when it comes to what to do about clarifying branches -- should we check
@@ -1097,10 +1075,6 @@ git_pull_hush () {
 #  git_change_branches_if_necessary "${source_branch}" "${target_branch}" "${target_repo}"
   git_change_branches_if_necessary "${source_branch}" "${target_branch}"
 
-#popd_perhaps "${target_repo}"
-#return
-#exit
-
   # Fast-forward merge (no new commits!) or complain (later).
 ##  git_merge_ff_only "${source_branch}" "${target_repo}"
 #  git_merge_ff_only "${source_branch}"
@@ -1110,7 +1084,6 @@ git_pull_hush () {
     ./.travel.sh infuse
   fi
 
-#  popd &> /dev/null
   popd_perhaps "${target_repo}"
 } # end: git_pull_hush
 
@@ -1172,9 +1145,6 @@ git-flip-master () {
   # FIXME: From root of project, cd'ing into subfolder??
   echo "git-flip-master: \${REL_PREFIX}: ${REL_PREFIX}"
   # sets: REL_PREFIX
-#  if [[ -n ${REL_PREFIX} ]]; then
-#    pushd ${REL_PREFIX} &> /dev/null
-#  fi
   pushd_or_die "${REL_PREFIX}"
 
   local project_name=$(basename -- $(pwd -P))
@@ -1188,7 +1158,6 @@ git-flip-master () {
 
   if [[ ! -d ../${master_path}/.git ]]; then
       echo "FATAL: Cannot suss paths, ya dingus."
-#      [[ -n ${REL_PREFIX} ]] && popd &> /dev/null
       popd_perhaps "${REL_PREFIX}"
       return 1
   fi
@@ -1197,7 +1166,6 @@ git-flip-master () {
   git push origin ${branch_name}
 
   echo "pushd_or_die ../${master_path}"
-#  pushd ../${master_path} &> /dev/null
   pushd_or_die "../${master_path}"
 
   # Since the master branch is published, don't rebase or you'll
@@ -1230,11 +1198,8 @@ echo "FIXME: \`rake tagGitRepo\` should wait for build to complete..."
     fi
   fi
 
-#  echo popd
-#  popd &> /dev/null
   popd_perhaps "../${master_path}"
 
-#  [[ -n ${REL_PREFIX} ]] && popd &> /dev/null
   popd_perhaps "${REL_PREFIX}"
 }
 
@@ -1361,11 +1326,9 @@ git_infuse_gitignore_local() {
     return
   fi
   if [[ -f .git/info/exclude || -h .git/info/exclude ]]; then
-#    pushd .git/info &> /dev/null
     pushd_or_die ".git/info"
     /bin/rm exclude
     /bin/ln -sf "$1" "exclude"
-#    popd &> /dev/null
     popd_perhaps ".git/info"
   fi
   /bin/ln -sf .git/info/exclude .gitignore.local
@@ -1386,7 +1349,6 @@ git_infuse_assume_unchanging() {
   fi
   [[ "$3" == "1" ]] && do_sym=false || do_sym=true
 
-#  pushd $(dirname -- "${fpath}") &> /dev/null
   local pdir=$(dirname -- "${fpath}")
   pushd_or_die "${pdir}"
 
@@ -1418,7 +1380,6 @@ git_infuse_assume_unchanging() {
     /bin/cp -a "${opath}" "${fname}"
   fi
 
-#  popd &> /dev/null
   popd_perhaps "${pdir}"
 }
 
@@ -1426,8 +1387,6 @@ git_unfuse_symlink() {
   local fpath
   [[ -z "$1" ]] && (echo "${FUNCNAME[0]}: missing param" && exit 1) || fpath="$1"
   local fname=$(basename -- "${fpath}")
-#  pushd $(dirname -- "${fpath}") &> /dev/null
-#  pushd_or_die $(dirname -- "${fpath}")
   local pdir=$(dirname -- "${fpath}")
   pushd_or_die "${pdir}"
 
@@ -1437,7 +1396,6 @@ git_unfuse_symlink() {
     /usr/bin/git checkout -- "${fname}"
     /usr/bin/git update-index --no-assume-unchanged "${fname}"
   fi
-#  popd &> /dev/null
   popd_perhaps "${pdir}"
 }
 
@@ -1445,8 +1403,6 @@ git_unfuse_hardcopy() {
   local fpath
   [[ -z "$1" ]] && (echo "${FUNCNAME[0]}: missing param" && exit 1) || fpath="$1"
   local fname=$(basename -- "${fpath}")
-#  pushd $(dirname -- "${fpath}") &> /dev/null
-#  pushd_or_die $(dirname -- "${fpath}")
   local pdir=$(dirname -- "${fpath}")
   pushd_or_die "${pdir}"
   if [[ -f "${fname}" ]]; then
@@ -1455,7 +1411,6 @@ git_unfuse_hardcopy() {
     /usr/bin/git checkout -- "${fname}"
     git update-index --no-assume-unchanged "${fname}"
   fi
-#  popd &> /dev/null
   popd_perhaps "${pdir}"
 }
 
@@ -1471,10 +1426,8 @@ git-remote-v-all() {
     ${once} && echo
     local repo_path=$(dirname ${git_path})
     echo ${repo_path}
-#    pushd ${repo_path} &> /dev/null
     pushd_or_die ${repo_path}
     git remote -v
-#    popd &> /dev/null
     popd_perhaps "${pdir}"
     once=true
   done
