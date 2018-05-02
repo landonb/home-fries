@@ -1043,7 +1043,9 @@ git_pull_hush () {
 
   git_fetch_remote_travel
 
-  if [[ -x ./.travel.sh ]]; then
+  if [[ -x ./infuse ]]; then
+    ./infuse -u
+  elif [[ -x ./.travel.sh ]]; then
     ./.travel.sh unfuse
   fi
 
@@ -1080,7 +1082,9 @@ git_pull_hush () {
 #  git_merge_ff_only "${source_branch}"
   git_merge_ff_only "${source_branch}" "$(pwd)" "${working_dir}"
 
-  if [[ -x ./.travel.sh ]]; then
+  if [[ -x ./infuse ]]; then
+    ./infuse
+  elif [[ -x ./.travel.sh ]]; then
     ./.travel.sh infuse
   fi
 
@@ -1391,6 +1395,7 @@ git_unfuse_symlink() {
   pushd_or_die "${pdir}"
 
   if [[ -h "${fname}" ]]; then
+    debug "Unfusing ${fname}"
     /bin/rm "${fname}"
     /bin/rm -f "${fname}-COMMIT"
     /usr/bin/git checkout -- "${fname}"
