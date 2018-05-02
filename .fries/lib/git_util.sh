@@ -1330,10 +1330,13 @@ git_infuse_gitignore_local() {
     return
   fi
   if [[ -f .git/info/exclude || -h .git/info/exclude ]]; then
+    debug "Infusing .gitignore.local"
     pushd_or_die ".git/info"
     /bin/rm exclude
     /bin/ln -sf "$1" "exclude"
     popd_perhaps ".git/info"
+  else
+    debug "Skipping .gitignore.local"
   fi
   /bin/ln -sf .git/info/exclude .gitignore.local
 }
