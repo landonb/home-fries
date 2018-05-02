@@ -1353,7 +1353,8 @@ git_infuse_assume_unchanging() {
   fi
   [[ "$3" == "1" ]] && do_sym=false || do_sym=true
 
-  local pdir=$(dirname -- "${fpath}")
+  local pdir
+  pdir=$(dirname -- "${fpath}")
   pushd_or_die "${pdir}"
 
   # Only do this if file not already being ignored, else after --no-assume-unchanged,
@@ -1366,7 +1367,8 @@ git_infuse_assume_unchanging() {
     fi
     if [[ "${do_sym}" == true && ! -h "${fname}" ]]; then
 # FIXME/2018-03-22: Verify porcelain usage (vs. plumbing).
-      local dirty_status=$(git status --porcelain "${fname}")
+      local dirty_status
+      dirty_status=$(git status --porcelain "${fname}")
       if [[ -n "${dirty_status}" ]]; then
         echo "${FUNCNAME[0]}: git file is dirty: ${fname}"
         exit 1
@@ -1375,9 +1377,15 @@ git_infuse_assume_unchanging() {
     git update-index --assume-unchanged "${fname}"
   fi
 
+  # 2018-05-02: Does this compute? Use <file>-${HOSTNAME} if found?
+  if [[ -f "${opath}-$(hostname)" ]]; then
+    opath="${opath}-$(hostname)"
+  fi
+
+  debug "Preparing ${fname}"
   /bin/rm "${fname}"
   /usr/bin/git checkout -- "${fname}"
-  /bin/cp "${fname}" "${fname}-COMMIT"
+  /bin/mv "${fname}" "${fname}-COMMIT"
   if ${do_sym}; then
     /bin/ln -sf "${opath}" "${fname}"
   else
@@ -1400,6 +1408,8 @@ git_unfuse_symlink() {
     /bin/rm -f "${fname}-COMMIT"
     /usr/bin/git checkout -- "${fname}"
     /usr/bin/git update-index --no-assume-unchanged "${fname}"
+  else
+    debug "Skipping ${fname}"
   fi
   popd_perhaps "${pdir}"
 }
@@ -1411,10 +1421,17 @@ git_unfuse_hardcopy() {
   local pdir=$(dirname -- "${fpath}")
   pushd_or_die "${pdir}"
   if [[ -f "${fname}" ]]; then
+    if [[ -f "${fname}-COMMIT" ]]; then
+      debug "Unfusing ${fname}"
+    else
+      debug "Checking ${fname}"
+    fi
     #/bin/rm "${fname}"
     /bin/rm -f "${fname}-COMMIT"
     /usr/bin/git checkout -- "${fname}"
     git update-index --no-assume-unchanged "${fname}"
+  else
+    debug "Skipping ${fname}"
   fi
   popd_perhaps "${pdir}"
 }
