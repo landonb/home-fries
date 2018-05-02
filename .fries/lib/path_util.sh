@@ -288,10 +288,6 @@ symlink_local_file() {
   symlink_infuse_file "$1/$2" "${3:-$2}"
 }
 
-symlink_local_dir() {
-  symlink_infuse_dir "$1/$2" "${3:-$2}"
-}
-
 symlink_infuses_files_first() {
   local target_f="$1"
   shift
@@ -336,6 +332,10 @@ symlink_infuse_dir() {
     /bin/rm "${target_f}"
     /bin/ln -s "${source_f}" "${target_f}"
   fi
+}
+
+symlink_local_dir() {
+  symlink_infuse_dir "$1/$2" "${3:-$2}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
