@@ -1043,11 +1043,14 @@ git_pull_hush () {
 
   git_fetch_remote_travel
 
+# FIXME/2018-05-03: THIS IS CHANGING ALL THE BASE PATHS TO TRAVEL_DIR, ARGHHH!!!
+if false; then
   if [[ -x ./infuse ]]; then
     ./infuse -u
   elif [[ -x ./.travel.sh ]]; then
     ./.travel.sh unfuse
   fi
+fi
 
 #echo "source_branch: ${source_branch}"
 #echo "target_repo: ${target_repo}"
@@ -1082,11 +1085,14 @@ git_pull_hush () {
 #  git_merge_ff_only "${source_branch}"
   git_merge_ff_only "${source_branch}" "$(pwd)" "${working_dir}"
 
+# FIXME/2018-05-03: THIS IS CHANGING ALL THE BASE PATHS TO TRAVEL_DIR, ARGHHH!!!
+if false; then
   if [[ -x ./infuse ]]; then
     ./infuse
   elif [[ -x ./.travel.sh ]]; then
     ./.travel.sh infuse
   fi
+fi
 
   popd_perhaps "${target_repo}"
 } # end: git_pull_hush
