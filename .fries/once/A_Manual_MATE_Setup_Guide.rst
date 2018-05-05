@@ -184,37 +184,27 @@ your browser requests try to use https.
    - `HTTPS Everywhere for Chrome
      <https://www.eff.org/https-everywhere>`__
 
-------------
-Center Image
-------------
+--------------------
+Backspace to go Back
+--------------------
 
-- Center image in window.
+Google nixed the Backspace key as the "back" feature starting in Chrome 52.
 
-  - `Image in the center
-    <https://chrome.google.com/webstore/detail/image-in-the-center/kcpejamelebpigblebnbabhndaaffjok?hl=en>`__
+http://venturebeat.com/2016/08/14/restore-backspace-shortcut-chrome/
 
------
-Regex
------
+Restore it!
 
-Regular Expression Browser Search plugins.
+- Backspace to go Back
 
-Note: The Firefox plugin froze my browser for a few seconds while searching
-`the nightly HTML spec
-<http://www.w3.org/html/wg/drafts/html/master/single-page.html>`__.
-The Chrome plugin works well, though.
+  https://chrome.google.com/webstore/detail/backspace-to-go-back/nlffgllnjjkheddehpolbanogdeaogbc/related
 
-- `Regex Find for Firefox
-  <https://addons.mozilla.org/en-us/firefox/addon/regex-find/>`__
+- Back to Backspace
 
-  - ``Ctrl-F`` like you normally would, and
-    click the *Regex* button in the find bar.
+  https://chrome.google.com/webstore/detail/back-to-backspace/cldokedgmomhbifmiiogjjkgffhcbaec
 
-- `Regex Search for Chrome
-  <https://chrome.google.com/webstore/detail/regex-search/bcdabfmndggphffkchfdcekcokmbnkjl/related?hl=en>`__
-
-  - Type ``Alt+Shift+F`` to open the finder, and
-    ``Enter`` and ``Shift-Enter`` to navigate.
+NOTE: I don't have a preference to either plugin.
+Both popped up when I searched for a solution.
+I installed "Backspace to go Back" and it worked.
 
 ------------
 Ctrl+Shift+C
@@ -274,6 +264,38 @@ text, remap the key command.
    (obscuring Text Switch Directions, which is not a feature
    you'll probably use if you stick to Latin text).
 
+-----
+Regex
+-----
+
+Regular Expression Browser Search plugins.
+
+Note: The Firefox plugin froze my browser for a few seconds while searching
+`the nightly HTML spec
+<http://www.w3.org/html/wg/drafts/html/master/single-page.html>`__.
+The Chrome plugin works well, though.
+
+- `Regex Find for Firefox
+  <https://addons.mozilla.org/en-us/firefox/addon/regex-find/>`__
+
+  - ``Ctrl-F`` like you normally would, and
+    click the *Regex* button in the find bar.
+
+- `Regex Search for Chrome
+  <https://chrome.google.com/webstore/detail/regex-search/bcdabfmndggphffkchfdcekcokmbnkjl/related?hl=en>`__
+
+  - Type ``Alt+Shift+F`` to open the finder, and
+    ``Enter`` and ``Shift-Enter`` to navigate.
+
+------------
+Center Image
+------------
+
+- Center image in window.
+
+  - `Image in the center
+    <https://chrome.google.com/webstore/detail/image-in-the-center/kcpejamelebpigblebnbabhndaaffjok?hl=en>`__
+
 ----------
 Keep Alive
 ----------
@@ -294,6 +316,7 @@ working on because you haven't refreshed a window recently.
     `chrome-extension://lhobbakbeomfcgjallalccfhfcgleinm/settings.html`
     and make rules as necessary.
 
+---------------------
 Switcheroo Redirector
 ---------------------
 
@@ -316,28 +339,6 @@ Click it and add your rickrollredirect.
 ``https://www.stupidbank.com`` -> ``https://www.youtube.com/watch?v=dQw4w9WgXcQ``
 
 --------------------
-Backspace to go Back
---------------------
-
-Google nixed the Backspace key as the "back" feature starting in Chrome 52.
-
-http://venturebeat.com/2016/08/14/restore-backspace-shortcut-chrome/
-
-Restore it!
-
-- Backspace to go Back
-
-  https://chrome.google.com/webstore/detail/backspace-to-go-back/nlffgllnjjkheddehpolbanogdeaogbc/related
-
-- Back to Backspace
-
-  https://chrome.google.com/webstore/detail/back-to-backspace/cldokedgmomhbifmiiogjjkgffhcbaec
-
-NOTE: I don't have a preference to either plugin.
-Both popped up when I searched for a solution.
-I installed "Backspace to go Back" and it worked.
-
---------------------
 Scrum for Trello.com
 --------------------
 
@@ -346,8 +347,6 @@ http://scrumfortrello.com/
 - Chrome
 
   https://chrome.google.com/webstore/detail/scrum-for-trello/jdbcdblgjdpmfninkoogcfpnkjmndgje
-
-- Firefox
 
 --------------------------------------
 Chrome tabbed landing page replacement
