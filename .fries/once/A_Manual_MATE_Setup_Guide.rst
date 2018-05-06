@@ -264,6 +264,18 @@ text, remap the key command.
    (obscuring Text Switch Directions, which is not a feature
    you'll probably use if you stick to Latin text).
 
+---------------
+Reload All Tabs
+---------------
+
+Useful if you open lots of tabs to a service that uses cookies that
+time out everyday, so you don't have to manually reload a bunch of
+tabs to refresh their cookies.
+
+- `Reload All Tabs [for Chrome]
+
+  <https://chrome.google.com/webstore/detail/reload-all-tabs/midkcinmplflbiflboepnahkboeonkam/related?hl=en>`__
+
 -----
 Regex
 -----
