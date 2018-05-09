@@ -1,10 +1,11 @@
 #!/bin/bash
 #  vim:tw=0:ts=2:sw=2:et:norl:ft=bash
 
-git-get() {
-  ##set -e
-  #tweak_errexit -e
+# NOTE: If this script is found on $PATH, it is automatically
+#       wired as `git get` because magic. (Same goes for any
+#       executable named `git-<foo>`.)
 
+git-get() {
   if [[ $(git remote get-url origin 2> /dev/null) ]]; then
     echo 'Fetching origin'
     git fetch origin
@@ -28,8 +29,6 @@ git-get() {
   fi
   done
   unset IFS
-
-  #reset_errexit
 }
 
 main() {
