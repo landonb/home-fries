@@ -153,6 +153,11 @@ function ensure_trashdir() {
 }
 
 function rm_safe() {
+  if [[ ${#*} -eq 0 ]]; then
+    echo "rm_safe: missing operand"
+    echo "Try '/bin/rm --help' for more information."
+    return 1
+  fi
   # The trash can way!
   # You can disable the trash by running
   #   /bin/rm -rf ~/.trash && touch ~/.trash
