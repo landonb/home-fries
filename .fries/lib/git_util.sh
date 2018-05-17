@@ -595,6 +595,9 @@ git_dir_check () {
     fatal
     fatal "Not a directory: ${REPO_PATH}"
     fatal " In cwd: $(pwd -P)"
+    fatal
+    fatal "Have you run init_travel?"
+    fatal
     # This code path is inconceivable!
     die "I died!"
     exit 123 # unreachable. But just in case.
