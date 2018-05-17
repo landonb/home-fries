@@ -235,8 +235,8 @@ git_commit_all_dirty_files () {
 #        "Let's check that in for ya."
 #  #[[ -n ${changes} ]] && notice " ${BG_DARKGRAY}${changes}"
 #        "Auto-commit dirty file(s): ${FONT_UNDERLINE}${FG_LAVENDER}${REPO_PATH}${FONT_NORMAL}"
-      notice \
-        "Auto-commit dirty file(s): ${FONT_UNDERLINE}${BG_DARKGRAY}${REPO_PATH}${FONT_NORMAL}"
+      local pretty_path="${FONT_UNDERLINE}${BG_DARKGRAY}${REPO_PATH}${FONT_NORMAL}"
+      notice "   Autocommitting dirty file(s): ${pretty_path}"
       YES_OR_NO="Y"
     fi
     if [[ ${YES_OR_NO^^} == "Y" ]]; then
