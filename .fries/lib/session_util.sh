@@ -22,9 +22,14 @@ source_deps() {
 bash-exit-bash-hole () {
   # If the parent process is also bash, we're bash-in-bash,
   # so we want to exit to the outer shell.
-  ps aux | grep "bash" | grep $PPID &> /dev/null
+  # 2018-05-22: How have I not noticed this yet?! 'snot working!!
+  #   The simple grep on "bash" is broken, as it matches, e.g.,
+  #     mate-terminal --geometry 130x48+1486+65 -e /srv/opt/bin/bash
+  #   so isolate the program name, excluding args and other.
+  # This is too simple:
+  #   ps aux | grep "bash" | grep $PPID &> /dev/null
+  ps ax -o pid,command | grep -P "^ *$PPID \S+/bash(?:($| ))" &> /dev/null
   if [[ $? -eq 0 ]]; then
-    #echo "exit"
     exit
   else
     echo "stay"
