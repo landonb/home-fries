@@ -96,6 +96,9 @@ home_fries_create_aliases_general() {
 
   # Misc. directory aliases.
   alias h='history'         # Nothing special, just convenient.
+  # See also: `ss`, fresher than netstat.
+  #   "Netstat and ifconfig are part of net-tools, while ss and ip are part of iproute2."
+  #   https://utcc.utoronto.ca/~cks/space/blog/linux/ReplacingNetstatNotBad
   alias n='netstat -tulpn'  # --tcp --udp --listening --program (name) --numeric
   # See alias t="todo.sh" below. Anyway, htop's better.
   #alias t='top -c'          # Show full command.
