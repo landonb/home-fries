@@ -15,6 +15,8 @@ source_deps() {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   # determine_window_manager
   source ${curdir}/distro_util.sh
+  # (lb): I'm addicted to colors.
+  source ${curdir}/color_util.sh
   #
   source ${curdir}/logger.sh
 }
@@ -469,6 +471,54 @@ default_yes_question() {
 # NOTE: You can also precede the echo:
 #         >&2 echo "blah"
 echoerr() { echo "$@" 1>&2; }
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# 2018-05-28: Bounce around workspaces. (lb): Metacity is griefing when
+# I Alt-Tab between windows: It switches desktops to the window's owning
+# desktop. You don't notice if the window is pinned to the current
+# desktop, but if the the window is set to "Always on Visible Workspace",
+# you might switch desktops! One option is to right-click on the window
+# in the window list, send it to the desktop within which you want to
+# work, switch to that desktop, and then enables always-on-visible. Or,
+# you could just run this command and bring your windows to the desired
+# desktop.
+
+space () {
+  local re_num='^[1-4]+$'
+  if ! [[ $1 =~ ${re_num} ]]; then
+    echo 'USAGE: space [1-4]' >&2
+    return 1
+  fi
+  local wspace=$(($1 - 1))
+  local active_window=$(xdotool getactivewindow)
+  # Early solution: Move known windows according to business logic.
+  #  xdotool search --name '(Dubs)|SAMPI' | xargs -I % echo wmctrl -t ${wspace} -b add,sticky -i -r %
+  #  xdotool search --name '(Dubs)|SAMPI' | xargs -I % wmctrl -t ${wspace} -b add,sticky -i -r %
+  # Better solution: Move all windows known to be always-on-visible.
+  # wmctrl:
+  #   -t: desktop no.
+  #   -i: -r is an integer
+  #   -r: window str or id
+  #   -b: modify property
+  winids=($(wmctrl -l \
+    | /bin/grep -P '^0x[a-f0-9]{8} -1 ' \
+    | awk '{print $1}'))
+  #printf "%s\n" "${winids[@]}" | xargs -I % echo wmctrl -t ${wspace} -b add,sticky -i -r %
+  for winid in ${winids[@]}; do
+    echo -e "wmctrl -t ${wspace} -b add,sticky -i -r ${winid}" \
+      " $(fg_mintgreen)$(wmctrl -l | grep ^${winid} | cut -d ' ' -f 4-)$(attr_reset)"
+  done
+  # NOTE: Combining the 2 commands seems to work, but it doesn't:
+  #  | xargs -I % wmctrl -t ${wspace} -b add,sticky -i -r %
+  # So do the 2 operations separately.
+  printf "%s\n" "${winids[@]}" | xargs -I % wmctrl -t ${wspace} -i -r %
+  # Change active desktop. Can come before or after adding sticky.
+  wmctrl -s ${wspace}
+  printf "%s\n" "${winids[@]}" | xargs -I % wmctrl -b add,sticky -i -r %
+  # Restore previously active window.
+  wmctrl -i -a ${active_window}
+}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
