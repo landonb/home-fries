@@ -434,6 +434,14 @@ echoerr() { echo "$@" 1>&2; }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+dubs_always_on_visible_desktop() {
+  if ${DUBS_ALWAYS_ON_VISIBLE-false}; then
+    wmctrl -r :ACTIVE: -b add,sticky
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 main() {
   source_deps
 }

@@ -196,6 +196,10 @@ home_fries_up() {
   dubs_fix_terminal_colors
   unset dubs_fix_terminal_colors
 
+  # Make the current window always-on-visible-desktop, maybe.
+  dubs_always_on_visible_desktop
+  unset dubs_always_on_visible_desktop
+
   #########################
 
   # Setup distro-agnostic Python and Apache wrappers, aliases, and environs.
