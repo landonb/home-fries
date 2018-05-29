@@ -187,6 +187,14 @@ function dubs_set_terminal_prompt() {
   #       But the escapes don't work the same. E.g., this looks really funny:
   #         titlebar="\[\e]0;THIS IS A TEST\a\]"
   #         PROMPT_COMMAND='echo -ne "${titlebar}\[\033[01;36m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]\$ "'
+
+  # 2018-05-28: How about a bold PS2 (continuation) prompt?
+  #PS2="$(tput bold)>${attr_reset} "
+  #PS2="$(tput bold)${attr_underlined}${fg_green}>${attr_reset} "
+  #PS2="$(tput bold)${fg_green}_${attr_reset} "
+  #PS2="$(tput bold)${attr_underlined}${fg_green} ${attr_reset} "
+  #PS2="${attr_underlined}${fg_green} ${attr_reset} "
+  PS2="${fg_green}>${attr_reset} "
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
