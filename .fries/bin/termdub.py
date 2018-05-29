@@ -124,6 +124,10 @@ class Termdub_Parser(optparse.OptionParser):
          action='store', default=0, type=int,
          help='if main display is below other displays, specify offset')
 
+      self.add_option('-g', '--geometry', dest='geometry',
+         default=None, type=str,
+         help='specify exact geometry for terminal window')
+
    # FIXME: Add
    # DUBS_TERMNAME="" DUBS_STARTIN="" DUBS_STARTUP=""
    # to options, since the gnome shortcut keeps running
@@ -598,7 +602,10 @@ class Termdub(object):
          termname = ''
 
       # Get the --geometry option, e.g., "110x43+765+210".
-      geom_opt = Termdub.geoms[target][width][height]
+      if self.cli_opts.geometry:
+         geom_opt = self.cli_opts.geometry
+      else:
+         geom_opt = Termdub.geoms[target][width][height]
       # Parse it.
       comps_geom = geom_opt.split('+')
       comps_lines = comps_geom[0].split('x')
