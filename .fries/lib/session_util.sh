@@ -28,6 +28,7 @@ bash-exit-bash-hole () {
   #   so isolate the program name, excluding args and other.
   # This is too simple:
   #   ps aux | grep "bash" | grep $PPID &> /dev/null
+  # FIXME/2018-05-29: Here and elsewhere: prefer `grep -E`...
   ps ax -o pid,command | grep -P "^ *$PPID \S+/bash(?:($| ))" &> /dev/null
   if [[ $? -eq 0 ]]; then
     exit

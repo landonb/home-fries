@@ -387,6 +387,7 @@ git_status_porcelain () {
 #    export GIT_DIRTY_FILES_FOUND
   fi
 
+  # FIXME/2018-05-29: Here and elsewhere: prefer `grep -E`...
   git remote -v | grep -P "^origin\t" > /dev/null && true
   local has_origin=$?
 

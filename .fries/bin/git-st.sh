@@ -145,12 +145,14 @@ prepare_grep_exclude () {
       if [[ ${ref_path} == /* ]]; then
         # An absolute path means git-st being run from a cousin
         # directory of the GTSTOK file.
+        # FIXME/2018-05-29: Here and elsewhere: prefer `grep -E`...
         GREP_EXCLUDE="${GREP_EXCLUDE} |
           grep -P -v \"${ref_file}$\" |
           grep -P -v \"${ref_file}\x1B\x5B\x6D$\""
       else
         # A relative path means git-st being run from the directory
         # containing .GTSTOK or a parent directory.
+        # FIXME/2018-05-29: Here and elsewhere: prefer `grep -E`...
         GREP_EXCLUDE="${GREP_EXCLUDE} |
           grep -P -v \"${ref_path}$\" |
           grep -P -v \"${ref_path}\x1B\x5B\x6D$\""
