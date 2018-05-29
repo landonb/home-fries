@@ -86,6 +86,317 @@ create_colors() {
   export BG_WHITE="\033[107m"
 }
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# (lb): I know Vim makes doing this fast, but still, why manually generate
+# this? Should really use associate array and eval. The whole file.
+
+# Fast downcase: qqvw^ou<down>q
+
+fg_pink() {
+  ### === HIGH-COLOR === compatible with most terms including putty
+  ### for windows... use colors that don't make your eyes bleed :)
+  # NOTE/2017-05-03: Single quotes do not work. What's up with that?
+  #   E.g., export PINK='\\033[38;5;211m'
+  echo "\033[38;5;211m"
+}
+
+fg_orange() {
+  echo "\033[38;5;203m"
+}
+
+# 2016-10-09: FG_SKYBLUE broken.
+#fg_skyblue() {
+#  echo "\033[38;5;111m"
+#}
+
+fg_mediumgrey() {
+  echo "\033[38;5;246m"
+}
+
+fg_lavender() {
+  echo "\033[38;5;183m"
+}
+
+fg_tan() {
+  echo "\033[38;5;179m"
+}
+
+fg_forest() {
+  echo "\033[38;5;22m"
+}
+
+fg_maroon() {
+  echo "\033[38;5;52m"
+}
+
+fg_hotpink() {
+  echo "\033[38;5;198m"
+}
+
+fg_mintgreen() {
+  echo "\033[38;5;121m"
+}
+
+fg_lightorange() {
+  echo "\033[38;5;215m"
+}
+
+fg_lightred() {
+  echo "\033[38;5;203m"
+}
+
+fg_jade() {
+  echo "\033[38;5;35m"
+}
+
+fg_lime() {
+  echo "\033[38;5;154m"
+}
+
+### background colors
+
+bg_pink() {
+  echo "\033[48;5;211m"
+}
+
+bg_orange() {
+  echo "\033[48;5;203m"
+}
+
+bg_skyblue() {
+  echo "\033[48;5;111m"
+}
+
+bg_mediumgrey() {
+  echo "\033[48;5;246m"
+}
+
+bg_lavender() {
+  echo "\033[48;5;183m"
+}
+
+bg_tan() {
+  echo "\033[48;5;179m"
+}
+
+bg_forest() {
+  echo "\033[48;5;22m"
+}
+
+bg_maroon() {
+  echo "\033[48;5;52m"
+}
+
+bg_hotpink() {
+  echo "\033[48;5;198m"
+}
+
+bg_mintgreen() {
+  echo "\033[48;5;121m"
+}
+
+bg_lightorange() {
+  echo "\033[48;5;215m"
+}
+
+bg_lightred() {
+  echo "\033[48;5;203m"
+}
+
+bg_jade() {
+  echo "\033[48;5;35m"
+}
+
+bg_lime() {
+  echo "\033[48;5;154m"
+}
+
+# 2018-03-23: Aha!
+#   https://misc.flogisoft.com/bash/tip_colors_and_formatting
+
+fg_black() {
+  echo "\033[30m"
+}
+
+fg_red() {
+  echo "\033[31m"
+}
+
+fg_green() {
+  echo "\033[32m"
+}
+
+fg_yellow() {
+  echo "\033[33m"
+}
+
+fg_blue() {
+  echo "\033[34m"
+}
+
+fg_magenta() {
+  echo "\033[35m"
+}
+
+fg_cyan() {
+  echo "\033[36m"
+}
+
+fg_lightgray() {
+  echo "\033[37m"
+}
+
+fg_darkgray() {
+  echo "\033[90m"
+}
+
+fg_lightred() {
+  echo "\033[91m"
+}
+
+fg_lightgreen() {
+  echo "\033[92m"
+}
+
+fg_lightyellow() {
+  echo "\033[93m"
+}
+
+fg_lightblue() {
+  echo "\033[94m"
+}
+
+fg_lightmagenta() {
+  echo "\033[95m"
+}
+
+fg_lightcyan() {
+  echo "\033[96m"
+}
+
+fg_white() {
+  echo "\033[97m"
+}
+
+bg_black() {
+  echo "\033[40m"
+}
+
+bg_red() {
+  echo "\033[41m"
+}
+
+bg_green() {
+  echo "\033[42m"
+}
+
+bg_yellow() {
+  echo "\033[43m"
+}
+
+bg_blue() {
+  echo "\033[44m"
+}
+
+bg_magenta() {
+  echo "\033[45m"
+}
+
+bg_cyan() {
+  echo "\033[46m"
+}
+
+bg_lightgray() {
+  echo "\033[47m"
+}
+
+bg_darkgray() {
+  echo "\033[100m"
+}
+
+bg_lightred() {
+  echo "\033[101m"
+}
+
+bg_lightgreen() {
+  echo "\033[102m"
+}
+
+bg_lightyellow() {
+  echo "\033[103m"
+}
+
+bg_lightblue() {
+  echo "\033[104m"
+}
+
+bg_lightmagenta() {
+  echo "\033[105m"
+}
+
+bg_lightcyan() {
+  echo "\033[106m"
+}
+
+bg_white() {
+  echo "\033[107m"
+}
+
+attr_reset () {
+  # Does it matter which one? Using tput seems more generic than ANSI code.
+  # Similar to:  echo "\033[0m"
+  echo "$(tput sgr0)"
+}
+
+attr_bold() {
+  # Similar to:  echo "\033[1m"
+  echo "$(tput bold)"
+}
+
+attr_underline() {
+  echo "\033[4m"
+}
+
+# Gnome/Mate do not support blink, <sigh>.
+font_blink() {
+  echo "\033[5m"
+}
+
+font_invert() {
+  echo "\033[7m"
+}
+
+font_hidden() {
+  echo "\033[8m"
+}
+
+reset_bold() {
+  echo "\033[21m"
+}
+
+reset_dim() {
+  echo "\033[22m"
+}
+
+reset_underlined() {
+  echo "\033[24m"
+}
+
+reset_blink() {
+  echo "\033[25m"
+}
+
+reset_reverse() {
+  echo "\033[27m"
+}
+
+reset_hidden() {
+  echo "\033[28m"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 create_ornaments() {
   # 2016-08-15: `tput` discovers the right sequences to send to the terminal:
   export TPUT_BOLD=$(tput bold)
