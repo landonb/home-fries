@@ -89,6 +89,12 @@ function dubs_set_terminal_prompt() {
   # Gnome-terminal's default (though it doesn't specify it, it just is):
   #  titlebar='\[\e]0;\u@\h:\w\a\]'
 
+  local sticky_alert=''
+  if ${DUBS_ALWAYS_ON_VISIBLE-false}; then
+    # MEH/2018-05-28: (lb): Make this settable... if anyone else ever uses Home Fries...
+    sticky_alert='(Dubs) '
+  fi
+
   # Name this terminal window specially if special.
   # NOTE: This information comes from Gnome, where we've set the Gnome shortcut
   #       to pass this environment variable to us.
@@ -96,18 +102,18 @@ function dubs_set_terminal_prompt() {
   #       won't find your bash scripts.
   if [[ "${ssh_host}" == "" ]]; then
     if [[ "${DUBS_TERMNAME}" != "" ]]; then
-      titlebar="\[\e]0;${DUBS_TERMNAME}\a\]"
+      titlebar="\[\e]0;${sticky_alert}${DUBS_TERMNAME}\a\]"
     elif [[ $(stat -c %i /) -eq 2 ]]; then
       # Not in chroot jail.
       #titlebar="\[\e]0;\u@\h:\w\a\]"
       #titlebar="\[\e]0;\w:(\u@\h)\a\]"
       #titlebar="\[\e]0;\w\a\]"
-      titlebar="\[\e]0;${basename}\a\]"
+      titlebar="\[\e]0;${sticky_alert}${basename}\a\]"
     else
-      titlebar="\[\e]0;|-${basename}-|\a\]"
+      titlebar="\[\e]0;|-${sticky_alert}${basename}-|\a\]"
     fi
   else
-    titlebar="\[\e]0;On ${ssh_host}\a\]"
+    titlebar="\[\e]0;${sticky_alert}On ${ssh_host}\a\]"
   fi
 
   # 2012.10.17: The default bash includes ${debian_chroot:+($debian_chroot)} in
