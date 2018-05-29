@@ -134,9 +134,10 @@ home_fries_configure_history() {
   #             So now force user to type `exit` to close Bash terminal.
   # 2016-09-23: Title better: Prevent Ctrl-D from exiting shell.
   # When you Ctrl-D, you'll see: `Use "exit" to leave the shell.`
-  export IGNOREEOF=9999999
+  export IGNOREEOF=9999999  # Capture and Kill Ctrl-D / ^-D / <C-d>
   # 2017-11-19: See also `set +ignoreeof` but that sets IGNOREEOF=10. #toofew
   # `set +o ignoreeof` clears IGNOREEOF; `set -o ignoreeof` sets IGNOREEOF=10.
+  # 2018-05-28: See also: Ctrl-Shift-Q, to close mate-terminal window.
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
