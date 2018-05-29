@@ -264,6 +264,16 @@ text, remap the key command.
    (obscuring Text Switch Directions, which is not a feature
    you'll probably use if you stick to Latin text).
 
+-------------------
+The Great Suspender
+-------------------
+
+- Buy yourself some time on closing all them tabs.
+
+  `The Great Suspender [for Chrome]
+
+  <https://chrome.google.com/webstore/detail/the-great-suspender/klbibkeccnjlkjkiokjodocebajanakg?hl=en>`__
+
 ---------------
 Reload All Tabs
 ---------------
