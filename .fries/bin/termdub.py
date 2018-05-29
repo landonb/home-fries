@@ -7,6 +7,10 @@
 # Project Page: https://github.com/landonb/home-fries
 # License: GPLv3
 
+# HINT: Looking for a window's geometry? The current mate-terminals x and y position?
+#
+#   xwininfo -id $(xdotool getactivewindow)
+
 # FIXME/2016-11-19: Make this its own project.
 #                   Installable with pip (from local sources, too).
 #                   See: /kit/sturdy/chjson
