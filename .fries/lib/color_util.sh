@@ -399,9 +399,26 @@ reset_hidden() {
 
 create_ornaments() {
   # 2016-08-15: `tput` discovers the right sequences to send to the terminal:
-  export TPUT_BOLD=$(tput bold)
-  export TPUT_NORMAL=$(tput sgr0)
-  export TPUT_NORM=${TPUT_BOLD}
+  # 2018-05-28: Haha. Run `env` and after TPUT_BOLD, everything is bold! Duh!!
+  #   export TPUT_BOLD=$(tput bold)
+  # I wonder if a function would help?
+  # But why not just do, e.g.,
+  #   echo "This $(tput bold)is bold$(tput sgr0)!"
+  # (lb): Then again, I'll probably never remember the other, obscure codes,
+  # like `tput sgr0` for normal mode, or `\033[4m` for underline. So maybe
+  # functions are the way to go...
+  #export TPUT_BOLD=$(tput bold)
+  #export TPUT_NORMAL=$(tput sgr0)
+  #export TPUT_NORM=${TPUT_BOLD}
+  tput_bold () {
+    echo "$(tput bold)"
+  }
+  tput_normal () {
+    echo "$(tput sgr0)"
+  }
+  export -f tput_bold
+  export -f tput_normal
+  alias tput_reset=tput_normal
 
   # 2018-01-30: (lb): Still not sure the best way to name these. I like
   # FONT_ or TERM_ prefix best, I suppose. Or shorter MK_ for brevity?
