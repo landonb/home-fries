@@ -114,12 +114,34 @@ lock_screensaver_and_power_suspend () {
     echo "ERROR: Unknown distro. I refuse to Lock Screensaver and Power Suspend."
     return 1
   fi
+# 2018-05-29: Do these even run after the suspend?
   # Sneak in enabling locking screen saver.
   screensaver_lockon
 
   # Show desktop / Minimize all windows
   xdotool key ctrl+alt+d
 } # end: lock_screensaver_and_power_suspend
+
+lock_screensaver_and_power_suspend_lite () {
+  # Show desktop / Minimize all windows
+  xdotool key ctrl+alt+d
+
+  source /etc/lsb-release
+  if [[ ${DISTRIB_CODENAME} = 'xenial' \
+     || ${DISTRIB_CODENAME} = 'sarah' \
+     || ${DISTRIB_CODENAME} = 'sonya' \
+     ]]; then
+    gnome-screensaver-command --lock && \
+      systemctl suspend -i
+  elif [[ ${DISTRIB_CODENAME} = 'trusty' || ${DISTRIB_CODENAME} = 'rebecca' ]]; then
+    gnome-screensaver-command --lock && \
+      dbus-send --system --print-reply --dest=org.freedesktop.UPower \
+        /org/freedesktop/UPower org.freedesktop.UPower.Suspend
+  else
+    echo "ERROR: Unknown distro. I refuse to Lock Screensaver and Power Suspend."
+    return 1
+  fi
+}
 
 lock_screensaver_and_do_nothing_else () {
   gnome-screensaver-command --lock
@@ -131,6 +153,7 @@ lock_screensaver_and_do_nothing_else () {
 # 2016-10-10: Seriously? `qq` isn't a command? Sweet!
 alias qq="lock_screensaver_and_do_nothing_else"
 alias qqq="lock_screensaver_and_power_suspend"
+alias q4="lock_screensaver_and_power_suspend_lite"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
