@@ -24,6 +24,25 @@ source_deps() {
 function dubs_set_terminal_prompt() {
   local ssh_host=$1
 
+  # (lb): Note that color_util.sh defines similar colors, but without
+  # the ``01;`` part. I cannot remember what that component means....
+# FIXME/2018-05-28: (lb): remove these colors if all's well.
+  local fg_red='\[\033[01;31m\]'
+#  local fg_green="\033[32m"
+  local fg_green='\[\033[01;32m\]'
+#  local fg_yellow='\[\033[1;33m\]'
+  local fg_yellow='\[\033[01;33m\]'
+  local fg_cyan='\[\033[01;36m\]'
+  local fg_gray='\[\033[01;37m\]'
+  local bg_magenta='\[\033[01;45m\]'
+  local cur_user='\u'
+#  local attr_reset="\[\033[m\]"
+  local attr_reset='\[\033[00m\]'
+  local attr_underlined="\033[4m"
+  #local attr_bold="\[\033[1m\]"  # also: tput bold.
+  local mach_name='\h'
+  local basename='\W'
+
   # Configure a colorful prompt of the following format:
   #  user@host:dir
   # See <http://www.termsys.demon.co.uk/vtansi.htm>
@@ -49,8 +68,8 @@ function dubs_set_terminal_prompt() {
   #          \h is the hostname up to the first '.'
   #          \W is the basename of the current working directory,
   #             with $HOME abbreviated with a tilde
-  #          \[ and \] delimit a non-printing sequence w/ control chars; can
-  #          b  e used to embed terminal control sequences into the prompt
+  #          \[ and \] delimit a non-printing sequence w/ control chars;
+  #             can be used to embed terminal control sequences into the prompt
   #          \e is an ASCII escape character (0nn)
   #          \e]0; is like ESC]0; and resets formatting (including color)
   #             since this string is for the window titlebar
@@ -59,7 +78,11 @@ function dubs_set_terminal_prompt() {
   #                      Chime when you hit <BS> on an empty prompt?
   #                      But this is the window titlebar title... hmmm.
   # By default, the title bar is user@host:working-directory.
-  local titlebar='\[\e]0;\u@\h:\W\a\]'
+  # "The escape sequence to use is ESC]2;new titleBEL":
+  #   https://wiki.archlinux.org/index.php/Bash/Prompt_customization#Customizing_the_terminal_window_title
+  # Note also using wmctrl, e.g.,: `wmctrl -r :ACTIVE: -T "On ${1}"`
+  local titlebar
+  #titlebar='\[\e]0;\u@\h:\W\a\]'
   # This does the same thing but uses octal ASCII escape chars instead of
   # bash's escape chars:
   #  titlebar='\[\033]2;\u@\h\007\]'
@@ -76,12 +99,12 @@ function dubs_set_terminal_prompt() {
       titlebar="\[\e]0;${DUBS_TERMNAME}\a\]"
     elif [[ $(stat -c %i /) -eq 2 ]]; then
       # Not in chroot jail.
-      #titlebar='\[\e]0;\u@\h:\w\a\]'
-      #titlebar='\[\e]0;\w:(\u@\h)\a\]'
-      #titlebar='\[\e]0;\w\a\]'
-      titlebar='\[\e]0;\W\a\]'
+      #titlebar="\[\e]0;\u@\h:\w\a\]"
+      #titlebar="\[\e]0;\w:(\u@\h)\a\]"
+      #titlebar="\[\e]0;\w\a\]"
+      titlebar="\[\e]0;${basename}\a\]"
     else
-      titlebar='\[\e]0;|-\W-|\a\]'
+      titlebar="\[\e]0;|-${basename}-|\a\]"
     fi
   else
     titlebar="\[\e]0;On ${ssh_host}\a\]"
@@ -103,10 +126,10 @@ function dubs_set_terminal_prompt() {
       $DUBS_TRACE && echo "Running as root!"
       if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
         $DUBS_TRACE && echo "Ubuntu"
-        PS1="${titlebar}\[\033[01;45m\]\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]\$ "
+        PS1="${titlebar}${bg_magenta}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_cyan}${basename}${attr_reset}\$ "
       elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
         $DUBS_TRACE && echo "Red Hat"
-        PS1="${titlebar}\[\033[01;45m\]\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]\$ "
+        PS1="${titlebar}${bg_magenta}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_gray}${basename}${attr_reset}\$ "
       else
         echo "WARNING: Not enough info. to set PS1."
       fi
@@ -124,7 +147,8 @@ function dubs_set_terminal_prompt() {
         #             support Unicode \uXXXX escapes, so use the escape in the
         #             outer. (Follow the directory path with an anchor symbol
         #             so I know I'm *not* in the chroot.)
-        PS1="${titlebar}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]"$' \u2693 '"\$ "
+        # Probably cannot use $var without eval: local u_anchor='\u2693'
+        PS1="${titlebar}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_cyan}${basename}${attr_reset}"$' \u2693 '"\$ "
         # 2015.02.26: Add git branch.
         #             Maybe... not sure I like this...
         #             maybe change delimiter and make branch name colorful?
@@ -137,11 +161,11 @@ function dubs_set_terminal_prompt() {
         #PS1="${titlebar}\[\033[01;31m\]"$'\u2605'"\u@"$'\u2605'"\[\033[1;36m\]\h\[\033[00m\]:\[\033[01;33m\]\W\[\033[00m\]"$' \u2693 '
         # 2015.03.04: As mentioned above, the chroot may be running an old Bash,
         #             so use the Unicode \uXXXX escape in the outer only.
-        PS1="${titlebar}\[\033[01;31m\]**\u@**\[\033[1;36m\]\h\[\033[00m\]:\[\033[01;33m\]\W\[\033[00m\] "'! '
+        PS1="${titlebar}${fg_red}**${cur_user}@**${fg_cyan}${mach_name}${attr_reset}:${fg_yellow}${basename}${attr_reset} "'! '
       fi
     elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
       $DUBS_TRACE && echo "Red Hat"
-      PS1="${titlebar}\[\033[01;36m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]\$ "
+      PS1="${titlebar}${fg_cyan}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_gray}${basename}${attr_reset}\$ "
     else
         echo "WARNING: dubs_set_terminal_prompt: Not enough info. to set PS1."
     fi
