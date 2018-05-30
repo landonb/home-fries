@@ -557,6 +557,61 @@ echo_wmctrl_sticky_cmd_winname() {
   echo -e " wmctrl -b add,sticky -i -r ${winid}$(attr_reset) ${winname}"
 }
 
+# TIPS: You can add your own, personal windows to the sticky list,
+#       so that running `space` will make all your favorite windows
+#       sticky. E.g.,
+if false; then
+  # —————— ✂ ——— ✁ —————— [ copy-paste ] —————— ✁ ——— ✂ ——————
+
+  private_space() {
+    declare -a winnames=()
+    # Dubsacks Vim, e.g., if you send files to the same GVim with:
+    #  gvim --servername SAMPI --remote-silent path/to/file
+    winnames+=("SAMPI")
+    # E.g., Gmail, etc.
+    winnames+=("[mM]ail - Chromium")
+    winnames+=("[mM]ail - Google Chrome")
+    # Music apps 'n tabs:
+    winnames+=("Live Stream | The Current from Minnesota Public Radio - Chromium")
+    winnames+=("Live Stream | The Current from Minnesota Public Radio - Google Chrome")
+    winnames+=("Spotify")
+    for (( i = 0; i < ${#winnames[@]}; i++ )); do
+      echo_wmctrl_sticky_cmd_winname "${winnames[$i]}"
+      # We could just use -r, e.g.,
+      #   wmctrl -b add,sticky -r "${winnames[$i]}"
+      # But Grep let's us be a little more precise (i.e., use $ for EOL).
+      local winid=$(wmctrl -l | grep "${winnames[$i]}$" | cut -d ' ' -f 1)
+      if [[ -n ${winid} ]]; then
+        wmctrl -b add,sticky -i -r ${winid}
+      fi
+    done
+  }
+
+  monkey_patch_space() {
+    # Remove the first two lines and last line, e.g.,:
+    #   function()
+    #   {
+    #     ...
+    #   }
+    old_space=$(declare -f space | tail -n +3 | head -n -1)
+
+    space() {
+      # Meh. Don't validate the desktop number before making windows sticky.
+      # (We need to do this before running old_space, to ensure that our
+      #  favorite windows are sticky first, before reassigning sticky parents.
+      #  Also, if we do this after old_space, there's a little screen flicker
+      #  that makes that sequence look unnatural, ick.)
+
+      echo "Making ${USER}'s windows sticky..."
+      private_space
+
+      eval "${old_space}"
+    }
+  }
+
+  # —————— ✂ ——— ✁ —————— [ copy-paste ] —————— ✁ ——— ✂ ——————
+fi
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 sleep_then_ensure_always_on_visible_desktop() {
