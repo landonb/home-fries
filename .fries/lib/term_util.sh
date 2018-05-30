@@ -495,6 +495,7 @@ space () {
   fi
   local wspace=$(($1 - 1))
   local active_window=$(xdotool getactivewindow)
+  echo "Reassigning sticky windows' parents..."
   # Early solution: Move known windows according to business logic.
   #  xdotool search --name '(Dubs)|SAMPI' | xargs -I % echo wmctrl -t ${wspace} -b add,sticky -i -r %
   #  xdotool search --name '(Dubs)|SAMPI' | xargs -I % wmctrl -t ${wspace} -b add,sticky -i -r %
@@ -521,18 +522,39 @@ space () {
     | awk '{print $1}'))
   #printf "%s\n" "${winids[@]}" | xargs -I % echo wmctrl -t ${wspace} -b add,sticky -i -r %
   for winid in ${winids[@]}; do
-    echo -e "wmctrl -t ${wspace} -b add,sticky -i -r ${winid}" \
-      " $(fg_mintgreen)$(wmctrl -l | grep ^${winid} | cut -d ' ' -f 4-)$(attr_reset)"
+    # Just for enduser enjoyment.
+    echo_wmctrl_sticky_cmd_winid "${winid}"
   done
   # NOTE: Combining the 2 commands seems to work, but it doesn't:
   #  | xargs -I % wmctrl -t ${wspace} -b add,sticky -i -r %
   # So do the 2 operations separately.
   printf "%s\n" "${winids[@]}" | xargs -I % wmctrl -t ${wspace} -i -r %
   # Change active desktop. Can come before or after adding sticky.
+  echo "Switching to Desktop “${wspace}” aka Workspace “$1”."
   wmctrl -s ${wspace}
   printf "%s\n" "${winids[@]}" | xargs -I % wmctrl -b add,sticky -i -r %
   # Restore previously active window.
   wmctrl -i -a ${active_window}
+}
+
+echo_wmctrl_sticky_cmd_winid() {
+  local winid=$1
+  echo -e " wmctrl -b add,sticky -i -r ${winid}" \
+    "$(fg_mintgreen)$(wmctrl -l | grep "^${winid}" | cut -d ' ' -f 4-)$(attr_reset)"
+}
+
+echo_wmctrl_sticky_cmd_winname() {
+  local winname=$1
+  local winid=$(wmctrl -l | grep "${winname}$" | cut -d ' ' -f 1)
+  if [[ -n ${winid} ]]; then
+    winid="$(fg_mintgreen)${winid}"
+  else
+    #winid='~NOTFOUND~'
+    #winid="$(fg_lightorange)${winid}"
+    # On second thought, don't pollute.
+    return
+  fi
+  echo -e " wmctrl -b add,sticky -i -r ${winid}$(attr_reset) ${winname}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
