@@ -504,8 +504,20 @@ space () {
   #   -i: -r is an integer
   #   -r: window str or id
   #   -b: modify property
+  # NOTE: (lb): Apologies for the Business Logic, but the Gnome 2 Launcher
+  #       Panels should not be touched. These are identified by:
+  #
+  #           | /bin/grep -v 'Bottom Expanded Edge Panel$' \
+  #
+  #       I mean, they can be touched, and all will seem well, but sometime in
+  #       the future, when you double-click a window titlebar to maximize it,
+  #       you'll see it's bottom edge goes beneath the bottom panels. (And I'm
+  #       sure it should really just be 'Edge Panel$', to include cases where
+  #       the panel is elsewhere (Left, Top, or Right), or where the panel is
+  #       not expanded fully. But none of those cases apply to me, so ignoring.)
   winids=($(wmctrl -l \
     | /bin/grep -E '^0x[a-f0-9]{8} +-1 ' \
+    | /bin/grep -v 'Bottom Expanded Edge Panel$' \
     | awk '{print $1}'))
   #printf "%s\n" "${winids[@]}" | xargs -I % echo wmctrl -t ${wspace} -b add,sticky -i -r %
   for winid in ${winids[@]}; do
