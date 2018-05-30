@@ -657,7 +657,9 @@ dubs_always_on_visible_desktop() {
     #     | cut -d ' ' -f 1))
     #
     # So, like, really? A total kludge is in order?! Deal with this "later!"
-    sleep_then_ensure_always_on_visible_desktop &
+    #
+    # NOTE: Use (subshell) to suppress output (e.g., job number and 'Done').
+    (sleep_then_ensure_always_on_visible_desktop &)
   fi
 }
 
