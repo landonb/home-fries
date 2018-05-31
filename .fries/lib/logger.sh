@@ -36,14 +36,14 @@ if [[ -z ${LOG_LEVEL+x} ]]; then
 fi
 
 log_msg () {
-  FCN_LEVEL=$1
-  FCN_COLOR=$2
-  FCN_LABEL=$3
+  local FCN_LEVEL=$1
+  local FCN_COLOR=$2
+  local FCN_LABEL=$3
   shift 3
   if [[ ${FCN_LEVEL} -ge ${LOG_LEVEL} ]]; then
     #echo "${FCN_COLOR} $@"
-    #RIGHT_NOW=$(date +%Y-%m-%d.%H.%M.%S)
-    RIGHT_NOW=$(date "+%Y-%m-%d @ %T")
+    #local RIGHT_NOW=$(date +%Y-%m-%d.%H.%M.%S)
+    local RIGHT_NOW=$(date "+%Y-%m-%d @ %T")
     local bold_maybe=''
     [[ ${FCN_LEVEL} -ge ${LOG_LEVEL_WARNING} ]] && bold_maybe=${FONT_BOLD}
     local invert_maybe=''
