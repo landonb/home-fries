@@ -346,7 +346,9 @@ bg_white() {
 attr_reset () {
   # Does it matter which one? Using tput seems more generic than ANSI code.
   # Similar to:  echo "\033[0m"
-  echo "$(tput sgr0)"
+  #echo "$(tput sgr0)"
+  # 2018-05-31: Actually, I think it does matter. `tput sgr0` seems noop.
+  echo "\033[0m"
 }
 
 attr_bold() {
