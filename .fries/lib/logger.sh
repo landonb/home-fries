@@ -45,52 +45,60 @@ log_msg () {
     #local RIGHT_NOW=$(date +%Y-%m-%d.%H.%M.%S)
     local RIGHT_NOW=$(date "+%Y-%m-%d @ %T")
     local bold_maybe=''
-    [[ ${FCN_LEVEL} -ge ${LOG_LEVEL_WARNING} ]] && bold_maybe=${FONT_BOLD}
+    [[ ${FCN_LEVEL} -ge ${LOG_LEVEL_WARNING} ]] && bold_maybe=$(attr_bold)
     local invert_maybe=''
-    [[ ${FCN_LEVEL} -ge ${LOG_LEVEL_WARNING} ]] && invert_maybe=${BG_MAROON}
-    [[ ${FCN_LEVEL} -ge ${LOG_LEVEL_ERROR} ]] && invert_maybe=${BG_HOTPINK}
-    echo -e "${FCN_COLOR}${FONT_UNDERLINE}[${FCN_LABEL}]${FONT_NORMAL} ${RIGHT_NOW} ${bold_maybe}${invert_maybe}$*${FONT_NORMAL}"
+    [[ ${FCN_LEVEL} -ge ${LOG_LEVEL_WARNING} ]] && invert_maybe=$(bg_maroon)
+    [[ ${FCN_LEVEL} -ge ${LOG_LEVEL_ERROR} ]] && invert_maybe=$(bg_hotpink)
+    echo -e "${FCN_COLOR}$(attr_underline)[${FCN_LABEL}]$(attr_reset) ${RIGHT_NOW} ${bold_maybe}${invert_maybe}$@$(attr_reset)"
   fi
 }
 
+
+
 fatal () {
-  log_msg ${LOG_LEVEL_FATAL} "${BG_HOTPINK}${MK_BOLD}" FATL "$*"
+  #log_msg ${LOG_LEVEL_FATAL} "$(bg_hotpink)$(attr_bold)" FATL "$@"
+  #log_msg ${LOG_LEVEL_FATAL} "$(bg_pink)$(fg_black)$(attr_bold)" FATL "$@"
+  log_msg ${LOG_LEVEL_FATAL} "$(bg_white)$(fg_lightred)$(attr_bold)" FATL "$@"
 }
 
 critical () {
-  log_msg ${LOG_LEVEL_CRITICAL} "${FG_HOTPINK}${MK_BOLD}" CRIT "$*"
+  #log_msg ${LOG_LEVEL_CRITICAL} "$(fg_hotpink)$(attr_bold)" CRIT "$@"
+  log_msg ${LOG_LEVEL_CRITICAL} "$(bg_pink)$(fg_black)$(attr_bold)" CRIT "$@"
 }
 
 error () {
-  log_msg ${LOG_LEVEL_ERROR} "${FG_ORANGE}${MK_BOLD}" ERRR "$*"
+  #log_msg ${LOG_LEVEL_ERROR} "$(fg_orange)$(attr_bold)" ERRR "$@"
+  critical "$@"
 }
 
 warning () {
-  log_msg ${LOG_LEVEL_WARNING} "${FG_LIGHTRED}${MK_BOLD}" WARN "$*"
+  #log_msg ${LOG_LEVEL_WARNING} "$(fg_lightred)$(attr_bold)" WARN "$@"
+  log_msg ${LOG_LEVEL_WARNING} "$(fg_hotpink)$(attr_bold)" WARN "$@"
 }
 
 warn () {
-  log_msg ${LOG_LEVEL_WARNING} "${FG_PINK}${MK_BOLD}" WARN "$*"
+  #log_msg ${LOG_LEVEL_WARNING} "$(fg_pink)$(attr_bold)" WARN "$@"
+  warning "$@"
 }
 
 notice () {
-  log_msg ${LOG_LEVEL_NOTICE} ${FG_LIME} NOTC "$*"
+  log_msg ${LOG_LEVEL_NOTICE} $(fg_lime) NOTC "$@"
 }
 
 info () {
-  log_msg ${LOG_LEVEL_INFO} ${FG_MINTGREEN} INFO "$*"
-}
-
-trace () {
-  log_msg ${LOG_LEVEL_TRACE} ${FG_JADE} TRCE "$*"
+  log_msg ${LOG_LEVEL_INFO} $(fg_mintgreen) INFO "$@"
 }
 
 debug () {
-  log_msg ${LOG_LEVEL_DEBUG} ${FG_MEDIUMGREY} DBUG "$*"
+  log_msg ${LOG_LEVEL_DEBUG} $(fg_jade) DBUG "$@"
+}
+
+trace () {
+  log_msg ${LOG_LEVEL_TRACE} $(fg_mediumgrey) TRCE "$@"
 }
 
 verbose () {
-  log_msg ${LOG_LEVEL_VERBOSE} ${FG_MEDIUMGREY} VERB "$*"
+  log_msg ${LOG_LEVEL_VERBOSE} $(fg_mediumgrey) VERB "$@"
 }
 
 test_logger() {
