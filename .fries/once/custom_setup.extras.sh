@@ -7668,8 +7668,7 @@ stage_4_install_terminator () {
 
   # 2018-05-31: On 16.04, what's in apt is: terminator 0.98
 
-  # NOTE: INTERACTVE: This asks for confirmation [ENTER]:
-  sudo add-apt-repository ppa:gnome-terminator
+  sudo add-apt-repository -y ppa:gnome-terminator
   sudo apt-get update
   sudo apt-get install terminator
   # $ terminator -v
