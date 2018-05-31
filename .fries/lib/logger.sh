@@ -93,3 +93,16 @@ verbose () {
   log_msg ${LOG_LEVEL_VERBOSE} ${FG_MEDIUMGREY} VERB "$*"
 }
 
+test_logger() {
+  fatal "FATAL: I'm gonna die!"
+  critical "CRITICAL: Take me to a hospital!"
+  error "ERROR: Oops! I did it again!!"
+  warning "WARNING: You will die someday."
+  warn "WARN: This is your last warning."
+  notice "NOTICE: Hear ye, hear ye!!"
+  info "INFO: Extra! Extra! Read all about it!!"
+  debug "DEBUG: If anyone asks, you're my debugger."
+  trace "TRACE: Not a trace."
+  verbose "VERBOSE: I'M YELLING AT YOU"
+}
+
