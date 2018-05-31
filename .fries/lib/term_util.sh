@@ -660,6 +660,8 @@ dubs_always_on_visible_desktop() {
     #
     # NOTE: Use (subshell) to suppress output (e.g., job number and 'Done').
     (sleep_then_ensure_always_on_visible_desktop &)
+    # Lest we apply same always-on to any new window opened as child of this one.
+    export DUBS_ALWAYS_ON_VISIBLE=
   fi
 }
 
