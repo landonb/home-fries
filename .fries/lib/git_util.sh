@@ -620,7 +620,7 @@ git_dir_check () {
 
 must_be_git_dirs () {
   local source_repo="$1"
-  local target_repo="${2-$(pwd)}"
+  local target_repo="${2:-$(pwd)}"
 
   local a_problem=0
 
@@ -673,7 +673,7 @@ git_checkedout_remote_branch_name () {
 
 git_set_remote_travel () {
   local source_repo="$1"
-  local target_repo="${2-$(pwd)}"
+  local target_repo="${2:-$(pwd)}"
 
   pushd_or_die "${target_repo}"
 
@@ -727,7 +727,7 @@ git_set_remote_travel () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 git_fetch_remote_travel () {
-  local target_repo="${1-$(pwd)}"
+  local target_repo="${1:-$(pwd)}"
 
   pushd_or_die "${target_repo}"
 
@@ -815,7 +815,7 @@ git_is_rebase_in_progress () {
 
 git_must_not_rebasing () {
   local source_branch="$1"
-  local target_repo="${2-$(pwd)}"
+  local target_repo="${2:-$(pwd)}"
 #  git_is_rebase_in_progress "${target_repo}"
   git_is_rebase_in_progress
   local in_rebase=$?
@@ -830,7 +830,7 @@ git_issue_complain_rebasing () {
   local source_branch="$1"
   # WEIRD?: I thought to set default one needed colon, e.g., ${2:-default}
   #   but seems to work find without...
-  local target_repo="${2-$(pwd)}"
+  local target_repo="${2:-$(pwd)}"
   local git_says="${3}"
 
 
@@ -902,7 +902,7 @@ echo_octothorpes_maroon_on_lime () {
 git_change_branches_if_necessary () {
   local source_branch="$1"
   local target_branch="$2"
-  local target_repo="${3-$(pwd)}"
+  local target_repo="${3:-$(pwd)}"
 
   pushd_or_die "${target_repo}"
 
@@ -940,8 +940,8 @@ git_change_branches_if_necessary () {
 
 git_merge_ff_only () {
   local source_branch="$1"
-  local target_repo="${2-$(pwd)}"
-  local working_dir="${3-$2}"
+  local target_repo="${2:-$(pwd)}"
+  local working_dir="${3:-$2}"
 
   pushd_or_die "${target_repo}"
 
@@ -1029,8 +1029,8 @@ git_merge_ff_only () {
 
 git_pull_hush () {
   local source_repo="$1"
-  local target_repo="${2-$(pwd)}"
-  local working_dir="${3-$2}"
+  local target_repo="${2:-$(pwd)}"
+  local working_dir="${3:-$2}"
 
   must_be_git_dirs "${source_repo}" "${target_repo}"
   [[ $? -ne 0 ]] && return

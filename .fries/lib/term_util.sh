@@ -95,7 +95,7 @@ function dubs_set_terminal_prompt() {
   #  titlebar='\[\e]0;\u@\h:\w\a\]'
 
   local sticky_alert=''
-  if ${DUBS_ALWAYS_ON_VISIBLE-false}; then
+  if ${DUBS_ALWAYS_ON_VISIBLE:-false}; then
     # MEH/2018-05-28: (lb): Make this settable... if anyone else ever uses Home Fries...
     sticky_alert="${DUBS_STICKY_PREFIX}"
   fi
@@ -615,7 +615,7 @@ fi
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 sleep_then_ensure_always_on_visible_desktop() {
-  if ${DUBS_ALWAYS_ON_VISIBLE-false}; then
+  if ${DUBS_ALWAYS_ON_VISIBLE:-false}; then
     sleep 3  #  MAGIC_NUMBER: It takes a few seconds for Home Fries to load.
     local winids
     winids=($(wmctrl -l -p \
@@ -626,7 +626,7 @@ sleep_then_ensure_always_on_visible_desktop() {
 }
 
 dubs_always_on_visible_desktop() {
-  if ${DUBS_ALWAYS_ON_VISIBLE-false}; then
+  if ${DUBS_ALWAYS_ON_VISIBLE:-false}; then
     # (lb): Gah. If you open lots of windows at once (or just change
     # focus to another window as the terminal is loading [as Home Fries
     # loads], the script's terminal window may no longer be the active
