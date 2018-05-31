@@ -987,7 +987,7 @@ setup_private_anacron () {
   if [[ -e ${USERS_CURLY}/master_chef ]]; then
     if [[ -d ${USERS_CURLY}/home/.anacron ]]; then
       if [[ -e ~/.anacron ]]; then
-        debug "  Skipping: Already exists: ~/.anacron"
+        trace "  Skipping: Already exists: ~/.anacron"
       else
         /bin/ln -sf ${USERS_CURLY}/home/.anacron ~/.anacron
       fi
@@ -1008,7 +1008,7 @@ setup_private_etc_fstab () {
       sudo chmod 644 /etc/fstab
     fi
   else
-    trace "  Skipping: No fstab for ${FG_LAVENDER}$(hostname)"
+    debug "  Skipping: No fstab for ${FG_LAVENDER}$(hostname)"
   fi
 } # end: setup_private_etc_fstab
 
@@ -1028,7 +1028,7 @@ setup_private_update_db_conf () {
       sudo chmod 644 /etc/updatedb.conf
     fi
   else
-    trace "Skipping: No updatedb.conf for ${FG_LAVENDER}$(hostname)"
+    debug "Skipping: No updatedb.conf for ${FG_LAVENDER}$(hostname)"
   fi
 } # end: setup_private_update_db_conf
 
@@ -1148,9 +1148,9 @@ locate_and_clone_missing_repos_helper () {
   declare -n GIT_REPO_SEEDS=$1
 
   if [[ ${#GIT_REPO_SEEDS[@]} -gt 0 ]]; then
-    trace "---------------------------------------------------"
-    trace "No. of git repos in group $1: ${#GIT_REPO_SEEDS[@]}"
-    trace "---------------------------------------------------"
+    debug "---------------------------------------------------"
+    debug "No. of git repos in group $1: ${#GIT_REPO_SEEDS[@]}"
+    debug "---------------------------------------------------"
     # NOTE: The keys are unordered.
     for key in "${!GIT_REPO_SEEDS[@]}"; do
       echod " key  : $key"
@@ -1207,7 +1207,7 @@ locate_and_clone_missing_repos () {
   #   repos (for cosmetic purposes, e.g., logging), in which case make
   #   a custom fcn., user_locate_and_clone_missing_repos, and call
   #   locate_and_clone_missing_repos_helper on your own.
-  trace " user_locate_and_clone_missing_repos"
+  debug " user_locate_and_clone_missing_repos"
   # Call private fcns. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
   tweak_errexit
   command -v user_locate_and_clone_missing_repos &> /dev/null
@@ -1223,7 +1223,7 @@ function chase_and_face () {
   info "Refacing ~/${PRIVATE_REPO}..."
 
   if ${HAMSTERING}; then
-    trace " killing hamsters"
+    debug " killing hamsters"
     tweak_errexit
     #sudo killall hamster-service hamster-indicator
     killall hamster-service hamster-indicator
@@ -1232,52 +1232,52 @@ function chase_and_face () {
 
   mount_curly_emissary_gooey
 
-  trace " setup_private_fries_bash..."
+  debug " setup_private_fries_bash..."
   setup_private_fries_bash
 
-  trace " setup_private_curly_work"
+  debug " setup_private_curly_work"
   setup_private_curly_work
 
-  trace " setup_private_vim_spell"
+  debug " setup_private_vim_spell"
   setup_private_vim_spell
 
-  trace " setup_private_vim_bundle"
+  debug " setup_private_vim_bundle"
   setup_private_vim_bundle
 
-  trace " setup_private_vim_bundle_dubs_all"
+  debug " setup_private_vim_bundle_dubs_all"
   setup_private_vim_bundle_dubs_all
 
-  trace " setup_private_vim_bundle_dubs_edit_juice"
+  debug " setup_private_vim_bundle_dubs_edit_juice"
   setup_private_vim_bundle_dubs_edit_juice
 
-  trace " setup_private_vim_bundle_dubs_project_tray"
+  debug " setup_private_vim_bundle_dubs_project_tray"
   setup_private_vim_bundle_dubs_project_tray
 
-  trace " setup_private_vim_bundle_dubs"
+  debug " setup_private_vim_bundle_dubs"
   setup_private_vim_bundle_dubs
 
-  trace " setup_private_dot_files"
+  debug " setup_private_dot_files"
   setup_private_dot_files
 
-  trace " setup_private_ssh_directory"
+  debug " setup_private_ssh_directory"
   setup_private_ssh_directory
 
-  trace " setup_private_hamster_db"
+  debug " setup_private_hamster_db"
   setup_private_hamster_db
 
-  trace " setup_private_anacron"
+  debug " setup_private_anacron"
   setup_private_anacron
 
-  trace " setup_private_etc_fstab"
+  debug " setup_private_etc_fstab"
   setup_private_etc_fstab
 
-  trace " setup_private_update_db_conf"
+  debug " setup_private_update_db_conf"
   setup_private_update_db_conf
 
-  trace " locate_and_clone_missing_repos"
+  debug " locate_and_clone_missing_repos"
   locate_and_clone_missing_repos
 
-  trace " user_do_chase_and_face"
+  debug " user_do_chase_and_face"
   # Call private fcns. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
   tweak_errexit
   command -v user_do_chase_and_face &> /dev/null
@@ -1315,7 +1315,7 @@ function mount_curly_emissary_gooey_explicit () {
 }
 
 function mount_curly_emissary_gooey () {
-  #trace "GOOEY: Mount"
+  #debug "GOOEY: Mount"
   # Make the gooey candy center.
   mkdir -p ${EMISSARY}/gooey
   mkdir -p ${EMISSARY}/.gooey
@@ -1490,18 +1490,18 @@ function init_travel () {
 
   # 2016-09-28: So, like, Bash 4 seems pretty rad, if not ((kludged)).
   #             Decades and decades of cruft! I absolutely love it!!!
-  trace "Populating singular git repos..."
+  debug "Populating singular git repos..."
   for ((i = 0; i < ${#ENCFS_GIT_REPOS[@]}; i++)); do
     populate_singular_repo ${ENCFS_GIT_REPOS[$i]}
   done
   if ${INCLUDE_ENCFS_OFF_REPOS}; then
-    trace "Populating singular OFF repos..."
+    debug "Populating singular OFF repos..."
     for ((i = 0; i < ${#ENCFS_OFF_REPOS[@]}; i++)); do
       populate_singular_repo ${ENCFS_OFF_REPOS[$i]}
     done
   fi
 
-  trace "Populating gardened git repos..."
+  debug "Populating gardened git repos..."
   for ((i = 0; i < ${#ENCFS_GIT_ITERS[@]}; i++)); do
     populate_gardened_repo ${ENCFS_GIT_ITERS[$i]}
 #    #echo " ${ENCFS_GIT_ITERS[$i]}"
@@ -1523,7 +1523,7 @@ function init_travel () {
 #      fi
 #    done < <(find ${ENCFS_GIT_ITERS[$i]} -maxdepth 1 ! -path . -print0)
   done
-  trace "Populating gardened vim repos..."
+  debug "Populating gardened vim repos..."
   for ((i = 0; i < ${#ENCFS_VIM_ITERS[@]}; i++)); do
     populate_gardened_repo ${ENCFS_VIM_ITERS[$i]}
   done
@@ -1572,7 +1572,7 @@ function update_git () {
 # packme
 
 function create_umount_script () {
-  #trace "umount ${TRAVEL_DIR}" > ${USERS_CURLY}/popoff.sh
+  #debug "umount ${TRAVEL_DIR}" > ${USERS_CURLY}/popoff.sh
   #chmod 775 ${USERS_CURLY}/popoff.sh
 
   # FIXME/2018-03-26: (Or fix in Travel 2.0): Not all TRAVEL_DIRs are mounted,
@@ -1587,7 +1587,7 @@ function create_umount_script () {
   # can unmount it! So there's a little mis-parity happening.
 
   # 2016-11-04: Oh, yerp.
-  #trace "umount ${TRAVEL_DIR}" > ${HOME}/.fries/recipe/bin/popoff.sh
+  #debug "umount ${TRAVEL_DIR}" > ${HOME}/.fries/recipe/bin/popoff.sh
   cat > ${HOME}/.fries/recipe/bin/popoff.sh << EOF
 #!/bin/bash
 # NOTE: This is a generated file.
@@ -1627,7 +1627,7 @@ function git_commit_hamster () {
     HAMSTER_DB_REL="home/.local/share/hamster-applet/hamster-$(hostname).db"
     HAMSTER_DB_ABS="${USERS_CURLY}/${HAMSTER_DB_REL}"
     if [[ -e ${HAMSTER_DB_ABS} ]]; then
-      trace "Checking Hamster.db..."
+      debug "Checking Hamster.db..."
       git_commit_generic_file \
         "${HAMSTER_DB_ABS}" \
         "Update hamster-$(hostname).db during packme."
@@ -1647,7 +1647,7 @@ function git_commit_vim_spell () {
   VIM_SPELL_ABS="${USERS_CURLY}/${VIM_SPELL_REL}"
 
   if [[ -e ${VIM_SPELL_ABS} ]]; then
-    trace "Checking Vim spell..."
+    debug "Checking Vim spell..."
 
     # Sort the spell file, for easy diff'ing, meld'ing, or better yet merging.
     # The .vimrc startup file will remake the .spl file when you restart Vim.
@@ -1673,7 +1673,7 @@ function git_commit_vimprojects () {
   VIMPROJECTS_REL="home/.vim/bundle/dubs_all/.vimprojects"
   VIMPROJECTS_ABS="${USERS_CURLY}/${VIMPROJECTS_REL}"
   if [[ -e ${VIMPROJECTS_ABS} ]]; then
-    trace "Checking .vimprojects..."
+    debug "Checking .vimprojects..."
       # FIXME/2017-05-09/TRANSITION-TO-TRAVEL: Should indicate from what machine
       #   and maybe what operation (unless it's always packme).
       git_commit_generic_file \
@@ -1688,17 +1688,17 @@ function git_commit_vimprojects () {
 } # end: git_commit_vimprojects
 
 function git_commit_dirty_sync_repos () {
-  trace "Checking single dirty files for auto-consumability..."
+  debug "Checking single dirty files for auto-consumability..."
 
   for ((i = 0; i < ${#AUTO_GIT_ONE[@]}; i++)); do
-    debug " ${AUTO_GIT_ONE[$i]}"
+    trace " ${AUTO_GIT_ONE[$i]}"
     DIRTY_BNAME=$(basename -- "${AUTO_GIT_ONE[$i]}")
     git_commit_generic_file "${AUTO_GIT_ONE[$i]}" "Update ${DIRTY_BNAME}."
   done
 
-  trace "Auto-committing all repos' consumable dirty files..."
+  debug "Auto-committing all repos' consumable dirty files..."
   for ((i = 0; i < ${#AUTO_GIT_ALL[@]}; i++)); do
-    debug " ${AUTO_GIT_ALL[$i]}"
+    trace " ${AUTO_GIT_ALL[$i]}"
     git_commit_all_dirty_files "${AUTO_GIT_ALL[$i]}" "Update all of ${AUTO_GIT_ALL[$i]}."
   done
 } # end: git_commit_dirty_sync_repos
@@ -1750,7 +1750,7 @@ function git_status_porcelain_wrap () {
 
 function check_gardened_repo () {
   ENCFS_GIT_ITER=$1
-  debug " top-level: ${ENCFS_GIT_ITER}"
+  trace " top-level: ${ENCFS_GIT_ITER}"
   while IFS= read -r -d '' fpath; do
     # 2016-12-08: Adding ! -h, should be fine, and faster.
     if [[ -h ${fpath} ]]; then
@@ -1765,7 +1765,7 @@ function check_gardened_repo () {
         verbose "  - Skipping resource with TBD-*: ${fpath}"
         :
       else
-        debug "  ${fpath}"
+        trace "  ${fpath}"
         pushd ${fpath} &> /dev/null
         git_status_porcelain_wrap "${fpath}"
         popd &> /dev/null
@@ -1780,9 +1780,9 @@ function check_repos_statuses () {
 
   local i
 
-  trace "Checking one-level repos..."
+  debug "Checking one-level repos..."
   for ((i = 0; i < ${#ENCFS_GIT_REPOS[@]}; i++)); do
-    debug " ${ENCFS_GIT_REPOS[$i]}"
+    trace " ${ENCFS_GIT_REPOS[$i]}"
     pushd ${ENCFS_GIT_REPOS[$i]} &> /dev/null
     GREPPERS=''
     if [[ \
@@ -1804,7 +1804,7 @@ function check_repos_statuses () {
       GREPPERS="${GREPPERS} | grep -v \" git_util.sh\$\""
       GREPPERS="${GREPPERS} | grep -v \" .fries/lib/git_util.sh\$\""
       #
-      #trace "GREPPERS: ${GREPPERS}"
+      #debug "GREPPERS: ${GREPPERS}"
     fi
     #git_status_porcelain_wrap "$(basename -- "${ENCFS_GIT_REPOS[$i]}")"
     git_status_porcelain_wrap "${ENCFS_GIT_REPOS[$i]}"
@@ -1812,31 +1812,31 @@ function check_repos_statuses () {
   done
 
   if ${INCLUDE_ENCFS_OFF_REPOS}; then
-    trace "Checking one-level OFF repos..."
+    debug "Checking one-level OFF repos..."
     for ((i = 0; i < ${#ENCFS_OFF_REPOS[@]}; i++)); do
-      debug " ${ENCFS_OFF_REPOS[$i]}"
+      trace " ${ENCFS_OFF_REPOS[$i]}"
       pushd ${ENCFS_OFF_REPOS[$i]} &> /dev/null
       git_status_porcelain_wrap "${ENCFS_OFF_REPOS[$i]}"
       popd &> /dev/null
     done
   fi
 
-  trace "Checking gardened git repos..."
+  debug "Checking gardened git repos..."
   if [[ ${#ENCFS_GIT_ITERS[@]} -gt 0 ]]; then
     for ((i = 0; i < ${#ENCFS_GIT_ITERS[@]}; i++)); do
       check_gardened_repo "${ENCFS_GIT_ITERS[$i]}"
     done
   else
-    debug " ** No git repos gardened"
+    trace " ** No git repos gardened"
   fi
 
-  trace "Checking gardened Vim repos..."
+  debug "Checking gardened Vim repos..."
   if [[ ${#ENCFS_VIM_ITERS[@]} -gt 0 ]]; then
     for ((i = 0; i < ${#ENCFS_VIM_ITERS[@]}; i++)); do
       check_gardened_repo "${ENCFS_VIM_ITERS[$i]}"
     done
   else
-    debug " ** No git repos gardened"
+    trace " ** No git repos gardened"
   fi
 
   # Call private fcns. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
@@ -1891,25 +1891,25 @@ function pull_gardened_repo () {
   PREFIX="$2"
   local ABS_PATH="${ENCFS_GIT_ITER}"
   local ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
- #debug " ${ENCFS_REL_PATH}"
-  debug "├ ${ENCFS_REL_PATH}"
-  #debug "─ ${ENCFS_REL_PATH}"
+ #trace " ${ENCFS_REL_PATH}"
+  trace "├ ${ENCFS_REL_PATH}"
+  #trace "─ ${ENCFS_REL_PATH}"
   while IFS= read -r -d '' fpath; do
     local TARGET_BASE=$(basename -- "${fpath}")
     TARGET_PATH="${ENCFS_REL_PATH}/${TARGET_BASE}"
     if [[ -d ${TARGET_PATH}/.git && ! -h ${TARGET_PATH} ]]; then
       if [[ ${TARGET_BASE#TBD-} == ${TARGET_BASE} ]]; then
-       #debug "  ${fpath}"
-        debug "├┼─${fpath}"
+       #trace "  ${fpath}"
+        trace "├┼─${fpath}"
         SOURCE_PATH="${PREFIX}${ABS_PATH}/$(basename -- "${fpath}")"
-        #debug "\${SOURCE_PATH}: ${SOURCE_PATH}"
-        #debug "\${TARGET_PATH}: ${TARGET_PATH}"
+        #trace "\${SOURCE_PATH}: ${SOURCE_PATH}"
+        #trace "\${TARGET_PATH}: ${TARGET_PATH}"
         git_pull_hush "${SOURCE_PATH}" "${TARGET_PATH}" "${fpath}"
       else
-        debug "  skipping (TBD-*): ${fpath}"
+        trace "  skipping (TBD-*): ${fpath}"
       fi
     else
-      #debug "  skipping (not .git/, or symlink): $fpath"
+      #trace "  skipping (not .git/, or symlink): $fpath"
       :
     fi
   done < <(find /${ENCFS_REL_PATH} -maxdepth 1 ! -path . -print0)
@@ -1929,55 +1929,55 @@ function pull_git_repos () {
     exit 1
   fi
 
-  trace "Pulling singular git repos..."
+  debug "Pulling singular git repos..."
   if [[ ${#ENCFS_GIT_REPOS[@]} -gt 0 ]]; then
     for ((i = 0; i < ${#ENCFS_GIT_REPOS[@]}; i++)); do
       ABS_PATH="${ENCFS_GIT_REPOS[$i]}"
       local ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
       # MAYBE/2016-12-12: Ignore symlinks?
       #if [[ -d ${ENCFS_REL_PATH} && ! -h ${ENCFS_REL_PATH} ]]; then
-        #debug " SOURCE_PATH: ${PREFIX}${ABS_PATH}"
-        #debug " TARGET_PATH: ${ENCFS_REL_PATH}"
-        #debug " ${ENCFS_REL_PATH}"
-        debug "├ ${ENCFS_REL_PATH}"
+        #trace " SOURCE_PATH: ${PREFIX}${ABS_PATH}"
+        #trace " TARGET_PATH: ${ENCFS_REL_PATH}"
+        #trace " ${ENCFS_REL_PATH}"
+        trace "├ ${ENCFS_REL_PATH}"
         git_pull_hush "${PREFIX}${ABS_PATH}" "${ENCFS_REL_PATH}" "${ABS_PATH}"
       #else
-      #  debug " not dir/symlink: ${ENCFS_REL_PATH}"
+      #  trace " not dir/symlink: ${ENCFS_REL_PATH}"
       #fi
     done
   else
-    debug " ** No git repos singular"
+    trace " ** No git repos singular"
   fi
 
-  trace "Pulling gardened git repos..."
+  debug "Pulling gardened git repos..."
   if [[ ${#ENCFS_GIT_ITERS[@]} -gt 0 ]]; then
     for ((i = 0; i < ${#ENCFS_GIT_ITERS[@]}; i++)); do
       pull_gardened_repo "${ENCFS_GIT_ITERS[$i]}" "${PREFIX}"
     done
   else
-    debug " ** No git repos gardened"
+    trace " ** No git repos gardened"
   fi
 
-  trace "Pulling gardened Vim repos..."
+  debug "Pulling gardened Vim repos..."
   if [[ ${#ENCFS_VIM_ITERS[@]} -gt 0 ]]; then
     for ((i = 0; i < ${#ENCFS_VIM_ITERS[@]}; i++)); do
       pull_gardened_repo "${ENCFS_VIM_ITERS[$i]}" "${PREFIX}"
     done
   else
-    debug " ** No Vim repos gardened"
+    trace " ** No Vim repos gardened"
   fi
 
   if ${INCLUDE_ENCFS_OFF_REPOS}; then
-    trace "Pulling singular OFF repos..."
+    debug "Pulling singular OFF repos..."
     if [[ ${#ENCFS_OFF_REPOS[@]} -gt 0 ]]; then
       for ((i = 0; i < ${#ENCFS_OFF_REPOS[@]}; i++)); do
         ABS_PATH="${ENCFS_OFF_REPOS[$i]}"
         local ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
-        debug " ${ENCFS_REL_PATH}"
+        trace " ${ENCFS_REL_PATH}"
         git_pull_hush "${PREFIX}${ABS_PATH}" "${ENCFS_REL_PATH}" "${ABS_PATH}"
       done
     else
-      debug " ** No OFF repos singular"
+      trace " ** No OFF repos singular"
     fi
   fi
 
@@ -2026,7 +2026,7 @@ function make_plaintext () {
     ARCHIVE_REL=$(echo ${ARCHIVE_SRC} | /bin/sed s/^.//)
 
     if [[ -e ${ARCHIVE_SRC} ]]; then
-      debug " tarring: ${FG_LAVENDER}${ARCHIVE_SRC}"
+      trace " tarring: ${FG_LAVENDER}${ARCHIVE_SRC}"
       pushd / &> /dev/null
       # Note: Missing files cause tar errors. If this happens, consider:
       #         --ignore-failed-read
@@ -2051,11 +2051,11 @@ function make_plaintext () {
 
 function packme () {
 
-  #trace "Let's count"'!'
-  #trace "- # of. PLAINTEXT_ARCHIVES: ${#PLAINTEXT_ARCHIVES[@]}"
-  #trace "- # of.    ENCFS_GIT_REPOS: ${#ENCFS_GIT_REPOS[@]}"
-  #trace "- # of.    ENCFS_GIT_ITERS: ${#ENCFS_GIT_ITERS[@]}"
-  #trace "- # of.    ENCFS_VIM_ITERS: ${#ENCFS_VIM_ITERS[@]}"
+  #debug "Let's count"'!'
+  #debug "- # of. PLAINTEXT_ARCHIVES: ${#PLAINTEXT_ARCHIVES[@]}"
+  #debug "- # of.    ENCFS_GIT_REPOS: ${#ENCFS_GIT_REPOS[@]}"
+  #debug "- # of.    ENCFS_GIT_ITERS: ${#ENCFS_GIT_ITERS[@]}"
+  #debug "- # of.    ENCFS_VIM_ITERS: ${#ENCFS_VIM_ITERS[@]}"
 
   # We can be smart about certain files that change often and
   # don't need meaningful commit messages and automatically
@@ -2093,7 +2093,7 @@ function packme () {
 
     # Just pull ${USERS_CURLY}.
     mount_curly_emissary_gooey
-    trace "Pulling into: ${EMISSARY}/gooey${USERS_CURLY}"
+    debug "Pulling into: ${EMISSARY}/gooey${USERS_CURLY}"
     git_pull_hush "${USERS_CURLY}" "${EMISSARY}/gooey${USERS_CURLY}" "${USERS_CURLY}"
     umount_curly_emissary_gooey
 
@@ -2210,7 +2210,7 @@ function unpack_plaintext_archives () {
 
     for zpath in ${fpath}/*.tar.gz; do
       if [[ $(basename -- "${zpath}") != '*.tar.gz' ]]; then
-        debug " tar xzf${TAR_VERBOSE} ${zpath}"
+        trace " tar xzf${TAR_VERBOSE} ${zpath}"
         tar xzf${TAR_VERBOSE} ${zpath}
       # else, No such file or directory
       fi
@@ -2280,12 +2280,12 @@ function update_hamster_db () {
   LATEST_HAMMY=''
   local candidate
   for candidate in "${candidates[@]}"; do
-    #debug "candidate: ${candidate}"
+    #trace "candidate: ${candidate}"
     if [[ -z ${LATEST_HAMMY} ]]; then
-      #debug "first candidate: ${candidate}"
+      #trace "first candidate: ${candidate}"
       LATEST_HAMMY="${candidate}"
     elif [[ ${candidate} -nt ${LATEST_HAMMY} ]]; then
-      #debug "newer candidate: ${candidate}"
+      #trace "newer candidate: ${candidate}"
       LATEST_HAMMY="${candidate}"
     fi
   done
@@ -2404,9 +2404,9 @@ function prepare_shim () {
   if [[ $git_result -eq 0 ]]; then
     # travel.sh is dirty; use it and not the travel one.
     USE_GOOEY=false
-    trace " Using local $(basename -- "${SCRIPT_ABS_PATH}")"
+    debug " Using local $(basename -- "${SCRIPT_ABS_PATH}")"
   else
-    trace " Using gooey $(basename -- "${SCRIPT_ABS_PATH}")"
+    debug " Using gooey $(basename -- "${SCRIPT_ABS_PATH}")"
   fi
 
   PREFIX=""
@@ -2415,7 +2415,7 @@ function prepare_shim () {
     mount_curly_emissary_gooey
   fi
 
-  debug "  Copying: ${PREFIX}${SCRIPT_ABS_PATH}"
+  trace "  Copying: ${PREFIX}${SCRIPT_ABS_PATH}"
 
   /bin/cp -aLf ${PREFIX}${SCRIPT_ABS_PATH} travel_shim.sh
   chmod 775 travel_shim.sh
@@ -2426,22 +2426,22 @@ function prepare_shim () {
   #     source ssh_util.sh
   #     source process_util.sh
 
-  debug "  Copying: ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/curly_util.sh"
+  trace "  Copying: ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/curly_util.sh"
   /bin/cp -aLf ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/curly_util.sh .
 
-  debug "  Copying: ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/color_util.sh"
+  trace "  Copying: ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/color_util.sh"
   /bin/cp -aLf ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/color_util.sh .
 
-  debug "  Copying: ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/logger.sh"
+  trace "  Copying: ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/logger.sh"
   /bin/cp -aLf ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/logger.sh .
 
-  debug "  Copying: ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/git_util.sh"
+  trace "  Copying: ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/git_util.sh"
   /bin/cp -aLf ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/git_util.sh .
 
-  debug "  Copying: ${PREFIX}${SYNC_REPOS_PATH}"
+  trace "  Copying: ${PREFIX}${SYNC_REPOS_PATH}"
   /bin/cp -aLf ${PREFIX}${SYNC_REPOS_PATH} .
 
-  debug "  Copying: ${PREFIX}${TRAVEL_TASKS_PATH}"
+  trace "  Copying: ${PREFIX}${TRAVEL_TASKS_PATH}"
   /bin/cp -aLf ${PREFIX}${TRAVEL_TASKS_PATH} .
 
   tweak_errexit

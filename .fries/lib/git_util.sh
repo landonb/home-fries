@@ -137,7 +137,7 @@ git_commit_generic_file () {
       echo -n "HEY, HEY: Your ${cur_dir}/${repo_file} is dirty. Wanna check it in? [y/n] "
       read -e YES_OR_NO
     else
-      trace " Committing dirty file: ${FG_LAVENDER}${cur_dir}/${repo_file}"
+      debug " Committing dirty file: ${FG_LAVENDER}${cur_dir}/${repo_file}"
       YES_OR_NO="Y"
     fi
     if [[ ${YES_OR_NO^^} == "Y" ]]; then
@@ -165,7 +165,7 @@ git_commit_generic_file () {
     fi
   else
     # The file is not dirty.
-    #trace "  not dirty"
+    #debug "  not dirty"
     : # no-op
   fi
 
@@ -190,7 +190,7 @@ git_commit_all_dirty_files () {
     return 1
   fi
 
-  debug "  Checking for git dirtiness at: ${FG_LAVENDER}${REPO_PATH}"
+  trace "  Checking for git dirtiness at: ${FG_LAVENDER}${REPO_PATH}"
 
   pushd_or_die "${REPO_PATH}"
 
@@ -492,7 +492,7 @@ git_status_porcelain () {
         reset_errexit
 
 
-        debug "git_push_staleness: ${git_push_staleness}"
+        trace "git_push_staleness: ${git_push_staleness}"
 
         if [[ ${grep_result} -ne 0 ]]; then
 
@@ -705,19 +705,19 @@ git_set_remote_travel () {
   remote_url=$(git remote get-url ${TRAVEL_REMOTE} 2> /dev/null) && true
   local remote_exists=$?
 
-  #debug "  git_set_remote_travel:"
-  #debug "   target: ${target_repo}"
-  #debug "   remote: ${remote_url}"
-  #debug "   exists: ${remote_exists}"
+  #trace "  git_set_remote_travel:"
+  #trace "   target: ${target_repo}"
+  #trace "   remote: ${remote_url}"
+  #trace "   exists: ${remote_exists}"
 
   if [[ ${remote_exists} -ne 0 ]]; then
-    debug "  Wiring the \"${TRAVEL_REMOTE}\" remote for first time!"
+    trace "  Wiring the \"${TRAVEL_REMOTE}\" remote for first time!"
     git remote add ${TRAVEL_REMOTE} "${source_repo}"
   elif [[ "${remote_url}" != "${source_repo}" ]]; then
-    debug "  Rewiring the \"${TRAVEL_REMOTE}\" remote url / was: ${remote_url}"
+    trace "  Rewiring the \"${TRAVEL_REMOTE}\" remote url / was: ${remote_url}"
     git remote set-url ${TRAVEL_REMOTE} "${source_repo}"
   else
-    #debug "  The \"${TRAVEL_REMOTE}\" remote url is already correct!"
+    #trace "  The \"${TRAVEL_REMOTE}\" remote url is already correct!"
     : # no-op
   fi
 
@@ -1340,13 +1340,13 @@ git_infuse_gitignore_local() {
     return
   fi
   if [[ -f .git/info/exclude || -h .git/info/exclude ]]; then
-    debug "Infusing .gitignore.local"
+    trace "Infusing .gitignore.local"
     pushd_or_die ".git/info"
     /bin/rm exclude
     /bin/ln -sf "$1" "exclude"
     popd_perhaps ".git/info"
   else
-    debug "Skipping .gitignore.local"
+    trace "Skipping .gitignore.local"
   fi
   /bin/ln -sf .git/info/exclude .gitignore.local
 }
@@ -1395,7 +1395,7 @@ git_infuse_assume_unchanging() {
     opath="${opath}-$(hostname)"
   fi
 
-  debug "Preparing ${fname}"
+  trace "Preparing ${fname}"
   /bin/rm "${fname}"
   /usr/bin/git checkout -- "${fname}"
   /bin/mv "${fname}" "${fname}-COMMIT"
@@ -1416,13 +1416,13 @@ git_unfuse_symlink() {
   pushd_or_die "${pdir}"
 
   if [[ -h "${fname}" ]]; then
-    debug "Unfusing ${fname}"
+    trace "Unfusing ${fname}"
     /bin/rm "${fname}"
     /bin/rm -f "${fname}-COMMIT"
     /usr/bin/git checkout -- "${fname}"
     /usr/bin/git update-index --no-assume-unchanged "${fname}"
   else
-    debug "Skipping ${fname}"
+    trace "Skipping ${fname}"
   fi
   popd_perhaps "${pdir}"
 }
@@ -1435,16 +1435,16 @@ git_unfuse_hardcopy() {
   pushd_or_die "${pdir}"
   if [[ -f "${fname}" ]]; then
     if [[ -f "${fname}-COMMIT" ]]; then
-      debug "Unfusing ${fname}"
+      trace "Unfusing ${fname}"
     else
-      debug "Checking ${fname}"
+      trace "Checking ${fname}"
     fi
     #/bin/rm "${fname}"
     /bin/rm -f "${fname}-COMMIT"
     /usr/bin/git checkout -- "${fname}"
     git update-index --no-assume-unchanged "${fname}"
   else
-    debug "Skipping ${fname}"
+    trace "Skipping ${fname}"
   fi
   popd_perhaps "${pdir}"
 }
