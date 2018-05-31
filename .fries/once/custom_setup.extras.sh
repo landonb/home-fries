@@ -7657,6 +7657,30 @@ stage_4_install_cryfs () {
 
 } # end: stage_4_install_cryfs
 
+stage_4_install_terminator () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_install_terminator"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  # 2018-05-31: On 16.04, what's in apt is: terminator 0.98
+
+  # NOTE: INTERACTVE: This asks for confirmation [ENTER]:
+  sudo add-apt-repository ppa:gnome-terminator
+  sudo apt-get update
+  sudo apt-get install terminator
+  # $ terminator -v
+  # terminator 0.98
+  # Oh, well-then!
+  # v1.91 is gtk3; v0.x is gtk2...
+
+  popd &> /dev/null
+
+} # end: stage_4_install_terminator
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -7986,6 +8010,8 @@ setup_customize_extras_go () {
   stage_4_xrandr_invert_colors
 
   stage_4_install_cryfs
+
+  stage_4_install_terminator
 
   # Add before this'n: stage_4_fcn_template.
 
