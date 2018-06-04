@@ -7676,6 +7676,35 @@ stage_4_install_terminator () {
   # Oh, well-then!
   # v1.91 is gtk3; v0.x is gtk2...
 
+  # Avoid a warning like, e.g.,
+  #
+  #   $ terminator -l <some-layout>
+  #   Warning: python-keybinder is not installed. This means the hide_window
+  #     shortcut will be unavailable
+  #   Unable to bind hide_window key, another instance/window has it.
+  #   PluginRegistry::load_plugins: Importing plugin __init__.py failed:
+  #     'module' object has no attribute 'AVAILABLE'
+  #
+  sudo pip3 install python3-keybinder
+  #
+  # However, Terminator is Python 2, I think.
+  #
+  # NOTE: No such corresponding python2 library?
+  #         sudo pip2 install python-keybinder
+  #         sudo pip2 install python2-keybinder
+  #       Or is it just obtained from the distro?
+  sudo apt-get install -y python-keybinder
+
+  # 2018-06-04: This leaves just one warning when running Terminator:
+  #
+  #   PluginRegistry::load_plugins: Importing plugin __init__.py failed:
+  #     'module' object has no attribute 'AVAILABLE'
+  #
+  # I believe this if fixed in a more recent version of Terminator
+  # than what I've got installed. See:
+  #
+  #   https://bugs.launchpad.net/terminator/+bug/1518065
+
   popd &> /dev/null
 
 } # end: stage_4_install_terminator
