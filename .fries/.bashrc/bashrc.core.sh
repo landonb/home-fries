@@ -104,6 +104,11 @@ home_fries_up() {
   home_fries_set_path_environ
   unset home_fries_set_path_environ
 
+  # (lb): Set MANPATH. (Specifically, cull paths to anything on a CryFS mount,
+  # which makes `man <topic>` takes so many seconds to load; sheesh, annoying!)
+  home_fries_configure_manpath
+  unset home_fries_configure_manpath
+
   # Set umask to 0002
   home_fries_default_umask
   unset home_fries_default_umask
