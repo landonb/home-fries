@@ -111,7 +111,7 @@ home_fries_create_aliases_general() {
   # Show resource usage, and default to human readable figures.
   alias df='df -h -T'
   alias du='du -h'
-  alias duh="du -m -d 1 . | sort -n"
+  alias dum="du -m -d 1 . | sort -n"
   #alias duhome='du -ah /home | sort -n'
   # Use same units, else sort mingles different sizes.
   # cd ~ && du -BG -d 1 . | sort -n
