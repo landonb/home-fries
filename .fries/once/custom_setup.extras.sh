@@ -7670,7 +7670,53 @@ stage_4_install_terminator () {
 
   sudo add-apt-repository -y ppa:gnome-terminator
   sudo apt-get update
-  sudo apt-get install terminator
+
+  # On 14.04, but not 16.04:
+  #   WARNING: The following packages cannot be authenticated!
+  #     terminator
+  # https://keyserver.ubuntu.com/pks/lookup?fingerprint=on&op=index
+  #   &search=0x2014A4CC6F1D82F0C47ECEB8978228591BD3A65C
+  # No response, nothing?:
+  #   sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 1BD3A65C
+  # Oh, it's that gpg/gpg2 problem I have on 14.04, ug.
+  #
+  # curl -sS https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x978228591BD3A65C \
+  #   $ gpg --keyserver keyserver.ubuntu.com --recv 1BD3A65C
+  #   gpg: Fatal: libgcrypt is too old (need 1.7.0, have 1.6.1)
+  #
+  # This is probably what we need to do:
+  #
+  #   gpg2 --keyserver keyserver.ubuntu.com --recv 1BD3A65C
+  #   gpg2 --export --armor 1BD3A65C | sudo apt-key add -
+  #
+  # but I cannot get the public key accepted. I think apt-key silently fails
+  # because of the gpg issue...
+  #
+  # Also: 2018-06-04 18:05: Huh. Took 2 runs:
+  #
+  #   $ gpg2 --export --armor 1BD3A65C | sudo apt-key add -
+  #   gpg: [stdout]: write error: Broken pipe
+  #   gpg: iobuf_flush failed on close: Broken pipe
+  #
+  #   $ gpg2 --export --armor 1BD3A65C
+  #   -----BEGIN PGP PUBLIC KEY BLOCK-----
+  #
+  #   $ gpg2 --export --armor 1BD3A65C | sudo apt-key add -
+  #   $
+  # Whaaat?
+  #   $ sudo apt-get update
+  #   Reading package lists... Done
+  #   W: GPG error: http://ppa.launchpad.net trusty Release: The following
+  #   signatures couldn't be verified because the public key is not available:
+  #   NO_PUBKEY 978228591BD3A65C
+  #
+  # 2018-06-04 18:09: Argh. Not worth my time!! I'll update distros soon enough...
+  #
+  # Just use:
+  #
+  #   sudo apt-get install -y terminator --force-yes
+  sudo apt-get install -y terminator
+
   # $ terminator -v
   # terminator 0.98
   # Oh, well-then!
