@@ -353,12 +353,50 @@ attr_reset () {
 
 attr_bold() {
   # Similar to:  echo "\033[1m"
-  echo "$(tput bold)"
+  echo "\e[1m"
+  #echo "$(tput bold)"
+}
+
+attr_dim() {
+  echo "\e[2m"
+}
+
+attr_emphasis() {
+  echo "\e[3m"
 }
 
 attr_underline() {
+  #echo "\e[4m"
   echo "\033[4m"
 }
+
+attr_strikethrough() {
+  echo "\e[9m"
+}
+
+# 2018-06-07 14:21: Hrmmmm... I kind like this:
+#  ansi()          { echo -e "\e[${1}m${*:2}\e[0m"; }
+#  bold()          { ansi 1 "$@"; }
+#  italic()        { ansi 3 "$@"; }
+#  underline()     { ansi 4 "$@"; }
+#  strikethrough() { ansi 9 "$@"; }
+#  red()           { ansi 31 "$@"; }
+#
+# Via:
+#  https://askubuntu.com/questions/528928/how-to-do-underline-bold-italic-strikethrough-color-background-and-size-i
+#
+# Another color table:
+#  https://misc.flogisoft.com/bash/tip_colors_and_formatting
+
+# 2018-06-08: Care about cursor movements? I mean, this file is way
+# beyond just colors at this point...
+#
+#   Example cursor-up movements:
+#
+#        echo -e "\x1b[A"     # 1 row (looks like no-op in Bash, because Enter)
+#        echo -e "\x1b[5A"    # 5 rows (run in shell, effectively 3 lines up)
+#        echo -e "\u001b[A"   # 1 row
+#        echo -e "\u001b[5A"  # 5 rows
 
 # Gnome/Mate do not support blink, <sigh>.
 font_blink() {
