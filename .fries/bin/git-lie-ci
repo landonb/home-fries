@@ -1,0 +1,51 @@
+#!/bin/bash
+#  vim:tw=0:ts=2:sw=2:et:norl:ft=bash
+
+# File: git-cilie.sh
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project Page: https://github.com/landonb/home-fries
+# Summary: Fake author and committer commit dates.
+# License: GPLv3
+
+git-ci-fakedate() {
+  local fakedate="$1"
+  shift
+
+  # Allow the caller to specify relative times, e.g.,
+  #  git lie-ci "2 days ago 3 hours ago" "commit message blah blah"
+  local parsed_time
+  parsed_time=$(date --date "${fakedate}")
+  if [[ $? -ne 0 || ${parsed_time} == '' ]]; then
+    echo "Not a valid date (according to \`date\`)!"
+    return 1
+  fi
+
+  # 2018-06-11: (lb): Is this redundant, because we ran it through `date`? Meh.
+  #
+  # Ha! This isn't perfect. Ruby is very loose and accepting when it comes to
+  # parsing, it seems to strip out alpha characters and just look at numbers.
+  #
+  # But at least it's not as loose as Python's time parser!
+  #
+  #   python -c "import time; print(time.strptime('${fakedate}'))"
+  parsed_ruby=$(ruby -e "require 'time'; puts Time.parse('${fakedate}')" 2> /dev/null)
+  if [[ $? -ne 0 || ${parsed_ruby} == '' ]]; then
+    echo "Not a valid date (according to \`ruby\`)!"
+    return 1
+  fi
+  # echo "parsed_time: ${parsed_time}"
+  # return 0
+
+  export GIT_COMMITTER_DATE="${parsed_time}"
+  export GIT_AUTHOR_DATE="${parsed_time}"
+  git ci -m "$@"
+  export GIT_COMMITTER_DATE=
+  export GIT_AUTHOR_DATE=
+}
+
+main() {
+  git-ci-fakedate "$@"
+}
+
+main "$@"
+
