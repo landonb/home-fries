@@ -1,7 +1,13 @@
 #!/bin/bash
 # vim:tw=0:ts=2:sw=2:et:norl:
-#/usr/bin/vi --noplugin "$@"
-#/srv/opt/bin/bin/vim --noplugin "$@"
-/srv/opt/bin/bin/vim "$@"
-exit 0
+
+git_vim() {
+  /srv/opt/bin/bin/vim "$@"
+}
+
+main() {
+  git_vim "$@"
+}
+
+main "$@"
 
