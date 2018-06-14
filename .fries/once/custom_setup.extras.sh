@@ -8,6 +8,10 @@
 # Summary: Third-party tools downloads compiles installs.
 # License: GPLv3
 
+# FIXME/2018-06-13: Split these file in pieces. See:
+#
+#   bash_function_to_file_splitter.awk
+
 if [[ "$0" == "$BASH_SOURCE" ]]; then
   # 2016-11-12: Calling script. Die on error, so we can fix it.
   # This is same as `set -e`, just more verbose/explicit:
@@ -6597,6 +6601,8 @@ stage_4_gtkplus () {
   local gtk_ver_maj
   local gtk_ver_min
   gtk_src_uri='http://ftp.gnome.org/pub/gnome/sources/gtk+'
+  # FIXME/2018-06-13: There's up to 3.93 now... why didn't I use that before?
+  #                   Possibly because 14.04? Oh! This fcn. is not implemented, huh.
   gtk_ver_maj='3.22'
   gtk_ver_min='3.22.29'
 
@@ -6628,6 +6634,9 @@ stage_4_gtkplus () {
   export CPPFLAGS LDFLAGS PKG_CONFIG_PATH
 
   # Something something too many dependencies. I'll wait to upgrade to 18.04, thank you!
+
+# 2018-06-13: Ug:
+#  Requested 'glib-2.0 >= 2.49.4' but version of GLib is 2.48.2
 
   ./configure --prefix=/opt/gtk
 
@@ -6664,10 +6673,11 @@ stage_4_fcn_meld () {
   # Ubuntu 16.04+:
   #try_meld="meld-3.17.4"
   #try_major="3.17"
-  #try_meld="meld-3.18.0"
-  #try_major="3.18"
-  try_meld="meld-3.19.0"
-  try_major="3.19"
+  try_meld="meld-3.18.0"
+  try_major="3.18"
+  # NOTE: Requires GTK+ 3.20 or higher: FIXME: I'll deal with this later...
+  #try_meld="meld-3.19.0"
+  #try_major="3.19"
   source /etc/lsb-release
   if [[ $DISTRIB_CODENAME == 'rebecca' ]]; then
     # Mint 17.X is rebecca is trusty is Ubuntu 14.04.
@@ -6719,17 +6729,26 @@ stage_4_fcn_meld () {
     # That relies on gettext being updated, but you don't want to
     # change your gettext version (and you certainly don't want to
     # change your GLib version, either).
+    local meld_path
+    meld_path="/srv/opt/.downloads/${try_meld}/bin/meld"
+
     cd ${OPT_BIN}
-    ln -s /srv/opt/.downloads/${try_meld}/bin/meld
-    sudo mv /usr/bin/meld /usr/bin/TBD-meld
-    # 2017-10-19: This, too, so panel launcher works.
+    [[ -h meld ]] && /bin/rm meld
+    ln -s ${meld_path}
+
     cd /usr/bin
-    sudo /bin/ln -s /srv/opt/.downloads/${try_meld}/bin/meld
+    sudo mv ./meld ./TBD-meld
+    # 2017-10-19: This, too, so panel launcher works.
+    [[ -h meld ]] && /bin/rm meld
+    sudo /bin/ln -s ${meld_path}
   else
     cd ${try_meld}
     sudo apt-get install -y itstool
     sudo python3 setup.py install --prefix=/usr
   fi
+
+  # TROUBLESHOOTING: If `meld` fails on: Meld requires GTK+ 3.20 or higher.
+  #                See: stage_4_gtkplus
 
   popd &> /dev/null
 
