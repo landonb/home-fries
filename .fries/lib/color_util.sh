@@ -365,6 +365,10 @@ attr_emphasis() {
   echo "\e[3m"
 }
 
+attr_italic() {
+  attr_emphasis
+}
+
 attr_underline() {
   #echo "\e[4m"
   echo "\033[4m"
