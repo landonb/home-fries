@@ -423,6 +423,14 @@ reset_dim() {
   echo "\033[22m"
 }
 
+reset_emphasis() {
+  echo "\033[23m"
+}
+
+reset_italic() {
+  reset_emphasis
+}
+
 reset_underlined() {
   echo "\033[24m"
 }
