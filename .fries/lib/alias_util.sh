@@ -258,7 +258,7 @@ home_fries_create_aliases_rg_options() {
   #    {type}: path, line, column, match.
   #    {attribute}: fg, bg style.
   #    {value} is either a color (for fg and bg) or a text style.
-  alias rg="\
+  alias rgn="\
     rg \
       --smart-case \
       --hidden \
@@ -338,6 +338,7 @@ home_fries_create_aliases_rg_tag_wrap() {
     ' \
     ${rg_wrap_with_options} \
   "
+  alias rg="rgg"
 }
 
 home_fries_create_aliases_greppers() {
