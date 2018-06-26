@@ -100,6 +100,10 @@ updatedb_ecryptfs () {
 #     bash
 #
 daemonize_gpg_agent () {
+  # 2018-06-26: (lb): Skip if in SSH session.
+  if [ -n "${SSH_CLIENT}" ] || [ -n "${SSH_TTY}" ] || [ -n "${SSH_CONNECTION}" ]; then
+      return
+  fi
   ps -C gpg-agent &> /dev/null
   if [[ $? -ne 0 ]]; then
     # 2018-04-03 00:23: On the 14.04 Desktop with Issues:
