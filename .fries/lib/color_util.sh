@@ -455,6 +455,15 @@ reset_hidden() {
   echo "\033[28m"
 }
 
+res_dim() { reset_dim; }
+res_emphasis() { reset_emphasis; }
+res_italic() { reset_italic; }
+res_underline() { reset_underline; }
+res_underlined() { reset_underlined; }
+res_blink() { reset_blink; }
+res_reverse() { reset_reverse; }
+res_hidden() { reset_hidden; }
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 create_ornaments() {
