@@ -81,9 +81,6 @@ home_fries_create_aliases_general() {
   alias lS='/bin/ls --color=auto -lhFaS' # Sort by size, from largest (empties last).
   alias lS-='/bin/ls --color=auto -lFaS | sort -n -k5' # Sort by size, largest last.
 
-  # 2017-10-12?
-  alias t='tree'
-
   # *** Vim
 
   # gVim.
@@ -100,11 +97,21 @@ home_fries_create_aliases_general() {
   #   "Netstat and ifconfig are part of net-tools, while ss and ip are part of iproute2."
   #   https://utcc.utoronto.ca/~cks/space/blog/linux/ReplacingNetstatNotBad
   alias n='netstat -tulpn'  # --tcp --udp --listening --program (name) --numeric
-  # See alias t="todo.sh" below. Anyway, htop's better.
+
+  # 2018-06-26: `alias t` had been `=tree` since 2017-10-12. ["2017-10-12?"
+  # was my comment.] Before that, it was `=todo.sh` for, like, a day. And
+  # And way long before time ago, it was `=top`. Now I'm thinking, `=todolist`.
+  # 2018-06-26 20:32: We'll see if these catch up. I generally
+  #   tend to make new aliases and then promptly forget them.
+  alias t='todolist'
+  alias todo='todolist'
+
+  # It was `=top` way long ago, and then `=todo.sh` for, like, a day.
   #alias t='top -c'          # Show full command.
-  alias ht='htop'           #
+  alias ht='htop'
+
   alias cmd='command -v $1' # Show executable path or alias definition.
-  #alias less='less -r'      # Raw control characters.
+  #alias less='less -r'     # Raw control characters.
   alias less='less -R'      # Better Raw control characters (aka color).
   alias whence='type -a'    # `where`, of a sort.
 
