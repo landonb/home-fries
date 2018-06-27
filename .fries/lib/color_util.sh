@@ -374,6 +374,10 @@ attr_underline() {
   echo "\033[4m"
 }
 
+attr_underlined() {
+  attr_underline
+}
+
 attr_strikethrough() {
   echo "\e[9m"
 }
@@ -431,8 +435,12 @@ reset_italic() {
   reset_emphasis
 }
 
-reset_underlined() {
+reset_underline() {
   echo "\033[24m"
+}
+
+reset_underlined() {
+  reset_underline
 }
 
 reset_blink() {
