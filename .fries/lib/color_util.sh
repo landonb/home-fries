@@ -627,14 +627,16 @@ test_colors () {
 #   https://superuser.com/questions/452034/bash-colorized-man-page
 
 man() {
+  # 2018-06-29 12:43: This was fine in a normal terminal, then I tried
+  # it in a Terminator, and needs quotes all of a sudden?
   env \
-    LESS_TERMCAP_mb=$(printf "\e[1;31m") \
-    LESS_TERMCAP_md=$(printf "\e[1;31m") \
-    LESS_TERMCAP_me=$(printf "\e[0m") \
-    LESS_TERMCAP_se=$(printf "\e[0m") \
-    LESS_TERMCAP_so=$(printf "\e[1;44;33m") \
-    LESS_TERMCAP_ue=$(printf "\e[0m") \
-    LESS_TERMCAP_us=$(printf "\e[1;32m") \
+    LESS_TERMCAP_mb="$(printf "\e[1;31m")" \
+    LESS_TERMCAP_md="$(printf "\e[1;31m")" \
+    LESS_TERMCAP_me="$(printf "\e[0m")" \
+    LESS_TERMCAP_se="$(printf "\e[0m")" \
+    LESS_TERMCAP_so="$(printf "\e[1;44;33m")" \
+    LESS_TERMCAP_ue="$(printf "\e[0m")" \
+    LESS_TERMCAP_us="$(printf "\e[1;32m")" \
     man "$@"
 }
 
