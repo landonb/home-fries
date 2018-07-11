@@ -106,18 +106,8 @@ daemonize_gpg_agent () {
   fi
   ps -C gpg-agent &> /dev/null
   if [[ $? -ne 0 ]]; then
-    # 2018-04-03 00:23: On the 14.04 Desktop with Issues:
-    #   gpg-agent[17654]: Fatal: libgcrypt is too old (need 1.7.0, have 1.6.1)
     local eff_off_gkr
-
-    # FIXME/2018-04-04: The redirect here causing laptop to fail to daemonize...
-    #   I wonder if it needs to be more simply, 2> /dev/null...
-    #eff_off_gkr=$(gpg-agent --daemon 2>&1 /dev/null)
-    # In the meantime, this works (but will probably cause blather on 14.04 desktop):
-    #eff_off_gkr=$(gpg-agent --daemon)
-    # FIXME/2018-04-04: Trying this: If works, cleanup above::
     eff_off_gkr=$(gpg-agent --daemon 2> /dev/null)
-
     if [[ $? -eq 0 ]]; then
       eval "${eff_off_gkr}"
     else
