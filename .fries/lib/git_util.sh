@@ -737,7 +737,11 @@ git_fetch_remote_travel () {
     git fetch ${TRAVEL_REMOTE} --prune
   else
     local git_says
-    git_says=$(git fetch --all --prune 2>&1) && true
+    if ! ${NO_NETWORK_OKAY}; then
+      git_says=$(git fetch --all --prune 2>&1) && true
+    else
+      git_says=$(git fetch travel --prune 2>&1) && true
+    fi
     local fetch_success=$?
     verbose "git fetch says:\n${git_says}"
     # Use `&& true` in case grep does not match anything,
