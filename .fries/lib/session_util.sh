@@ -86,6 +86,10 @@ termdo-bash-reset () {
 #
 # Not sure where I found the dbus-send trick.
 lock_screensaver_and_power_suspend () {
+
+# FIXME: Gah.
+  [[ ${DISTRIB_CODENAME} == 'rebecca' ]] && echo "Not on larry!" && return
+
   # 2016-10-25: Heck, why not! At least show some semblance of not being
   # a complete idiot.
   termdo-all "echo lock_screensaver_and_power_suspend says"
@@ -124,6 +128,10 @@ lock_screensaver_and_power_suspend () {
 } # end: lock_screensaver_and_power_suspend
 
 lock_screensaver_and_power_suspend_lite () {
+
+# FIXME: Gah.
+  [[ ${DISTRIB_CODENAME} == 'rebecca' ]] && echo "Not on larry!" && return
+
   # Show desktop / Minimize all windows
   xdotool key ctrl+alt+d
 
