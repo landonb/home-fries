@@ -88,7 +88,8 @@ termdo-bash-reset () {
 lock_screensaver_and_power_suspend () {
 
 # FIXME: Gah.
-  [[ ${DISTRIB_CODENAME} == 'rebecca' ]] && echo "Not on larry!" && return
+  source /etc/lsb-release
+  [[ ${DISTRIB_CODENAME} == 'rebecca' ]] && echo "Not on $(hostname)!" && return
 
   # 2016-10-25: Heck, why not! At least show some semblance of not being
   # a complete idiot.
@@ -130,7 +131,8 @@ lock_screensaver_and_power_suspend () {
 lock_screensaver_and_power_suspend_lite () {
 
 # FIXME: Gah.
-  [[ ${DISTRIB_CODENAME} == 'rebecca' ]] && echo "Not on larry!" && return
+  source /etc/lsb-release
+  [[ ${DISTRIB_CODENAME} == 'rebecca' ]] && echo "Not on $(hostname)!" && return
 
   # Show desktop / Minimize all windows
   xdotool key ctrl+alt+d
