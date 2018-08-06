@@ -249,6 +249,51 @@ git_commit_all_dirty_files () {
 } # end: git_commit_all_dirty_files
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# git_commit_dirty_or_untracked
+
+git_commit_dirty_or_untracked () {
+  SOME_PATH="$1"
+
+  if [[ ! -d ${SOME_PATH} ]]; then
+    warn
+    warn "WARNING: Skipping ${SOME_PATH}: Not found, or not a directory"
+    warn
+# Is this right?
+    return 1
+  fi
+
+  trace "  Checking for git untracked or dirtiness at: ${FG_LAVENDER}${SOME_PATH}"
+
+  pushd_or_die "${SOME_PATH}"
+
+  tweak_errexit
+
+  git status --porcelain . | grep "^[\?][\?]" &> /dev/null
+  local grep_result=$?
+  reset_errexit
+
+  if [[ ${grep_result} -eq 0 ]]; then
+    # It's dirty.
+    if ! ${AUTO_COMMIT_FILES}; then
+      echo
+      echo -n "HEY, HEY: The directory ${SOME_PATH} has dirty or untracked files. Wanna check them all in? [y/n] "
+      read -e YES_OR_NO
+      echo
+    else
+      local pretty_path="${FONT_UNDERLINE}${BG_DARKGRAY}${SOME_PATH}${FONT_NORMAL}"
+      notice "   Autocommitting dirty file(s): ${pretty_path}"
+      YES_OR_NO="Y"
+    fi
+    if [[ ${YES_OR_NO^^} == "Y" ]]; then
+      git add .
+      git commit -m "Auto-commit by Curly." &> /dev/null
+      verbose 'Committed!'
+    fi
+  fi
+  popd_perhaps "${SOME_PATH}"
+} # end: git_commit_dirty_or_untracked
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 echo_cyclones_forange () {
   # Atrocious:

@@ -180,6 +180,7 @@ ENCFS_GIT_ITERS=()
 ENCFS_VIM_ITERS=()
 AUTO_GIT_ONE=()
 AUTO_GIT_ALL=()
+AUTO_GIT_NEW=()
 
 declare -A GIT_REPO_SEEDS_0
 declare -A GIT_REPO_SEEDS_1
@@ -1700,6 +1701,12 @@ function git_commit_dirty_sync_repos () {
   for ((i = 0; i < ${#AUTO_GIT_ALL[@]}; i++)); do
     trace " ${AUTO_GIT_ALL[$i]}"
     git_commit_all_dirty_files "${AUTO_GIT_ALL[$i]}" "Update all of ${AUTO_GIT_ALL[$i]}."
+  done
+
+  debug "Auto-committing some directories' dirty and/or untracked files..."
+  for ((i = 0; i < ${#AUTO_GIT_NEW[@]}; i++)); do
+    trace " ${AUTO_GIT_NEW[$i]}"
+    git_commit_dirty_or_untracked "${AUTO_GIT_NEW[$i]}" "Add dirty or untracked from ${AUTO_GIT_NEW[$i]}."
   done
 } # end: git_commit_dirty_sync_repos
 
