@@ -7342,7 +7342,8 @@ stage_4_direnv () {
 
   stage_announcement "stage_4_direnv"
 
-  pushd ${OPT_DLOADS} &> /dev/null
+  #pushd ${OPT_DLOADS} &> /dev/null
+  pushd /kit/sturdy/golang/ &> /dev/null
 
   # Very cool localized (directory-specific) environment changes.
   #
@@ -7377,21 +7378,26 @@ stage_4_direnv () {
   #   https://github.com/huyng/bashmarks
 
   # FIXME: DRY: Put this block in Bash "stdlib" fcn.
-  if [[ ! -d ${OPT_DLOADS}/direnv ]]; then
-    pushd ${OPT_DLOADS} &> /dev/null
-    # http://github.com/ssokolow/quicktile/tarball/master
-    git clone git://github.com/direnv/direnv
+  if [[ ! -d /kit/sturdy/golang/direnv ]]; then
+    pushd /kit/sturdy/golang &> /dev/null
+    #git clone git://github.com/direnv/direnv
+    git clone git://github.com/landonb/direnv
     cd direnv
   else
-    pushd ${OPT_DLOADS}/direnv &> /dev/null
+    pushd /kit/sturdy/golang/direnv &> /dev/null
     git pull origin
   fi
 
   go get -u github.com/BurntSushi/toml
   go get -u github.com/direnv/go-dotenv
+  # NOTE/2018-08-13 10:56: direnv does not document shfmt prerequisite!
+  go get -u mvdan.cc/sh/cmd/shfmt
+  # Nor this! (At least this one comes from an error message!)
+  go get -u github.com/cpuguy83/go-md2man
 
   # DESTDIR defaults to: /usr/local
   #sudo make install
+  make
   DESTDIR=${HOME}/.local make install
   # DOCS say:
   #   "or symlink ./direnv into the $PATH"
