@@ -55,7 +55,8 @@ home_fries_configure_history() {
   # basic ignore; so be careful to not prepend your `pass` commands with
   # whitespace.
   #  export HISTIGNORE="pass *:[ \t]*pass *"
-  export HISTIGNORE="pass *"
+  # 2018-08-15: Why bother anymore??
+  #export HISTIGNORE="pass *"
   # NOTE: HISTIGNORE only matches against first line of command.
   #       So if you have, e.g., a multi-line pass insert command:
   #         echo '<password>
