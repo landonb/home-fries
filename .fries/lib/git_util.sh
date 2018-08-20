@@ -1008,7 +1008,8 @@ git_merge_ff_only () {
   #local pattern_bin='^ \S* *\| +Bin \d+ -> \d+ bytes$'
   #  | grep -P -v " +\S+ +\| +Bin$" \
   #local pattern_bin='^ \S* *\| +Bin( \d+ -> \d+ bytes)?$'
-  local pattern_bin='^ \S*( => \S*)? *\| +Bin( \d+ -> \d+ bytes)?$'
+  #local pattern_bin='^ \S*( => \S*)? *\| +Bin( \d+ -> \d+ bytes)?$'
+  local pattern_bin='^ [^\|]+\| +Bin( \d+ -> \d+ bytes)?$'
 
   verbose "git merge says:\n${git_says}"
   local culled="$(echo "${git_says}" \
@@ -1021,9 +1022,9 @@ git_merge_ff_only () {
     | grep -P -v "^ \d+ insertions?\(\+\), \d+ deletions?\(-\)$" \
     | grep -P -v "^ \d+ files? changed$" \
     | grep -P -v " rename .* \(\d+%\)$" \
-    | grep -P -v " create mode \d+ \S+$" \
-    | grep -P -v " delete mode \d+ \S+$" \
-    | grep -P -v " mode change \d+ => \d+ \S+$" \
+    | grep -P -v " create mode \d+ \S+" \
+    | grep -P -v " delete mode \d+ \S+" \
+    | grep -P -v " mode change \d+ => \d+ \S+" \
     | grep -P -v "^ \d+ insertions?\(\+\)$" \
     | grep -P -v "^ \d+ deletions?\(-\)$" \
     | grep -P -v "${pattern_txt}" \
