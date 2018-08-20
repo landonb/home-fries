@@ -1058,15 +1058,15 @@ git_merge_ff_only () {
   #   local changes_txt="$(echo "${git_says}" | grep -P "${pattern_txt}")"
   #   local changes_bin="$(echo "${git_says}" | grep -P "${pattern_bin}")"
   # So use sed to sandwich each line with color changes.
-  local grep_sed_sed=' \
+  local grep_sed_sed='
     /bin/sed "s/\$/\\${FONT_NORMAL}/g" \
-    | /bin/sed "s/^/\\${BG_BLUE}/g" \
+    | /bin/sed "s/^/\\${BG_BLUE}/g"
   '
   local changes_txt="$( \
-    eval "echo \"${git_says}\" | grep -P \"${pattern_txt}\" | ${grep_sed_sed}" \
+    echo "${git_says}" | grep -P "${pattern_txt}" | eval "${grep_sed_sed}" \
   )"
   local changes_bin="$( \
-    eval "echo \"${git_says}\" | grep -P \"${pattern_bin}\" | ${grep_sed_sed}" \
+    echo "${git_says}" | grep -P "${pattern_bin}" | eval "${grep_sed_sed}" \
   )"
   [[ -n "${changes_txt}" ]] && \
     info "Changes! in txt: ${FG_LAVENDER}${working_dir}\n${FG_WHITE}${changes_txt}"
