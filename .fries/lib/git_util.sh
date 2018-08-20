@@ -1172,10 +1172,10 @@ check_git_clone_or_pull_error () {
       #     Temporary fa fatal: Could not read from remote repository. Please make sure you have the
       #     correct access rights and the repository exists.
       #echo ${git_resp} | grep "ssh: Could not resolve hostname" > /dev/null && failed=false
-      echo ${git_resp} | grep "Could not resolve host" > /dev/null && failed=false
+      echo "${git_resp}" | grep "Could not resolve host" > /dev/null && failed=false
     fi
     if ${failed}; then
-      echo ${git_resp}
+      echo "${git_resp}"
       echo
       echo "FATAL: git operation failed."
       exit 1
@@ -1183,7 +1183,7 @@ check_git_clone_or_pull_error () {
       echo
       warn "WARNING: git operation failed:"
       echo
-      echo ${git_resp}
+      echo "${git_resp}"
     fi
   fi
 } # end: check_git_clone_or_pull_error
