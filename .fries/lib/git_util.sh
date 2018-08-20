@@ -1012,10 +1012,17 @@ git_merge_ff_only () {
   local pattern_bin='^ [^\|]+\| +Bin( \d+ -> \d+ bytes)?$'
 
   verbose "git merge says:\n${git_says}"
+  # NOTE: The checking-out-files line looks like this would work:
+  #         | grep -P -v "^Checking out files: 100% \(\d+/\d+\), done.$" \
+  #       but it doesn't, I think because the "100%" was updated live,
+  #       so there are other digits and then backspaces, I'd guess.
+  #       Though this doesn't work:
+  #         | grep -P -v "^Checking out files: [\d\b]+" \
   local culled="$(echo "${git_says}" \
     | grep -v "^Already up to date.$" \
     | grep -v "^Updating [a-f0-9]\{7,10\}\.\.[a-f0-9]\{7,10\}$" \
     | grep -v "^Fast-forward$" \
+    | grep -P -v "^Checking out files: " \
     | grep -P -v "^ \d+ files? changed, \d+ insertions?\(\+\), \d+ deletions?\(-\)$" \
     | grep -P -v "^ \d+ files? changed, \d+ insertions?\(\+\)$" \
     | grep -P -v "^ \d+ files? changed, \d+ deletions?\(-\)$" \
