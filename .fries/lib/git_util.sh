@@ -18,10 +18,10 @@ source_deps() {
   #   source bash_base.sh
   #   source process_util.sh
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
-  source ${curdir}/bash_base.sh
+  source "${curdir}/bash_base.sh"
   # Load: die, reset_errexit, tweak_errexit
-  source ${curdir}/process_util.sh
-  source ${curdir}/logger.sh
+  source "${curdir}/process_util.sh"
+  source "${curdir}/logger.sh"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -40,15 +40,15 @@ find_git_parent () {
   REL_PREFIX=''
   #echo "find_git_parent: rel_path/2: ${rel_path}"
   local double_down=false
-  if [[ ${rel_path} == '.' ]]; then
+  if [[ "${rel_path}" == '.' ]]; then
     double_down=true
     #echo "find_git_parent: rel_path/2b: ${rel_path}"
   fi
-  REPO_PATH=""
-  while [[ ${rel_path} != '/' || ${rel_path} != '.' ]]; do
+  REPO_PATH=''
+  while [[ "${rel_path}" != '/' || "${rel_path}" != '.' ]]; do
     #echo "find_git_parent: rel_path/3: ${rel_path}"
     if [[ -d "${rel_path}/.git" ]]; then
-      REPO_PATH=${rel_path}
+      REPO_PATH="${rel_path}"
       break
     else
       # Keep looping.
@@ -56,12 +56,12 @@ find_git_parent () {
         rel_path=$(dirname -- "${rel_path}")
       else
         local abs_path=$(readlink -f -- "${rel_path}")
-        if [[ ${abs_path} == '/' ]]; then
+        if [[ "${abs_path}" == '/' ]]; then
           #warn "WARNING: find_git_parent: No parent found for ${file_path}"
           break
         fi
-        rel_path=../${rel_path}
-        REL_PREFIX=../${REL_PREFIX}
+        rel_path="../${rel_path}"
+        REL_PREFIX="../${REL_PREFIX}"
       fi
     fi
   done
@@ -78,15 +78,15 @@ git_check_generic_file () {
 
   local repo_file="$1"
   # Set REPO_PATH.
-  find_git_parent ${repo_file}
+  find_git_parent "${repo_file}"
   # Strip the git path from the absolute file path.
-  repo_file=${repo_file#${REPO_PATH}/}
+  repo_file="${repo_file#${REPO_PATH}/}"
 
   pushd_or_die "${REPO_PATH}"
 
   tweak_errexit
 # FIXME/2018-03-22: Verify porcelain usage (vs. plumbing).
-  git status --porcelain ${repo_file} | grep "^\W*M\W*${repo_file}" &> /dev/null
+  git status --porcelain "${repo_file}" | grep "^\W*M\W*${repo_file}" &> /dev/null
   local grep_result=$?
   reset_errexit
 
@@ -108,14 +108,14 @@ git_commit_generic_file () {
 
   local repo_file="$1"
   local commit_msg="$2"
-  if [[ -z ${commit_msg} ]]; then
+  if [[ -z "${commit_msg}" ]]; then
     echo "WRONG: git_commit_generic_file repo_file commit_msg"
     return 1
   fi
   # Set REPO_PATH.
-  find_git_parent ${repo_file}
+  find_git_parent "${repo_file}"
   # Strip the git path from the absolute file path.
-  repo_file=${repo_file#${REPO_PATH}/}
+  repo_file="${repo_file#${REPO_PATH}/}"
 
   #echo "Repo base: ${REPO_PATH}"
   #echo "Repo file: ${repo_file}"
@@ -125,13 +125,13 @@ git_commit_generic_file () {
   tweak_errexit
 # FIXME/2018-03-22: Verify porcelain usage (vs. plumbing).
 # FIXME/2018-03-23: Replace tweak_errexit/reset_errexit with && true.
-  git status --porcelain ${repo_file} | grep "^\W*M\W*${repo_file}" &> /dev/null
+  git status --porcelain "${repo_file}" | grep "^\W*M\W*${repo_file}" &> /dev/null
   local grep_result=$?
   reset_errexit
 
   if [[ ${grep_result} -eq 0 ]]; then
     # It's dirty.
-    local cur_dir=$(basename -- $(pwd -P))
+    local cur_dir=$(basename -- "$(pwd -P)")
     if ! ${AUTO_COMMIT_FILES}; then
       echo
       echo -n "HEY, HEY: Your ${cur_dir}/${repo_file} is dirty. Wanna check it in? [y/n] "
@@ -141,7 +141,7 @@ git_commit_generic_file () {
       YES_OR_NO="Y"
     fi
     if [[ ${YES_OR_NO^^} == "Y" ]]; then
-      git add ${repo_file}
+      git add "${repo_file}"
       # FIXME/2017-04-13: Probably shouldn't redirect to netherspace here.
       #   U	source/landonb/Unfiled_Notes.rst
       #   error: Committing is not possible because you have unmerged files.
@@ -182,7 +182,7 @@ git_commit_all_dirty_files () {
 
   REPO_PATH="$1"
 
-  if [[ ! -e ${REPO_PATH} ]]; then
+  if [[ ! -e "${REPO_PATH}" ]]; then
     warn
     warn "WARNING: Skipping ${REPO_PATH}: Not found"
     warn
@@ -254,7 +254,7 @@ git_commit_all_dirty_files () {
 git_commit_dirty_or_untracked () {
   SOME_PATH="$1"
 
-  if [[ ! -d ${SOME_PATH} ]]; then
+  if [[ ! -d "${SOME_PATH}" ]]; then
     warn
     warn "WARNING: Skipping ${SOME_PATH}: Not found, or not a directory"
     warn
@@ -338,7 +338,7 @@ git_status_porcelain () {
   unstaged_changes_found=false
   # ' M' is modified but not added.
   tweak_errexit
-  eval git status --porcelain ${GREPPERS} | grep "^ M " &> /dev/null
+  eval git status --porcelain "${GREPPERS}" | grep "^ M " &> /dev/null
   if [[ $? -eq 0 ]]; then
     unstaged_changes_found=true
   fi
@@ -352,7 +352,7 @@ git_status_porcelain () {
 
   # 'M ' is added but not committed.
   tweak_errexit
-  eval git status --porcelain ${GREPPERS} | grep "^M  " &> /dev/null
+  eval git status --porcelain "${GREPPERS}" | grep "^M  " &> /dev/null
   grep_result=$?
   reset_errexit
   if [[ ${grep_result} -eq 0 ]]; then
@@ -362,7 +362,7 @@ git_status_porcelain () {
 
   # '^?? ' is untracked.
   tweak_errexit
-  eval git status --porcelain ${GREPPERS} | grep "^?? " &> /dev/null
+  eval git status --porcelain "${GREPPERS}" | grep "^?? " &> /dev/null
   grep_result=$?
   reset_errexit
   if [[ ${grep_result} -eq 0 ]]; then
@@ -373,8 +373,8 @@ git_status_porcelain () {
   # GREPPERS are used to ignore specific files, like travel.sh, and this file.
   tweak_errexit
   if ! ${dirty_repo}; then
-    if [[ -n ${GREPPERS} ]]; then
-      eval git status --porcelain ${GREPPERS} &> /dev/null
+    if [[ -n "${GREPPERS}" ]]; then
+      eval git status --porcelain "${GREPPERS}" &> /dev/null
       if [[ $? -eq 0 ]]; then
         dirty_repo=true
         dirty_warn="WARNING: git status --porcelain: non-zero exit"
@@ -387,7 +387,7 @@ git_status_porcelain () {
       fi
     fi
   else
-    eval git status --porcelain ${GREPPERS} | grep -v "^ M " &> /dev/null
+    eval git status --porcelain "${GREPPERS}" | grep -v "^ M " &> /dev/null
     if [[ $? -eq 0 ]]; then
       dirty_repo=true
       dirty_warn="WARNING: git status --porcelain: grepped"
@@ -1210,7 +1210,7 @@ git-flip-master () {
   # sets: REL_PREFIX
   pushd_or_die "${REL_PREFIX}"
 
-  local project_name=$(basename -- $(pwd -P))
+  local project_name=$(basename -- "$(pwd -P)")
 
 #  local branch_name=$(git branch --no-color | head -n 1 | /bin/sed 's/^\*\? *//')
   local branch_name=$(git_checkedout_branch_name)
@@ -1318,8 +1318,8 @@ git-jockey () {
 git_status_all () {
   local subdir
   for subdir in $(find . -name ".git" -type d); do
-    local gitst=$(git --git-dir=$subdir --work-tree=$subdir/.. status --short)
-    if [[ -n ${gitst} ]]; then
+    local gitst="$(git --git-dir="${subdir}" --work-tree="${subdir}/.." status --short)"
+    if [[ -n "${gitst}" ]]; then
       echo
       echo "====================================================="
       echo "Dirty project: $subdir"
@@ -1327,8 +1327,8 @@ git_status_all () {
       # We could just echo, but the we've lost any coloring.
       # Ok: echo ${gitst}
       # Better: run git again.
-      #git --git-dir=$subdir --work-tree=$subdir/.. status
-      git --git-dir=$subdir --work-tree=$subdir/.. status --short
+      #git --git-dir=${subdir} --work-tree=${subdir}/.. status
+      git --git-dir="${subdir}" --work-tree="${subdir}/.." status --short
       echo
     fi
   done
@@ -1384,11 +1384,11 @@ function cis_git() {
 # 2017-10-03: An infuse function, for overlaying private files atop a repo.
 git_infuse_gitignore_local() {
   [[ -z "$1" ]] && echo "${FUNCNAME[0]}: missing param" && exit 1
-  if [[ ! -d .git/info ]]; then
+  if [[ ! -d ".git/info" ]]; then
     warn "WARNING: Cannot infuse .gitignore.local under $(pwd -P): no .git/info"
     return
   fi
-  if [[ -f .git/info/exclude || -h .git/info/exclude ]]; then
+  if [[ -f ".git/info/exclude" || -h ".git/info/exclude" ]]; then
     trace "Infusing .gitignore.local"
     pushd_or_die ".git/info"
     /bin/rm exclude
@@ -1508,9 +1508,9 @@ git-remote-v-all() {
   local once=false
   for git_path in $(find "$1" -type d -iname ".git"); do
     ${once} && echo
-    local repo_path=$(dirname ${git_path})
-    echo ${repo_path}
-    pushd_or_die ${repo_path}
+    local repo_path=$(dirname "${git_path}")
+    echo "${repo_path}"
+    pushd_or_die "${repo_path}"
     git remote -v
     popd_perhaps "${pdir}"
     once=true

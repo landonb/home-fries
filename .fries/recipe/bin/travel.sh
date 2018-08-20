@@ -29,10 +29,10 @@ set -e
 # ***
 
 # Start a timer.
-SETUP_TIME_0=$(date +%s.%N)
+SETUP_TIME_0="$(date +%s.%N)"
 SETUP_TIME_N=''
 
-UNIQUE_TIME=$(date +%Y%m%d-%Hh%Mm%Ss)
+UNIQUE_TIME="$(date +%Y%m%d-%Hh%Mm%Ss)"
 
 function soups_finished_dinners_over_report_time {
   if [[ -n "${SETUP_TIME_N}" ]]; then
@@ -41,7 +41,7 @@ function soups_finished_dinners_over_report_time {
     return
   fi
 
-  SETUP_TIME_N=$(date +%s.%N)
+  SETUP_TIME_N="$(date +%s.%N)"
   local time_elapsed=$(\
     echo "scale=2; ($SETUP_TIME_N - $SETUP_TIME_0) * 100 / 100" | bc -l
   )
@@ -117,8 +117,8 @@ echod () {
 # ***
 
 # Load: Useful Bash functions.
-if [[ -e ${HOME}/.fries/lib/bash_base.sh ]]; then
-  source ${HOME}/.fries/lib/bash_base.sh
+if [[ -e "${HOME}/.fries/lib/bash_base.sh" ]]; then
+  source "${HOME}/.fries/lib/bash_base.sh"
 elif [[ -e bash_base.sh ]]; then
   source bash_base.sh
 else
@@ -126,8 +126,8 @@ else
 fi
 
 # Load: Colorful logging.
-if [[ -e ${HOME}/.fries/lib/logger.sh ]]; then
-  source ${HOME}/.fries/lib/logger.sh
+if [[ -e "${HOME}/.fries/lib/logger.sh" ]]; then
+  source "${HOME}/.fries/lib/logger.sh"
 elif [[ -e logger.sh ]]; then
   source logger.sh
 else
@@ -137,8 +137,8 @@ fi
 LOG_LEVEL=${LOG_LEVEL:-${LOG_LEVEL_DEBUG}}
 
 # Load: setup_users_curly_path
-if [[ -e ${HOME}/.fries/lib/curly_util.sh ]]; then
-  source ${HOME}/.fries/lib/curly_util.sh
+if [[ -e "${HOME}/.fries/lib/curly_util.sh" ]]; then
+  source "${HOME}/.fries/lib/curly_util.sh"
 elif [[ -e curly_util.sh ]]; then
   source curly_util.sh
 else
@@ -148,12 +148,12 @@ fi
 setup_users_curly_path
 PRIVATE_REPO="${USERS_BNAME}"
 # In case ${PRIVATE_REPO} has a dot prefix, remove it for some friendlier representations.
-PRIVATE_REPO_=${PRIVATE_REPO#.}
+PRIVATE_REPO_="${PRIVATE_REPO#.}"
 #echo "PRIVATE_REPO_: ${PRIVATE_REPO_}"
 
 # Load: git_commit_generic_file, et al
-if [[ -e ${HOME}/.fries/lib/git_util.sh ]]; then
-  source ${HOME}/.fries/lib/git_util.sh
+if [[ -e "${HOME}/.fries/lib/git_util.sh" ]]; then
+  source "${HOME}/.fries/lib/git_util.sh"
 elif [[ -e git_util.sh ]]; then
   source git_util.sh
 else
@@ -167,13 +167,13 @@ fi
 
 SCRIPT_ABS_PATH=$(readlink -f -- "${BASH_SOURCE[0]}")
 
-find_git_parent ${SCRIPT_ABS_PATH}
-FRIES_ABS_DIRN=${REPO_PATH}
+find_git_parent "${SCRIPT_ABS_PATH}"
+FRIES_ABS_DIRN="${REPO_PATH}"
 
 # ***
 
 # Setup things sync_repos.sh will probably overwrite.
-CRAPWORD=""
+CRAPWORD=''
 PLAINTEXT_ARCHIVES=()
 ENCFS_GIT_REPOS=()
 ENCFS_GIT_ITERS=()
@@ -188,7 +188,7 @@ declare -A VIM_REPO_SEEDS_0
 declare -A VIM_REPO_SEEDS_1
 
 # Look for sync_repos.sh.
-SYNC_REPOS_PATH=""
+SYNC_REPOS_PATH=''
 if [[ -f "${USERS_CURLY}/cfg/sync_repos.sh-$(hostname)" ]]; then
   # You can set up per-hostname sync_repos lists, or you can use
   # master_chef and probably get away with just one sync_repos.sh.
@@ -202,7 +202,7 @@ elif [[ -f "${USERS_CURLY}/sync_repos.sh" ]]; then
 elif [[ -f "sync_repos.sh" ]]; then
   SYNC_REPOS_PATH="sync_repos.sh"
 fi
-if [[ -n ${SYNC_REPOS_PATH} ]]; then
+if [[ -n "${SYNC_REPOS_PATH}" ]]; then
   # Source this now so that sync_repos.sh can use, e.g., ${EMISSARY}.
   SYNC_REPOS_AGAIN=false
   echod "Sourcing: ${SYNC_REPOS_PATH}"
@@ -221,21 +221,21 @@ fi
 
 # By default, plaintext archives unpack to, e.g., ~/Documents/${PRIVATE_REPO_}-unpackered
 # You can change this path by setting STAGING_DIR in ${USERS_CURLY}/cfg/sync_repos.sh.
-if [[ -z ${STAGING_DIR+x} ]]; then
+if [[ -z "${STAGING_DIR+x}" ]]; then
   STAGING_DIR=/home/${USER}/Documents
 fi
 
 # Unpack plaintext archives to the unpackered directory,
 # under the subdirectory named after the originating
 # machine.
-UNPACKERED_PATH=${STAGING_DIR}/${PRIVATE_REPO_}-unpackered
-UNPACK_TBD=${UNPACKERED_PATH}-TBD-${UNIQUE_TIME}
+UNPACKERED_PATH="${STAGING_DIR}/${PRIVATE_REPO_}-unpackered"
+UNPACK_TBD="${UNPACKERED_PATH}-TBD-${UNIQUE_TIME}"
 
 # ***
 
 # Load packme and unpack hooks to run during packme and unpack, respk.
 SOURCED_TRAVEL_TASKS=true
-TRAVEL_TASKS_PATH=""
+TRAVEL_TASKS_PATH=''
 if [[ -f "${USERS_CURLY}/cfg/travel_tasks.sh-$(hostname)" ]]; then
   TRAVEL_TASKS_PATH="${USERS_CURLY}/cfg/travel_tasks.sh-$(hostname)"
 elif [[ -f "${USERS_CURLY}/cfg/travel_tasks.sh" ]]; then
@@ -249,7 +249,7 @@ if [[ -n ${TRAVEL_TASKS_PATH} ]]; then
   source "${TRAVEL_TASKS_PATH}"
 else
   warn "NOTICE: travel_tasks.sh not found"
-  warn ${USERS_CURLY}/cfg/travel_tasks.sh
+  warn "${USERS_CURLY}/cfg/travel_tasks.sh"
   SOURCED_TRAVEL_TASKS=false
 fi
 
@@ -262,7 +262,7 @@ echod "SOURCED_TRAVEL_TASKS: ${SOURCED_TRAVEL_TASKS}"
 # ***
 
 HAMSTERING=false
-if [[ -d ${USERS_CURLY}/home/.local/share/hamster-applet ]]; then
+if [[ -d "${USERS_CURLY}/home/.local/share/hamster-applet" ]]; then
   HAMSTERING=true
   echod "Hamster found under: ${USERS_CURLY}/home/.local/share/hamster-applet"
 else
@@ -297,13 +297,13 @@ CANDIDATES=()
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-TRAVEL_CMD=""
+TRAVEL_CMD=''
 
 function set_travel_cmd () {
   if [[ -z ${TRAVEL_CMD} ]]; then
     TRAVEL_CMD="$1"
   else
-    TRAVEL_CMD="too_many_travel_cmds"
+    TRAVEL_CMD='too_many_travel_cmds'
   fi
 }
 
@@ -320,7 +320,7 @@ AUTO_COMMIT_FILES=false
 SKIP_PULL_REPOS=false
 #SKIP_UNPACK_SHIM=false
 NO_NETWORK_OKAY=false
-TAR_VERBOSE=""
+TAR_VERBOSE=''
 INCLUDE_ENCFS_OFF_REPOS=false
 SKIP_INTERNETS=false
 
@@ -334,7 +334,7 @@ function soups_on () {
 
   echod 'Soups on!: ' $*
 
-  while [[ "$1" != "" ]]; do
+  while [[ "$1" != '' ]]; do
     case $1 in
       -h)
         ASKED_FOR_HELP=true
@@ -477,12 +477,12 @@ function soups_on () {
     esac
   done
 
-  if [[ ${TRAVEL_CMD} == "too_many_travel_cmds" ]]; then
+  if [[ ${TRAVEL_CMD} == 'too_many_travel_cmds' ]]; then
     echo
     echo "FATAL: Please specify just one travel command."
     echo
   fi
-  if [[ ${ASKED_FOR_HELP} = true || (${TRAVEL_CMD} == "too_many_travel_cmds") ]]; then
+  if [[ ${ASKED_FOR_HELP} = true || (${TRAVEL_CMD} == 'too_many_travel_cmds') ]]; then
     echo
     echo "sync-stick helps you roam amongst dev machines"
     echo
@@ -490,7 +490,7 @@ function soups_on () {
     #echo
     #echo "Commands: packme | unpack | mount | umount | chase_and_face | init_travel"
     echo
-    TRAVEL_CMD=""
+    TRAVEL_CMD=''
   fi
 
   if [[ -z ${TRAVEL_CMD} ]]; then
@@ -562,7 +562,7 @@ function soups_on () {
     source "${SYNC_REPOS_PATH}"
   fi
 
-  if [[ ${REQUIRES_CRAPPDWORD} && -z ${CRAPWORD} ]]; then
+  if [[ ${REQUIRES_CRAPPDWORD} && -z "${CRAPWORD}" ]]; then
     error
     error "FATAL: Please set CRAPWORD. Maybe in repo_syncs.sh"
     trap - EXIT
@@ -620,14 +620,14 @@ function determine_stick_dir () {
       return 0
     fi
   elif [[ ${#mounted_dirs[@]} -eq 1 ]]; then
-    TRAVEL_DIR=${mounted_dirs[0]}
+    TRAVEL_DIR="${mounted_dirs[0]}"
   else
     CANDIDATES=()
     for fpath in "${mounted_dirs[@]}"; do
       # Use -r to check that path is readable. Just because.
-      if [[ -r ${fpath} ]]; then
+      if [[ -r "${fpath}" ]]; then
         echod "Examining mounted path: ${fpath}"
-        if [[ -d ${fpath}/${PRIVATE_REPO_}-emissary ]]; then
+        if [[ -d "${fpath}/${PRIVATE_REPO_}-emissary" ]]; then
           echod "Adding candidate: ${fpath}"
           CANDIDATES+=(${fpath})
         fi
@@ -636,7 +636,7 @@ function determine_stick_dir () {
       fi
     done
     if [[ ${#CANDIDATES[@]} -eq 1 ]]; then
-      TRAVEL_DIR=${CANDIDATES[0]}
+      TRAVEL_DIR="${CANDIDATES[0]}"
     elif ${CAN_IGNORE_TRAVEL_DIR}; then
       return 0
     else
@@ -657,7 +657,7 @@ function determine_stick_dir () {
     fi
   fi
 
-  if [[ ! -d ${TRAVEL_DIR} ]]; then
+  if [[ ! -d "${TRAVEL_DIR}" ]]; then
     if ! ${CAN_IGNORE_TRAVEL_DIR}; then
       echo 'The specified stick path does not exist. Sorry! Try again!!'
       exit 1
@@ -665,8 +665,8 @@ function determine_stick_dir () {
   fi
 
   EMISSARY="${TRAVEL_DIR}/${PRIVATE_REPO_}-emissary"
-  PLAINPATH=${EMISSARY}/plain-$(hostname)
-  PLAIN_TBD=${PLAINPATH}-TBD-${UNIQUE_TIME}
+  PLAINPATH="${EMISSARY}/plain-$(hostname)"
+  PLAIN_TBD="${PLAINPATH}-TBD-${UNIQUE_TIME}"
 
   #echo "EMISSARY: ${EMISSARY}"
   #echo "PLAINPATH: ${PLAINPATH}"
@@ -1014,9 +1014,12 @@ setup_private_etc_fstab () {
 } # end: setup_private_etc_fstab
 
 setup_private_update_db_conf () {
-  if [[ -f ${USERS_CURLY}/dev/$(hostname)/etc/updatedb.conf ]]; then
+  if [[ -f "${USERS_CURLY}/dev/$(hostname)/etc/updatedb.conf" ]]; then
     tweak_errexit
-    diff ${USERS_CURLY}/dev/$(hostname)/etc/updatedb.conf /etc/updatedb.conf &> /dev/null
+    diff \
+      "${USERS_CURLY}/dev/$(hostname)/etc/updatedb.conf" \
+      /etc/updatedb.conf \
+      &> /dev/null
     local exit_code=$?
     reset_errexit
     if [[ ${exit_code} -ne 0 ]]; then
@@ -1025,7 +1028,9 @@ setup_private_update_db_conf () {
         sudo /bin/mv /etc/updatedb.conf /etc/updatedb.conf-${BACKUP_POSTFIX}
       fi
       echo "Placing: /etc/updatedb.conf"
-      sudo /bin/cp -a ${USERS_CURLY}/dev/$(hostname)/etc/updatedb.conf /etc/updatedb.conf
+      sudo /bin/cp -a \
+        "${USERS_CURLY}/dev/$(hostname)/etc/updatedb.conf" \
+        /etc/updatedb.conf
       sudo chmod 644 /etc/updatedb.conf
     fi
   else
@@ -1034,12 +1039,12 @@ setup_private_update_db_conf () {
 } # end: setup_private_update_db_conf
 
 locate_and_clone_missing_repo () {
-  local check_repo=$1
-  local remote_orig=$2
+  local check_repo="$1"
+  local remote_orig="$2"
   echod "    CHECK: ${check_repo}"
   echod "     REPO: ${remote_orig}"
-  if [[ -d ${check_repo} ]]; then
-    if [[ -d ${check_repo}/.git ]]; then
+  if [[ -d "${check_repo}" ]]; then
+    if [[ -d "${check_repo}/.git" ]]; then
       echod "   EXISTS: ${check_repo}"
     else
       echo
@@ -1048,10 +1053,10 @@ locate_and_clone_missing_repo () {
       exit 1
     fi
   else
-    local check_syml=${check_repo}
-    while [[ ${check_syml} != '/' && ${check_syml} != '.' ]]; do
+    local check_syml="${check_repo}"
+    while [[ "${check_syml}" != '/' && "${check_syml}" != '.' ]]; do
       echod "check_syml: ${check_syml}"
-      if [[ -h ${check_syml} && ! -e ${check_syml} ]]; then
+      if [[ -h "${check_syml}" && ! -e "${check_syml}" ]]; then
         # This checks if the destination is under a symlink,
         # and that symlink is broken!
         echo
@@ -1064,26 +1069,26 @@ locate_and_clone_missing_repo () {
         echo
         break
       fi
-      local check_syml=$(dirname ${check_syml})
+      local check_syml=$(dirname "${check_syml}")
     done
-    if [[ ${check_syml} == '/' || ${check_syml} == '.' ]]; then
+    if [[ "${check_syml}" == '/' || "${check_syml}" == '.' ]]; then
       echo
       echo "  ==================================================== "
       echo "  MISSING: ${check_repo}"
       echo "     REPO: ${remote_orig}"
       local parent_dir=$(dirname -- "${check_repo}")
       local repo_name=$(basename -- "${check_repo}")
-      if [[ ! -d ${parent_dir} ]]; then
+      if [[ ! -d "${parent_dir}" ]]; then
         echo
         echo "  MKDIR: Creating new parent_dir: ${parent_dir}"
         echo
-        mkdir -p ${parent_dir}
+        mkdir -p "${parent_dir}"
       fi
-      if [[ -d ${parent_dir} ]]; then
+      if [[ -d "${parent_dir}" ]]; then
         echo "           fetching!"
         local ret_code
-        if [[ ${parent_dir} == '/' ]]; then
-          if [[ ! -e ${check_repo} ]]; then
+        if [[ "${parent_dir}" == '/' ]]; then
+          if [[ ! -e "${check_repo}" ]]; then
             echod "mkdir -p ${HOME}/.elsewhere"
             # FIXME/2016-11-14: Is this okay? It's the first ~/.elsewhere usage herein.
             mkdir -p ${HOME}/.elsewhere
@@ -1095,16 +1100,16 @@ locate_and_clone_missing_repo () {
           # Checkout the source.
           pushd ${HOME}/.elsewhere &> /dev/null
           local git_resp
-          if [[ ! -d ${repo_name} ]]; then
+          if [[ ! -d "${repo_name}" ]]; then
             echod "git clone ${remote_orig} ${repo_name}"
             ##git clone ${remote_orig} ${check_repo}
             #git clone ${remote_orig} ${repo_name}
             #git_resp=$(git clone ${remote_orig} ${repo_name} 2>&1)
             # 2017-02-27: Taking a while on work laptop. Wanting to see progress.
-            git_resp=$(git clone ${remote_orig} ${repo_name}) && true
+            git_resp=$(git clone "${remote_orig}" "${repo_name}") && true
           else
             echod "cd ${repo_name} && git pull"
-            cd ${repo_name}
+            cd "${repo_name}"
             git_resp=$(git pull 2>&1) && true
           fi
           ret_code=$?
@@ -1112,17 +1117,17 @@ locate_and_clone_missing_repo () {
           popd &> /dev/null
           # Create the symlink from the root dir.
           pushd / &> /dev/null
-          sudo /bin/ln -sf ${HOME}/.elsewhere/${repo_name}
+          sudo /bin/ln -sf "${HOME}/.elsewhere/${repo_name}"
           popd &> /dev/null
         else
-          pushd ${parent_dir} &> /dev/null
+          pushd "${parent_dir}" &> /dev/null
           # Use associate array key so user can choose different name than repo.
           ##git clone ${remote_orig}
           #git clone ${remote_orig} ${check_repo}
           #git_resp=$(git clone ${remote_orig} ${check_repo} 2>&1)
           # 2017-02-27: Taking a while on work laptop. Wanting to see progress.
           echod "git clone ${remote_orig} ${check_repo}"
-          git_resp=$(git clone ${remote_orig} ${check_repo}) && true
+          git_resp=$(git clone "${remote_orig}" "${check_repo}") && true
           ret_code=$?
           check_git_clone_or_pull_error "${ret_code}" "${git_resp}"
           popd &> /dev/null
@@ -1318,14 +1323,14 @@ function mount_curly_emissary_gooey_explicit () {
 function mount_curly_emissary_gooey () {
   #debug "GOOEY: Mount"
   # Make the gooey candy center.
-  mkdir -p ${EMISSARY}/gooey
-  mkdir -p ${EMISSARY}/.gooey
+  mkdir -p "${EMISSARY}/gooey"
+  mkdir -p "${EMISSARY}/.gooey"
   # Flavor it.
-  if [[ ! -e ${EMISSARY}/.gooey ]]; then
-    /bin/cp -a ${USERS_CURLY}/.encfs6.xml ${EMISSARY}/.gooey
+  if [[ ! -e "${EMISSARY}/.gooey" ]]; then
+    /bin/cp -a "${USERS_CURLY}/.encfs6.xml" "${EMISSARY}/.gooey"
   fi
   tweak_errexit
-  mount | grep ${EMISSARY}/gooey &> /dev/null
+  mount | grep "${EMISSARY}/gooey" &> /dev/null
   retval=$?
   reset_errexit
   # Lick it.
@@ -1334,7 +1339,7 @@ function mount_curly_emissary_gooey () {
     #   Zero length password not allowed
     #   Segmentation fault
     # (Though I'd swear it used to work... but I probably didn't notice it didn't!)
-    echo "${CRAPWORD}" | encfs -S --standard ${EMISSARY}/.gooey ${EMISSARY}/gooey
+    echo "${CRAPWORD}" | encfs -S --standard "${EMISSARY}/.gooey" "${EMISSARY}/gooey"
   else
     # else, already mounted; maybe the last operation failed?
     info "Looks like gooey is already mounted."
@@ -1345,7 +1350,7 @@ function umount_curly_emissary_gooey () {
   if [[ -n "${EMISSARY}" ]]; then
     umount_curly_emissary_gooey_one "${EMISSARY}"
   elif [[ \
-    ${TRAVEL_CMD} == "umount_curly_emissary_gooey" \
+    ${TRAVEL_CMD} == 'umount_curly_emissary_gooey' \
     && ${#CANDIDATES[@]} -gt 0 \
   ]]; then
     local emissary
@@ -1361,17 +1366,17 @@ function umount_curly_emissary_gooey () {
 function umount_curly_emissary_gooey_one () {
   local lemissary="$1"
   local gooey_mntpt="${lemissary}/gooey"
-  mount | grep ${gooey_mntpt} > /dev/null && true
+  mount | grep "${gooey_mntpt}" > /dev/null && true
   local exit_code=$?
   if [[ ${exit_code} -eq 0 ]]; then
     sleep 0.1 # else umount fails.
     local umntput
-    umntput=$(fusermount -u ${gooey_mntpt} 2>&1) && true
+    umntput=$(fusermount -u "${gooey_mntpt}" 2>&1) && true
     local exit_code=$?
     if [[ ${exit_code} -eq 0 ]]; then
       info "Unmounted: ${FG_LAVENDER}${gooey_mntpt}"
     else
-      warn ${umntput}
+      warn "${umntput}"
       soups_finished_dinners_over_report_time
 
       echo
@@ -1410,14 +1415,14 @@ function populate_singular_repo () {
     #echo " ${ENCFS_GIT_REPO}"
     echo " ${ENCFS_REL_PATH}"
     echo "  \$ git clone ${ENCFS_GIT_REPO} ${ENCFS_REL_PATH}"
-    git clone ${ENCFS_GIT_REPO} ${ENCFS_REL_PATH}
+    git clone "${ENCFS_GIT_REPO}" "${ENCFS_REL_PATH}"
   else
     echo " skipping ( exists): ${ENCFS_REL_PATH}"
   fi
 }
 
 function populate_gardened_repo () {
-  ENCFS_GIT_ITER=$1
+  ENCFS_GIT_ITER="$1"
   echo " ENCFS_GIT_ITER: ${ENCFS_GIT_ITER}"
   local ENCFS_REL_PATH=$(echo ${ENCFS_GIT_ITER} | /bin/sed s/^.//)
   echo " ${ENCFS_REL_PATH}"
@@ -1425,34 +1430,34 @@ function populate_gardened_repo () {
   while IFS= read -r -d '' fpath; do
     local TARGET_BASE=$(basename -- "${fpath}")
     TARGET_PATH="${ENCFS_REL_PATH}/${TARGET_BASE}"
-    if [[ ! -d ${fpath}/.git ]]; then
+    if [[ ! -d "${fpath}/.git" ]]; then
       echo " skipping (no .git): $(pwd -P)/${TARGET_PATH}"
       :
-    elif [[ -e ${TARGET_PATH}/.git ]]; then
+    elif [[ -e "${TARGET_PATH}/.git" ]]; then
       echo " skipping ( exists): $(pwd -P)/${TARGET_PATH}"
       :
     elif [[ -h "${fpath}" ]]; then
       echo " skipping (symlink): $(pwd -P)/${TARGET_PATH}"
       :
-    elif [[ ${TARGET_BASE#TBD-} != ${TARGET_BASE} ]]; then
+    elif [[ "${TARGET_BASE#TBD-}" != "${TARGET_BASE}" ]]; then
       echo " skipping (    tbd): $(pwd -P)/${TARGET_PATH}"
       :
     else
       echo " $fpath"
       echo "  \$ git clone ${fpath} ${TARGET_PATH}"
-      git clone ${fpath} ${TARGET_PATH}
+      git clone "${fpath}" "${TARGET_PATH}"
     fi
-  done < <(find ${ENCFS_GIT_ITER} -maxdepth 1 ! -path . -print0)
+  done < <(find "${ENCFS_GIT_ITER}" -maxdepth 1 ! -path . -print0)
 }
 
 function init_travel () {
-  if [[ -z ${TRAVEL_DIR} ]]; then
+  if [[ -z "${TRAVEL_DIR}" ]]; then
     error
     error "FAIL: TRAVEL_DIR not defined"
     exit 1
   fi
 
-  if [[ -d ${EMISSARY} ]]; then
+  if [[ -d "${EMISSARY}" ]]; then
     echo
     echo "NOTE: EMISSARY already exists at ${EMISSARY}"
     echo
@@ -1470,22 +1475,22 @@ function init_travel () {
     #    /bin/rm -rf ${EMISSARY}
     #  fi
     #fi
-  elif [[ -e ${EMISSARY} ]]; then
+  elif [[ -e "${EMISSARY}" ]]; then
     error
     error "FAIL: EMISSARY exists and is not a directory: ${EMISSARY}"
     exit 1
   fi
 
-  if [[ ! -e ${EMISSARY} ]]; then
+  if [[ ! -e "${EMISSARY}" ]]; then
     info "Creating emissary at ${EMISSARY}"
-    mkdir -p ${EMISSARY}
+    mkdir -p "${EMISSARY}"
   else
     info "Found emissary at ${EMISSARY}"
   fi
 
   mount_curly_emissary_gooey
 
-  pushd ${EMISSARY}/gooey &> /dev/null
+  pushd "${EMISSARY}/gooey" &> /dev/null
 
   # Skipping: PLAINTEXT_ARCHIVES (nothing to preload)
 
@@ -1493,18 +1498,18 @@ function init_travel () {
   #             Decades and decades of cruft! I absolutely love it!!!
   debug "Populating singular git repos..."
   for ((i = 0; i < ${#ENCFS_GIT_REPOS[@]}; i++)); do
-    populate_singular_repo ${ENCFS_GIT_REPOS[$i]}
+    populate_singular_repo "${ENCFS_GIT_REPOS[$i]}"
   done
   if ${INCLUDE_ENCFS_OFF_REPOS}; then
     debug "Populating singular OFF repos..."
     for ((i = 0; i < ${#ENCFS_OFF_REPOS[@]}; i++)); do
-      populate_singular_repo ${ENCFS_OFF_REPOS[$i]}
+      populate_singular_repo "${ENCFS_OFF_REPOS[$i]}"
     done
   fi
 
   debug "Populating gardened git repos..."
   for ((i = 0; i < ${#ENCFS_GIT_ITERS[@]}; i++)); do
-    populate_gardened_repo ${ENCFS_GIT_ITERS[$i]}
+    populate_gardened_repo "${ENCFS_GIT_ITERS[$i]}"
 #    #echo " ${ENCFS_GIT_ITERS[$i]}"
 #    ENCFS_REL_PATH=$(echo ${ENCFS_GIT_ITERS[$i]} | /bin/sed s/^.//)
 #    echo " ${ENCFS_REL_PATH}"
@@ -1526,7 +1531,7 @@ function init_travel () {
   done
   debug "Populating gardened vim repos..."
   for ((i = 0; i < ${#ENCFS_VIM_ITERS[@]}; i++)); do
-    populate_gardened_repo ${ENCFS_VIM_ITERS[$i]}
+    populate_gardened_repo "${ENCFS_VIM_ITERS[$i]}"
   done
 
   popd &> /dev/null
@@ -1544,8 +1549,8 @@ function init_travel () {
     if ${INCLUDE_ENCFS_OFF_REPOS}; then
       info "Calculating travel size..."
       du_cmd="du -m -d 1 ${EMISSARY}/gooey | sort -nr"
-      info ${du_cmd}
-      eval ${du_cmd}
+      info "${du_cmd}"
+      eval "${du_cmd}"
     fi
   fi
 
@@ -1602,11 +1607,11 @@ function create_umount_script () {
 source logger.sh
 SCRIPT_DIR="\$(dirname \${BASH_SOURCE[0]})"
 \${SCRIPT_DIR}/travel umount
-if [[ -d ${TRAVEL_DIR} ]]; then
-  mount | grep ${TRAVEL_DIR} &> /dev/null && true
+if [[ -d "${TRAVEL_DIR}" ]]; then
+  mount | grep "${TRAVEL_DIR}" &> /dev/null && true
   retval=\$?
   if [[ \${retval} -eq 0 ]]; then
-    umount ${TRAVEL_DIR}
+    umount "${TRAVEL_DIR}"
     info "Umountd travel directory: ${FG_LAVENDER}${TRAVEL_DIR}"
   else
     info "No travel dir to unmount: ${FG_LAVENDER}${TRAVEL_DIR}"
@@ -1627,7 +1632,7 @@ function git_commit_hamster () {
   if ${HAMSTERING}; then
     HAMSTER_DB_REL="home/.local/share/hamster-applet/hamster-$(hostname).db"
     HAMSTER_DB_ABS="${USERS_CURLY}/${HAMSTER_DB_REL}"
-    if [[ -e ${HAMSTER_DB_ABS} ]]; then
+    if [[ -e "${HAMSTER_DB_ABS}" ]]; then
       debug "Checking Hamster.db..."
       git_commit_generic_file \
         "${HAMSTER_DB_ABS}" \
@@ -1647,15 +1652,15 @@ function git_commit_vim_spell () {
   VIM_SPELL_REL="home/.vim/spell/en.utf-8.add"
   VIM_SPELL_ABS="${USERS_CURLY}/${VIM_SPELL_REL}"
 
-  if [[ -e ${VIM_SPELL_ABS} ]]; then
+  if [[ -e "${VIM_SPELL_ABS}" ]]; then
     debug "Checking Vim spell..."
 
     # Sort the spell file, for easy diff'ing, meld'ing, or better yet merging.
     # The .vimrc startup file will remake the .spl file when you restart Vim.
     # NOTE: cat'ing and sort'ing to the cat'ed file results in a 0-size file!?
     #       So we use an intermediate file.
-    /bin/cat ${VIM_SPELL_ABS} | /usr/bin/sort > ${VIM_SPELL_ABS}.tmp
-    /bin/mv -f ${VIM_SPELL_ABS}.tmp ${VIM_SPELL_ABS}
+    /bin/cat "${VIM_SPELL_ABS}" | /usr/bin/sort > "${VIM_SPELL_ABS}.tmp"
+    /bin/mv -f "${VIM_SPELL_ABS}.tmp" "${VIM_SPELL_ABS}"
 
     # FIXME/2017-05-09/TRANSITION-TO-TRAVEL: Should indicate from what machine
     #   and maybe what operation (unless it's always packme).
@@ -1673,7 +1678,7 @@ function git_commit_vim_spell () {
 function git_commit_vimprojects () {
   VIMPROJECTS_REL="home/.vim/bundle/dubs_all/.vimprojects"
   VIMPROJECTS_ABS="${USERS_CURLY}/${VIMPROJECTS_REL}"
-  if [[ -e ${VIMPROJECTS_ABS} ]]; then
+  if [[ -e "${VIMPROJECTS_ABS}" ]]; then
     debug "Checking .vimprojects..."
       # FIXME/2017-05-09/TRANSITION-TO-TRAVEL: Should indicate from what machine
       #   and maybe what operation (unless it's always packme).
@@ -1739,7 +1744,7 @@ function git_status_porcelain_wrap () {
   tweak_errexit
   USING_ERREXIT=false
   git_pre_status_auto_commit
-  git_status_porcelain ${working_dir} ${SKIP_INTERNETS}
+  git_status_porcelain "${working_dir}" ${SKIP_INTERNETS}
   local exit_code=$?
   USING_ERREXIT=true
   reset_errexit
@@ -1760,10 +1765,10 @@ function check_gardened_repo () {
   trace " top-level: ${ENCFS_GIT_ITER}"
   while IFS= read -r -d '' fpath; do
     # 2016-12-08: Adding ! -h, should be fine, and faster.
-    if [[ -h ${fpath} ]]; then
+    if [[ -h "${fpath}" ]]; then
       verbose "  - Skipping symlinked something: ${fpath}"
       :
-    elif [[ ! -d ${fpath}/.git ]]; then
+    elif [[ ! -d "${fpath}/.git" ]]; then
       verbose "  - Skipping .git-less directory: ${fpath}"
       :
     else
@@ -1773,12 +1778,12 @@ function check_gardened_repo () {
         :
       else
         trace "  ${fpath}"
-        pushd ${fpath} &> /dev/null
+        pushd "${fpath}" &> /dev/null
         git_status_porcelain_wrap "${fpath}"
         popd &> /dev/null
       fi
     fi
-  done < <(find ${ENCFS_GIT_ITER} -maxdepth 1 ! -path . -print0)
+  done < <(find "${ENCFS_GIT_ITER}" -maxdepth 1 ! -path . -print0)
 }
 
 function check_repos_statuses () {
@@ -1790,11 +1795,11 @@ function check_repos_statuses () {
   debug "Checking one-level repos..."
   for ((i = 0; i < ${#ENCFS_GIT_REPOS[@]}; i++)); do
     trace " ${ENCFS_GIT_REPOS[$i]}"
-    pushd ${ENCFS_GIT_REPOS[$i]} &> /dev/null
+    pushd "${ENCFS_GIT_REPOS[$i]}" &> /dev/null
     GREPPERS=''
     if [[ \
       ${SKIP_THIS_DIRTY} = true && \
-      ${ENCFS_GIT_REPOS[$i]} == ${FRIES_ABS_DIRN} \
+      "${ENCFS_GIT_REPOS[$i]}" == "${FRIES_ABS_DIRN}" \
     ]]; then
       # FIXME/2018-03-26: Ermmmmm... this is really Travel-specific
 
@@ -1822,7 +1827,7 @@ function check_repos_statuses () {
     debug "Checking one-level OFF repos..."
     for ((i = 0; i < ${#ENCFS_OFF_REPOS[@]}; i++)); do
       trace " ${ENCFS_OFF_REPOS[$i]}"
-      pushd ${ENCFS_OFF_REPOS[$i]} &> /dev/null
+      pushd "${ENCFS_OFF_REPOS[$i]}" &> /dev/null
       git_status_porcelain_wrap "${ENCFS_OFF_REPOS[$i]}"
       popd &> /dev/null
     done
@@ -1897,15 +1902,15 @@ function pull_gardened_repo () {
   ENCFS_GIT_ITER="$1"
   PREFIX="$2"
   local ABS_PATH="${ENCFS_GIT_ITER}"
-  local ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
+  local ENCFS_REL_PATH="$(echo ${ABS_PATH} | /bin/sed s/^.//)"
  #trace " ${ENCFS_REL_PATH}"
   trace "├ ${ENCFS_REL_PATH}"
   #trace "─ ${ENCFS_REL_PATH}"
   while IFS= read -r -d '' fpath; do
     local TARGET_BASE=$(basename -- "${fpath}")
     TARGET_PATH="${ENCFS_REL_PATH}/${TARGET_BASE}"
-    if [[ -d ${TARGET_PATH}/.git && ! -h ${TARGET_PATH} ]]; then
-      if [[ ${TARGET_BASE#TBD-} == ${TARGET_BASE} ]]; then
+    if [[ -d "${TARGET_PATH}/.git" && ! -h "${TARGET_PATH}" ]]; then
+      if [[ "${TARGET_BASE#TBD-}" == "${TARGET_BASE}" ]]; then
        #trace "  ${fpath}"
         trace "├┼─${fpath}"
         SOURCE_PATH="${PREFIX}${ABS_PATH}/$(basename -- "${fpath}")"
@@ -1919,15 +1924,15 @@ function pull_gardened_repo () {
       #trace "  skipping (not .git/, or symlink): $fpath"
       :
     fi
-  done < <(find /${ENCFS_REL_PATH} -maxdepth 1 ! -path . -print0)
+  done < <(find "/${ENCFS_REL_PATH}" -maxdepth 1 ! -path . -print0)
 }
 
 function pull_git_repos () {
-  if [[ $1 == 'emissary' ]]; then
+  if [[ "$1" == 'emissary' ]]; then
     #TO_EMISSARY=true
-    PREFIX=""
-    pushd ${EMISSARY}/gooey &> /dev/null
-  elif [[ $1 == 'dev-machine' ]]; then
+    PREFIX=''
+    pushd "${EMISSARY}/gooey" &> /dev/null
+  elif [[ "$1" == 'dev-machine' ]]; then
     #TO_EMISSARY=false
     PREFIX="${EMISSARY}/gooey"
     pushd / &> /dev/null
@@ -1940,7 +1945,7 @@ function pull_git_repos () {
   if [[ ${#ENCFS_GIT_REPOS[@]} -gt 0 ]]; then
     for ((i = 0; i < ${#ENCFS_GIT_REPOS[@]}; i++)); do
       ABS_PATH="${ENCFS_GIT_REPOS[$i]}"
-      local ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
+      local ENCFS_REL_PATH="$(echo ${ABS_PATH} | /bin/sed s/^.//)"
       # MAYBE/2016-12-12: Ignore symlinks?
       #if [[ -d ${ENCFS_REL_PATH} && ! -h ${ENCFS_REL_PATH} ]]; then
         #trace " SOURCE_PATH: ${PREFIX}${ABS_PATH}"
@@ -1979,7 +1984,7 @@ function pull_git_repos () {
     if [[ ${#ENCFS_OFF_REPOS[@]} -gt 0 ]]; then
       for ((i = 0; i < ${#ENCFS_OFF_REPOS[@]}; i++)); do
         ABS_PATH="${ENCFS_OFF_REPOS[$i]}"
-        local ENCFS_REL_PATH=$(echo ${ABS_PATH} | /bin/sed s/^.//)
+        local ENCFS_REL_PATH="$(echo ${ABS_PATH} | /bin/sed s/^.//)"
         trace " ${ENCFS_REL_PATH}"
         git_pull_hush "${PREFIX}${ABS_PATH}" "${ENCFS_REL_PATH}" "${ABS_PATH}"
       done
@@ -1995,44 +2000,44 @@ function pull_git_repos () {
 
 function make_plaintext () {
 
-  if [[ -e ${PLAINPATH} ]]; then
-    if [[ ! -d ${PLAINPATH} ]]; then
+  if [[ -e "${PLAINPATH}" ]]; then
+    if [[ ! -d "${PLAINPATH}" ]]; then
       error
       error "UNEXPECTED: PLAINPATH not a directory: ${PLAINPATH}"
       exit 1
     fi
-    if [[ -e ${PLAIN_TBD} ]]; then
+    if [[ -e "${PLAIN_TBD}" ]]; then
       error
       error "FATALLY UNEXPECTED: plain intermediate exists at"
       error "  ${PLAIN_TBD}"
       exit 1
     fi
     # We'll delete the old archives later.
-    /bin/mv ${PLAINPATH} ${PLAIN_TBD}
+    /bin/mv "${PLAINPATH}" "${PLAIN_TBD}"
   fi
 
-  mkdir -p ${PLAINPATH}
+  mkdir -p "${PLAINPATH}"
   # Plop the hostname in the packedpathwhynot.
-  echo $(hostname) > ${PLAINPATH}/packered_hostname
-  echo ${USER} > ${PLAINPATH}/packered_username
+  echo $(hostname) > "${PLAINPATH}/packered_hostname"
+  echo ${USER} > "${PLAINPATH}/packered_username"
 
   info "Packing plainly to: ${FG_LAVENDER}${PLAINPATH}"
 
   for ((i = 0; i < ${#PLAINTEXT_ARCHIVES[@]}; i++)); do
 
     # FIXME/MAYBE: Enforce rule: Starts with leading '/'.
-    ARCHIVE_SRC=${PLAINTEXT_ARCHIVES[$i]}
+    ARCHIVE_SRC="${PLAINTEXT_ARCHIVES[$i]}"
     ARCHIVE_NAME=$(basename -- "${ARCHIVE_SRC}")
 
     # Resolve to real full path, if symlink. (I can't remember why I do this.
     # And I only ever did it for /ccp/dev/cp.)
-    if [[ -h ${ARCHIVE_SRC} ]]; then
+    if [[ -h "${ARCHIVE_SRC}" ]]; then
       ARCHIVE_SRC=$(readlink -f -- "${ARCHIVE_SRC}")
     fi
 
-    ARCHIVE_REL=$(echo ${ARCHIVE_SRC} | /bin/sed s/^.//)
+    ARCHIVE_REL="$(echo ${ARCHIVE_SRC} | /bin/sed s/^.//)"
 
-    if [[ -e ${ARCHIVE_SRC} ]]; then
+    if [[ -e "${ARCHIVE_SRC}" ]]; then
       trace " tarring: ${FG_LAVENDER}${ARCHIVE_SRC}"
       pushd / &> /dev/null
       # Note: Missing files cause tar errors. If this happens, consider:
@@ -2041,16 +2046,16 @@ function make_plaintext () {
 # FIXME/2016-09-29: Test packing to the encfs -- you're just worried about performance, right?
 #                   Because really everything should be encrypted.
 
-      tar czf ${PLAINPATH}/${ARCHIVE_NAME}.tar.gz \
+      tar czf "${PLAINPATH}/${ARCHIVE_NAME}.tar.gz" \
         --exclude=".~lock.*.ods#" \
         --exclude="*/TBD-*" \
-         ${ARCHIVE_REL}
+        "${ARCHIVE_REL}"
       popd &> /dev/null
     else
       info
       info "NOTICE: Mkdir'ing plaintext archive not found at: ${ARCHIVE_SRC}"
       info
-      mkdir ${ARCHIVE_SRC}
+      mkdir "${ARCHIVE_SRC}"
     fi
   done
 
@@ -2089,7 +2094,7 @@ function packme () {
       "🍁  🍁  🍁   Done checking repos for dirt  🍁  🍁  🍁  "
   fi
 
-  if [[ ! -d ${EMISSARY} ]]; then
+  if [[ ! -d "${EMISSARY}" ]]; then
     error
     error "FAIL: No \${EMISSARY} defined."
     error "Have you run \`$0 init_travel\`?"
@@ -2124,10 +2129,10 @@ function packme () {
 
     umount_curly_emissary_gooey
 
-    if [[ -d ${PLAIN_TBD} ]]; then
-      /bin/rm -rf ${PLAIN_TBD}
+    if [[ -d "${PLAIN_TBD}" ]]; then
+      /bin/rm -rf "${PLAIN_TBD}"
       # FIXME/2017-04-04: There are a bunch of these still on the sync-stick...
-      /bin/rm -rf ${PLAINPATH}-TBD-*
+      /bin/rm -rf "${PLAINPATH}-TBD-*"
     fi
 
     if ${COPY_PRIVATE_REPO_PLAIN}; then
@@ -2138,9 +2143,9 @@ function packme () {
       warn "WARNING: Copying *unencrypted* ${USERS_CURLY}s."
       warn
       echo -n "Copying travel scripts... "
-      mkdir -p ${TRAVEL_DIR}/e-scripts
-      /bin/cp -aLf ${USERS_CURLY}/*.sh ${TRAVEL_DIR}/e-scripts
-      /bin/cp -arf ${USERS_CURLY}/cfg ${TRAVEL_DIR}/e-scripts
+      mkdir -p "${TRAVEL_DIR}/e-scripts"
+      /bin/cp -aLf "${USERS_CURLY}/*.sh" "${TRAVEL_DIR}/e-scripts"
+      /bin/cp -arf "${USERS_CURLY}/cfg" "${TRAVEL_DIR}/e-scripts"
     fi
 
   fi
@@ -2187,14 +2192,14 @@ function unpack_plaintext_archives () {
   # Gather all plaintext archive dumps.
   while IFS= read -r -d '' fpath; do
 
-    if [[ -f ${fpath}/packered_hostname ]]; then
+    if [[ -f "${fpath}/packered_hostname" ]]; then
       PACKED_DIR_HOSTNAME=$(cat ${fpath}/packered_hostname)
     else
       echo "WARNING: Not found: ${fpath}/packered_hostname"
       PACKED_DIR_HOSTNAME=''
     fi
 
-    if [[ -f ${fpath}/packered_username ]]; then
+    if [[ -f "${fpath}/packered_username" ]]; then
       PACKED_DIR_USERNAME=$(cat ${fpath}/packered_username)
     else
       echo "WARNING: Not found: ${fpath}/packered_username"
@@ -2203,22 +2208,22 @@ function unpack_plaintext_archives () {
 
     # Does the unpack target already exist? If so, move it to delete it.
     TARGETPATH=${UNPACKERED_PATH}/$(basename -- "${fpath}")
-    if [[ -e ${TARGETPATH} ]]; then
-      /bin/mv ${TARGETPATH} ${UNPACK_TBD}
+    if [[ -e "${TARGETPATH}" ]]; then
+      /bin/mv "${TARGETPATH}" "${UNPACK_TBD}"
     fi
 
-    mkdir -p ${TARGETPATH}
-    pushd ${TARGETPATH} &> /dev/null
+    mkdir -p "${TARGETPATH}"
+    pushd "${TARGETPATH}" &> /dev/null
     info "Unpacking plain to: ${FG_LAVENDER}${TARGETPATH}"
 
     # Unpack all plaintext archives.
     # And include dot-prefixed files.
     shopt -s dotglob
 
-    for zpath in ${fpath}/*.tar.gz; do
+    for zpath in "${fpath}/*.tar.gz"; do
       if [[ $(basename -- "${zpath}") != '*.tar.gz' ]]; then
         trace " tar xzf${TAR_VERBOSE} ${zpath}"
-        tar xzf${TAR_VERBOSE} ${zpath}
+        tar xzf${TAR_VERBOSE} "${zpath}"
       # else, No such file or directory
       fi
     done
@@ -2226,11 +2231,11 @@ function unpack_plaintext_archives () {
     # Reset dotglobbing.
     shopt -u dotglob
 
-    /bin/rm -rf ${UNPACK_TBD}
+    /bin/rm -rf "${UNPACK_TBD}"
 
     popd &> /dev/null
 
-  done < <(find ${EMISSARY} -maxdepth 1 -path */plain-* ! -path . ! -path */plain-*-TBD-* -print0)
+  done < <(find "${EMISSARY}" -maxdepth 1 -path */plain-* ! -path . ! -path */plain-*-TBD-* -print0)
 
 } # end: unpack_plaintext_archives
 
@@ -2261,7 +2266,7 @@ function update_hamster_db () {
 
   # A simple search procedure for finding the best more recent hamster.db.
 
-  CURLY_PATH=${USERS_CURLY}/home/.local/share/hamster-applet
+  CURLY_PATH="${USERS_CURLY}/home/.local/share/hamster-applet"
 
   local candidates=()
 
@@ -2271,27 +2276,27 @@ function update_hamster_db () {
   shopt -u nullglob
 
   # Consider any hamster.dbs at the root of the travel directory.
-  if [[ -n ${TRAVEL_DIR} && -d ${TRAVEL_DIR} ]]; then
+  if [[ -n "${TRAVEL_DIR}" && -d "${TRAVEL_DIR}" ]]; then
     shopt -s nullglob
     candidates+=(${TRAVEL_DIR}/hamster-*)
     shopt -u nullglob
   fi
 
   # Consider any hamster.dbs in the dropbox.
-  if [[ -d ${HOME}/Dropbox ]]; then
+  if [[ -d "${HOME}/Dropbox" ]]; then
     while IFS= read -r -d '' file; do
       candidates+=("${file}")
-    done < <(find ${HOME}/Dropbox -maxdepth 1 -type f -name 'hamster-*' -print0)
+    done < <(find "${HOME}/Dropbox" -maxdepth 1 -type f -name 'hamster-*' -print0)
   fi
 
   LATEST_HAMMY=''
   local candidate
   for candidate in "${candidates[@]}"; do
     #trace "candidate: ${candidate}"
-    if [[ -z ${LATEST_HAMMY} ]]; then
+    if [[ -z "${LATEST_HAMMY}" ]]; then
       #trace "first candidate: ${candidate}"
       LATEST_HAMMY="${candidate}"
-    elif [[ ${candidate} -nt ${LATEST_HAMMY} ]]; then
+    elif [[ "${candidate}" -nt "${LATEST_HAMMY}" ]]; then
       #trace "newer candidate: ${candidate}"
       LATEST_HAMMY="${candidate}"
     fi
@@ -2300,7 +2305,7 @@ function update_hamster_db () {
   # hamster-larry.db was touched somehow and shows up newer than. dahfuh?
   info "LATEST_HAMMY: ${FG_LAVENDER}${LATEST_HAMMY}"
 
-  if [[ -n ${LATEST_HAMMY} ]]; then
+  if [[ -n "${LATEST_HAMMY}" ]]; then
 #        echo
 #        echo "hamster love says:"
 #        echo
@@ -2311,7 +2316,7 @@ function update_hamster_db () {
 
     # FIXME: hamster-love --option to not ask to replace, maybe --no
     if false; then
-      local love_says=$(hamster-love ${LATEST_HAMMY} ${CURLY_PATH}/hamster-$(hostname).db)
+      local love_says=$(hamster-love "${LATEST_HAMMY}" "${CURLY_PATH}/hamster-$(hostname).db")
       #info "hamster love says:\n${love_says}"
       #info "hamster love says:\n${BG_PINK}${FG_MAROON}${love_says}"
       info \
@@ -2321,7 +2326,7 @@ function update_hamster_db () {
     fi
 # FOR NOW, cannot pretty-print in color...
     info "${BG_PINK}${FG_MAROON}🍁  🍁  🍁   hamster love says:  🍁  🍁  🍁                ${FONT_NORMAL}"
-    hamster-love ${LATEST_HAMMY} ${CURLY_PATH}/hamster-$(hostname).db
+    hamster-love "${LATEST_HAMMY}" "${CURLY_PATH}/hamster-$(hostname).db"
     info " ${BG_PINK}${FG_MAROON}                                                                               "
 
 
@@ -2334,14 +2339,14 @@ function update_hamster_db () {
 
 function unpack () {
 
-  if [[ ! -d ${EMISSARY} ]]; then
+  if [[ ! -d "${EMISSARY}" ]]; then
     error "FATAL: The emissary directory was not found at ${EMISSARY}."
     exit 1
   fi
 
-  mkdir -p ${UNPACKERED_PATH}
+  mkdir -p "${UNPACKERED_PATH}"
 
-  if [[ -f ${USERS_CURLY}/master_chef ]]; then
+  if [[ -f "${USERS_CURLY}/master_chef" ]]; then
     unpack_plaintext_archives
   fi
 
@@ -2393,19 +2398,19 @@ function unpack () {
 
 function prepare_shim () {
 
-  if [[ ! -d ${EMISSARY} ]]; then
+  if [[ ! -d "${EMISSARY}" ]]; then
     echo "FATAL: The emissary directory was not found at ${EMISSARY}."
     exit 1
   fi
 
   info "Making: ${USERS_CURLY}/TBD-shim"
 
-  mkdir -p ${USERS_CURLY}/TBD-shim
+  mkdir -p "${USERS_CURLY}/TBD-shim"
 
-  pushd ${USERS_CURLY}/TBD-shim &> /dev/null
+  pushd "${USERS_CURLY}/TBD-shim" &> /dev/null
 
   # git_check_generic_file sets ${git_result} to 0 if file is dirty.
-  git_check_generic_file ${SCRIPT_ABS_PATH}
+  git_check_generic_file "${SCRIPT_ABS_PATH}"
 
   USE_GOOEY=true
   if [[ $git_result -eq 0 ]]; then
@@ -2416,7 +2421,7 @@ function prepare_shim () {
     debug " Using gooey $(basename -- "${SCRIPT_ABS_PATH}")"
   fi
 
-  PREFIX=""
+  PREFIX=''
   if ${USE_GOOEY}; then
     PREFIX="${EMISSARY}/gooey/"
     mount_curly_emissary_gooey
@@ -2424,7 +2429,7 @@ function prepare_shim () {
 
   trace "  Copying: ${PREFIX}${SCRIPT_ABS_PATH}"
 
-  /bin/cp -aLf ${PREFIX}${SCRIPT_ABS_PATH} travel_shim.sh
+  /bin/cp -aLf "${PREFIX}${SCRIPT_ABS_PATH}" travel_shim.sh
   chmod 775 travel_shim.sh
 
   # MAINTAIN/2018-03-24: Keep these copies updated with whatever libs you add!
@@ -2434,22 +2439,22 @@ function prepare_shim () {
   #     source process_util.sh
 
   trace "  Copying: ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/curly_util.sh"
-  /bin/cp -aLf ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/curly_util.sh .
+  /bin/cp -aLf "${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/curly_util.sh" .
 
   trace "  Copying: ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/color_util.sh"
-  /bin/cp -aLf ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/color_util.sh .
+  /bin/cp -aLf "${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/color_util.sh" .
 
   trace "  Copying: ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/logger.sh"
-  /bin/cp -aLf ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/logger.sh .
+  /bin/cp -aLf "${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/logger.sh" .
 
   trace "  Copying: ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/git_util.sh"
-  /bin/cp -aLf ${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/git_util.sh .
+  /bin/cp -aLf "${PREFIX}${FRIES_ABS_DIRN}/.fries/lib/git_util.sh" .
 
   trace "  Copying: ${PREFIX}${SYNC_REPOS_PATH}"
-  /bin/cp -aLf ${PREFIX}${SYNC_REPOS_PATH} .
+  /bin/cp -aLf "${PREFIX}${SYNC_REPOS_PATH}" .
 
   trace "  Copying: ${PREFIX}${TRAVEL_TASKS_PATH}"
-  /bin/cp -aLf ${PREFIX}${TRAVEL_TASKS_PATH} .
+  /bin/cp -aLf "${PREFIX}${TRAVEL_TASKS_PATH}" .
 
   tweak_errexit
   command -v user_do_prepare_shim &> /dev/null
