@@ -1060,9 +1060,9 @@ git_merge_ff_only () {
   local changes_bin="$( \
     eval "echo \"${git_says}\" | grep -P \"${pattern_bin}\" | ${grep_sed_sed}" \
   )"
-  [[ -n ${changes_txt} ]] && \
+  [[ -n "${changes_txt}" ]] && \
     info "Changes! in txt: ${FG_LAVENDER}${working_dir}\n${FG_WHITE}${changes_txt}"
-  [[ -n ${changes_bin} ]] && \
+  [[ -n "${changes_bin}" ]] && \
     info "Changes! in bin: ${FG_LAVENDER}${working_dir}\n${FG_WHITE}${changes_bin}"
 
   # (lb): Not quite sure why git_must_not_rebasing would not have failed first.
@@ -1159,7 +1159,7 @@ fi
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 check_git_clone_or_pull_error () {
-  local ret_code=$1
+  local ret_code="$1"
   local git_resp="$2"
   if [[ ${ret_code} -ne 0 ]]; then
     local failed=true
