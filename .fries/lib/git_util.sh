@@ -1281,15 +1281,15 @@ git-jockey () {
     toplevel_common_file+=("README.rst")
     #echo "Checking single dirty files..."
     for ((i = 0; i < ${#toplevel_common_file[@]}; i++)); do
-      DIRTY_BNAME=$(basename -- "${toplevel_common_file[$i]}")
-      if [[ -f $REPO_PATH/${DIRTY_BNAME} ]]; then
-        echo "Checking ${DIRTY_BNAME}"
+      local dirty_bname=$(basename -- "${toplevel_common_file[$i]}")
+      if [[ -f "${REPO_PATH}/${dirty_bname}" ]]; then
+        echo "Checking ${dirty_bname}"
         AUTO_COMMIT_FILES=true \
           git_commit_generic_file \
             "${toplevel_common_file[$i]}" \
-            "Update ${DIRTY_BNAME}."
+            "Update ${dirty_bname}."
       else
-        echo "Skipping ${DIRTY_BNAME}"
+        echo "Skipping ${dirty_bname}"
       fi
     done
   fi

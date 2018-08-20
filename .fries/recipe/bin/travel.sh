@@ -1698,8 +1698,8 @@ function git_commit_dirty_sync_repos () {
 
   for ((i = 0; i < ${#AUTO_GIT_ONE[@]}; i++)); do
     trace " ${AUTO_GIT_ONE[$i]}"
-    DIRTY_BNAME=$(basename -- "${AUTO_GIT_ONE[$i]}")
-    git_commit_generic_file "${AUTO_GIT_ONE[$i]}" "Update ${DIRTY_BNAME}."
+    local dirty_bname=$(basename -- "${AUTO_GIT_ONE[$i]}")
+    git_commit_generic_file "${AUTO_GIT_ONE[$i]}" "Update ${dirty_bname}."
   done
 
   debug "Auto-committing all repos' consumable dirty files..."
