@@ -83,7 +83,7 @@ setup_users_curly_path () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-function ensure_dropbox_running () {
+ensure_dropbox_running () {
   #dropbox.py status | grep "Dropbox isn't running" &> /dev/null
   #if [[ $? -eq 0 ]]; then
   dropbox.py status | grep "Up to date" &> /dev/null
@@ -120,7 +120,7 @@ function ensure_dropbox_running () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-function passtore-ci () {
+passtore-ci () {
   pushd ${HOME}/.password-store &> /dev/null
   git push origin master
   popd &> /dev/null

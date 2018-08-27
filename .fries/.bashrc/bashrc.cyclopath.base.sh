@@ -141,7 +141,7 @@ ctwait () {
 #
 # 2012.10.17: Convert logc to a command so we can execute it on bash startup.
 #  alias logc='tail -F ~/.macromedia/Flash_Player/Logs/flashlog.txt'
-function logc () {
+logc () {
   tail -F ~/.macromedia/Flash_Player/Logs/flashlog.txt
 }
 #
@@ -1048,11 +1048,11 @@ export PYSERVER_HOME=$CCP_DEV_DIR/cp/pyserver
 
 # MAYBE: I'm not sure what fcn. name I like. svncp makes sense when you are not
 # specifiying file names but are sending what's marked modifed in `svn status`.
-function svncp () {
+svncp () {
   ccpcp $*
 }
 
-function ccpcp () {
+ccpcp () {
   if [[ "$1" == "" ]]; then
     echo "Please specify the relative path to copy remotely."
     echo "You may specify files or we'll send modified SVN files."

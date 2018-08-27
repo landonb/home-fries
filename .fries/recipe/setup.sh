@@ -31,7 +31,7 @@ CANON_CURLY=$(readlink -f -- "${SCRIPT_DIR}")
 # Get the name of just the directory it's in.
 CANON_BNAME=$(basename -- "${CANON_CURLY}")
 
-function errexit_cleanup () {
+errexit_cleanup () {
     echo
     echo "ERROR: The script failed!!"
     # No exit necessary, unless we want to specify status.

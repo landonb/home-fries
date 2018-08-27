@@ -24,7 +24,7 @@ fi
 # EXPLAIN/2017-04-03: Frack. I added this function 2017-02-27 10:17:12.
 #   I think it was so Command-T in Vim (activated by Ctrl-D) would work
 #   (otherwise, it complains that Vim's Ruby version differs from the OS's.)
-function git_install_from_git_core_ppa () {
+git_install_from_git_core_ppa () {
   if ${SKIP_EVERYTHING:-false}; then
     echo "Skipping task!"
     return

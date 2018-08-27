@@ -151,7 +151,7 @@ alias scpd='scp /ccp/bin/ccpdev/daily/* $mypr:/ccp/bin/ccpdev/daily'
 # 2015.01.25: Use a better tool, like `unison`, if you want
 #             to sync files in lieu of using a code repository.
 
-function cpput_ () {
+cpput_ () {
   ########
   # 2015.01.25: Deprecated: Consider using `unison` instead, to prevent
   #             you from overwriting remote changes not reflected locally.
@@ -227,7 +227,7 @@ function cpput_ () {
   return 0
 }
 
-function cpput () {
+cpput () {
   # From home, usually only every other rysnc command works.
   # The every other rsync gripes,
   #   protocol version mismatch -- is your shell clean?

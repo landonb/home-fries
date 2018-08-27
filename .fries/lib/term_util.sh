@@ -26,7 +26,7 @@ source_deps () {
 DUBS_STICKY_PREFIX='(Dubs) '
 DUBS_STICKY_PREFIX_RE='\(Dubs\) '
 
-function dubs_set_terminal_prompt() {
+dubs_set_terminal_prompt () {
   local ssh_host=$1
 
   # (lb): Note that color_util.sh defines similar colors, but without

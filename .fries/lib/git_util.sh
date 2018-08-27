@@ -1348,7 +1348,7 @@ git_status_all () {
 # dastardly accidentally typed command! Sometimes when I mean to type
 # `git reset HEAD blurgh`, sometimes I start typing `git co -- blurgh`
 # oh no!
-function cis_git() {
+cis_git () {
   # "co" is a home frites `co = checkout` alias.
   # I'm not concerned with the long-form [2017-06-06: Boo, still hyphenated]
   # counterpart, "checkout". I just don't want to `git co -- oops` without

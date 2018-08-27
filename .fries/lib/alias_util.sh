@@ -361,7 +361,7 @@ home_fries_create_aliases_greppers () {
 
 # 2015.04.04: Tray Cray.
 # FIXME: completions... limit to just directories, eh.
-function cdd_() {
+cdd_ () {
   if [[ -n $2 ]]; then
     echo 'You wish!' $*
     return 1

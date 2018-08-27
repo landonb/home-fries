@@ -67,7 +67,7 @@ empty_trashes () {
   done
 }
 
-function device_on_which_file_resides() {
+device_on_which_file_resides () {
   local owning_device=""
   if [[ -d "$1" || -f "$1" ]]; then
     owning_device=$(df "$1" | awk 'NR == 2 {print $1}')
@@ -89,7 +89,7 @@ function device_on_which_file_resides() {
   echo $owning_device
 }
 
-function device_filepath_for_file() {
+device_filepath_for_file () {
   local device_path=""
   local usage_report=$(df "$1")
   if [[ $? -eq 0 ]]; then
@@ -105,7 +105,7 @@ function device_filepath_for_file() {
   echo $device_path
 }
 
-function ensure_trashdir() {
+ensure_trashdir () {
   local device_trashdir="$1"
   local trash_device="$2"
   local ensured=0
@@ -152,7 +152,7 @@ function ensure_trashdir() {
   return ${ensured}
 }
 
-function rm_safe() {
+rm_safe () {
   if [[ ${#*} -eq 0 ]]; then
     echo "rm_safe: missing operand"
     echo "Try '/bin/rm --help' for more information."
@@ -225,7 +225,7 @@ function rm_safe() {
   IFS=$old_IFS
 }
 
-function rm_safe_deprecated() {
+rm_safe_deprecated () {
   /bin/mv --target-directory ${trashdir}/.trash "$*"
 }
 

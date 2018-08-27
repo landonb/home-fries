@@ -15,7 +15,7 @@ source ./_announcement.sh
 # EXPLAIN/2017-04-03: Frack. I added this function 2017-02-27 10:17:12.
 #   I think it was so Command-T in Vim (activated by Ctrl-D) would work
 #   (otherwise, it complains that Vim's Ruby version differs from the OS's.)
-function vim_clone_compile_install () {
+vim_clone_compile_install () {
   if ${SKIP_EVERYTHING:-false}; then
     echo "Skipping task!"
     return
