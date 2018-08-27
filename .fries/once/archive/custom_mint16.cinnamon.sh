@@ -9,7 +9,7 @@
 echo "STALE/DEAD"
 exit 1
 
-source_deps() {
+source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   # Load: OPT_* environs.
   source ${curdir}/../../lib/fries_util.sh

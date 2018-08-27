@@ -30,7 +30,7 @@ errexit_cleanup () {
 }
 trap errexit_cleanup EXIT
 
-source_deps() {
+source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   source ${curdir}/../lib/bash_base.sh
   source ${curdir}/../lib/fries_util.sh
@@ -7241,7 +7241,7 @@ stage_4_tmux () {
 
 } # end: stage_4_tmux
 
-add_to_completions_tmuxinator() {
+add_to_completions_tmuxinator () {
   local tmux_bin
   tmux_bin=$(command -v tmuxinator 2> /dev/null)
   if [[ $? -eq 0 ]]; then

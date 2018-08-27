@@ -13,7 +13,7 @@
 
 # "Picking up aliases and functions". Via:
 #  https://github.com/direnv/direnv/issues/73
-direnv_export() {
+direnv_export () {
   local name=$1
   local alias_dir=$PWD/.direnv/aliases
   mkdir -p "$alias_dir"

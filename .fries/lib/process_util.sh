@@ -12,7 +12,7 @@
 # ============================================================================
 # *** Are we being run or sourced?
 
-must_sourced() {
+must_sourced () {
   [[ -z "$1" ]] && echo "must_sourced: missing param: \${BASH_SOURCE[0]}" && exit 1
   if [[ "$0" == "$1" ]]; then
     # Not being sourced, but being run.
@@ -234,7 +234,7 @@ killsomething () {
   return 0
 }
 
-main() {
+main () {
   suss_errexit
 }
 

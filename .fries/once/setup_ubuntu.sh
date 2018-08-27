@@ -28,7 +28,7 @@
 # ------------------------------------------
 # Bootstrap
 
-source_deps() {
+source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
 
   local bash_base="${curdir}/../lib/bash_base.sh"
@@ -185,7 +185,7 @@ ensure_directory_hierarchy_exists ${OPT_DLOADS}
 MAKE_CONF_DUMPS=false
 #MAKE_CONF_DUMPS=true
 
-user_home_conf_dump() {
+user_home_conf_dump () {
   if ${MAKE_CONF_DUMPS} && [[ ${IS_HEADED_MACHINE_ANSWER} == "Y" ]]; then
     RELAT=$1
 

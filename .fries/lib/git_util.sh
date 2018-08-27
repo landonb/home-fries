@@ -12,7 +12,7 @@
 
 TRAVEL_REMOTE="travel"
 
-source_deps() {
+source_deps () {
   # source defaults to the current directory, but the caller's,
   # so this won't always work:
   #   source bash_base.sh
@@ -1390,7 +1390,7 @@ function cis_git() {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # 2017-10-03: An infuse function, for overlaying private files atop a repo.
-git_infuse_gitignore_local() {
+git_infuse_gitignore_local () {
   [[ -z "$1" ]] && echo "${FUNCNAME[0]}: missing param" && exit 1
   if [[ ! -d ".git/info" ]]; then
     warn "WARNING: Cannot infuse .gitignore.local under $(pwd -P): no .git/info"
@@ -1408,7 +1408,7 @@ git_infuse_gitignore_local() {
   /bin/ln -sf .git/info/exclude .gitignore.local
 }
 
-git_infuse_assume_unchanging() {
+git_infuse_assume_unchanging () {
   local fpath
   local fname
   local opath
@@ -1465,7 +1465,7 @@ git_infuse_assume_unchanging() {
   popd_perhaps "${pdir}"
 }
 
-git_unfuse_symlink() {
+git_unfuse_symlink () {
   local fpath
   [[ -z "$1" ]] && (echo "${FUNCNAME[0]}: missing param" && exit 1) || fpath="$1"
   local fname=$(basename -- "${fpath}")
@@ -1484,7 +1484,7 @@ git_unfuse_symlink() {
   popd_perhaps "${pdir}"
 }
 
-git_unfuse_hardcopy() {
+git_unfuse_hardcopy () {
   local fpath
   [[ -z "$1" ]] && (echo "${FUNCNAME[0]}: missing param" && exit 1) || fpath="$1"
   local fname=$(basename -- "${fpath}")
@@ -1510,7 +1510,7 @@ git_unfuse_hardcopy() {
 # git-remote-v-all
 
 # Recursively find all git repos in a directory and print their path and remote URLs.
-git-remote-v-all() {
+git-remote-v-all () {
   [[ ! -d "$1" ]] && >&2 echo "Please specify a directory!" && return 1
   local git_path
   local once=false
@@ -1527,7 +1527,7 @@ git-remote-v-all() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main() {
+main () {
   source_deps
 
   SKIP_GIT_DIRTY=false

@@ -11,7 +11,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps() {
+source_deps () {
   :
 }
 
@@ -21,7 +21,7 @@ source_deps() {
 ################
 
 # 2018-01-29: This fcn. is not called; has not been called in *YEARS*.
-home_fries_create_aliases_cygwin() {
+home_fries_create_aliases_cygwin () {
   alias c:='cd /cygdrive/c'
   alias d:='cd /cygdrive/d'
   alias e:='cd /cygdrive/e'
@@ -33,7 +33,7 @@ home_fries_create_aliases_cygwin() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main() {
+main () {
   : #source_deps
 }
 

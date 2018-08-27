@@ -1,7 +1,7 @@
 
 # FIXME: This should be in recipe/, I wonder...
 
-clone_repos() {
+clone_repos () {
 
 	cd ${HOME}/.vim/bundle_
 

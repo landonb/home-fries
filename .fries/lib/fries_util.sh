@@ -13,7 +13,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps() {
+source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   source ${curdir}/process_util.sh
 }
@@ -23,7 +23,7 @@ source_deps() {
 # *** Dubsacks-related
 
 # -- Local resources, downloaded. Where they go.
-default_opt_paths() {
+default_opt_paths () {
   # We could download tarchives and whatnots to ~/Downloads but so many
   # applications use the home directory anyway, it's easier to keep
   # track of our files (what we'll deliberately setup) by using our own
@@ -45,7 +45,7 @@ default_opt_paths() {
 
 # --- Completion options
 
-home_fries_init_completions() {
+home_fries_init_completions () {
   # These completion tuning parameters change the behavior of bash_completion.
 
   # Access remotely checked-out files over passwordless ssh for CVS.
@@ -76,7 +76,7 @@ home_fries_init_completions() {
 
 # --- Re-enable better Bash tab auto-completion.
 
-home_fries_direxpand_completions() {
+home_fries_direxpand_completions () {
   # With thanks to:
   #   http://askubuntu.com/questions/70750/
   #     how-to-get-bash-to-stop-escaping-during-tab-completion
@@ -94,7 +94,7 @@ home_fries_direxpand_completions() {
 
 # --- Generic completions
 
-home_fries_load_completions() {
+home_fries_load_completions () {
   # Bash command completion (for dub's apps).
   if [[ -d ${HOMEFRIES_DIR}/bin/completions ]]; then
     # 2016-06-28: Currently just ./termdub_completion.
@@ -117,7 +117,7 @@ home_fries_load_completions() {
 
 # --- SDKMAN
 
-home_fries_load_sdkman() {
+home_fries_load_sdkman () {
   # 2017-02-25: Such Yellers! The SDKMAN! installer appended this to .bashrc:
   #   #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
   if [[ -d "${HOME}/.sdkman" ]]; then
@@ -128,7 +128,7 @@ home_fries_load_sdkman() {
 
 # --- NVM
 
-home_fries_load_nvm_and_completion() {
+home_fries_load_nvm_and_completion () {
   # 2017-07-20: What nvm writes to the end of ~/.bashrc.
   #  curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash
   if [[ -d $HOME/.nvm ]]; then
@@ -142,7 +142,7 @@ home_fries_load_nvm_and_completion() {
 
 # LD_LIBRARY_PATH
 
-home_fries_append_ld_library_path() {
+home_fries_append_ld_library_path () {
   # 2015.01.20: This seems really weird, having to set LD_LIBRARY_PATH.
   #             In Cyclopath, we set this for gdal and geos when
   #             we startup pyserver, but we don't set this for
@@ -160,7 +160,7 @@ home_fries_append_ld_library_path() {
 
 # SQLITE3 / LD_LIBRARY_PATH / SELECT load_extension()/.load
 
-home_fries_alias_ld_library_path_cmds() {
+home_fries_alias_ld_library_path_cmds () {
   # 2016-05-03: sqlite3 looks for extensions in the local dir and at
   #             LD_LIBRARY_PATH, but the latter isn't really set up,
   #             e.g., on one machine, it's "/usr/lib/expect5.45:" and
@@ -212,7 +212,7 @@ configure_crontab () {
 
 # Default Editor for git, cron, etc.
 
-home_fries_export_editor_vim() {
+home_fries_export_editor_vim () {
   # When you run crontab, it calls /usr/bin/sensible-editor to run an editor.
   # You can set the editor using /usr/bin/select-editor.
   # For machines without the latter installed, set the EDITOR variable.
@@ -230,7 +230,7 @@ home_fries_export_editor_vim() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main() {
+main () {
   source_deps
 
   must_sourced "${BASH_SOURCE[0]}"

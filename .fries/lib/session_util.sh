@@ -11,7 +11,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps() {
+source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   # termdo-all, etc.
   source ${curdir}/term_util.sh
@@ -223,7 +223,7 @@ disable_wakeup_on_lid () {
 
 # Shell Options
 
-home_fries_configure_shell_options() {
+home_fries_configure_shell_options () {
   # See man bash for more options.
 
   # Don't wait for job termination notification.
@@ -241,7 +241,7 @@ home_fries_configure_shell_options() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-pm-latest() {
+pm-latest () {
   if command -v journalctl &> /dev/null; then
     # NOTE: In lieu of a /var/log/pm-suspend.log, which you won't find
     #       on Ubuntu, use journalctl to see when system was last woke.
@@ -297,14 +297,14 @@ pm-latest() {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Test if Bash function exists.
-fn_exists() {
+fn_exists () {
   type -t $1 > /dev/null
 }
 alias function_exists=fn_exists
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main() {
+main () {
   source_deps
 }
 

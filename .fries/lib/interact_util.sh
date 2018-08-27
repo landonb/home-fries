@@ -10,7 +10,7 @@
 
 # Usage: Source this script. Call its functions. Use its exports.
 
-source_deps() {
+source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   source ${curdir}/bash_base.sh
   source ${curdir}/process_util.sh
@@ -135,7 +135,7 @@ ask_yes_no_default () {
 # ============================================================================
 
 # Invert screen colors. Useful for alerting thyself from thine script.
-flicker() {
+flicker () {
   # SETUP: sudo apt-get install xcalib
   # SOURCE: https://github.com/OpenICC/xcalib
   # RELATED: https://github.com/zoltanp/xrandr-invert-colors
@@ -150,7 +150,7 @@ alias invert='flicker'
 
 # ============================================================================
 
-main() {
+main () {
   source_deps
 }
 

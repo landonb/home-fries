@@ -12,7 +12,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps() {
+source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   source ${curdir}/bash_base.sh
   source ${curdir}/process_util.sh
@@ -22,7 +22,7 @@ source_deps() {
 
 # *** Ubuntu-related
 
-distro_complain_not_ubuntu_or_red_hat() {
+distro_complain_not_ubuntu_or_red_hat () {
   if [[ -e /proc/version ]]; then
     if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
       # echo Ubuntu!
@@ -41,7 +41,7 @@ distro_complain_not_ubuntu_or_red_hat() {
   fi
 }
 
-suss_distro() {
+suss_distro () {
   # 2017-05-03: Disabling. Nothing uses any of these vars, AFAICT.
   if false; then
     # In the regex, \1 is the Fedora release, e.g., '14', and \2 is the friendly
@@ -160,7 +160,7 @@ screensaver_lockon () {
 
 # *** Apache-related
 
-suss_apache() {
+suss_apache () {
   # Determine the name of the apache user.
   if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
     # echo Ubuntu.
@@ -203,7 +203,7 @@ ccp_apache_reload () {
 # *** Python-related
 
 # Determine the Python version-path.
-suss_python() {
+suss_python () {
   # NOTE: The |& redirects the python output (which goes to stderr) to stdout.
 
   # FIXME: Delete this and use the parsing version below.
@@ -269,7 +269,7 @@ suss_python() {
 
 # *** Postgres-related
 
-suss_postgres() {
+suss_postgres () {
   # Set this to, e.g., '8.4' or '9.1'.
   #
   # Note that if you alias sed, e.g., sed='sed -r', then you'll get an error if
@@ -295,7 +295,7 @@ suss_postgres() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main() {
+main () {
   source_deps
 
   suss_distro

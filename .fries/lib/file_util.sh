@@ -11,13 +11,13 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps() {
+source_deps () {
   :
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_default_umask() {
+home_fries_default_umask () {
   # Set umask to ensure group r-w-x permissions for new files and directories
   # (for collaborative development, e.g., so a co-worker can ssh to your machine
   # and poke around your files).
@@ -59,7 +59,7 @@ home_fries_default_umask() {
 
 # Tell psql to use less for large output
 
-home_fries_wire_export_less() {
+home_fries_wire_export_less () {
   # In Fedora (at least not in Ubuntu at work), if this isn't on, psql
   # paginates large output, but you can only hit space to go through it
   # (there's no going backwards) and the output is left in the command
@@ -168,7 +168,7 @@ fi
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main() {
+main () {
   : #source_deps
 }
 

@@ -11,7 +11,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps() {
+source_deps () {
   :
 }
 
@@ -34,7 +34,7 @@ source_deps() {
 
 # OTHER: Super_L is the "Windows" key.
 
-home_fries_map_keys_lenovo() {
+home_fries_map_keys_lenovo () {
   # A sudo way:
   #   sudo dmidecode | \
   #     grep "Version: ThinkPad X201" > /dev/null \
@@ -90,7 +90,7 @@ home_fries_map_keys_lenovo() {
 #
 #   QUESTION: What (laptop?) keyboard was this for?
 #
-home_fries_map_keys_2x3() {
+home_fries_map_keys_2x3 () {
   # Not all keyboards arrange their six page keys the same way. Some use
   # two rows and three columns, and some use three rows and two columns.
   # And even when the rows and columns match, not all keyboards use the
@@ -162,7 +162,7 @@ home_fries_map_keys_2x3() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main() {
+main () {
   : #source_deps
 }
 

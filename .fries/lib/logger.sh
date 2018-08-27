@@ -101,7 +101,7 @@ verbose () {
   log_msg ${LOG_LEVEL_VERBOSE} $(fg_mediumgrey) VERB "$@"
 }
 
-test_logger() {
+test_logger () {
   fatal "FATAL: I'm gonna die!"
   critical "CRITICAL: Take me to a hospital!"
   error "ERROR: Oops! I did it again!!"

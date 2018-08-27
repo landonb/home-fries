@@ -10,7 +10,7 @@
 
 # *** Doobious Sources
 
-source_utils() {
+source_utils () {
   # Generally, FRIES_DIR=${HOME}/.fries [a/k/a /home/${LOGNAME}/.fries]
   export HOMEFRIES_DIR=$(dirname $(dirname -- "${BASH_SOURCE[0]}"))
   if [[ ${HOMEFRIES_DIR} == '/' ]]; then
@@ -73,7 +73,7 @@ source_utils() {
   fi
 }
 
-source_addit() {
+source_addit () {
   # 2016-11-18: Wow. This has been here for years, commented out,
   # because I haven't use mkvirtualenv in oh so very, very long.
   # Welcome back, friend.
@@ -84,7 +84,7 @@ source_addit() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_up() {
+home_fries_up () {
 
   #########################
 
@@ -282,7 +282,7 @@ home_fries_up() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main() {
+main () {
   source_utils
   unset source_utils
 

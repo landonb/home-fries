@@ -11,7 +11,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps() {
+source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   # determine_window_manager
   source ${curdir}/distro_util.sh
@@ -215,7 +215,7 @@ function dubs_set_terminal_prompt() {
 #   http://bashdb.sourceforge.net/
 #   http://www.linuxtopia.org/online_books/advanced_bash_scripting_guide/debugging.html
 #   http://www.cyberciti.biz/tips/debugging-shell-script.html
-dubs_set_PS4() {
+dubs_set_PS4 () {
   # Default is: PS4='+'
   PS4='(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]} - [${SHLVL},${BASH_SUBSHELL}, $?]
   '
@@ -226,7 +226,7 @@ dubs_set_PS4() {
 # Fix ls -C
 ###########
 
-dubs_fix_terminal_colors() {
+dubs_fix_terminal_colors () {
   # On directories with world-write (0002) privileges,
   # the directory name is blue on green, which is hard to read.
   # 42 is the green background, which we turn to white, 47.
@@ -440,7 +440,7 @@ termdo-sudo-reset () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-enable_vi_style_editing() {
+enable_vi_style_editing () {
   # Vi-style editing.
 
   # MAYBE:
@@ -459,7 +459,7 @@ enable_vi_style_editing() {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # 2017-06-06: Still refining Bash input experience.
-default_yes_question() {
+default_yes_question () {
   echo -n "Tell me yes or no. [Y/n] "
   read -e YES_OR_NO
   if [[ ${YES_OR_NO^^} =~ ^Y.* || -z ${YES_OR_NO} ]]; then
@@ -473,7 +473,7 @@ default_yes_question() {
 
 # NOTE: You can also precede the echo:
 #         >&2 echo "blah"
-echoerr() { echo "$@" 1>&2; }
+echoerr () { echo "$@" 1>&2; }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -537,13 +537,13 @@ space () {
   wmctrl -i -a ${active_window}
 }
 
-echo_wmctrl_sticky_cmd_winid() {
+echo_wmctrl_sticky_cmd_winid () {
   local winid=$1
   echo -e " wmctrl -b add,sticky -i -r ${winid}" \
     "$(fg_mintgreen)$(wmctrl -l | grep "^${winid}" | cut -d ' ' -f 4-)$(attr_reset)"
 }
 
-echo_wmctrl_sticky_cmd_winname() {
+echo_wmctrl_sticky_cmd_winname () {
   local winname=$1
   local winid=$(wmctrl -l | grep "${winname}$" | cut -d ' ' -f 1)
   if [[ -n ${winid} ]]; then
@@ -563,7 +563,7 @@ echo_wmctrl_sticky_cmd_winname() {
 if false; then
   # —————— ✂ ——— ✁ —————— [ copy-paste ] —————— ✁ ——— ✂ ——————
 
-  private_space() {
+  private_space () {
     declare -a winnames=()
     # Dubsacks Vim, e.g., if you send files to the same GVim with:
     #  gvim --servername SAMPI --remote-silent path/to/file
@@ -587,7 +587,7 @@ if false; then
     done
   }
 
-  monkey_patch_space() {
+  monkey_patch_space () {
     # Remove the first two lines and last line, e.g.,:
     #   function()
     #   {
@@ -595,7 +595,7 @@ if false; then
     #   }
     old_space=$(declare -f space | tail -n +3 | head -n -1)
 
-    space() {
+    space () {
       # Meh. Don't validate the desktop number before making windows sticky.
       # (We need to do this before running old_space, to ensure that our
       #  favorite windows are sticky first, before reassigning sticky parents.
@@ -614,7 +614,7 @@ fi
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-sleep_then_ensure_always_on_visible_desktop() {
+sleep_then_ensure_always_on_visible_desktop () {
   if ${DUBS_ALWAYS_ON_VISIBLE:-false}; then
     sleep 3  #  MAGIC_NUMBER: It takes a few seconds for Home Fries to load.
     local winids
@@ -625,7 +625,7 @@ sleep_then_ensure_always_on_visible_desktop() {
   fi
 }
 
-dubs_always_on_visible_desktop() {
+dubs_always_on_visible_desktop () {
   if ${DUBS_ALWAYS_ON_VISIBLE:-false}; then
     # (lb): Gah. If you open lots of windows at once (or just change
     # focus to another window as the terminal is loading [as Home Fries
@@ -667,7 +667,7 @@ dubs_always_on_visible_desktop() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main() {
+main () {
   source_deps
 }
 

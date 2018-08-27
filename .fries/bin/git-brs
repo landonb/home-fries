@@ -8,7 +8,7 @@
 # For GREP_COLORS, see:
 #   http://www.arwin.net/tech/bash.php
 
-git-brs() {
+git-brs () {
 #git --no-pager branch -avv | egrep -v "remotes/travel/" | GREP_COLOR="00;37" egrep --color=always -e " [a-f0-9]{8} |$" | GREP_COLOR="01;37" egrep --color=always -e "\[[^]*\]|$" | GREP_COLOR="01;35" egrep --color=always -e "^  [^[:space:]]*|$" | GREP_COLOR="01;33" egrep --color=always -e "[[:space:]]+feature/([^] :])*|$" | GREP_COLOR="01;32" egrep --color=always -e "[[:space:]]+wip/([^] :])*|$" | GREP_COLOR="01;36" egrep --color=always -e "[[:space:]]+develop|[[:space:]]+master|$"
   git --no-pager branch -avv \
     | egrep -v "remotes/travel/" \
@@ -28,7 +28,7 @@ git-brs() {
 #    | GREP_COLOR="00;33;47" egrep --color=always -e "remotes/([^] :])*|$" \
 }
 
-main() {
+main () {
   git-brs
 }
 

@@ -12,7 +12,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps() {
+source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   source ${curdir}/process_util.sh
   # Load: warn, etc.
@@ -263,7 +263,7 @@ ensure_directory_hierarchy_exists () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-symlink_infuse_file() {
+symlink_infuse_file () {
   local source_f="$1"
   local target_f="$2"
   if [[ ! -e "${target_f}" ]]; then
@@ -284,11 +284,11 @@ symlink_infuse_file() {
   fi
 }
 
-symlink_local_file() {
+symlink_local_file () {
   symlink_infuse_file "$1/$2" "${3:-$2}"
 }
 
-symlink_infuses_files_first() {
+symlink_infuses_files_first () {
   local target_f="$1"
   shift
   if [[ ! -e "${target_f}" || -h "${target_f}" ]]; then
@@ -313,7 +313,7 @@ symlink_infuses_files_first() {
 }
 
 # MEH: I could probably DRY symlink_infuse_file and symlink_infuse_dir.
-symlink_infuse_dir() {
+symlink_infuse_dir () {
   local source_f="$1"
   local target_f="$2"
   if [[ ! -e "${target_f}" ]]; then
@@ -334,7 +334,7 @@ symlink_infuse_dir() {
   fi
 }
 
-symlink_local_dir() {
+symlink_local_dir () {
   symlink_infuse_dir "$1/$2" "${3:-$2}"
 }
 
@@ -342,7 +342,7 @@ symlink_local_dir() {
 
 # *** Main.
 
-main() {
+main () {
   source_deps
 }
 

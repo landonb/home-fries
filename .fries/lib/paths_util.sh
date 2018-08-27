@@ -11,7 +11,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps() {
+source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   # FIXME/2018-06-04: (lb): Move device_on_which_file_resides out of trash_util.sh?
   # Load device_on_which_file_resides.
@@ -55,7 +55,7 @@ path_add_part () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_set_path_environ() {
+home_fries_set_path_environ () {
   # Home-fries scripts are in ~/.fries/bin. Third-party applications installed
   # by custom_setup.extras.sh et al are installed to /srv/opt/bin.
 
@@ -244,7 +244,7 @@ home_fries_set_path_environ() {
 #       But I cannot imagine `manpath` returning anything different
 #       later in the session; after we setup PATH, manpath should keep
 #       returning the same paths. So just take that output and edit it.
-home_fries_configure_manpath() {
+home_fries_configure_manpath () {
   # We could warn and not mangle manpath if already set, e.g.,
   #
   #   local warn_check=$(manpath 2>&1 > /dev/null)
@@ -291,7 +291,7 @@ home_fries_configure_manpath() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main() {
+main () {
   source_deps
 }
 

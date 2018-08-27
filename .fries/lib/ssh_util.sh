@@ -11,7 +11,7 @@
 # Usage: Source this script. Call its functions. Use its exports.
 
 # Load: determine_window_manager
-source_deps() {
+source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   # Load: warn
   source ${curdir}/logger.sh
@@ -28,7 +28,7 @@ ssh_agent_kick () {
      && -e "${HOME}/.ssh" ]]; then
     # See http://help.github.com/working-with-key-passphrases/
     SSH_ENV="${HOME}/.ssh/environment"
-    function start_agent() {
+    function start_agent () {
       #echo -n "Initializing new SSH agent... "
       /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
       #echo "ok."
@@ -100,7 +100,7 @@ ssh_agent_kick () {
   export LOG_LEVEL=${old_level}
 } # end: ssh_agent_kick
 
-main() {
+main () {
   :
 }
 

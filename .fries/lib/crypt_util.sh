@@ -11,7 +11,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps() {
+source_deps () {
   :
 }
 
@@ -132,7 +132,7 @@ has_sudo () {
 }
 
 # 2018-01-29: You could also do, e.g.,:
-ensure_sudo() {
+ensure_sudo () {
   if ! sudo -nv &> /dev/null; then
     echo "You may need sudo to proceed!"
     sudo -v
@@ -141,14 +141,14 @@ ensure_sudo() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_configure_gpg_tty() {
+home_fries_configure_gpg_tty () {
   # For pinentry (for vim-gnupg):
   export GPG_TTY=`tty`
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main() {
+main () {
   : #source_deps
 }
 

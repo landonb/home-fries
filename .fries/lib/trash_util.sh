@@ -11,7 +11,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps() {
+source_deps () {
   :
 }
 
@@ -234,7 +234,7 @@ function rm_safe_deprecated() {
 # Fix rm to be a respectable trashcan
 #####################################
 
-home_fries_create_aliases_trash() {
+home_fries_create_aliases_trash () {
   alias rm='rm_safe'
   # DANGER: Will Robinson. Be careful when you repeat yourself, it'll be gone.
   alias rmrm='/bin/rm -rf'
@@ -255,7 +255,7 @@ home_fries_create_aliases_trash() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main() {
+main () {
   : #source_deps
 }
 

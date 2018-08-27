@@ -10,7 +10,7 @@
 
 # Usage: Source this script. Call its functions. Use its exports.
 
-source_deps() {
+source_deps () {
   # When sourced from ~/.fries/.bashrc/bashrc.core.sh, you cannot
   # import other files from this script's dir relatively, e.g., not:
   #   source path_util.sh
@@ -28,7 +28,7 @@ source_deps() {
 # *** Internal setup.
 
 # Enable HOMEFRIES_WARNINGS for more blather.
-default_homefries_warnings() {
+default_homefries_warnings () {
   if [[ -z ${HOMEFRIES_WARNINGS+x} ]]; then
     # Usage, e.g.:
     #   HOMEFRIES_WARNINGS=true bash
@@ -39,7 +39,7 @@ default_homefries_warnings() {
 # ============================================================================
 # *** Chattiness
 
-default_debug_trace() {
+default_debug_trace () {
   # If the user is running from a terminal (and not from cron), always be chatty.
   # But don't change the debug trace flag if caller set it before calling us.
   # NOTE -z is false if DEBUG_TRACE is true or false and true if it's unset.
@@ -53,12 +53,12 @@ default_debug_trace() {
 }
 
 # Say hello to the user.
-introduce_user_to_self() {
+introduce_user_to_self () {
   trace "Hello, ${LOGNAME}. (From: bash_base!)"
   trace ""
 }
 
-trace() {
+trace () {
   $DEBUG_TRACE && echo $1
 }
 
@@ -76,7 +76,7 @@ script_finished_print_time () {
 # *** Script paths.
 
 # Make it easy to reference the script name and relative or absolute path.
-gather_script_meta() {
+gather_script_meta () {
   # NOTE: This script gets sourced, not run, so $0 is the name of the sourcer.
   #
   #       On `bash`, when sourced from a bash startup script,
@@ -131,7 +131,7 @@ gather_script_meta() {
 # ============================================================================
 # *** End of bashy goodness.
 
-main() {
+main () {
   source_deps
 
   must_sourced ${BASH_SOURCE[0]}

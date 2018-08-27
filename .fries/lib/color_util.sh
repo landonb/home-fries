@@ -12,7 +12,7 @@
 #
 #   https://github.com/paoloantinori/hhighlighter
 
-create_colors() {
+create_colors () {
   ### === HIGH-COLOR === compatible with most terms including putty
   ### for windows... use colors that don't make your eyes bleed :)
   # NOTE/2017-05-03: Single quotes do not work. What's up with that?
@@ -93,7 +93,7 @@ create_colors() {
 
 # Fast downcase: qqvw^ou<down>q
 
-fg_pink() {
+fg_pink () {
   ### === HIGH-COLOR === compatible with most terms including putty
   ### for windows... use colors that don't make your eyes bleed :)
   # NOTE/2017-05-03: Single quotes do not work. What's up with that?
@@ -101,245 +101,245 @@ fg_pink() {
   echo "\033[38;5;211m"
 }
 
-fg_orange() {
+fg_orange () {
   echo "\033[38;5;203m"
 }
 
 # 2016-10-09: FG_SKYBLUE broken.
-#fg_skyblue() {
+#fg_skyblue () {
 #  echo "\033[38;5;111m"
 #}
 
-fg_mediumgrey() {
+fg_mediumgrey () {
   echo "\033[38;5;246m"
 }
 
-fg_lavender() {
+fg_lavender () {
   echo "\033[38;5;183m"
 }
 
-fg_tan() {
+fg_tan () {
   echo "\033[38;5;179m"
 }
 
-fg_forest() {
+fg_forest () {
   echo "\033[38;5;22m"
 }
 
-fg_maroon() {
+fg_maroon () {
   echo "\033[38;5;52m"
 }
 
-fg_hotpink() {
+fg_hotpink () {
   echo "\033[38;5;198m"
 }
 
-fg_mintgreen() {
+fg_mintgreen () {
   echo "\033[38;5;121m"
 }
 
-fg_lightorange() {
+fg_lightorange () {
   echo "\033[38;5;215m"
 }
 
-fg_lightred() {
+fg_lightred () {
   echo "\033[38;5;203m"
 }
 
-fg_jade() {
+fg_jade () {
   echo "\033[38;5;35m"
 }
 
-fg_lime() {
+fg_lime () {
   echo "\033[38;5;154m"
 }
 
 ### background colors
 
-bg_pink() {
+bg_pink () {
   echo "\033[48;5;211m"
 }
 
-bg_orange() {
+bg_orange () {
   echo "\033[48;5;203m"
 }
 
-bg_skyblue() {
+bg_skyblue () {
   echo "\033[48;5;111m"
 }
 
-bg_mediumgrey() {
+bg_mediumgrey () {
   echo "\033[48;5;246m"
 }
 
-bg_lavender() {
+bg_lavender () {
   echo "\033[48;5;183m"
 }
 
-bg_tan() {
+bg_tan () {
   echo "\033[48;5;179m"
 }
 
-bg_forest() {
+bg_forest () {
   echo "\033[48;5;22m"
 }
 
-bg_maroon() {
+bg_maroon () {
   echo "\033[48;5;52m"
 }
 
-bg_hotpink() {
+bg_hotpink () {
   echo "\033[48;5;198m"
 }
 
-bg_mintgreen() {
+bg_mintgreen () {
   echo "\033[48;5;121m"
 }
 
-bg_lightorange() {
+bg_lightorange () {
   echo "\033[48;5;215m"
 }
 
-bg_lightred() {
+bg_lightred () {
   echo "\033[48;5;203m"
 }
 
-bg_jade() {
+bg_jade () {
   echo "\033[48;5;35m"
 }
 
-bg_lime() {
+bg_lime () {
   echo "\033[48;5;154m"
 }
 
 # 2018-03-23: Aha!
 #   https://misc.flogisoft.com/bash/tip_colors_and_formatting
 
-fg_black() {
+fg_black () {
   echo "\033[30m"
 }
 
-fg_red() {
+fg_red () {
   echo "\033[31m"
 }
 
-fg_green() {
+fg_green () {
   echo "\033[32m"
 }
 
-fg_yellow() {
+fg_yellow () {
   echo "\033[33m"
 }
 
-fg_blue() {
+fg_blue () {
   echo "\033[34m"
 }
 
-fg_magenta() {
+fg_magenta () {
   echo "\033[35m"
 }
 
-fg_cyan() {
+fg_cyan () {
   echo "\033[36m"
 }
 
-fg_lightgray() {
+fg_lightgray () {
   echo "\033[37m"
 }
 
-fg_darkgray() {
+fg_darkgray () {
   echo "\033[90m"
 }
 
-fg_lightred() {
+fg_lightred () {
   echo "\033[91m"
 }
 
-fg_lightgreen() {
+fg_lightgreen () {
   echo "\033[92m"
 }
 
-fg_lightyellow() {
+fg_lightyellow () {
   echo "\033[93m"
 }
 
-fg_lightblue() {
+fg_lightblue () {
   echo "\033[94m"
 }
 
-fg_lightmagenta() {
+fg_lightmagenta () {
   echo "\033[95m"
 }
 
-fg_lightcyan() {
+fg_lightcyan () {
   echo "\033[96m"
 }
 
-fg_white() {
+fg_white () {
   echo "\033[97m"
 }
 
-bg_black() {
+bg_black () {
   echo "\033[40m"
 }
 
-bg_red() {
+bg_red () {
   echo "\033[41m"
 }
 
-bg_green() {
+bg_green () {
   echo "\033[42m"
 }
 
-bg_yellow() {
+bg_yellow () {
   echo "\033[43m"
 }
 
-bg_blue() {
+bg_blue () {
   echo "\033[44m"
 }
 
-bg_magenta() {
+bg_magenta () {
   echo "\033[45m"
 }
 
-bg_cyan() {
+bg_cyan () {
   echo "\033[46m"
 }
 
-bg_lightgray() {
+bg_lightgray () {
   echo "\033[47m"
 }
 
-bg_darkgray() {
+bg_darkgray () {
   echo "\033[100m"
 }
 
-bg_lightred() {
+bg_lightred () {
   echo "\033[101m"
 }
 
-bg_lightgreen() {
+bg_lightgreen () {
   echo "\033[102m"
 }
 
-bg_lightyellow() {
+bg_lightyellow () {
   echo "\033[103m"
 }
 
-bg_lightblue() {
+bg_lightblue () {
   echo "\033[104m"
 }
 
-bg_lightmagenta() {
+bg_lightmagenta () {
   echo "\033[105m"
 }
 
-bg_lightcyan() {
+bg_lightcyan () {
   echo "\033[106m"
 }
 
-bg_white() {
+bg_white () {
   echo "\033[107m"
 }
 
@@ -351,44 +351,44 @@ attr_reset () {
   echo "\033[0m"
 }
 
-attr_bold() {
+attr_bold () {
   # Similar to:  echo "\033[1m"
   echo "\e[1m"
   #echo "$(tput bold)"
 }
 
-attr_dim() {
+attr_dim () {
   echo "\e[2m"
 }
 
-attr_emphasis() {
+attr_emphasis () {
   echo "\e[3m"
 }
 
-attr_italic() {
+attr_italic () {
   attr_emphasis
 }
 
-attr_underline() {
+attr_underline () {
   #echo "\e[4m"
   echo "\033[4m"
 }
 
-attr_underlined() {
+attr_underlined () {
   attr_underline
 }
 
-attr_strikethrough() {
+attr_strikethrough () {
   echo "\e[9m"
 }
 
 # 2018-06-07 14:21: Hrmmmm... I kind like this:
-#  ansi()          { echo -e "\e[${1}m${*:2}\e[0m"; }
-#  bold()          { ansi 1 "$@"; }
-#  italic()        { ansi 3 "$@"; }
-#  underline()     { ansi 4 "$@"; }
-#  strikethrough() { ansi 9 "$@"; }
-#  red()           { ansi 31 "$@"; }
+#  ansi ()          { echo -e "\e[${1}m${*:2}\e[0m"; }
+#  bold ()          { ansi 1 "$@"; }
+#  italic ()        { ansi 3 "$@"; }
+#  underline ()     { ansi 4 "$@"; }
+#  strikethrough () { ansi 9 "$@"; }
+#  red ()           { ansi 31 "$@"; }
 #
 # Via:
 #  https://askubuntu.com/questions/528928/how-to-do-underline-bold-italic-strikethrough-color-background-and-size-i
@@ -407,66 +407,66 @@ attr_strikethrough() {
 #        echo -e "\u001b[5A"  # 5 rows
 
 # Gnome/Mate do not support blink, <sigh>.
-font_blink() {
+font_blink () {
   echo "\033[5m"
 }
 
-font_invert() {
+font_invert () {
   echo "\033[7m"
 }
 
-font_hidden() {
+font_hidden () {
   echo "\033[8m"
 }
 
-reset_bold() {
+reset_bold () {
   echo "\033[21m"
 }
 
-reset_dim() {
+reset_dim () {
   echo "\033[22m"
 }
 
-reset_emphasis() {
+reset_emphasis () {
   echo "\033[23m"
 }
 
-reset_italic() {
+reset_italic () {
   reset_emphasis
 }
 
-reset_underline() {
+reset_underline () {
   echo "\033[24m"
 }
 
-reset_underlined() {
+reset_underlined () {
   reset_underline
 }
 
-reset_blink() {
+reset_blink () {
   echo "\033[25m"
 }
 
-reset_reverse() {
+reset_reverse () {
   echo "\033[27m"
 }
 
-reset_hidden() {
+reset_hidden () {
   echo "\033[28m"
 }
 
-res_dim() { reset_dim; }
-res_emphasis() { reset_emphasis; }
-res_italic() { reset_italic; }
-res_underline() { reset_underline; }
-res_underlined() { reset_underlined; }
-res_blink() { reset_blink; }
-res_reverse() { reset_reverse; }
-res_hidden() { reset_hidden; }
+res_dim () { reset_dim; }
+res_emphasis () { reset_emphasis; }
+res_italic () { reset_italic; }
+res_underline () { reset_underline; }
+res_underlined () { reset_underlined; }
+res_blink () { reset_blink; }
+res_reverse () { reset_reverse; }
+res_hidden () { reset_hidden; }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-create_ornaments() {
+create_ornaments () {
   # 2016-08-15: `tput` discovers the right sequences to send to the terminal:
   # 2018-05-28: Haha. Run `env` and after TPUT_BOLD, everything is bold! Duh!!
   #   export TPUT_BOLD=$(tput bold)
@@ -515,13 +515,13 @@ create_ornaments() {
   export MK_LINE=${FONT_UNDERLINE}
 }
 
-create_strip_colors() {
+create_strip_colors () {
   # To strip color codes from Bash stdout whatever.
   # http://stackoverflow.com/questions/17998978/removing-colors-from-output
   alias stripcolors='/bin/sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"'
 }
 
-create_base_color_names() {
+create_base_color_names () {
   TERM_COLOR_NAMES=()
   TERM_COLOR_NAMES+=('FG_PINK')
   TERM_COLOR_NAMES+=('FG_ORANGE')
@@ -626,7 +626,7 @@ test_colors () {
 #
 #   https://superuser.com/questions/452034/bash-colorized-man-page
 
-man() {
+man () {
   # 2018-06-29 12:43: This was fine in a normal terminal, then I tried
   # it in a Terminator, and needs quotes all of a sudden?
   env \
@@ -642,7 +642,7 @@ man() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main() {
+main () {
   create_colors
   create_ornaments
   create_strip_colors

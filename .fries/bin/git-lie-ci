@@ -7,7 +7,7 @@
 # Summary: Fake author and committer commit dates.
 # License: GPLv3
 
-git-ci-fakedate() {
+git-ci-fakedate () {
   local fakedate="$1"
   shift
 
@@ -43,7 +43,7 @@ git-ci-fakedate() {
   export GIT_AUTHOR_DATE=
 }
 
-main() {
+main () {
   git-ci-fakedate "$@"
 }
 

@@ -8,7 +8,7 @@
 # Very Dated/Very Unused: Bugzilla Install
 # ========================================
 
-source_deps() {
+source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   # Load: ask_yes_no_default
   source "${curdir}/../lib/interact_util.sh"

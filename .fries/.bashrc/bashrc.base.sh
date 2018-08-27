@@ -44,7 +44,7 @@ hard_path=$(dirname $(readlink -f -- "${BASH_SOURCE}"))
 # System-wide Profile
 # ===================
 
-source_deps() {
+source_deps () {
   # Source global definitions.
   if [[ -f "/etc/bashrc" ]]; then
     # Fedora.
@@ -58,7 +58,7 @@ source_deps() {
 # This Developer's Basic Bash Profile
 # ===================================
 
-source_fries() {
+source_fries () {
   # Load the basic script. Defines aliases, configures things,
   # adjusts the terminal prompt, and adds a few functions.
   source ${hard_path}/bashrc.core.sh
@@ -67,7 +67,7 @@ source_fries() {
 # Machine-specific Profiles
 # =========================
 
-source_private() {
+source_private () {
   # Load the machine-specific scripts first so their exports are visible.
 
   if [[ $EUID -ne 0 ]]; then
@@ -161,7 +161,7 @@ source_projects0 () {
 # Additional Fancy -- Starting Directory and Kickoff Command
 # ==========================================================
 
-start_somewhere_something() {
+start_somewhere_something () {
   # See the script:
   #
   #   ~/.fries/bin/termdub.py
@@ -203,7 +203,7 @@ start_somewhere_something() {
 # Cleanup
 # =======
 
-home_fries_bashrc_cleanup() {
+home_fries_bashrc_cleanup () {
   # I thought you had to `export` variables for them to persist,
   # but I guess that's not the case when variables are defined
   # in a sourced Bash profile and not defined within a function.
@@ -247,7 +247,7 @@ home_fries_bashrc_cleanup() {
 #   env INIT_CMD="cd bla; export PYTHONPATH=/tmp; workon project" zsh
 #
 # NOTE: (lb): I copied a zsh function and updated it.
-home_fries_run_terminator_init_cmd() {
+home_fries_run_terminator_init_cmd () {
   if [[ -n "${INIT_CMD}" ]]; then
     echo ${INIT_CMD}
     OLD_IFS=$IFS
@@ -273,7 +273,7 @@ home_fries_run_terminator_init_cmd() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main() {
+main () {
   source_deps
   unset source_deps
 

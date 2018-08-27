@@ -78,7 +78,7 @@ trap errexit_cleanup EXIT
 # FIXME/EXPLAIN/2018-03-24: Or does this have to do with the .waffle/TBD-shim??
 #   i.e., source what's around you.... UNDERSTAND THIS BETTER.
 #
-source_deps() {
+source_deps () {
   # NOTE: We symlink ~/.fries/recipe/bin from ~/.fries/bin
   #       so cannot rely on ${BASH_SOURCE[0]} to figure out
   #       source path. Or, we could try multiple relative

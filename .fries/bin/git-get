@@ -5,7 +5,7 @@
 #       wired as `git get` because magic. (Same goes for any
 #       executable named `git-<foo>`.)
 
-git-get() {
+git-get () {
   if [[ $(git remote get-url origin 2> /dev/null) ]]; then
     echo 'Fetching origin'
     git fetch origin
@@ -31,7 +31,7 @@ git-get() {
   unset IFS
 }
 
-main() {
+main () {
   git-get
 }
 

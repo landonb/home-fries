@@ -8,7 +8,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps() {
+source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   DEBUG_TRACE=false \
     source ${curdir}/bash_base.sh
@@ -252,7 +252,7 @@ ruby_set_rspec_alias () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main() {
+main () {
   source_deps
 
   ruby_set_gem_path

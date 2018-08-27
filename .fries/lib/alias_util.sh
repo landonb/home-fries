@@ -11,14 +11,14 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps() {
+source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   source ${curdir}/logger.sh
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_create_aliases_general() {
+home_fries_create_aliases_general () {
   # Hint: To run the native command and not the alias, use a \ prefix, e.g.,
   #       \rm will call the real /bin/rm not the alias.
 
@@ -221,7 +221,7 @@ home_fries_create_aliases_general() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_create_aliases_grep_and_egrep() {
+home_fries_create_aliases_grep_and_egrep () {
   alias grep='grep --color' # Show differences in colour.
 
   # Preferred grep switches and excludes.
@@ -234,7 +234,7 @@ home_fries_create_aliases_grep_and_egrep() {
   fi
 }
 
-home_fries_create_aliases_ag_options() {
+home_fries_create_aliases_ag_options () {
   # The Silver Search.
   # Always allow lowercase, and, more broadly, all smartcase.
   alias ag='ag --smart-case --hidden'
@@ -251,7 +251,7 @@ home_fries_create_aliases_ag_options() {
   }
 }
 
-home_fries_create_aliases_rg_options() {
+home_fries_create_aliases_rg_options () {
   # 2017-09-13: ripgrep!
   # https://github.com/BurntSushi/ripgrep
   # I'm only doing this because The Silver Searcher is identifying
@@ -283,7 +283,7 @@ home_fries_create_aliases_rg_options() {
   }
 }
 
-home_fries_create_aliases_rg_tag_wrap() {
+home_fries_create_aliases_rg_tag_wrap () {
   # 2018-03-26: Fancy ag/rg wrapper makes jumping to search result seamless!
   #
   #   https://github.com/aykamko/tag
@@ -307,7 +307,7 @@ home_fries_create_aliases_rg_tag_wrap() {
   # Choices: ag, rg
   export TAG_SEARCH_PROG=${engine}
 
-  tag() {
+  tag () {
     command tag "$@"
     source ${TAG_ALIAS_FILE:-/tmp/tag_aliases} 2>/dev/null
   }
@@ -348,7 +348,7 @@ home_fries_create_aliases_rg_tag_wrap() {
   alias rg="rgg"
 }
 
-home_fries_create_aliases_greppers() {
+home_fries_create_aliases_greppers () {
   home_fries_create_aliases_grep_and_egrep
   home_fries_create_aliases_ag_options
   home_fries_create_aliases_rg_options
@@ -389,7 +389,7 @@ function cdd_() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_create_aliases_chdir() {
+home_fries_create_aliases_chdir () {
   # FIXME: 2015.04.04: Still testing what makes the most sense:
   #        2016-10-07: I just use `cdd`. What's the problem?
   alias cdd='cdd_'
@@ -408,7 +408,7 @@ home_fries_create_aliases_chdir() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_create_aliases_tab_completion() {
+home_fries_create_aliases_tab_completion () {
   # Helpful Bash Tab Completion aliases.
 
   # For those (silly) projects that use tabs (I know!) in Bash scripts,
@@ -437,7 +437,7 @@ home_fries_create_aliases_tab_completion() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main() {
+main () {
   source_deps
 }
 

@@ -11,7 +11,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps() {
+source_deps () {
   :
 }
 
@@ -43,7 +43,7 @@ whats_apache () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Control and Kill Apache Processes.
-apache_create_control_aliases() {
+apache_create_control_aliases () {
   # Restart Apache aliases.
   if [[ -e /proc/version ]]; then
     if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
@@ -67,7 +67,7 @@ apache_create_control_aliases() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main() {
+main () {
   : #source_deps
 }
 
