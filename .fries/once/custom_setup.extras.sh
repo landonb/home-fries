@@ -2852,7 +2852,7 @@ stage_4_android_studio () {
   #ANDROID_STUDIO_VERS="2.2.0.5"
   #ANDROID_STUDIO_BUILD="145.3070098"
   ANDROID_STUDIO_VERS="2.2.2.0"
-  ANDROID_STUDIO_BUILD="145.3360264"
+  ANDROID_STUDIO_BUILD="173.4907809"
 
   ANDROID_STUDIO_BASE="android-studio-ide-${ANDROID_STUDIO_BUILD}-linux"
   ANDROID_STUDIO_NAME="${ANDROID_STUDIO_BASE}.zip"
@@ -2869,21 +2869,28 @@ stage_4_android_studio () {
   # $ lS
   # rmrm android-studio-ide-141.2456560-linux.zip
   # hrmmm... should i automate /bin/rm?
-  OLD_DLS=($(\
+  OLD_ZIPS=($(\
     /bin/ls -1 android-studio-ide-*-linux.zip 2> /dev/null \
       | /bin/sed -r "s/${ANDROID_STUDIO_NAME}//g" \
   ))
   # /bin/rm stderrs on empty lines:
-  #  echo ${OLD_DLS[@]} | xargs /bin/rm
-  for old_file in ${OLD_DLS[@]}; do
-    #echo "old_file: ${old_file}"
-    if [[ -n "${old_file}" ]]; then
-      /bin/rm "${old_file}"
-      old_unpacked=$(dirname -- "${old_file}")
-      if [[ -d ${old_unpacked} ]]; then
-        echo "Removing old_unpacked: ${old_unpacked}"
-        /bin/rm -rf ${old_unpacked}
-      fi
+  #  echo ${OLD_ZIPS[@]} | xargs /bin/rm
+  for old_zip in ${OLD_ZIPS[@]}; do
+    if [[ -n "${old_zip}" ]]; then
+      echo "Removing old download: ${old_zip}"
+      /bin/rm "${old_zip}"
+    fi
+  done
+  # 2018-09-10 10:15: Weirdo. You were calling dirname on the zip. Wrong!
+  # Look in the bin dir for the unpacked downloads.
+  OLD_DIRS=($(\
+    /bin/ls -1d ${OPT_BIN}/android-studio-ide-*-linux 2> /dev/null \
+      | /bin/sed -r "s/${ANDROID_STUDIO_NAME}//g" \
+  ))
+  for old_dir in ${OLD_DIRS[@]}; do
+    if [[ -d "${old_dir}" ]]; then
+      echo "Removing old directory: ${old_dir}"
+      /bin/rm -rf "${old_dir}"
     fi
   done
 
@@ -3087,7 +3094,8 @@ export PATH" | sudo tee -a /etc/environment
   stage_curtains "stage_4_android_studio"
 
 echo "NEXT STEPS:
-Run studio &
+Run:
+  studio.sh &
 File > Settings... (Ctrl+Alt+S)
 Settings -> Appearance & Behavior -> System Settings -> Android SDK
 Check box of latest SDK. Apply. [Download commences.]
