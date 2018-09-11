@@ -19,6 +19,8 @@ source_deps () {
   #   source process_util.sh
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   source "${curdir}/bash_base.sh"
+  # Load: pushd_or_die, popd_perhaps
+  source "${curdir}/path_util.sh"
   # Load: die, reset_errexit, tweak_errexit
   source "${curdir}/process_util.sh"
   source "${curdir}/logger.sh"
@@ -815,32 +817,6 @@ git_fetch_remote_travel () {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-# A note on errexit: If you call this fcn. (or a fcn. that calls this fcn.)
-#   and if you use `&& true` or `|| true`, errexit will be disabled (though
-#   you'll still see it in SHELLOPTS). Which means that a `cd` or `pushd` that
-#   fails will not stop the function from proceeding.
-# Consequently, we either need to check for error on pushd, so that we don't
-#   call popd later when we didn't change directories in the first place; or
-#   we need to store the current working directory and use cd instead of popd.
-
-# FIXME/2018-03-23 13:13: Verify all pushd usage in git_util.sh and travel.sh.
-
-pushd_or_die () {
-  [[ -z "$1" ]] && return
-  pushd "$1" &> /dev/null
-  [[ $? -ne 0 ]] && error "No such path: $1" && error " working dir: $(pwd -P)" && die
-  # Be sure to return a zero success value: If we left the `$? -ne 0`
-  # as the last line, it'll trigger errexit!
-  return 0
-}
-
-popd_perhaps () {
-  [[ -z "$1" ]] && return
-  popd &> /dev/null
-  [[ $? -ne 0 ]] && error "Unexpected popd failure in: $(pwd -P)" && die
-  return 0
-}
 
 git_is_rebase_in_progress () {
   pushd_or_die "$1"
