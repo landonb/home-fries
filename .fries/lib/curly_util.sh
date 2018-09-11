@@ -124,7 +124,7 @@ passtore-ci () {
   pushd ${HOME}/.password-store &> /dev/null
   git push origin master
   popd &> /dev/null
-  # And then pull into mobile pass repo.
+  # And then pull into mobile pass repo [Android Password Store app].
 } # end: passtore-ci
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
