@@ -229,6 +229,30 @@ chruby_use () {
   fi
 }
 
+# 2018-09-17: A wrapper I made to support installing same Ruby version
+# multiple times. Had to re-write wrapper because ~/.gem path hardcoded!
+chruby_use_GEMZ_DIR () {
+  if [[ ! -x "$1/bin/ruby" ]]; then
+    echo "chruby: $1/bin/ruby not executable" 1>&2;
+    return 1;
+  fi;
+  [[ -n "$RUBY_ROOT" ]] && chruby_reset;
+  export RUBY_ROOT="$1";
+  export RUBYOPT="$2";
+  export PATH="$RUBY_ROOT/bin:$PATH";
+  eval "$("$RUBY_ROOT/bin/ruby" - <<EOF
+puts "export RUBY_ENGINE=#{defined?(RUBY_ENGINE) ? RUBY_ENGINE : 'ruby'};"
+puts "export RUBY_VERSION=#{RUBY_VERSION};"
+begin; require 'rubygems'; puts "export GEM_ROOT=#{Gem.default_dir.inspect};"; rescue LoadError; end
+EOF
+)";
+  if (( $UID != 0 )); then
+    export GEM_HOME="$HOME/.gemz/$RUBY_ENGINE/$RUBY_VERSION";
+    export GEM_PATH="$GEM_HOME${GEM_ROOT:+:$GEM_ROOT}${GEM_PATH:+:$GEM_PATH}";
+    export PATH="$GEM_HOME/bin${GEM_ROOT:+:$GEM_ROOT/bin}:$PATH";
+  fi
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # 2017-06-19: So confused.
