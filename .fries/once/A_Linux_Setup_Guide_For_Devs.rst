@@ -1,14 +1,14 @@
-##########################################
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 A General Linux Setup Guide For Developers
-##########################################
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 .. Author: Landon Bouma
 .. Last Modified: 2017.10.03
 .. Project Page: https://github.com/landonb/home-fries
 
-========
+########
 Overview
-========
+########
 
 This is a tedious guide to setting up a Linux development
 machine, either in a virtual machine or natively.
@@ -22,13 +22,13 @@ If you're just looking for the automated goodies,
 check out ``setup_ubuntu.sh`` in the same directory
 as this file.
 
-=============
+#############
 Install Linux
-=============
+#############
 
----------------------
+=====================
 VirtualBox vs. Native
----------------------
+=====================
 
 Decide if you'd like to setup Linux natively or within a virtual machine.
 
@@ -42,9 +42,9 @@ Running Linux on your metal is fast and reliable, and you won't have
 to worry about limited resources, e.g., if you host machine does
 not have a ton of memory.
 
---------------
+==============
 Download Linux
---------------
+==============
 
 Download the `64-bit Ubuntu 14.04 (Trusty Tahr) desktop installer
 <http://releases.ubuntu.com/14.04/>`__
@@ -60,12 +60,12 @@ for five years, until April, 2023.]
 - Be sure to get the desktop install image and not the server installer.
   The latter doesn't include a modern desktop environment.
 
-----------------------------------
+==================================
 Setup VirtualBox or a Bootable USB
-----------------------------------
+==================================
 
 Install VirtualBox
-~~~~~~~~~~~~~~~~~~
+------------------
 
 .. note:: Follow these instructions if you'd like to use a
           virtual machine, otherwise skip this section.
@@ -97,7 +97,7 @@ Install Linux.
 Skip to the section `Configure Linux to Your Taste`_.
 
 Make a Bootable USB
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 .. note:: Follow these instructions if you'd like to install
           Linux natively on your hardware. But if you've installed
@@ -128,9 +128,9 @@ So if you try formatting the stick using an application on Windows
 and it doesn't work, you'll want to try again using
 *USB Image Writer*.
 
--------------------------
+=========================
 Create a Dual-Boot Laptop
--------------------------
+=========================
 
 .. note:: Follow these instructions if you'd like to setup a
           dual-boot machine. Skip this section if you're using
@@ -196,9 +196,9 @@ If you'd like to setup a dual boot laptop, follow these steps.
      see two partitions for Linux — one for ``swap``, and one for
      ``/`` — but choosing either one boots into Linux.
 
-----------------------------
+============================
 Accessing your Windows Files
-----------------------------
+============================
 
 .. note:: If you setup a dual-boot machine and would like access
           to your Windows files from Linux, follow these steps.
@@ -240,9 +240,9 @@ Do something like this to mount your Windows partition in Linux:
    # And then test.
    sudo mount -a
 
-=============================
+#############################
 Configure Linux to Your Taste
-=============================
+#############################
 
 Configuring Linux is a personal process, obviously.
 
@@ -272,9 +272,9 @@ script in the same directory as this document.
       configuring Pidgin to start on boot, and much, much more.
       You'll want to look at the file to see everything it does.
 
-------------------------------
+==============================
 Run Linux Configuration Script
-------------------------------
+==============================
 
 .. note:: Skip this if you'll setup and configure Linux on your own.
           Otherwise, you may be interested in running a script to
@@ -369,9 +369,9 @@ Here's a brief overview of what the script does:
 
        - And so much more!
 
--------------------------------------------------
+=================================================
 Setup Bash and Vim (or Your Favorite Text Editor)
--------------------------------------------------
+=================================================
 
 If you're looking for a full-featured Vim IDE, check out
 `Dubsacks Vim <https://github.com/landonb/dubsacks>`__.
@@ -389,9 +389,9 @@ that also live in the same project as this document.
 The Bash scripts are tailored for a particular developer,
 but you still might find a few copy-and-take-aways.
 
-----------------------
+======================
 Superuser Bash Profile
-----------------------
+======================
 
 If you want your superuser account to have a similar shell
 setup as your user account, make a link to your profile.
@@ -412,9 +412,9 @@ well.)
   #  sudo /bin/ln -s $HOME/.vim /root/.vim
   #  sudo /bin/ln -s $HOME/.vimrc /root/.vimrc
 
----------------------------
+===========================
 Add Gmail Account to Pidgin
----------------------------
+===========================
 
 If you'd like to use Pidgin as your chat client with Gmail, follow these steps.
 
@@ -445,13 +445,13 @@ otherwise you'll be annoyed every time someone comes online.
 See also: Show system tray icon: Always.
 
 Configure Gmail Notifier
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
 Run either ``/usr/bin/gnome-gmail-notifier`` or ``/usr/bin/gm-notifier``
 and setup an email notifier.
 
 Relay Postfix Email via smtp.gmail.com
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------------
 
 If you'd like to configure Linux to use your gmail account
 to send email from your machine, follow these instructions.
@@ -556,13 +556,13 @@ Visit https://www.google.com/accounts/DisplayUnlockCaptcha
 
 Thanks to: https://rtcamp.com/tutorials/linux/ubuntu-postfix-gmail-smtp/
 
-===================
+###################
 Miscellaneous Notes
-===================
+###################
 
---------------------
+====================
 Updates and Upgrades
---------------------
+====================
 
 .. code-block:: bash
 
@@ -577,9 +577,9 @@ Updates and Upgrades
 
 or just run Update Manager, which usually lives in the notifications panel.
 
--------------------
+===================
 Backups and Syncing
--------------------
+===================
 
 You'll probably want to setup a backup scheme and possibly a syncing
 scheme so you don't lose personal data or data you haven't committed
@@ -636,9 +636,9 @@ cool tool called ``unison`` to sync files between the two machines.
     ``unison my_project`` will sync files according to the profile
     specified in ``~/.unison/my_project.prf``.
 
--------------
+=============
 Grepping Code
--------------
+=============
 
 The built-in ``grep`` commands are generally great except when they're
 not, such as when you want to be able to ignore specific file paths.
@@ -682,9 +682,9 @@ except that defining word boundaries uses the PCRE syntax.
 
 See more at: https://github.com/ervandew/ag
 
------------------
+=================
 Lenovo Laptops...
------------------
+=================
 
 Lenovo combines the function keys (Fn, or Fkeys)
 and the hardware-specific keys (like volume up and down)
@@ -699,9 +699,9 @@ my laptop are iconed with the hardware function, and
 not the Fn marking (it's really very small!), so I'll
 have to rely on my memory map and not the keyboard markings.
 
----------------------------------------------
+=============================================
 Passwordless, Unhibernateable, Encrypted Swap
----------------------------------------------
+=============================================
 
 If you setup an encrypted home directory, the installer
 set up an encrypted swap to complement it. Verify this.
@@ -737,17 +737,17 @@ I have other, older notes that also indicate how to check the swap.
     # This shows the swap name.
     swapon -s
 
-====================================================
+####################################################
 2017-09-11: Windows Vagrant Box, The New Way to Roll
-====================================================
+####################################################
 
 Based on
 
 https://github.com/marvinpinto/windows-throwaway-image
 
-------------
-Boot Windows
-------------
+========================
+Vagrantbox: Boot Windows
+========================
 
 Use this `Vagrantfile
 <https://gist.github.com/landonb/f1639d9a2c9a764831bde51f48ea05f4>`__
@@ -768,9 +768,9 @@ confirmation. Don't worry if it eventually times out and gives up.
 After the machine boots up, you'll be prompted to choose the network
 location. Select either Home or Work.
 
-------------
-Setup the VM
-------------
+========================
+Vagrantbox: Setup the VM
+========================
 
 - Manually update Virtualbox Guest Additions. Device > Insert Guest CD Additions...
 
@@ -799,9 +799,9 @@ Setup the VM
 
     The network name cannot be found.
 
---------------
-Install Things
---------------
+==========================
+Vagrantbox: Install Things
+==========================
 
 - Install Google Chrome.
 
@@ -859,18 +859,18 @@ Install Things
 
   https://bitbucket.org/maproom/qmapshack/downloads/
 
----------
-Rebooting
----------
+=====================
+Vagrantbox: Rebooting
+=====================
 
 You can reboot your Windows virtual machine from the guest Start Menu,
 or from the host terminal::
 
   vagrant reload
 
----------
-Packaging
----------
+=====================
+Vagrantbox: Packaging
+=====================
 
 ::
 
@@ -881,9 +881,9 @@ Packaging
   ##cd /tmp
   ##rm -rf /tmp/win7-custom-image
 
--------
-Copying
--------
+===================
+Vagrantbox: Copying
+===================
 
 Copy folders between machines from under::
 
