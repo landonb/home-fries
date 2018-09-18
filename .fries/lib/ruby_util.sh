@@ -231,6 +231,12 @@ chruby_use () {
 
 # 2018-09-17: A wrapper I made to support installing same Ruby version
 # multiple times. Had to re-write wrapper because ~/.gem path hardcoded!
+#
+# See also:
+#
+#   - "Manage your rubies with direnv and ruby-install"
+#
+#     https://github.com/direnv/direnv/blob/master/docs/ruby.md
 chruby_use_GEMZ_DIR () {
   if [[ ! -x "$1/bin/ruby" ]]; then
     echo "chruby: $1/bin/ruby not executable" 1>&2;
