@@ -286,6 +286,14 @@ tabs to refresh their cookies.
 
   <https://chrome.google.com/webstore/detail/reload-all-tabs/midkcinmplflbiflboepnahkboeonkam/related?hl=en>`__
 
+------------
+Bookmark All
+------------
+
+- `Bookmark All [tabs in all windows]
+
+  <https://chrome.google.com/webstore/detail/bookmark-all/jjhpikpjjhlcmifagompgmhkjalhjopj?hl=en>`__
+
 -----
 Regex
 -----
