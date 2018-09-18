@@ -1651,7 +1651,7 @@ setup_mint_17_stage_4_extras () {
   echo "#                                                     #"
   echo "#  Refer to the helpful manual steps readme:          #"
   echo "#                                                     #"
-  echo "#   A_Manual_MATE_Setup_Guide.rst                     #"
+  echo "#   README-Standup_Guide-MATE.rst                     #"
   echo "#                                                     #"
   echo "#######################################################"
 
