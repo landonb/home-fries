@@ -870,6 +870,10 @@ setup_mint_17_stage_1_install_packages () {
     gnome-color-manager
     #dispcalgui
 
+    # Shotwell personal photo manager.
+    #   http://shotwell-project.org/doc/html/
+    shotwell
+
     # Time tracking applet.
     hamster-applet
     hamster-indicator
