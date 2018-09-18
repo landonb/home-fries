@@ -7788,6 +7788,36 @@ stage_4_install_terminator () {
 
 } # end: stage_4_install_terminator
 
+stage_4_install_screenruler () {
+  if ${SKIP_EVERYTHING}; then
+    return
+  fi
+
+  stage_announcement "stage_4_install_screenruler"
+
+  pushd ${OPT_DLOADS} &> /dev/null
+
+  sudo apt-get install -y ruby libgtk2-ruby libglade2-ruby libcairo-ruby libgconf2-ruby
+  sudo apt-get install -y screenruler
+
+  # Project page:
+  #
+  #   https://gnomecoder.wordpress.com/screenruler/
+  #
+  # Source:
+  #
+  #   https://code.launchpad.net/screenruler
+
+  # 2018-09-18: This was in my notes from 2018-06-27 but not sure if necessary:
+  #
+  #   chruby 2.3.3
+  #   gem install gettext
+  #   gem install gtk2
+
+  popd &> /dev/null
+
+} # end: stage_4_install_screenruler
+
 stage_4_fcn_template () {
   if ${SKIP_EVERYTHING}; then
     return
@@ -8119,6 +8149,8 @@ setup_customize_extras_go () {
   stage_4_install_cryfs
 
   stage_4_install_terminator
+
+  stage_4_install_screenruler
 
   # Add before this'n: stage_4_fcn_template.
 
