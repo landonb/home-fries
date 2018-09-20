@@ -533,6 +533,8 @@ setup_mint_17_stage_1_install_packages () {
     #
     pinentry-gtk2
     pinentry-doc
+    # 2018-09-20: New hotness.
+    cryfs
 
     expect
 
