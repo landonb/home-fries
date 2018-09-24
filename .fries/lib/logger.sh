@@ -7,10 +7,11 @@
 # License: GPLv3
 # vim:tw=0:ts=2:sw=2:et:norl:
 
-SCRIPT_DIR=$(dirname -- "${BASH_SOURCE[0]}")
-
-# Load colors.
-source ${SCRIPT_DIR}/color_util.sh
+source_deps () {
+  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
+  # Load colors.
+  source ${curdir}/color_util.sh
+}
 
 # The Python logging library defines the following levels,
 # along with some levels I've slid in.
@@ -52,8 +53,6 @@ log_msg () {
     echo -e "${FCN_COLOR}$(attr_underline)[${FCN_LABEL}]$(attr_reset) ${RIGHT_NOW} ${bold_maybe}${invert_maybe}$@$(attr_reset)"
   fi
 }
-
-
 
 fatal () {
   #log_msg ${LOG_LEVEL_FATAL} "$(bg_hotpink)$(attr_bold)" FATL "$@"
@@ -113,4 +112,10 @@ test_logger () {
   trace "TRACE: Not a trace."
   verbose "VERBOSE: I'M YELLING AT YOU"
 }
+
+main () {
+  source_deps
+}
+
+main "$@"
 
