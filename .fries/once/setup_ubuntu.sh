@@ -938,6 +938,8 @@ setup_mint_17_stage_1_install_packages () {
     # eyed3 - Display and manipulate id3-tags on the command-line
     # python-eyed3 - Python module for id3-tags manipulation
     eyed3
+    # 2018-09-25: Audio Player.
+    clementine
 
     # mount.nfs
     nfs-common
