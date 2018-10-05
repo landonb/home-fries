@@ -46,7 +46,7 @@ source_utils () {
   lib_files+=("array_util.sh")
   lib_files+=("bash_base.sh")
   lib_files+=("color_util.sh")
-  lib_files+=("cron_util.sh")
+  #lib_files+=("cron_util.sh")  # FIXME/2018-09-27 13:34: Huh?
   lib_files+=("crypt_util.sh")
   lib_files+=("curly_util.sh")
   #lib_files+=("cygwin_util.sh")
@@ -56,6 +56,7 @@ source_utils () {
   lib_files+=("docker_util.sh")
   lib_files+=("fffind_util.sh")
   lib_files+=("file_util.sh")
+  #lib_files+=("find_util.sh")
   lib_files+=("fries_util.sh")
   lib_files+=("git_util.sh")
   lib_files+=("hist_util.sh")
