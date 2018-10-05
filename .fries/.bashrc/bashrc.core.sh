@@ -6,6 +6,27 @@
 # License: GPLv3
 # vim:tw=0:ts=2:sw=2:et:norl:
 
+# DEVS: Uncomment to show progress times.
+PROFILING=false
+#PROFILING=true
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# *** Profiling.
+
+print_elapsed_time () {
+  ! ${PROFILING} && return
+  local time_0="$1"
+  local detail="$2"
+  local time_n=$(date +%s.%N)
+  local elapsed_fract="$(echo "(${time_n} - ${time_0}) / 60" | bc -l)"
+  #echo "elapsed_fract: ${elapsed_fract} min. / Source: ${lib_file}"
+  if [[ $(echo "${elapsed_fract} >= 0.01" | bc -l) -eq 1 ]]; then
+    local elapsed_mins=$(echo ${elapsed_fract} | xargs printf "%.2f")
+    echo "Elapsed: ${elapsed_mins} min. / ${detail}"
+  fi
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # *** Doobious Sources
@@ -59,12 +80,15 @@ source_utils () {
   DEBUG_TRACE=false
   for lib_file in "${lib_files[@]}"; do
     if [[ -f "${HOMEFRIES_DIR}/lib/${lib_file}" ]]; then
-      #echo "Loading: ${lib_file}"
+      local time_0=$(date +%s.%N)
+      ${PROFILING} && echo "Loading: ${lib_file}"
       source "${HOMEFRIES_DIR}/lib/${lib_file}"
-    #else
-    #  echo "Not found: ${lib_file}"
+      print_elapsed_time "${time_0}" "Source: ${lib_file}"
+    else
+      ${PROFILING} && echo "MISSING: ${lib_file}"
     fi
   done
+  ${PROFILING} && echo "Moving along!"
 
   if [[ -z ${HOMEFRIES_WARNINGS+x} ]]; then
     # Usage, e.g.:
@@ -84,7 +108,21 @@ source_addit () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+run_and_unset () {
+  ${PROFILING} && echo "Action: $1"
+  local time_0=$(date +%s.%N)
+
+  eval $1
+  unset $1
+
+  print_elapsed_time "${time_0}" "Action: $1"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 home_fries_up () {
+  ${PROFILING} && echo "home_fries_up"
+  local time_0=$(date +%s.%N)
 
   #########################
 
@@ -94,60 +132,48 @@ home_fries_up () {
   # otherwise complain (but it'll still work, it just won't set a few
   # flavor-specific options, like terminal colors and the prompt).
   # See also: `uname -a`, `cat /etc/issue`, `cat /etc/fedora-release`.
-
-  distro_complain_not_ubuntu_or_red_hat
-  unset distro_complain_not_ubuntu_or_red_hat
+  run_and_unset "distro_complain_not_ubuntu_or_red_hat"
 
   #########################
 
   # Update PATH
-  home_fries_set_path_environ
-  unset home_fries_set_path_environ
+  run_and_unset "home_fries_set_path_environ"
 
   # (lb): Set MANPATH. (Specifically, cull paths to anything on a CryFS mount,
   # which makes `man <topic>` takes so many seconds to load; sheesh, annoying!)
-  home_fries_configure_manpath
-  unset home_fries_configure_manpath
+  run_and_unset "home_fries_configure_manpath"
 
   # Set umask to 0002
-  home_fries_default_umask
-  unset home_fries_default_umask
+  run_and_unset "home_fries_default_umask"
 
   #########################
 
   # Set EDITOR, default for git, cron, etc.
-  home_fries_export_editor_vim
-  unset home_fries_export_editor_vim
+  run_and_unset "home_fries_export_editor_vim"
 
   #########################
 
-  home_fries_append_ld_library_path
-  unset home_fries_append_ld_library_path
+  run_and_unset "home_fries_append_ld_library_path"
 
-  home_fries_alias_ld_library_path_cmds
-  unset home_fries_alias_ld_library_path_cmds
+  run_and_unset "home_fries_alias_ld_library_path_cmds"
 
   #########################
 
   # Tell psql to use less for large output
-  home_fries_wire_export_less
-  unset home_fries_wire_export_less
+  run_and_unset "home_fries_wire_export_less"
 
   #########################
 
   # Shell options
-  home_fries_configure_shell_options
-  unset home_fries_configure_shell_options
+  run_and_unset "home_fries_configure_shell_options"
 
   #########################
 
   # Completion options
 
-  home_fries_init_completions
-  unset home_fries_init_completions
+  run_and_unset "home_fries_init_completions"
 
-  home_fries_direxpand_completions
-  unset home_fries_direxpand_completions
+  run_and_unset "home_fries_direxpand_completions"
 
   #########################
 
@@ -166,113 +192,96 @@ home_fries_up () {
   # Configure Bash session aliases.
 
   # Set: `ll` => `ls -ls`, etc.
-  home_fries_create_aliases_general
-  unset home_fries_create_aliases_general
+  run_and_unset "home_fries_create_aliases_general"
 
   # Set: `rg` => `rg --smart-case --hidden --colors ...`
-  home_fries_create_aliases_greppers
-  unset home_fries_create_aliases_greppers
+  run_and_unset "home_fries_create_aliases_greppers"
 
   # Set: `cdd` => pushd wrapper; `cdc` => popd; `cddc` => toggle cd last
-  home_fries_create_aliases_chdir
-  unset home_fries_create_aliases_chdir
+  run_and_unset "home_fries_create_aliases_chdir"
 
   # Set: 
-  home_fries_create_aliases_tab_completion
-  unset home_fries_create_aliases_tab_completion
+  run_and_unset "home_fries_create_aliases_tab_completion"
 
   # Set: `rm` => `rm_safe` [e.g., "remove" to ~/.trash]
-  home_fries_create_aliases_trash
-  unset home_fries_create_aliases_trash
+  run_and_unset "home_fries_create_aliases_trash"
 
   #########################
 
   # Configure the terminal prompt and colors. (From term_util.sh)
 
   # Set `PS1=` to customize the terminal prompt.
-  dubs_set_terminal_prompt
-  unset dubs_set_terminal_prompt
+  run_and_unset "dubs_set_terminal_prompt"
 
   # Set PS4, for `set -x` and `set -v` debugging/tracing.
-  dubs_set_PS4
-  unset dubs_set_PS4
+  run_and_unset "dubs_set_PS4"
 
   # Fix the colors used by `ls -C` to be less annoying.
-  dubs_fix_terminal_colors
-  unset dubs_fix_terminal_colors
+  run_and_unset "dubs_fix_terminal_colors"
 
   # Make the current window always-on-visible-desktop, maybe.
-  dubs_always_on_visible_desktop
-  unset dubs_always_on_visible_desktop
+  run_and_unset "dubs_always_on_visible_desktop"
 
   #########################
 
   # Setup distro-agnostic Python and Apache wrappers, aliases, and environs.
 
-  whats_python3
-  unset whats_python3
+  run_and_unset "whats_python3"
 
-  whats_python2
-  unset whats_python2
+  run_and_unset "whats_python2"
 
-  whats_apache
-  unset whats_apache
+  run_and_unset "whats_apache"
 
   #########################
 
-  configure_crontab
-  unset configure_crontab
+  run_and_unset "configure_crontab"
 
   #########################
 
-  apache_create_control_aliases
-  unset apache_create_control_aliases
+  run_and_unset "apache_create_control_aliases"
 
   #########################
 
-  #enable_vi_style_editing
+  #run_and_unset "enable_vi_style_editing"
   unset enable_vi_style_editing
 
   #########################
 
-  home_fries_load_completions
-  unset home_fries_load_completions
+  run_and_unset "home_fries_load_completions"
 
   #########################
 
-  home_fries_map_keys_lenovo
-  unset home_fries_map_keys_lenovo
+  run_and_unset "home_fries_map_keys_lenovo"
 
   #########################
 
-  home_fries_configure_gpg_tty
-  unset home_fries_configure_gpg_tty
+  run_and_unset "home_fries_configure_gpg_tty"
 
   #########################
 
-  home_fries_configure_history
-  unset home_fries_configure_history
+  run_and_unset "home_fries_configure_history"
 
   #########################
 
   # MEH: The permissions on /proc/acpi/wakeup get reset every boot,
   #      so we need a new strategy for this to work.
   #      (NOTE/2018-01-29: Only affects Lenovo X201, I believe.)
-  #disable_wakeup_on_lid
+  #run_and_unset "disable_wakeup_on_lid"
   unset disable_wakeup_on_lid
 
   #########################
 
-  daemonize_gpg_agent
-  unset daemonize_gpg_agent
+  run_and_unset "daemonize_gpg_agent"
 
   #########################
 
-  home_fries_load_sdkman
+  # 2018-09-27 13:41: !!!! PROFILING:
+  #   Elapsed: 0.34 min. / Action: home_fries_load_sdkman
+  # Disabling until I know more! (Could be because no internet!)
+  #run_and_unset "home_fries_load_sdkman"
   unset home_fries_load_sdkman
 
-  home_fries_load_nvm_and_completion
-  unset home_fries_load_nvm_and_completion
+  run_and_unset "home_fries_load_nvm_and_completion"
 
   #########################
 
@@ -291,6 +300,8 @@ main () {
 
   home_fries_up
   unset home_fries_up
+
+  ${PROFILING} && echo "core.done!"
 }
 
 main "$@"
