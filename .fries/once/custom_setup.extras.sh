@@ -2521,9 +2521,14 @@ stage_4_digikam_install_appimage () {
 
   pushd ${OPT_DLOADS} &> /dev/null
 
-  local digikam_vers='5.8.0'
+  #local digikam_vers='5.8.0'
+  # LATER/2018-10-06: digiKam 6.0.0 beta 1 release 2018-08-19.
+  local digikam_vers='5.9.0'
 
   wget -N https://download.kde.org/stable/digikam/digikam-${digikam_vers}-01-x86-64.appimage
+
+  # 2018-10-06: This is new.
+  chmod 775 digikam-${digikam_vers}-01-x86-64.appimage
 
   cd ${OPT_BIN}
 
