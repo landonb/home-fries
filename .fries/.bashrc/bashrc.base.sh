@@ -28,8 +28,16 @@
 
 bashrc_time_0=$(date +%s.%N)
 
-export DUBS_TRACE=false
-#export DUBS_TRACE=true
+export DUBS_TRACE=${DUBS_TRACE:-false}
+#export DUBS_TRACE=${DUBS_TRACE:-true}
+
+# DEVS: Uncomment to show progress times.
+DUBS_PROFILING=${DUBS_PROFILING:-false}
+#DUBS_PROFILING=${DUBS_PROFILING:-true}
+
+# DEVS: Uncomment to show progress times.
+DUBS_PROFILING=${DUBS_PROFILING:-false}
+
 
 $DUBS_TRACE && echo "User's EUID is $EUID"
 
@@ -40,6 +48,25 @@ $DUBS_TRACE && echo "User's EUID is $EUID"
 #   hard_path=$(dirname $(readlink -f ~/.bashrc))
 # Universally Bashy:
 hard_path=$(dirname $(readlink -f -- "${BASH_SOURCE}"))
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# *** Profiling.
+
+print_elapsed_time () {
+  ! ${DUBS_PROFILING} && return
+  local time_0="$1"
+  local detail="$2"
+  local time_n=$(date +%s.%N)
+  local elapsed_fract="$(echo "(${time_n} - ${time_0}) / 60" | bc -l)"
+  #echo "elapsed_fract: ${elapsed_fract} min. / Source: ${lib_file}"
+  if [[ $(echo "${elapsed_fract} >= 0.01" | bc -l) -eq 1 ]]; then
+    local elapsed_mins=$(echo ${elapsed_fract} | xargs printf "%.2f")
+    echo "Elapsed: ${elapsed_mins} min. / ${detail}"
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # System-wide Profile
 # ===================
@@ -55,6 +82,8 @@ source_deps () {
   fi
 }
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # This Developer's Basic Bash Profile
 # ===================================
 
@@ -63,6 +92,8 @@ source_fries () {
   # adjusts the terminal prompt, and adds a few functions.
   source ${hard_path}/bashrc.core.sh
 }
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Machine-specific Profiles
 # =========================
@@ -111,6 +142,8 @@ source_private () {
   fi
 }
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # Additional Fancy -- Project Specific Profiles
 # =============================================
 
@@ -158,6 +191,8 @@ source_projects0 () {
   done
 }
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # Additional Fancy -- Starting Directory and Kickoff Command
 # ==========================================================
 
@@ -200,6 +235,8 @@ start_somewhere_something () {
   fi
 }
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # Cleanup
 # =======
 
@@ -213,10 +250,12 @@ home_fries_bashrc_cleanup () {
   unset userfile
 
   # Show startup stats if we already polluted console with ``expect`` stuff,
-  # or if being run in tmuxinator.
+  # or if being run in tmuxinator,
+  # or if user is profiling bashrc, or already tracing.
   if ( [[ ! -z ${SSH_ENV_FRESH+x} ]] && ${SSH_ENV_FRESH} ) || \
      ( [[ "${TERM}" == "screen" || "${TERM}" == "screen-256color" ]] && \
-       [[ -n "${TMUX}" ]] ) \
+       [[ -n "${TMUX}" ]] ) || \
+     ( ${DUBS_TRACE} || ${DUBS_PROFILING} ) \
   then
     source 'logger.sh'
     export LOG_LEVEL=${LOG_LEVEL_NOTICE}
@@ -297,11 +336,11 @@ main () {
   start_somewhere_something
   unset start_somewhere_something
 
-  home_fries_bashrc_cleanup
-  unset home_fries_bashrc_cleanup
-
   home_fries_run_terminator_init_cmd
   unset home_fries_run_terminator_init_cmd
+
+  home_fries_bashrc_cleanup
+  unset home_fries_bashrc_cleanup
 }
 
 main "$@"

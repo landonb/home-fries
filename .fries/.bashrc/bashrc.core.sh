@@ -6,27 +6,6 @@
 # License: GPLv3
 # vim:tw=0:ts=2:sw=2:et:norl:
 
-# DEVS: Uncomment to show progress times.
-PROFILING=false
-#PROFILING=true
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-# *** Profiling.
-
-print_elapsed_time () {
-  ! ${PROFILING} && return
-  local time_0="$1"
-  local detail="$2"
-  local time_n=$(date +%s.%N)
-  local elapsed_fract="$(echo "(${time_n} - ${time_0}) / 60" | bc -l)"
-  #echo "elapsed_fract: ${elapsed_fract} min. / Source: ${lib_file}"
-  if [[ $(echo "${elapsed_fract} >= 0.01" | bc -l) -eq 1 ]]; then
-    local elapsed_mins=$(echo ${elapsed_fract} | xargs printf "%.2f")
-    echo "Elapsed: ${elapsed_mins} min. / ${detail}"
-  fi
-}
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # *** Doobious Sources
@@ -82,14 +61,14 @@ source_utils () {
   for lib_file in "${lib_files[@]}"; do
     if [[ -f "${HOMEFRIES_DIR}/lib/${lib_file}" ]]; then
       local time_0=$(date +%s.%N)
-      ${PROFILING} && echo "Loading: ${lib_file}"
+      ${DUBS_PROFILING} && echo "Loading: ${lib_file}"
       source "${HOMEFRIES_DIR}/lib/${lib_file}"
       print_elapsed_time "${time_0}" "Source: ${lib_file}"
     else
-      ${PROFILING} && echo "MISSING: ${lib_file}"
+      ${DUBS_PROFILING} && echo "MISSING: ${lib_file}"
     fi
   done
-  ${PROFILING} && echo "Moving along!"
+  ${DUBS_PROFILING} && echo "Moving along!"
 
   if [[ -z ${HOMEFRIES_WARNINGS+x} ]]; then
     # Usage, e.g.:
@@ -110,7 +89,7 @@ source_addit () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 run_and_unset () {
-  ${PROFILING} && echo "Action: $1"
+  ${DUBS_PROFILING} && echo "Action: $1"
   local time_0=$(date +%s.%N)
 
   eval $1
@@ -122,7 +101,7 @@ run_and_unset () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 home_fries_up () {
-  ${PROFILING} && echo "home_fries_up"
+  ${DUBS_PROFILING} && echo "home_fries_up"
   local time_0=$(date +%s.%N)
 
   #########################
@@ -276,7 +255,7 @@ home_fries_up () {
 
   #########################
 
-  # 2018-09-27 13:41: !!!! PROFILING:
+  # 2018-09-27 13:41: !!!! PROFILING/DUBS_PROFILING:
   #   Elapsed: 0.34 min. / Action: home_fries_load_sdkman
   # Disabling until I know more! (Could be because no internet!)
   #run_and_unset "home_fries_load_sdkman"
@@ -302,7 +281,7 @@ main () {
   home_fries_up
   unset home_fries_up
 
-  ${PROFILING} && echo "core.done!"
+  ${DUBS_PROFILING} && echo "core.done!"
 }
 
 main "$@"
