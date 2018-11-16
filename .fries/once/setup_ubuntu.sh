@@ -965,6 +965,9 @@ setup_mint_17_stage_1_install_packages () {
     # 2018-04-12: Seriously?
     traceroute
 
+    # 2018-11-16: Simple app to view text rendereded in different fonts.
+    font-manager
+
   ) # end: BIG_DESKTOP_LIST
 
   local BIG_DESKTOP_LIST_MINT_17=(
