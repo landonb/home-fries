@@ -292,7 +292,7 @@ root password at least once, but otherwise it'll chug along
 for hours and hours and set everything up.
 
 The setup script also customizes a lot of window manager
-behavior via ``gsettings`` and ``dconf``. For wat it can't
+behavior via ``gsettings`` and ``dconf``. For what it cannot
 setup (MATE panels, for one, and web browser plugins, for
 another), refer to somewhere in one of these READMEs.
 
