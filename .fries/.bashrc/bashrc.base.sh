@@ -23,6 +23,15 @@
 # And finally:    ./bashrc.*.base.sh
 #                    (so you can add project-specific profiles)
 
+# Do Nothing Unless Interactive
+# =============================
+
+# Copied from /etc/bash.bashrc [Ubuntu 18.04]:
+[ -z "$PS1" ] && return
+# (One could also check [[ $- != *i* ]],
+# but not $(shopt login_shell), which is
+# false via mate-terminal.
+
 # Script Setup
 # ============
 
