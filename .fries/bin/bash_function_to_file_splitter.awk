@@ -26,7 +26,7 @@
   match($0, /([_a-zA-Z][_a-zA-Z0-9]*)/, arr_funcname)
   print "FUNCNAME:", arr_funcname[1]
   cur_funcnumb += 1
-  cur_filename = sprintf("%03d__%s.sh", cur_funcnumb, arr_funcname[1])
+  cur_filename = sprintf("%04d__%s.sh", cur_funcnumb, arr_funcname[1])
   print "FILENAME: " cur_filename
 
   # FIXME/2018-04-10: Add copy header.
