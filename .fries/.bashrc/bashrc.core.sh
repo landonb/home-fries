@@ -92,8 +92,8 @@ run_and_unset () {
   ${DUBS_PROFILING} && echo "Action: $1"
   local time_0=$(date +%s.%N)
 
-  eval $1
-  unset $1
+  eval "$@"
+  unset "$1"
 
   print_elapsed_time "${time_0}" "Action: $1"
 }
