@@ -26,9 +26,27 @@ source_deps () {
 DUBS_STICKY_PREFIX='(Dubs) '
 DUBS_STICKY_PREFIX_RE='\(Dubs\) '
 
-dubs_set_terminal_prompt () {
-  local ssh_host=$1
+dubs_logged_on_via_ssh () {
+  # https://unix.stackexchange.com/questions/9605/how-can-i-detect-if-the-shell-is-controlled-from-ssh
+  # "If one of the variables SSH_CLIENT or SSH_TTY is defined, it's an ssh session.
+  #  If the login shell's parent process name is sshd, it's an ssh session."
+  if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
+    return 0
+  else
+    case $(ps -o comm= -p $PPID) in
+      sshd|*/sshd)
+        return 0
+        ;;
+      # mate-terminal) ...
+      *)
+        return 1
+        ;;
+    esac
+  fi
+  return 1
+}
 
+dubs_set_terminal_prompt () {
   # (lb): Note that color_util.sh defines similar colors, but without
   # the ``01;`` part. I cannot remember what that component means....
 # FIXME/2018-05-28: (lb): remove these colors if all's well.
@@ -167,14 +185,16 @@ dubs_set_terminal_prompt () {
       #       to use sudo, and we know we're on Linux. And on Linux,
       #       the inode of the (outermost) root directory is always 2.
       # CAVEAT: This check works on Linux but probably not on Mac, BSD, Cygwin, etc.
-      if [[ $(stat -c %i /) -eq 2 ]]; then
+      if $(dubs_logged_on_via_ssh); then
+        # 2018-12-23: Killer.
+        PS1="${titlebar}${fg_gray}${cur_user}$(attr_italic)$(attr_underline)$(fg_lightorange)@${mach_name}${attr_reset}:${fg_cyan}${basename}${attr_reset} ${u_skull} \$ "
+      elif [[ $(stat -c %i /) -eq 2 ]]; then
         #PS1="${titlebar}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]\$ "
         # 2015.03.04: The chroot is Ubuntu 12.04, and it's Bash v4.2 does not
         #             support Unicode \uXXXX escapes, so use the escape in the
         #             outer. (Follow the directory path with an anchor symbol
         #             so I know I'm *not* in the chroot.)
-        # Probably cannot use $var without eval: local u_anchor='\u2693'
-        PS1="${titlebar}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_cyan}${basename}${attr_reset}"$' \u2693 '"\$ "
+        PS1="${titlebar}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_cyan}${basename}${attr_reset} ${u_mushroom} \$ "
         # 2015.02.26: Add git branch.
         #             Maybe... not sure I like this...
         #             maybe change delimiter and make branch name colorful?
