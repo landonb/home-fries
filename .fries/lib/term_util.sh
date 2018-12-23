@@ -123,7 +123,8 @@ dubs_set_terminal_prompt () {
   #       to pass this environment variable to us.
   # NOTE: To test gnome-terminal, run it from your home directory, otherwise it
   #       won't find your bash scripts.
-  if [[ "${ssh_host}" == "" ]]; then
+  if ! $(dubs_logged_on_via_ssh); then
+    # echo "User not logged on via SSH"
     if [[ "${DUBS_TERMNAME}" != "" ]]; then
       titlebar="\[\e]0;${sticky_alert}${DUBS_TERMNAME}\a\]"
     elif [[ $(stat -c %i /) -eq 2 ]]; then
@@ -136,7 +137,13 @@ dubs_set_terminal_prompt () {
       titlebar="\[\e]0;|-${sticky_alert}${basename}-|\a\]"
     fi
   else
-    titlebar="\[\e]0;${sticky_alert}On ${ssh_host}\a\]"
+    # echo "User *is* logged on via SSH!"
+    #titlebar="\[\e]0;${sticky_alert}$(hostname) → ${basename}\a\]"
+    #titlebar="\[\e]0;${sticky_alert}$(hostname) 🦉 ${basename}\a\]"
+    #titlebar="\[\e]0;${sticky_alert}$(hostname) 👗 ${basename}\a\]"
+    #titlebar="\[\e]0;${sticky_alert}$(hostname) 🌊 ${basename}\a\]"
+    #titlebar="\[\e]0;${sticky_alert}$(hostname) 🌿 ${basename}\a\]"
+    titlebar="\[\e]0;${sticky_alert}$(hostname) 🍍 ${basename}\a\]"
   fi
 
   # 2012.10.17: The default bash includes ${debian_chroot:+($debian_chroot)} in
