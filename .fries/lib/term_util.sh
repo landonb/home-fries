@@ -129,6 +129,21 @@ dubs_set_terminal_prompt () {
   #  http://unix.stackexchange.com/questions/3171/what-is-debian-chroot-in-bashrc
   #  https://en.wikipedia.org/wiki/Chroot
 
+  # MAYBE/2018-12-23: Move these definitions to color_util.sh or similar?
+  # - NOTE: Use capital `\U`, not lowercase `\u`, when more than 16 bit unicode char.
+  # - NOTE: If set in PS1 directly, need to $'interpolate', e.g.,
+  #           PS1="${titlebar}${prompt_stuff}"$' \U1F480 '"\$ "
+  local u_anchor=$(echo -e "\u2693")            # ⚓
+  local u_evergreen_tree=$(echo -e "\U1F332")   # 🌲
+  local u_cactus=$(echo -e "\U1F335")           # 🌵
+  local u_mushroom=$(echo -e "\U1F344")         # 🍄
+  local u_skull=$(echo -e "\U1F480")            # 💀
+  # Skull and Crossbones draws too light:
+  #  local u_skull_n_xbones=$(echo -e "\u2620") # ☠
+  local u_owl=$(echo -e "\U1F989")              # 🦉
+  local u_herb=$(echo -e "\U1F33F")             # 🌿
+  local u_pineapple=$(echo -e "\U1F34D")        # 🍍
+
   # NOTE: Using "" below instead of '' so that ${titlebar} is resolved by the
   #       shell first.
   $DUBS_TRACE && echo "Setting prompt"
