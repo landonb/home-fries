@@ -109,6 +109,8 @@ home_fries_set_path_environ () {
   #
   # The latest go binary.
   if [[ -d /usr/local/go/bin ]]; then
+    # 2018-12-23: Symlinking go from ~/.local/bin, so no sudo needed/not sitewide.
+    # MAYBE/2018-12-23: Remove this PATH part.
     path_prefix+=("/usr/local/go/bin")
   fi
   if [[ ! -d ${HOME}/.gopath ]]; then
