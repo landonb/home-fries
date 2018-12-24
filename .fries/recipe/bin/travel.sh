@@ -262,12 +262,17 @@ echod "SOURCED_TRAVEL_TASKS: ${SOURCED_TRAVEL_TASKS}"
 # ***
 
 HAMSTERING=false
-if [[ -d "${USERS_CURLY}/home/.local/share/hamster-applet" ]]; then
-  HAMSTERING=true
-  echod "Hamster found under: ${USERS_CURLY}/home/.local/share/hamster-applet"
-else
-  #echo "No hamster at: ${USERS_CURLY}/home/.local/share/hamster-applet"
-  :
+
+# FIXME/2018-12-24: Replace with dob. (And also move out of Travel/Trippy.)
+if false; then
+
+  if [[ -d "${USERS_CURLY}/home/.local/share/hamster-applet" ]]; then
+    HAMSTERING=true
+    echod "Hamster found under: ${USERS_CURLY}/home/.local/share/hamster-applet"
+  else
+    #echo "No hamster at: ${USERS_CURLY}/home/.local/share/hamster-applet"
+    :
+  fi
 fi
 
 # ***
