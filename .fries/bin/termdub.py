@@ -630,7 +630,8 @@ class Termdub(object):
             % (the_terminal, target, lines_wide, lines_tall, offset_w, offset_h,))
 
       specific_bash = ''
-      dubsacks_bash4_4 = '/srv/opt/bin/bash'
+      #dubsacks_bash4_4 = './.local/bin/bash'.format(os.getenv('HOME'))
+      dubsacks_bash4_4 = '{}/.local/bin/bash'.format(os.getenv('HOME'))
       if os.path.exists(dubsacks_bash4_4):
          specific_bash = '-e %s' % (dubsacks_bash4_4,)
 
