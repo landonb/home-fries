@@ -277,9 +277,8 @@ home_fries_bashrc_cleanup () {
   unset bashrc_time_0
 
   # Tell user when running non-standard Bash.
-  # E.g., $0 == '/srv/opt/bin/bash', if you custom built
-  #   Bash 4.4 from ~/.fries/once/custom_setup.extras.sh.
-  if [[ "$0" != 'bash' && "$0" != '/bin/bash' ]]; then
+  # E.g., $0 == '/user/home/.local/bin/bash'.
+  if [[ $(readlink -f "$0") != '/bin/bash' ]]; then
     notice "This bash is a ${FG_LIGHTGREEN}${MK_LINE}special${RESET_UNDERLINED} bash!${MK_NORM}" \
       "Version: ${FG_LIGHTYELLOW}${MK_LINE}${MK_BOLD}${BASH_VERSION}"
   fi
