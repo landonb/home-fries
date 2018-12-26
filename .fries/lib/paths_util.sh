@@ -77,7 +77,8 @@ home_fries_set_path_environ () {
   path_prefix+=("${OPT_BIN}/bin")
 
   # ~/.local/bin is where, e.g., `pip install --user blah` installs.
-  path_suffix+=("${HOME}/.local/bin")
+  # And also where zoidy_home-fries installs non-apt/-snap applications.
+  path_prefix+=("${HOME}/.local/bin")
 
   # Android Studio.
   JAVA_HOME=${OPT_BIN}/jdk
