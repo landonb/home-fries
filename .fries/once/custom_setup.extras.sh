@@ -3335,6 +3335,9 @@ stage_4_optipng () {
 
   pushd ${OPT_DLOADS} &> /dev/null
 
+  # OptiPNG: Advanced PNG Optimizer
+  # http://optipng.sourceforge.net/
+
   wget -N http://downloads.sourceforge.net/project/optipng/OptiPNG/optipng-0.7.6/optipng-0.7.6.tar.gz
 
   tar -xvzf optipng-0.7.6.tar.gz
