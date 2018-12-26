@@ -69,7 +69,7 @@ home_fries_map_keys_lenovo () {
           # 2015.02.28: At some point, browser-back stopped working, and I used
           #             right-ctrl instead, but now browser back is remapping again.
           #               xmodmap -e "keycode 105 = Delete" # right-ctrl
-        elif [[ $(cat /sys/class/dmi/id/product_version) == "ThinkPad T460" ]]; then
+        elif [[ $(cat /sys/class/dmi/id/product_version) == ThinkPad\ T*0 ]]; then
           # 2017-02-17: I shouldn't be hard-coding these settings here (it's my
           # personal taste; belongs in a private Bash module), but how many other
           # people really use home-fries, much less on an X201 or a T460?
