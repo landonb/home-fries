@@ -4,6 +4,11 @@
 #
 # Buggers. Oracle VirtualBox update wrapper.
 
+# FIXME/2018-12-27: Deprecated. See
+#
+#   github.com/landonb/zoidy_home-fries
+#     tasks/virtualbox-deb-install.yml
+
 source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   # Load: OPT_* environs.
