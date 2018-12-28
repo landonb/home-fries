@@ -388,7 +388,9 @@ stage_4_quicktile_install () {
     # ./setup.py build
     sudo ./setup.py install
     # Test:
-    #  quicktile.py --daemonize
+    #  #quicktile.py --daemonize
+    #  # 2018-12-27:
+    #  quicktile.sh --daemonize
     # Well, that's odd:
     sudo chmod 644 /etc/xdg/autostart/quicktile.desktop
     sudo chmod 755 /usr/local/bin/quicktile.py
