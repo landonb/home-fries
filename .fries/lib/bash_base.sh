@@ -85,6 +85,14 @@ gather_script_meta () {
   #
   #       Or, if you sudo'd, e.g., `sudo su - some_user`, then
   #       $0 is '-su'. (Test: ${0:0:1} == '-') ([lb] has also seen '-bash')
+  #
+  #       From `man bash`:
+  #         INVOCATION
+  #           A login shell is one whose first character of argument zero is a -,
+  #           or one started with the --login option.
+  #       Also, ref:
+  #         https://unix.stackexchange.com/questions/38175/
+  #           difference-between-login-shell-and-non-login-shell
 
   # NOTE: Using $0 and not ${BASH_SOURCE[0]} because BASH_SOURCE[0] is
   #       this file, and $0 is the calling process that sourced us.
