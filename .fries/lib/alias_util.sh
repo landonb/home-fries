@@ -315,6 +315,8 @@ home_fries_create_aliases_rg_tag_wrap () {
     tag \
       --smart-case \
       --hidden \
+      --follow \
+      --no-ignore-vcs \
       --colors 'path:fg:yellow' \
       --colors 'path:style:bold' \
       --colors 'line:fg:green' \
