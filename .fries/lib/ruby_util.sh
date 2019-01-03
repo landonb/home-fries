@@ -18,7 +18,9 @@ source_deps () {
   # See:
   #   https://github.com/postmodern/ruby-install
   #   https://github.com/postmodern/chruby
-  if [[ -f /usr/local/share/chruby/chruby.sh ]]; then
+  if [[ -f ${HOME}/.local/share/chruby/chruby.sh ]]; then
+    source ${HOME}/.local/share/chruby/chruby.sh
+  elif [[ -f /usr/local/share/chruby/chruby.sh ]]; then
     source /usr/local/share/chruby/chruby.sh
   fi
 
@@ -199,6 +201,7 @@ chruby_use () {
   orig_chruby_use $*
   # See chruby_use in
   #   /usr/local/share/chruby/chruby.sh
+  #   ${HOME}/.local/share/chruby/chruby.sh
   # MAYBE: If you need to cleanup old paths, something like this:
   if false; then
     export GEM_PATH="$(\
