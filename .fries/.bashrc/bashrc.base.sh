@@ -277,8 +277,24 @@ home_fries_bashrc_cleanup () {
   unset bashrc_time_0
 
   # Tell user when running non-standard Bash.
-  # E.g., $0 == '/user/home/.local/bin/bash'.
-  if [[ $(readlink -f "$0") != '/bin/bash' ]]; then
+  # E.g., when on local terminal invoked by launcher and running mate-terminal,
+  #   $0 == '/user/home/.local/bin/bash'
+  # and when on remote terminal over ssh,
+  #   $0 == '-bash'
+  local custom_bash
+  custom_bash=false
+  if [[ "$0" == 'bash' || "$0" == '-bash' ]]; then
+    if $(alias bash &> /dev/null); then
+      if [[ $(readlink -f "$(alias bash | sed 's/^.* ([^ ]+\/bash\>).*/\1/')") != '/bin/bash' ]]; then
+        custom_bash=true
+      fi
+    elif [[ $(readlink -f "$(command -v bash)") != '/bin/bash' ]]; then
+      custom_bash=true
+    fi
+  elif [[ $(readlink -f "$0") != '/bin/bash' ]]; then
+    custom_bash=true
+  fi
+  if ${custom_bash}; then
     notice "This bash is a ${FG_LIGHTGREEN}${MK_LINE}special${RESET_UNDERLINED} bash!${MK_NORM}" \
       "Version: ${FG_LIGHTYELLOW}${MK_LINE}${MK_BOLD}${BASH_VERSION}"
   fi
