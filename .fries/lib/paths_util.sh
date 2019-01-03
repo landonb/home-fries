@@ -79,6 +79,8 @@ home_fries_set_path_environ () {
   # ~/.local/bin is where, e.g., `pip install --user blah` installs.
   # And also where zoidy_home-fries installs non-apt/-snap applications.
   path_prefix+=("${HOME}/.local/bin")
+  # Ansible Zoidy Pooh-installed Node/NPM executables.
+  path_prefix+=("${HOME}/.local/node_modules/.bin")
 
   # Android Studio.
   JAVA_HOME=${OPT_BIN}/jdk
