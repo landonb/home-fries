@@ -336,6 +336,11 @@ home_fries_run_terminator_init_cmd () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# Prevent creationix/nvm/install.sh from appending this file.
+# Just be sure that its grep commands find "/nvm.sh" and "$NVM_DIR/bash_completion" [so meta].
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 main () {
   source_deps
   unset source_deps
