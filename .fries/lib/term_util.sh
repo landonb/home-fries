@@ -528,6 +528,14 @@ echoerr () { echo "$@" 1>&2; }
 # work, switch to that desktop, and then enables always-on-visible. Or,
 # you could just run this command and bring your windows to the desired
 # desktop.
+# 2019-01-05: And... now it seems the issue for which space() was writ
+# to address is not longer an issue in 18.04. When I switch desktops
+# by clicking in the applet widget and then alt-tab between windows,
+# the desktop is not unexpectedly changing to another one. Thank you,
+# whomeever fixed this bug! (I think between 14.04 and 18.04; not sure
+# if it inflicted 16.04). / That said, space() is still useful to run
+# at least once to make certain browser tabs and other application
+# windows sticky.
 
 space () {
   local re_num='^[1-4]+$'
