@@ -81,7 +81,9 @@ source_addit () {
   # 2016-11-18: Wow. This has been here for years, commented out,
   # because I haven't use mkvirtualenv in oh so very, very long.
   # Welcome back, friend.
-  if [[ -f /usr/local/bin/virtualenvwrapper.sh ]]; then
+  if [[ -f ${HOME}/.local/bin/virtualenvwrapper.sh ]]; then
+    source ${HOME}/.local/bin/virtualenvwrapper.sh
+  elif [[ -f /usr/local/bin/virtualenvwrapper.sh ]]; then
     source /usr/local/bin/virtualenvwrapper.sh
   fi
 }
