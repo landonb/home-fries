@@ -40,7 +40,7 @@ source_deps () {
 
 # *** Touchpad Controller Option #2: `xinput set-prop`
 
-touchpad_twiddle () {
+_touchpad_twiddle () {
   local touchpad_state=$1
   if [[ $(command -v xinput > /dev/null) || $? -eq 0 ]]; then
     local device_num=$(xinput --list --id-only "SynPS/2 Synaptics TouchPad" 2> /dev/null)
@@ -50,8 +50,8 @@ touchpad_twiddle () {
   fi
 }
 
-touchpad_disable () {
-  touchpad_twiddle 0
+touchpad-disable () {
+  _touchpad_twiddle 0
   # 2017-12-16 02:38: Something has been leaving 0~Bracketed1~ Paste enabled.
   #   This disables bracketed paste.
   # 2018-02-14 01:12: I've also noticed a problem with mouse state getting
@@ -78,8 +78,8 @@ touchpad_disable () {
   bind 'set enable-bracketed-paste off'
 }
 
-touchpad_enable () {
-  touchpad_twiddle 1
+touchpad-enable () {
+  _touchpad_twiddle 1
 }
 
 # *** Touchpad Controller Option #3: Auto-disable on `bash` startup: NO!
@@ -87,7 +87,7 @@ touchpad_enable () {
 # 2018-01-29: This fcn., xinput_set_prop_touchpad_device_off, is never called!
 #   See instead: `touchpad_disable` and `touchpad_enable`.
 xinput_set_prop_touchpad_device_off () {
-  touchpad_twiddle 0
+  _touchpad_twiddle 0
 }
 # 2016-11-11: Let's not confuse first-time users by disabling their trackpad.
 #   See instead: `touchpad_disable` and `touchpad_enable`.
