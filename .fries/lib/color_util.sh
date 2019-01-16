@@ -516,8 +516,8 @@ create_ornaments () {
 }
 
 create_strip_colors () {
-  # To strip color codes from Bash stdout whatever.
-  # http://stackoverflow.com/questions/17998978/removing-colors-from-output
+  # - Strip color codes from stream. Ref:
+  #   http://stackoverflow.com/questions/17998978/removing-colors-from-output
   alias stripcolors='/bin/sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"'
 }
 
