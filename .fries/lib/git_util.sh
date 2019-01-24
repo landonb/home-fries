@@ -973,6 +973,10 @@ git_merge_ff_only () {
   # For a nice fast-forward vs. --no-ff article, see:
   #   https://ariya.io/2013/09/fast-forward-git-merge
 
+  # Ha! 2019-01-24: Seeing:
+  #   "fatal: update_ref failed for ref 'ORIG_HEAD': could not write to '.git/ORIG_HEAD'"
+  # because my device is full. Guh.
+
   local git_says
   git_says=$(git merge --ff-only ${TRAVEL_REMOTE}/${source_branch} 2>&1) && true
   local merge_success=$?
