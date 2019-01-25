@@ -139,56 +139,11 @@ home_fries_set_path_environ () {
     export OS_OUTPUT_GOPATH=1
   fi
 
-  # 2016-11-18: What a jerk! Heroku Toolbelt just shat this at
-  # the end of my ~/.bashrc, which is a symlink to, well, you
-  # know. An Important File. Get out of there! And you didn't
-  # even use a trailing newline. Why to respk house rulz, bruh.
-  #
-  #     ### Added by the Heroku Toolbelt
-  #     export NEW_PATHS+=("/usr/local/heroku/bin:$PATH")
-  #
-  # Also, shouldn't you be at the _end_ of the conga line?
-  # And what ever happened to being polite and checking for
-  # existence?
-  if [[ -d /usr/local/heroku/bin ]]; then
-    path_suffix+=("/usr/local/heroku/bin")
-  fi
-
-  # 2016-12-03: I guess MrMurano is my first gem.
-  # 2016-12-08: Looks like `chruby` updates PATH for us.
-  #  if type -P ruby &>/dev/null; then
-  #    # Determine the user's rubygems path. E.g.,
-  #    #   ~/.gem/ruby/1.9.1
-  #    ruby_gem_path=$(ruby -rubygems -e 'puts Gem.user_dir')
-  #    if [[ -n ${ruby_gem_path} ]]; then
-  #      path_suffix+=("${ruby_gem_path}")
-  #      path_suffix+=("${ruby_gem_path}/bin")
-  #    fi
-  #  fi
-  #
-  # FIXME/2016-12-08: Probably need to figure out how to handle chruby, e.g.,
-  # $ chruby ruby-2.3.3
-  # $ gem install --user-install bundler pry byebug commander rubocop terminal-table httparty
-  # Fetching: bundler-1.13.6.gem (100%)
-  # WARNING:  You don't have /home/landonb/.gem/ruby/2.3.0/bin in your PATH,
-  # 	  gem executables will not run.
-  # ...
-  #
-  # MAYBE: just override chruby to fix PATH?
-
-  if [[ -d ${OPT_DLOADS}/abcde-2.8.1 ]]; then
-    path_suffix+=("${OPT_DLOADS}/abcde-2.8.1")
-  fi
 
   # 2017-04-27: Added by Bash script at https://get.rvm.io:
   #   "Add RVM to PATH for scripting. Make sure this is the last PATH variable change."
   if [[ -d ${HOME}/.rvm/bin ]]; then
     path_suffix+=("${HOME}/.rvm/bin")
-  fi
-
-  # 2017-10-10...
-  if [[ -d ${OPT_DLOADS}/WebStorm-172.4155.35/bin ]]; then
-    path_suffix+=("${OPT_DLOADS}/WebStorm-172.4155.35/bin")
   fi
 
   # ============================
