@@ -187,8 +187,6 @@ source_projects0 () {
     # Avoid stderr message if symlink points at naught.
     if [[ -e $rcfile ]]; then
       $DUBS_TRACE && echo "Loading project-specific Bash resource script: $rcfile"
-      # 2016-09-23: I've been mkdir 'ing my way around Dubsacks Gvim `ag` complaints
-      #             on the laptop where not /jus/cache is loaded.
       if [[ ! -d $rcfile ]]; then
         source $rcfile
       else
