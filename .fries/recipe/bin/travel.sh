@@ -2090,7 +2090,7 @@ function packme () {
 
     # If any of the repos listed in repo_syncs.sh are dirty, fail
     # now and force the user to meaningfully commit those changes.
-    # (This is repos like: home-fries, ${PRIVATE_REPO_}, dubsacks vim,
+    # (This is repos like: home-fries, ${PRIVATE_REPO_}, dubs vim,
     #  and other personal- and work-related repositories.)
     # FIXME/2018-03-23: Split out side effect here: git_commit_generic_file
     check_repos_statuses

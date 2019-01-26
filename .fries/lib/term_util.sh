@@ -615,7 +615,7 @@ if false; then
 
   private_space () {
     declare -a winnames=()
-    # Dubsacks Vim, e.g., if you send files to the same GVim with:
+    # Dubs Vim, e.g., if you send files to the same GVim with:
     #  gvim --servername SAMPI --remote-silent path/to/file
     winnames+=("SAMPI")
     # E.g., Gmail, etc.

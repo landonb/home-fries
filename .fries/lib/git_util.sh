@@ -1293,7 +1293,7 @@ git-jockey () {
 # that are loaded as submodules in an uber-project
 # that makes it easy to share my plugins and makes
 # it simple to deploy them to a new machine, found
-# at https://github.com/landonb/dubsacks_vim.
+# at https://github.com/landonb/dubs-vim.
 #
 # However, git status doesn't work like, say, svn status:
 # you can't postpend a directory path and have it search

@@ -1,23 +1,23 @@
-# File: vendor_dubsacks.sh
+# File: vendor_dubs-vim.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
 # Last Modified: 2017.10.03
 # Project Page: https://github.com/landonb/home-fries
-# Summary: Dubsacks VIM setup script.
+# Summary: Dubs Vim setup script.
 # License: GPLv3
 
 set -e
 
-if [[ -z ${DO_INSTALL_DUBSACKS+x} ]]; then
-  DO_INSTALL_DUBSACKS=true
+if [[ -z ${DO_INSTALL_DUBSVIM+x} ]]; then
+  DO_INSTALL_DUBSVIM=true
 fi
 
-if [[ -z ${URI_DUBSACKS_VIM_GIT+x} ]]; then
-  URI_DUBSACKS_VIM_GIT="https://github.com/landonb/dubsacks_vim.git"
+if [[ -z ${URI_DUBSVIM_GIT+x} ]]; then
+  URI_DUBSVIM_GIT="https://github.com/landonb/dubs-vim.git"
 fi
 
 source ./linux_setup_base.sh
 
-stage_4_dubsacks_install () {
+stage_4_dubsvim_install () {
 
   pushd ${HOME} &> /dev/null
 
@@ -41,19 +41,19 @@ stage_4_dubsacks_install () {
     else 
       cd ${HOME}/.vim &> /dev/null
       set +e
-      git remote -v | grep "landonb/dubsacks_vim.git" > /dev/null
+      git remote -v | grep "landonb/dubs-vim.git" > /dev/null
       exit_code=$?
       set -e
       if [[ $exit_code -ne 0 ]]; then
         echo
-        echo "WARNING: Was expecting ~/.vim to be the Dubsacks repo: moving it aside"
+        echo "WARNING: Was expecting ~/.vim to be the Dubs Vim repo: moving it aside"
         mv ${HOME}/.vim ${HOME}/.vim-TBD-`date +%Y_%m_%d`-`uuidgen`
       fi
     fi
   fi
 
   if [[ ! -e ${HOME}/.vim ]]; then
-    git clone ${URI_DUBSACKS_VIM_GIT} ${HOME}/.vim
+    git clone ${URI_DUBSVIM_GIT} ${HOME}/.vim
     cd ${HOME}/.vim
   else
     cd ${HOME}/.vim
@@ -66,29 +66,29 @@ stage_4_dubsacks_install () {
 
   popd &> /dev/null
 
-  # Dubsacks uses the Hack font.
+  # Dubs Vim uses the Hack font.
   source custom_setup.extras.sh
   stage_4_font_typeface_hack
   stage_4_parT_install
 
-} # end: stage_4_dubsacks_install
+} # end: stage_4_dubsvim_install
 
 # ==============================================================
 # Application Main()
 
-setup_dubsacks_go () {
+setup_dubsvim_go () {
 
-  if ${DO_INSTALL_DUBSACKS}; then
-    stage_4_dubsacks_install
+  if ${DO_INSTALL_DUBSVIM}; then
+    stage_4_dubsvim_install
   fi
 
-} # end: setup_dubsacks_go
+} # end: setup_dubsvim_go
 
 if [[ "$0" == "$BASH_SOURCE" ]]; then
   # Only run when not being sourced.
-  setup_dubsacks_go
+  setup_dubsvim_go
 fi
 
 # Stupid message for debugging ./setup_ubuntu.sh
-echo 'Thank you for dubssacking!'
+echo 'Thank you for dubsvimming!'
 

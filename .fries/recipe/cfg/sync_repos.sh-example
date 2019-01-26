@@ -47,7 +47,7 @@ ENCFS_GIT_REPOS+=("${HOME}")
 # Sync github.com/landonb/€µ®£¥
 #  er, github.com/landonb/curly
 ENCFS_GIT_REPOS+=("${HOME}/.curly")
-# Sync github.com/landonb/dubsacks_vim
+# Sync github.com/landonb/dubs-vim
 ENCFS_GIT_REPOS+=("${HOME}/.vim")
 # And whatever else you got.
 #ENCFS_GIT_REPOS+=("/more/stuff")
@@ -55,8 +55,8 @@ ENCFS_GIT_REPOS+=("${HOME}/.vim")
 # Specify directories of directories of git projects.
 #
 ENCFS_GIT_ITERS=()
-# If you cloned all the Dubsacks Vim projects (and didn't
-# just submodule them), include them all.
+# If you have cloned all the Dubs Vim projects (and
+# did not just submodule them), then include them all.
 #ENCFS_GIT_ITERS+=("${HOME}/.vim/bundle-dubs")
 # And then whatever else you got.
 #ENCFS_GIT_REPOS+=("/even/more/stuff")
