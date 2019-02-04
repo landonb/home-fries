@@ -114,47 +114,58 @@ home_fries_up () {
   # otherwise complain (but it'll still work, it just won't set a few
   # flavor-specific options, like terminal colors and the prompt).
   # See also: `uname -a`, `cat /etc/issue`, `cat /etc/fedora-release`.
+  # - lib/distro_util.sh
   run_and_unset "distro_complain_not_ubuntu_or_red_hat"
 
   #########################
 
   # Update PATH
+  # - lib/paths_util.sh
   run_and_unset "home_fries_set_path_environ"
 
   # (lb): Set MANPATH. (Specifically, cull paths to anything on a CryFS mount,
   # which makes `man <topic>` takes so many seconds to load; sheesh, annoying!)
+  # - lib/paths_util.sh
   run_and_unset "home_fries_configure_manpath"
 
   # Set umask to 0002
+  # - lib/file_util.sh
   run_and_unset "home_fries_default_umask"
 
   #########################
 
   # Set EDITOR, default for git, cron, etc.
+  # - lib/fries_util.sh
   run_and_unset "home_fries_export_editor_vim"
 
   #########################
 
+  # - lib/fries_util.sh
   run_and_unset "home_fries_append_ld_library_path"
 
+  # - lib/fries_util.sh
   run_and_unset "home_fries_alias_ld_library_path_cmds"
 
   #########################
 
   # Tell psql to use less for large output
+  # - lib/file_util.sh
   run_and_unset "home_fries_wire_export_less"
 
   #########################
 
   # Shell options
+  # - lib/session_util.sh
   run_and_unset "home_fries_configure_shell_options"
 
   #########################
 
   # Completion options
 
+  # - lib/fries_util.sh
   run_and_unset "home_fries_init_completions"
 
+  # - lib/fries_util.sh
   run_and_unset "home_fries_direxpand_completions"
 
   #########################
@@ -167,6 +178,7 @@ home_fries_up () {
   #   Identity added: /home/.../.ssh/identity (/home/.../.ssh/identity)
 
   # See: ~/.fries/lib/bash_base.sh
+  # - lib/ssh_util.sh
   ssh_agent_kick
 
   #########################
@@ -174,18 +186,22 @@ home_fries_up () {
   # Configure Bash session aliases.
 
   # Set: `ll` => `ls -ls`, etc.
+  # - lib/alias_util.sh
   run_and_unset "home_fries_create_aliases_general"
 
   # Set: `rg` => `rg --smart-case --hidden --colors ...`
+  # - lib/alias_util.sh
   run_and_unset "home_fries_create_aliases_greppers"
 
   # Set: `cdd` => pushd wrapper; `cdc` => popd; `cddc` => toggle cd last
+  # - lib/alias_util.sh
   run_and_unset "home_fries_create_aliases_chdir"
 
-  # Set: 
+  # - lib/alias_util.sh
   run_and_unset "home_fries_create_aliases_tab_completion"
 
   # Set: `rm` => `rm_safe` [e.g., "remove" to ~/.trash]
+  # - lib/trash_util.sh
   run_and_unset "home_fries_create_aliases_trash"
 
   #########################
@@ -193,54 +209,68 @@ home_fries_up () {
   # Configure the terminal prompt and colors. (From term_util.sh)
 
   # Set `PS1=` to customize the terminal prompt.
+  # - lib/term_util.sh
   run_and_unset "dubs_set_terminal_prompt"
 
   # Set PS4, for `set -x` and `set -v` debugging/tracing.
+  # - lib/term_util.sh
   run_and_unset "dubs_set_PS4"
 
   # Fix the colors used by `ls -C` to be less annoying.
+  # - lib/term_util.sh
   run_and_unset "dubs_fix_terminal_colors"
 
   # Make the current window always-on-visible-desktop, maybe.
+  # - lib/term_util.sh
   run_and_unset "dubs_always_on_visible_desktop"
 
   #########################
 
   # Setup distro-agnostic Python and Apache wrappers, aliases, and environs.
 
+  # - lib/python_util.sh
   run_and_unset "whats_python3"
 
+  # - lib/python_util.sh
   run_and_unset "whats_python2"
 
+  # - lib/apache_util.sh
   run_and_unset "whats_apache"
 
   #########################
 
+  # - lib/fries_util.sh
   run_and_unset "configure_crontab"
 
   #########################
 
+  # - lib/apache_util.sh
   run_and_unset "apache_create_control_aliases"
 
   #########################
 
+  # - lib/term_util.sh
   #run_and_unset "enable_vi_style_editing"
   unset enable_vi_style_editing
 
   #########################
 
+  # - lib/fries_util.sh
   run_and_unset "home_fries_load_completions"
 
   #########################
 
+  # - lib/keys_util.sh
   run_and_unset "home_fries_map_keys_lenovo"
 
   #########################
 
+  # - lib/crypt_util.sh
   run_and_unset "home_fries_configure_gpg_tty"
 
   #########################
 
+  # - lib/hist_util.sh
   run_and_unset "home_fries_configure_history"
 
   #########################
@@ -248,11 +278,13 @@ home_fries_up () {
   # MEH: The permissions on /proc/acpi/wakeup get reset every boot,
   #      so we need a new strategy for this to work.
   #      (NOTE/2018-01-29: Only affects Lenovo X201, I believe.)
+  # - lib/session_util.sh
   #run_and_unset "disable_wakeup_on_lid"
   unset disable_wakeup_on_lid
 
   #########################
 
+  # - lib/crypt_util.sh
   run_and_unset "daemonize_gpg_agent"
 
   #########################
@@ -260,9 +292,11 @@ home_fries_up () {
   # 2018-09-27 13:41: !!!! PROFILING/DUBS_PROFILING:
   #   Elapsed: 0.34 min. / Action: home_fries_load_sdkman
   # Disabling until I know more! (Could be because no internet!)
+  # - lib/fries_util.sh
   #run_and_unset "home_fries_load_sdkman"
   unset home_fries_load_sdkman
 
+  # - lib/fries_util.sh
   run_and_unset "home_fries_load_nvm_and_completion"
 
   #########################
