@@ -95,6 +95,56 @@ xinput_set_prop_touchpad_device_off () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# Disable middle mouse button (mouse scroll wheel) click.
+
+# tl;dr: I often fat-finger a middle mouse click, which pastes; prevent this.
+#
+# Use case: I use my mouse with two fingers: my right pointer over the left mouse
+# button, and my middle finger over the right button. Oftentimes, I accidentally
+# press both buttons nearly simultaneously, which is interpreted as a middle mouse
+# click (which performs a paste by default). This is Very Annoying. And while we
+# cannot disable the two-buttons-is-a-middle-click mapping, we can at least disable
+# the middle click response.
+
+# Ref:
+#
+#   https://wiki.ubuntu.com/X/Config/Input
+#
+#  - "Example: Disabling middle-mouse button paste on a scrollwheel mouse"
+#
+#      "Scrollwheel mice support a middle-button click event when pressing the 
+#       scrollwheel. This is a great feature, but you may find it irritating."
+#                                                                 [Ya think!?]
+#
+# Try these commands:
+#
+#   xinput list
+#
+#   xinput list | grep pointer | grep Logitech | grep 'id='
+#
+#   xinput list | grep pointer | grep Logitech | sed -r 's/^.*id=([0-9]+).*/\1/'
+#
+#   # My mouse has 2 IDs, 9 and 10.
+#   🍄 $ xinput get-button-map 9
+#   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+#   🍄 $ xinput get-button-map 10
+#   1 2 3 4 5 6 7
+
+# Look for Logitech M325c mouse (or, I guess, the USB receiver device, so this'll
+# probably match other models than just the M325c).
+if $(lsusb | grep "046d:c52f Logitech, Inc. Unifying Receiver" >& dev/null); then
+  # Run the commands, e.g.,
+  #   xinput set-button-map 9 1 0 3
+  #   xinput set-button-map 10 1 0 3
+  xinput list \
+  | grep pointer \
+  | grep Logitech \
+  | sed -r 's/^.*id=([0-9]+).*/\1/' \
+  | xargs -I % /bin/bash -c 'xinput set-button-map % 1 0 3'
+fi
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # Disable desktop popup notifications.
 #
 # Use Cases:
