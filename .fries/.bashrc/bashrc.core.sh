@@ -301,6 +301,11 @@ home_fries_up () {
 
   #########################
 
+  # - lib/input_util.sh
+  logitech-middle-mouse-click-disable
+
+  #########################
+
   # 2018-03-28: Trying direnv (to eventually replace/enhance gogo, perhaps).
   eval "$(direnv hook bash)"
 }
