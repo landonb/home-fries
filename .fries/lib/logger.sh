@@ -84,6 +84,7 @@ notice () {
   log_msg ${LOG_LEVEL_NOTICE} $(fg_lime) NOTC "$@"
 }
 
+# FIXME: Shadows /usr/bin/info
 info () {
   log_msg ${LOG_LEVEL_INFO} $(fg_mintgreen) INFO "$@"
 }
