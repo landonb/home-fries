@@ -17,6 +17,42 @@ source_deps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+_hist_util_hook () {
+  # Write/append this session's history to the shared history file.
+  # (I know, interleaving, deal with it! -Alternatively, we could
+  #    export HISTFILE="$HOME/.bash_historys/$$"
+  #  but then we're managing multiple histories, and I'm not sure
+  #  the utility.)
+  #
+  # BEWARE: We're not editing the session's in-memory history, so
+  # one can still see unredacted passwords, etc., using either
+  # `history -a <file>` or `history -w <file>` (the latter to dump
+  # history since the last time it was dumped, or the latter to dump
+  # all session history).
+  # - We're just scrubbing the file that gets writ to user home.
+  # - If you really want to clear session history (what's in memory), try:
+  #     `history -c`. (Note that `reset` won't do this.)
+  history -a
+
+  # Remove any pass-insert commands, looking for a line to match:
+  #   ' | pass insert -m
+  # This follows a convention I use to insert passwords using the format:
+  #   echo 'XXXXXXXXXXXXXXXX
+  #   ....
+  #   ' | pass insert -m foo/bar
+  awk -f $HOME/.fries/bin/.bash_history_filter.awk \
+    $HOME/.bash_history > $HOME/.bash_history-AWKed
+  /bin/mv $HOME/.bash_history-AWKed $HOME/.bash_history
+
+  # Redact anything that looks like a (modern, strong) password.
+  # Use Perl, because awk does not support look-around assertions,
+  # and this wild regex uses lookaheads to match 15- and 16-character
+  # words that contain at least one lowercase letter, an uppercase letter,
+  # and a number (so we might match non-passwords, like AcronymsBooYeah1,
+  # but we also match weaker passwords that do not use punctuation).
+  perl -pi -e 's/(^|\s)(?=[^\s]*[a-z][^\s]*)(?=[^\s]*[A-Z][^\s]*)(?=[^\s]*[0-9][^\s]*)[^\s]{15,16}(\s|\n|$)/\1XXXX_REDACT_XXXX\2/g' ~/.bash_history
+}
+
 home_fries_configure_history () {
   # History Options
   #################
@@ -28,9 +64,24 @@ home_fries_configure_history () {
   # HISTCONTROL: colon-separated list of:
   #  ignorespace, ignoredups, or ignoreboth; erasedups.
   # 2017-11-19: Disabling. Point is to retain all!
-  #export HISTCONTROL="ignoredups"
+  #   export HISTCONTROL="ignoredups"
 
   # $HISTFILE: ~/.bash_history
+  # 2019-03-15: (lb): We could use separate files, e.g.,
+  #   export HISTFILE="$HOME/.bash_history_$$"
+  # And then we could hook session exit, and add the
+  # session's history to the shared history, e.g.,
+  #   history -w
+  #   cat $HISTFILE >> .bash_history
+  # but I'm not sure the benefit. So I'm sticking with
+  # a PROMPT_COMMAND hook just to be sure to clean passwords
+  # from the history, but otherwise I'm happy if all history
+  # from all sessions just gets dumped and interleaved in one
+  # file.
+
+  if [[ ! $PROMPT_COMMAND =~ "_hist_util_hook" ]]; then
+    export PROMPT_COMMAND="_hist_util_hook;$PROMPT_COMMAND"
+  fi
 
   # 2017-02-20: HISTFILESIZE defaults to 500...
   export HISTFILESIZE=-1
