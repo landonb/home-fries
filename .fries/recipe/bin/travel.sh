@@ -877,85 +877,6 @@ setup_private_dot_files () {
   fi
 } # end: setup_private_dot_files
 
-setup_private_ssh_directory () {
-
-  if [[ -d ${USERS_CURLY}/.ssh ]]; then
-    # A symlink works for outgoing conns but not incomms.
-    #/bin/ln -sf ${USERS_CURLY}/.ssh ~/.ssh
-    # Cannot create hard links on directories.
-    #/bin/ln -f ${USERS_CURLY}/.ssh ~/.ssh
-    mkdir -p ${HOME}/.ssh
-
-    pushd ${HOME}/.ssh &> /dev/null
-
-    # Remove symlinks from ~/.ssh/
-    find . -maxdepth 1 -type l -exec /bin/rm {} +
-
-    # Replace with symlinks from private repo .ssh/
-    find ${USERS_CURLY}/.ssh -maxdepth 1 -type f -not -iname "known_hosts-*" -exec /bin/ln -s {} \;
-
-    # FIXME/2017-02-22: On laptop, this is a hardlink. Which seems better?
-    if [[ -e ${USERS_CURLY}/.ssh/known_hosts-$(hostname) && ! -e known_hosts ]]; then
-      /bin/ln -s ${USERS_CURLY}/.ssh/known_hosts-$(hostname) known_hosts
-    # else, you'll get a real file at ~/.ssh/known_hosts
-    fi
-
-    popd &> /dev/null
-
-    # SSH is so particular about permissions.
-    chmod g-w ~
-    chmod g-w ${USERS_CURLY}
-    chmod 700 ~/.ssh
-    # Also git doesn't store permissions
-    # [3rd party tools do:
-    #  git-cache-meta
-    #   https://gist.github.com/andris9/1978266
-    #  metastore
-    #   https://david.hardeman.nu/software.php#metastore
-    # But we've already got our solution.
-    chmod 400 ~/.ssh/*
-    chmod 440 ~/.ssh/*.pub
-    chmod 600 ~/.ssh/config ~/.ssh/known_hosts* ~/.ssh/authorized_keys ~/.ssh/environment
-  fi
-
-  local exit_code
-
-  # 2016-11-12: Check that PasswordAuthentication is disabled.
-# FIXME/2018-03-23: Change all tweak_errexit to `&& true`?
-  tweak_errexit
-  grep "^PasswordAuthentication no$" /etc/ssh/sshd_config &> /dev/null
-  exit_code=$?
-  reset_errexit
-  if [[ $exit_code -ne 0 ]]; then
-    echo
-    echo "###################################################"
-    echo
-    echo "WARNING: SSH PasswordAuthentication is not disabled"
-    echo
-    echo "###################################################"
-    echo
-  fi
-
-  # Appease SSH.
-  chmod g-w ~
-
-  # chase_and_face sets up SSH keys and then later `git clone`s
-  # private repos, so make sure we're ready for the latter.
-  tweak_errexit
-  ssh-add -l | grep "^The agent has no identities.$"
-  exit_code=$?
-  reset_errexit
-  if [[ $exit_code -eq 0 ]]; then
-    # Restart SSH agent and point at new stuff.
-    ssh-agent -k
-    SSH_SECRETS="${USERS_CURLY}/.cheat" ssh_agent_kick
-    # Verify:
-    #  ssh -T git@github.com
-    #  Hi landonb! You've successfully authenticated, but GitHub does not provide shell access.
-  fi
-
-} # end: setup_private_ssh_directory
-
 setup_private_hamster_db () {
   if ${HAMSTERING}; then
     # Set up the hamster.db -- each machine gets its own database file,
@@ -1269,9 +1190,6 @@ function chase_and_face () {
 
   debug " setup_private_dot_files"
   setup_private_dot_files
-
-  debug " setup_private_ssh_directory"
-  setup_private_ssh_directory
 
   debug " setup_private_hamster_db"
   setup_private_hamster_db
