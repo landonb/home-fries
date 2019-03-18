@@ -871,12 +871,6 @@ setup_private_vim_bundle_dubs_project_tray () {
 
 } # end: setup_private_vim_bundle_dubs_project_tray
 
-setup_private_dot_files () {
-  if [[ -x ${USERS_CURLY}/infuse ]]; then
-    ${USERS_CURLY}/infuse
-  fi
-} # end: setup_private_dot_files
-
 setup_private_anacron () {
   # Anacron backup script.
   # The author uses .anacron just to back up data on the main, master_chef, machine.
@@ -1158,9 +1152,6 @@ function chase_and_face () {
 
   debug " setup_private_vim_bundle_dubs"
   setup_private_vim_bundle_dubs
-
-  debug " setup_private_dot_files"
-  setup_private_dot_files
 
   debug " setup_private_anacron"
   setup_private_anacron
