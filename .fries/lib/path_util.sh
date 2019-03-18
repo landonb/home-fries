@@ -269,9 +269,15 @@ symlink_infuse_file () {
   if [[ ! -e "${target_f}" ]]; then
     if [[ -f "${source_f}" ]]; then
       info "Symlinking anew: ${source_f}"
+      mkdir -p $(dirname "${target_f}")
       /bin/ln -s "${source_f}" "${target_f}"
+      if [[ $? -ne 0 ]]; then
+        error "Failed to create symlink! ${source_f}"
+        return 1
+      fi
     else
       warn "Symlink source_f is not file: ${source_f}"
+      return 1
     fi
   elif [[ ! -h "${target_f}" ]]; then
     warn "Symlink target exists but not symlink: ${target_f}"
@@ -282,10 +288,11 @@ symlink_infuse_file () {
     info "Symlinking again: ${source_f}"
     /bin/ln -sf "${source_f}" "${target_f}"
   fi
+  return 0
 }
 
 symlink_local_file () {
-  symlink_infuse_file "$1/$2" "${3:-$2}"
+  return symlink_infuse_file "$1/$2" "${3:-$2}"
 }
 
 symlink_infuses_files_first () {
@@ -298,6 +305,9 @@ symlink_infuses_files_first () {
       if [[ -e ${source_f} ]]; then
         info "Symlinking: ${source_f}"
         /bin/ln -sf "${source_f}" "${target_f}"
+        if [[ $? -ne 0 ]]; then
+          error "Failed to create symlink! ${source_f}"
+        fi
         found_one=true
         break
       else
@@ -320,8 +330,13 @@ symlink_infuse_dir () {
     if [[ -d "${source_f}" ]]; then
       info "Symlinking anew: ${source_f}"
       /bin/ln -s "${source_f}" "${target_f}"
+      if [[ $? -ne 0 ]]; then
+        error "Failed to create symlink! ${source_f}"
+        return 1
+      fi
     else
       warn "Symlink source_f is not directory: ${source_f}"
+      return 1
     fi
   elif [[ ! -h "${target_f}" ]]; then
     warn "Symlink target exists but not symlink: ${target_f}"
@@ -332,10 +347,11 @@ symlink_infuse_dir () {
     /bin/rm "${target_f}"
     /bin/ln -s "${source_f}" "${target_f}"
   fi
+  return 0
 }
 
 symlink_local_dir () {
-  symlink_infuse_dir "$1/$2" "${3:-$2}"
+  return symlink_infuse_dir "$1/$2" "${3:-$2}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
