@@ -877,35 +877,6 @@ setup_private_dot_files () {
   fi
 } # end: setup_private_dot_files
 
-setup_private_hamster_db () {
-  if ${HAMSTERING}; then
-    # Set up the hamster.db -- each machine gets its own database file,
-    # since you'll want to deliberately merge hamster files together.
-    # (2016-04-26: I had earlier tried using Dropbox to manage a single
-    # file, but that approach doesn't make things easier and introduces
-    # its own syncing and merging nuances.)
-    if [[ -e ~/.local/share/hamster-applet/hamster.db \
-          && ! -h ~/.local/share/hamster-applet/hamster.db ]]; then
-      echo "WARNING: hamster.db exists / moving it outta the way"
-      echo "(If you just installed the OS, hamster.db contains 10 example activities.)"
-      /bin/mv -i \
-        ~/.local/share/hamster-applet/hamster.db \
-        ~/.local/share/hamster-applet/hamster.db-${BACKUP_POSTFIX}
-    fi
-    if [[ ! -e ${USERS_CURLY}/home/.local/share/hamster-applet/hamster-$(hostname).db ]]; then
-      echo "Using the canon hamster.db as a template for this machine."
-      /bin/cp -aL \
-        ${USERS_CURLY}/home/.local/share/hamster-applet/hamster.db \
-        ${USERS_CURLY}/home/.local/share/hamster-applet/hamster-$(hostname).db
-    fi
-    if [[ ! -h ~/.local/share/hamster-applet/hamster.db ]]; then
-      /bin/ln -sf \
-        ${USERS_CURLY}/home/.local/share/hamster-applet/hamster-$(hostname).db \
-        ~/.local/share/hamster-applet/hamster.db
-    fi
-  fi
-} # end: setup_private_hamster_db
-
 setup_private_anacron () {
   # Anacron backup script.
   # The author uses .anacron just to back up data on the main, master_chef, machine.
@@ -1190,9 +1161,6 @@ function chase_and_face () {
 
   debug " setup_private_dot_files"
   setup_private_dot_files
-
-  debug " setup_private_hamster_db"
-  setup_private_hamster_db
 
   debug " setup_private_anacron"
   setup_private_anacron
