@@ -72,7 +72,7 @@ ssh_agent_kick () {
           /usr/bin/ssh-add "${pvt_key}"
         fi
       done
-      # Test: ssh-agent -k # then, open a terminal.
+      # Test: ssh-agent -k # then, open a terminal (or call ssh_agent_kick).
     }
 
     # Source SSH settings, if applicable
