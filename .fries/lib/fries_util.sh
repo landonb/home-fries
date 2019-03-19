@@ -194,7 +194,9 @@ home_fries_export_editor_vim () {
   # You can set the editor using /usr/bin/select-editor.
   # For machines without the latter installed, set the EDITOR variable.
   # The EDITOR variable also works with git.
-  if [[ -e '/srv/opt/bin/bin/vim' ]]; then
+  if [[ -e '${HOME}/.local/bin/vim' ]]; then
+    export EDITOR='${HOME}/.local/bin/vim'
+  elif [[ -e '/srv/opt/bin/bin/vim' ]]; then
     export EDITOR='/srv/opt/bin/bin/vim'
   elif [[ -e '/usr/bin/vim.basic' ]]; then
     export EDITOR='/usr/bin/vim.basic'
