@@ -301,11 +301,13 @@ home_fries_up () {
 
   #########################
 
+  ${DUBS_PROFILING} && echo "disable middle mouse click"
   # - lib/input_util.sh
   logitech-middle-mouse-click-disable
 
   #########################
 
+  ${DUBS_PROFILING} && echo "hooking direnv"
   # 2018-03-28: Trying direnv (to eventually replace/enhance gogo, perhaps).
   eval "$(direnv hook bash)"
 }
