@@ -134,14 +134,16 @@ logitech-middle-mouse-click-disable () {
   # Look for Logitech M325c mouse (or, I guess, the USB receiver device, so this'll
   # probably match other models than just the M325c).
   if $(lsusb | grep "046d:c52f Logitech, Inc. Unifying Receiver" >& /dev/null); then
-    # Run the commands, e.g.,
-    #   xinput set-button-map 9 1 0 3
-    #   xinput set-button-map 10 1 0 3
-    xinput list \
-    | grep pointer \
-    | grep Logitech \
-    | sed -r 's/^.*id=([0-9]+).*/\1/' \
-    | xargs -I % /bin/bash -c 'xinput set-button-map % 1 0 3'
+    if xinput list &> /dev/null; then
+      # Run the commands, e.g.,
+      #   xinput set-button-map 9 1 0 3
+      #   xinput set-button-map 10 1 0 3
+      xinput list \
+      | grep pointer \
+      | grep Logitech \
+      | sed -r 's/^.*id=([0-9]+).*/\1/' \
+      | xargs -I % /bin/bash -c 'xinput set-button-map % 1 0 3'
+    fi
   fi
 }
 
