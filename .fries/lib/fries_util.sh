@@ -190,10 +190,10 @@ configure_crontab () {
 # Default Editor for git, cron, etc.
 
 home_fries_export_editor_vim () {
-  # When you run crontab, it calls /usr/bin/sensible-editor to run an editor.
-  # You can set the editor using /usr/bin/select-editor.
-  # For machines without the latter installed, set the EDITOR variable.
-  # The EDITOR variable also works with git.
+  # Many apps recognize the EDITOR variable, including git, crontab, and dob.
+  # Some apps use the variable directly, while others, like crontab, call
+  # /usr/bin/sensible-editor. You can also set the editor interactively using
+  # /usr/bin/select-editor (but the UI won't find your local builds).
   if [[ -e "${HOME}/.local/bin/vim" ]]; then
     export EDITOR="${HOME}/.local/bin/vim"
   elif [[ -e '/srv/opt/bin/bin/vim' ]]; then
