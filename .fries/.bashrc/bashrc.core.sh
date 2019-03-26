@@ -244,6 +244,11 @@ home_fries_up () {
 
   #########################
 
+  # - lib/fries_util.sh
+  run_and_unset "home_fries_punch_anacron"
+
+  #########################
+
   # - lib/apache_util.sh
   run_and_unset "apache_create_control_aliases"
 
