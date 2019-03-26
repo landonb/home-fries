@@ -165,7 +165,7 @@ home_fries_alias_ld_library_path_cmds () {
 
 # Crontab shortcuts.
 
-configure_crontab () {
+home_fries_alias_crontab () {
   alias ct='crontab -e -u $USER'
 
   local vim_editor=""
