@@ -187,6 +187,87 @@ home_fries_alias_crontab () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# Anacron check.
+
+# Much like the system's anacron service runs on boot to see if
+# any anacron tasks were scheduled to have run while the machine
+# was off, we can also see if it's time to call anacron to do
+# something.
+#
+# Note that there's an easier way around this, if you set your
+# user's crontab to call anacron every minute, e.g.,
+#
+#   echo "* * * * * /usr/sbin/anacron -t ${HOME}/.anacron/anacrontab -S ${HOME}/.anacron/spool" | crontab
+#
+# except then the daily anacron tasks *alway* runs at midnight,
+# as opposed to running in the morning like the system daily is
+# scheduled (/etc/crontab runs cron.daily at 6:25 if anacron is
+# not installed; but when anacron is installed, its crontab, at
+# /etc/cron.d/anacron, runs at 7:30 AM.
+#
+# To mimic this behavior for a user, set their crontab to call
+# anacron in the morning, and then run this function anytime a
+# shell is opened, and if it hasn't been down since the latest
+# boot, call anacron. (This means that, if the machine is up
+# most of the time, the normal cron job will run the dailies
+# in the morning; but if the machine is booted any time after
+# midnight but before the scheduled cron time, anacron will see
+# the spool date is the day before, and will run the dailies.
+# So better behavior, but not perfect -- and really I just do
+# not want my daily backup task running at midnight every night,
+# when I'm often awake and at my machine.)
+#
+# With thanks to super nice code to create a touchfile from the
+# last boot time.
+#
+#   https://unix.stackexchange.com/questions/243976/
+#     how-do-i-find-files-that-are-created-modified-accessed-before-reboot
+
+home_fries_punch_anacron () {
+  if [[ ! -e ${HOME}/.anacron/anacrontab ]]; then
+    return
+  fi
+  if [[ ! -d ${HOME}/.anacron/spool ]]; then
+    return
+  fi
+
+  local bootdate=$( \
+    awk '$1 ~ /btime/ { print "print scalar localtime("$2")" }' /proc/stat \
+    | perl \
+  )
+  # What the date looks like:
+  #
+  #   $ echo $bootdate
+  #   Mon Mar 25 11:52:18 2019
+  #
+  # You can see a similar date in `last`:
+  #
+  #   $ last reboot | head -1
+  #   reboot   system boot  4.15.0-46-generi Mon Mar 25 11:52   still running
+
+  # Create the system boot touchfile.
+  local boottouch=$(tempfile -p "BOOT-")
+  touch -d "${bootdate}" "${boottouch}"
+
+  # Name the user anacron touchfile.
+  local punchfile="${HOME}/.anacron/punched"
+
+  # Run anacron if never punched, or if booted more recently than punched.
+  if [[ ! -e ${punchfile} || ${boottouch} -nt ${punchfile} ]]; then
+    touch ${punchfile}
+    # -s | Serialize jobs execution.
+    /usr/sbin/anacron \
+      -s \
+      -t ${HOME}/.anacron/anacrontab \
+      -S ${HOME}/.anacron/spool
+  fi
+
+  # Cleanup.
+  /bin/rm "${boottouch}"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # Default Editor for git, cron, etc.
 
 home_fries_export_editor_vim () {
