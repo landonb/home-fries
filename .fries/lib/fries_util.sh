@@ -231,23 +231,9 @@ home_fries_punch_anacron () {
     return
   fi
 
-  local bootdate=$( \
-    awk '$1 ~ /btime/ { print "print scalar localtime("$2")" }' /proc/stat \
-    | perl \
-  )
-  # What the date looks like:
-  #
-  #   $ echo $bootdate
-  #   Mon Mar 25 11:52:18 2019
-  #
-  # You can see a similar date in `last`:
-  #
-  #   $ last reboot | head -1
-  #   reboot   system boot  4.15.0-46-generi Mon Mar 25 11:52   still running
-
   # Create the system boot touchfile.
   local boottouch=$(tempfile -p "BOOT-")
-  touch -d "${bootdate}" "${boottouch}"
+  touch -d "$(uptime -s)" "${boottouch}"
 
   # Name the user anacron touchfile.
   local punchfile="${HOME}/.anacron/punched"
