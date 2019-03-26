@@ -213,6 +213,9 @@ home_fries_create_aliases_general () {
   if [[ $EUID -eq 0 ]]; then
     alias vi="vim"
   fi
+  # 2019-03-26: Avoid errors when vim.tiny tries to load your ~/.vim! E.g.,
+  #   E319: Sorry, the command is not available in this version: ...
+  alias vim.tiny="vim.tiny -u NONE"
 
   # 2018-03-28: From MarkM. Except it doesn't quite work for me....
   #alias v='${EDITOR} $(fc -s) ' # edit results of last command
