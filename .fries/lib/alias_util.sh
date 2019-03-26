@@ -219,6 +219,17 @@ home_fries_create_aliases_general () {
 
   # 2018-03-28: From MarkM. Except it doesn't quite work for me....
   #alias v='${EDITOR} $(fc -s) ' # edit results of last command
+
+  # Apply alias resolution to whatever term follows a `sudo`.
+  # 2019-03-26: From Bash manual: "If the last character of the alias value is
+  # a space or tab character, then the next command word following the alias is
+  # also checked for alias expansion."
+  # E.g., by default, `sudo ll`'s sudo is checked for alias, but not ll -- and
+  # alias is checked against current user's profile (and root's is not loaded).
+  # With this trick, in `sudo ll`, both the `sudo` and the `ll` are alias-checked.
+  # Thanks also:
+  #   https://askubuntu.com/questions/22037/aliases-not-available-when-using-sudo
+  alias sudo='sudo '
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
