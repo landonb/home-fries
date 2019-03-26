@@ -134,7 +134,7 @@ home_fries_up () {
 
   #########################
 
-  # Set EDITOR, default for git, cron, etc.
+  # Set EDITOR, used by git, cron, dob, etc.
   # - lib/fries_util.sh
   run_and_unset "home_fries_export_editor_vim"
 
