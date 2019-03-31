@@ -115,7 +115,11 @@ ensure_trashdir () {
   local device_trashdir="$1"
   local trash_device="$2"
   local ensured=0
-  if [[ -f ${device_trashdir}/.trash ]]; then
+  if [[ -z "${device_trashdir}" ]]; then
+    echo "rm_safe: there is no \$device_trashdir specified"
+    return -1
+  fi
+  if [[ -f "${device_trashdir}/.trash" ]]; then
     ensured=0
     # MAYBE: Suppress this message, or at least don't show multiple times
     #        for same ${trash_device}.
@@ -164,6 +168,11 @@ rm_safe () {
     echo "Try '/bin/rm --help' for more information."
     return 1
   fi
+  if [[ -z "${trashdir}" ]]; then
+    echo "rm_safe: no \$trashdir, what gives?"
+    return 1
+  fi
+  # echo "trashdir: ${trashdir}"
   # The trash can way!
   # You can disable the trash by running
   #   /bin/rm -rf ~/.trash && touch ~/.trash
@@ -224,7 +233,7 @@ rm_safe () {
       #  /bin/mv: cannot move ‘symlink/’ to
       #   ‘/path/to/.trash/symlink.2015_12_03_14h26m51s_179228194’: Not a directory
       /bin/mv "$(dirname -- "${fpath}")/${bname}" "${device_trashdir}/.trash/${fname}"
-    else
+    elif [[ $? -eq 0 ]]; then
       # Ye olde original rm alias, now the unpreferred method.
       /bin/rm -i "${fpath}"
     fi
