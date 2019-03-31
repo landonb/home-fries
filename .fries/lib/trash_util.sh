@@ -91,9 +91,15 @@ device_on_which_file_resides () {
 
 device_filepath_for_file () {
   local device_path=''
-  local usage_report=$(/bin/df -T "$1")
+  # NOTE: We could use awk to get the second line of output, e.g.,
+  #   local usage_report=$(/bin/df -T "$1")
+  #   device_path=$(echo "$usage_report" | awk 'NR == 2 {for(i=7;i<=NF;++i) print $i}')
+  # but it seems easier to me (lb) -- or at least more intuitive -- to use tail-tr-cut.
+  local usage_report=$(/bin/df -T "$1" | tail -1)
   if [[ $? -eq 0 ]]; then
-    device_path=$(echo "$usage_report" | awk 'NR == 2 {for(i=7;i<=NF;++i) print $i}')
+    device_path=$(echo "$usage_report" | tr -s ' ' | cut -d ' ' -f7)
+    # >&2 echo "usage_report: ${usage_report}"
+    # >&2 echo "device_path: ${device_path}"
   else
     if [[ ! -L "$1" ]]; then
       # df didn't find file, and file not a symlink.
