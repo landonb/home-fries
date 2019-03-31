@@ -70,11 +70,11 @@ empty_trashes () {
 device_on_which_file_resides () {
   local owning_device=""
   if [[ -d "$1" || -f "$1" ]]; then
-    owning_device=$(df "$1" | awk 'NR == 2 {print $1}')
+    owning_device=$(/bin/df -T "$1" | awk 'NR == 2 {print $1}')
   elif [[ -h "$1" ]]; then
     # A symbolic link, so don't use the linked-to file's location, and don't
     # die if the link is dangling (df says "No such file or directory").
-    owning_device=$(df $(dirname -- "$1") | awk 'NR == 2 {print $1}')
+    owning_device=$(/bin/df -T $(dirname -- "$1") | awk 'NR == 2 {print $1}')
   else
     owning_device=""
     # 2017-06-03: For some reason, the caller checking $? for nonzero
@@ -90,8 +90,8 @@ device_on_which_file_resides () {
 }
 
 device_filepath_for_file () {
-  local device_path=""
-  local usage_report=$(df "$1")
+  local device_path=''
+  local usage_report=$(/bin/df -T "$1")
   if [[ $? -eq 0 ]]; then
     device_path=$(echo "$usage_report" | awk 'NR == 2 {for(i=7;i<=NF;++i) print $i}')
   else
@@ -100,9 +100,9 @@ device_filepath_for_file () {
       echo "WARNING: Using relative path because not a file: $1"
     # else, df didn't find symlink because it points at non existant file.
     fi
-    device_path=$(df $(dirname -- "$1") | awk 'NR == 2 {for(i=7;i<=NF;++i) print $i}')
+    device_path=$(/bin/df -T $(dirname -- "$1") | awk 'NR == 2 {for(i=7;i<=NF;++i) print $i}')
   fi
-  echo $device_path
+  echo "${device_path}"
 }
 
 ensure_trashdir () {
@@ -115,10 +115,10 @@ ensure_trashdir () {
     #        for same ${trash_device}.
     echo "Trash is disabled on device ‘${trash_device}’"
   else
-    if [[ ! -e ${device_trashdir}/.trash ]]; then
+    if [[ ! -e "${device_trashdir}/.trash" ]]; then
       echo "Trash directory not found on ‘${trash_device}’"
       sudo_prefix=""
-      if [[ ${device_trashdir} == "/" ]]; then
+      if [[ "${device_trashdir}" == "/" ]]; then
         # The file being deleted lives on the root device but the default
         # trash directory is not on the same device. This could mean the
         # user has an encrypted home directory. Rather than moving files
@@ -138,14 +138,14 @@ ensure_trashdir () {
         ensured=0
         echo "To suppress this message, run: touch ${device_trashdir}/.trash"
       else
-        ${sudo_prefix} /bin/mkdir -p ${device_trashdir}/.trash
+        ${sudo_prefix} /bin/mkdir -p "${device_trashdir}/.trash"
         if [[ -n ${sudo_prefix} ]]; then
           sudo chgrp staff /.trash
           sudo chmod 2775 /.trash
         fi
       fi
     fi
-    if [[ -d ${device_trashdir}/.trash ]]; then
+    if [[ -d "${device_trashdir}/.trash" ]]; then
       ensured=1
     fi
   fi
@@ -181,7 +181,7 @@ rm_safe () {
       echo "rm_safe(): ERROR: No device for trashdir: ${trashdir}"
       return 1
     fi
-    #echo "trash_device: ${trash_device}"
+    # echo "trash_device: ${trash_device}"
     local fpath_device=$(device_on_which_file_resides "${fpath}")
     if [[ $? -ne 0 || ${fpath_device} == "" ]]; then
       if [[ ! -d "${fpath}" && ! -f "${fpath}"  &&! -h "${fpath}" ]]; then
@@ -191,7 +191,8 @@ rm_safe () {
       fi
       return 1
     fi
-    #echo "fpath_device: ${fpath_device}"
+    # echo "fpath_device: ${fpath_device}"  # E.g., "/dev/sdb1"
+    # echo "trash_device: ${trash_device}"  # E.g., "/dev/sda2"
     local device_trashdir=""
     if [[ ${trash_device} = ${fpath_device} ]]; then
       # MAYBE: Update this fcn. to support specific trash
