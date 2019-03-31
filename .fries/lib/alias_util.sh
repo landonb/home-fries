@@ -126,6 +126,9 @@ home_fries_create_aliases_general () {
 
   # Does this help?
   alias findi='find . -iname'
+  # Show directory statistics: show count of files of each extension.
+  # NOTE: \L to convert string to lowercase
+  alias stats="find . -type f -not -path './.git/*' | /bin/sed -n 's/..*\.//p' | /bin/sed -r 's/(.*)/\L\1/' | sort | uniq -c | sort -n -r"
 
   # 2016-09-24: Why didn't I think of this 'til now?
   # [Note also that pass can just do it, too.]
