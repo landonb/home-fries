@@ -1,0 +1,60 @@
+#!/bin/bash
+
+set_meta () {
+  ZVIEW_VERSION="zview (gzip) 0.0
+Copyright (C) 2019 XXX.
+This is free software.  You may redistribute copies of it under the terms of
+the GNU General Public License <http://www.gnu.org/licenses/gpl.html>.
+There is NO WARRANTY, to the extent permitted by law.
+
+Written by Landon Bouma."
+
+  ZVIEW_USAGE="usage: $0 [option]... [file]
+like 'view', but operate on the uncompressed contents of any compressed files.
+
+options are the same as for 'view'.
+
+report bugs to <bug-zview@gnu.org>."
+}
+
+zview () {
+  # gzip -c write to stdout
+  # gzip -d decompress
+  # gzip -f force (de)compression
+  # gzip -q quiet
+  # The example I saw is extra safe and provide path after options, using --:
+  #   gzip -cdfq -- /var/log/abc.log.1.gz
+  # But this is generally the same as without:
+  #   gzip -cdfq /var/log/abc.log.1.gz
+  local mytemp=$(mktemp)
+  gzip -cdfq -- "$1" > "$mytemp"
+  shift
+  view "$@" -- "$mytemp"
+  /bin/rm "$mytemp"
+}
+
+check_usage () {
+  [[ -z $1 ]] && echo 'Missing filename (“zview --help” for help)' && exit 1
+}
+
+run_cmmd () {
+  case $1 in
+  -h)         exec echo "$ZVIEW_USAGE";;
+  --help)     exec echo "$ZVIEW_USAGE";;
+  -v)         exec echo "$ZVIEW_VERSION";;
+  --version)  exec echo "$ZVIEW_VERSION";;
+  esac
+
+  check_usage "$@"
+  zview "$@"
+}
+
+# ***
+
+main () {
+  set_meta
+  run_cmmd "$@"
+}
+
+main "$@"
+
