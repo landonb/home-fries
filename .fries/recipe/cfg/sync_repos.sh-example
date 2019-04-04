@@ -29,7 +29,7 @@ fi
 # Specify directories you'd simply like tarred and gzipped in plaintext.
 PLAINTEXT_ARCHIVES=()
 # This is useful for unimportant files that tend to accumlate in common
-# locations, like the 3 "D" directories, Desktop, Documents, and Downlaods.
+# locations, like the 3 "D" directories, Desktop, Documents, and Downloads.
 PLAINTEXT_ARCHIVES+=("${HOME}/Desktop")
 PLAINTEXT_ARCHIVES+=("${HOME}/Documents")
 PLAINTEXT_ARCHIVES+=("${HOME}/Downloads")
