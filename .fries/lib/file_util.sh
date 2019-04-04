@@ -168,6 +168,44 @@ fi
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+mv_based_on_name () {
+  local src_path=$1
+  [[ -z $src_path ]] && echo 'USAGE: mv_based_on_name FILE-PATH [TARGET-BASE]' && return 1
+  [[ ! -f $src_path ]] && echo "ERROR: FILE is not: “$src_path”" && return 2
+  local dst_base
+  dst_base=${2:-${DUBS_MEDIA_BASE}}
+  dst_base=${dst_base:-.}
+  # NOTE: sed supports extended regex, which does not support (?:) non capturing groups.
+  local dst_subd
+  dst_subd="$( \
+    echo "$src_path" | \
+    /bin/sed -r 's#.*(^|/)(IMG_|VID_)?([0-9]{4})([0-9]{2})([0-9]{2})_(.*)$#'${dst_base}'/\3/\4/\3_\4_\5#' \
+  )"
+  if [[ "$src_path" == "$dst_subd" ]]; then
+    echo "ERROR: Could not parse date from filename: “$src_path”"
+    return 3
+  fi
+  local dst_file
+  dst_file=$(basename -- "${src_path}")
+  local dst_path
+  dst_path="${dst_subd}/${dst_file}"
+  if [[ -e "${dst_path}" || -h "${dst_path}" ]]; then
+    # Target either exists (or is a broken symlink); add date to avoid name clash.
+    # NOTE: It is expected caller handled duplicate files first, e.g.,
+    #       by running `fdupes`, so this function does not go out of its
+    #       way to handle clashes other than to just not be destructive,
+    #       but to still complete the mv.
+    file_name="${dst_file%.*}"
+    file_ext="${dst_file##*.}"
+    dst_path="${dst_subd}/${file_name}-$(date +%Y_%m_%d_%Hh%Mm%Ss_%N).${file_ext}"
+    echo "WARNING: Name conflict averted: “${dst_path}”"
+  fi
+  mkdir -p "${dst_subd}/"
+  /bin/mv -i "${src_path}" "${dst_path}"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 main () {
   : #source_deps
 }
