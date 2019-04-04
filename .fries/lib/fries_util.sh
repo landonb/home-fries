@@ -232,7 +232,8 @@ home_fries_punch_anacron () {
   fi
 
   # Create the system boot touchfile.
-  local boottouch=$(mktemp "BOOT-XXXXXXXXXX")
+  # NOTE: Need --tmpdir when specifying TEMPLATE-XXX so file goes to /tmp, not $(pwd).
+  local boottouch=$(mktemp --tmpdir "BOOT-XXXXXXXXXX")
   touch -d "$(uptime -s)" "${boottouch}"
 
   # Name the user anacron touchfile.
