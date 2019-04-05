@@ -172,6 +172,7 @@ mv_based_on_name () {
   local src_path=$1
   [[ -z $src_path ]] && echo 'USAGE: mv_based_on_name FILE-PATH [TARGET-BASE]' && return 1
   [[ ! -f $src_path ]] && echo "ERROR: FILE is not: “$src_path”" && return 2
+
   local dst_base
   dst_base=${2:-${DUBS_MEDIA_BASE}}
   dst_base=${dst_base:-.}
@@ -185,10 +186,12 @@ mv_based_on_name () {
     echo "ERROR: Could not parse date from filename: “$src_path”"
     return 3
   fi
+
   local dst_file
   dst_file=$(basename -- "${src_path}")
   local dst_path
   dst_path="${dst_subd}/${dst_file}"
+
   if [[ -e "${dst_path}" || -h "${dst_path}" ]]; then
     # Target either exists (or is a broken symlink); add date to avoid name clash.
     # NOTE: It is expected caller handled duplicate files first, e.g.,
@@ -200,6 +203,7 @@ mv_based_on_name () {
     dst_path="${dst_subd}/${file_name}-$(date +%Y_%m_%d_%Hh%Mm%Ss_%N).${file_ext}"
     echo "WARNING: Name conflict averted: “${dst_path}”"
   fi
+
   mkdir -p "${dst_subd}/"
   /bin/mv -i "${src_path}" "${dst_path}"
 }
