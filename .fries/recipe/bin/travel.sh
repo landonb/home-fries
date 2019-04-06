@@ -293,7 +293,7 @@ fi
 
 # ***
 
-EMISSARY=
+#EMISSARY=
 PLAINPATH=
 PLAIN_TBD=
 CANDIDATES=()
@@ -599,8 +599,7 @@ function soups_on () {
   fi
 } # end: soups_on
 
-function determine_stick_dir () {
-
+function deduce_travel_dir () {
   local please_choose_part=$1
 
   shopt -s dotglob
@@ -617,12 +616,12 @@ function determine_stick_dir () {
   shopt -u dotglob
   shopt -u nullglob
   if [[ ${#mounted_dirs[@]} -eq 0 ]]; then
-    if ! ${CAN_IGNORE_TRAVEL_DIR}; then
+    if ${CAN_IGNORE_TRAVEL_DIR}; then
+      return 0
+    else
       echo "Nothing mounted under /media/${USER}/"
       echo -n "Please specify the dually-accessible sync directory: "
       read -e TRAVEL_DIR
-    else
-      return 0
     fi
   elif [[ ${#mounted_dirs[@]} -eq 1 ]]; then
     TRAVEL_DIR="${mounted_dirs[0]}"
@@ -640,6 +639,7 @@ function determine_stick_dir () {
         echod "Skipin' unreadable path: ${fpath}"
       fi
     done
+
     if [[ ${#CANDIDATES[@]} -eq 1 ]]; then
       TRAVEL_DIR="${CANDIDATES[0]}"
     elif ${CAN_IGNORE_TRAVEL_DIR}; then
@@ -660,6 +660,19 @@ function determine_stick_dir () {
         fi
       done
     fi
+
+    return 1
+  fi
+} # end: deduce_travel_dir
+
+function determine_stick_dir () {
+  if [[ -z "${EMISSARY}" ]]; then
+    TRAVEL_DIR=''
+    deduce_travel_dir
+    [[ $? -eq 0 ]] && return 0
+    EMISSARY="${TRAVEL_DIR}/${PRIVATE_REPO_}-emissary"
+  else
+    TRAVEL_DIR=$(dirname ${EMISSARY})
   fi
 
   if [[ ! -d "${TRAVEL_DIR}" ]]; then
@@ -669,7 +682,6 @@ function determine_stick_dir () {
     fi
   fi
 
-  EMISSARY="${TRAVEL_DIR}/${PRIVATE_REPO_}-emissary"
   PLAINPATH="${EMISSARY}/plain-$(hostname)"
   PLAIN_TBD="${PLAINPATH}-TBD-${UNIQUE_TIME}"
 
@@ -1197,6 +1209,15 @@ function chase_and_face () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # init_travel
 
+function travel_dir_is_encrypted_mountpoint () {
+  return $(\
+    lsblk --output TYPE,MOUNTPOINT \
+    | grep crypt \
+    | grep "^crypt \\+${TRAVEL_DIR}\$" \
+    > /dev/null \
+  )
+}
+
 function mount_curly_emissary_gooey_explicit () {
   mount_curly_emissary_gooey
   info "gooey mounted at: ${FG_LAVENDER}${EMISSARY}/gooey"
@@ -1207,10 +1228,17 @@ function mount_curly_emissary_gooey () {
   # Make the gooey candy center.
   mkdir -p "${EMISSARY}/gooey"
   mkdir -p "${EMISSARY}/.gooey"
+
+  # Skip mounting ${TRAVEL_DIR}/${EMISSARY}/gooey if TRAVEL_DIR mounted as crypt.
+  # (2019-04-06: (lb): My specific use case is pre-mounting encfs outside travel.)
+  travel_dir_is_encrypted_mountpoint && return
+
   # Flavor it.
+  # FIXME/2019-04-06 02:02: This is too coupled with user's home!
   if [[ ! -e "${EMISSARY}/.gooey" ]]; then
     /bin/cp -a "${USERS_CURLY}/.encfs6.xml" "${EMISSARY}/.gooey"
   fi
+
   tweak_errexit
   mount | grep "${EMISSARY}/gooey" &> /dev/null
   retval=$?
@@ -1223,12 +1251,14 @@ function mount_curly_emissary_gooey () {
     # (Though I'd swear it used to work... but I probably didn't notice it didn't!)
     echo "${CRAPWORD}" | encfs -S --standard "${EMISSARY}/.gooey" "${EMISSARY}/gooey"
   else
-    # else, already mounted; maybe the last operation failed?
+    # else, already mounted (last op. failed; or user manually mounted).
     info "Looks like gooey is already mounted."
   fi
 }
 
 function umount_curly_emissary_gooey () {
+  travel_dir_is_encrypted_mountpoint && return
+
   if [[ -n "${EMISSARY}" ]]; then
     umount_curly_emissary_gooey_one "${EMISSARY}"
   elif [[ \
