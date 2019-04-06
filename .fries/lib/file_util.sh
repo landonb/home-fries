@@ -177,8 +177,8 @@ mv_based_on_name () {
   dst_base=${2:-${DUBS_MEDIA_BASE}}
   dst_base=${dst_base:-.}
 
-  local check_exists
-  check_exists=${3:-false}
+  local copy_safe_dont_skip
+  copy_safe_dont_skip=${3:-false}
 
   # NOTE: sed supports extended regex, which does not support (?:) non capturing groups.
   local dst_subd
@@ -206,7 +206,8 @@ mv_based_on_name () {
 
   if [[ -e "${dst_path}" || -h "${dst_path}" ]]; then
     # Target either exists (or is a broken symlink); add date to avoid name clash.
-    if $check_exists; then
+    if ! $copy_safe_dont_skip; then
+      echo "WARNING: Already exists: “${dst_path}”"
       return 0
     fi
     # NOTE: It is expected caller handles duplicate files first, e.g.,
@@ -216,10 +217,7 @@ mv_based_on_name () {
     file_name="${dst_file%.*}"
     file_ext="${dst_file##*.}"
     dst_path="${dst_subd}/${file_name}-$(date +%Y_%m_%d_%Hh%Mm%Ss_%N).${file_ext}"
-    echo "WARNING: Name conflict averted: “${dst_path}”"
-  elif $check_exists; then
-    echo "WARNING: Destination missing: “${dst_path}”"
-    return 1
+    echo "NOTICE: Renamed on copy: “${dst_path}”"
   fi
 
   mkdir -p "${dst_subd}/"
