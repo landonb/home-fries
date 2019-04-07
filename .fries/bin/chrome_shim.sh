@@ -47,7 +47,9 @@ WINDOW_IDS=$(wmctrl -p -l | grep "New Tab - Google Chrome" | awk '{print $1}')
 for window_id in $WINDOW_IDS; do
 
   # FIXME: This should not be hardcoded in home-fries. Move to waffle.
-  if [[ $(hostname) == 'larry' ]]; then
+  #if [[ $(hostname) == 'larry' ]]; then
+  # @larry is dead! Long live @larry!
+  if false; then
     # If you have multiple monitors, a new Chrome window will be positioned
     # with y=0 and x=same as the x of the topmost Chrome window. As such,
     # if you have two monitors positioned diagonally, if the topmost chrome
