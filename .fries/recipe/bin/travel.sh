@@ -617,7 +617,7 @@ function deduce_travel_dir () {
   shopt -u nullglob
   if [[ ${#mounted_dirs[@]} -eq 0 ]]; then
     if ${CAN_IGNORE_TRAVEL_DIR}; then
-      return 0
+      return 1
     else
       echo "Nothing mounted under /media/${USER}/"
       echo -n "Please specify the dually-accessible sync directory: "
@@ -643,7 +643,7 @@ function deduce_travel_dir () {
     if [[ ${#CANDIDATES[@]} -eq 1 ]]; then
       TRAVEL_DIR="${CANDIDATES[0]}"
     elif ${CAN_IGNORE_TRAVEL_DIR}; then
-      return 0
+      return 1
     else
       # FIXME/2018-03-26: YA KNOW! You could just use all CANDIDATES,
       # since they all have -emissary path and are all Travel lockers!
@@ -660,16 +660,16 @@ function deduce_travel_dir () {
         fi
       done
     fi
-
-    return 1
   fi
+
+  return 0
 } # end: deduce_travel_dir
 
 function determine_stick_dir () {
   if [[ -z "${EMISSARY}" ]]; then
     TRAVEL_DIR=''
     deduce_travel_dir
-    [[ $? -eq 0 ]] && return 0
+    [[ $? -ne 0 ]] && return
     EMISSARY="${TRAVEL_DIR}/${PRIVATE_REPO_}-emissary"
   else
     TRAVEL_DIR=$(dirname ${EMISSARY})
@@ -688,7 +688,6 @@ function determine_stick_dir () {
   #echo "EMISSARY: ${EMISSARY}"
   #echo "PLAINPATH: ${PLAINPATH}"
   #echo "PLAIN_TBD: ${PLAIN_TBD}"
-
 } # end: determine_stick_dir
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -1369,7 +1368,11 @@ function init_travel () {
     exit 1
   fi
 
-  if [[ -d "${EMISSARY}" ]]; then
+  if [[ -z "${EMISSARY}" ]]; then
+    error
+    error "FAIL: EMISSARY not defined"
+    exit 1
+  elif [[ -d "${EMISSARY}" ]]; then
     echo
     echo "NOTE: EMISSARY already exists at ${EMISSARY}"
     echo
