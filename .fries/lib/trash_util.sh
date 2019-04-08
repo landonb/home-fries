@@ -247,13 +247,57 @@ rm_safe_deprecated () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# Very. Destructive. Remove.
+
+# 2019-04-08: This used to be a simple alias:
+#
+#   alias rmrm='/bin/rm -rf'
+#
+# but I (lb) want to avoid destructive commands from being
+# reachable via up-arrow (because sometimes I alt-tab to
+# the wrong terminal window, and then I up-arrow-and-enter
+# without thinking!).
+
+# 2019-04-08: Note: Sometimes you should run `rmrm -- *`,
+#   i.e., if any filenames begin with dashes.
+
+function rmrm () {
+  /bin/rm -rf "$@"
+
+  # (lb): We could simple delete the history entry, e.g.,
+  #
+  #           history -d $((HISTCMD-1))
+  #           # Also works?:
+  #           #   history -d $(history 1)
+  #           # (But using HISTCMD reads better.)
+  #
+  #       but we should leave a harmless breadcrumb instead.
+  #
+  # Add the user's command to history, but commented!
+  #
+  # (So that the user at least has a record of their delete,
+  # but so that the user does not risk repeating the command
+  # accidentally, e.g., from a blindless up-arrow-and-Enter.)
+  #
+  # NOTE: We cannot simply try to recreate the command, e.g.,
+  #         history -s "#rmrm \"$@\""
+  #       because Bash will have performed expansion, e.g.,
+  #         rmrm -- "*"
+  #       will be expanded to all the files in the cur. dir.
+  #       So parse the last history entry (which is the current
+  #       command, which Bash will replace on the `history -s`).
+  history -s "#$(
+    history 1 | /bin/sed -r 's/^ +[0-9]+ +[-0-9]+ +[:0-9]+ //'
+  )"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # Fix rm to be a respectable trashcan
 #####################################
 
 home_fries_create_aliases_trash () {
   alias rm='rm_safe'
-  # DANGER: Will Robinson. Be careful when you repeat yourself, it'll be gone.
-  alias rmrm='/bin/rm -rf'
 
   # Remove aliases (where "Remove" is a noun, not a verb! =)
   $DUBS_TRACE && echo "Setting trashhome"
