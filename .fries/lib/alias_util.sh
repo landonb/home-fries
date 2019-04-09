@@ -69,7 +69,8 @@ home_fries_create_aliases_general () {
   alias ls='/bin/ls -hFA --color=auto'  # Human readable, classify files, shows
                                         #   almost all (excludes ./ and ../),
                                         #   and uses colour.
-  alias l='/bin/ls -ChFA --color=auto --group-directories-first'
+  # See `l` function, below, so we can pipe to tail and get rid of "total" line.
+  # alias l='/bin/ls -lhFA --color=auto --group-directories-first'
                                         # Compact listing (same as -hFA, really),
                                         #   but list directories first which
                                         #   seems to make the output cleaner.
@@ -233,6 +234,25 @@ home_fries_create_aliases_general () {
   # Thanks also:
   #   https://askubuntu.com/questions/22037/aliases-not-available-when-using-sudo
   alias sudo='sudo '
+}
+
+function l () {
+  # ls, but omit the . and .. directories, and chop the "total" line,
+  # e.g., omit the first three lines from a basic listing:
+  #   $ /bin/ls -la
+  #   total 20K
+  #   drwxrwxr-x  4 landonb landonb 4.0K Dec 17 02:32 ./
+  #   drwxr-xr-x  3 landonb landonb 4.0K Apr  9 17:08 ../
+  # (the --almost-all/-A will omit the current and parent directories,
+  #  and then pipe to tail to strip the "total", which ls includes with
+  #  the -l[ong] listing format).
+  /bin/ls -lhFA \
+    --color=always \
+    --hide-control-chars \
+    --group-directories-first \
+    "$@" \
+    | tail +2
+    # | tail --lines=+2
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
