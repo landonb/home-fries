@@ -882,22 +882,6 @@ setup_private_vim_bundle_dubs_project_tray () {
 
 } # end: setup_private_vim_bundle_dubs_project_tray
 
-setup_private_anacron () {
-  # Anacron backup script.
-  # The author uses .anacron just to back up data on the main, master_chef, machine.
-  # So just setup anacron on the main development machine, but not on satellites.
-  # NOTE: Only applies to main desktop machine.
-  if [[ -e ${USERS_CURLY}/master_chef ]]; then
-    if [[ -d ${USERS_CURLY}/home/.anacron ]]; then
-      if [[ -e ~/.anacron ]]; then
-        trace "  Skipping: Already exists: ~/.anacron"
-      else
-        /bin/ln -sf ${USERS_CURLY}/home/.anacron ~/.anacron
-      fi
-    fi
-  fi
-} # end: setup_private_anacron
-
 setup_private_etc_fstab () {
   if [[ -f ${USERS_CURLY}/dev/$(hostname)/etc/fstab ]]; then
     tweak_errexit
@@ -1163,9 +1147,6 @@ function chase_and_face () {
 
   debug " setup_private_vim_bundle_dubs"
   setup_private_vim_bundle_dubs
-
-  debug " setup_private_anacron"
-  setup_private_anacron
 
   debug " setup_private_etc_fstab"
   setup_private_etc_fstab
