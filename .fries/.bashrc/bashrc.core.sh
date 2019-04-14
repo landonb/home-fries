@@ -273,6 +273,9 @@ home_fries_up () {
   # - lib/crypt_util.sh
   run_and_unset "home_fries_configure_gpg_tty"
 
+  # - lib/crypt_util.sh
+  run_and_unset "home_fries_mlocate_wire_private_db"
+
   #########################
 
   # - lib/hist_util.sh

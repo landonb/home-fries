@@ -47,28 +47,81 @@ umount_guard () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Secure ``locate`` with ``ecryptfs``
+# *** Override findutils' `locate` to use private mlocate.db made by updatedb.
 
-# https://askubuntu.com/questions/20821/using-locate-on-an-encrypted-partition
-
-# 2016-12-27: Always use the local locate db if it exists.
-# Funny: If you specify the normal db, e.g.,
-#   export LOCATE_PATH="/var/lib/mlocate/mlocate.db:$HOME/.mlocate/mlocate.db"
-# it gets searched twice and you get double the results.
-# So just indicate the user's mlocate.db.
-if [[ -f /var/lib/mlocate/mlocate.db && -f $HOME/.mlocate/mlocate.db ]]; then
-  export LOCATE_PATH="$HOME/.mlocate/mlocate.db"
-fi
-# See also:
-#   /etc/updatedb.conf
-# And you could also specify the dbs to locate
-#   locate -d /var/lib/mlocate/mlocate.db -d $HOME/.mlocate/mlocate.db
-# (and note that if you use -d, you need to specify both for both to be searched).
-
-updatedb_ecryptfs () {
-  /bin/mkdir -p ~/.mlocate
-  export LOCATE_PATH="$HOME/.mlocate/mlocate.db"
-  updatedb -l 0 -o $HOME/.mlocate/mlocate.db -U $HOME
+# (lb): The `locate` command has some nuances we work around in order
+#       to store our mlocate.db on an arbitrary encrytped drive.
+#
+# 1.  Use stdin to specify (feed) database to locate, not -d/--database.
+#
+#     The `locate` command has a -d/--database option, or equivalently
+#     LOCATE_PATH, that you can set to add your own database -- but note
+#     that locate just appends your database to its list, e.g.,
+#
+#       $ LOCATE_PATH=~/.mlocate/mlocate.db locate -S
+#       Database /var/lib/mlocate/mlocate.db:
+#         ...
+#       Database /home/user/.mlocate/mlocate.db:
+#         ...
+#
+#     Also, oddly, I see the system database listed twice otherwise:
+#
+#       $ LOCATE_PATH= locate -S
+#       Database /var/lib/mlocate/mlocate.db:
+#         ...
+#       Database /var/lib/mlocate/mlocate.db:
+#         ...
+#
+#     However, trying to create a user mlocate.db without overlapping (duplicate)
+#     options is difficult unless all user files are under the user's home directory
+#     (because then you can use the `updatedb -U $HOME` option).
+#     - But I've got stuff under /media/${USER} that I want to index,
+#       and that I do not what to link from $HOME (and also updatedb
+#       resolves symlinks unless told otherwise, so there's that, too!),
+#       so I am unable to utilize the `-U` option to solve this issue.
+#
+#     As such, if I use two databases, however I run `locate`, I see duplicate
+#     entries for system items.
+#
+#     E.g.,
+#
+#       $ LOCATE_PATH= locate /etc/updatedb.conf
+#       /etc/updatedb.conf
+#       /etc/updatedb.conf
+#
+#       $ LOCATE_PATH=~/.mlocate/mlocate.db locate /etc/updatedb.conf
+#       /etc/updatedb.conf
+#       /etc/updatedb.conf
+#
+#     Anyway, tl;dr, send the database over stdin; problem solved.
+#     (On stdin, locate will ignore the system db, and LOCATE_PATH.)
+#     E.g,
+#
+#       $ cat ~/.mlocate/mlocate.db | locate -S -d-
+#       Database -:
+#       	...
+#
+# 2.  Use stdin to feed database, as -d/--database cannot see all mounts.
+#
+#     Another reason to use the ``-`` database-on-stdin feature:
+#     `locate` apparently cannot access files on my fuse mount.
+#     E.g.,
+#
+#       $ LOCATE_PATH=/media/user/mount/.mlocate/mlocate.db locate -S
+#       Database /var/lib/mlocate/mlocate.db:
+#       	...
+#       locate: can not stat () `/media/user/mount/.mlocate/mlocate.db': Permission denied
+#
+#     However:
+#
+#       $ cat /media/user/mount/.mlocate/mlocate.db | locate -S -d-
+#       Database -:
+#         ...
+#
+home_fries_mlocate_wire_private_db () {
+  if [[ -f ${HOME}/.mlocate/mlocate.db ]]; then
+    alias locate="cat ${HOME}/.mlocate/mlocate.db | locate -d-"
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
