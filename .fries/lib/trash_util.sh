@@ -32,37 +32,39 @@ source_deps () {
 #          and call empty_trashes after a certain amount of time has elapsed.
 empty_trashes () {
   # locate .trash | grep "\/\.trash$"
-  local device_path=""
-  for device_path in `mount \
-    | grep \
-      -e " type fuse.encfs (" \
-      -e " type ext4 (" \
-    | awk '{print $3}'`; \
-  do
-    local trash_path=""
+  local device_path=''
+  for device_path in $( \
+    mount \
+      | grep \
+        -e " type fuse.encfs (" \
+        -e " type fuse.gocryptfs (" \
+        -e " type ext4 (" \
+      | awk '{print $3}' \
+  ); do
+    local trash_path=''
     if [[ "${device_path}" == "/" ]]; then
       trash_path="$trashdir/.trash"
     else
-      trash_path="$device_path/.trash"
+      trash_path="${device_path}/.trash"
     fi
     YES_OR_NO="N"
-    if [[ -d $trash_path ]]; then
+    if [[ -d "${trash_path}" ]]; then
       # FIXME/MAYBE/LATER: Disable asking if you find this code solid enough.
       local yes_or_no=""
-      echo -n "Empty trash at ‘$trash_path’? [y/n] "
+      echo -n "Empty trash at ‘${trash_path}’? [y/n] "
       read -e yes_or_no
       if [[ ${yes_or_no^^} == "Y" ]]; then
-        if [[ -d $trash_path-TBD ]]; then
-          /bin/rm -rf $trash_path-TBD
+        if [[ -d "${trash_path}-TBD" ]]; then
+          /bin/rm -rf -- "${trash_path}-TBD"
         fi
-        /bin/mv $trash_path $trash_path-TBD
-        touch $trash_path-TBD
-        mkdir $trash_path
+        /bin/mv "${trash_path}" "${trash_path}-TBD"
+        touch "${trash_path}-TBD"
+        mkdir "${trash_path}"
       else
-        echo "Skipping: User said not to empty ‘$trash_path’"
+        echo "Skipping: User said not to empty ‘${trash_path}’"
       fi
     else
-      echo "Skipping: No trash at ‘$trash_path’"
+      echo "Skipping: No trash at ‘${trash_path}’"
     fi
   done
 }
