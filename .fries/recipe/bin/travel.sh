@@ -311,7 +311,6 @@ function set_travel_cmd () {
   fi
 }
 
-COPY_PRIVATE_REPO_PLAIN=false
 SKIP_DIRTY_CHECK=false
 # -DD
 SKIP_THIS_DIRTY=false
@@ -402,10 +401,6 @@ function soups_on () {
         DETERMINE_TRAVEL_DIR=true
         CAN_IGNORE_TRAVEL_DIR=true
         set_travel_cmd "umount_curly_emissary_gooey"
-        shift
-        ;;
-      -I)
-        COPY_PRIVATE_REPO_PLAIN=true
         shift
         ;;
       -O)
@@ -533,8 +528,6 @@ function soups_on () {
     echo "      -WW               wait, wait, check in all my files, please"
     echo "      -DDDD             skip git-pull; to auto-commit hamster and git-check repos only"
     echo "      -X                check in hamster: -DDD [skip dirty check] | -DDDD [skip git pull]"
-    echo "      -I                /bin/cp cfg/sync_repos.sh to travel device [BEWARE: unencrypted!]"
-    echo "                          (to setup a new machine *locally* without worrying about encfs)"
     echo "      -s                skip check that remote tracking branch is up to date (if offline)"
     #echo
     echo "unpack options:"
@@ -2019,20 +2012,6 @@ function packme () {
       # FIXME/2017-04-04: There are a bunch of these still on the sync-stick...
       /bin/rm -rf "${PLAINPATH}-TBD-*"
     fi
-
-    if ${COPY_PRIVATE_REPO_PLAIN}; then
-      # BEWARE: Enabling COPY_PRIVATE_REPO_PLAIN is dangerous because it exposes
-      #         the ENCFS pwd for the ${USERS_CURLY} project.
-      #         I.e., this script in plain text can be read to get encfs pwd.
-      warn
-      warn "WARNING: Copying *unencrypted* ${USERS_CURLY}s."
-      warn
-      echo -n "Copying travel scripts... "
-      mkdir -p "${TRAVEL_DIR}/e-scripts"
-      /bin/cp -aLf "${USERS_CURLY}/*.sh" "${TRAVEL_DIR}/e-scripts"
-      /bin/cp -arf "${USERS_CURLY}/cfg" "${TRAVEL_DIR}/e-scripts"
-    fi
-
   fi
 
   create_umount_script
