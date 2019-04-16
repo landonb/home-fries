@@ -332,6 +332,8 @@ TAR_VERBOSE=''
 INCLUDE_ENCFS_OFF_REPOS=false
 SKIP_INTERNETS=false
 
+DEVICE_LABEL=''
+
 UNKNOWN_ARG=false
 
 function soups_on () {
@@ -472,6 +474,22 @@ function soups_on () {
         STAGING_DIR=${1#--staging=}
         shift
         ;;
+      -L)
+        DEVICE_LABEL=$2
+        shift 2
+        ;;
+      -L=?*)
+        DEVICE_LABEL=${1#-L=}
+        shift
+        ;;
+      --label)
+        DEVICE_LABEL=$2
+        shift 2
+        ;;
+      --label=?*)
+        DEVICE_LABEL=${1#--label=}
+        shift
+        ;;
       *)
         UNKNOWN_ARG=true
         echo "ERROR: Unrecognized argument: $1"
@@ -535,6 +553,7 @@ function soups_on () {
     echo "      -WW               wait, wait, check in all my files, please"
     echo "      -DDDD             skip git-pull; to auto-commit hamster and git-check repos only"
     echo "      -X                check in hamster: -DDD [skip dirty check] | -DDDD [skip git pull]"
+    echo "      -L/--label LABEL  use LABEL for popoff script"
     echo "      -s                skip check that remote tracking branch is up to date (if offline)"
     #echo
     echo "unpack options:"
@@ -2014,6 +2033,13 @@ function packme () {
 
   soups_finished_dinners_over_report_time
 
+  local popoff_cmd
+  if [[ -z ${DEVICE_LABEL} ]]; then
+    popoff_cmd='popoff'
+  else
+    popoff_cmd="popoff-${DEVICE_LABEL}"
+  fi
+
   echo
   echo "Plaintext on the stick:"
   echo
@@ -2028,7 +2054,7 @@ function packme () {
   # The Cylons said it first.
   echo "Unmount by your command:"
   echo
-  echo "  popoff"
+  echo "  ${popoff_cmd}"
   echo
 
   # WISHFUL_THING: Add to the tail of the Bash history.
