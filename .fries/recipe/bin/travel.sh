@@ -324,7 +324,7 @@ SKIP_THIS_DIRTY=false
 SKIP_GIT_DIRTY=false
 AUTO_COMMIT_FILES=false
 SKIP_PULL_REPOS=false
-#SKIP_UNPACK_SHIM=false
+SKIP_UNPACK_SHIM=false
 NO_NETWORK_OKAY=false
 TAR_VERBOSE=''
 INCLUDE_ENCFS_OFF_REPOS=false
@@ -440,10 +440,12 @@ function soups_on () {
         AUTO_COMMIT_FILES=true
         shift
         ;;
-      #--no-shim)
-      #  SKIP_UNPACK_SHIM=true
-      #  shift
-      #  ;;
+      # --no-shim is not implemented here, but in unpack.sh wrapper.
+      # But pull arg so it's not flagged as illegal.
+      --no-shim)
+        SKIP_UNPACK_SHIM=true
+        shift
+        ;;
       --no-net)
         NO_NETWORK_OKAY=true
         shift
@@ -536,8 +538,8 @@ function soups_on () {
     echo "unpack options:"
     echo "      -d STAGING_DIR    specify the unpack path for incoming plaintext tar stuff"
     echo "      -v                to \`tar v\` (if you have problems detarring)"
-    #echo "      --no-shim         use local travel.sh for unpack and not what's on travel"
-    #echo "                          (local travel.sh is used always if it's git-dirty)"
+    echo "      --no-shim         use local travel.sh for unpack and not what's on travel"
+    echo "                          (local travel.sh is always used if it's git-dirty)"
     echo "      --no-net          set if git failure on net connection okay"
   fi
 
