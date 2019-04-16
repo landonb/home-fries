@@ -669,8 +669,10 @@ function determine_stick_dir () {
     fi
   fi
 
-  PLAINPATH="${EMISSARY}/plain-$(hostname)"
-  PLAIN_TBD="${PLAINPATH}-TBD-${UNIQUE_TIME}"
+  # 2019-04-16: It's time we stored this where it belongs!!
+  #   PLAINPATH="${EMISSARY}/plain-$(hostname)"
+  PLAINPATH="${EMISSARY}/gooey/plain-$(hostname)"
+  PLAIN_TBD=$(mktemp --suffix='.plain' --tmpdir 'TRVL-XXXXXXXXXX')
 
   #echo "EMISSARY: ${EMISSARY}"
   #echo "PLAINPATH: ${PLAINPATH}"
@@ -1856,27 +1858,18 @@ function pull_git_repos () {
 # *** Plaintext: archive
 
 function make_plaintext () {
-
   if [[ -e "${PLAINPATH}" ]]; then
     if [[ ! -d "${PLAINPATH}" ]]; then
       error
       error "UNEXPECTED: PLAINPATH not a directory: ${PLAINPATH}"
       exit 1
     fi
-    if [[ -e "${PLAIN_TBD}" ]]; then
-      error
-      error "FATALLY UNEXPECTED: plain intermediate exists at"
-      error "  ${PLAIN_TBD}"
-      exit 1
-    fi
-    # We'll delete the old archives later.
-    /bin/mv "${PLAINPATH}" "${PLAIN_TBD}"
   fi
 
   mkdir -p "${PLAINPATH}"
   # Plop the hostname in the packedpathwhynot.
-  echo $(hostname) > "${PLAINPATH}/packered_hostname"
-  echo ${USER} > "${PLAINPATH}/packered_username"
+  echo -n $(hostname) > "${PLAINPATH}/packered_hostname"
+  echo -n ${USER} > "${PLAINPATH}/packered_username"
 
   info "Packing plainly to: ${FG_LAVENDER}${PLAINPATH}"
 
@@ -1900,13 +1893,15 @@ function make_plaintext () {
       # Note: Missing files cause tar errors. If this happens, consider:
       #         --ignore-failed-read
 
-# FIXME/2016-09-29: Test packing to the encfs -- you're just worried about performance, right?
-#                   Because really everything should be encrypted.
-
-      tar czf "${PLAINPATH}/${ARCHIVE_NAME}.tar.gz" \
+      /bin/tar czf "${PLAIN_TBD}/${ARCHIVE_NAME}.tar.gz" \
         --exclude=".~lock.*.ods#" \
         --exclude="*/TBD-*" \
         "${ARCHIVE_REL}"
+
+      /bin/mv -f \
+        "${PLAIN_TBD}/${ARCHIVE_NAME}.tar.gz" \
+        "${PLAINPATH}/${ARCHIVE_NAME}.tar.gz"
+
       popd &> /dev/null
     else
       info
@@ -1972,7 +1967,6 @@ function packme () {
 
     pull_git_repos 'emissary'
 
-    # Sets: ${PLAIN_TBD}
     make_plaintext
 
     # Call private fcn. from user's ${PRIVATE_REPO}/cfg/travel_tasks.sh
