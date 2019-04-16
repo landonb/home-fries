@@ -44,7 +44,7 @@ ENCFS_GIT_REPOS+=("${HOME}/.vim")
 ENCFS_GIT_ITERS=()
 # If you have cloned all the Dubs Vim projects (and
 # did not just submodule them), then include them all.
-#ENCFS_GIT_ITERS+=("${HOME}/.vim/bundle-dubs")
+#  ENCFS_GIT_ITERS+=("${HOME}/.vim/bundle-dubs")
 # And then whatever else you got.
-#ENCFS_GIT_REPOS+=("/even/more/stuff")
+#  ENCFS_GIT_REPOS+=("/even/more/stuff")
 
