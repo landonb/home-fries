@@ -1192,8 +1192,8 @@ function mount_curly_emissary_gooey () {
   mkdir -p "${EMISSARY}/.gooey"
   mkdir -p "${EMISSARY}/gooey"
 
-  # Skip mounting ${TRAVEL_DIR}/${EMISSARY}/gooey if TRAVEL_DIR mounted as crypt.
-  # (2019-04-06: (lb): My specific use case is pre-mounting encfs outside travel.)
+  # Skip mounting ${TRAVEL_DIR}/${EMISSARY}/gooey if TRAVEL_DIR mounted as
+  # crypt. (lb): I.e., my /media/${USER}/travel usage.
   travel_dir_is_mount_type_crypt && return
 
   if [[ ! -f "${EMISSARY}/.gooey/gocryptfs.conf" ]]; then
@@ -1217,11 +1217,22 @@ function mount_curly_emissary_gooey () {
   reset_errexit
   # Lick it.
   if [[ $retval -ne 0 ]]; then
-    # 2017-04-05: Ha! You get segfault without the --standard flag!
-    #   Zero length password not allowed
-    #   Segmentation fault
-    # (Though I'd swear it used to work... but I probably didn't notice it didn't!)
-    echo "${CRAPWORD}" | encfs -S --standard "${EMISSARY}/.gooey" "${EMISSARY}/gooey"
+    # 2019-04-16: Legacy hack- If caller specifies wonky environ PWD, use encfs.
+    if [[ -n ${CRAPWORD} ]]; then
+      # 2017-04-05: Ha! You get segfault without the --standard flag!
+      #   Zero length password not allowed
+      #   Segmentation fault
+      # (Though I'd swear it used to work... but I probably didn't notice it didn't!)
+      echo "${CRAPWORD}" | encfs -S --standard "${EMISSARY}/.gooey" "${EMISSARY}/gooey"
+    else
+      # FIXME/2019-04-16: For now, CONVENTION: device label maps to pass key.
+      local passkey="phy/travel-$(basename ${TRAVEL_DIR})"
+      # FIXME/2019-04-16: May need to do better error handling here.
+      # NOTE: User will be prompted by pinentry unless gpg-agent fresh.
+      pass "${passkey}" |
+        head -1 |
+          gocryptfs -q -masterkey=stdin "${EMISSARY}/.gooey" "${EMISSARY}/gooey"
+    fi
   else
     # else, already mounted (last op. failed; or user manually mounted).
     info "Looks like gooey is already mounted."
@@ -1284,17 +1295,6 @@ function umount_curly_emissary_gooey_one () {
   else
     info "No fuse mount point for: ${FG_LAVENDER}${gooey_mntpt}"
   fi
-
-  # 2018-03-26: Make sense here?
-# NO, because this is the stick itself, not the enfcs, and this fcn. umounts encfs only
-#  mount | grep ${lemissary} > /dev/null && true
-#  local exit_code=$?
-#  if [[ ${exit_code} -eq 0 ]]; then
-#    umount ${lemissary}
-#    notice "Unmounted: ${lemissary}"
-#  else
-#    info "Exists, but not a mount point: ${lemissary}"
-#  fi
 }
 
 function populate_singular_repo () {
