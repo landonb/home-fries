@@ -9,7 +9,16 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+source_deps () {
+  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
+  source ${curdir}/logger.sh
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 setup_users_curly_path () {
+  source_deps
+
   if [[ -f ${HOME}/.curly/master_chef || -f ${HOME}/.curly/junior_chef ]]; then
     # You can cd and pwd -P or just readlink.
     #  pushd ${HOME}/.curly &> /dev/null
