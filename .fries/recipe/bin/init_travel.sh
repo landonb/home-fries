@@ -1,5 +1,9 @@
 #!/bin/bash
-SCRIPT_DIR=$(dirname -- "${BASH_SOURCE[0]}")
-${SCRIPT_DIR}/travel init_travel $*
-unset SCRIPT_DIR
+
+main () {
+  local script_dir=$(dirname -- "${BASH_SOURCE[0]}")
+  ${script_dir}/travel init_travel "$@"
+}
+
+main "$@"
 

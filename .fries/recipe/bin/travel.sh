@@ -103,7 +103,7 @@ DEBUG=${DEBUG:-true}
 
 echod () {
   tweak_errexit
-  ${DEBUG} && echo "$*"
+  ${DEBUG} && echo "$@"
   reset_errexit
 }
 
@@ -335,7 +335,7 @@ function soups_on () {
   local DETERMINE_TRAVEL_DIR=false
   local CAN_IGNORE_TRAVEL_DIR=false
 
-  echod 'Soups on!: ' $*
+  echod 'Soups on!: ' "$@"
 
   while [[ "$1" != '' ]]; do
     case $1 in
@@ -706,9 +706,9 @@ setup_private_curly_work () {
     if [[ ! -e user-current-project ]]; then
       if [[ -h user-current-project ]]; then
         # dead link
-        /bin/rm user-current-project
+        /bin/rm -- "user-current-project"
       fi
-      /bin/ln -s ${USERS_CURLY}/work/oopsidoodle user-current-project
+      /bin/ln -s "${USERS_CURLY}/work/oopsidoodle" "user-current-project"
     fi
 
     popd &> /dev/null
@@ -1333,7 +1333,7 @@ function init_travel () {
     echo
     echo "If you want to start anew, try:"
     echo
-    echo "    /bin/rm -rf ${EMISSARY}"
+    echo "    /bin/rm -rf -- \"${EMISSARY}\""
     echo
     echo "and then run this script again."
     #echo -n "Replace it and start over?: [y/N] "
@@ -1342,7 +1342,7 @@ function init_travel () {
     #  echo -n "Are you _absolutely_ *SURE*?: [y/N] "
     #  read -e YES_OR_NO
     #  if [[ ${YES_OR_NO^^} == "Y" ]]; then
-    #    /bin/rm -rf ${EMISSARY}
+    #    /bin/rm -rf -- "${EMISSARY}"
     #  fi
     #fi
   elif [[ -e "${EMISSARY}" ]]; then
@@ -2000,9 +2000,7 @@ function packme () {
     umount_curly_emissary_gooey
 
     if [[ -d "${PLAIN_TBD}" ]]; then
-      /bin/rm -rf "${PLAIN_TBD}"
-      # FIXME/2017-04-04: There are a bunch of these still on the sync-stick...
-      /bin/rm -rf "${PLAINPATH}-TBD-*"
+      /bin/rm -rf -- "${PLAIN_TBD}"
     fi
   fi
 
@@ -2087,7 +2085,7 @@ function unpack_plaintext_archives () {
     # Reset dotglobbing.
     shopt -u dotglob
 
-    /bin/rm -rf "${UNPACK_TBD}"
+    /bin/rm -rf -- "${UNPACK_TBD}"
 
     popd &> /dev/null
 
@@ -2334,7 +2332,7 @@ function prepare_shim () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Run the script.
-soups_on $*
+soups_on "$@"
 
 #echo
 #echo 'Success!'

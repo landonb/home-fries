@@ -1,7 +1,10 @@
 #!/bin/bash
-SCRIPT_DIR=$(dirname -- "${BASH_SOURCE[0]}")
-#${SCRIPT_DIR}/travel packme $*
-# 2016-11-02: That's the ticket! Auto checkin known dirty git.
-${SCRIPT_DIR}/travel packme -WW $*
-unset SCRIPT_DIR
+
+main () {
+  local script_dir=$(dirname -- "${BASH_SOURCE[0]}")
+  # 2016-11-02: -WW: Auto checkin known dirty git.
+  ${script_dir}/travel packme -WW "$@"
+}
+
+main "$@"
 
