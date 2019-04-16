@@ -1192,12 +1192,11 @@ function chase_and_face () {
 # init_travel
 
 function travel_dir_is_mount_type_crypt () {
-  local is_crypt=$(is_mount_type_crypt "${TRAVEL_DIR}")
-
-  if [[ ${is_crypt} -eq 0 ]]; then
+  local is_crypt=1
+  if is_mount_type_crypt "${TRAVEL_DIR}"; then
+    is_crypt=0
     info "A crypt mount was identified at ‘${TRAVEL_DIR}’"
   fi
-
   return ${is_crypt}
 }
 
