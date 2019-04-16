@@ -91,6 +91,8 @@ source_deps () {
   source ssh_util.sh
   # Load: tweak_errexit, reset_errexit, etc.
   source process_util.sh
+  # Load: is_mount_type_crypt
+  source crypt_util.sh
 }
 source_deps
 
@@ -1170,13 +1172,14 @@ function chase_and_face () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # init_travel
 
-function travel_dir_is_encrypted_mountpoint () {
-  return $(\
-    lsblk --output TYPE,MOUNTPOINT \
-    | grep crypt \
-    | grep "^crypt \\+${TRAVEL_DIR}\$" \
-    > /dev/null \
-  )
+function travel_dir_is_mount_type_crypt () {
+  local is_crypt=$(is_mount_type_crypt "${TRAVEL_DIR}")
+
+  if [[ ${is_crypt} -eq 0 ]]; then
+    info "A crypt mount was identified at ‘${TRAVEL_DIR}’"
+  fi
+
+  return ${is_crypt}
 }
 
 function mount_curly_emissary_gooey_explicit () {
@@ -1192,7 +1195,7 @@ function mount_curly_emissary_gooey () {
 
   # Skip mounting ${TRAVEL_DIR}/${EMISSARY}/gooey if TRAVEL_DIR mounted as crypt.
   # (2019-04-06: (lb): My specific use case is pre-mounting encfs outside travel.)
-  travel_dir_is_encrypted_mountpoint && return
+  travel_dir_is_mount_type_crypt && return
 
   # Flavor it.
   # FIXME/2019-04-06 02:02: This is too coupled with user's home!
@@ -1218,7 +1221,7 @@ function mount_curly_emissary_gooey () {
 }
 
 function umount_curly_emissary_gooey () {
-  travel_dir_is_encrypted_mountpoint && return
+  travel_dir_is_mount_type_crypt && return
 
   if [[ -n "${EMISSARY}" ]]; then
     umount_curly_emissary_gooey_one "${EMISSARY}"

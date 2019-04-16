@@ -11,12 +11,6 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps () {
-  :
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 # Encrypted Filesystem.
 
 # 2016-12-07: Haven't used these in a long time.
@@ -201,8 +195,22 @@ home_fries_configure_gpg_tty () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+function is_mount_type_crypt () {
+  local curious_path="$1"
+  local is_crypt
+  lsblk --output TYPE,MOUNTPOINT |
+    grep crypt |
+    grep "^crypt \\+${curious_path}\$" \
+      > /dev/null \
+  && is_crypt=0 || is_crypt=1
+
+  return ${is_crypt}
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 main () {
-  : #source_deps
+  :
 }
 
 main "$@"
