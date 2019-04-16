@@ -521,8 +521,8 @@ function soups_on () {
     #echo
     echo "Uncommon commands:"
     #echo
-    echo "      mount             mount encfs at .../gooey/ # for poking around travel repos"
-    echo "      umount            unmount travel encfs at \$TRAVEL_DIR/${PRIVATE_REPO_}-emissary/gooey"
+    echo "      mount             mount crypt at .../gooey/ # for poking around travel repos"
+    echo "      umount            unmount travel crypt at \$TRAVEL_DIR/${PRIVATE_REPO_}-emissary/gooey"
     echo "                        * mount, then umount, are called on packme and unpack"
     echo "      chase_and_face    apply private overlays to local machine"
     echo "                          (maintain symlinks to ${USERS_CURLY}/* files)"
@@ -1188,19 +1188,27 @@ function mount_curly_emissary_gooey_explicit () {
 }
 
 function mount_curly_emissary_gooey () {
-  #debug "GOOEY: Mount"
   # Make the gooey candy center.
-  mkdir -p "${EMISSARY}/gooey"
   mkdir -p "${EMISSARY}/.gooey"
+  mkdir -p "${EMISSARY}/gooey"
 
   # Skip mounting ${TRAVEL_DIR}/${EMISSARY}/gooey if TRAVEL_DIR mounted as crypt.
   # (2019-04-06: (lb): My specific use case is pre-mounting encfs outside travel.)
   travel_dir_is_mount_type_crypt && return
 
-  # Flavor it.
-  # FIXME/2019-04-06 02:02: This is too coupled with user's home!
-  if [[ ! -e "${EMISSARY}/.gooey" ]]; then
-    /bin/cp -a "${USERS_CURLY}/.encfs6.xml" "${EMISSARY}/.gooey"
+  if [[ ! -f "${EMISSARY}/.gooey/gocryptfs.conf" ]]; then
+    error
+    error "FAIL: Not a gocryptfs cache at ‘${EMISSARY}/.gooey/’"
+    info
+    info "YOU: Manually prepare the crypt cache:"
+    info
+    info "  gocryptfs -init \"${EMISSARY}/.gooey\""
+    info
+    info "And then record the password and master key, and store under:"
+    info
+    info "  pass phy/travel-<DEVICE_LABEL>"
+    info
+    exit 1
   fi
 
   tweak_errexit
@@ -1256,7 +1264,7 @@ function umount_curly_emissary_gooey_one () {
       soups_finished_dinners_over_report_time
 
       echo
-      echo "MEH: Travel could not umount the encfs using:"
+      echo "MEH: Travel could not umount the crypt using:"
       echo
       echo "    fusermount -u ${gooey_mntpt}"
       echo
@@ -1269,7 +1277,7 @@ function umount_curly_emissary_gooey_one () {
       echo "    echo \$\$"
     fi
   else
-    info "No Encfs mount point for: ${FG_LAVENDER}${gooey_mntpt}"
+    info "No fuse mount point for: ${FG_LAVENDER}${gooey_mntpt}"
   fi
 
   # 2018-03-26: Make sense here?
