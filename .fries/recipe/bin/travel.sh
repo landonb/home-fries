@@ -756,6 +756,7 @@ setup_private_vim_bundle () {
 
 } # end: setup_private_vim_bundle
 
+# FIXME/2019-04-15: Move to private ZP infuser task.
 setup_private_vim_bundle_dubs_all () {
 
   if [[ -e ${HOME}/.vim/bundle/dubs_all ]]; then
@@ -764,12 +765,8 @@ setup_private_vim_bundle_dubs_all () {
 
     /bin/ln -sf ../../bundle_/dubs_file_finder/cmdt_paths
 
-
 # FIXME/2016-11-30: Missing: bundle_/dubs_project_tray
     /bin/ln -sf ../../bundle_/dubs_project_tray/dubs_cuts
-
-
-
 
     /bin/ln -sf ../../bundle_/dubs_edit_juice/dubs_tagpaths.vim
     /bin/ln -sf ../../bundle_/dubs_grep_steady/dubs_projects.vim
@@ -823,7 +820,7 @@ setup_private_vim_bundle_dubs_edit_juice () {
 
 } # end: setup_private_vim_bundle_dubs_edit_juice
 
-# FIXME/2018-03-13: Move to private infuser.
+# FIXME/2018-03-13: Move to private ZP infuser task.
 setup_private_vim_bundle_dubs () {
 
   if [[ -e ${HOME}/.vim/bundle/dubs_all ]]; then
@@ -831,11 +828,6 @@ setup_private_vim_bundle_dubs () {
     mkdir -p ${HOME}/.vim/bundle-dubs
 
     pushd ${HOME}/.vim/bundle-dubs &> /dev/null
-
-# I think b/c I did not clone, and encfs is on FAT.
-#    # 2016-11-14: Odd. Not executable. Eh, git?
-#    chmod 775 ${USERS_CURLY}/home/.vim/bundle-dubs/generate.sh
-#    chmod 775 ${USERS_CURLY}/home/.vim/bundle-dubs/git-st-all.sh
 
     /bin/ln -sf ${USERS_CURLY}/home/.vim/bundle-dubs/generate.sh
     /bin/ln -sf ${USERS_CURLY}/home/.vim/bundle-dubs/git-st-all.sh
