@@ -1,7 +1,6 @@
 #!/bin/bash
 
 source_deps () {
-#  source ${HOME}/.fries/lib/logger.sh
   # Set USERS_CURLY and USERS_BNAME.
   source ${HOME}/.fries/lib/curly_util.sh
   setup_users_curly_path
