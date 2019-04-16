@@ -173,7 +173,6 @@ FRIES_ABS_DIRN="${REPO_PATH}"
 # ***
 
 # Setup things sync_repos.sh will probably overwrite.
-CRAPWORD=''
 PLAINTEXT_ARCHIVES=()
 ENCFS_GIT_REPOS=()
 ENCFS_GIT_ITERS=()
@@ -389,14 +388,12 @@ function soups_on () {
       prepare-shim)
         PLEASE_CHOOSE_PART="from which to copy"
         DETERMINE_TRAVEL_DIR=true
-        REQUIRES_CRAPPDWORD=true
         set_travel_cmd "prepare_shim"
         shift
         ;;
       mount)
         PLEASE_CHOOSE_PART="to which to pack"
         DETERMINE_TRAVEL_DIR=true
-        REQUIRES_CRAPPDWORD=true
         set_travel_cmd "mount_curly_emissary_gooey_explicit"
         shift
         ;;
@@ -404,7 +401,6 @@ function soups_on () {
         PLEASE_CHOOSE_PART="to which to pack"
         DETERMINE_TRAVEL_DIR=true
         CAN_IGNORE_TRAVEL_DIR=true
-        REQUIRES_CRAPPDWORD=true
         set_travel_cmd "umount_curly_emissary_gooey"
         shift
         ;;
@@ -565,13 +561,6 @@ function soups_on () {
     SYNC_REPOS_AGAIN=true
     # Source this again so that sync_repos.sh can use, e.g., ${EMISSARY}.
     source "${SYNC_REPOS_PATH}"
-  fi
-
-  if [[ ${REQUIRES_CRAPPDWORD} && -z "${CRAPWORD}" ]]; then
-    error
-    error "FATAL: Please set CRAPWORD. Maybe in repo_syncs.sh"
-    trap - EXIT
-    exit 1
   fi
 
   # Make sure the staging/destination exists.

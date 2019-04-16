@@ -7,19 +7,6 @@
 #       And all your machines' paths should match.
 #       It just makes life/scripting easier.
 
-# NOTE: There are no plaintext git repos,
-#       nor are there any encfs non-git archives.
-#       1. You can archive plaintext directories. 
-#       And 2. you can encfs git repos and dirs of repos.
-
-# This is the password used to secure the encfs mount.
-# You could pass this in other ways (like typing it each time,
-# or setting it as an environment variable) but you already
-# trust the machines on which you have you files, and this file
-# lives on those machines, right? So just come up with something
-# here.
-CRAPWORD='myW1TTYp4ssw0rd'
-
 # If you want to use some other than ~/Documents as the staging
 # directory (perhaps another drive)? specify it here.
 if [[ -e /some/other/path ]]; then
