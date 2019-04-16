@@ -1214,47 +1214,52 @@ function mount_curly_emissary_gooey () {
   # crypt. (lb): I.e., my /media/${USER}/travel usage.
   travel_dir_is_mount_type_crypt && return
 
-  if [[ ! -f "${EMISSARY}/.gooey/gocryptfs.conf" ]]; then
-    error
-    error "FAIL: Not a gocryptfs cache at ‘${EMISSARY}/.gooey/’"
-    info
-    info "YOU: Manually prepare the crypt cache:"
-    info
-    info "  gocryptfs -init \"${EMISSARY}/.gooey\""
-    info
-    info "And then record the password and master key, and store under:"
-    info
-    info "  pass phy/travel-<DEVICE_LABEL>"
-    info
-    exit 1
-  fi
-
   tweak_errexit
   mount | grep "${EMISSARY}/gooey" &> /dev/null
   retval=$?
   reset_errexit
-  # Lick it.
   if [[ $retval -ne 0 ]]; then
-    # 2019-04-16: Legacy hack- If caller specifies wonky environ PWD, use encfs.
-    if [[ -n ${CRAPWORD} ]]; then
-      # 2017-04-05: Ha! You get segfault without the --standard flag!
-      #   Zero length password not allowed
-      #   Segmentation fault
-      # (Though I'd swear it used to work... but I probably didn't notice it didn't!)
-      echo "${CRAPWORD}" | encfs -S --standard "${EMISSARY}/.gooey" "${EMISSARY}/gooey"
-    else
-      # FIXME/2019-04-16: For now, CONVENTION: device label maps to pass key.
-      local passkey="phy/travel-$(basename ${TRAVEL_DIR})"
-      # FIXME/2019-04-16: May need to do better error handling here.
-      # NOTE: User will be prompted by pinentry unless gpg-agent fresh.
-      pass "${passkey}" |
-        head -1 |
-          gocryptfs -q -masterkey=stdin "${EMISSARY}/.gooey" "${EMISSARY}/gooey"
-    fi
+    mount_curly_emissary_gooey_crypt
   else
-    # else, already mounted (last op. failed; or user manually mounted).
     info "Looks like gooey is already mounted."
   fi
+}
+
+mount_curly_emissary_gooey_crypt () {
+  # 2019-04-16: Legacy hack- If caller specifies wonky environ PWD, use encfs.
+  if [[ -n ${CRAPWORD} ]]; then
+    # 2017-04-05: Ha! You get segfault without the --standard flag!
+    #   Zero length password not allowed
+    #   Segmentation fault
+    # (Though I'd swear it used to work... but I probably didn't notice it didn't!)
+    echo "${CRAPWORD}" | encfs -S --standard "${EMISSARY}/.gooey" "${EMISSARY}/gooey"
+  else
+    must_resemble_gocryptfs_directory
+    # FIXME/2019-04-16: For now, CONVENTION: device label maps to pass key.
+    local passkey="phy/travel-$(basename ${TRAVEL_DIR})"
+    # FIXME/2019-04-16: May need to do better error handling here.
+    # NOTE: User will be prompted by pinentry unless gpg-agent fresh.
+    pass "${passkey}" |
+      head -1 |
+        gocryptfs -q -masterkey=stdin "${EMISSARY}/.gooey" "${EMISSARY}/gooey"
+  fi
+}
+
+must_resemble_gocryptfs_directory () {
+  [[ -f "${EMISSARY}/.gooey/gocryptfs.conf" ]] && return
+
+  error
+  error "FAIL: Not a gocryptfs cache at ‘${EMISSARY}/.gooey/’"
+  info
+  info "YOU: Manually prepare the crypt cache:"
+  info
+  info "  gocryptfs -init \"${EMISSARY}/.gooey\""
+  info
+  info "And then record the password and master key, and store under:"
+  info
+  info "  pass phy/travel-<DEVICE_LABEL>"
+  info
+  exit 1
 }
 
 function umount_curly_emissary_gooey () {
