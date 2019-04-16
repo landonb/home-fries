@@ -1478,23 +1478,32 @@ function create_umount_script () {
 #    See:
 #
 #      create_umount_script
-#
-source logger.sh
-SCRIPT_DIR="\$(dirname \${BASH_SOURCE[0]})"
-\${SCRIPT_DIR}/travel umount
-if [[ -d "${TRAVEL_DIR}" ]]; then
-  mount | grep "${TRAVEL_DIR}" &> /dev/null && true
-  retval=\$?
-  if [[ \${retval} -eq 0 ]]; then
-    umount "${TRAVEL_DIR}"
-    info "Umountd travel directory: ${FG_LAVENDER}${TRAVEL_DIR}"
+
+source_deps () {
+  source "${HOME}/.fries/lib/logger.sh"
+}
+
+main () {
+  source_deps
+
+  local script_dir="\$(dirname \${BASH_SOURCE[0]})"
+  EMISSARY="${EMISSARY}" \${script_dir}/travel umount
+
+  if [[ -d "${TRAVEL_DIR}" ]]; then
+    mount | grep "${TRAVEL_DIR}" &> /dev/null && true
+    retval=\$?
+    if [[ \${retval} -eq 0 ]]; then
+      umount "${TRAVEL_DIR}"
+      info "Umountd travel directory: ${FG_LAVENDER}${TRAVEL_DIR}"
+    else
+      info "No travel dir to unmount: ${FG_LAVENDER}${TRAVEL_DIR}"
+    fi
   else
-    info "No travel dir to unmount: ${FG_LAVENDER}${TRAVEL_DIR}"
+    info "Last-used travel not mnt: ${FG_LAVENDER}${TRAVEL_DIR}"
   fi
-else
-  info "Last-used travel not mnt: ${FG_LAVENDER}${TRAVEL_DIR}"
-fi
-unset SCRIPT_DIR
+}
+
+main "\$@"
 EOF
 
   chmod 775 ${HOME}/.fries/recipe/bin/popoff.sh
