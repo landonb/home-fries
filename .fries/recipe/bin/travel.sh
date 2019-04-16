@@ -1961,6 +1961,17 @@ function make_plaintext () {
 
 } # end: make_plaintext
 
+function print_popoff_command_for_later () {
+  local popoff_cmd
+  if [[ -z ${DEVICE_LABEL} ]]; then
+    # popoff_cmd='popoff'
+    popoff_cmd="${HOME}/.fries/recipe/bin/popoff.sh"
+  else
+    popoff_cmd="popoff-${DEVICE_LABEL}"
+  fi
+  echo "${popoff_cmd}"
+}
+
 function packme () {
 
   #debug "Let's count"'!'
@@ -2037,13 +2048,6 @@ function packme () {
 
   soups_finished_dinners_over_report_time
 
-  local popoff_cmd
-  if [[ -z ${DEVICE_LABEL} ]]; then
-    popoff_cmd='popoff'
-  else
-    popoff_cmd="popoff-${DEVICE_LABEL}"
-  fi
-
   echo
   echo "Plaintext on the stick:"
   echo
@@ -2058,7 +2062,7 @@ function packme () {
   # The Cylons said it first.
   echo "Unmount by your command:"
   echo
-  echo "  ${popoff_cmd}"
+  echo "  $(print_popoff_command_for_later)"
   echo
 
   # WISHFUL_THING: Add to the tail of the Bash history.
@@ -2275,7 +2279,7 @@ function unpack () {
   echo
   echo "To unmount the stick when done:"
   echo
-  echo "  popoff"
+  echo "  $(print_popoff_command_for_later)"
   echo
 
   git_issues_review
