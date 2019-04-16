@@ -1275,6 +1275,11 @@ function umount_curly_emissary_gooey_one () {
       echo " and then can get the process ID using:"
       echo
       echo "    echo \$\$"
+      echo
+      echo " Or try instead:"
+      echo
+      echo "    lsof | grep ${gooey_mntpt}"
+      lsof | grep ${gooey_mntpt}
     fi
   else
     info "No fuse mount point for: ${FG_LAVENDER}${gooey_mntpt}"
