@@ -292,7 +292,10 @@ fi
 
 # ***
 
-#EMISSARY=
+# Don't set EMISSARY, so caller can set it.
+#  EMISSARY=
+
+# These variables' values will be calculated.
 PLAINPATH=
 PLAIN_TBD=
 CANDIDATES=()
@@ -1380,24 +1383,6 @@ function init_travel () {
   debug "Populating gardened git repos..."
   for ((i = 0; i < ${#ENCFS_GIT_ITERS[@]}; i++)); do
     populate_gardened_repo "${ENCFS_GIT_ITERS[$i]}"
-#    #echo " ${ENCFS_GIT_ITERS[$i]}"
-#    ENCFS_REL_PATH=$(echo ${ENCFS_GIT_ITERS[$i]} | /bin/sed s/^.//)
-#    echo " ${ENCFS_REL_PATH}"
-#    # We don't -type d so that you can use symlinks.
-#    while IFS= read -r -d '' fpath; do
-#      TARGET_PATH="${ENCFS_REL_PATH}/$(basename -- "${fpath}")"
-#      if [[ -d ${fpath}/.git ]]; then
-#        if [[ ! -e ${TARGET_PATH}/.git ]]; then
-#          echo " $fpath"
-#          echo "  \$ git clone ${fpath} ${TARGET_PATH}"
-#          git clone ${fpath} ${TARGET_PATH}
-#        else
-#          echo " skipping (got .git?): +${TARGET_PATH}+"
-#        fi
-#      else
-#        echo " skipping (not .git/): -${TARGET_PATH}-"
-#      fi
-#    done < <(find ${ENCFS_GIT_ITERS[$i]} -maxdepth 1 ! -path . -print0)
   done
   debug "Populating gardened vim repos..."
   for ((i = 0; i < ${#ENCFS_VIM_ITERS[@]}; i++)); do
@@ -2322,8 +2307,6 @@ function prepare_shim () {
     umount_curly_emissary_gooey
   fi
 
-
-# FIXME/2018-03-23 17:53: Use new pushd/popd logic!
   popd &> /dev/null
 } # end: prepare_shim
 
