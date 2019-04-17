@@ -1327,7 +1327,9 @@ function populate_singular_repo () {
     #echo " ${ENCFS_GIT_REPO}"
     echo " ${ENCFS_REL_PATH}"
     echo "  \$ git clone ${ENCFS_GIT_REPO} ${ENCFS_REL_PATH}"
-    git clone "${ENCFS_GIT_REPO}" "${ENCFS_REL_PATH}"
+    git_resp=$(git clone "${ENCFS_GIT_REPO}" "${ENCFS_REL_PATH}") && true
+    ret_code=$?
+    check_git_clone_or_pull_error "${ret_code}" "${git_resp}"
   else
     echo " skipping ( exists): ${ENCFS_REL_PATH}"
   fi
@@ -1357,7 +1359,9 @@ function populate_gardened_repo () {
     else
       echo " $fpath"
       echo "  \$ git clone ${fpath} ${TARGET_PATH}"
-      git clone "${fpath}" "${TARGET_PATH}"
+      git_resp=$(git clone "${fpath}" "${TARGET_PATH}") && true
+      ret_code=$?
+      check_git_clone_or_pull_error "${ret_code}" "${git_resp}"
     fi
   done < <(find "${ENCFS_GIT_ITER}" -maxdepth 1 ! -path . -print0)
 }
