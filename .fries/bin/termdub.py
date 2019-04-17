@@ -630,9 +630,9 @@ class Termdub(object):
             % (the_terminal, target, lines_wide, lines_tall, offset_w, offset_h,))
 
       specific_bash = ''
-      user_bash4_4 = '{}/.local/bin/bash'.format(os.getenv('HOME'))
-      if os.path.exists(user_bash4_4):
-         specific_bash = '-e %s' % (user_bash4_4,)
+      user_local_bin_bash = '{}/.local/bin/bash'.format(os.getenv('HOME'))
+      if os.path.exists(user_local_bin_bash):
+         specific_bash = '-e %s' % (user_local_bin_bash,)
 
       the_cmd = ('%s %s --geometry %s %s'
                  % (the_terminal,
