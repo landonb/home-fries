@@ -58,11 +58,11 @@ home_fries_direxpand_completions () {
   #   http://askubuntu.com/questions/70750/
   #     how-to-get-bash-to-stop-escaping-during-tab-completion
   # 2014.01.22: In older Bash, e.g., in Fedora 14, if you typed
-  #  $ ll /home/$USER/<TAB>
+  #  $ ll /home/${LOGNAME}/<TAB>
   # your home dir would be listed and the shell prompt would change to, e.g.,
   #  $ ll /home/yourname/
   # but in newer Bash, a <TAB> completion attempt results in
-  #  $ ll /home/\$USER/
+  #  $ ll /home/\${LOGNAME}/
   # which is completely useless. So revert to the old behavior.
   # And using &> since this option isn't available on older OSes
   # (which already default to the (subjectively) "better" behavior).
@@ -166,7 +166,7 @@ home_fries_alias_ld_library_path_cmds () {
 # Crontab shortcuts.
 
 home_fries_alias_crontab () {
-  alias ct='crontab -e -u $USER'
+  alias ct='crontab -e -u ${LOGNAME}'
 
   local vim_editor=""
   if [[ -e "/usr/bin/vim.basic" ]]; then

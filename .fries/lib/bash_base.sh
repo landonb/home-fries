@@ -113,7 +113,7 @@ gather_script_meta () {
     if [[ "${HOMEFRIES_LOADED_BASH_BASE:-false}" != true ]]; then
       # E.g., on `bash`,
       #   0: /bin/bash
-      #   BASH_SOURCE[0]: /home/${USER}/.fries/lib/bash_base.sh
+      #   BASH_SOURCE[0]: /home/${LOGNAME}/.fries/lib/bash_base.sh
       #   SCRIPT_NAME: bash
       #   script_dir_relative: /bin
       #   script_dir_absolute: /bin

@@ -223,7 +223,7 @@ fi
 # By default, plaintext archives unpack to, e.g., ~/Documents/${PRIVATE_REPO_}-unpackered
 # You can change this path by setting STAGING_DIR in ${USERS_CURLY}/cfg/sync_repos.sh.
 if [[ -z "${STAGING_DIR+x}" ]]; then
-  STAGING_DIR=/home/${USER}/Documents
+  STAGING_DIR=/home/${LOGNAME}/Documents
 fi
 
 # Unpack plaintext archives to the unpackered directory,
@@ -619,7 +619,7 @@ function deduce_travel_dir () {
   #   local alternative (with a -gooey directory), travel will pack
   #   to the local place and not tell you there's a stick attached
   #   that potentially might be the locker you want!
-  local mounted_dirs=(/media/${USER}/*)
+  local mounted_dirs=(/media/${LOGNAME}/*)
 
   shopt -u dotglob
   shopt -u nullglob
@@ -627,7 +627,7 @@ function deduce_travel_dir () {
     if ${CAN_IGNORE_TRAVEL_DIR}; then
       return 1
     else
-      echo "Nothing mounted under /media/${USER}/"
+      echo "Nothing mounted under /media/${LOGNAME}/"
       echo -n "Please specify the dually-accessible sync directory: "
       read -e TRAVEL_DIR
     fi
@@ -656,7 +656,7 @@ function deduce_travel_dir () {
       # FIXME/2018-03-26: YA KNOW! You could just use all CANDIDATES,
       # since they all have -emissary path and are all Travel lockers!
 
-      echo "More than one path found under /media/${USER}/"
+      echo "More than one path found under /media/${LOGNAME}/"
       echo "Please choose the correct path ${please_choose_part}."
       echo "(You also just might need to mount your sync stick.)"
       for fpath in "${mounted_dirs[@]}"; do
@@ -707,13 +707,13 @@ function determine_stick_dir () {
 
 setup_private_fries_bash () {
 
-  if [[ -f ${USERS_CURLY}/home/.fries/.bashrc/bashrx.private.${USER}.sh ]]; then
+  if [[ -f ${USERS_CURLY}/home/.fries/.bashrc/bashrx.private.${LOGNAME}.sh ]]; then
 
     pushd ${HOME}/.fries/.bashrc &> /dev/null
 
     /bin/ln -sf \
-      ${USERS_CURLY}/home/.fries/.bashrc/bashrx.private.${USER}.sh \
-      bashrx.private.${USER}.sh
+      ${USERS_CURLY}/home/.fries/.bashrc/bashrx.private.${LOGNAME}.sh \
+      bashrx.private.${LOGNAME}.sh
 
     popd &> /dev/null
 
@@ -1211,7 +1211,7 @@ function mount_curly_emissary_gooey () {
   mkdir -p "${EMISSARY}/gooey"
 
   # Skip mounting ${TRAVEL_DIR}/${EMISSARY}/gooey if TRAVEL_DIR mounted as
-  # crypt. (lb): I.e., my /media/${USER}/travel usage.
+  # crypt. (lb): I.e., my /media/${LOGNAME}/travel usage.
   travel_dir_is_mount_type_crypt && return
 
   tweak_errexit
@@ -1921,7 +1921,7 @@ function make_plaintext () {
   mkdir -p "${PLAINPATH}"
   # Plop the hostname in the packedpathwhynot.
   echo -n $(hostname) > "${PLAINPATH}/packered_hostname"
-  echo -n ${USER} > "${PLAINPATH}/packered_username"
+  echo -n ${LOGNAME} > "${PLAINPATH}/packered_username"
 
   info "Packing plainly to: ${FG_LAVENDER}${PLAINPATH}"
 

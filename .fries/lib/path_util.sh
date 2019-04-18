@@ -251,7 +251,7 @@ ensure_directory_hierarchy_exists () {
     echo
     sudo mkdir ${last_dir}
     sudo chmod 2775 ${last_dir}
-    sudo chown $USER:$USE_STAFF_GROUP_ASSOCIATION ${last_dir}
+    sudo chown $LOGNAME:$USE_STAFF_GROUP_ASSOCIATION ${last_dir}
   fi
   mkdir -p ${DIR_PATH}
   if [[ ! -d ${DIR_PATH} ]]; then

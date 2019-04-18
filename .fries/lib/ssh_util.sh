@@ -49,7 +49,7 @@ ssh_agent_kick () {
             local pphrase=$(cat ${SSH_SECRETS}/${secret_name})
             /usr/bin/expect -c " \
               spawn /usr/bin/ssh-add ${pvt_key}; \
-              expect \"Enter passphrase for /home/${USER}/.ssh/${secret_name}:\"; \
+              expect \"Enter passphrase for /home/${LOGNAME}/.ssh/${secret_name}:\"; \
               send \"${pphrase}\n\"; \
               interact ; \
             "

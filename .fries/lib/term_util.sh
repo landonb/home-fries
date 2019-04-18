@@ -652,7 +652,7 @@ if false; then
       #  Also, if we do this after old_space, there's a little screen flicker
       #  that makes that sequence look unnatural, ick.)
 
-      echo "Making ${USER}'s windows sticky..."
+      echo "Making ${LOGNAME}'s windows sticky..."
       private_space
 
       eval "${old_space}"

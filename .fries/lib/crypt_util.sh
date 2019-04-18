@@ -69,7 +69,7 @@ umount_guard () {
 #     However, trying to create a user mlocate.db without overlapping (duplicate)
 #     options is difficult unless all user files are under the user's home directory
 #     (because then you can use the `updatedb -U $HOME` option).
-#     - But I've got stuff under /media/${USER} that I want to index,
+#     - But I've got stuff under /media/${LOGNAME} that I want to index,
 #       and that I do not what to link from $HOME (and also updatedb
 #       resolves symlinks unless told otherwise, so there's that, too!),
 #       so I am unable to utilize the `-U` option to solve this issue.

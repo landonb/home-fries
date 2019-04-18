@@ -10,5 +10,5 @@
 #
 #   and
 #
-#       bashrx.private.$USER.sh
+#       bashrx.private.$LOGNAME.sh
 #

@@ -194,7 +194,7 @@ user_window_session_logout () {
     #   http://aarklonlinuxinfo.blogspot.com/2008/07/kill-9-1.html
     #     kill -9 -1
     # Apparently also this, but less destructive
-    #     sudo pkill -u $USER
+    #     sudo pkill -u $LOGNAME
     echo
     echo "WARNING: Logout command not found; cannot logout."
   fi

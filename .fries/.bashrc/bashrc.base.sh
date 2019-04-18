@@ -17,7 +17,7 @@
 # First loads:    /etc/bash.bashrc
 # Then sources:   ./bashrx.private.sh
 #                 ./bashrx.private.$HOSTNAME.sh
-#                 ./bashrx.private.$USER.sh
+#                 ./bashrx.private.$LOGNAME.sh
 #                 ./bashrc.core.sh
 #                    (which may source additional files)
 # And finally:    ./bashrc.*.base.sh
@@ -137,7 +137,7 @@ source_private () {
       $DUBS_TRACE && echo "Did not find a machine-specific resource: $machfile"
     fi
 
-    userfile=`echo ${hard_path}/bashrx.private.$USER.sh`
+    userfile=`echo ${hard_path}/bashrx.private.${LOGNAME}.sh`
 
     if [[ -f "$userfile" ]]; then
       $DUBS_TRACE && echo "Loading user-specific resource script: $userfile"

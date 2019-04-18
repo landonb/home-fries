@@ -214,7 +214,7 @@ rm_safe () {
     if [[ ${trash_device} = ${fpath_device} ]]; then
       # MAYBE: Update this fcn. to support specific trash
       # directories on each device. For now you can specify
-      # one specific dir for one drive (generally /home/$USER/.trash)
+      # one specific dir for one drive (generally /home/$LOGNAME/.trash)
       # and then all other drives it's assumed to be at, e.g.,
       # /media/XXX/.trash.
       device_trashdir="${trashdir}"
