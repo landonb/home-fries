@@ -171,7 +171,7 @@ rm_safe () {
     return 1
   fi
   if [[ -z "${trashdir}" ]]; then
-    echo "rm_safe: no \$trashdir, what gives?"
+    echo "rm_safe: no \$trashdir (“”), what gives?"
     return 1
   fi
   # echo "trashdir: ${trashdir}"
