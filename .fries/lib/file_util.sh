@@ -205,6 +205,13 @@ mv_based_on_name () {
   dst_path="${dst_subd}/${dst_file}"
 
   if [[ -e "${dst_path}" || -h "${dst_path}" ]]; then
+    # MEH/2019-04-25: We could add a `diff` here to skip/not copy if not changed.
+    # - (lb): But all my use cases are to use fdupes beforehand, so... hrmmm.....
+    if diff "${src_path}" "${dst_path}"; then
+      echo "NOTICE: No differences: “${dst_path}”"
+      return 0
+    fi
+
     # Target either exists (or is a broken symlink); add date to avoid name clash.
     if ! $copy_safe_dont_skip; then
       echo "WARNING: Already exists: “${dst_path}”"
