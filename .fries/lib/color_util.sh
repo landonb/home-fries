@@ -88,12 +88,30 @@ create_colors () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+is_headless () {
+  # We cannot rely on normal interactive terminal checking, e.g.,
+  #   [ -z "$PS1" ] && return 0 || return 1
+  #   # Or:
+  #   [[ "$-" =~ .*i.* ]] && return 1 || return 0
+  # because user-run scripts can themselves run scripts
+  # and the latter-run scripts will not be considered
+  # interactive. Compare also:
+  #   /bin/bash -c 'echo "$PS1"'
+  #   # EMPTY
+  #   # /bin/bash -c 'echo "$LOGNAME"'
+  #   # user
+  ( [[ -n ${FRIES_COLOR} ]] && ! ${FRIES_COLOR} ) && return 0 || return 1
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # (lb): I know Vim makes doing this fast, but still, why manually generate
 # this? Should really use associate array and eval. The whole file.
 
 # Fast downcase: qqvw^ou<down>q
 
 fg_pink () {
+  is_headless && return
   ### === HIGH-COLOR === compatible with most terms including putty
   ### for windows... use colors that don't make your eyes bleed :)
   # NOTE/2017-05-03: Single quotes do not work. What's up with that?
@@ -102,113 +120,140 @@ fg_pink () {
 }
 
 fg_orange () {
+  is_headless && return
   echo "\033[38;5;203m"
 }
 
 # 2016-10-09: FG_SKYBLUE broken.
 #fg_skyblue () {
+#  is_headless && return
 #  echo "\033[38;5;111m"
 #}
 
 fg_mediumgrey () {
+  is_headless && return
   echo "\033[38;5;246m"
 }
 
 fg_lavender () {
+  is_headless && return
   echo "\033[38;5;183m"
 }
 
 fg_tan () {
+  is_headless && return
   echo "\033[38;5;179m"
 }
 
 fg_forest () {
+  is_headless && return
   echo "\033[38;5;22m"
 }
 
 fg_maroon () {
+  is_headless && return
   echo "\033[38;5;52m"
 }
 
 fg_hotpink () {
+  is_headless && return
   echo "\033[38;5;198m"
 }
 
 fg_mintgreen () {
+  is_headless && return
   echo "\033[38;5;121m"
 }
 
 fg_lightorange () {
+  is_headless && return
   echo "\033[38;5;215m"
 }
 
 fg_lightred () {
+  is_headless && return
   echo "\033[38;5;203m"
 }
 
 fg_jade () {
+  is_headless && return
   echo "\033[38;5;35m"
 }
 
 fg_lime () {
+  is_headless && return
   echo "\033[38;5;154m"
 }
 
 ### background colors
 
 bg_pink () {
+  is_headless && return
   echo "\033[48;5;211m"
 }
 
 bg_orange () {
+  is_headless && return
   echo "\033[48;5;203m"
 }
 
 bg_skyblue () {
+  is_headless && return
   echo "\033[48;5;111m"
 }
 
 bg_mediumgrey () {
+  is_headless && return
   echo "\033[48;5;246m"
 }
 
 bg_lavender () {
+  is_headless && return
   echo "\033[48;5;183m"
 }
 
 bg_tan () {
+  is_headless && return
   echo "\033[48;5;179m"
 }
 
 bg_forest () {
+  is_headless && return
   echo "\033[48;5;22m"
 }
 
 bg_maroon () {
+  is_headless && return
   echo "\033[48;5;52m"
 }
 
 bg_hotpink () {
+  is_headless && return
   echo "\033[48;5;198m"
 }
 
 bg_mintgreen () {
+  is_headless && return
   echo "\033[48;5;121m"
 }
 
 bg_lightorange () {
+  is_headless && return
   echo "\033[48;5;215m"
 }
 
 bg_lightred () {
+  is_headless && return
   echo "\033[48;5;203m"
 }
 
 bg_jade () {
+  is_headless && return
   echo "\033[48;5;35m"
 }
 
 bg_lime () {
+  is_headless && return
   echo "\033[48;5;154m"
 }
 
@@ -216,134 +261,167 @@ bg_lime () {
 #   https://misc.flogisoft.com/bash/tip_colors_and_formatting
 
 fg_black () {
+  is_headless && return
   echo "\033[30m"
 }
 
 fg_red () {
+  is_headless && return
   echo "\033[31m"
 }
 
 fg_green () {
+  is_headless && return
   echo "\033[32m"
 }
 
 fg_yellow () {
+  is_headless && return
   echo "\033[33m"
 }
 
 fg_blue () {
+  is_headless && return
   echo "\033[34m"
 }
 
 fg_magenta () {
+  is_headless && return
   echo "\033[35m"
 }
 
 fg_cyan () {
+  is_headless && return
   echo "\033[36m"
 }
 
 fg_lightgray () {
+  is_headless && return
   echo "\033[37m"
 }
 
 fg_darkgray () {
+  is_headless && return
   echo "\033[90m"
 }
 
 fg_lightred () {
+  is_headless && return
   echo "\033[91m"
 }
 
 fg_lightgreen () {
+  is_headless && return
   echo "\033[92m"
 }
 
 fg_lightyellow () {
+  is_headless && return
   echo "\033[93m"
 }
 
 fg_lightblue () {
+  is_headless && return
   echo "\033[94m"
 }
 
 fg_lightmagenta () {
+  is_headless && return
   echo "\033[95m"
 }
 
 fg_lightcyan () {
+  is_headless && return
   echo "\033[96m"
 }
 
 fg_white () {
+  is_headless && return
   echo "\033[97m"
 }
 
 bg_black () {
+  is_headless && return
   echo "\033[40m"
 }
 
 bg_red () {
+  is_headless && return
   echo "\033[41m"
 }
 
 bg_green () {
+  is_headless && return
   echo "\033[42m"
 }
 
 bg_yellow () {
+  is_headless && return
   echo "\033[43m"
 }
 
 bg_blue () {
+  is_headless && return
   echo "\033[44m"
 }
 
 bg_magenta () {
+  is_headless && return
   echo "\033[45m"
 }
 
 bg_cyan () {
+  is_headless && return
   echo "\033[46m"
 }
 
 bg_lightgray () {
+  is_headless && return
   echo "\033[47m"
 }
 
 bg_darkgray () {
+  is_headless && return
   echo "\033[100m"
 }
 
 bg_lightred () {
+  is_headless && return
   echo "\033[101m"
 }
 
 bg_lightgreen () {
+  is_headless && return
   echo "\033[102m"
 }
 
 bg_lightyellow () {
+  is_headless && return
   echo "\033[103m"
 }
 
 bg_lightblue () {
+  is_headless && return
   echo "\033[104m"
 }
 
 bg_lightmagenta () {
+  is_headless && return
   echo "\033[105m"
 }
 
 bg_lightcyan () {
+  is_headless && return
   echo "\033[106m"
 }
 
 bg_white () {
+  is_headless && return
   echo "\033[107m"
 }
 
 attr_reset () {
+  is_headless && return
   # Does it matter which one? Using tput seems more generic than ANSI code.
   # Similar to:  echo "\033[0m"
   #echo "$(tput sgr0)"
@@ -352,16 +430,19 @@ attr_reset () {
 }
 
 attr_bold () {
+  is_headless && return
   # Similar to:  echo "\033[1m"
   echo "\e[1m"
   #echo "$(tput bold)"
 }
 
 attr_dim () {
+  is_headless && return
   echo "\e[2m"
 }
 
 attr_emphasis () {
+  is_headless && return
   echo "\e[3m"
 }
 
@@ -370,6 +451,7 @@ attr_italic () {
 }
 
 attr_underline () {
+  is_headless && return
   #echo "\e[4m"
   echo "\033[4m"
 }
@@ -379,6 +461,7 @@ attr_underlined () {
 }
 
 attr_strikethrough () {
+  is_headless && return
   echo "\e[9m"
 }
 
@@ -408,26 +491,32 @@ attr_strikethrough () {
 
 # Gnome/Mate do not support blink, <sigh>.
 font_blink () {
+  is_headless && return
   echo "\033[5m"
 }
 
 font_invert () {
+  is_headless && return
   echo "\033[7m"
 }
 
 font_hidden () {
+  is_headless && return
   echo "\033[8m"
 }
 
 reset_bold () {
+  is_headless && return
   echo "\033[21m"
 }
 
 reset_dim () {
+  is_headless && return
   echo "\033[22m"
 }
 
 reset_emphasis () {
+  is_headless && return
   echo "\033[23m"
 }
 
@@ -436,6 +525,7 @@ reset_italic () {
 }
 
 reset_underline () {
+  is_headless && return
   echo "\033[24m"
 }
 
@@ -444,14 +534,17 @@ reset_underlined () {
 }
 
 reset_blink () {
+  is_headless && return
   echo "\033[25m"
 }
 
 reset_reverse () {
+  is_headless && return
   echo "\033[27m"
 }
 
 reset_hidden () {
+  is_headless && return
   echo "\033[28m"
 }
 
