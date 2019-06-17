@@ -24,7 +24,7 @@ source_deps () {
 # is not y or n (or one of some other two characters).
 ask_yes_no_default () {
   # Don't exit on error, since `read` returns $? != 0 on timeout.
-  tweak_errexit +e
+  tweak_errexit +eE
   # Also -x prints commands that are run, which taints the output.
   set +x
 

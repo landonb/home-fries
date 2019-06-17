@@ -57,7 +57,7 @@ die () {
 #       when we started the script -- and doesn't reflect any changes
 #       herein. So use a variable to remember the setting.
 #
-reset_errexit () {
+reset_errexit_ () {
   if ${USING_ERREXIT}; then
     #set -ex
     set -e
@@ -66,24 +66,61 @@ reset_errexit () {
   fi
 }
 
-suss_errexit () {
+reset_errtrace_ () {
+  if ${USING_ERRTRACE}; then
+    set -E
+  else
+    set +E
+  fi
+}
+
+reset_errexit_errtrace () {
+  reset_errexit_
+  reset_errtrace_
+}
+
+# MAYBE/2019-06-16: For backwards compatibility, since added errtrace
+# (read: I don't want to find-and-replace all current usages).
+reset_errexit () {
+  reset_errexit_errtrace "$@"
+}
+
+suss_errexit_errtrace () {
   local shell_opts=${SHELLOPTS}
-  set +e
+  set +eE
+  #
   echo ${shell_opts} | grep errexit >/dev/null 2>&1
   if [[ $? -eq 0 ]]; then
     USING_ERREXIT=true
   else
     USING_ERREXIT=false
   fi
+  #
+  echo ${shell_opts} | grep errtrace >/dev/null 2>&1
+  if [[ $? -eq 0 ]]; then
+    USING_ERRTRACE=true
+  else
+    USING_ERRTRACE=false
+  fi
+  #
   if ${USING_ERREXIT}; then
 	  set -e
   fi
+  if ${USING_ERRTRACE}; then
+	  set -E
+  fi
 }
 
-tweak_errexit () {
-  local flags="${1:-+e}"
-  suss_errexit
+tweak_errexit_errtrace () {
+  local flags="${1:-+eE}"
+  suss_errexit_errtrace
   set ${flags}
+}
+
+# MAYBE/2019-06-16: For backwards compatibility, since added errtrace
+# (read: I don't want to find-and-replace all current usages).
+tweak_errexit () {
+  tweak_errexit_errtrace "$@"
 }
 
 # ============================================================================
@@ -235,7 +272,7 @@ killsomething () {
 }
 
 main () {
-  suss_errexit
+  suss_errexit_errtrace
 }
 
 main "$@"

@@ -73,7 +73,7 @@ flock_dir () {
     FLOCKING_TIMELIMIT=0
   fi
 
-  tweak_errexit +e # Stay on error
+  tweak_errexit +eE # Stay on error
 
   local fcn_time_0=$(date +%s.%N)
 
@@ -228,7 +228,7 @@ ensure_directory_hierarchy_exists () {
   local DIR_PATH=$1
   local cur_path=${DIR_PATH}
   local last_dir=''
-  tweak_errexit +ex
+  tweak_errexit +eEx
   while [[ -n ${cur_path} && ! -e ${cur_path} ]]; do
     mkdir ${cur_path} &> /dev/null
     if [[ $? -eq 0 ]]; then

@@ -134,7 +134,7 @@ screensaver_lockoff () {
     # Huh: 2 hours is the max. So 130 gets floored to 120.
     gsettings set org.mate.session idle-delay 130
   elif ${WM_IS_CINNAMON}; then
-    tweak_errexit +ex
+    tweak_errexit +eEx
     gsettings set org.cinnamon.desktop.screensaver lock-enabled false \
       &> /dev/null
     reset_errexit
@@ -149,7 +149,7 @@ screensaver_lockon () {
     # 2018-03-01: 30 minutes, sleep display.
     gsettings set org.mate.power-manager sleep-display-ac 1800
   elif ${WM_IS_CINNAMON}; then
-    tweak_errexit +ex
+    tweak_errexit +eEx
     gsettings set org.cinnamon.desktop.screensaver lock-enabled true \
       &> /dev/null
     reset_errexit
