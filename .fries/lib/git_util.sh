@@ -294,7 +294,7 @@ git_commit_dirty_or_untracked () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-echo_cyclones_forange () {
+_git_echo_cyclones_forange () {
   # Atrocious:
   #  echo -e "${BG_FOREST}${FG_LIGHTRED}$(printf '🌀 %.0s' {1..36})${FONT_NORMAL}"
   #  echo -e "${BG_FOREST}${FG_LIGHTORANGE}$(printf '🌀 %.0s' {1..36})${FONT_NORMAL}"
@@ -304,11 +304,11 @@ echo_cyclones_forange () {
   echo -e "${BG_FOREST}${FG_LIGHTORANGE}$(printf '🌀 %.0s' {1..36})${FONT_NORMAL}"
 }
 
-echo_cyclones_bmaroon () {
+_git_echo_cyclones_bmaroon () {
   echo -e "${BG_MAROON}${FG_LIGHTORANGE}$(printf '🌀 %.0s' {1..36})${FONT_NORMAL}"
 }
 
-echo_cyclones_frgreen () {
+_git_echo_cyclones_frgreen () {
   echo -e "${BG_ORANGE}${FG_LIGHTGREEN}$(printf '🌀 %.0s' {1..36})${FONT_NORMAL}"
 }
 
@@ -396,8 +396,8 @@ git_status_porcelain () {
 
   if ${dirty_repo}; then
     echo
-    #echo_cyclones_forange
-    echo_cyclones_bmaroon
+    #_git_echo_cyclones_forange
+    _git_echo_cyclones_bmaroon
    echo
     warn "${dirty_warn}"
 
@@ -422,8 +422,8 @@ git_status_porcelain () {
     fi
 
     echo
-    echo_cyclones_bmaroon
-    #echo_cyclones_forange
+    _git_echo_cyclones_bmaroon
+    #_git_echo_cyclones_forange
     echo
 
     GIT_DIRTY_FILES_FOUND=true
@@ -917,7 +917,7 @@ git_issue_complain_rebasing () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-echo_octothorpes_maroon_on_lime () {
+_git_echo_octothorpes_maroon_on_lime () {
   echo -e "${BG_LIME}${FG_MAROON}$(printf '#%.0s' {1..77})${FONT_NORMAL}"
 }
 
@@ -929,9 +929,9 @@ git_change_branches_if_necessary () {
   pushd_or_die "${target_repo}"
 
   if [[ "${source_branch}" != "${target_branch}" ]]; then
-    echo_octothorpes_maroon_on_lime
+    _git_echo_octothorpes_maroon_on_lime
     #info "🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀"
-    #echo_octothorpes_maroon_on_lime
+    #_git_echo_octothorpes_maroon_on_lime
     notice "NOTE: \${source_branch} != \${target_branch}"
     echo
     echo " WRKD: $(pwd -P)"
@@ -945,9 +945,9 @@ git_change_branches_if_necessary () {
     fi
     echo "Changed!"
     echo
-    #echo_octothorpes_maroon_on_lime
+    #_git_echo_octothorpes_maroon_on_lime
     #info "🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀"
-    echo_octothorpes_maroon_on_lime
+    _git_echo_octothorpes_maroon_on_lime
 # FIXME/2018-03-22: Adding to this array may prevent travel from continuing? I.e., the -D workaround?
 #   Or are these msgs printed after everything and do not prevent finishing?
     FRIES_GIT_ISSUES_RESOLUTIONS+=( \
