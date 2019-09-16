@@ -116,6 +116,7 @@ test_logger () {
 
 main () {
   source_deps
+  unset -f source_deps
 }
 
 main "$@"

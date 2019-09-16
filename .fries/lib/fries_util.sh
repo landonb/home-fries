@@ -279,6 +279,7 @@ home_fries_export_editor_vim () {
 
 main () {
   source_deps
+  unset -f source_deps
 
   must_sourced "${BASH_SOURCE[0]}"
 }

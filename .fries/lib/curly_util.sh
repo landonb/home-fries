@@ -18,6 +18,7 @@ source_deps () {
 
 setup_users_curly_path () {
   source_deps
+  unset -f source_deps
 
   if [[ -f ${HOME}/.curly/master_chef || -f ${HOME}/.curly/junior_chef ]]; then
     # You can cd and pwd -P or just readlink.

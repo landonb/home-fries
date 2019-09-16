@@ -69,6 +69,7 @@ apache_create_control_aliases () {
 
 main () {
   : #source_deps
+  unset -f source_deps
 }
 
 main "$@"

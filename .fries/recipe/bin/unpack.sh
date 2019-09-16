@@ -24,6 +24,7 @@ use_shim () {
 main () {
   set -e
   source_deps
+  unset -f source_deps
 
   script_dir=$(dirname -- "${BASH_SOURCE[0]}")
 

@@ -297,6 +297,7 @@ suss_postgres () {
 
 main () {
   source_deps
+  unset -f source_deps
 
   suss_distro
   # FIXME/2017-10-03: Find-n-Replace: determine_window_manager => suss_window_manager

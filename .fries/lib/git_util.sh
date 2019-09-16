@@ -1509,6 +1509,7 @@ git-remote-v-all () {
 
 main () {
   source_deps
+  unset -f source_deps
 
   SKIP_GIT_DIRTY=false
   export SKIP_GIT_DIRTY

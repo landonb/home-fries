@@ -35,6 +35,7 @@ home_fries_create_aliases_cygwin () {
 
 main () {
   : #source_deps
+  unset -f source_deps
 }
 
 main "$@"

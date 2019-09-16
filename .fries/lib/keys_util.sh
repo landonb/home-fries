@@ -164,6 +164,7 @@ home_fries_map_keys_2x3 () {
 
 main () {
   : #source_deps
+  unset -f source_deps
 }
 
 main "$@"

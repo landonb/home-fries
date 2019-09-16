@@ -141,6 +141,7 @@ gather_script_meta () {
 
 main () {
   source_deps
+  unset -f source_deps
 
   must_sourced ${BASH_SOURCE[0]}
 

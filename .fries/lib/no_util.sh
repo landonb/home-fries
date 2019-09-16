@@ -177,6 +177,7 @@ suss_machine_ip () {
 
 main () {
   source_deps
+  unset -f source_deps
 
   # 2017-10-03: This one seems pointless:
   #suss_machine_ip

@@ -93,8 +93,11 @@ ssh_agent_kick () {
   export LOG_LEVEL=${old_level}
 } # end: ssh_agent_kick
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 main () {
-  :
+  source_deps
+  unset -f source_deps
 }
 
 main "$@"

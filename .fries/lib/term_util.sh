@@ -719,6 +719,7 @@ dubs_always_on_visible_desktop () {
 
 main () {
   source_deps
+  unset -f source_deps
 }
 
 main "$@"

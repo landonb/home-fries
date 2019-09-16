@@ -291,6 +291,7 @@ ruby_set_rspec_alias () {
 
 main () {
   source_deps
+  unset -f source_deps
 
   ruby_set_gem_path
 

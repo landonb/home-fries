@@ -253,6 +253,7 @@ home_fries_configure_manpath () {
 
 main () {
   source_deps
+  unset -f source_deps
 }
 
 main "$@"

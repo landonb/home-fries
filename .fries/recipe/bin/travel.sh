@@ -95,6 +95,7 @@ source_deps () {
   source crypt_util.sh
 }
 source_deps
+unset -f source_deps
 
 # ***
 
@@ -1512,6 +1513,7 @@ source_deps () {
 
 main () {
   source_deps
+  unset -f source_deps
 
   local script_dir="\$(dirname \${BASH_SOURCE[0]})"
   EMISSARY="${EMISSARY}" \${script_dir}/travel umount

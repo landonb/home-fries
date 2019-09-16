@@ -42,6 +42,7 @@ simpletimeit () {
 
 main () {
   : #source_deps
+  unset -f source_deps
 }
 
 main "$@"

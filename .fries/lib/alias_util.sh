@@ -485,6 +485,7 @@ home_fries_create_aliases_tab_completion () {
 
 main () {
   source_deps
+  unset -f source_deps
 }
 
 main "$@"
