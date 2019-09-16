@@ -270,10 +270,38 @@ home_fries_configure_manpath () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+unset_f_paths_util () {
+  unset -f source_deps
+
+  unset -f home_fries_add_to_path_sbin
+
+  unset -f home_fries_add_to_path_home_fries_lib
+
+  unset -f home_fries_add_to_path_home_fries_bin
+
+  unset -f home_fries_add_to_path_home_local_bin
+
+  unset -f home_fries_add_to_path_home_local_node_modules_bin
+
+  unset -f home_fries_add_to_path_java_jdk_jre
+
+  unset -f home_fries_add_to_path_android_studio
+
+  unset -f home_fries_add_to_path_golang
+
+  unset -f home_fries_set_path_environ
+
+  unset -f home_fries_configure_manpath
+
+  # So meta.
+  unset -f unset_f_paths_util
+}
+
 main () {
   source_deps
   unset -f source_deps
 }
 
 main "$@"
+unset -f main
 

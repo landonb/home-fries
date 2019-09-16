@@ -22,3 +22,18 @@ direnv_export () {
   fi
 }
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+main () {
+  source_deps
+  unset -f source_deps
+
+  # 2019-09-16: (lb): I don't think direnv_export is used. Anymore.
+  #   I had been using it for some client work a few years back. I think.
+  #direnv_export
+  unset -f direnv_export
+}
+
+main "$@"
+unset -f main
+

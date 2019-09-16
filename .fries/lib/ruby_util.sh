@@ -295,6 +295,15 @@ unset -f ruby_set_rspec_alias
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+unset_f_ruby_util () {
+  unset -f source_deps
+
+  unset -f home_fries_add_to_path_ruby_version_manager
+
+  # So meta.
+  unset -f unset_f_ruby_util
+}
+
 main () {
   source_deps
   unset -f source_deps
@@ -313,4 +322,5 @@ main () {
 }
 
 main "$@"
+unset -f main
 

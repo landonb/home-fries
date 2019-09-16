@@ -233,10 +233,20 @@ desktop-notification-test () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+unset_f_input_util () {
+  unset -f source_deps
+
+  unset -f logitech-middle-mouse-click-disable
+
+  # So meta.
+  unset -f unset_f_input_util
+}
+
 main () {
   source_deps
   unset -f source_deps
 }
 
 main "$@"
+unset -f main
 

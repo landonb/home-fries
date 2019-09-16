@@ -271,6 +271,33 @@ home_fries_export_editor_vim () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+unset_f_fries_util () {
+  unset -f source_deps
+
+  unset -f home_fries_init_completions
+
+  unset -f home_fries_direxpand_completions
+
+  unset -f home_fries_load_completions
+
+  unset -f home_fries_load_sdkman
+
+  unset -f home_fries_load_nvm_and_completion
+
+  unset -f home_fries_append_ld_library_path
+
+  unset -f home_fries_alias_ld_library_path_cmds
+
+  unset -f home_fries_alias_crontab
+
+  unset -f home_fries_punch_anacron
+
+  unset -f home_fries_export_editor_vim
+
+  # So meta.
+  unset -f unset_f_fries_util
+}
+
 main () {
   source_deps
   unset -f source_deps
@@ -279,4 +306,5 @@ main () {
 }
 
 main "$@"
+unset -f main
 

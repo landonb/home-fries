@@ -227,10 +227,22 @@ mv_based_on_name () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+unset_f_file_util () {
+  unset -f source_deps
+
+  unset -f home_fries_default_umask
+
+  unset -f home_fries_wire_export_less
+
+  # So meta.
+  unset -f unset_f_file_util
+}
+
 main () {
   : #source_deps
   unset -f source_deps
 }
 
 main "$@"
+unset -f main
 

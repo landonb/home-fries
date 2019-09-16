@@ -153,8 +153,19 @@ home_fries_map_keys_2x3 () {
   #   Now, you can override the Print Screen key.
   keysym Print = Insert
 }
+# 2019-09-16: This function not used.
+unset -f home_fries_map_keys_2x3
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+unset_f_keys_util () {
+  unset -f source_deps
+
+  unset -f home_fries_map_keys_lenovo
+
+  # So meta.
+  unset -f unset_f_keys_util
+}
 
 main () {
   : #source_deps
@@ -162,4 +173,5 @@ main () {
 }
 
 main "$@"
+unset -f main
 

@@ -173,9 +173,23 @@ function is_mount_type_crypt () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+unset_f_crypt_util () {
+  unset -f source_deps
+
+  unset -f home_fries_mlocate_wire_private_db
+
+  unset -f daemonize_gpg_agent
+
+  unset -f home_fries_configure_gpg_tty
+
+  # So meta.
+  unset -f unset_f_crypt_util
+}
+
 main () {
   :
 }
 
 main "$@"
+unset -f main
 

@@ -61,10 +61,22 @@ apache_create_control_aliases () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+unset_f_apache_util () {
+  unset -f source_deps
+
+  unset -f whats_apache
+
+  unset -f apache_create_control_aliases
+
+  # So meta.
+  unset -f unset_f_apache_util
+}
+
 main () {
   : #source_deps
   unset -f source_deps
 }
 
 main "$@"
+unset -f main
 

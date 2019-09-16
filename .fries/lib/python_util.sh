@@ -79,10 +79,22 @@ whats_python2 () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+unset_f_python_util () {
+  unset -f source_deps
+
+  unset -f whats_python3
+
+  unset -f whats_python2
+
+  # So meta.
+  unset -f unset_f_python_util
+}
+
 main () {
   : #source_deps
   unset -f source_deps
 }
 
 main "$@"
+unset -f main
 

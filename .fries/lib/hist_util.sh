@@ -188,10 +188,20 @@ home_fries_configure_history () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+unset_f_hist_util () {
+  unset -f source_deps
+
+  unset -f home_fries_configure_history
+
+  # So meta.
+  unset -f unset_f_hist_util
+}
+
 main () {
   : #source_deps
   unset -f source_deps
 }
 
 main "$@"
+unset -f main
 

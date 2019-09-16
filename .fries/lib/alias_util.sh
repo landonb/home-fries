@@ -474,10 +474,26 @@ home_fries_create_aliases_tab_completion () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+unset_f_alias_util () {
+  unset -f source_deps
+
+  unset -f home_fries_create_aliases_general
+
+  unset -f home_fries_create_aliases_greppers
+
+  unset -f home_fries_create_aliases_chdir
+
+  unset -f home_fries_create_aliases_tab_completion
+
+  # So meta.
+  unset -f unset_f_alias_util
+}
+
 main () {
   source_deps
   unset -f source_deps
 }
 
 main "$@"
+unset -f main
 

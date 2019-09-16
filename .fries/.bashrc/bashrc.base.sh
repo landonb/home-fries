@@ -256,6 +256,13 @@ home_fries_bashrc_cleanup () {
   unset -v machfile
   unset -v userfile
 
+  # Run the sourced-scripts' cleanup functions, to un-declare functions
+  # (and remove cruft from user's environment).
+  for unset_f in $(declare -F | grep '^declare -f unset_f_' | sed 's/^declare -f //'); do
+    # Call, e.g., unset_f_alias_util, unset_f_apache_util, etc.
+    eval "${unset_f}"
+  done
+
   # Show startup stats if we already polluted console with ``expect`` stuff,
   # or if being run in tmuxinator,
   # or if user is profiling bashrc, or already tracing.

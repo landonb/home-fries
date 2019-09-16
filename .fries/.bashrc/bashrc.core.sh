@@ -25,37 +25,38 @@ source_utils () {
   lib_files+=("array_util.sh")
   lib_files+=("bash_base.sh")
   lib_files+=("color_util.sh")
-  #lib_files+=("cron_util.sh")  # FIXME/2018-09-27 13:34: Huh?
+  # SKIPPING:("cron_util.sh")
   lib_files+=("crypt_util.sh")
   lib_files+=("curly_util.sh")
-  #lib_files+=("cygwin_util.sh")
+  # SKIPPING:("cygwin_util.sh")
   lib_files+=("date_util.sh")
   lib_files+=("dir_util.sh")
+  # SKIPPING:("direnv_util.sh")
   lib_files+=("distro_util.sh")
   lib_files+=("docker_util.sh")
   lib_files+=("fffind_util.sh")
   lib_files+=("file_util.sh")
-  #lib_files+=("find_util.sh")
+  # SKIPPING:("find_util.sh")
   lib_files+=("fries_util.sh")
   lib_files+=("git_util.sh")
   lib_files+=("hist_util.sh")
   lib_files+=("input_util.sh")
   lib_files+=("interact_util.sh")
   lib_files+=("keys_util.sh")
-  #lib_files+=("logger.sh")
+  # SKIPPING:("logger.sh")
   lib_files+=("no_util.sh")
   lib_files+=("openshift_util.sh")
   lib_files+=("path_util.sh")
   lib_files+=("paths_util.sh")
   lib_files+=("process_util.sh")
   lib_files+=("python_util.sh")
+  # SKIPPING:("ruby_chutil.sh")
   lib_files+=("ruby_util.sh")
   lib_files+=("session_util.sh")
   lib_files+=("ssh_util.sh")
   lib_files+=("term_util.sh")
   lib_files+=("time_util.sh")
   lib_files+=("trash_util.sh")
-  # 2016-11-12: What about logger.sh?
 
   DEBUG_TRACE=false
   for lib_file in "${lib_files[@]}"; do
@@ -312,6 +313,7 @@ home_fries_up () {
   ${DUBS_PROFILING} && echo "disable middle mouse click"
   # - lib/input_util.sh
   logitech-middle-mouse-click-disable
+  unset -f logitech-middle-mouse-click-disable
 
   #########################
 

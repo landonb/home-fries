@@ -149,4 +149,5 @@ main () {
 }
 
 main "$@"
+unset -f main
 

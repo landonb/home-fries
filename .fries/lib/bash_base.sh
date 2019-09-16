@@ -156,14 +156,20 @@ main () {
   # Default:
   #   HOMEFRIES_WARNINGS=false
   default_homefries_warnings
+  unset -f default_homefries_warnings
 
   default_debug_trace
+  unset -f default_debug_trace
+
   #introduce_user_to_self
+  unset -f introduce_user_to_self
 
   gather_script_meta
+  unset -f gather_script_meta
 
   export HOMEFRIES_LOADED_BASH_BASE=true
 }
 
 main "$@"
+unset -f main
 

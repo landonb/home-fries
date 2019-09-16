@@ -298,10 +298,22 @@ alias function_exists=fn_exists
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+unset_f_session_util () {
+  unset -f source_deps
+
+  unset -f disable_wakeup_on_lid
+
+  unset -f home_fries_configure_shell_options
+
+  # So meta.
+  unset -f unset_f_session_util
+}
+
 main () {
   source_deps
   unset -f source_deps
 }
 
 main "$@"
+unset -f main
 

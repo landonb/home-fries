@@ -236,6 +236,8 @@ dubs_set_terminal_prompt () {
   #PS2="$(tput bold)${attr_underlined}${fg_green} ${attr_reset} "
   #PS2="${attr_underlined}${fg_green} ${attr_reset} "
   PS2="${fg_green}>${attr_reset} "
+
+  unset -f dubs_logged_on_via_ssh
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -707,9 +709,27 @@ dubs_always_on_visible_desktop () {
     # Lest we apply same always-on to any new window opened as child of this one.
     export DUBS_ALWAYS_ON_VISIBLE=
   fi
+
+  unset -f sleep_then_ensure_always_on_visible_desktop
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+unset_f_term_util () {
+  unset -f source_deps
+
+  unset -f dubs_logged_on_via_ssh
+  unset -f dubs_set_terminal_prompt
+  unset -f dubs_set_PS4
+  unset -f dubs_fix_terminal_colors
+
+  unset -f enable_vi_style_editing
+  unset -f sleep_then_ensure_always_on_visible_desktop
+  unset -f dubs_always_on_visible_desktop
+
+  # So meta.
+  unset -f unset_f_term_util
+}
 
 main () {
   source_deps
@@ -717,4 +737,5 @@ main () {
 }
 
 main "$@"
+unset -f main
 

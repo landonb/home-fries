@@ -39,6 +39,7 @@ printdirsincur () {
     echo "file = $file"
   done
 }
+unset -f printdirsincur
 
 printdirsincur_better () {
   # HA. HA. HA!
@@ -53,6 +54,7 @@ printdirsincur_better () {
     echo "file = $file"
   done < <(find . -maxdepth 1 -type d ! -path . -print0)
 }
+unset -f printdirsincur_better
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -62,4 +64,5 @@ main () {
 }
 
 main "$@"
+unset -f main
 

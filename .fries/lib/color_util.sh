@@ -735,13 +735,31 @@ man () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+unset_f_color_util () {
+  unset -f create_colors
+
+  unset -f create_ornaments
+
+  unset -f create_strip_colors
+
+  # So meta.
+  unset -f unset_f_color_util
+}
+
 main () {
   create_colors
+  unset -f create_colors
+
   create_ornaments
+  unset -f create_ornaments
+
   create_strip_colors
+  unset -f create_strip_colors
+
   # DEVS: Uncomment to test, or call yourself after sourcing this file.
   #test_colors
 }
 
 main "$@"
+unset -f main
 
