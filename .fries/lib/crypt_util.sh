@@ -5,36 +5,6 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Encrypted Filesystem.
-
-# 2016-12-07: Haven't used these in a long time.
-
-# FIXME/2018-01-29: Remove these? Seem kinda you-specific.
-
-mount_guard () {
-  if [[ -n $(/bin/ls -A ~/.waffle/.guard) ]]; then
-    encfs ~/.waffle/.guard ~/.waffle/guard
-  fi
-}
-
-umount_guard () {
-  fusermount -u ~/.waffle/guard
-}
-
-#mount_sepulcher () {
-#  if [[ -z $(/bin/ls -A ~/.fries/sepulcher) ]]; then
-#    encfs ~/.fries/.sepulcher ~/.fries/sepulcher
-#  fi
-#}
-
-#umount_sepulcher () {
-#  fusermount -u ~/.fries/sepulcher
-#}
-
-# To manage the encfs (change pwd, etc.), see: encfsctl
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 # *** Override findutils' `locate` to use private mlocate.db made by updatedb.
 
 # (lb): The `locate` command has some nuances we work around in order
