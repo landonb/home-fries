@@ -22,6 +22,10 @@ source_deps () {
 # by running /bin/bash from within a terminal, your PATH would otherwise
 # grow with duplicate entries. Which is not harmful, just annoying.)
 
+# If you're curious what paths are part of PATH, try:
+#
+#   $ echo $PATH | tr : '\n'
+
 path_prepend_lazy () {
   # DEAD_PATH/2019-09-16: Included for posterity, but this fcn. not used.
   #                 (lb): I want to show off the ``:${}: != *:${}:*`` trick.
@@ -93,7 +97,7 @@ home_fries_add_to_path_sbin () {
   #   The command could not be located because '/sbin' is not included in the PATH environment variable.
   #   This is most likely caused by the lack of administrative privileges associated with your user account.
   #   ifconfig: command not found
-  path_prepend "/sbin"
+  path_append "/sbin"
 }
 
 home_fries_add_to_path_home_fries_lib () {
@@ -171,20 +175,6 @@ home_fries_add_to_path_golang () {
 # ++++++++++++++++++++++++++++++ #
 
 home_fries_set_path_environ () {
-  home_fries_add_to_path_sbin
-  unset -f home_fries_add_to_path_sbin
-
-  home_fries_add_to_path_home_fries_lib
-  unset -f home_fries_add_to_path_home_fries_lib
-
-  home_fries_add_to_path_home_fries_bin
-  unset -f home_fries_add_to_path_home_fries_bin
-
-  home_fries_add_to_path_home_local_bin
-  unset -f home_fries_add_to_path_home_local_bin
-
-  # ++++++++++++++++++++++++++++++ #
-
   home_fries_add_to_path_home_local_node_modules_bin
   unset -f home_fries_add_to_path_home_local_node_modules_bin
 
@@ -196,6 +186,20 @@ home_fries_set_path_environ () {
 
   home_fries_add_to_path_golang
   unset -f home_fries_add_to_path_golang
+
+  # ++++++++++++++++++++++++++++++ #
+
+  home_fries_add_to_path_sbin
+  unset -f home_fries_add_to_path_sbin
+
+  home_fries_add_to_path_home_fries_lib
+  unset -f home_fries_add_to_path_home_fries_lib
+
+  home_fries_add_to_path_home_fries_bin
+  unset -f home_fries_add_to_path_home_fries_bin
+
+  home_fries_add_to_path_home_local_bin
+  unset -f home_fries_add_to_path_home_local_bin
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
