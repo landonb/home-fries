@@ -1612,19 +1612,25 @@ function git_commit_dirty_sync_repos () {
   for ((i = 0; i < ${#AUTO_GIT_ONE[@]}; i++)); do
     trace " ${AUTO_GIT_ONE[$i]}"
     local dirty_bname=$(basename -- "${AUTO_GIT_ONE[$i]}")
-    git_commit_generic_file "${AUTO_GIT_ONE[$i]}" "Update ${dirty_bname}."
+    git_commit_generic_file \
+      "${AUTO_GIT_ONE[$i]}" \
+      "Update ${dirty_bname} [@$(hostname)]."
   done
 
   debug "Auto-committing all repos' consumable dirty files..."
   for ((i = 0; i < ${#AUTO_GIT_ALL[@]}; i++)); do
     trace " ${AUTO_GIT_ALL[$i]}"
-    git_commit_all_dirty_files "${AUTO_GIT_ALL[$i]}" "Update all of ${AUTO_GIT_ALL[$i]}."
+    git_commit_all_dirty_files \
+      "${AUTO_GIT_ALL[$i]}" \
+      "Update all of ${AUTO_GIT_ALL[$i]} [@$(hostname)]."
   done
 
   debug "Auto-committing some directories' dirty and/or untracked files..."
   for ((i = 0; i < ${#AUTO_GIT_NEW[@]}; i++)); do
     trace " ${AUTO_GIT_NEW[$i]}"
-    git_commit_dirty_or_untracked "${AUTO_GIT_NEW[$i]}" "Add dirty or untracked from ${AUTO_GIT_NEW[$i]}."
+    git_commit_dirty_or_untracked \
+      "${AUTO_GIT_NEW[$i]}" \
+      "Add dirty or untracked from ${AUTO_GIT_NEW[$i]} [@$(hostname)]."
   done
 } # end: git_commit_dirty_sync_repos
 
