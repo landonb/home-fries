@@ -42,11 +42,11 @@ _hist_util_hook () {
 
   # Redact anything that looks like a (modern, strong) password.
   # Use Perl, because awk does not support look-around assertions,
-  # and this wild regex uses lookaheads to match 15- and 16-character
+  # and this wild regex uses lookaheads to match 15- to 24-character
   # words that contain at least one lowercase letter, an uppercase letter,
   # and a number (so we might match non-passwords, like AcronymsBooYeah1,
   # but we also match weaker passwords that do not use punctuation).
-  perl -pi -e 's/(^|\s)(?=[^\s]*[a-z][^\s]*)(?=[^\s]*[A-Z][^\s]*)(?=[^\s]*[0-9][^\s]*)[^\s]{15,16}(\s|\n|$)/\1XXXX_REDACT_XXXX\2/g' ~/.bash_history
+  perl -pi -e 's/(^|\W)(?=[^\s]*[a-z][^\s]*)(?=[^\s]*[A-Z][^\s]*)(?=[^\s]*[0-9][^\s]*)[^\s]{15,24}(\s|\n|$)/\1XXXX_REDACT_XXXX\2/g' $resolved_p
 }
 
 home_fries_configure_history () {
