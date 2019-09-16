@@ -28,6 +28,8 @@ _hist_util_hook () {
   #     `history -c`. (Note that `reset` won't do this.)
   history -a
 
+  local resolved_p=$(readlink -f $HOME/.bash_history)
+
   # Remove any pass-insert commands, looking for a line to match:
   #   ' | pass insert -m
   # This follows a convention I use to insert passwords using the format:
@@ -36,7 +38,7 @@ _hist_util_hook () {
   #   ' | pass insert -m foo/bar
   awk -f $HOME/.fries/bin/.bash_history_filter.awk \
     $HOME/.bash_history > $HOME/.bash_history-AWKed
-  /bin/mv $HOME/.bash_history-AWKed $HOME/.bash_history
+  /bin/mv $HOME/.bash_history-AWKed $resolved_p
 
   # Redact anything that looks like a (modern, strong) password.
   # Use Perl, because awk does not support look-around assertions,
