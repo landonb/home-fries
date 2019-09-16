@@ -283,6 +283,7 @@ ruby_set_rspec_alias () {
   : # FIXME: Maybe write this for work.
 }
 #ruby_set_rspec_alias
+unset -f ruby_set_rspec_alias
 
 # 2017-06-25 18:24
 # alias rake=/home/landonb/.rubies/ruby-2.3.3/bin/rake
@@ -300,6 +301,7 @@ main () {
 # source ruby_chutil.sh
     export HOMEFRIES_CHRUBY_SETUP=true
   fi
+  unset -f patch_export_chruby_use
 }
 
 main "$@"
