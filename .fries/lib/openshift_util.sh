@@ -7,6 +7,29 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+source_deps () {
+  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
+  # Load: path_prepend
+  source ${curdir}/paths_util.sh
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+home_fries_add_to_path_openshift_origin () {
+  # OpenShift Origin server.
+  [[ ! -d ${HOME}/.downloads/openshift-origin-server ]] && return
+
+  path_prepend "${HOME}/.downloads/openshift-origin-server"
+
+  # OpenShift development.
+  #  https://github.com/openshift/origin/blob/master/CONTRIBUTING.adoc#develop-locally-on-your-host
+  # Used in one place:
+  #  /path/to/openshift/origin/hack/common.sh
+  export OS_OUTPUT_GOPATH=1
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 oc-rsh-mysql () {
   OC_PROJECT=""
   if [[ -n $1 ]]; then
@@ -109,4 +132,16 @@ oc-rsh () {
     echo "ERROR: Unable to \`oc rsh\` to pod: ${MYSQL_POD}"
   fi
 }
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+main () {
+  source_deps
+  unset -f source_deps
+
+  home_fries_add_to_path_openshift_origin
+  unset -f home_fries_add_to_path_openshift_origin
+}
+
+main "$@"
 
