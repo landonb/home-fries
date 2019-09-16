@@ -162,11 +162,6 @@ home_fries_add_to_path_golang () {
   fi
 }
 
-home_fries_add_to_path_ruby_version_manager () {
-  # 2017-04-27: Set PATH code added to .bashrc if you run script at https://get.rvm.io.
-  path_append "${HOME}/.rvm/bin"
-}
-
 home_fries_set_path_environ () {
   home_fries_add_to_path_sbin
   unset -f home_fries_add_to_path_sbin
@@ -191,9 +186,6 @@ home_fries_set_path_environ () {
 
   home_fries_add_to_path_golang
   unset -f home_fries_add_to_path_golang
-
-  home_fries_add_to_path_ruby_version_manager
-  unset -f home_fries_add_to_path_ruby_version_manager
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

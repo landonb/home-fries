@@ -9,7 +9,7 @@ source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   DEBUG_TRACE=false \
     source ${curdir}/bash_base.sh
-  # Load: path_prepend
+  # Load: path_append, path_prepend
   source ${curdir}/paths_util.sh
 
   # See:
@@ -76,6 +76,14 @@ source_deps () {
     #   HOMEFRIES_WARNINGS=true bash
     HOMEFRIES_WARNINGS=false
   fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+home_fries_add_to_path_ruby_version_manager () {
+  # 2017-04-27: Note that if you run script at https://get.rvm.io
+  #             it'll append code to set PATH to your .bashrc.
+  path_append "${HOME}/.rvm/bin"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -290,6 +298,9 @@ unset -f ruby_set_rspec_alias
 main () {
   source_deps
   unset -f source_deps
+
+  home_fries_add_to_path_ruby_version_manager
+  unset -f home_fries_add_to_path_ruby_version_manager
 
   ruby_set_gem_path
 
