@@ -93,17 +93,17 @@ home_fries_add_to_path_sbin () {
   #   The command could not be located because '/sbin' is not included in the PATH environment variable.
   #   This is most likely caused by the lack of administrative privileges associated with your user account.
   #   ifconfig: command not found
-  path_append "/sbin"
-}
-
-home_fries_add_to_path_home_fries_bin () {
-  # Make Home Fries commands available.
-  path_prepend "${HOMEFRIES_DIR}/bin"
+  path_prepend "/sbin"
 }
 
 home_fries_add_to_path_home_fries_lib () {
   # Make sourcing Home Fries files easy.
   path_prepend "${HOMEFRIES_DIR}/lib"
+}
+
+home_fries_add_to_path_home_fries_bin () {
+  # Make Home Fries commands available.
+  path_prepend "${HOMEFRIES_DIR}/bin"
 }
 
 home_fries_add_to_path_home_local_bin () {
@@ -134,16 +134,16 @@ home_fries_add_to_path_java_jdk_jre () {
     export JAVA_HOME="${jdk_dir}"
     export JRE_HOME="${JAVA_HOME}/jre"
 
-    path_prepend "${JAVA_HOME}/bin"
-    path_prepend "${JRE_HOME}/bin"
+    path_append "${JAVA_HOME}/bin"
+    path_append "${JRE_HOME}/bin"
   fi
 }
 
 home_fries_add_to_path_android_studio () {
   local install_dir="${HOME}/.downloads"
 
-  path_prepend "${install_dir}/android-studio/bin"
-  path_prepend "${install_dir}/android-sdk/platform-tools"
+  path_append "${install_dir}/android-studio/bin"
+  path_append "${install_dir}/android-sdk/platform-tools"
 
   # 2017-02-25: Have I been missing ANDROID_HOME for this long??
   local sdk_dir="${install_dir}/Android/Sdk"
@@ -174,11 +174,11 @@ home_fries_set_path_environ () {
   home_fries_add_to_path_sbin
   unset -f home_fries_add_to_path_sbin
 
-  home_fries_add_to_path_home_fries_bin
-  unset -f home_fries_add_to_path_home_fries_bin
-
   home_fries_add_to_path_home_fries_lib
   unset -f home_fries_add_to_path_home_fries_lib
+
+  home_fries_add_to_path_home_fries_bin
+  unset -f home_fries_add_to_path_home_fries_bin
 
   home_fries_add_to_path_home_local_bin
   unset -f home_fries_add_to_path_home_local_bin
