@@ -12,7 +12,7 @@ source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   DEBUG_TRACE=false \
     source ${curdir}/bash_base.sh
-  # Load: path_add_part
+  # Load: path_prepend
   source ${curdir}/paths_util.sh
 
   # See:
@@ -156,16 +156,16 @@ ruby_set_gem_path () {
     # ...
 
     # E.g., ${HOME}/.rubies/ruby-2.3.3/ruby/2.3.0/bin
-    path_add_part ${HOME}/.rubies/ruby-${RUBY_VERS}/ruby/${RUBY_MINOR_ZERO}/bin
+    path_prepend ${HOME}/.rubies/ruby-${RUBY_VERS}/ruby/${RUBY_MINOR_ZERO}/bin
 
     # 2017-06-26: For work, PATH should be to ~/.gems, not ~/.rubies.
-    path_add_part ${HOME}/.gem/ruby/${RUBY_VERS}/ruby/${RUBY_MINOR_ZERO}/bin
+    path_prepend ${HOME}/.gem/ruby/${RUBY_VERS}/ruby/${RUBY_MINOR_ZERO}/bin
   fi
 
   if false; then
     # Put this at first place in the PATH. If it exists.
-    path_add_part ${HOME}/.gem/ruby/${RUBY_MINOR_ZERO}/bin
-    path_add_part ${HOME}/.gem/ruby/${RUBY_VERS}/bin
+    path_prepend ${HOME}/.gem/ruby/${RUBY_MINOR_ZERO}/bin
+    path_prepend ${HOME}/.gem/ruby/${RUBY_VERS}/bin
   fi
 
 }
@@ -229,7 +229,7 @@ patch_export_chruby_use () {
       #if [[ ":${PATH}:" != *":${gem_ruby_bin}:"* ]]; then
       #  export PATH="${PATH}:${gem_ruby_bin}"
       #fi
-      path_add_part ${gem_ruby_bin}
+      path_prepend ${gem_ruby_bin}
     fi
   }
 

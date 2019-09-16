@@ -52,7 +52,7 @@ path_part_remove () {
   export PATH
 }
 
-path_add_part_prepend () {
+path_prepend () {
   local path_part="$1"
   if [[ -d "${path_part}" ]]; then
     # Remove the path from PATH.
@@ -66,7 +66,7 @@ path_add_part_prepend () {
 }
 
 path_add_part () {
-  path_add_part_prepend "$1"
+  path_prepend "$1"
 }
 
 path_add_part_append () {
