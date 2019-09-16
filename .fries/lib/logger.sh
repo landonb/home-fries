@@ -1,11 +1,11 @@
 #!/bin/bash
-# File: setup.sh
-# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.03
-# Project Page: https://github.com/landonb/home-fries
-# Summary: Colorful Bash Logger
-# License: GPLv3
 # vim:tw=0:ts=2:sw=2:et:norl:
+# Project: https://github.com/landonb/home-fries
+# License: GPLv3
+
+# Summary: Colorful Bash Logger
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")

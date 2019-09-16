@@ -1,14 +1,11 @@
 #!/bin/bash
-# Last Modified: 2017.10.16
 # vim:tw=0:ts=2:sw=2:et:norl:
-
-# File: .fries/lib/git_util.sh
-# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Project Page: https://github.com/landonb/home-fries
-# Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
+# Project: https://github.com/landonb/home-fries
 # License: GPLv3
 
-# Usage: Source this script. Call its functions. Use its exports.
+# Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 TRAVEL_REMOTE="travel"
 

@@ -1,5 +1,9 @@
 #!/bin/bash
-# vim:tw=0:ts=2:sw=2:et:ft=sh:
+# vim:tw=0:ts=2:sw=2:et:norl:
+# Project: https://github.com/landonb/home-fries
+# License: GPLv3
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Walk up the path looking for a file with the matching name.
 invursive_find () {

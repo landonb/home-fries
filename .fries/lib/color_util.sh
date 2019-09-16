@@ -1,7 +1,7 @@
-# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+#!/bin/bash
+# vim:tw=0:ts=2:sw=2:et:norl:spell:ft=sh
 # Project: https://github.com/landonb/home-fries
 # License: GPLv3
-# vim:tw=0:ts=2:sw=2:et:norl:spell:ft=sh
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 

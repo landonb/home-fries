@@ -1,14 +1,9 @@
 #!/bin/bash
-# Last Modified: 2017.11.04
 # vim:tw=0:ts=2:sw=2:et:norl:
-
-# File: bash_base.sh
-# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Project Page: https://github.com/landonb/home-fries
-# Summary: Generic Bash function library.
+# Project: https://github.com/landonb/home-fries
 # License: GPLv3
 
-# Usage: Source this script. Call its functions. Use its exports.
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 source_deps () {
   # When sourced from ~/.fries/.bashrc/bashrc.core.sh, you cannot

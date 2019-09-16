@@ -1,14 +1,10 @@
 #!/bin/bash
 # vim:tw=0:ts=2:sw=2:et:norl:
-
-# File: process_util.sh
-# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Project Page: https://github.com/landonb/home-fries
-# Summary: Generic Bash function library.
+# Project: https://github.com/landonb/home-fries
 # License: GPLv3
 
-# Usage: Source this script. Call its functions. Use its exports.
-
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+#
 # ============================================================================
 # *** Are we being run or sourced?
 

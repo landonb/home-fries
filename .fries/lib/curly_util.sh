@@ -1,11 +1,7 @@
-# File: curly_util.sh
-# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.03
-# Project Page: https://github.com/landonb/home-fries
-# Summary: Dumping ground for unused Bash functions, apparently.
-#          2016-10-24: I'll throw a useful fcn herein, passtore-ci
-# License: GPLv3
+#!/bin/bash
 # vim:tw=0:ts=2:sw=2:et:norl:
+# Project: https://github.com/landonb/home-fries
+# License: GPLv3
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 

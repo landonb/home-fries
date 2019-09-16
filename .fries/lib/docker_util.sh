@@ -1,10 +1,9 @@
-# File: .fries/lib/docker_util.sh
-# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2016.10.26
-# Project Page: https://github.com/landonb/home-fries
-# Summary: Docker Helpers: I'm new to Docker, Fall, 2016. These are my bash.
-# License: GPLv3
+#!/bin/bash
 # vim:tw=0:ts=2:sw=2:et:norl:
+# Project: https://github.com/landonb/home-fries
+# License: GPLv3
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 docker_remove_exited () {
   # http://blog.yohanliyanage.com/2015/05/docker-clean-up-after-yourself/
