@@ -113,6 +113,12 @@ home_fries_add_to_path_home_local_bin () {
   path_prepend "${HOME}/.local/bin"
 }
 
+# ++++++++++++++++++++++++++++++ #
+
+# MAYBE/2019-09-16: You could move these Node-, Java-/Android-, and golang-specific
+# functions to new language-specific files, e.g., ~/.fries/lib/node_util.sh,
+# and .../java_util.sh, .../golang_util.sh.
+
 home_fries_add_to_path_home_local_node_modules_bin () {
   # Make Ansible Zoidy Pooh-installed Node/NPM executables available.
   path_prepend "${HOME}/.local/node_modules/.bin"
@@ -162,6 +168,8 @@ home_fries_add_to_path_golang () {
   fi
 }
 
+# ++++++++++++++++++++++++++++++ #
+
 home_fries_set_path_environ () {
   home_fries_add_to_path_sbin
   unset -f home_fries_add_to_path_sbin
@@ -174,6 +182,8 @@ home_fries_set_path_environ () {
 
   home_fries_add_to_path_home_local_bin
   unset -f home_fries_add_to_path_home_local_bin
+
+  # ++++++++++++++++++++++++++++++ #
 
   home_fries_add_to_path_home_local_node_modules_bin
   unset -f home_fries_add_to_path_home_local_node_modules_bin
