@@ -5,13 +5,21 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+source_deps () {
+  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
+  # Load: path_prepend
+  source ${curdir}/paths_util.sh
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # "Picking up aliases and functions". Via:
 #  https://github.com/direnv/direnv/issues/73
 direnv_export () {
   local name=$1
   local alias_dir=$PWD/.direnv/aliases
   mkdir -p "$alias_dir"
-  PATH_add "$alias_dir"
+  path_prepend "$alias_dir"
   local target="$alias_dir/$name"
   if declare -f "$name" >/dev/null; then
     echo "#!/usr/bin/env bash" > "$target"
