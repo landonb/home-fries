@@ -403,51 +403,46 @@ home_fries_create_aliases_greppers () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Changing Directories like Hänsel und Gretel
-
-# 2015.04.04: Tray Cray.
-# FIXME: completions... limit to just directories, eh.
-cdd_ () {
-  if [[ -n $2 ]]; then
-    echo 'You wish!' $*
-    return 1
-  fi
-  if [[ -n $1 ]]; then
-    pushd "$1" &> /dev/null
-    # Same as:
-    #  pushd -n "$1" &> /dev/null
-    #  cd "$1"
-    if [[ $? -ne 0 ]]; then
-      # Maybe the stupid user provided a path to a file.
-      pushd $(dirname -- "$1") &> /dev/null
-      if [[ $? -ne 0 ]]; then
-        echo "You're dumb."
-      else
-        # alias errcho='>&2 echo'
-        # echo blah >&2
-        >&2 echo "FYI: We popped you to a file's homedir, home skillet."
-      fi
-    fi
-  else
-    pushd ${HOME} &> /dev/null
-  fi
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# *** pushd/popd/cd wrappers.
 
 home_fries_create_aliases_chdir () {
-  # FIXME: 2015.04.04: Still testing what makes the most sense:
-  #        2016-10-07: I just use `cdd`. What's the problem?
-  alias cdd='cdd_'
   # HINT: `dirs -c` to clear pushd/popd directory stack.
-  #alias ccd='cdd_'
-  #alias cdc='cdd_'
-  # MAYBE GOES FULL ON:
-  ##alias cd='cdd_'
-  # FIXME: Choose one of:
-  #alias ppd='popd > /dev/null'
-  #alias pod='popd > /dev/null'
+
+  # IDEA/MAYBE: Enhance completions on cdd (limit to directories).
+  function cdd () {
+    if [[ -n $2 ]]; then
+      echo 'You wish!' $*
+      return 1
+    fi
+    if [[ -n $1 ]]; then
+      pushd "$1" &> /dev/null
+      # Same as:
+      #  pushd -n "$1" &> /dev/null
+      #  cd "$1"
+      if [[ $? -ne 0 ]]; then
+        # Maybe the stupid user provided a path to a file.
+        local pdir="$(dirname -- "$1")"
+        if [[ -n $pdir && '.' != $pdir ]]; then
+          pushd "$pdir" &> /dev/null
+          if [[ $? -ne 0 ]]; then
+            echo "You're dumb."
+          else
+            # alias errcho='>&2 echo'
+            # echo blah >&2
+            >&2 echo "FYI: We popped you to a file's homedir, home skillet."
+          fi
+        else
+          echo "No such place."
+        fi
+      fi
+    else
+      pushd ${HOME} &> /dev/null
+    fi
+  }
+  export -f cdd
+
   alias cdc='popd > /dev/null'
+
   # 2017-05-03: How is `cd -` doing a flip-between-last-dir news to me?!
   alias cddc='cd -'
 }
