@@ -20,36 +20,61 @@ source_deps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# *** PATH builder
+# *** PATH builder commands.
 
-path_add_part () {
+path_prepend_lazy () {
+  # DEAD_PATH/2019-09-16: Included for posterity, but this fcn. not used.
+  #                 (lb): I want to show off the ``:${}: != *:${}:*`` trick.
+  echo "ERROR: path_prepend_lazy() not called"
+
   local path_part="$1"
   if [[ -d "${path_part}" ]]; then
-    # We could do nothing if the path part is already indicated:
-    #
-    #   if [[ ":$PATH:" != *":${path_part}:"* ]]; then
-    #     ..
-    #   fi
-    #
-    # but path_add_part guarantees the new part is positioned
-    # at first place, so remove it first.
-    #
-    # Substitute: s/^prefix://
-    PATH=${PATH#${path_part}:}
-    # Substitute: s/:suffix$//
-    PATH=${PATH%:${path_part}}
-    # Substitute: s/^sole-path$//
-    if [[ ${PATH} == ${path_part} ]]; then
-      PATH=""
+    # Only bother if the path is not already indicated in PATH.
+    if [[ ":${PATH}:" != *":${path_elem}:"* ]]; then
+      PATH="${path_elem}:${PATH}"
+      export PATH
     fi
-    # Substitute: s/:inside:/:/
-    PATH=${PATH/:${path_part}:/:}
-    # Now we're ready to prepend it.
+  fi
+}
+
+path_part_remove () {
+  local path_part="$1"
+  # Substitute: s/^prefix://
+  PATH=${PATH#${path_part}:}
+  # Substitute: s/:suffix$//
+  PATH=${PATH%:${path_part}}
+  # Substitute: s/^sole-path$//
+  if [[ ${PATH} == ${path_part} ]]; then
+    PATH=""
+  fi
+  # Substitute: s/:inside:/:/
+  PATH=${PATH/:${path_part}:/:}
+  export PATH
+}
+
+path_add_part_prepend () {
+  local path_part="$1"
+  if [[ -d "${path_part}" ]]; then
+    # Remove the path from PATH.
+    path_part_remove "${path_part}"
+    # Prepend the new path to PATH.
     PATH="${path_part}:${PATH}"
-    #
+    # Make PATH available to subsequently executed commands.
     export PATH
-  #else
-  #  echo "path_add_part: Not a directory: ${path_part}"
+  # else, do nothing if dir not found. (We could warn, but noise.)
+  fi
+}
+
+path_add_part () {
+  path_add_part_prepend "$1"
+}
+
+path_add_part_append () {
+  local path_part="$1"
+  if [[ -d "${path_part}" ]]; then
+    path_part_remove "${path_part}"
+    PATH="${PATH}:${path_part}"
+    export PATH
   fi
 }
 
