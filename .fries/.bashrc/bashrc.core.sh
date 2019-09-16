@@ -19,7 +19,7 @@ source_utils () {
 
   declare -a lib_files=()
 
-  unset HOMEFRIES_LOADED_BASH_BASE
+  unset -v HOMEFRIES_LOADED_BASH_BASE
   lib_files+=("alias_util.sh")
   lib_files+=("apache_util.sh")
   lib_files+=("array_util.sh")
@@ -95,7 +95,7 @@ run_and_unset () {
   local time_0=$(date +%s.%N)
 
   eval "$@"
-  unset "$1"
+  unset -f "$1"
 
   print_elapsed_time "${time_0}" "Action: $1"
 }
@@ -256,7 +256,7 @@ home_fries_up () {
 
   # - lib/term_util.sh
   #run_and_unset "enable_vi_style_editing"
-  unset enable_vi_style_editing
+  unset -f enable_vi_style_editing
 
   #########################
 
@@ -288,7 +288,7 @@ home_fries_up () {
   #      (NOTE/2018-01-29: Only affects Lenovo X201, I believe.)
   # - lib/session_util.sh
   #run_and_unset "disable_wakeup_on_lid"
-  unset disable_wakeup_on_lid
+  unset -f disable_wakeup_on_lid
 
   #########################
 
@@ -302,7 +302,7 @@ home_fries_up () {
   # Disabling until I know more! (Could be because no internet!)
   # - lib/fries_util.sh
   #run_and_unset "home_fries_load_sdkman"
-  unset home_fries_load_sdkman
+  unset -f home_fries_load_sdkman
 
   # - lib/fries_util.sh
   run_and_unset "home_fries_load_nvm_and_completion"
@@ -324,13 +324,13 @@ home_fries_up () {
 
 main () {
   source_utils
-  unset source_utils
+  unset -f source_utils
 
   source_addit
-  unset source_addit
+  unset -f source_addit
 
   home_fries_up
-  unset home_fries_up
+  unset -f home_fries_up
 
   ${DUBS_PROFILING} && echo "core.done!"
 }

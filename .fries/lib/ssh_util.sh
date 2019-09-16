@@ -53,7 +53,7 @@ ssh_agent_kick () {
               send \"${pphrase}\n\"; \
               interact ; \
             "
-            unset pphrase
+            unset -v pphrase
             sent_passphrase=true
           else
             notice "no expect: ignoring: ${SSH_SECRETS}/${pvt_key}"

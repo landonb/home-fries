@@ -252,9 +252,9 @@ home_fries_bashrc_cleanup () {
   # but I guess that's not the case when variables are defined
   # in a sourced Bash profile and not defined within a function.
 
-  unset hard_path
-  unset machfile
-  unset userfile
+  unset -v hard_path
+  unset -v machfile
+  unset -v userfile
 
   # Show startup stats if we already polluted console with ``expect`` stuff,
   # or if being run in tmuxinator,
@@ -269,10 +269,10 @@ home_fries_bashrc_cleanup () {
     bashrc_time_n=$(date +%s.%N)
     time_elapsed=$(echo "$bashrc_time_n - $bashrc_time_0" | bc -l)
     notice "Elapsed: $time_elapsed secs."
-    unset bashrc_time_n
-    unset time_elapsed
+    unset -v bashrc_time_n
+    unset -v time_elapsed
   fi
-  unset bashrc_time_0
+  unset -v bashrc_time_0
 
   # Tell user when running non-standard Bash.
   # E.g., when on local terminal invoked by launcher and running mate-terminal,
@@ -327,7 +327,7 @@ home_fries_run_terminator_init_cmd () {
       history -s "${cmd}"  # add to history
       eval "${cmd}"
     done
-    unset INIT_CMD
+    unset -v INIT_CMD
     IFS=${OLD_IFS}
   fi
 }
@@ -341,33 +341,33 @@ home_fries_run_terminator_init_cmd () {
 
 main () {
   source_deps
-  unset source_deps
+  unset -f source_deps
 
   # FIXME/2018-04-04: This is a hack until I figure out something better.
   export HOME_FRIES_PRELOAD=true
   source_private
 
   source_fries
-  unset source_fries
+  unset -f source_fries
 
   export HOME_FRIES_PRELOAD=false
   source_private
-  unset source_private
+  unset -f source_private
 
   source_projects
-  unset source_projects
+  unset -f source_projects
 
   source_projects0
-  unset source_projects0
+  unset -f source_projects0
 
   start_somewhere_something
-  unset start_somewhere_something
+  unset -f start_somewhere_something
 
   home_fries_run_terminator_init_cmd
-  unset home_fries_run_terminator_init_cmd
+  unset -f home_fries_run_terminator_init_cmd
 
   home_fries_bashrc_cleanup
-  unset home_fries_bashrc_cleanup
+  unset -f home_fries_bashrc_cleanup
 }
 
 main "$@"

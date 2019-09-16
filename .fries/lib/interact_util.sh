@@ -80,7 +80,7 @@ ask_yes_no_default () {
   local valid_answers="${choice1_u}${choice1_l}${choice2_u}${choice2_l}"
 
   # Don't use local on the_choice; caller expects it.
-  unset the_choice
+  unset -v the_choice
   # Note: The while-pipe trick causes `read` to return immediately with junk.
   #  Nope: seq 1 5 | while read i; do
   local not_done=true

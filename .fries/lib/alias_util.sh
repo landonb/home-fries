@@ -389,9 +389,16 @@ home_fries_create_aliases_rg_tag_wrap () {
 
 home_fries_create_aliases_greppers () {
   home_fries_create_aliases_grep_and_egrep
+  unset -f home_fries_create_aliases_grep_and_egrep
+
   home_fries_create_aliases_ag_options
+  unset -f home_fries_create_aliases_ag_options
+
   home_fries_create_aliases_rg_options
+  unset -f home_fries_create_aliases_rg_options
+
   home_fries_create_aliases_rg_tag_wrap
+  unset -f home_fries_create_aliases_rg_tag_wrap
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

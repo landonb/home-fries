@@ -140,9 +140,9 @@ pump_n_dump () {
 
 pump_n_dump $*
 
-unset SCRIPT_DIR
-unset CANON_CURLY
-unset CANON_BNAME
+unset -v SCRIPT_DIR
+unset -v CANON_CURLY
+unset -v CANON_BNAME
 
 echo "Thanks for playing!"
 
