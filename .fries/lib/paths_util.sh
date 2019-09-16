@@ -80,10 +80,12 @@ path_add_part_append () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_set_path_environ () {
-  # Home-fries scripts are in ~/.fries/bin. Third-party applications installed
-  # by custom_setup.extras.sh et al are installed to /srv/opt/bin.
+# MEH/2019-09-16: Some of these paths are author-specific.
+# But they're also paths to commands installed via Zoidy Pooh.
+# So it's not that much of a stretch to include them herein, as
+# opposed to moving to the author's private startup script.
 
+home_fries_set_path_environ () {
   # 2016-12-06: To avoid making PATH super long -- mostly just an annoyance
   # if you want to look at, but not a performance issue or anything -- which
   # happens if you reload your .bashrc by running /bin/bash from a terminal,
@@ -93,23 +95,20 @@ home_fries_set_path_environ () {
 
   # Binary fries.
   path_prefix+=("${HOMEFRIES_DIR}/bin")
+
   # 2017-10-03: Make sourcing files easy!
   path_prefix+=("${HOMEFRIES_DIR}/lib")
-
-  # /srv/opt/bin
-  path_prefix+=("${OPT_BIN}")
-  # 2017-02-25: /srv/opt/bin/bin
-  path_prefix+=("${OPT_BIN}/bin")
 
   # ~/.local/bin is where, e.g., `pip install --user blah` installs.
   # And also where zoidy_home-fries installs non-apt/-snap applications.
   path_prefix+=("${HOME}/.local/bin")
+
   # Ansible Zoidy Pooh-installed Node/NPM executables.
   path_prefix+=("${HOME}/.local/node_modules/.bin")
 
   # Android Studio.
-  JAVA_HOME=${OPT_BIN}/jdk
-  JRE_HOME=$JAVA_HOME/jre
+  export JAVA_HOME=${HOME}/.downloads/jdk
+  export JRE_HOME=${JAVA_HOME}/jre
   if [[ -d ${JAVA_HOME} ]]; then
     path_prefix+=("${JAVA_HOME}/bin:${JRE_HOME}/bin")
   fi
