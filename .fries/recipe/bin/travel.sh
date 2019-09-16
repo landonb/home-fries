@@ -1816,9 +1816,7 @@ function pull_gardened_repo () {
   PREFIX="$2"
   local ABS_PATH="${ENCFS_GIT_ITER}"
   local ENCFS_REL_PATH="$(echo ${ABS_PATH} | /bin/sed s/^.//)"
- #trace " ${ENCFS_REL_PATH}"
   trace "├ ${ENCFS_REL_PATH}"
-  #trace "─ ${ENCFS_REL_PATH}"
   while IFS= read -r -d '' fpath; do
     local TARGET_BASE=$(basename -- "${fpath}")
     TARGET_PATH="${ENCFS_REL_PATH}/${TARGET_BASE}"
