@@ -715,6 +715,31 @@ dubs_always_on_visible_desktop () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+#  $ bind -P | grep -e unix-filename-rubout -e C-b
+#  backward-char can be found on "\C-b", "\eOD", "\e[D".
+#  unix-filename-rubout is not bound to any keys
+#
+#  # Essentially, default <C-b> moves cursor back one, same as left arrow.
+#
+#  $ bind \\C-b:unix-filename-rubout
+#  $ bind -P | grep unix-filename-rubout
+#  unix-filename-rubout can be found on "\C-b".
+dubs_hook_filename_rubout () {
+  local expect_txt
+  expect_txt='unix-filename-rubout is not bound to any keys'
+  if [[ $expect_txt != $(bind -P | grep -e unix-filename-rubout) ]]; then
+    return
+  fi
+  expect_txt='backward-char can be found on '
+  if [[ "$(bind -P | grep C-b)" != "${expect_txt}"* ]]; then
+    return
+  fi
+
+  bind \\C-b:unix-filename-rubout
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 unset_f_term_util () {
   unset -f source_deps
 
@@ -726,6 +751,8 @@ unset_f_term_util () {
   unset -f enable_vi_style_editing
   unset -f sleep_then_ensure_always_on_visible_desktop
   unset -f dubs_always_on_visible_desktop
+
+  unset -f dubs_hook_filename_rubout
 
   # So meta.
   unset -f unset_f_term_util

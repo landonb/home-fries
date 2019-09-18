@@ -225,6 +225,9 @@ home_fries_up () {
   # - lib/term_util.sh
   run_and_unset "dubs_always_on_visible_desktop"
 
+  # Re-bind Ctrl-B from same-as-left-arrow to delete-path-part.
+  run_and_unset "dubs_hook_filename_rubout"
+
   #########################
 
   # Setup distro-agnostic Python and Apache wrappers, aliases, and environs.
