@@ -184,6 +184,8 @@ ENCFS_VIM_ITERS=()
 AUTO_GIT_ONE=()
 AUTO_GIT_ALL=()
 AUTO_GIT_NEW=()
+ENCFS_OFF_REPOS=()
+ENCFS_OUT_REPOS=()
 
 declare -A GIT_REPO_SEEDS_0
 declare -A GIT_REPO_SEEDS_1
@@ -332,6 +334,7 @@ SKIP_UNPACK_SHIM=false
 NO_NETWORK_OKAY=false
 TAR_VERBOSE=''
 INCLUDE_ENCFS_OFF_REPOS=false
+INCLUDE_ENCFS_OUT_REPOS=false
 SKIP_INTERNETS=false
 
 DEVICE_LABEL=''
@@ -412,8 +415,14 @@ function soups_on () {
         set_travel_cmd "umount_curly_emissary_gooey"
         shift
         ;;
+      -OO)
+        INCLUDE_ENCFS_OFF_REPOS=true
+        INCLUDE_ENCFS_OUT_REPOS=true
+        shift
+        ;;
       -O)
         INCLUDE_ENCFS_OFF_REPOS=true
+        INCLUDE_ENCFS_OUT_REPOS=false
         shift
         ;;
       -s)
@@ -535,7 +544,8 @@ function soups_on () {
     echo "      init_travel       create or update secure travel repos"
     echo "                          (run on new USB stick or new Dropbox,"
     echo "                           or after editing cfg/sync_repos.sh)"
-    echo "                    -O   include normally not copied repos"
+    echo "      init_travel -O    include less used repos, but not all repos"
+    echo "      init_travel -OO   include and copy all repos"
     echo "      update_git        update to the latest git, at least 2.9"
     echo "                          (else \`git pull --rebase --autostash\` isn't a thing)"
     #echo
@@ -1434,6 +1444,13 @@ function init_travel () {
       populate_singular_repo "${ENCFS_OFF_REPOS[$i]}"
     done
   fi
+  #
+  if ${INCLUDE_ENCFS_OUT_REPOS}; then
+    debug "Populating singular OUT repos..."
+    for ((i = 0; i < ${#ENCFS_OUT_REPOS[@]}; i++)); do
+      populate_singular_repo "${ENCFS_OUT_REPOS[$i]}"
+    done
+  fi
 
   debug "Populating gardened git repos..."
   for ((i = 0; i < ${#ENCFS_GIT_ITERS[@]}; i++)); do
@@ -1766,6 +1783,16 @@ function check_repos_statuses () {
       popd &> /dev/null
     done
   fi
+  #
+  if ${INCLUDE_ENCFS_OUT_REPOS}; then
+    debug "Checking one-level OUT repos..."
+    for ((i = 0; i < ${#ENCFS_OUT_REPOS[@]}; i++)); do
+      trace " ${ENCFS_OUT_REPOS[$i]}"
+      pushd "${ENCFS_OUT_REPOS[$i]}" &> /dev/null
+      git_status_porcelain_wrap "${ENCFS_OUT_REPOS[$i]}"
+      popd &> /dev/null
+    done
+  fi
 
   debug "Checking gardened git repos..."
   if [[ ${#ENCFS_GIT_ITERS[@]} -gt 0 ]]; then
@@ -1944,6 +1971,21 @@ function pull_git_repos () {
       trace " ** No OFF repos singular"
     fi
   fi
+  #
+  if ${INCLUDE_ENCFS_OUT_REPOS}; then
+    debug "Pulling singular OUT repos..."
+    if [[ ${#ENCFS_OUT_REPOS[@]} -gt 0 ]]; then
+      for ((i = 0; i < ${#ENCFS_OUT_REPOS[@]}; i++)); do
+        ABS_PATH="${ENCFS_OUT_REPOS[$i]}"
+        local ENCFS_REL_PATH="$(echo ${ABS_PATH} | /bin/sed s/^.//)"
+        trace " ${ENCFS_REL_PATH}"
+        git_pull_hush "${PREFIX}${ABS_PATH}" "${ENCFS_REL_PATH}" "${ABS_PATH}"
+      done
+    else
+      trace " ** No OUT repos singular"
+    fi
+  fi
+
 
   popd &> /dev/null
 } # end: pull_git_repos
