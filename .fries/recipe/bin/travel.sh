@@ -335,6 +335,9 @@ NO_NETWORK_OKAY=false
 TAR_VERBOSE=''
 INCLUDE_ENCFS_OFF_REPOS=false
 INCLUDE_ENCFS_OUT_REPOS=false
+SKIP_CRYPT_CHECK=false
+#GIT_BARE_REPO=''
+GIT_BARE_REPO='--bare'
 SKIP_INTERNETS=false
 
 DEVICE_LABEL=''
@@ -423,6 +426,11 @@ function soups_on () {
       -O)
         INCLUDE_ENCFS_OFF_REPOS=true
         INCLUDE_ENCFS_OUT_REPOS=false
+        shift
+        ;;
+      --skipcrypt)
+        SKIP_CRYPT_CHECK=true
+        #GIT_BARE_REPO='--bare'
         shift
         ;;
       -s)
@@ -567,6 +575,11 @@ function soups_on () {
     echo "      -X                check in hamster: -DDD [skip dirty check] | -DDDD [skip git pull]"
     echo "      -L/--label LABEL  use LABEL for popoff script"
     echo "      -s                skip check that remote tracking branch is up to date (if offline)"
+    #echo ""
+    echo "init_travel/packme options:"
+    echo "      -O                pack additional, less used repos"
+    echo "      -OO               pack additional, less used repos; and include large repos"
+    echo "      --skipcrypt       pack to cleartext location without complaint"
     #echo
     echo "unpack options:"
     echo "      -d STAGING_DIR    specify the unpack path for incoming plaintext tar stuff"
@@ -1001,12 +1014,12 @@ locate_and_clone_missing_repo () {
           pushd ${HOME}/.elsewhere &> /dev/null
           local git_resp
           if [[ ! -d "${repo_name}" ]]; then
-            echod "git clone ${remote_orig} ${repo_name}"
-            ##git clone ${remote_orig} ${check_repo}
-            #git clone ${remote_orig} ${repo_name}
-            #git_resp=$(git clone ${remote_orig} ${repo_name} 2>&1)
+            echod "git clone ${GIT_BARE_REPO} ${remote_orig} ${repo_name}"
+            ##git clone ${GIT_BARE_REPO} ${remote_orig} ${check_repo}
+            #git clone ${GIT_BARE_REPO} ${remote_orig} ${repo_name}
+            #git_resp=$(git clone ${GIT_BARE_REPO} ${remote_orig} ${repo_name} 2>&1)
             # 2017-02-27: Taking a while on work laptop. Wanting to see progress.
-            git_resp=$(git clone "${remote_orig}" "${repo_name}") && true
+            git_resp=$(git clone ${GIT_BARE_REPO} "${remote_orig}" "${repo_name}") && true
           else
             echod "cd ${repo_name} && git pull"
             cd "${repo_name}"
@@ -1022,12 +1035,12 @@ locate_and_clone_missing_repo () {
         else
           pushd "${parent_dir}" &> /dev/null
           # Use associate array key so user can choose different name than repo.
-          ##git clone ${remote_orig}
-          #git clone ${remote_orig} ${check_repo}
-          #git_resp=$(git clone ${remote_orig} ${check_repo} 2>&1)
+          ##git clone ${GIT_BARE_REPO} ${remote_orig}
+          #git clone ${GIT_BARE_REPO} ${remote_orig} ${check_repo}
+          #git_resp=$(git clone ${GIT_BARE_REPO} ${remote_orig} ${check_repo} 2>&1)
           # 2017-02-27: Taking a while on work laptop. Wanting to see progress.
-          echod "git clone ${remote_orig} ${check_repo}"
-          git_resp=$(git clone "${remote_orig}" "${check_repo}") && true
+          echod "git clone ${GIT_BARE_REPO} ${remote_orig} ${check_repo}"
+          git_resp=$(git clone ${GIT_BARE_REPO} "${remote_orig}" "${check_repo}") && true
           ret_code=$?
           check_git_clone_or_pull_error "${ret_code}" "${git_resp}"
           popd &> /dev/null
@@ -1204,6 +1217,7 @@ function chase_and_face () {
 # init_travel
 
 function travel_dir_is_mount_type_crypt () {
+  ${SKIP_CRYPT_CHECK} && return
   local is_crypt=1
   if is_mount_type_crypt "${TRAVEL_DIR}"; then
     is_crypt=0
@@ -1338,8 +1352,8 @@ function populate_singular_repo () {
   if [[ ! -e "${ENCFS_REL_PATH}/.git" ]]; then
     #echo " ${ENCFS_GIT_REPO}"
     echo " ${ENCFS_REL_PATH}"
-    echo "  \$ git clone ${ENCFS_GIT_REPO} ${ENCFS_REL_PATH}"
-    git_resp=$(git clone "${ENCFS_GIT_REPO}" "${ENCFS_REL_PATH}") && true
+    echo "  \$ git clone ${GIT_BARE_REPO} ${ENCFS_GIT_REPO} ${ENCFS_REL_PATH}"
+    git_resp=$(git clone ${GIT_BARE_REPO} "${ENCFS_GIT_REPO}" "${ENCFS_REL_PATH}") && true
     ret_code=$?
     check_git_clone_or_pull_error "${ret_code}" "${git_resp}"
   else
@@ -1370,8 +1384,8 @@ function populate_gardened_repo () {
       :
     else
       echo " $fpath"
-      echo "  \$ git clone ${fpath} ${TARGET_PATH}"
-      git_resp=$(git clone "${fpath}" "${TARGET_PATH}") && true
+      echo "  \$ git clone ${GIT_BARE_REPO} ${fpath} ${TARGET_PATH}"
+      git_resp=$(git clone ${GIT_BARE_REPO} "${fpath}" "${TARGET_PATH}") && true
       ret_code=$?
       check_git_clone_or_pull_error "${ret_code}" "${git_resp}"
     fi
