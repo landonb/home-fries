@@ -1218,8 +1218,6 @@ function mount_curly_emissary_gooey_explicit () {
 }
 
 function mount_curly_emissary_gooey () {
-  # Make the gooey candy center.
-  mkdir -p "${EMISSARY}/.gooey"
   mkdir -p "${EMISSARY}/gooey"
 
   # Skip mounting ${TRAVEL_DIR}/${EMISSARY}/gooey if TRAVEL_DIR mounted as
@@ -1231,6 +1229,8 @@ function mount_curly_emissary_gooey () {
   retval=$?
   reset_errexit
   if [[ $retval -ne 0 ]]; then
+    # Make the gooey candy center.
+    mkdir -p "${EMISSARY}/.gooey"
     mount_curly_emissary_gooey_crypt
   else
     info "Looks like gooey is already mounted."
