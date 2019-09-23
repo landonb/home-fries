@@ -178,6 +178,7 @@ FRIES_ABS_DIRN="${REPO_PATH}"
 # Setup things sync_repos.sh will probably overwrite.
 PLAINTEXT_ARCHIVES=()
 ENCFS_GIT_REPOS=()
+ENCFS_PUB_REPOS=()
 ENCFS_GIT_ITERS=()
 ENCFS_VIM_ITERS=()
 AUTO_GIT_ONE=()
@@ -1421,6 +1422,12 @@ function init_travel () {
   for ((i = 0; i < ${#ENCFS_GIT_REPOS[@]}; i++)); do
     populate_singular_repo "${ENCFS_GIT_REPOS[$i]}"
   done
+  #
+  debug "Additional singular git repos..."
+  for ((i = 0; i < ${#ENCFS_PUB_REPOS[@]}; i++)); do
+    populate_singular_repo "${ENCFS_PUB_REPOS[$i]}"
+  done
+  #
   if ${INCLUDE_ENCFS_OFF_REPOS}; then
     debug "Populating singular OFF repos..."
     for ((i = 0; i < ${#ENCFS_OFF_REPOS[@]}; i++)); do
@@ -1711,7 +1718,7 @@ function check_repos_statuses () {
 
   local i
 
-  debug "Checking one-level repos..."
+  debug "Checking one-level GIT repos..."
   for ((i = 0; i < ${#ENCFS_GIT_REPOS[@]}; i++)); do
     trace " ${ENCFS_GIT_REPOS[$i]}"
     pushd "${ENCFS_GIT_REPOS[$i]}" &> /dev/null
@@ -1739,6 +1746,14 @@ function check_repos_statuses () {
     fi
     #git_status_porcelain_wrap "$(basename -- "${ENCFS_GIT_REPOS[$i]}")"
     git_status_porcelain_wrap "${ENCFS_GIT_REPOS[$i]}"
+    popd &> /dev/null
+  done
+  #
+  debug "Checking one-level PUB repos..."
+  for ((i = 0; i < ${#ENCFS_PUB_REPOS[@]}; i++)); do
+    trace " ${ENCFS_PUB_REPOS[$i]}"
+    pushd "${ENCFS_PUB_REPOS[$i]}" &> /dev/null
+    git_status_porcelain_wrap "${ENCFS_PUB_REPOS[$i]}"
     popd &> /dev/null
   done
 
@@ -1858,10 +1873,30 @@ function pull_git_repos () {
     exit 1
   fi
 
-  debug "Pulling singular git repos..."
+  debug "Pulling singular GIT repos..."
   if [[ ${#ENCFS_GIT_REPOS[@]} -gt 0 ]]; then
     for ((i = 0; i < ${#ENCFS_GIT_REPOS[@]}; i++)); do
       ABS_PATH="${ENCFS_GIT_REPOS[$i]}"
+      local ENCFS_REL_PATH="$(echo ${ABS_PATH} | /bin/sed s/^.//)"
+      # MAYBE/2016-12-12: Ignore symlinks?
+      #if [[ -d ${ENCFS_REL_PATH} && ! -h ${ENCFS_REL_PATH} ]]; then
+        #trace " SOURCE_PATH: ${PREFIX}${ABS_PATH}"
+        #trace " TARGET_PATH: ${ENCFS_REL_PATH}"
+        #trace " ${ENCFS_REL_PATH}"
+        trace "├ ${ENCFS_REL_PATH}"
+        git_pull_hush "${PREFIX}${ABS_PATH}" "${ENCFS_REL_PATH}" "${ABS_PATH}"
+      #else
+      #  trace " not dir/symlink: ${ENCFS_REL_PATH}"
+      #fi
+    done
+  else
+    trace " ** No git repos singular"
+  fi
+  #
+  debug "Pulling singular PUB repos..."
+  if [[ ${#ENCFS_PUB_REPOS[@]} -gt 0 ]]; then
+    for ((i = 0; i < ${#ENCFS_PUB_REPOS[@]}; i++)); do
+      ABS_PATH="${ENCFS_PUB_REPOS[$i]}"
       local ENCFS_REL_PATH="$(echo ${ABS_PATH} | /bin/sed s/^.//)"
       # MAYBE/2016-12-12: Ignore symlinks?
       #if [[ -d ${ENCFS_REL_PATH} && ! -h ${ENCFS_REL_PATH} ]]; then
@@ -1987,6 +2022,7 @@ function packme () {
   #debug "Let's count"'!'
   #debug "- # of. PLAINTEXT_ARCHIVES: ${#PLAINTEXT_ARCHIVES[@]}"
   #debug "- # of.    ENCFS_GIT_REPOS: ${#ENCFS_GIT_REPOS[@]}"
+  #debug "- # of.    ENCFS_PUB_REPOS: ${#ENCFS_PUB_REPOS[@]}"
   #debug "- # of.    ENCFS_GIT_ITERS: ${#ENCFS_GIT_ITERS[@]}"
   #debug "- # of.    ENCFS_VIM_ITERS: ${#ENCFS_VIM_ITERS[@]}"
 
