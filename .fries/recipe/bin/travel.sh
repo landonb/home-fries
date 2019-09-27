@@ -336,8 +336,11 @@ TAR_VERBOSE=''
 INCLUDE_ENCFS_OFF_REPOS=false
 INCLUDE_ENCFS_OUT_REPOS=false
 SKIP_CRYPT_CHECK=false
+
 #GIT_BARE_REPO=''
-GIT_BARE_REPO='--bare'
+# FIXME/2019-09-27 10:48: Make always --bare, but only to NEW sync stick!
+#GIT_BARE_REPO='--bare'
+
 SKIP_INTERNETS=false
 
 DEVICE_LABEL=''
