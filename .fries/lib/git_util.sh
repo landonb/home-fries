@@ -7,7 +7,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-TRAVEL_REMOTE="travel"
+TRAVEL_REMOTE="${TRAVEL_REMOTE:-travel}"
 
 source_deps () {
   # source defaults to the current directory, but the caller's,
@@ -602,7 +602,9 @@ git_status_porcelain () {
 git_dir_check () {
   REPO_PATH="$1"
   local dir_okay=0
-  if [[ ! -d "${REPO_PATH}" ]]; then
+  if [[ "${REPO_PATH}" == ssh://* ]]; then
+    return ${dir_okay}
+  elif [[ ! -d "${REPO_PATH}" ]]; then
     dir_okay=1
     fatal
     fatal "Not a directory: ${REPO_PATH}"
@@ -751,7 +753,7 @@ git_fetch_remote_travel () {
     if ! ${NO_NETWORK_OKAY}; then
       git_says=$(git fetch --all --prune 2>&1) && true
     else
-      git_says=$(git fetch travel --prune 2>&1) && true
+      git_says=$(git fetch ${TRAVEL_REMOTE} --prune 2>&1) && true
     fi
     local fetch_success=$?
     verbose "git fetch says:\n${git_says}"
@@ -805,7 +807,9 @@ git_is_rebase_in_progress () {
 git_must_not_rebasing () {
   local source_branch="$1"
   local target_repo="${2:-$(pwd)}"
-#  git_is_rebase_in_progress "${target_repo}"
+  # Caller already changed to appropriate director, so do not pass
+  # directory to rebase check, else it'll change directories again,
+  # which'll fail if ${target_repo} is a relative path.
   git_is_rebase_in_progress
   local in_rebase=$?
   if [[ ${in_rebase} -eq 0 ]]; then
@@ -1031,14 +1035,22 @@ git_merge_ff_only () {
 git_pull_hush () {
   local source_repo="$1"
   local target_repo="${2:-$(pwd)}"
+  # 2019-10-07: (lb): I see working_dir used in echo calls only.
   local working_dir="${3:-$2}"
 
   must_be_git_dirs "${source_repo}" "${target_repo}"
   [[ $? -ne 0 ]] && return
 
-  local source_branch=$(git_checkedout_branch_name "${source_repo}")
-  # The target_branch is obviously changing, if we can do so nondestructively.
+  local source_branch
   local target_branch=$(git_checkedout_branch_name "${target_repo}")
+  if [[ "${source_repo}" == ssh://* ]]; then
+    source_branch=${target_branch}
+  else
+    source_branch=$(git_checkedout_branch_name "${source_repo}")
+  fi
+
+  # 2019-10-07: On handtram, source repo is /x/y/z, target repo is x/y/z, and cwd is /.
+  # So source branch and target branch will be the same.
 
   pushd_or_die "${target_repo}"
 
@@ -1048,15 +1060,6 @@ git_pull_hush () {
 
   git_fetch_remote_travel
 
-#echo "source_branch: ${source_branch}"
-#echo "target_repo: ${target_repo}"
-#echo "cwd: $(pwd -P)"
-## FIXME/2018-03-23 12:50: Should this be && true, or should it be || true?? latter seems correct
-## THE && true means errexit not working from this fcn. or any it calls??
-##### IT DEPENDS! Use && true so errcode is preserved...
-##  git_must_not_rebasing "${source_branch}" "${target_repo}" && true
-##  git_must_not_rebasing "${source_branch}" "${target_repo}" && false
-##  git_must_not_rebasing "${source_branch}" "${target_repo}"
   git_must_not_rebasing "${source_branch}" "${target_repo}" && true
   local okay=$?
   if [[ ${okay} -ne 0 ]]; then
@@ -1073,12 +1076,11 @@ git_pull_hush () {
   # It also feels really, really tedious.
   # FIXME/2018-03-22 22:07: Consider checking all branches for rebase needs!
 
-#  git_change_branches_if_necessary "${source_branch}" "${target_branch}" "${target_repo}"
+  # Because pushd_or_die above, do not need to pass "${target_repo}" (on $3).
   git_change_branches_if_necessary "${source_branch}" "${target_branch}"
 
   # Fast-forward merge (no new commits!) or complain (later).
-##  git_merge_ff_only "${source_branch}" "${target_repo}"
-#  git_merge_ff_only "${source_branch}"
+  # Because pushd_or_die above, passing "$(pwd)" same as "${target_repo}".
   git_merge_ff_only "${source_branch}" "$(pwd)" "${working_dir}"
 
   popd_perhaps "${target_repo}"

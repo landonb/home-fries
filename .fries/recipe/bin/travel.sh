@@ -402,6 +402,14 @@ function soups_on () {
         set_travel_cmd "unpack"
         shift
         ;;
+      handtram)
+        # Not that PLEASE_CHOOSE_PART is actually used.
+        PLEASE_CHOOSE_PART="from which to ssh-pull"
+        DETERMINE_TRAVEL_DIR=true
+        REQUIRES_SYNC_REPOS=true
+        set_travel_cmd "handtram"
+        shift
+        ;;
       prepare-shim)
         PLEASE_CHOOSE_PART="from which to copy"
         DETERMINE_TRAVEL_DIR=true
@@ -1532,6 +1540,7 @@ EOF
 }
 
 # git_status_porcelain sets GIT_DIRTY_FILES_FOUND accordingly.
+# 2019-10-07: But (lb) finds no evidence GIT_DIRTY_FILES_FOUND used.
 GIT_DIRTY_FILES_FOUND=false
 
 function git_commit_hamster () {
@@ -1864,8 +1873,12 @@ function pull_git_repos () {
     #TO_EMISSARY=false
     PREFIX="${EMISSARY}/gooey"
     pushd / &> /dev/null
+  elif [[ "$1" == 'ssh-pull' ]]; then
+    #TO_EMISSARY=...
+    PREFIX="ssh://${TRAVEL_REMOTE}"
+    pushd / &> /dev/null
   else
-    error "WHAT: pull_git_repos excepted argument 'emissary' or 'dev-machine'."
+    error "WHAT: pull_git_repos excepted 'emissary', 'dev-machine', or 'ssh-pull'."
     exit 1
   fi
 
@@ -2339,6 +2352,27 @@ function unpack () {
   echo
   echo "  $(print_popoff_command_for_later)"
   echo
+
+  git_issues_review
+} # end: unpack
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# handtram
+
+function handtram () {
+  if [[ -z ${DEVICE_LABEL} ]]; then
+    echo "FATAL: Please specify the SSH host using the -L label option."
+    exit 1
+  fi
+
+  TRAVEL_REMOTE="${DEVICE_LABEL}"
+
+  # pull_git_repos opts: 'emissary', 'dev-machine', and 'ssh-pull'.
+  pull_git_repos 'ssh-pull'
+
+  soups_finished_dinners_over_report_time
 
   git_issues_review
 } # end: unpack
