@@ -376,7 +376,7 @@ function soups_on () {
         ;;
       chase_and_face)
         PLEASE_CHOOSE_PART="to which to chase and face"
-        DETERMINE_TRAVEL_DIR=true
+        DETERMINE_TRAVEL_DIR=false
         REQUIRES_SYNC_REPOS=true
         set_travel_cmd "chase_and_face"
         shift
@@ -405,7 +405,6 @@ function soups_on () {
       handtram)
         # Not that PLEASE_CHOOSE_PART is actually used.
         PLEASE_CHOOSE_PART="from which to ssh-pull"
-#        DETERMINE_TRAVEL_DIR=true
         DETERMINE_TRAVEL_DIR=false
         REQUIRES_SYNC_REPOS=true
         set_travel_cmd "handtram"
@@ -1144,6 +1143,8 @@ function chase_and_face () {
 
   debug " setup_private_vim_bundle_dubs"
   setup_private_vim_bundle_dubs
+
+  # THE MEAT OF IT
 
   debug " locate_and_clone_missing_repos"
   locate_and_clone_missing_repos
