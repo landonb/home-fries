@@ -329,10 +329,14 @@ git_status_porcelain () {
   local dirty_repo=false
   local dirty_warn
 
-# FIXME/2018-03-23: Replace `git status --porcelain` with proper plumbing. Or, ?
+  # WONT_FIX/2018-03-23: Replace `git status --porcelain` with proper plumbing. Or, ?
+  # 2019-10-07: The porcelain output is actually meant to be used by scripts.
+  #   $ man git status
+  #       Give the output in an easy-to-parse format for scripts. This is similar to
+  #       the short output, but will remain stable across Git versions and regardless
+  #       of user configuration.
 
-# FIX THIS
-  # Use eval's below because of the GREPPERS.
+  # Use eval-git below because grep.
 
   unstaged_changes_found=false
   # ' M' is modified but not added.
@@ -401,9 +405,6 @@ git_status_porcelain () {
    echo
     warn "${dirty_warn}"
 
-# DUPLICATE_MESSAGE FIXME/2018-03-24
-#    warn "SKIPPING REPO: Dirty things found in ${working_dir}"
-
     # Although we print this copy-pasta later, at end of script,
     # it's nice to do so at runtime so user can get started resolving
     # conflicts before travel.sh finishes running.
@@ -427,8 +428,7 @@ git_status_porcelain () {
     echo
 
     GIT_DIRTY_FILES_FOUND=true
-# Is this export necessary?
-#    export GIT_DIRTY_FILES_FOUND
+    export GIT_DIRTY_FILES_FOUND
   fi
 
   # FIXME/2018-05-29: Here and elsewhere: prefer `grep -E`...
@@ -439,18 +439,12 @@ git_status_porcelain () {
   git remote -v | grep -P "^origin\t\/" > /dev/null && true
   local has_local_origin=$?
 
-
-#  if [[ ${grep_result} -ne 0 ]]; then
-#  if true; then
   if [[ ${has_local_origin} -eq 0 ]] && [[ ${has_origin} -ne 0 ]]; then
     # Not a local origin.
 
     if [[ -n $(git remote -v) ]]; then
       # Not a remote-less repo.
 
-#      #local branch_name=$(git branch --no-color | head -n 1 | /bin/sed 's/^\*\? *//')
-#      local branch_name=$(git branch --no-color | grep \* | cut -d ' ' -f2)
-#      #echo "branch_name: ${branch_name}"
       local branch_name=$(git_checkedout_branch_name)
 
       # git status always compares against origin/master, or at least I
@@ -469,8 +463,6 @@ git_status_porcelain () {
           echo
           echo "============================================================"
           if ! ${SKIP_GIT_DIRTY}; then
-            # FIXME: This message pertains to travel.sh.
-#            echo "Please fix. Or run with -D (skip all git warnings)"
             FRIES_GIT_ISSUES_DETECTED=true
             export FRIES_GIT_ISSUES_DETECTED
             FRIES_GIT_ISSUES_RESOLUTIONS+=( \
@@ -508,40 +500,24 @@ git_status_porcelain () {
       #     master            pushes to master            (local out of date)
       if ! ${skip_remote_check} && [[ -n ${skip_remote_check} ]]; then
 
-
 # FIXME: This path is being followed when only remote is travel!
 
         tweak_errexit
-#echo BOOB
 
         # If we didn't --no-color the branch_name, we'd have to strip-color.
         #  stripcolors='/bin/sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"'
-#        local git_push_staleness=$(git remote show origin \
-#          | grep "^\W*${branch_name}\W\+pushes to\W\+${branch_name}\W\+")
-#echo git remote show ${use_remote}
-#git remote show ${use_remote}
-# ?????
         local git_push_staleness=$(git remote show ${use_remote} \
           | grep "^\W*${branch_name}\W\+pushes to\W\+${branch_name}\W\+")
 
         grep_result=$?
 
-#echo YES
-
-# git remote show <> will indicate state of branches:
-#    master pushes to master (up to date)
-#    master pushes to master (fast-forwardable)   # local ahead of remote
-#    master pushes to master (local out of date)  # local behind remote!
-
         reset_errexit
-
 
         trace "git_push_staleness: ${git_push_staleness}"
 
         if [[ ${grep_result} -ne 0 ]]; then
 
           tweak_errexit
-#          git remote show origin 2>&1 | grep "^ssh: Could not resolve hostname "
           git remote show ${use_remote} 2>&1 | grep "^ssh: Could not resolve hostname "
           grep_result=$?
           reset_errexit
@@ -579,15 +555,8 @@ git_status_porcelain () {
             echo "          But this script don't care."
             echo
           else
-
-# THIS IS HAPPENING
-#echo ORIGIN
-#git remote show origin
-#git remote show ${use_remote}
-#echo HUH
-
             warn "WARNING: Branch is ahead of ${use_remote}/${branch_name} at $working_dir"
-# FIXME/2018-03-23: This looks like a block of code elsewhere in this self-same file!
+            # FIXME/DRY/2018-03-23: This looks like a block of code elsewhere in this self-same file!
             echo "=============================================================="
             echo
             echo "  cdd $(pwd) && git push ${use_remote} ${branch_name} && popd"
@@ -595,13 +564,11 @@ git_status_porcelain () {
             echo "=============================================================="
             if ! ${SKIP_GIT_DIRTY}; then
               # FIXME: This message pertains to travel.sh.
-#              echo "Please fix. Or run with -D (skip all git warnings)"
               FRIES_GIT_ISSUES_DETECTED=true
               export FRIES_GIT_ISSUES_DETECTED
               FRIES_GIT_ISSUES_RESOLUTIONS+=( \
                 "cdd $(pwd) && git push ${use_remote} ${branch_name} && popd"
               )
-#              export FRIES_GIT_ISSUES_RESOLUTIONS
               if ${FRIES_FAIL_ON_GIT_ISSUE}; then
                 return 1
               fi
