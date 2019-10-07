@@ -2186,7 +2186,8 @@ function unpack_plaintext_archives () {
 
     popd &> /dev/null
 
-  done < <(find "${EMISSARY}" -maxdepth 1 -path */plain-* ! -path . ! -path */plain-*-TBD-* -print0)
+  # See also: PREFIX=${EMISSARY}/gooey, which is not set here.
+  done < <(find "${EMISSARY}/gooey" -maxdepth 1 -path */plain-* ! -path . ! -path */plain-*-TBD-* -print0)
 
 } # end: unpack_plaintext_archives
 
