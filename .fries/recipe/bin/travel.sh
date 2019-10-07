@@ -1118,7 +1118,8 @@ function chase_and_face () {
     reset_errexit
   fi
 
-  mount_curly_emissary_gooey
+  # Not necessary:
+  #   mount_curly_emissary_gooey
 
   debug " setup_private_fries_bash..."
   setup_private_fries_bash
@@ -1159,7 +1160,8 @@ function chase_and_face () {
     user_do_chase_and_face
   fi
 
-  umount_curly_emissary_gooey
+  # Not necessary:
+  #   umount_curly_emissary_gooey
 
   if ${HAMSTERING}; then
     info "${FONT_UNDERLINE}Unleashing the hamster${FONT_NORMAL}!"
