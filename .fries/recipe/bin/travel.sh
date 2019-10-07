@@ -912,31 +912,6 @@ setup_private_vim_bundle_dubs_project_tray () {
 
 } # end: setup_private_vim_bundle_dubs_project_tray
 
-setup_private_update_db_conf () {
-  if [[ -f "${USERS_CURLY}/dev/$(hostname)/etc/updatedb.conf" ]]; then
-    tweak_errexit
-    diff \
-      "${USERS_CURLY}/dev/$(hostname)/etc/updatedb.conf" \
-      /etc/updatedb.conf \
-      &> /dev/null
-    local exit_code=$?
-    reset_errexit
-    if [[ ${exit_code} -ne 0 ]]; then
-      if [[ -e /etc/updatedb.conf ]]; then
-        echo "BKUPPING: /etc/updatedb.conf"
-        sudo /bin/mv /etc/updatedb.conf /etc/updatedb.conf-${BACKUP_POSTFIX}
-      fi
-      echo "Placing: /etc/updatedb.conf"
-      sudo /bin/cp -a \
-        "${USERS_CURLY}/dev/$(hostname)/etc/updatedb.conf" \
-        /etc/updatedb.conf
-      sudo chmod 644 /etc/updatedb.conf
-    fi
-  else
-    debug "Skipping: No updatedb.conf for ${FG_LAVENDER}$(hostname)"
-  fi
-} # end: setup_private_update_db_conf
-
 locate_and_clone_missing_repo () {
   local check_repo="$1"
   local remote_orig="$2"
@@ -1160,9 +1135,6 @@ function chase_and_face () {
 
   debug " setup_private_vim_bundle_dubs"
   setup_private_vim_bundle_dubs
-
-  debug " setup_private_update_db_conf"
-  setup_private_update_db_conf
 
   debug " locate_and_clone_missing_repos"
   locate_and_clone_missing_repos
