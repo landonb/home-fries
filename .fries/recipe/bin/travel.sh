@@ -405,7 +405,8 @@ function soups_on () {
       handtram)
         # Not that PLEASE_CHOOSE_PART is actually used.
         PLEASE_CHOOSE_PART="from which to ssh-pull"
-        DETERMINE_TRAVEL_DIR=true
+#        DETERMINE_TRAVEL_DIR=true
+        DETERMINE_TRAVEL_DIR=false
         REQUIRES_SYNC_REPOS=true
         set_travel_cmd "handtram"
         shift
