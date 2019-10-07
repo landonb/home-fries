@@ -912,23 +912,6 @@ setup_private_vim_bundle_dubs_project_tray () {
 
 } # end: setup_private_vim_bundle_dubs_project_tray
 
-setup_private_etc_fstab () {
-  if [[ -f ${USERS_CURLY}/dev/$(hostname)/etc/fstab ]]; then
-    tweak_errexit
-    diff ${USERS_CURLY}/dev/$(hostname)/etc/fstab /etc/fstab &> /dev/null
-    local exit_code=$?
-    reset_errexit
-    if [[ ${exit_code} -ne 0 ]]; then
-      echo "BKUPPING: /etc/fstab [to replace with: ${USERS_CURLY}/dev/$(hostname)/etc/fstab]"
-      sudo /bin/mv /etc/fstab /etc/fstab-${BACKUP_POSTFIX}
-      sudo /bin/cp -a ${USERS_CURLY}/dev/$(hostname)/etc/fstab /etc/fstab
-      sudo chmod 644 /etc/fstab
-    fi
-  else
-    debug "  Skipping: No fstab for ${FG_LAVENDER}$(hostname)"
-  fi
-} # end: setup_private_etc_fstab
-
 setup_private_update_db_conf () {
   if [[ -f "${USERS_CURLY}/dev/$(hostname)/etc/updatedb.conf" ]]; then
     tweak_errexit
@@ -1177,9 +1160,6 @@ function chase_and_face () {
 
   debug " setup_private_vim_bundle_dubs"
   setup_private_vim_bundle_dubs
-
-  debug " setup_private_etc_fstab"
-  setup_private_etc_fstab
 
   debug " setup_private_update_db_conf"
   setup_private_update_db_conf
