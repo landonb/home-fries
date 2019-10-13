@@ -388,6 +388,12 @@ function soups_on () {
         set_travel_cmd "init_travel"
         shift
         ;;
+      chckme)
+        DETERMINE_TRAVEL_DIR=false
+        REQUIRES_SYNC_REPOS=true
+        set_travel_cmd "chckme"
+        shift
+        ;;
       packme)
         PLEASE_CHOOSE_PART="to which to pack"
         DETERMINE_TRAVEL_DIR=true
@@ -576,6 +582,7 @@ function soups_on () {
     echo "      chase_and_face    apply private overlays to local machine"
     echo "                          (maintain symlinks to ${USERS_CURLY}/* files)"
     echo "                        * chase_and_face is called on unpack"
+    echo "      chckme            run auto-commit operations and check for dirty travel repos"
     #echo ""
     echo "packme options:"
     echo "      -D                packme even if dirty/untracked/ahead git conditions detected"
@@ -1839,6 +1846,35 @@ function check_repos_statuses () {
   git_issues_review
 } # end: check_repos_statuses
 
+# *** Git: chckme (packme first step)
+
+function chckme () {
+  # We can be smart about certain files that change often and
+  # don't need meaningful commit messages and automatically
+  # commit them for the user. That's you, chum!
+  git_commit_hamster
+  git_commit_vim_spell
+  git_commit_vimprojects
+
+  if ! ${SKIP_DIRTY_CHECK}; then
+    info "${BG_PINK}${FG_MAROON}" \
+      "🏄  🌠  🌠   Looking for dirt!  🏄  🌠  🌠  "
+
+    # Commit whatever's listed in user's privatey cfg/sync_repos.sh.
+    git_commit_dirty_sync_repos
+
+    # If any of the repos listed in repo_syncs.sh are dirty, fail
+    # now and force the user to meaningfully commit those changes.
+    # (This is repos like: home-fries, ${PRIVATE_REPO_}, dubs vim,
+    #  and other personal- and work-related repositories.)
+    # FIXME/2018-03-23: Split out side effect here: git_commit_generic_file
+    check_repos_statuses
+
+    info "${BG_PINK}${FG_MAROON}" \
+      "🍁  🍁  🍁   Done checking repos for dirt  🍁  🍁  🍁  "
+  fi
+}
+
 # *** Git: pull
 
 function pull_gardened_repo () {
@@ -2054,30 +2090,7 @@ function packme () {
   #debug "- # of.    ENCFS_GIT_ITERS: ${#ENCFS_GIT_ITERS[@]}"
   #debug "- # of.    ENCFS_VIM_ITERS: ${#ENCFS_VIM_ITERS[@]}"
 
-  # We can be smart about certain files that change often and
-  # don't need meaningful commit messages and automatically
-  # commit them for the user. That's you, chum!
-  git_commit_hamster
-  git_commit_vim_spell
-  git_commit_vimprojects
-
-  if ! ${SKIP_DIRTY_CHECK}; then
-    info "${BG_PINK}${FG_MAROON}" \
-      "🏄  🌠  🌠   Looking for dirt!  🏄  🌠  🌠  "
-
-    # Commit whatever's listed in user's privatey cfg/sync_repos.sh.
-    git_commit_dirty_sync_repos
-
-    # If any of the repos listed in repo_syncs.sh are dirty, fail
-    # now and force the user to meaningfully commit those changes.
-    # (This is repos like: home-fries, ${PRIVATE_REPO_}, dubs vim,
-    #  and other personal- and work-related repositories.)
-    # FIXME/2018-03-23: Split out side effect here: git_commit_generic_file
-    check_repos_statuses
-
-    info "${BG_PINK}${FG_MAROON}" \
-      "🍁  🍁  🍁   Done checking repos for dirt  🍁  🍁  🍁  "
-  fi
+  chckme
 
   if [[ ! -d "${EMISSARY}" ]]; then
     error
