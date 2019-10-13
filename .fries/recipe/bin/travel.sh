@@ -1711,6 +1711,39 @@ function check_gardened_repo () {
   done < <(find "${ENCFS_GIT_ITER}" -maxdepth 1 ! -path . -print0)
 }
 
+function git_issues_review {
+  # NOTE/2018-03-23: This method often called twice, once after the initial
+  # repo check step, and then again after syncing. I'm curious if it really
+  # needs to run both times, or if it should just run once, at the end of the
+  # script.
+  if ${FRIES_GIT_ISSUES_DETECTED} || \
+    [[ ${#FRIES_GIT_ISSUES_RESOLUTIONS[@]} -gt 0 ]] \
+  ; then
+    soups_finished_dinners_over_report_time
+
+    echo
+    warn "GRIZZLY! Travel encountered one or more git issues."
+    notice
+    notice "It could be dirty files, untracted files, behind branches, rebase issues, etc."
+    notice "Helpful commands to fix the issue(s) should follow. If not, scroll up."
+    notice
+    notice "Please fix. Or run with -D (skip all git warnings)"
+    notice "            or run with -DD (skip warnings about $0)"
+    notice
+    if [[ ${#FRIES_GIT_ISSUES_RESOLUTIONS[@]} -gt 0 ]]; then
+      notice "Give this a try:"
+      echo
+      for ((i = 0; i < ${#FRIES_GIT_ISSUES_RESOLUTIONS[@]}; i++)); do
+        RESOLUTION_CMD="  ${FRIES_GIT_ISSUES_RESOLUTIONS[$i]}"
+        echo "${RESOLUTION_CMD}"
+      done
+      echo
+    fi
+    trap - EXIT
+    exit 1
+  fi
+}
+
 function check_repos_statuses () {
 
   # Skipping: PLAINTEXT_ARCHIVES
@@ -1805,39 +1838,6 @@ function check_repos_statuses () {
 
   git_issues_review
 } # end: check_repos_statuses
-
-function git_issues_review {
-  # NOTE/2018-03-23: This method often called twice, once after the initial
-  # repo check step, and then again after syncing. I'm curious if it really
-  # needs to run both times, or if it should just run once, at the end of the
-  # script.
-  if ${FRIES_GIT_ISSUES_DETECTED} || \
-    [[ ${#FRIES_GIT_ISSUES_RESOLUTIONS[@]} -gt 0 ]] \
-  ; then
-    soups_finished_dinners_over_report_time
-
-    echo
-    warn "GRIZZLY! Travel encountered one or more git issues."
-    notice
-    notice "It could be dirty files, untracted files, behind branches, rebase issues, etc."
-    notice "Helpful commands to fix the issue(s) should follow. If not, scroll up."
-    notice
-    notice "Please fix. Or run with -D (skip all git warnings)"
-    notice "            or run with -DD (skip warnings about $0)"
-    notice
-    if [[ ${#FRIES_GIT_ISSUES_RESOLUTIONS[@]} -gt 0 ]]; then
-      notice "Give this a try:"
-      echo
-      for ((i = 0; i < ${#FRIES_GIT_ISSUES_RESOLUTIONS[@]}; i++)); do
-        RESOLUTION_CMD="  ${FRIES_GIT_ISSUES_RESOLUTIONS[$i]}"
-        echo "${RESOLUTION_CMD}"
-      done
-      echo
-    fi
-    trap - EXIT
-    exit 1
-  fi
-}
 
 # *** Git: pull
 
