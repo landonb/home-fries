@@ -28,21 +28,24 @@ home_fries_init_completions () {
   # Define to avoid flattening internal contents of tar files.
   # COMP_TAR_INTERNAL_PATHS=1
 
-  # If this shell is interactive, turn on programmable completion enhancements.
-  # Any completions you add in ~/.bash_completion are sourced last.
-  # case $- in
-  #   *i*) [[ -f /etc/bash_completion ]] && . /etc/bash_completion ;;
-  # esac
-
   # 2016-06-28: An article suggested sourcing /etc/bash_completion
-  # https://stackoverflow.com/questions/68372/what-is-your-single-most-favorite-command-line-trick-using-bash
+  #   https://stackoverflow.com/questions/68372/what-is-your-single-most-favorite-command-line-trick-using-bash
+  # 2019-10-13: There was a comment about not being sure I should
+  # enable completion, but I never followed up. I love completion!
+  # But recently I noticed that tab-completing some scripts fails,
+  # but I hadn't noticed this error before, oddly!
   if [ -f /etc/bash_completion ]; then
     . /etc/bash_completion
+    # 2019-10-13: Took me long enough to notice!: _xspecs set here, but not
+    # outside function! Thus, default tab-completion can fail, because an
+    # associative array variable is not set. E.g., $associate_array[$filename]
+    # fails because Bash expects the index value to be a number unless the
+    # array was explicitly declared -A, and the array that was declared was
+    # lost outside of the scope of the function. So the caller should run this
+    # function using eval, sending this output to its shell, thereby capturing
+    # the lost variable.
+    echo $(declare -p _xspecs)
   fi
-  # Not sure I need it, though. I read the file (/usr/share/bash-completion/bash_completion)
-  # and it seems more useful for sysadmins doing typical adminy stuff and less anything I'm
-  # missing out on.
-  # Anyway, we'll enable it for now and see what happens................................
 }
 
 # --- Re-enable better Bash tab auto-completion.

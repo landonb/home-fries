@@ -101,6 +101,18 @@ run_and_unset () {
   print_elapsed_time "${time_0}" "Action: $1"
 }
 
+eval_and_unset () {
+  ${DUBS_PROFILING} && echo "Action: $1"
+  local time_0=$(date +%s.%N)
+
+  # So that the func being sourced can use stdout
+  # to have this shell set, e.g., array variables.
+  eval $(eval "$@")
+  unset -f "$1"
+
+  print_elapsed_time "${time_0}" "Action: $1"
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 home_fries_up () {
@@ -164,7 +176,7 @@ home_fries_up () {
   # Completion options
 
   # - lib/fries_util.sh
-  run_and_unset "home_fries_init_completions"
+  eval_and_unset "home_fries_init_completions"
 
   # - lib/fries_util.sh
   run_and_unset "home_fries_direxpand_completions"
