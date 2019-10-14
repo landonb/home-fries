@@ -340,6 +340,7 @@ SKIP_CRYPT_CHECK=false
 #GIT_BARE_REPO=''
 # FIXME/2019-09-27 10:48: Make always --bare, but only to NEW sync stick!
 #GIT_BARE_REPO='--bare'
+GIT_BARE_REPO=${GIT_BARE_REPO:-}
 
 SKIP_INTERNETS=false
 
@@ -447,7 +448,6 @@ function soups_on () {
         ;;
       --skipcrypt)
         SKIP_CRYPT_CHECK=true
-        #GIT_BARE_REPO='--bare'
         shift
         ;;
       -s)
@@ -933,7 +933,7 @@ locate_and_clone_missing_repo () {
   echod "    CHECK: ${check_repo}"
   echod "     REPO: ${remote_orig}"
   if [[ -d "${check_repo}" ]]; then
-    if [[ -d "${check_repo}/.git" ]]; then
+    if [[ -d "${check_repo}/.git" || -f "${check_repo}/HEAD" ]]; then
       echod "   EXISTS: ${check_repo}"
     else
       echo
@@ -1323,7 +1323,7 @@ function umount_curly_emissary_gooey_one () {
 function populate_singular_repo () {
   ENCFS_GIT_REPO=$1
   local ENCFS_REL_PATH=$(echo ${ENCFS_GIT_REPO} | /bin/sed s/^.//)
-  if [[ ! -e "${ENCFS_REL_PATH}/.git" ]]; then
+  if [[ ! -d "${ENCFS_REL_PATH}/.git" && ! -f "${ENCFS_REL_PATH}/HEAD" ]]; then
     #echo " ${ENCFS_GIT_REPO}"
     echo " ${ENCFS_REL_PATH}"
     echo "  \$ git clone ${GIT_BARE_REPO} ${ENCFS_GIT_REPO} ${ENCFS_REL_PATH}"
@@ -1344,10 +1344,15 @@ function populate_gardened_repo () {
   while IFS= read -r -d '' fpath; do
     local TARGET_BASE=$(basename -- "${fpath}")
     TARGET_PATH="${ENCFS_REL_PATH}/${TARGET_BASE}"
-    if [[ ! -d "${fpath}/.git" ]]; then
-      echo " skipping (no .git): $(pwd -P)/${TARGET_PATH}"
+    if [[ ! -d "${fpath}/.git" \
+       && ! -f "${fpath}/.git" \
+       && ! -f "${fpath}/HEAD" ]]; then
+      echo " skipping (not git): $(pwd -P)/${TARGET_PATH}"
       :
-    elif [[ -e "${TARGET_PATH}/.git" ]]; then
+    elif [[ -d "${TARGET_PATH}/.git" ]]; then
+      echo " skipping ( exists): $(pwd -P)/${TARGET_PATH}"
+      :
+    elif [[ -f "${TARGET_PATH}/HEAD" ]]; then
       echo " skipping ( exists): $(pwd -P)/${TARGET_PATH}"
       :
     elif [[ -h "${fpath}" ]]; then
@@ -1700,8 +1705,8 @@ function check_gardened_repo () {
     if [[ -h "${fpath}" ]]; then
       verbose "  - Skipping symlinked something: ${fpath}"
       :
-    elif [[ ! -d "${fpath}/.git" ]]; then
-      verbose "  - Skipping .git-less directory: ${fpath}"
+    elif [[ ! -d "${fpath}/.git" && ! -f "${fpath}/HEAD" ]]; then
+      verbose "  - Skipping .git/|HEAD-less directory: ${fpath}"
       :
     else
       local TARGET_BASE=$(basename -- "${fpath}")

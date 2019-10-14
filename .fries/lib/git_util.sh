@@ -46,6 +46,7 @@ find_git_parent () {
   REPO_PATH=''
   while [[ "${rel_path}" != '/' || "${rel_path}" != '.' ]]; do
     #echo "find_git_parent: rel_path/3: ${rel_path}"
+    # NOTE: Ignoring --bare, e.g., -f "${rel_path}/HEAD", at least for now.
     if [[ -d "${rel_path}/.git" ]]; then
       REPO_PATH="${rel_path}"
       break
@@ -615,9 +616,9 @@ git_dir_check () {
     # This code path is inconceivable!
     die "I died!"
     exit 123 # unreachable. But just in case.
-  elif [[ ! -d "${REPO_PATH}/.git" ]]; then
+  elif [[ ! -d "${REPO_PATH}/.git" && ! -f "${REPO_PATH}/HEAD" ]]; then
     dir_okay=1
-    local no_git_yo_msg="WARNING: No .git/ found at: $(pwd -P)/${REPO_PATH}/.git"
+    local no_git_yo_msg="WARNING: No .git/ or HEAD found under: $(pwd -P)/${REPO_PATH}/"
     warn
     warn "${no_git_yo_msg}"
     FRIES_GIT_ISSUES_RESOLUTIONS+=("${no_git_yo_msg}")
