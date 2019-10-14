@@ -85,6 +85,7 @@ notice () {
 }
 
 # FIXME: Shadows /usr/bin/info
+#        Name it `infom`?
 info () {
   log_msg ${LOG_LEVEL_INFO} $(fg_mintgreen) INFO "$@"
 }
