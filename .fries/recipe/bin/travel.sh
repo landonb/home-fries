@@ -936,7 +936,7 @@ locate_and_clone_missing_repo () {
   echod "    CHECK: ${check_repo}"
   echod "     REPO: ${remote_orig}"
   if [[ -d "${check_repo}" ]]; then
-    if [[ -d "${check_repo}/.git" || -f "${check_repo}/HEAD" ]]; then
+    if [[ -e "${check_repo}/.git" || -f "${check_repo}/HEAD" ]]; then
       echod "   EXISTS: ${check_repo}"
     else
       echo
