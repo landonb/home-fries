@@ -1977,17 +1977,7 @@ function pull_git_repos () {
     trace " ** No pub repos singular"
   fi
   #
-  debug "Pulling singular VIM repos..."
-  if [[ ${#ENCFS_VIM_REPOS[@]} -gt 0 ]]; then
-    for ((i = 0; i < ${#ENCFS_VIM_REPOS[@]}; i++)); do
-      ABS_PATH="${ENCFS_VIM_REPOS[$i]}"
-      local ENCFS_REL_PATH="$(echo ${ABS_PATH} | /bin/sed s/^.//)"
-      trace "├ ${ENCFS_REL_PATH}"
-      git_pull_hush "${PREFIX}${ABS_PATH}" "${ENCFS_REL_PATH}" "${ABS_PATH}"
-    done
-  else
-    trace " ** No Vim repos singular"
-  fi
+  # SKIP: ENCFS_VIM_REPOS. These are submodules of ~/.vim repo.
 
   debug "Pulling gardened git repos..."
   if [[ ${#ENCFS_GIT_ITERS[@]} -gt 0 ]]; then
