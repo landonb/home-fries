@@ -179,6 +179,7 @@ FRIES_ABS_DIRN="${REPO_PATH}"
 PLAINTEXT_ARCHIVES=()
 ENCFS_GIT_REPOS=()
 ENCFS_PUB_REPOS=()
+ENCFS_VIM_REPOS=()
 ENCFS_GIT_ITERS=()
 ENCFS_VIM_ITERS=()
 AUTO_GIT_ONE=()
@@ -736,7 +737,9 @@ function determine_stick_dir () {
   # 2019-04-16: It's time we stored this where it belongs!!
   #   PLAINPATH="${EMISSARY}/plain-$(hostname)"
   PLAINPATH="${EMISSARY}/gooey/plain-$(hostname)"
-  PLAIN_TBD=$(mktemp --suffix='.plain' --tmpdir 'TRVL-XXXXXXXXXX')
+  if [[ "${TRAVEL_CMD}" == "packme" && ! ${SKIP_PULL_REPOS} ]]; then
+    PLAIN_TBD=$(mktemp --suffix='.plain' --tmpdir 'TRVL-XXXXXXXXXX')
+  fi
 
   #echo "EMISSARY: ${EMISSARY}"
   #echo "PLAINPATH: ${PLAINPATH}"
@@ -1337,9 +1340,9 @@ function populate_singular_repo () {
 
 function populate_gardened_repo () {
   ENCFS_GIT_ITER="$1"
-  echo " ENCFS_GIT_ITER: ${ENCFS_GIT_ITER}"
+  #echo " ENCFS_GIT_ITER: ${ENCFS_GIT_ITER}"
   local ENCFS_REL_PATH=$(echo ${ENCFS_GIT_ITER} | /bin/sed s/^.//)
-  echo " ${ENCFS_REL_PATH}"
+  #echo " ${ENCFS_REL_PATH}"
   # We don't -type d so that you can use symlinks.
   while IFS= read -r -d '' fpath; do
     local TARGET_BASE=$(basename -- "${fpath}")
@@ -1426,9 +1429,14 @@ function init_travel () {
     populate_singular_repo "${ENCFS_GIT_REPOS[$i]}"
   done
   #
-  debug "Additional singular git repos..."
+  debug "Additional singular pub repos..."
   for ((i = 0; i < ${#ENCFS_PUB_REPOS[@]}; i++)); do
     populate_singular_repo "${ENCFS_PUB_REPOS[$i]}"
+  done
+  #
+  debug "Additional singular vim repos..."
+  for ((i = 0; i < ${#ENCFS_VIM_REPOS[@]}; i++)); do
+    populate_singular_repo "${ENCFS_VIM_REPOS[$i]}"
   done
   #
   if ${INCLUDE_ENCFS_OFF_REPOS}; then
@@ -1800,6 +1808,8 @@ function check_repos_statuses () {
     git_status_porcelain_wrap "${ENCFS_PUB_REPOS[$i]}"
     popd &> /dev/null
   done
+  #
+  # SKIP: ENCFS_VIM_REPOS. These are submodules of ~/.vim repo.
 
   if ${INCLUDE_ENCFS_OFF_REPOS}; then
     debug "Checking one-level OFF repos..."
@@ -1964,7 +1974,19 @@ function pull_git_repos () {
       #fi
     done
   else
-    trace " ** No git repos singular"
+    trace " ** No pub repos singular"
+  fi
+  #
+  debug "Pulling singular VIM repos..."
+  if [[ ${#ENCFS_VIM_REPOS[@]} -gt 0 ]]; then
+    for ((i = 0; i < ${#ENCFS_VIM_REPOS[@]}; i++)); do
+      ABS_PATH="${ENCFS_VIM_REPOS[$i]}"
+      local ENCFS_REL_PATH="$(echo ${ABS_PATH} | /bin/sed s/^.//)"
+      trace "├ ${ENCFS_REL_PATH}"
+      git_pull_hush "${PREFIX}${ABS_PATH}" "${ENCFS_REL_PATH}" "${ABS_PATH}"
+    done
+  else
+    trace " ** No Vim repos singular"
   fi
 
   debug "Pulling gardened git repos..."
@@ -2092,6 +2114,7 @@ function packme () {
   #debug "- # of. PLAINTEXT_ARCHIVES: ${#PLAINTEXT_ARCHIVES[@]}"
   #debug "- # of.    ENCFS_GIT_REPOS: ${#ENCFS_GIT_REPOS[@]}"
   #debug "- # of.    ENCFS_PUB_REPOS: ${#ENCFS_PUB_REPOS[@]}"
+  #debug "- # of.    ENCFS_VIM_REPOS: ${#ENCFS_VIM_REPOS[@]}"
   #debug "- # of.    ENCFS_GIT_ITERS: ${#ENCFS_GIT_ITERS[@]}"
   #debug "- # of.    ENCFS_VIM_ITERS: ${#ENCFS_VIM_ITERS[@]}"
 
