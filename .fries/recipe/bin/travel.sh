@@ -1324,24 +1324,24 @@ function umount_curly_emissary_gooey_one () {
 }
 
 function populate_singular_repo () {
-  ENCFS_GIT_REPO=$1
-  local ENCFS_REL_PATH=$(echo ${ENCFS_GIT_REPO} | /bin/sed s/^.//)
-  if [[ ! -d "${ENCFS_REL_PATH}/.git" && ! -f "${ENCFS_REL_PATH}/HEAD" ]]; then
-    #echo " ${ENCFS_GIT_REPO}"
-    echo " ${ENCFS_REL_PATH}"
-    echo "  \$ git clone ${GIT_BARE_REPO} ${ENCFS_GIT_REPO} ${ENCFS_REL_PATH}"
-    git_resp=$(git clone ${GIT_BARE_REPO} "${ENCFS_GIT_REPO}" "${ENCFS_REL_PATH}") && true
+  local LOCAL_GIT_REPO=$1
+  local LOCAL_REL_PATH=$(echo ${LOCAL_GIT_REPO} | /bin/sed "s#^/##")
+  if [[ ! -d "${LOCAL_REL_PATH}/.git" && ! -f "${LOCAL_REL_PATH}/HEAD" ]]; then
+    #echo " ${LOCAL_GIT_REPO}"
+    echo " ${LOCAL_REL_PATH}"
+    echo "  \$ git clone ${GIT_BARE_REPO} ${LOCAL_GIT_REPO} ${LOCAL_REL_PATH}"
+    git_resp=$(git clone ${GIT_BARE_REPO} "${LOCAL_GIT_REPO}" "${LOCAL_REL_PATH}") && true
     ret_code=$?
     check_git_clone_or_pull_error "${ret_code}" "${git_resp}"
   else
-    echo " skipping ( exists): ${ENCFS_REL_PATH}"
+    echo " skipping ( exists): ${LOCAL_REL_PATH}"
   fi
 }
 
 function populate_gardened_repo () {
   ENCFS_GIT_ITER="$1"
   #echo " ENCFS_GIT_ITER: ${ENCFS_GIT_ITER}"
-  local ENCFS_REL_PATH=$(echo ${ENCFS_GIT_ITER} | /bin/sed s/^.//)
+  local ENCFS_REL_PATH=$(echo ${ENCFS_GIT_ITER} /bin/sed "s#^/##")
   #echo " ${ENCFS_REL_PATH}"
   # We don't -type d so that you can use symlinks.
   while IFS= read -r -d '' fpath; do
@@ -1896,7 +1896,7 @@ function pull_gardened_repo () {
   ENCFS_GIT_ITER="$1"
   PREFIX="$2"
   local ABS_PATH="${ENCFS_GIT_ITER}"
-  local ENCFS_REL_PATH="$(echo ${ABS_PATH} | /bin/sed s/^.//)"
+  local ENCFS_REL_PATH="$(echo ${ABS_PATH} /bin/sed "s#^/##")"
   trace "├ ${ENCFS_REL_PATH}"
   while IFS= read -r -d '' fpath; do
     local TARGET_BASE=$(basename -- "${fpath}")
@@ -1941,7 +1941,7 @@ function pull_git_repos () {
   if [[ ${#ENCFS_GIT_REPOS[@]} -gt 0 ]]; then
     for ((i = 0; i < ${#ENCFS_GIT_REPOS[@]}; i++)); do
       ABS_PATH="${ENCFS_GIT_REPOS[$i]}"
-      local ENCFS_REL_PATH="$(echo ${ABS_PATH} | /bin/sed s/^.//)"
+      local ENCFS_REL_PATH="$(echo ${ABS_PATH} /bin/sed "s#^/##")"
       # MAYBE/2016-12-12: Ignore symlinks?
       #if [[ -d ${ENCFS_REL_PATH} && ! -h ${ENCFS_REL_PATH} ]]; then
         #trace " SOURCE_PATH: ${PREFIX}${ABS_PATH}"
@@ -1961,7 +1961,7 @@ function pull_git_repos () {
   if [[ ${#ENCFS_PUB_REPOS[@]} -gt 0 ]]; then
     for ((i = 0; i < ${#ENCFS_PUB_REPOS[@]}; i++)); do
       ABS_PATH="${ENCFS_PUB_REPOS[$i]}"
-      local ENCFS_REL_PATH="$(echo ${ABS_PATH} | /bin/sed s/^.//)"
+      local ENCFS_REL_PATH="$(echo ${ABS_PATH} /bin/sed "s#^/##")"
       # MAYBE/2016-12-12: Ignore symlinks?
       #if [[ -d ${ENCFS_REL_PATH} && ! -h ${ENCFS_REL_PATH} ]]; then
         #trace " SOURCE_PATH: ${PREFIX}${ABS_PATH}"
@@ -2002,7 +2002,7 @@ function pull_git_repos () {
     if [[ ${#ENCFS_OFF_REPOS[@]} -gt 0 ]]; then
       for ((i = 0; i < ${#ENCFS_OFF_REPOS[@]}; i++)); do
         ABS_PATH="${ENCFS_OFF_REPOS[$i]}"
-        local ENCFS_REL_PATH="$(echo ${ABS_PATH} | /bin/sed s/^.//)"
+        local ENCFS_REL_PATH="$(echo ${ABS_PATH} /bin/sed "s#^/##")"
         trace " ${ENCFS_REL_PATH}"
         git_pull_hush "${PREFIX}${ABS_PATH}" "${ENCFS_REL_PATH}" "${ABS_PATH}"
       done
@@ -2016,7 +2016,7 @@ function pull_git_repos () {
     if [[ ${#ENCFS_OUT_REPOS[@]} -gt 0 ]]; then
       for ((i = 0; i < ${#ENCFS_OUT_REPOS[@]}; i++)); do
         ABS_PATH="${ENCFS_OUT_REPOS[$i]}"
-        local ENCFS_REL_PATH="$(echo ${ABS_PATH} | /bin/sed s/^.//)"
+        local ENCFS_REL_PATH="$(echo ${ABS_PATH} /bin/sed "s#^/##")"
         trace " ${ENCFS_REL_PATH}"
         git_pull_hush "${PREFIX}${ABS_PATH}" "${ENCFS_REL_PATH}" "${ABS_PATH}"
       done
@@ -2059,7 +2059,7 @@ function make_plaintext () {
       ARCHIVE_SRC=$(readlink -f -- "${ARCHIVE_SRC}")
     fi
 
-    ARCHIVE_REL="$(echo ${ARCHIVE_SRC} | /bin/sed s/^.//)"
+    ARCHIVE_REL="$(echo ${ARCHIVE_SRC} /bin/sed "s#^/##")"
 
     if [[ -e "${ARCHIVE_SRC}" ]]; then
       trace " tarring: ${FG_LAVENDER}${ARCHIVE_SRC}"
