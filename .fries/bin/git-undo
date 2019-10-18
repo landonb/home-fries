@@ -1,0 +1,23 @@
+#!/bin/bash
+# vim:tw=0:ts=2:sw=2:et:norl:
+
+# (lb): 2019-10-18: I had an undo alias in ~/.gitconfig,
+# but that I installed git-extras, which installs its own
+# /usr/bin/git-undo, so we need this file to shadow that.
+git_undo () {
+  # NOTE: (lb): The `man gitrevisions` doc says:
+  #   "@ alone is a shortcut for HEAD."
+  # Equivalent to:
+  #   git reset --soft HEAD~1
+  # HINT: To undo a --soft reset, try:
+  #   git reset 'HEAD@{1}'
+  # See also: git reflog
+  git reset --soft @~1
+}
+
+main () {
+  git_undo "$@"
+}
+
+main "$@"
+
