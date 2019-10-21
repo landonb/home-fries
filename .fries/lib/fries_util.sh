@@ -35,7 +35,6 @@ home_fries_init_completions () {
   # But recently I noticed that tab-completing some scripts fails,
   # but I hadn't noticed this error before, oddly!
   if [ -f /etc/bash_completion ]; then
-    . /etc/bash_completion
     # 2019-10-13: Took me long enough to notice!: _xspecs set here, but not
     # outside function! Thus, default tab-completion can fail, because an
     # associative array variable is not set. E.g., $associate_array[$filename]
@@ -44,7 +43,23 @@ home_fries_init_completions () {
     # lost outside of the scope of the function. So the caller should run this
     # function using eval, sending this output to its shell, thereby capturing
     # the lost variable.
-    echo $(declare -p _xspecs)
+    # 2019-10-21: This is what I tried on 2019-10-13:
+    #             I changed bashrc.core.sh's
+    #               run_and_unset "home_fries_direxpand_completions"
+    #             to
+    #               eval_and_unset "home_fries_init_completions"
+    #             and then tried sourcing it here and exporting the missing array:
+    #               . /etc/bash_completion
+    #               # If eval_and_unset is called, you need to echo the _xspecs array:
+    #               echo $(declare -p _xspecs)
+    # 2019-10-21: But then I had issues with completion on `pass ...<TAB>`.
+    #  So now let's try sourcing everything, but using eval to do it in the
+    #  context of the caller. Or at least that what I think happens. At least
+    #  it fixes completion on \`pass\`. But I need to pay better attention to the
+    #  issue, because I may have affected completion on other apps. I can at least
+    #  list apps that I expect tab completion to work against: starting with pass.
+    #  And then someday I can test them all and verify if everything WADs or not.
+    echo "source /etc/bash_completion"
   fi
 }
 
