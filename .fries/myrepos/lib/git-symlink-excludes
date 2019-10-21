@@ -1,35 +1,60 @@
 # vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=config
 
+# HINT: There cannot be blank lines in a function,
+#       nor can there not be leading whitespace,
+#       or you'll see:
+#         mr: parse error at
 lib =
   link_private_exclude () {
-    local private_excl_f
-    # Use readlink to clean up the path (e.g., remove duplicate separators).
-    # REMEMBER: Note that Home Fries, a public repo, assumes you (the user)
-    # also maintain a private repo, conventionally found at (or symlinked from)
-    # ~/.curly (as in, Curly Fries). Within that directory, well, it's not well
-    # defined, or at least Home Fries doesn't care about what you keep there
-    # (see: ~/.fries/lib/curly_util.sh for what Home Fries does care about).
-    # One of the few expectations is that under ~/.curly/infusers is a hierarchy
-    # of directories that matches your local filesystem hierarchy, starting at /
-    # (root), that contains .git/info/exclude files you'd like installed. For
-    # instance, the exclude for home-fries is found at:
-    #   ~/.curly/infusers/home/user/_git/info/exclude
-    # Note that the .git/ directory is mirrored as _git, because git will not
-    # let you add files from under a directory named .git/.
-    private_excl_f=$(readlink -m "${ZP_HOME:-${HOME}}/.curly/infusers/${MR_REPO}/_git/info/exclude")
-    if [ ! -f "${private_excl_f}" ]; then
-      error "Repo says it wires its own private git exclude file, but none found at: “${private_excl_f}”"
+    local exclude_f
+    local relative_path
+    # CONVENTION: Store .git/info/exclude files under a directory named
+    # .mrinfuse located in the same directory as the .mrconfig file whose
+    # repo config calls this function. Under the .mrinfuse directory, mimic
+    # the directory alongside the .mrconfig file. For instance, the exclude
+    # file for home-fries (linked from ~/.git/info/exclude) is stored at:
+    #   ~/.mrinfuse/_git/info/exclude
+    # As another example, suppose you had a config file at:
+    #   /my/work/projects/.mrconfig
+    # and you had a public repo underneath that project space at:
+    #   /my/work/projects/cool/product/
+    # you would store your private .gitignore file at:
+    #   /my/work/projects/.mrinfuse/cool/product/_git/info/exclude
+    # Also note that the .git/ directory is mirrored as _git, because git
+    #   will not let you add files from under a directory named .git/.
+    relative_path=${MR_REPO#"$(dirname ${MR_CONFIG})"/}
+    exclude_fpath="$(dirname ${MR_CONFIG})/.mrinfuse/${relative_path}/_git/info/exclude"
+    #
+    local testing=false
+    # Uncomment to spew vars and exit:
+    # testing=true
+    if $testing; then
+      info "MR_REPO=${MR_REPO}"
+      info "MR_CONFIG=${MR_CONFIG}"
+      info "relative_path=${relative_path}"
+      info "exclude_fpath=${exclude_fpath}"
+      info "current dir: $(pwd)"
       return 1
     fi
-    /bin/ln -sf .git/info/exclude .gitignore.local
+    #
+    if [ ! -f "${exclude_fpath}" ]; then
+      error "Repo says it wires its own private git exclude file, but none found at: “${exclude_fpath}”"
+      return 1
+    fi
+    #
+    /bin/ln -sf '.git/info/exclude' '.gitignore.local'
     cd .git/info
     # CAREFUL: This clobbers!
-    /bin/ln -sf ${private_excl_f} exclude
+    /bin/ln -sf "${exclude_fpath}" 'exclude'
+    #
     info "Wired!"
   }
 
 # MEH: myrepos splits on {\w} but treats underscores specially,
 #   so we can only use letters and numbers in action names. Bah.
 # Default is no-op. Return true so myrepos does not think it failed.
+# Or doesn't report it skipped.
 wireexcludes = true
+# Albeit I seem to use infuse more frequently, e.g.,
+#   infuse = link_private_exclude
 
