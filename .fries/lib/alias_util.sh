@@ -129,6 +129,12 @@ home_fries_create_aliases_general () {
   # Or collect undotted files into one unnamed file count.
   alias mostats="find . -type f -not -path './.git/*' | /bin/sed -n 's/\(..*\.\)\?//p' | /bin/sed -r 's/(.*)/\L\1/' | /bin/sed -n 's/\(..*\/.*\)\?//p' | sort | uniq -c | sort -n -r"
 
+  # 2019-10-21: A different kind of stats. Call MyRepos from file system root!
+  # For this to work, not that you must include configs outside user home, e.g.,
+  #   $ head -n 1 ~/.mrconfig
+  #   include = cat /myrepos/.mrconfig
+  alias st="mr -d / status"
+
   # 2016-09-24: Why didn't I think of this 'til now?
   # [Note also that pass can just do it, too.]
   alias pwgen16="pwgen -n 16 -s -N 1 -y"
