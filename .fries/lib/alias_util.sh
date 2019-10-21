@@ -124,6 +124,10 @@ home_fries_create_aliases_general () {
   # Show directory statistics: show count of files of each extension.
   # NOTE: \L to convert string to lowercase
   alias stats="find . -type f -not -path './.git/*' | /bin/sed -n 's/..*\.//p' | /bin/sed -r 's/(.*)/\L\1/' | sort | uniq -c | sort -n -r"
+  # Previous match finds files with dot.ends. Next one includes all files.
+  #   alias mostats="find . -type f -not -path './.git/*' | /bin/sed -n 's/\(..*\.\)\?\(..*\/\)\?//p' | /bin/sed -r 's/(.*)/\L\1/' | sort | uniq -c | sort -n -r"
+  # Or collect undotted files into one unnamed file count.
+  alias mostats="find . -type f -not -path './.git/*' | /bin/sed -n 's/\(..*\.\)\?//p' | /bin/sed -r 's/(.*)/\L\1/' | /bin/sed -n 's/\(..*\/.*\)\?//p' | sort | uniq -c | sort -n -r"
 
   # 2016-09-24: Why didn't I think of this 'til now?
   # [Note also that pass can just do it, too.]
