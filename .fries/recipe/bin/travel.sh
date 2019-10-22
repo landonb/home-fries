@@ -773,9 +773,9 @@ setup_private_curly_work () {
   # working directory. But that changes so often it makes a function
   # such as this smell like a joke.
 
-  if [[ -d ${USERS_CURLY}/work ]]; then
+  if [[ -d ${USERS_CURLY}/work/active ]]; then
 
-    pushd ${USERS_CURLY}/work &> /dev/null
+    pushd ${USERS_CURLY}/work/active &> /dev/null
 
     if [[ ! -e user-current-project ]]; then
       if [[ -h user-current-project ]]; then
