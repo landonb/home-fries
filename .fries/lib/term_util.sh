@@ -10,7 +10,8 @@ source_deps () {
   # determine_window_manager
   source ${curdir}/distro_util.sh
   # (lb): I'm addicted to colors.
-  source ${curdir}/color_util.sh
+  source ${curdir}/color_envs.sh
+  source ${curdir}/color_funcs.sh
   #
   source ${curdir}/logger.sh
 }

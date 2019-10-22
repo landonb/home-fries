@@ -1,0 +1,138 @@
+# vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=config
+
+[DEFAULT]
+# Note that myrepos stops parsing `lib` at the first blank line,
+# so use commented blank lines if you need breaks.
+lib =
+  # (lb): I want to display colorful, stylized output, like travel.sh did.
+  . "${HOME}/.fries/lib/logger.sh"  # Ha! `source` not POSIX, but `.` is.
+  # 2019-10-21: (lb): Because myrepos uses subprocesses, our best bet for
+  # maintaining data across all repos is to use temporary files.
+  tmp_chores_file='/tmp/home-fries-myrepos.chores-ieWeich9kaph5eiR'
+  tmp_rntime_file='/tmp/home-fries-myrepos.rntime-ieWeich9kaph5eiR'
+  #
+  git_status_command_started () {
+    date +%s.%N > "${tmp_rntime_file}"
+  }
+  git_status_command_stopped () {
+    local SETUP_TIME_0=$(cat "${tmp_rntime_file}")
+    [ -z ${SETUP_TIME_0} ] && error "ERROR:" \
+      "Missing start time! Be sure to call \`git_status_cache_setup\`."
+    local SETUP_TIME_N="$(date +%s.%N)"
+    local time_elapsed=$(\
+      echo "scale=2; ($SETUP_TIME_N - $SETUP_TIME_0) * 100 / 100" | bc -l
+    )
+    # We could only show elapsed time if greater than a specific duration. E.g.,
+    #   # NOTE: Use `bc` to output 0 or 1, and use ``(( ... ))`` so the shell
+    #   #       interprets the result as false or true respectively.
+    #   if (( $(echo "${time_elapsed} > 0.25" | bc -l) )); then
+      info
+      info "$(attr_bold)$(bg_lime)$(fg_black)Elapsed: ${time_elapsed} secs.$(attr_reset)"
+      info
+    #   fi
+    /bin/rm "${tmp_rntime_file}"
+  }
+  #
+  git_status_cache_setup () {
+    git_status_command_started
+    truncate -s 0 ${tmp_chores_file}
+  }
+  git_status_cache_teardown () {
+    local ret_code=0
+    git_status_command_stopped
+    if [ -s ${tmp_chores_file} ]; then
+      warn "GRIZZLY! One or more repos need attention."
+      notice
+      notice "Here's some copy-pasta if you wanna fix it:"
+      echo
+      cat ${tmp_chores_file}
+      echo
+      ret_code=1
+    fi
+    /bin/rm ${tmp_chores_file}
+    return ${ret_code}
+  }
+  #
+  # NOTE: Parsing --porcelain response should be future-proof.
+  #
+  #   $ man git status
+  #   ...
+  #     --porcelain[=<version>]
+  #         Give the output in an easy-to-parse format for scripts. This
+  #         is similar to the short output, but will remain stable across
+  #         Git versions and regardless of user configuration.
+  #
+  git_status_check_reset () {
+    DIRTY_REPO=false
+  }
+  #
+  git_status_check_unstaged () {
+    # In this function, and in others below, we use a subprocess and return
+    # true, otherwise we'd need to wrap the call with set +e and set -e,
+    # otherwise the function would fail if no unstaged changes found.
+    #
+    local extcd
+    # ' M' is modified but not added.
+    (git status --porcelain | grep "^ M ") || extcd=$? || true
+    if [ -z ${extcd} ]; then
+      DIRTY_REPO=true
+      info "YIPES: Unstaged changes found in repo at: “${MR_REPO}”"
+    fi
+  }
+  #
+  git_status_check_uncommitted () {
+    local extcd
+    # 'M ' is added but not committed.
+    (git status --porcelain | grep "^M  ") || extcd=$? || true
+    if [ -z ${extcd} ]; then
+      DIRTY_REPO=true
+      info "YIPES: Uncommitted changes found in repo at: “${MR_REPO}”"
+    fi
+  }
+  #
+  git_status_check_untracked () {
+    local extcd
+    # '^?? ' is untracked.
+    (git status --porcelain | grep "^?? " > /dev/null) || extcd=$? || true
+    if [ -z ${extcd} ]; then
+      DIRTY_REPO=true
+      info "  $(fg_lightorange)$(attr_underline)untracked$(attr_reset)  " \
+        "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)"
+    fi
+  }
+  #
+  git_status_check_any_porcelain_output () {
+    ${DIRTY_REPO} && return
+    local n_bytes=$(git status --porcelain | wc -c)
+    if [ ${n_bytes} -gt 0 ]; then
+      DIRTY_REPO=true
+      info "YIPES: \`git status --porcelain\` nonempty output in repo at: “${MR_REPO}”"
+    fi
+  }
+  #
+  git_status_porcelain () {
+    git_status_check_reset
+    git_status_check_unstaged
+    git_status_check_uncommitted
+    git_status_check_untracked
+    git_status_check_any_porcelain_output
+    if ${DIRTY_REPO}; then
+      # (lb): I don't see an easy way to assemble work to tell user to do
+      # other than to use an intermediate file, as this function fun in a
+      # subprocess (we cannot pass back anything other than an exit code).
+      #echo "  cdd ${MR_REPO} && git add -p" >> ${tmp_chores_file}
+      # Note that sh (e.g., dash; or a POSIX shell) does not define `echo -e`
+      # like Bash (and in fact `echo -e "some string" echoes "-e some string).
+      echo "  cdd $(fg_lightorange)${MR_REPO}$(attr_reset) && git status" >> ${tmp_chores_file}
+      # We could return 1 (and `mr` will return 1), but then mr also prints:
+      #   mr mystatus: command failed
+      # return 1
+      return 0
+    fi
+    debug "  $(fg_mintgreen)$(attr_emphasis)unchanged$(attr_reset)  " \
+      "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
+    return 0
+  }
+
+mystatus = git_status_porcelain
+

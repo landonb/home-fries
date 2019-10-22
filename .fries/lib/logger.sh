@@ -8,9 +8,13 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 source_deps () {
-  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
+  local curdir="${HOME}/.fries/lib"
+  if [ -n "${BASH_SOURCE}" ]; then
+    echo "\$BASH_SOURCE: $BASH_SOURCE"
+    curdir=$(dirname -- "${BASH_SOURCE[0]}")
+  fi
   # Load colors.
-  source ${curdir}/color_util.sh
+  . ${curdir}/color_funcs.sh
 }
 
 # The Python logging library defines the following levels,
@@ -32,7 +36,7 @@ LOG_LEVEL_VERBOSE5=5 # [*new]
 LOG_LEVEL_VERBOSE=5 # [*new]
 LOG_LEVEL_NOTSET=0
 
-if [[ -z ${LOG_LEVEL+x} ]]; then
+if [ -z ${LOG_LEVEL+x} ]; then
   LOG_LEVEL=${LOG_LEVEL_ERROR}
 fi
 
@@ -41,16 +45,23 @@ log_msg () {
   local FCN_COLOR=$2
   local FCN_LABEL=$3
   shift 3
-  if [[ ${FCN_LEVEL} -ge ${LOG_LEVEL} ]]; then
+  if [ ${FCN_LEVEL} -ge ${LOG_LEVEL} ]; then
     #echo "${FCN_COLOR} $@"
-    #local RIGHT_NOW=$(date +%Y-%m-%d.%H.%M.%S)
-    local RIGHT_NOW=$(date "+%Y-%m-%d @ %T")
+    local RIGHT_NOW
+    #RIGHT_NOW=$(date +%Y-%m-%d.%H.%M.%S)
+    RIGHT_NOW=$(date "+%Y-%m-%d @ %T")
     local bold_maybe=''
-    [[ ${FCN_LEVEL} -ge ${LOG_LEVEL_WARNING} ]] && bold_maybe=$(attr_bold)
+    [ ${FCN_LEVEL} -ge ${LOG_LEVEL_WARNING} ] && bold_maybe=$(attr_bold)
     local invert_maybe=''
-    [[ ${FCN_LEVEL} -ge ${LOG_LEVEL_WARNING} ]] && invert_maybe=$(bg_maroon)
-    [[ ${FCN_LEVEL} -ge ${LOG_LEVEL_ERROR} ]] && invert_maybe=$(bg_hotpink)
-    echo -e "${FCN_COLOR}$(attr_underline)[${FCN_LABEL}]$(attr_reset) ${RIGHT_NOW} ${bold_maybe}${invert_maybe}$@$(attr_reset)"
+    [ ${FCN_LEVEL} -ge ${LOG_LEVEL_WARNING} ] && invert_maybe=$(bg_maroon)
+    [ ${FCN_LEVEL} -ge ${LOG_LEVEL_ERROR} ] && invert_maybe=$(bg_hotpink)
+    local echo_msg
+    echo_msg="${FCN_COLOR}$(attr_underline)[${FCN_LABEL}]$(attr_reset) ${RIGHT_NOW} ${bold_maybe}${invert_maybe}$@$(attr_reset)"
+    if [ "$0" = 'sh' ]; then
+      echo "${echo_msg}"
+    else
+      echo -e "${echo_msg}"
+    fi
   fi
 }
 
