@@ -10,7 +10,6 @@
 source_deps () {
   local curdir="${HOME}/.fries/lib"
   if [ -n "${BASH_SOURCE}" ]; then
-    echo "\$BASH_SOURCE: $BASH_SOURCE"
     curdir=$(dirname -- "${BASH_SOURCE[0]}")
   fi
   # Load colors.
