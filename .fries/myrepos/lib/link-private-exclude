@@ -47,7 +47,7 @@ lib =
     # CAREFUL: This clobbers!
     /bin/ln -sf "${exclude_fpath}" 'exclude'
     #
-    info "Wired!"
+    info "Wired .gitignore.local"
   }
 
 # MEH: myrepos splits on {\w} but treats underscores specially,
