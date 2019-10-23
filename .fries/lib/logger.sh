@@ -12,6 +12,7 @@ source_deps () {
   if [ -n "${BASH_SOURCE}" ]; then
     curdir=$(dirname -- "${BASH_SOURCE[0]}")
   fi
+
   # Load colors.
   . ${curdir}/color_funcs.sh
 }
