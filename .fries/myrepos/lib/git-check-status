@@ -47,11 +47,11 @@ lib =
       echo
       cat ${tmp_chores_file}
       echo
-      # We could return nonzero, while `mr` would see and die on,
-      # but instead we'll return 0 so that the stats line gets
-      # printed. E.g.,
-      #                 mr mystatus: finished (164 ok; 12 skipped)
-      #ret_code=1
+      # We could return nonzero, which `mr` would see and die on,
+      # but the action for each repo that's dirty also indicated
+      # failure, so `mr` already knows to exit nonzero. Also, we
+      # want to return 0 here so that the stats line is printed.
+      ret_code=0
     fi
     /bin/rm ${tmp_chores_file}
     return ${ret_code}
@@ -132,10 +132,17 @@ lib =
       # Note that sh (e.g., dash; or a POSIX shell) does not define `echo -e`
       # like Bash (and in fact `echo -e "some string" echoes "-e some string).
       echo "  cdd $(fg_lightorange)${MR_REPO}$(attr_reset) && git status" >> ${tmp_chores_file}
-      # Note that if we return nonzero, `mr` returns the same nonzero, but
-      #   mr then does not print the stats, but instead prints:
-      #     "mr myaction: command failed"
-      # We'll return nonzero, so this action can be more easily scripted.
+      # Return 1 so `mr` marks repo as failed, and later exits 1.
+      # Note that you can reduce a lot of myrepos output with this in your .mrconfig:
+      #   [DEFAULT]
+      #   # For all actions/any action, do not print line separator/blank line
+      #   # between repo actions.
+      #   no_print_sep = true
+      #   # For mystatus action, do not print action or directory header line.
+      #   no_print_action_mystatus = true
+      #   no_print_dir_mystatus = true
+      #   # For mystatus action, do not print if repo fails (action will do it).
+      #   no_print_failed_mystatus = true
       return 1
     fi
     debug "  $(fg_mintgreen)$(attr_emphasis)unchanged$(attr_reset)  " \
