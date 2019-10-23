@@ -8,7 +8,9 @@ lib =
   link_private_exclude () {
     local exclude_f
     local relative_path
-    local repo_path_n_sep="${REPO}/"
+    local exclude_fpath
+    local canonicalized
+    local repo_path_n_sep="${MR_REPO}/"
     # CONVENTION: Store .git/info/exclude files under a directory named
     # .mrinfuse located in the same directory as the .mrconfig file whose
     # repo config calls this function. Under the .mrinfuse directory, mimic
@@ -25,21 +27,23 @@ lib =
     #   will not let you add files from under a directory named .git/.
     relative_path=${repo_path_n_sep#"$(dirname ${MR_CONFIG})"/}
     exclude_fpath="$(dirname ${MR_CONFIG})/.mrinfuse/${relative_path}/_git/info/exclude"
-    exclude_fpath=$(readlink -f "${exclude_fpath}")
+    canonicalized=$(readlink -f "${exclude_fpath}")
     #
     local testing=false
     # Uncomment to spew vars and exit:
     # testing=true
     if $testing; then
-      info "MR_REPO=${MR_REPO}"
-      info "MR_CONFIG=${MR_CONFIG}"
-      info "relative_path=${relative_path}"
-      info "exclude_fpath=${exclude_fpath}"
-      info "current dir: $(pwd)"
+      echo "MR_REPO=${MR_REPO}"
+      echo "MR_CONFIG=${MR_CONFIG}"
+      echo "repo_path_n_sep=${repo_path_n_sep}"
+      echo "relative_path=${relative_path}"
+      echo "exclude_fpath=${exclude_fpath}"
+      echo "canonicalized=${canonicalized}"
+      echo "current dir: $(pwd)"
       return 1
     fi
     #
-    if [ ! -f "${exclude_fpath}" ]; then
+    if [ ! -f "${canonicalized}" ]; then
       error "Repo says it wires its own private git exclude file, but none found at: “${exclude_fpath}”"
       return 1
     fi
@@ -47,7 +51,7 @@ lib =
     /bin/ln -sf '.git/info/exclude' '.gitignore.local'
     cd .git/info
     # CAREFUL: This clobbers!
-    /bin/ln -sf "${exclude_fpath}" 'exclude'
+    /bin/ln -sf "${canonicalized}" 'exclude'
     cd ../..
     #
     info "Wired .gitignore.local"
