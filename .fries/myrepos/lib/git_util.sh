@@ -20,6 +20,8 @@ source_deps () {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 _echo () {
   [ "$(echo -e)" = '' ] && echo -e "${@}" || echo "${@}"
@@ -51,10 +53,17 @@ _git_echo_cyclones_frgreen () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
-# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
-# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
+_git_echo_octothorpes_maroon_on_lime () {
+  if [ "$(echo -e)" = '' ]; then
+    _echo "$(bg_lime)$(fg_maroon)$(printf '#%.0s' {1..77})$(attr_reset)"
+  else
+    local ssots='#############################################################################'
+    _echo "$(bg_lime)$(fg_maroon)${ssots}$(attr_reset)"
+  fi
+}
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 git_dir_check () {
@@ -105,6 +114,8 @@ must_be_git_dirs () {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 git_checkedout_branch_name () {
   # 2017-04-04: I unplugged the USB stick before ``popoff``
@@ -140,6 +151,8 @@ git_checkedout_remote_branch_name () {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 git_set_remote_travel () {
   local source_repo="$1"
@@ -148,7 +161,7 @@ git_set_remote_travel () {
   local before_cd="$(pwd -L)"
   cd "${target_repo}"
 
-  local extcd
+  local extcd=0
   local remote_url
   remote_url=$(git remote get-url ${MR_REMOTE} 2> /dev/null) || extcd=$? || true
 
@@ -197,11 +210,12 @@ git_fetch_remote_travel () {
   if ${SKIP_INTERNETS}; then
     git fetch ${MR_REMOTE} --prune
   else
+    local extcd=0
     local git_says
     if ! ${NO_NETWORK_OKAY}; then
-      git_says=$(git fetch --all --prune 2>&1) && true
+      git_says=$(git fetch --all --prune 2>&1) || extcd=$? || true
     else
-      git_says=$(git fetch ${MR_REMOTE} --prune 2>&1) && true
+      git_says=$(git fetch ${MR_REMOTE} --prune 2>&1) || extcd=$? || true
     fi
     local fetch_success=$?
     verbose "git fetch says:\n${git_says}"
@@ -231,25 +245,26 @@ git_fetch_remote_travel () {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 git_is_rebase_in_progress () {
   local before_cd="$(pwd -L)"
   cd "$1"
-
   # During a rebase, git uses new directories, so we could check the filesystem:
   #   (test -d ".git/rebase-merge" || test -d ".git/rebase-apply") || die "No!"
   # Or we could be super naive, and porcelain, and git-n-grep:
   #   git -c color.ui=off status | grep "^rebase in progress" > /dev/null
   # Or we could use our plumbing knowledge and do it most rightly.
   #   (Note we use `&& test` so command does not tickle errexit.
+  local extcd=0
+  # MAYBE/2019-10-23 17:44: Do we need to redirect? 2> /dev/null
   (test -d "$(git rev-parse --git-path rebase-merge)" || \
    test -d "$(git rev-parse --git-path rebase-apply)" \
-  ) && true
+  ) || extcd=$? || true
   # Non-zero (1) if not rebasing, (0) otherwise.
-  local is_rebasing=$?
-
+  local is_rebasing=${extcd}
   cd "${before_cd}"
-
   return ${is_rebasing}
 }
 
@@ -280,15 +295,8 @@ git_issue_complain_rebasing () {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-_git_echo_octothorpes_maroon_on_lime () {
-  if [ "$(echo -e)" = '' ]; then
-    _echo "$(bg_lime)$(fg_maroon)$(printf '#%.0s' {1..77})$(attr_reset)"
-  else
-    local ssots='#############################################################################'
-    _echo "$(bg_lime)$(fg_maroon)${ssots}$(attr_reset)"
-  fi
-}
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 git_change_branches_if_necessary () {
   local source_branch="$1"
@@ -302,14 +310,15 @@ git_change_branches_if_necessary () {
     _git_echo_octothorpes_maroon_on_lime
     notice "NOTE: \${source_branch} != \${target_branch}"
     echo
-    echo " WRKD: $(pwd -P)"
+    echo " WRKD: “$(pwd -P)”"
     echo
-    echo " Changing branches: ${target_branch} => ${source_branch}"
+    echo " Changing branches: “${target_branch}” 》“${source_branch}”"
     echo
-    /usr/bin/git checkout ${source_branch} &> /dev/null && true
-    if [ $? -ne 0 ]; then
+    local extcd=0
+    git checkout ${source_branch} 2> /dev/null) || extcd=$? || true
+    if [ $extcd -ne 0 ]; then
 # FIXME: On unpack, this might need/want to be origin/, not travel/ !
-      /usr/bin/git checkout --track ${MR_REMOTE}/${source_branch}
+      git checkout --track ${MR_REMOTE}/${source_branch}
     fi
     echo "Changed!"
     echo
@@ -324,6 +333,8 @@ git_change_branches_if_necessary () {
   cd "${before_cd}"
 }
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 git_merge_ff_only () {
@@ -340,9 +351,10 @@ git_merge_ff_only () {
   #   "fatal: update_ref failed for ref 'ORIG_HEAD': could not write to '.git/ORIG_HEAD'"
   # because my device is full. Guh.
 
+  local extcd=0
   local git_says
-  git_says=$(git merge --ff-only ${MR_REMOTE}/${source_branch} 2>&1) && true
-  local merge_success=$?
+  git_says=$(git merge --ff-only ${MR_REMOTE}/${source_branch} 2> /dev/null) || extcd=$? || true
+  local merge_success=${extcd}
 
   # 2018-03-26 16:41: Weird: was this directory moved, hence the => ?
   #    src/js/{ => solutions}/settings/constants.js       |  85 ++-
@@ -403,7 +415,7 @@ git_merge_ff_only () {
   # So use sed to sandwich each line with color changes.
   local grep_sed_sed='
     /bin/sed "s/\$/\\$(attr_reset)/g" \
-    | /bin/sed "s/^/\\${BG_BLUE}/g"
+    | /bin/sed "s/^/\\$(bg_blue)/g"
   '
   local changes_txt="$( \
     echo "${git_says}" | grep -P "${pattern_txt}" | eval "${grep_sed_sed}" \
