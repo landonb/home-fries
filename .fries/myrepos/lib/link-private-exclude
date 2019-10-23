@@ -8,6 +8,7 @@ lib =
   link_private_exclude () {
     local exclude_f
     local relative_path
+    local repo_path_n_sep="${REPO}/"
     # CONVENTION: Store .git/info/exclude files under a directory named
     # .mrinfuse located in the same directory as the .mrconfig file whose
     # repo config calls this function. Under the .mrinfuse directory, mimic
@@ -22,8 +23,9 @@ lib =
     #   /my/work/projects/.mrinfuse/cool/product/_git/info/exclude
     # Also note that the .git/ directory is mirrored as _git, because git
     #   will not let you add files from under a directory named .git/.
-    relative_path=${MR_REPO#"$(dirname ${MR_CONFIG})"/}
+    relative_path=${repo_path_n_sep#"$(dirname ${MR_CONFIG})"/}
     exclude_fpath="$(dirname ${MR_CONFIG})/.mrinfuse/${relative_path}/_git/info/exclude"
+    exclude_fpath=$(readlink -f "${exclude_fpath}")
     #
     local testing=false
     # Uncomment to spew vars and exit:
