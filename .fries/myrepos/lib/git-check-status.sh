@@ -86,7 +86,7 @@ git_status_check_unstaged () {
   #
   local extcd
   # ' M' is modified but not added.
-  (git status --porcelain | grep "^ M " > /dev/null) || extcd=$? || true
+  (git status --porcelain | grep "^ M " 2> /dev/null) || extcd=$? || true
   if [ -z ${extcd} ]; then
     DIRTY_REPO=true
     info "   $(fg_lightorange)$(attr_underline)unstaged$(attr_reset)  " \
@@ -97,7 +97,7 @@ git_status_check_unstaged () {
 git_status_check_uncommitted () {
   local extcd
   # 'M ' is added but not committed.
-  (git status --porcelain | grep "^M  " > /dev/null) || extcd=$? || true
+  (git status --porcelain | grep "^M  " 2> /dev/null) || extcd=$? || true
   if [ -z ${extcd} ]; then
     DIRTY_REPO=true
     info "  $(fg_lightorange)$(attr_underline)uncommitd$(attr_reset)  " \
@@ -108,7 +108,7 @@ git_status_check_uncommitted () {
 git_status_check_untracked () {
   local extcd
   # '^?? ' is untracked.
-  (git status --porcelain | grep "^?? " > /dev/null) || extcd=$? || true
+  (git status --porcelain | grep "^?? " 2> /dev/null) || extcd=$? || true
   if [ -z ${extcd} ]; then
     DIRTY_REPO=true
     info "  $(fg_lightorange)$(attr_underline)untracked$(attr_reset)  " \

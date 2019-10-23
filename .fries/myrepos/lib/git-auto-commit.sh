@@ -36,7 +36,7 @@ git_auto_commit_one () {
   local extcd
   git_auto_commit_hello
   (git status --porcelain "${repo_file}" |
-    grep "^\W*M\W*${repo_file}" > /dev/null) || extcd=$? || true
+    grep "^\W*M\W*${repo_file}" 2> /dev/null) || extcd=$? || true
   if [ -z ${extcd} ]; then
     local yorn
     if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
@@ -59,7 +59,7 @@ git_auto_commit_one () {
       #   fatal: Exiting because of an unresolved conflict.
       # (but it could be that the code won't make it here anymore on
       # those conditions, e.g., maybe merge conflicts are seen earlier).
-      git commit -m "${commit_msg}" > /dev/null
+      git commit -m "${commit_msg}" 2> /dev/null
       if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
         echo 'Committed!'
       fi
@@ -87,8 +87,8 @@ git_auto_commit_all () {
   #
   # Also, either grep pattern should work:
   #
-  #   git status --porcelain | grep "^\W*M\W*" > /dev/null
-  #   git status --porcelain | grep "^[^\?]" > /dev/null
+  #   git status --porcelain | grep "^\W*M\W*" 2> /dev/null
+  #   git status --porcelain | grep "^[^\?]" 2> /dev/null
   #
   # but I'm ignorant of anything other than the two codes,
   # '?? filename', and ' M filename', so let's be inclusive and
@@ -96,8 +96,8 @@ git_auto_commit_all () {
   # looking for modified files. If there are untracted files, a
   # later call to git_status_porcelain on the same repo will die.
   #
-  #  (git status --porcelain | grep "^\W*M\W*" > /dev/null) || extcd=$? || true
-  (git status --porcelain | grep "^[^\?]" > /dev/null) || extcd=$? || true
+  #  (git status --porcelain | grep "^\W*M\W*" 2> /dev/null) || extcd=$? || true
+  (git status --porcelain | grep "^[^\?]" 2> /dev/null) || extcd=$? || true
   if [ -z ${extcd} ]; then
     local yorn
     if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
@@ -112,7 +112,7 @@ git_auto_commit_all () {
     fi
     if [ ${yorn#y} != ${yorn#y} ] || [ ${yorn#Y} != ${yorn#Y} ]; then
       git add -u
-      git commit -m "${commit_msg}" > /dev/null
+      git commit -m "${commit_msg}" 2> /dev/null
       if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
         echo 'Committed!'
       else
@@ -128,7 +128,7 @@ git_auto_commit_new () {
   local commit_msg="${1:-Auto-add *untracked* files via myrepos [@$(hostname)].}"
   local extcd
   git_auto_commit_hello
-  (git status --porcelain . | grep "^[\?][\?]" > /dev/null) || extcd=$? || true
+  (git status --porcelain . | grep "^[\?][\?]" 2> /dev/null) || extcd=$? || true
   if [ -z ${extcd} ]; then
     local yorn
     if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
@@ -148,8 +148,8 @@ git_auto_commit_new () {
       # edited files; but we provide git_auto_commit_all for edited
       # files.)
       # TOO INCLUSIVE: git add .
-      echo "a\n*\nq\n" | git add -i > /dev/null
-      git commit -m "${commit_msg}" > /dev/null
+      echo "a\n*\nq\n" | git add -i 2> /dev/null
+      git commit -m "${commit_msg}" 2> /dev/null
       if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
         echo 'Committed!'
       else
