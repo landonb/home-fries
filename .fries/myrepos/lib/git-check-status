@@ -47,7 +47,11 @@ lib =
       echo
       cat ${tmp_chores_file}
       echo
-      ret_code=1
+      # We could return nonzero, while `mr` would see and die on,
+      # but instead we'll return 0 so that the stats line gets
+      # printed. E.g.,
+      #                 mr mystatus: finished (164 ok; 12 skipped)
+      #ret_code=1
     fi
     /bin/rm ${tmp_chores_file}
     return ${ret_code}
