@@ -132,10 +132,11 @@ lib =
       # Note that sh (e.g., dash; or a POSIX shell) does not define `echo -e`
       # like Bash (and in fact `echo -e "some string" echoes "-e some string).
       echo "  cdd $(fg_lightorange)${MR_REPO}$(attr_reset) && git status" >> ${tmp_chores_file}
-      # We could return 1 (and `mr` will return 1), but then mr also prints:
-      #   mr mystatus: command failed
-      # return 1
-      return 0
+      # Note that if we return nonzero, `mr` returns the same nonzero, but
+      #   mr then does not print the stats, but instead prints:
+      #     "mr myaction: command failed"
+      # We'll return nonzero, so this action can be more easily scripted.
+      return 1
     fi
     debug "  $(fg_mintgreen)$(attr_emphasis)unchanged$(attr_reset)  " \
       "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
