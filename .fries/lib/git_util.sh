@@ -1127,6 +1127,7 @@ check_git_clone_or_pull_error () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# FIXME/2019-10-23: (lb): We can probably delete git-flip-master, it's not used.
 git-flip-master () {
 
   # If your scheme is project/ and master+project/, then we got this, boo.
@@ -1206,6 +1207,7 @@ echo "FIXME: \`rake tagGitRepo\` should wait for build to complete..."
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # git-jockey
 
+# 2019-10-23: Consider instead `mr autocommit` to do this.
 git-jockey () {
   find_git_parent .
   #echo "REPO_PATH: $REPO_PATH"
@@ -1252,6 +1254,7 @@ git-jockey () {
 # what the third token is always reports on the git status of
 # the working directory, which in my case is ~/.vim.
 
+# 2019-10-23: Consider instead `mr mystatus` to do this.
 git_status_all () {
   local subdir
   for subdir in $(find . -name ".git" -type d); do
@@ -1319,6 +1322,7 @@ cis_git () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # 2017-10-03: An infuse function, for overlaying private files atop a repo.
+# 2019-10-23: Obsolete. Use `mr infuse` with `infuse = link_private_ignore`.
 git_infuse_gitignore_local () {
   [[ -z "$1" ]] && echo "${FUNCNAME[0]}: missing param" && exit 1
   if [[ ! -d ".git/info" ]]; then
@@ -1337,6 +1341,7 @@ git_infuse_gitignore_local () {
   /bin/ln -sf .git/info/exclude .gitignore.local
 }
 
+# 2019-10-23: Obsolete. Use `mr infuse` with `infuse = <custom code>`.
 git_infuse_assume_unchanging () {
   local fpath
   local fname
