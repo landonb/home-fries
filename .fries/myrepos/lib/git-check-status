@@ -73,7 +73,7 @@ lib =
     #
     local extcd
     # ' M' is modified but not added.
-    (git status --porcelain | grep "^ M ") || extcd=$? || true
+    (git status --porcelain | grep "^ M " > /dev/null) || extcd=$? || true
     if [ -z ${extcd} ]; then
       DIRTY_REPO=true
       info "YIPES: Unstaged changes found in repo at: “${MR_REPO}”"
@@ -83,7 +83,7 @@ lib =
   git_status_check_uncommitted () {
     local extcd
     # 'M ' is added but not committed.
-    (git status --porcelain | grep "^M  ") || extcd=$? || true
+    (git status --porcelain | grep "^M  " > /dev/null) || extcd=$? || true
     if [ -z ${extcd} ]; then
       DIRTY_REPO=true
       info "YIPES: Uncommitted changes found in repo at: “${MR_REPO}”"
