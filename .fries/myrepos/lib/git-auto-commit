@@ -6,10 +6,24 @@
 lib =
   . "${HOME}/.fries/lib/logger.sh"  # Ha! `source` not POSIX, but `.` is.
   #
+  MR_GIT_AUTO_COMMIT_SAID_HELLO=false
+  git_auto_commit_hello () {
+    if ! ${MR_GIT_AUTO_COMMIT_SAID_HELLO}; then
+      debug "  $(fg_mintgreen)$(attr_emphasis)examining$(attr_reset)  " \
+        "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
+    fi
+    MR_GIT_AUTO_COMMIT_SAID_HELLO=true
+  }
+  git_auto_commit_noop () {
+    debug "  $(fg_mintgreen)$(attr_emphasis)excluding$(attr_reset)  " \
+      "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
+  }
+  #
   git_auto_commit_one () {
     local repo_file="$1"
     local commit_msg="${2:-Auto-commit ${repo_file} [@$(hostname)].}"
     local extcd
+    git_auto_commit_hello
     (git status --porcelain "${repo_file}" |
       grep "^\W*M\W*${repo_file}" > /dev/null) || extcd=$? || true
     if [ -z ${extcd} ]; then
@@ -48,6 +62,7 @@ lib =
   git_auto_commit_all () {
     local commit_msg="${1:-Auto-commit *all* objects with myrepos [@$(hostname)].}"
     local extcd
+    git_auto_commit_hello
     #
     # We ignore untracted files here because they cannot be added
     # by a generic `git add -u` -- in fact, git should complain.
@@ -101,6 +116,7 @@ lib =
   git_auto_commit_new () {
     local commit_msg="${1:-Auto-add *untracked* files via myrepos [@$(hostname)].}"
     local extcd
+    git_auto_commit_hello
     (git status --porcelain . | grep "^[\?][\?]" > /dev/null) || extcd=$? || true
     if [ -z ${extcd} ]; then
       local yorn
@@ -140,4 +156,16 @@ lib =
 #   autocommit = git_auto_commit_all && git_auto_commit_new
 # Or, e.g.,
 #   autocommit = git_auto_commit_one 'some/file' && git_auto_commit_one 'ano/ther'
+# 2019-10-23: (lb): I defined a default function here (which prints a message),
+#     autocommit = git_auto_commit_noop
+#   and the runtime for `mr auto` was 3.09 seconds for (246 ok; 12 skipped).
+# I removed the default function, retested, and the runtime for `mr auto`
+#   was ⅙th the time, or 0.51 seconds, for (6 ok; 252 skipped).
+# So I'll just live with the not-so-pretty messages, e.g.,
+#   "mr autocommit: no defined action for git repository ..., skipping"
+# rather than generating more colorful, aligned messages for each repo.
+# Currently, only 2.3% of my repos autocommit, but if the slice ever grew to
+#   50% or more (won't happen), then I'd consider enabling a default function.
+# CAUSES SLOWNESS IF NOT NEEDED BY MORE THAN HALF YOUR REPOS:
+#   autocommit = git_auto_commit_noop
 
