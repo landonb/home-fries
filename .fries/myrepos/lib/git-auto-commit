@@ -96,7 +96,7 @@ lib =
         read yorn
       else
         local pretty_path="$(attr_underline)$(bg_darkgray)${MR_REPO}$(attr_reset)"
-        notice "Auto-commit dirty file(s): ${pretty_path}"
+        notice "Auto-commit *all* objects: ${pretty_path}"
         yorn="Y"
       fi
       if [ ${yorn#y} != ${yorn#y} ] || [ ${yorn#Y} != ${yorn#Y} ]; then
@@ -127,7 +127,7 @@ lib =
         read yorn
       else
         local pretty_path="$(attr_underline)$(bg_darkgray)${MR_REPO}$(attr_normal)"
-        notice "Auto-commit dirty file(s): ${pretty_path}"
+        notice "Auto-commit *new* objects: ${pretty_path}"
         yorn="Y"
       fi
       if [ ${yorn#y} != ${yorn#y} ] || [ ${yorn#Y} != ${yorn#Y} ]; then
