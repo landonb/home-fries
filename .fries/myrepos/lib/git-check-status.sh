@@ -84,7 +84,7 @@ git_status_check_unstaged () {
   # true, otherwise we'd need to wrap the call with set +e and set -e,
   # otherwise the function would fail if no unstaged changes found.
   #
-  local extcd
+  local extcd=0
   # ' M' is modified but not added.
   (git status --porcelain | grep "^ M " 2> /dev/null) || extcd=$? || true
   if [ -z ${extcd} ]; then
@@ -95,7 +95,7 @@ git_status_check_unstaged () {
 }
 
 git_status_check_uncommitted () {
-  local extcd
+  local extcd=0
   # 'M ' is added but not committed.
   (git status --porcelain | grep "^M  " 2> /dev/null) || extcd=$? || true
   if [ -z ${extcd} ]; then
@@ -106,7 +106,7 @@ git_status_check_uncommitted () {
 }
 
 git_status_check_untracked () {
-  local extcd
+  local extcd=0
   # '^?? ' is untracked.
   (git status --porcelain | grep "^?? " 2> /dev/null) || extcd=$? || true
   if [ -z ${extcd} ]; then
