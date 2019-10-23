@@ -46,6 +46,7 @@ lib =
     cd .git/info
     # CAREFUL: This clobbers!
     /bin/ln -sf "${exclude_fpath}" 'exclude'
+    cd ../..
     #
     info "Wired .gitignore.local"
   }
