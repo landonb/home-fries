@@ -2431,6 +2431,9 @@ function prepare_shim () {
   pushd "${USERS_CURLY}/TBD-shim" &> /dev/null
 
   # git_check_generic_file sets ${git_result} to 0 if file is dirty.
+  # 2019-10-23: We could replace this with two calls (DRY):
+  #   git_status_check_unstaged
+  #   git_status_check_uncommitted
   git_check_generic_file "${SCRIPT_ABS_PATH}"
 
   USE_GOOEY=true
