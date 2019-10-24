@@ -8,15 +8,12 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 source_deps () {
-  local curdir="${HOME}/.fries/lib"
+  local libdir="${HOME}/.fries/lib"
   if [ -n "${BASH_SOURCE}" ]; then
-    curdir=$(dirname -- "${BASH_SOURCE[0]}")
+    libdir="$(dirname -- ${BASH_SOURCE[0]})../../lib/"
   fi
 
-  source "${curdir}/git-auto-commit.sh"
-  source "${curdir}/git-check-status.sh"
-
-  source "${HOME}/.fries/lib/logger.sh"
+  . "${libdir}/logger.sh"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

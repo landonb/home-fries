@@ -1,14 +1,14 @@
 # vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=config
 
 source_deps () {
-  local curdir="${HOME}/.fries/lib"
+  local libdir="${HOME}/.fries/lib"
   if [ -n "${BASH_SOURCE}" ]; then
-    curdir=$(dirname -- "${BASH_SOURCE[0]}")
+    libdir="$(dirname -- ${BASH_SOURCE[0]})../../lib/"
   fi
 
   # Use logger (which loads color_funcs.sh) for colorful, stylized output.
   # NOTE: So that this script is POSIX-compliant, use `.`, not `source`.
-  . "${curdir}/logger.sh"
+  . "${libdir}/logger.sh"
 }
 
 reveal_biz_vars () {
