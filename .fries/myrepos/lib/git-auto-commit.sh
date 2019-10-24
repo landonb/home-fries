@@ -36,7 +36,7 @@ git_auto_commit_one () {
   local extcd
   git_auto_commit_hello
   (git status --porcelain "${repo_file}" |
-    grep "^\W*M\W*${repo_file}" >/dev/null 2>&1) || extcd=$? || true
+    grep "^\W*M\W*${repo_file}" >/dev/null 2>&1) || extcd=$?
   if [ -z ${extcd} ]; then
     local yorn
     if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
@@ -96,8 +96,8 @@ git_auto_commit_all () {
   # looking for modified files. If there are untracted files, a
   # later call to git_status_porcelain on the same repo will die.
   #
-  #  (git status --porcelain | grep "^\W*M\W*" >/dev/null 2>&1) || extcd=$? || true
-  (git status --porcelain | grep "^[^\?]" >/dev/null 2>&1) || extcd=$? || true
+  #  (git status --porcelain | grep "^\W*M\W*" >/dev/null 2>&1) || extcd=$?
+  (git status --porcelain | grep "^[^\?]" >/dev/null 2>&1) || extcd=$?
   if [ -z ${extcd} ]; then
     local yorn
     if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
@@ -128,7 +128,7 @@ git_auto_commit_new () {
   local commit_msg="${1:-Auto-add *untracked* files via myrepos [@$(hostname)].}"
   local extcd
   git_auto_commit_hello
-  (git status --porcelain . | grep "^[\?][\?]" >/dev/null 2>&1) || extcd=$? || true
+  (git status --porcelain . | grep "^[\?][\?]" >/dev/null 2>&1) || extcd=$?
   if [ -z ${extcd} ]; then
     local yorn
     if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
