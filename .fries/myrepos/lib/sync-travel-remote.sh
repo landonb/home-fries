@@ -350,7 +350,7 @@ git_merge_ff_only () {
 
   local extcd=0
   local git_says
-  git_says=$(git merge --ff-only ${MR_REMOTE}/${source_branch} 2> /dev/null) || extcd=$? || true
+  git_says=$(git merge --ff-only ${MR_REMOTE}/${source_branch} 2>&1) || extcd=$? || true
   local merge_success=${extcd}
 
   # 2018-03-26 16:41: Weird: was this directory moved, hence the => ?
