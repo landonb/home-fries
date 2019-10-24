@@ -7,6 +7,11 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+MR_APP_NAME='mr'
+TRAVEL_REMOTE="${TRAVEL_REMOTE:-travel}"
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 source_deps () {
   local libdir="${HOME}/.fries/lib"
   if [ -n "${BASH_SOURCE}" ]; then
@@ -67,36 +72,61 @@ is_ssh_path () {
   [ "${1#ssh://}" != "${1}" ] && return 0 || return 1
 }
 
+#lchop_sep () {
+#  echo $1 | /bin/sed "s#^/##"
+#}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 git_dir_check () {
-  REPO_PATH="$1"
+  local repo_path="$1"
+  local repo_name="$2"
   local dir_okay=0
-  if is_ssh_path "${REPO_PATH}"; then
+  if is_ssh_path "${repo_path}"; then
     return ${dir_okay}
-  elif [ ! -d "${REPO_PATH}" ]; then
+  elif [ ! -d "${repo_path}" ]; then
     dir_okay=1
-    fatal
-    fatal "Not a directory: ${REPO_PATH}"
-    fatal " In cwd: $(pwd -P)"
-    fatal
-    # FIXME/2019-10-23 16:54: travel.sh → myrepos: Fix UX and error messages.
-    # - Either delete this message, or change it.
-    fatal "Have you run \`$0 init_travel\`?"
-    fatal
-    exit 1
-  elif [ ! -d "${REPO_PATH}/.git" ] && [ ! -f "${REPO_PATH}/HEAD" ]; then
+    info
+    info "No repo found at: $(bg_maroon)$(attr_bold)${repo_path}$(attr_reset)"
+    info
+    if [ "${repo_name}" = 'travel' ]; then
+      info "You can setup the travel device easily by running:"
+      info
+      info "  MR_TRAVEL=${MR_TRAVEL} ${MR_APP_NAME} travel"
+    else
+      # (lb): This should be unreacheable, because $repo_path is $MR_REPO,
+      # and `mr` will have failed before now.
+      fatal "UNEXPECTED: local repo missing?"
+      fatal "  Path to pull from is missing:"
+      fatal "    ${repo_path}"
+    fi
+    info
+    warn "$(attr_reset)   $(fg_mintgreen)$(attr_emphasis)absent!$(attr_reset)   " \
+      "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
+  elif [ ! -d "${repo_path}/.git" ] && [ ! -f "${repo_path}/HEAD" ]; then
     dir_okay=1
-    local no_git_yo_msg="WARNING: No .git/ or HEAD found under: $(pwd -P)/${REPO_PATH}/"
-    warn
-    warn "${no_git_yo_msg}"
+    info
+    info "No .git/ or HEAD found under: ${repo_path}/"
+    info
+    warn "$(attr_reset)   $(fg_mintgreen)$(attr_emphasis)gitless$(attr_reset)   " \
+      "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
   else
     local before_cd="$(pwd -L)"
-    cd "${REPO_PATH}"
+    cd "${repo_path}"
     (git rev-parse --git-dir --quiet >/dev/null 2>&1) && dir_okay=0 || dir_okay=1
     cd "${before_cd}"
+    if [ ${dir_okay} -ne 0 ]; then
+      local no_git_yo_msg=
+      info
+      info "Unknown rev-parse error in: ${repo_path}"
+      info
+      info "  $(git rev-parse --git-dir --quiet 2>&1)"
+      info
+      warn "$(attr_reset)  $(fg_mintgreen)$(attr_emphasis)rev-parse$(attr_reset)  " \
+        "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
+    fi
   fi
   return ${dir_okay}
 }
@@ -105,16 +135,16 @@ git_dir_check () {
 
 must_be_git_dirs () {
   local source_repo="$1"
-  local target_repo="${2:-$(pwd)}"
-  # Instead of $(pwd), could use environ:
-  #   local target_repo="${2:-${MR_REPO}}"
+  local target_repo="$2"
+  local source_name="$3"
+  local target_name="$4"
 
   local a_problem=0
 
-  git_dir_check "${source_repo}"
+  git_dir_check "${source_repo}" "${source_name}"
   [ $? -ne 0 ] && a_problem=1
 
-  git_dir_check "${target_repo}"
+  git_dir_check "${target_repo}" "${target_name}"
   [ $? -ne 0 ] && a_problem=1
 
   return ${a_problem}
@@ -410,7 +440,6 @@ git_merge_ff_only () {
     warn " ${git_says}"
     # warn " target_repo: ${target_repo}"
   elif (echo "${git_says}" | grep '^Already up to date.$' >/dev/null); then
-    #debug "  $(fg_mintgreen)$(attr_emphasis)unchanged$(attr_reset)  " \
     debug "  $(fg_mintgreen)$(attr_emphasis)up-2-date$(attr_reset)  " \
       "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
   elif [ -z "${changes_txt}" ] && [ -z "${changes_bin}" ]; then
@@ -428,14 +457,10 @@ git_merge_ff_only () {
 
 git_fetch_n_ffwd2br () {
   local source_repo="$1"
-  local target_repo="${2:-$(pwd)}"
-  # Instead of $(pwd), could use environ:
-  #   local target_repo="${2:-${MR_REPO}}"
+  local target_repo="$2"
 
-  MR_REMOTE="${MR_REMOTE:-travel}"
-
-  must_be_git_dirs "${source_repo}" "${target_repo}"
-  [ $? -ne 0 ] && return
+  must_be_git_dirs "${source_repo}" "${target_repo}" 'travel' 'local'
+  [ $? -ne 0 ] && return  # Obviously unreacheable if caller used `set -e`.
 
   local source_branch
   if is_ssh_path "${source_repo}"; then
@@ -469,15 +494,43 @@ git_fetch_n_ffwd2br () {
   cd "${before_cd}"
 } # end: git_fetch_n_ffwd2br
 
+git_pack_travel_device () {
+  local source_repo="$1"
+  local target_repo="$2"
+
+  must_be_git_dirs "${source_repo}" "${target_repo}" 'local' 'travel'
+  [ $? -ne 0 ] && return  # Obviously unreacheable if caller used `set -e`.
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# The `mr ffssh` action.
 git_merge_ffonly_ssh_mirror () {
   [ -z "${MR_REMOTE}" ] && error 'You must set MR_REMOTE!' && exit 1
   [ -z "${MR_REPO}" ] && error 'You must set MR_REPO!' && exit 1
   MR_FETCH_HOST=${MR_FETCH_HOST:-${MR_REMOTE}}
-  local rel_repo="$(echo ${MR_REPO} | /bin/sed "s#^/##")"
+  local rel_repo=$(lchop_sep "${MR_REPO}")
   local ssh_path="ssh://${MR_FETCH_HOST}/${rel_repo}"
   git_fetch_n_ffwd2br "${ssh_path}" "${MR_REPO}"
+}
+
+# The `mr travel` action.
+git_update_device_fetch_from_local () {
+  [ -z "${MR_TRAVEL}" ] && error 'You must set MR_TRAVEL!' && exit 1
+  [ -z "${MR_REPO}" ] && error 'You must set MR_REPO!' && exit 1
+  MR_REMOTE=${MR_REMOTE:-${TRAVEL_REMOTE}}
+#  local rel_repo=$(lchop_sep "${MR_REPO}")
+  local dev_path=$(pwd -L "${MR_TRAVEL}/${rel_repo}")
+  git_pack_travel_device "${MR_REPO}" "${dev_path}"
+}
+
+# The `mr unpack` action.
+git_update_local_fetch_from_device () {
+  [ -z "${MR_TRAVEL}" ] && error 'You must set MR_TRAVEL!' && exit 1
+  [ -z "${MR_REPO}" ] && error 'You must set MR_REPO!' && exit 1
+  MR_REMOTE=${MR_REMOTE:-${TRAVEL_REMOTE}}
+  local dev_path=$(readlink -m "${MR_TRAVEL}/${MR_REPO}")
+  git_fetch_n_ffwd2br "${dev_path}" "${MR_REPO}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
