@@ -228,7 +228,8 @@ git_ensure_or_clone_target () {
 git_checkedout_branch_name_direct () {
   local before_cd="$(pwd -L)"
   cd "$1"
-  local branch_name=$(git rev-parse --abbrev-ref HEAD)
+  local branch_name
+  branch_name=$(git rev-parse --abbrev-ref HEAD)
   cd "${before_cd}"
   echo "${branch_name}"
 }
@@ -239,7 +240,8 @@ git_checkedout_branch_name_remote () {
 
   local before_cd="$(pwd -L)"
   cd "${target_repo}"
-  local branch_name=$( \
+  local branch_name
+  branch_name=$( \
     git remote show ${remote_name} |
     grep "HEAD branch:" |
     /bin/sed -e "s/^.*HEAD branch:\s*//" \
@@ -257,7 +259,8 @@ git_checkedout_remote_branch_name () {
   # but origin/feature/foo.
   local before_cd="$(pwd -L)"
   cd "$1"
-  local remote_branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{u})
+  local remote_branch
+  remote_branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{u})
   cd "${before_cd}"
   echo "${remote_branch}"
 }
@@ -513,8 +516,8 @@ git_merge_ff_only () {
     warn " ${git_resp}"
     # warn " target_repo: ${target_repo}"
   elif (echo "${git_resp}" | grep '^Already up to date.$' >/dev/null); then
-    debug "  $(fg_mintgreen)up-2-date$(attr_reset)  " \
-      "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
+    debug "  $(fg_mediumgrey)up-2-date$(attr_reset)  " \
+      "$(fg_mediumgrey)${MR_REPO}$(attr_reset)"
   elif [ -z "${changes_txt}" ] && [ -z "${changes_bin}" ]; then
     # A warning, so you can update the grep above and recognize this output.
     warn "  $(fg_mintgreen)$(attr_emphasis)!familiar$(attr_reset)  " \
@@ -540,12 +543,15 @@ git_fetch_n_cobr () {
   [ $? -ne 0 ] && return $? || true  # Obviously unreacheable if caller used `set -e`.
 
   local source_branch
+  local target_branch
   if is_ssh_path "${source_repo}"; then
     source_branch=$(git_checkedout_branch_name_remote "${target_repo}" "${MR_REMOTE}")
   else
     source_branch=$(git_checkedout_branch_name_direct "${source_repo}")
   fi
-  local target_branch=$(git_checkedout_branch_name_direct "${target_repo}")
+  target_branch=$(git_checkedout_branch_name_direct "${target_repo}")
+  # A global for later.
+  MR_ACTIVE_BRANCH="${source_branch}"
 
   local before_cd="$(pwd -L)"
   cd "${target_repo}"  # (lb): Probably $MR_REPO, which is already cwd.
@@ -578,7 +584,7 @@ git_fetch_n_cobr_n_merge () {
   travel_ops_reset_stats
   git_fetch_n_cobr "${source_repo}" "${target_repo}" "${source_name}" "${target_name}"
   # Fast-forward merge, so no new commits, and complain if cannot.
-  git_merge_ff_only "${source_branch}" "${target_repo}"
+  git_merge_ff_only "${MR_ACTIVE_BRANCH}" "${target_repo}"
 }
 
 git_pack_travel_device () {
@@ -625,14 +631,16 @@ git_update_ensure_ready () {
 # The `mr travel` action.
 git_update_device_fetch_from_local () {
   MR_REMOTE=${MR_REMOTE:-$(hostname)}
-  local dev_path=$(git_update_ensure_ready)
+  local dev_path
+  dev_path=$(git_update_ensure_ready)
   git_pack_travel_device "${MR_REPO}" "${dev_path}"
 }
 
 # The `mr unpack` action.
 git_update_local_fetch_from_device () {
   git_merge_check_env_remote
-  local dev_path=$(git_update_ensure_ready)
+  local dev_path
+  dev_path=$(git_update_ensure_ready)
   git_fetch_n_cobr_n_merge "${dev_path}" "${MR_REPO}" 'travel' 'local'
 }
 
