@@ -3,7 +3,7 @@
 # Project: https://github.com/landonb/home-fries
 # License: GPLv3
 
-# Summary: Git Helpers: Check if Dirty/Untracked/Behind; and Auto-commit.
+# Summary: Git Helpers: Fetch from Remote; Merge --Ff-Only; and Update Mirror.
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -63,10 +63,18 @@ _git_echo_octothorpes_maroon_on_lime () {
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+is_ssh_path () {
+  [ "${1#ssh://}" != "${1}" ] && return 0 || return 1
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 git_dir_check () {
   REPO_PATH="$1"
   local dir_okay=0
-  if [ "${REPO_PATH}" = ssh://* ]; then
+  if is_ssh_path "${REPO_PATH}"; then
     return ${dir_okay}
   elif [ ! -d "${REPO_PATH}" ]; then
     dir_okay=1
@@ -75,19 +83,19 @@ git_dir_check () {
     fatal " In cwd: $(pwd -P)"
     fatal
     # FIXME/2019-10-23 16:54: travel.sh → myrepos: Fix UX and error messages.
-    fatal "Have you run init_travel?"
+    # - Either delete this message, or change it.
+    fatal "Have you run \`$0 init_travel\`?"
     fatal
     exit 1
-  elif [ ! -d "${REPO_PATH}/.git" && ! -f "${REPO_PATH}/HEAD" ]; then
+  elif [ ! -d "${REPO_PATH}/.git" ] && [ ! -f "${REPO_PATH}/HEAD" ]; then
     dir_okay=1
     local no_git_yo_msg="WARNING: No .git/ or HEAD found under: $(pwd -P)/${REPO_PATH}/"
     warn
     warn "${no_git_yo_msg}"
-#    FRIES_GIT_ISSUES_RESOLUTIONS+=("${no_git_yo_msg}")
   else
     local before_cd="$(pwd -L)"
     cd "${REPO_PATH}"
-    (git rev-parse --git-dir --quiet 2> /dev/null) && dir_okay=0 || dir_okay=1
+    (git rev-parse --git-dir --quiet >/dev/null 2>&1) && dir_okay=0 || dir_okay=1
     cd "${before_cd}"
   fi
   return ${dir_okay}
@@ -97,7 +105,9 @@ git_dir_check () {
 
 must_be_git_dirs () {
   local source_repo="$1"
-  local target_repo="${2:-$(pwd)}"  # I.e., $MR_REPO
+  local target_repo="${2:-$(pwd)}"
+  # Instead of $(pwd), could use environ:
+  #   local target_repo="${2:-${MR_REPO}}"
 
   local a_problem=0
 
@@ -114,21 +124,25 @@ must_be_git_dirs () {
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-git_checkedout_branch_name () {
-  # 2017-04-04: I unplugged the USB stick before ``popoff``
-  #   (forgot to hit <CR>) and then got errors on unpack herein:
-  #     error: git-status died of signal 7
-  #   signal 7 is a bus error, meaning hardware or filesystem or something
-  #   is corrupt, most likely. I made a new sync-stick.
-  # 2018-03-22: Ha! How have I been so naive? Avoid porcelain!
-  #   git status | head -n 1 | grep "^On branch" | /bin/sed -r "s/^On branch //"
-  # And this magic!
-  #   local branch_name=$(git branch --no-color | grep \* | cut -d ' ' -f2)
-  # How many ways did I do it differently herein??
-  #   local branch_name=$(git branch --no-color | head -n 1 | /bin/sed 's/^\*\? *//')
+git_checkedout_branch_name_direct () {
   local before_cd="$(pwd -L)"
   cd "$1"
   local branch_name=$(git rev-parse --abbrev-ref HEAD)
+  cd "${before_cd}"
+  echo "${branch_name}"
+}
+
+git_checkedout_branch_name_remote () {
+  local target_repo="$1"
+  local remote_name="${2:-${MR_REMOTE}}"
+
+  local before_cd="$(pwd -L)"
+  cd "${target_repo}"
+  local branch_name=$( \
+    git remote show ${remote_name} |
+    grep "HEAD branch:" |
+    /bin/sed -e "s/^.*HEAD branch:\s*//" \
+  )
   cd "${before_cd}"
   echo "${branch_name}"
 }
@@ -151,16 +165,29 @@ git_checkedout_remote_branch_name () {
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+git_must_be_clean () {
+  [ -z "$(git status --porcelain)" ] && return 0
+  info "    $(fg_lightorange)$(attr_underline)dirty$(attr_reset)    " \
+    "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
+  exit 1
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 git_set_remote_travel () {
   local source_repo="$1"
   local target_repo="${2:-$(pwd)}"
+  # Instead of $(pwd), could use environ:
+  #   local target_repo="${2:-${MR_REPO}}"
 
   local before_cd="$(pwd -L)"
   cd "${target_repo}"
 
   local extcd=0
   local remote_url
-  remote_url=$(git remote get-url ${MR_REMOTE} 2> /dev/null) || extcd=$? || true
+  remote_url=$(git remote get-url ${MR_REMOTE} 2>/dev/null) || extcd=$? || true
 
   #trace "  git_set_remote_travel:"
   #trace "   target: ${target_repo}"
@@ -168,13 +195,14 @@ git_set_remote_travel () {
   #trace "  git-url: ${extcd}"
 
   if [ ${extcd} -ne 0 ]; then
-    trace "  Wiring the \"${MR_REMOTE}\" remote for first time!"
+    trace "  Newly wired remote for “${MR_REMOTE}”"
     git remote add ${MR_REMOTE} "${source_repo}"
   elif [ "${remote_url}" != "${source_repo}" ]; then
-    trace "  Rewiring the \"${MR_REMOTE}\" remote url / was: ${remote_url}"
+    trace "  Reset remote wired for “${MR_REMOTE}”" \
+      "(was: $(attr_italic)${remote_url}$(attr_reset))"
     git remote set-url ${MR_REMOTE} "${source_repo}"
   else
-    #trace "  The \"${MR_REMOTE}\" remote url is already correct!"
+    #trace "  The “${MR_REMOTE}” remote url is already correct!"
     : # no-op
   fi
 
@@ -189,106 +217,33 @@ git_fetch_remote_travel () {
   local before_cd="$(pwd -L)"
   cd "${target_repo}"
 
-
-
-
-
-
-
-# SKIP_INTERNETS
-# NO_NETWORK_OKAY
-#
-#
-#
-#
-
-  # Assuming git_set_remote_travel was called previously,
-  # lest there is no travel remote.
-  if ${SKIP_INTERNETS}; then
-    git fetch ${MR_REMOTE} --prune
-  else
-    local extcd=0
-    local git_says
-    if ! ${NO_NETWORK_OKAY}; then
-      git_says=$(git fetch --all --prune 2>&1) || extcd=$? || true
-    else
-      git_says=$(git fetch ${MR_REMOTE} --prune 2>&1) || extcd=$? || true
-    fi
-    local fetch_success=$?
-    verbose "git fetch says:\n${git_says}"
-    # Use `&& true` in case grep does not match anything,
-    # so as not to tickle errexit.
-    # 2018-03-23: Is the "has become dangling" message meaningful to me?
-     local culled="$(echo "${git_says}" \
-      | grep -v "^Fetching " \
-      | grep -v "^From " \
-      | grep -v "+\? *[a-f0-9]\{7,8\}\.\{2,3\}[a-f0-9]\{7,8\}.*->.*" \
-      | grep -v -P '\* \[new branch\] +.* -> .*' \
-      | grep -v -P '\* \[new tag\] +.* -> .*' \
-      | grep -v "^ \?- \[deleted\] \+(none) \+-> .*" \
-      | grep -v "(refs/remotes/origin/HEAD has become dangling)" \
-    )"
-
-    [ -n ${culled} ] && warn "git fetch wha?\n${culled}"
-    [ -n ${culled} ] && [ ${LOG_LEVEL} -gt ${LOG_LEVEL_VERBOSE} ] && \
-      notice "git fetch says:\n${git_says}"
-
-    if [ ${fetch_success} -ne 0 ]; then
-      error "Unexpected fetch failure! ${git_says}"
-    fi
-  fi
-
-  cd "${before_cd}"
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-git_is_rebase_in_progress () {
-  local before_cd="$(pwd -L)"
-  cd "$1"
-  # During a rebase, git uses new directories, so we could check the filesystem:
-  #   (test -d ".git/rebase-merge" || test -d ".git/rebase-apply") || die "No!"
-  # Or we could be super naive, and porcelain, and git-n-grep:
-  #   git -c color.ui=off status | grep "^rebase in progress" > /dev/null
-  # Or we could use our plumbing knowledge and do it most rightly.
-  #   (Note we use `&& test` so command does not tickle errexit.
   local extcd=0
-  # MAYBE/2019-10-23 17:44: Do we need to redirect? 2> /dev/null
-  (test -d "$(git rev-parse --git-path rebase-merge)" || \
-   test -d "$(git rev-parse --git-path rebase-apply)" \
-  ) || extcd=$? || true
-  # Non-zero (1) if not rebasing, (0) otherwise.
-  local is_rebasing=${extcd}
-  cd "${before_cd}"
-  return ${is_rebasing}
-}
+  local git_says
+  git_says="$(git fetch ${MR_REMOTE} --prune 2>&1)" || extcd=$? || true
+  local fetch_success=${extcd}
+  verbose "git fetch says:\n${git_says}"
+  # Use `&& true` in case grep does not match anything,
+  # so as not to tickle errexit.
+  # 2018-03-23: Is the "has become dangling" message meaningful to me?
+   local culled="$(echo "${git_says}" \
+    | grep -v "^Fetching " \
+    | grep -v "^From " \
+    | grep -v "+\? *[a-f0-9]\{7,8\}\.\{2,3\}[a-f0-9]\{7,8\}.*->.*" \
+    | grep -v -P '\* \[new branch\] +.* -> .*' \
+    | grep -v -P '\* \[new tag\] +.* -> .*' \
+    | grep -v "^ \?- \[deleted\] \+(none) \+-> .*" \
+    | grep -v "(refs/remotes/origin/HEAD has become dangling)" \
+  )"
 
-git_must_not_rebasing () {
-  local source_branch="$1"
-  local target_repo="${2:-$(pwd)}"
-  # Caller already changed to appropriate director, so do not pass
-  # directory to rebase check, else it'll change directories again,
-  # which'll fail if ${target_repo} is a relative path.
-  git_is_rebase_in_progress
-  local in_rebase=$?
-  if [ ${in_rebase} -eq 0 ]; then
-    git_issue_complain_rebasing "${source_branch}" "${target_repo}"
-    return 1
+  [ -n "${culled}" ] && warn "git fetch wha?\n${culled}"
+  [ -n "${culled}" ] && [ ${LOG_LEVEL} -gt ${LOG_LEVEL_VERBOSE} ] && \
+    notice "git fetch says:\n${git_says}"
+
+  if [ ${fetch_success} -ne 0 ]; then
+    error "Unexpected fetch failure! ${git_says}"
   fi
-  return 0
-}
 
-git_issue_complain_rebasing () {
-  local source_branch="$1"
-  # WEIRD?: I thought to set default one needed colon, e.g., ${2:-default}
-  #   but seems to work find without...
-  local target_repo="${2:-$(pwd)}"
-  local git_says="${3}"
-
-  warn "Skipping branch in rebase, or with unstage commits!"
-  warn " ${target_repo}"
+  cd "${before_cd}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -299,26 +254,28 @@ git_change_branches_if_necessary () {
   local source_branch="$1"
   local target_branch="$2"
   local target_repo="${3:-$(pwd)}"
+  # Instead of $(pwd), could use environ:
+  #   local target_repo="${3:-${MR_REPO}}"
 
   local before_cd="$(pwd -L)"
   cd "${target_repo}"
 
   if [ "${source_branch}" != "${target_branch}" ]; then
     _git_echo_octothorpes_maroon_on_lime
-    notice "NOTE: \${source_branch} != \${target_branch}"
-    echo
-    echo " WRKD: “$(pwd -P)”"
-    echo
-    echo " Changing branches: “${target_branch}” 》“${source_branch}”"
-    echo
+    notice "Branches differ!: \${source_branch} != \${target_branch}"
+    debug
+    debug " REPO: “${target_repo}”"
+    debug
+    debug " Changing branches: “${target_branch}” 》“${source_branch}”"
+    debug
     local extcd=0
-    git checkout ${source_branch} 2> /dev/null) || extcd=$? || true
+    (git checkout ${source_branch} >/dev/null 2>&1) || extcd=$? || true
     if [ $extcd -ne 0 ]; then
 # FIXME: On unpack, this might need/want to be origin/, not travel/ !
       git checkout --track ${MR_REMOTE}/${source_branch}
     fi
-    echo "Changed!"
-    echo
+    debug "Changed!"
+    debug
     _git_echo_octothorpes_maroon_on_lime
 # FIXME/2018-03-22: Adding to this array may prevent travel from continuing? I.e., the -D workaround?
 #   Or are these msgs printed after everything and do not prevent finishing?
@@ -337,6 +294,8 @@ git_change_branches_if_necessary () {
 git_merge_ff_only () {
   local source_branch="$1"
   local target_repo="${2:-$(pwd)}"
+  # Instead of $(pwd), could use environ:
+  #   local target_repo="${2:-${MR_REPO}}"
 
   local before_cd="$(pwd -L)"
   cd "${target_repo}"
@@ -398,8 +357,8 @@ git_merge_ff_only () {
 #Please commit your changes or stash them before you merge.
 #Aborting
 
-  [ -n ${culled} ] && warn "git merge wha?\n${culled}"
-  [ -n ${culled} ] && [ ${LOG_LEVEL} -gt ${LOG_LEVEL_VERBOSE} ] && \
+  [ -n "${culled}" ] && warn "git merge wha?\n${culled}"
+  [ -n "${culled}" ] && [ ${LOG_LEVEL} -gt ${LOG_LEVEL_VERBOSE} ] && \
     notice "git merge says:\n${git_says}"
 
   # 2018-03-23: Would you like something more muted, or vibrant? Trying vibrant.
@@ -411,8 +370,8 @@ git_merge_ff_only () {
   #   local changes_bin="$(echo "${git_says}" | grep -P "${pattern_bin}")"
   # So use sed to sandwich each line with color changes.
   local grep_sed_sed='
-    /bin/sed "s/\$/\\$(attr_reset)/g" \
-    | /bin/sed "s/^/\\$(bg_blue)/g"
+    /bin/sed "s/\$/\\$(attr_reset)/g" |
+    /bin/sed "s/^/\\$(bg_blue)/g"
   '
   local changes_txt="$( \
     echo "${git_says}" | grep -P "${pattern_txt}" | eval "${grep_sed_sed}" \
@@ -420,84 +379,105 @@ git_merge_ff_only () {
   local changes_bin="$( \
     echo "${git_says}" | grep -P "${pattern_bin}" | eval "${grep_sed_sed}" \
   )"
-  [ -n "${changes_txt}" ] && \
-    info "Changes! in txt: $(fg_lavender)${MR_REPO}\n$(fg_white)$(attr_reset)${changes_txt}"
-  [ -n "${changes_bin}" ] && \
-    info "Changes! in bin: $(fg_lavender)${MR_REPO}\n$(fg_white)$(attr_reset)${changes_bin}"
+  #
+  local status_niner=''
+  if [ -n "${changes_txt}" ]; then
+    info "  $(fg_mintgreen)$(attr_emphasis)txt+$(attr_reset)       " \
+      "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
+#    #info "Changes! in txt: $(fg_lavender)${MR_REPO}\n$(fg_white)$(attr_reset)${changes_txt}"
+    info "${changes_txt}"
+#    status_niner="${status_niner}txt+"
+#  else
+#    status_niner="${status_niner}    "
+  fi
+  if [ -n "${changes_bin}" ]; then
+    info "       $(fg_mintgreen)$(attr_emphasis)bin+$(attr_reset)  " \
+      "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
+#    #info "Changes! in bin: $(fg_lavender)${MR_REPO}\n$(fg_white)$(attr_reset)${changes_bin}"
+    info "${changes_bin}"
+#    [ -n "${status_niner}" ] && status_niner="${status_niner}|" || status_niner="${status_niner} "
+#    status_niner="${status_niner}bin+"
+#  else
+#    status_niner="${status_niner}     "
+  fi
 
-  # (lb): Not quite sure why git_must_not_rebasing would not have failed first.
-  #   Does this happen?
+  # We verified `git status --porcelain` indicated nothing before trying to merge,
+  # so this could mean the branch diverged from remote, or something. Inform user.
   if [ ${merge_success} -ne 0 ]; then
-    git_issue_complain_rebasing "${source_branch}" "${target_repo}" "${git_says}"
+    info "  $(fg_lightorange)$(attr_underline)mergefail$(attr_reset)  " \
+      "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
+    warn "Merge failed! \`merge --ff-only ${MR_REMOTE}/${source_branch}\` says:"
+    warn " ${git_says}"
+    # warn " target_repo: ${target_repo}"
+  elif (echo "${git_says}" | grep '^Already up to date.$' >/dev/null); then
+    #debug "  $(fg_mintgreen)$(attr_emphasis)unchanged$(attr_reset)  " \
+    debug "  $(fg_mintgreen)$(attr_emphasis)up-2-date$(attr_reset)  " \
+      "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
+  elif [ -z "${changes_txt}" ] && [ -z "${changes_bin}" ]; then
+    # A warning, so you can update the grep above and recognize this output.
+    warn "  $(fg_mintgreen)$(attr_emphasis)!familiar$(attr_reset)  " \
+      "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
   fi
 
   cd "${before_cd}"
+
+  return ${merge_success}
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-git_pull_hush () {
+git_fetch_n_ffwd2br () {
   local source_repo="$1"
   local target_repo="${2:-$(pwd)}"
+  # Instead of $(pwd), could use environ:
+  #   local target_repo="${2:-${MR_REPO}}"
+
+  MR_REMOTE="${MR_REMOTE:-travel}"
 
   must_be_git_dirs "${source_repo}" "${target_repo}"
   [ $? -ne 0 ] && return
 
   local source_branch
-  local target_branch=$(git_checkedout_branch_name "${target_repo}")
-  if [ "${source_repo}" = ssh://* ]; then
-    source_branch=${target_branch}
+  if is_ssh_path "${source_repo}"; then
+    source_branch=$(git_checkedout_branch_name_remote "${target_repo}" "${MR_REMOTE}")
   else
-    source_branch=$(git_checkedout_branch_name "${source_repo}")
+    source_branch=$(git_checkedout_branch_name_direct "${source_repo}")
   fi
-
-  # 2019-10-07: On handtram, source repo is /x/y/z, target repo is x/y/z, and cwd is /.
-  # So source branch and target branch will be the same.
+  local target_branch=$(git_checkedout_branch_name_direct "${target_repo}")
 
   local before_cd="$(pwd -L)"
-  cd "${target_repo}"
+  cd "${target_repo}"  # (lb): Probably $MR_REPO, which is already cwd.
 
-  MR_REMOTE="${MR_REMOTE:-travel}"
+  local extcd=0
+  (git_must_be_clean) || extcd=$? || true
+  if [ ${extcd} -ne 0 ]; then
+    cd "${before_cd}"
+    exit ${extcd}
+  fi
+
   # 2018-03-22: Set a remote to the sync device. There's always only 1,
   # apparently. I think this'll work well.
   git_set_remote_travel "${source_repo}"
   git_fetch_remote_travel
 
-  git_must_not_rebasing "${source_branch}" "${target_repo}" && true
-  local okay=$?
-  if [ ${okay} -ne 0 ]; then
-    # The fcn. we just called that failed will have spit out a warning
-#    # and added to the final FRIES_GIT_ISSUES_RESOLUTIONS array.
-    cd "${before_cd}"
-    return
-  fi
-
-  # There is a conundrum/enigma/riddle/puzzle/brain-teaser/problem/puzzlement
-  # when it comes to what to do about clarifying branches -- should we check
-  # every branch for changes, try to fast-forward, and complain if we cannot?
-  # That actually seems like the most approriate thing to do!
-  # It also feels really, really tedious.
-  # FIXME/2018-03-22 22:07: Consider checking all branches for rebase needs!
-
   # Because `cd` above, do not need to pass "${target_repo}" (on $3).
   git_change_branches_if_necessary "${source_branch}" "${target_branch}"
 
-  # Fast-forward merge (no new commits!) or complain (later).
-  # Because `cd` above, passing "$(pwd)" same as "${target_repo}".
-  git_merge_ff_only "${source_branch}" "$(pwd)"
+  # Fast-forward merge, so no new commits, and complain if cannot.
+  git_merge_ff_only "${source_branch}" "${target_repo}"
 
   cd "${before_cd}"
-} # end: git_pull_hush
+} # end: git_fetch_n_ffwd2br
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 git_merge_ffonly_ssh_mirror () {
-  [ -z ${MR_REMOTE} ] && error 'You must set MR_REMOTE!' && exit 1
-  [ -z ${MR_REPO} ] && error 'You must set MR_REPO!' && exit 1
+  [ -z "${MR_REMOTE}" ] && error 'You must set MR_REMOTE!' && exit 1
+  [ -z "${MR_REPO}" ] && error 'You must set MR_REPO!' && exit 1
   MR_FETCH_HOST=${MR_FETCH_HOST:-${MR_REMOTE}}
   local rel_repo="$(echo ${MR_REPO} | /bin/sed "s#^/##")"
-  local ssh_path="ssh://${MR_FETCH_HOST}${rel_repo}"
-  git_pull_hush "${ssh_path}" "${MR_REPO}"
+  local ssh_path="ssh://${MR_FETCH_HOST}/${rel_repo}"
+  git_fetch_n_ffwd2br "${ssh_path}" "${MR_REPO}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
