@@ -33,7 +33,7 @@ git_auto_commit_noop () {
 git_auto_commit_one () {
   local repo_file="$1"
   local commit_msg="${2:-Auto-commit ${repo_file} [@$(hostname)].}"
-  local extcd=0
+  local extcd
   git_auto_commit_hello
   (git status --porcelain "${repo_file}" |
     grep "^\W*M\W*${repo_file}" >/dev/null 2>&1) || extcd=$? || true
@@ -72,7 +72,7 @@ git_auto_commit_one () {
 
 git_auto_commit_all () {
   local commit_msg="${1:-Auto-commit *all* objects with myrepos [@$(hostname)].}"
-  local extcd=0
+  local extcd
   git_auto_commit_hello
   #
   # We ignore untracted files here because they cannot be added
@@ -126,7 +126,7 @@ git_auto_commit_all () {
 
 git_auto_commit_new () {
   local commit_msg="${1:-Auto-add *untracked* files via myrepos [@$(hostname)].}"
-  local extcd=0
+  local extcd
   git_auto_commit_hello
   (git status --porcelain . | grep "^[\?][\?]" >/dev/null 2>&1) || extcd=$? || true
   if [ -z ${extcd} ]; then

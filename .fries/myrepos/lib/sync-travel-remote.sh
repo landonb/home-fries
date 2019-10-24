@@ -21,6 +21,12 @@ source_deps () {
   . "${libdir}/logger.sh"
 }
 
+reveal_biz_vars () {
+  # 2019-10-21: (lb): Because myrepos uses subprocesses, our best bet for
+  # maintaining data across all repos is to use temporary files.
+  MR_TMP_TRAVEL_HINT_FILE='/tmp/home-fries-myrepos.travel-ieWeich9kaph5eiR'
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -72,13 +78,23 @@ is_ssh_path () {
   [ "${1#ssh://}" != "${1}" ] && return 0 || return 1
 }
 
-#lchop_sep () {
-#  echo $1 | /bin/sed "s#^/##"
-#}
+lchop_sep () {
+  echo $1 | /bin/sed "s#^/##"
+}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+warn_repo_problem_7char () {
+  warn "$(attr_reset)   $(fg_mintgreen)$(attr_emphasis)${1}$(attr_reset)   " \
+    "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
+}
+
+warn_repo_problem_9char () {
+  warn "$(attr_reset)  $(fg_mintgreen)$(attr_emphasis)${1}$(attr_reset)    " \
+    "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
+}
 
 git_dir_check () {
   local repo_path="$1"
@@ -88,30 +104,23 @@ git_dir_check () {
     return ${dir_okay}
   elif [ ! -d "${repo_path}" ]; then
     dir_okay=1
-    info
-    info "No repo found at: $(bg_maroon)$(attr_bold)${repo_path}$(attr_reset)"
-    info
+    info "No repo found: $(bg_maroon)$(attr_bold)${repo_path}$(attr_reset)"
     if [ "${repo_name}" = 'travel' ]; then
-      info "You can setup the travel device easily by running:"
-      info
-      info "  MR_TRAVEL=${MR_TRAVEL} ${MR_APP_NAME} travel"
+      touch ${MR_TMP_TRAVEL_HINT_FILE}
     else
       # (lb): This should be unreacheable, because $repo_path is $MR_REPO,
       # and `mr` will have failed before now.
+      fatal
       fatal "UNEXPECTED: local repo missing?"
       fatal "  Path to pull from is missing:"
-      fatal "    ${repo_path}"
+      fatal "    “${repo_path}”"
+      fatal
     fi
-    info
-    warn "$(attr_reset)   $(fg_mintgreen)$(attr_emphasis)absent!$(attr_reset)   " \
-      "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
+    warn_repo_problem_9char 'notsynced'
   elif [ ! -d "${repo_path}/.git" ] && [ ! -f "${repo_path}/HEAD" ]; then
     dir_okay=1
-    info
-    info "No .git/ or HEAD found under: ${repo_path}/"
-    info
-    warn "$(attr_reset)   $(fg_mintgreen)$(attr_emphasis)gitless$(attr_reset)   " \
-      "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
+    info "No .git/|HEAD: $(bg_maroon)$(attr_bold)${repo_path}$(attr_reset)"
+    warn_repo_problem_7char 'gitless'
   else
     local before_cd="$(pwd -L)"
     cd "${repo_path}"
@@ -119,13 +128,9 @@ git_dir_check () {
     cd "${before_cd}"
     if [ ${dir_okay} -ne 0 ]; then
       local no_git_yo_msg=
-      info
-      info "Unknown rev-parse error in: ${repo_path}"
-      info
-      info "  $(git rev-parse --git-dir --quiet 2>&1)"
-      info
-      warn "$(attr_reset)  $(fg_mintgreen)$(attr_emphasis)rev-parse$(attr_reset)  " \
-        "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
+      info "Bad --git-dir: $(bg_maroon)$(attr_bold)${repo_path}$(attr_reset)"
+      info "  “$(git rev-parse --git-dir --quiet 2>&1)”"
+      warn_repo_problem_9char 'rev-parse'
     fi
   fi
   return ${dir_okay}
@@ -148,6 +153,31 @@ must_be_git_dirs () {
   [ $? -ne 0 ] && a_problem=1
 
   return ${a_problem}
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+git_travel_cache_setup () {
+  ([ "${MR_ACTION}" != 'travel' ] && return 0) || true
+  /bin/rm -f "${MR_TMP_TRAVEL_HINT_FILE}"
+}
+
+git_travel_cache_teardown () {
+  ([ "${MR_ACTION}" != 'travel' ] && return 0) || true
+  local ret_code=0
+  if [ -e ${MR_TMP_TRAVEL_HINT_FILE} ]; then
+    info
+    warn "One or more errors suggest that you need to setup the travel device."
+    info
+    info "You can setup the travel device easily by running:"
+    info
+    info "  $(fg_lightorange)MR_TRAVEL=${MR_TRAVEL} ${MR_APP_NAME} travel$(attr_reset)"
+    ret_code=0
+  fi
+  /bin/rm -f ${MR_TMP_TRAVEL_HINT_FILE}
+  return ${ret_code}
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -208,7 +238,7 @@ git_must_be_clean () {
 
 git_set_remote_travel () {
   local source_repo="$1"
-  local target_repo="${2:-$(pwd)}"
+  local target_repo="${2:-$(pwd -L)}"
   # Instead of $(pwd), could use environ:
   #   local target_repo="${2:-${MR_REPO}}"
 
@@ -225,7 +255,7 @@ git_set_remote_travel () {
   #trace "  git-url: ${extcd}"
 
   if [ ${extcd} -ne 0 ]; then
-    trace "  Newly wired remote for “${MR_REMOTE}”"
+    trace "  Fresh remote wired for “${MR_REMOTE}”"
     git remote add ${MR_REMOTE} "${source_repo}"
   elif [ "${remote_url}" != "${source_repo}" ]; then
     trace "  Reset remote wired for “${MR_REMOTE}”" \
@@ -242,7 +272,9 @@ git_set_remote_travel () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 git_fetch_remote_travel () {
-  local target_repo="${1:-$(pwd)}"
+  local target_repo="${1:-$(pwd -L)}"
+  # Instead of $(pwd), could use environ:
+  #   local target_repo="${1:-${MR_REPO}}"
 
   local before_cd="$(pwd -L)"
   cd "${target_repo}"
@@ -283,7 +315,7 @@ git_fetch_remote_travel () {
 git_change_branches_if_necessary () {
   local source_branch="$1"
   local target_branch="$2"
-  local target_repo="${3:-$(pwd)}"
+  local target_repo="${3:-$(pwd -L)}"
   # Instead of $(pwd), could use environ:
   #   local target_repo="${3:-${MR_REPO}}"
 
@@ -323,7 +355,7 @@ git_change_branches_if_necessary () {
 
 git_merge_ff_only () {
   local source_branch="$1"
-  local target_repo="${2:-$(pwd)}"
+  local target_repo="${2:-$(pwd -L)}"
   # Instead of $(pwd), could use environ:
   #   local target_repo="${2:-${MR_REPO}}"
 
@@ -497,7 +529,6 @@ git_fetch_n_ffwd2br () {
 git_pack_travel_device () {
   local source_repo="$1"
   local target_repo="$2"
-
   must_be_git_dirs "${source_repo}" "${target_repo}" 'local' 'travel'
   [ $? -ne 0 ] && return  # Obviously unreacheable if caller used `set -e`.
 }
@@ -519,8 +550,7 @@ git_update_device_fetch_from_local () {
   [ -z "${MR_TRAVEL}" ] && error 'You must set MR_TRAVEL!' && exit 1
   [ -z "${MR_REPO}" ] && error 'You must set MR_REPO!' && exit 1
   MR_REMOTE=${MR_REMOTE:-${TRAVEL_REMOTE}}
-#  local rel_repo=$(lchop_sep "${MR_REPO}")
-  local dev_path=$(pwd -L "${MR_TRAVEL}/${rel_repo}")
+  local dev_path=$(readlink -m "${MR_TRAVEL}/${MR_REPO}")
   git_pack_travel_device "${MR_REPO}" "${dev_path}"
 }
 
@@ -537,6 +567,7 @@ git_update_local_fetch_from_device () {
 
 main () {
   source_deps
+  reveal_biz_vars
 }
 
 main "$@"

@@ -12,45 +12,29 @@ source_deps () {
 }
 
 reveal_biz_vars () {
-  # 2019-10-21: (lb): Because myrepos uses subprocesses, our best bet for
-  # maintaining data across all repos is to use temporary files.
   MR_TMP_CHORES_FILE='/tmp/home-fries-myrepos.chores-ieWeich9kaph5eiR'
-  MR_TMP_RNTIME_FILE='/tmp/home-fries-myrepos.rntime-ieWeich9kaph5eiR'
 }
 
-git_status_command_started () {
-  date +%s.%N > "${MR_TMP_RNTIME_FILE}"
-}
-
-git_status_command_stopped () {
-  local SETUP_TIME_0=$(cat "${MR_TMP_RNTIME_FILE}")
-  [ -z ${SETUP_TIME_0} ] && error "ERROR:" \
-    "Missing start time! Be sure to call \`git_status_cache_setup\`."
-  local SETUP_TIME_N="$(date +%s.%N)"
-  local time_elapsed=$(\
-    echo "scale=2; ($SETUP_TIME_N - $SETUP_TIME_0) * 100 / 100" | bc -l
-  )
-  # We could only show elapsed time if greater than a specific duration. E.g.,
-  #   # NOTE: Use `bc` to output 0 or 1, and use ``(( ... ))`` so the shell
-  #   #       interprets the result as false or true respectively.
-  #   if (( $(echo "${time_elapsed} > 0.25" | bc -l) )); then
-    info
-    info "$(attr_bold)$(bg_lime)$(fg_black)Elapsed: ${time_elapsed} secs.$(attr_reset)"
-    info
-  #   fi
-  /bin/rm "${MR_TMP_RNTIME_FILE}"
-}
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 git_status_cache_setup () {
-  git_status_command_started
+  ([ "${MR_ACTION}" != 'status' ] && return 0) || true
+#  git_any_cache_setup
   truncate -s 0 ${MR_TMP_CHORES_FILE}
 }
 
 git_status_cache_teardown () {
+  ([ "${MR_ACTION}" != 'status' ] && return 0) || true
   local ret_code=0
-  git_status_command_stopped
+#  git_any_command_stopped
   if [ -s ${MR_TMP_CHORES_FILE} ]; then
-    warn "GRIZZLY! One or more repos need attention."
+    #warn "GRIZZLY! One or more repos need attention."
+    local dirty_count=$(cat "${MR_TMP_CHORES_FILE}" | wc -l)
+    local infl
+    local refl
+    [ ${dirty_count} -ne 1 ] && infl='s' || infl=''
+    [ ${dirty_count} -eq 1 ] && refl='s' || refl=''
+    warn "GRIZZLY! We found ${dirty_count} repo${infl} which need${refl} attention."
     notice
     notice "Here's some copy-pasta if you wanna fix it:"
     echo
@@ -60,11 +44,13 @@ git_status_cache_teardown () {
     # but the action for each repo that's dirty also indicated
     # failure, so `mr` already knows to exit nonzero. Also, we
     # want to return 0 here so that the stats line is printed.
-    ret_code=0
+    # NOPE: ret_code=1
   fi
   /bin/rm ${MR_TMP_CHORES_FILE}
   return ${ret_code}
 }
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # NOTE: Parsing --porcelain response should be future-proof.
 #
@@ -84,7 +70,7 @@ git_status_check_unstaged () {
   # true, otherwise we'd need to wrap the call with set +e and set -e,
   # otherwise the function would fail if no unstaged changes found.
   #
-  local extcd=0
+  local extcd
   # ' M' is modified but not added.
   (git status --porcelain | grep "^ M " >/dev/null 2>&1) || extcd=$? || true
   if [ -z ${extcd} ]; then
@@ -95,7 +81,7 @@ git_status_check_unstaged () {
 }
 
 git_status_check_uncommitted () {
-  local extcd=0
+  local extcd
   # 'M ' is added but not committed.
   (git status --porcelain | grep "^M  " >/dev/null 2>&1) || extcd=$? || true
   if [ -z ${extcd} ]; then
@@ -106,7 +92,7 @@ git_status_check_uncommitted () {
 }
 
 git_status_check_untracked () {
-  local extcd=0
+  local extcd
   # '^?? ' is untracked.
   (git status --porcelain | grep "^?? " >/dev/null 2>&1) || extcd=$? || true
   if [ -z ${extcd} ]; then
@@ -122,7 +108,7 @@ git_status_check_any_porcelain_output () {
   if [ ${n_bytes} -gt 0 ]; then
     DIRTY_REPO=true
     warn "UNEXPECTED: \`git status --porcelain\` nonempty output in repo at: “${MR_REPO}”"
-    info "  $(fg_lightorange)$(attr_underline)outpnnmpt$(attr_reset)  " \
+    info "  $(fg_lightorange)$(attr_underline)confusing$(attr_reset)  " \
       "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
   fi
 }
