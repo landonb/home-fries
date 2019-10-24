@@ -27,7 +27,7 @@ lib =
     #   will not let you add files from under a directory named .git/.
     relative_path=${repo_path_n_sep#"$(dirname ${MR_CONFIG})"/}
     exclude_fpath="$(dirname ${MR_CONFIG})/.mrinfuse/${relative_path}/_git/info/exclude"
-    canonicalized=$(readlink -f "${exclude_fpath}")
+    canonicalized=$(readlink -m "${exclude_fpath}")
     #
     local testing=false
     # Uncomment to spew vars and exit:
