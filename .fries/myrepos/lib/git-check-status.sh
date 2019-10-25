@@ -65,6 +65,15 @@ git_status_check_reset () {
   DIRTY_REPO=false
 }
 
+git_status_check_report_9chars () {
+  status_adj="$1"
+  opt_prefix="$2"
+  opt_suffix="$3"
+  debug " "\
+    "${opt_prefix}$(fg_lightorange)$(attr_underline)${status_adj}$(attr_reset)${opt_suffix}" \
+    "  $(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
+}
+
 git_status_check_unstaged () {
   # In this function, and in others below, we use a subprocess and return
   # true, otherwise we'd need to wrap the call with set +e and set -e,
@@ -75,8 +84,7 @@ git_status_check_unstaged () {
   (git status --porcelain | grep "^ M " >/dev/null 2>&1) || extcd=$?
   if [ -z ${extcd} ]; then
     DIRTY_REPO=true
-    info "   $(fg_lightorange)$(attr_underline)unstaged$(attr_reset)  " \
-      "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
+    git_status_check_report_9chars 'unstaged' ' '
   fi
 }
 
@@ -86,8 +94,7 @@ git_status_check_uncommitted () {
   (git status --porcelain | grep "^M  " >/dev/null 2>&1) || extcd=$?
   if [ -z ${extcd} ]; then
     DIRTY_REPO=true
-    info "  $(fg_lightorange)$(attr_underline)uncommitd$(attr_reset)  " \
-      "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
+    git_status_check_report_9chars 'uncommitd'
   fi
 }
 
@@ -97,8 +104,7 @@ git_status_check_untracked () {
   (git status --porcelain | grep "^?? " >/dev/null 2>&1) || extcd=$?
   if [ -z ${extcd} ]; then
     DIRTY_REPO=true
-    info "  $(fg_lightorange)$(attr_underline)untracked$(attr_reset)  " \
-      "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
+    git_status_check_report_9chars 'untracked'
   fi
 }
 
@@ -108,8 +114,7 @@ git_status_check_any_porcelain_output () {
   if [ ${n_bytes} -gt 0 ]; then
     DIRTY_REPO=true
     warn "UNEXPECTED: \`git status --porcelain\` nonempty output in repo at: “${MR_REPO}”"
-    info "  $(fg_lightorange)$(attr_underline)confusing$(attr_reset)  " \
-      "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
+    git_status_check_report_9chars 'confusing'
   fi
 }
 
