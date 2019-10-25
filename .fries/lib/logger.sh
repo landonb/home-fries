@@ -69,6 +69,8 @@ fatal () {
   #log_msg ${LOG_LEVEL_FATAL} "$(bg_hotpink)$(attr_bold)" FATL "$@"
   #log_msg ${LOG_LEVEL_FATAL} "$(bg_pink)$(fg_black)$(attr_bold)" FATL "$@"
   log_msg ${LOG_LEVEL_FATAL} "$(bg_white)$(fg_lightred)$(attr_bold)" FATL "$@"
+  # So that errexit can be used to stop execution.
+  return 1
 }
 
 critical () {
