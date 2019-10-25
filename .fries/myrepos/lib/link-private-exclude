@@ -5,6 +5,16 @@
 #       or you'll see:
 #         mr: parse error at
 lib =
+  #
+  params_check_force () {
+    for arg in "$@"; do
+      if [ "${arg}" = "-f" ] || [ "${arg}" = "--force" ] ; then
+        return 0
+      fi
+    done
+    return 1
+  }
+  #
   link_private_exclude () {
     local exclude_f
     local relative_path
@@ -44,10 +54,31 @@ lib =
     fi
     #
     if [ ! -f "${canonicalized}" ]; then
-      error "Repo says it wires its own private git exclude file, but none found at: “${exclude_fpath}”"
+      error "mrt: Failed to create symbolic link!"
+      error "  Did not find linkable .git/info/exclude file at:"
+      error "  ${canonicalized}"
       return 1
     fi
     #
+    #
+    # FIXME: DRY:
+    local noforce=1
+    params_check_force "${@}" && noforce=0 || true
+    for relfile in \
+      ".gitignore.local" \
+      ".git/info/exclude" \
+    ; do
+      if [ -e "${relfile}" ] && [ ! -h "${relfile}" ] && [ ${noforce} -ne 0 ]; then
+        error "mrt: Failed to create symbolic link!"
+        error "  Target exists and is not a symlink at:"
+        error "  ${MR_REPO}/${relfile}"
+        error "Use -f/--force, or remove the file, and try again, or stop trying."
+        return 1
+      fi
+    done
+    #
+    #
+    # CAREFUL: This clobbers!
     /bin/ln -sf '.git/info/exclude' '.gitignore.local'
     cd .git/info
     # CAREFUL: This clobbers!
@@ -56,6 +87,9 @@ lib =
     #
     info "Wired .gitignore.local"
   }
+  #
+  # An alias, of sorts.
+  link_private_exclude_force () { link_private_exclude --force "${@}"; }
 
 # MEH: myrepos splits on {\w} but treats underscores specially,
 #   so we can only use letters and numbers in action names. Bah.

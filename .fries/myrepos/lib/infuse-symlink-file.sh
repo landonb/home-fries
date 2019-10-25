@@ -1,6 +1,6 @@
 # vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=sh
 
-_info_link_private_ignore () {
+_info_infuse_symlink_file () {
   local testing=false
   # Uncomment to spew vars and exit:
   # testing=true
@@ -23,10 +23,12 @@ params_check_force () {
   return 1
 }
 
-link_private_ignore () {
-  local dignore_fpath
-  local relative_path
-  # CONVENTION: Store .ignore files under a directory named
+infuse_symlink_file () {
+  local lnkpath
+  local lnkfile
+  lnkpath="$1"
+  lnkfile="$(basename ${lnkpath})"
+  # CONVENTION: Store private files under a directory named
   # .mrinfuse located in the same directory as the .mrconfig file whose
   # repo config calls this function. Under the .mrinfuse directory, mimic
   # the directory alongside the .mrconfig file. For instance, suppose you
@@ -36,28 +38,37 @@ link_private_ignore () {
   #   /my/work/projects/cool/product/
   # you would store your private .ignore file at:
   #   /my/work/projects/.mrinfuse/cool/product/.ignore
+  # then your infuse function would be specified in your .mrconfig as:
+  #   [my/repo]
+  #   infuse_symlink_file '.ignore'
+  local relative_path
+  local dignore_fpath
   relative_path=${MR_REPO#"$(dirname ${MR_CONFIG})"/}
-  dignore_fpath="$(dirname ${MR_CONFIG})/.mrinfuse/${relative_path}/.ignore"
+  dignore_fpath="$(dirname ${MR_CONFIG})/.mrinfuse/${relative_path}/${lnkfile}"
+  canonicalized=$(readlink -m "${dignore_fpath}")
 
-  _info_link_private_ignore
+  _info_infuse_symlink_file
 
-  if [ ! -f "${dignore_fpath}" ]; then
-    error "Repo says it wires its own private .ignore file, but none found at: “${dignore_fpath}”"
+  if [ ! -f "${canonicalized}" ]; then
+    error "mrt: Failed to create symbolic link!"
+    error "  Did not find linkable source file at:"
+    error "  ${canonicalized}"
     return 1
   fi
 
   local noforce=1
   params_check_force "${@}" && noforce=0 || true
 
-  if [ -e '.ignore' ] && [ ! -h '.ignore' ] && [ ${noforce} -ne 0 ]; then
-    error "Ignore file exists and is not a link at:"
-    error "  “${MR_REPO}/.ignore”"
-    error "Use -f/--force or remove the file, and try again, or stop trying."
+  if [ -e "${lnkfile}" ] && [ ! -h "${lnkfile}" ] && [ ${noforce} -ne 0 ]; then
+    error "mrt: Failed to create symbolic link!"
+    error "  Target exists and is not a symlink at:"
+    error "  ${canonicalized}"
+    error "Use -f/--force, or remove the file, and try again, or stop trying."
     return 1
   fi
 
   # CAREFUL: This clobbers!
-  /bin/ln -sf "${dignore_fpath}" '.ignore'
+  /bin/ln -sf "${canonicalized}" "${lnkfile}"
 
   info "Wired .ignore"
 }
