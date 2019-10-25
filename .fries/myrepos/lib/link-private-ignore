@@ -1,42 +1,8 @@
 # vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=config
 
-lib =
-  link_private_ignore () {
-    local dignore_fpath
-    local relative_path
-    # CONVENTION: Store .ignore files under a directory named
-    # .mrinfuse located in the same directory as the .mrconfig file whose
-    # repo config calls this function. Under the .mrinfuse directory, mimic
-    # the directory alongside the .mrconfig file. For instance, suppose you
-    # had a config file at:
-    #   /my/work/projects/.mrconfig
-    # and you had a public repo underneath that project space at:
-    #   /my/work/projects/cool/product/
-    # you would store your private .ignore file at:
-    #   /my/work/projects/.mrinfuse/cool/product/.ignore
-    relative_path=${MR_REPO#"$(dirname ${MR_CONFIG})"/}
-    dignore_fpath="$(dirname ${MR_CONFIG})/.mrinfuse/${relative_path}/.ignore"
-    #
-    local testing=false
-    # Uncomment to spew vars and exit:
-    # testing=true
-    if $testing; then
-      info "MR_REPO=${MR_REPO}"
-      info "MR_CONFIG=${MR_CONFIG}"
-      info "relative_path=${relative_path}"
-      info "dignore_fpath=${dignore_fpath}"
-      info "current dir: $(pwd)"
-      return 1
-    fi
-    #
-    if [ ! -f "${dignore_fpath}" ]; then
-      error "Repo says it wires its own private .ignore file, but none found at: “${dignore_fpath}”"
-      return 1
-    fi
-    #
-    # CAREFUL: This clobbers!
-    /bin/ln -sf "${dignore_fpath}" '.ignore'
-    #
-    info "Wired .ignore"
-  }
+[DEFAULT]
+# FIXME/2019-10-25 14:32: Use MR_TRAVEL_LIB else, and change default path ~/.local/lib
+lib = . "${MR_TRAVEL_LIB:-${HOME}/.fries/myrepos/lib}/link-private-ignore.sh" &&
+  # An alias, of sorts.
+  link_private_ignore_force () { link_private_ignore --force "${@}"; }
 
