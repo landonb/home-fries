@@ -1,5 +1,27 @@
 # vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=sh
 
+# USAGE: Useful for sorting and saving changes to your ~/.vim/spell/en.utf-8.add
+#   There are probably additional uses, too.
+# E.g.,
+#
+#   [${HOME}/.dotfiles]
+#   autocommit =
+#     # Sort the spell file, for easy diff'ing, or merging/meld'ing.
+#     # - The .vimrc startup file will remake the .spl file when you restart Vim.
+#     sort_file_then_commit 'home/.mrinfuse/.vim/spell/en.utf-8.add'
+
+source_deps () {
+  local libdir="${HOME}/.fries/lib"
+  if [ -n "${BASH_SOURCE}" ]; then
+    libdir="$(dirname -- ${BASH_SOURCE[0]})../../lib/"
+  fi
+
+  # Load: warn.
+  . "${libdir}/logger.sh"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 sort_file_then_commit () {
   local targetf="$1"
 
@@ -28,13 +50,11 @@ sort_file_then_commit () {
   cd "${before_cd}"
 }
 
-# USAGE: Useful for sorting and saving changes to your ~/.vim/spell/en.utf-8.add
-#   There are probably additional uses, too.
-# E.g.,
-#
-#   [${HOME}/.dotfiles]
-#   autocommit =
-#     # Sort the spell file, for easy diff'ing, or merging/meld'ing.
-#     # - The .vimrc startup file will remake the .spl file when you restart Vim.
-#     sort_file_then_commit 'home/.mrinfuse/.vim/spell/en.utf-8.add'
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+main () {
+  source_deps
+}
+
+main "$@"
 

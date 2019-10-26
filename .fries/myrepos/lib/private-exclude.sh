@@ -8,6 +8,7 @@ source_deps () {
   #   params_check_force
   #   ensure_source_exists
   #   ensure_target_writable
+  #   symlink_file_informative
   . "${MR_TRAVEL_LIB:-${HOME}/.fries/myrepos/lib}/overlay-symlink.sh"
 }
 

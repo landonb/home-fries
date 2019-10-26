@@ -1,8 +1,19 @@
 # vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=sh
 
+#source_deps () {
+#  # Load: warn, etc.
+#  . ${HOME}/.fries/lib/logger.sh
+#}
 source_deps () {
-  # Load: warn, etc.
-  . ${HOME}/.fries/lib/logger.sh
+  local libdir="${HOME}/.fries/lib"
+  if [ -n "${BASH_SOURCE}" ]; then
+    libdir="$(dirname -- ${BASH_SOURCE[0]})../../lib/"
+  fi
+
+#  # Use logger (which loads color_funcs.sh) for colorful, stylized output.
+#  # NOTE: So that this script is POSIX-compliant, use `.`, not `source`.
+  # Load: info, warn, etc.
+  . "${libdir}/logger.sh"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -279,8 +290,8 @@ symlink_overlay_file2file () {
   local targetp="$2"
   shift 2
 
-  local before_cd="$(pwd -L)"
-  cd "${MR_REPO}"
+#  local before_cd="$(pwd -L)"
+#  cd "${MR_REPO}"
 
   # Check that the source file exists.
   # This may interrupt the flow if errexit.
@@ -291,17 +302,17 @@ symlink_overlay_file2file () {
 
   symlink_file_informative "${sourcep}" "${targetp}"
 
-  cd "${before_cd}"
+#  cd "${before_cd}"
 
 # FIXME/2019-10-26 02:50: This might be redundant now!
-  info "Wired ‘$(basename ${targetp})’"
+  info "Wired ‘$(basename "${targetp}")’"
 }
 
 symlink_overlay_file () {
   local sourcep="$1"
   shift
 
-  local targetp=''
+  local targetp=$(basename "${sourcep}")
 
   symlink_overlay_file2file "${sourcep}" "${targetp}" "${@}"
 }
@@ -310,19 +321,25 @@ symlink_overlay_file () {
 
 symlink_mrinfuse_file2file () {
   local lnkpath="$1"
-  shift
+  local targetp="$2"
+  shift 2
+
+  local before_cd="$(pwd -L)"
+  cd "${MR_REPO}"
 
   local sourcep
   sourcep="$(path_to_mrinfuse_resolve ${lnkpath})"
 
-  symlink_overlay_file2file "${sourcep}" "${@}"
+  symlink_overlay_file2file "${sourcep}" "${targetp}" "${@}"
+
+  cd "${before_cd}"
 }
 
 symlink_mrinfuse_file () {
   local sourcep="$1"
   shift
 
-  local targetp=''
+  local targetp="${sourcep}"
 
   symlink_mrinfuse_file2file "${sourcep}" "${targetp}" "${@}"
 }
