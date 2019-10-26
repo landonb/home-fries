@@ -77,7 +77,7 @@ infuser_set_envs () {
   # Note that if '.vim/.mrconfig' is absent, myrepos will have most likely set
   # MR_CONFIG=~/.mrconfig; but if it's present, then MR_CONFIG=~/.vim/.mrconfig.
   # So that the rest of the script works properly, force the MR_CONFIG value.
-  MR_CONFIG="${MR_CONFIG:-${MR_REPO}}/.mrconfig"
+  MR_CONFIG="${MR_CONFIG:-"${MR_REPO}/.mrconfig"}"
 }
 
 # 2019-10-26: This does not belong here. But all my infusers at least
