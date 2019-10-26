@@ -50,6 +50,53 @@ symlink_opts_parse () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# FIXME/2019-10-26 15:20: Should move this to new lib file.
+
+_debug_spew_and_die () {
+  #
+  local testing=false
+  # Uncomment to spew vars and exit:
+  testing=true
+  if $testing; then
+    info "MR_REPO=${MR_REPO}"
+    info "MR_CONFIG=${MR_CONFIG}"
+    info "MRT_LINK_SAFE=${MRT_LINK_SAFE}"
+    info "MRT_LINK_FORCE=${MRT_LINK_FORCE}"
+    info "current dir: $(pwd)"
+    exit 1
+  fi
+}
+
+infuser_set_envs () {
+  local repodir="${1:-"${MR_REPO}"}"
+
+  # Ensure MR_REPO set so script can be called manually,
+  # outside context of myrepos.
+  MR_REPO="${MR_REPO:-"${repodir}"}"
+
+  # Note that if '.vim/.mrconfig' is absent, myrepos will have most likely set
+  # MR_CONFIG=~/.mrconfig; but if it's present, then MR_CONFIG=~/.vim/.mrconfig.
+  # So that the rest of the script works properly, force the MR_CONFIG value.
+  MR_CONFIG="${MR_CONFIG:-${MR_REPO}}/.mrconfig"
+}
+
+# 2019-10-26: This does not belong here. But all my infusers at least
+# include this file. So. Being lazy.
+repo_highlight () {
+  echo "$(fg_mintgreen)${1}$(attr_reset)"
+}
+
+infuser_prepare () {
+  local repodir="${1:-"${MR_REPO}"}"
+  shift
+
+  infuser_set_envs "${repodir}"
+  info "Infusing $(repo_highlight ${MR_REPO})"
+  symlink_opts_parse "${@}"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 font_emphasize () {
   echo "$(attr_emphasis)${1}$(attr_reset)"
 }
@@ -288,13 +335,13 @@ symlink_overlay_dir () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-symlink_overlay_first_match () {
+symlink_overlay_file_first () {
   local targetp="$1"
   shift
 
   local found_one=false
 
-  local source_f
+  local sourcep
   for sourcep in "${@}"; do
     if [ -e ${sourcep} ]; then
       symlink_overlay_file "${sourcep}" "${targetp}"
@@ -389,6 +436,31 @@ symlink_mrinfuse_file () {
 
 symlink_mrinfuse_dir () {
   symlink_mrinfuse_typed 'dir' "${@}"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+symlink_mrinfuse_file_first () {
+  local targetp="$1"
+  shift
+
+  local found_one=false
+
+  local lnkpath
+  for lnkpath in "${@}"; do
+    local sourcep
+    sourcep="$(path_to_mrinfuse_resolve ${lnkpath})"
+    if [ -e ${sourcep} ]; then
+      symlink_overlay_file "${sourcep}" "${targetp}"
+      found_one=true
+      break
+    fi
+  done
+
+  if ! ${found_one}; then
+    warn "Did not find existing source file to symlink as: ${targetp}"
+    exit 1
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
