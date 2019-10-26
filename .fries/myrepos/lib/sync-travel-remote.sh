@@ -1,9 +1,23 @@
-#!/bin/bash
-# vim:tw=0:ts=2:sw=2:et:norl:
-# Project: https://github.com/landonb/home-fries
-# License: GPLv3
+# vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=sh
 
-# Summary: Git Helpers: Fetch from Remote; Merge --Ff-Only; and Update Mirror.
+# Summary: Methods to manage a mirrored remote, either locally via path, or via ssh.
+#
+# Mirrored as in, you have the same set of repositories on each
+# machine/device/path, which can all be found at the same path.
+#
+# - For local-path mirrors, the repos are managed bare, so that files
+#   are not unnecessarily duplicated. (E.g., the local path might be
+#   to an encrypted filesystem that you mount off a thumb drive that
+#   you carry around as a backup device.) You can then either ff-merge
+#   your local repos into the mirror, or you can ff-merge the mirror
+#   repos into your local repos, thereby making it easy for you to
+#   switch between development machines.
+#
+# - For ssh mirrors, you can ff-merge the mirrored repos into your
+#   local repos. (The ssh paths are simply added as remotes to each
+#   of your local repos, then fetched, and then a --ff-only merge is
+#   attempted, but only in the local repository is tidy (nothing
+#   unstaged, uncommitted, nor untracked).
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -79,14 +93,13 @@ lchop_sep () {
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-warn_repo_problem_7char () {
-  warn "$(attr_reset)   $(fg_mintgreen)$(attr_emphasis)${1}$(attr_reset)   " \
-    "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
-}
-
 warn_repo_problem_9char () {
-  warn "$(attr_reset)  $(fg_mintgreen)$(attr_emphasis)${1}$(attr_reset)    " \
-    "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
+  status_adj="$1"
+  opt_prefix="$2"
+  opt_suffix="$3"
+  warn "$(attr_reset) " \
+    "${opt_prefix}$(fg_mintgreen)$(attr_emphasis)${status_adj}$(attr_reset)${opt_suffix}" \
+    "   $(fg_mintgreen)${MR_REPO}$(attr_reset)"
 }
 
 git_dir_check () {
@@ -113,7 +126,7 @@ git_dir_check () {
   elif [ ! -d "${repo_path}/.git" ] && [ ! -f "${repo_path}/HEAD" ]; then
     dir_okay=1
     info "No .git/|HEAD: $(bg_maroon)$(attr_bold)${repo_path}$(attr_reset)"
-    warn_repo_problem_7char 'gitless'
+    warn_repo_problem_9char 'gitless' ' ' ' '
   else
     local before_cd="$(pwd -L)"
     cd "${repo_path}"

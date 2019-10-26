@@ -2,8 +2,9 @@
 
 [DEFAULT]
 # FIXME/2019-10-25 14:32: Use MR_TRAVEL_LIB else, and change default path ~/.local/lib
-lib = . "${MR_TRAVEL_LIB:-${HOME}/.fries/myrepos/lib}/infuse-symlink-file.sh" &&
-  link_private_ignore () { infuse_symlink_file '.ignore' "${@}"; }
+lib =
+  . "${MR_TRAVEL_LIB:-${HOME}/.fries/myrepos/lib}/overlay-symlink.sh"
+  link_private_ignore () { symlink_mrinfuse_file '.ignore' "${@}"; }
   # An alias, of sorts.
   link_private_ignore_force () { link_private_ignore --force "${@}"; }
 

@@ -1,94 +1,10 @@
 # vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=config
 
-# HINT: There cannot be blank lines in a function,
-#       nor can there not be leading whitespace,
-#       or you'll see:
-#         mr: parse error at
+[DEFAULT]
+# FIXME/2019-10-25 14:32: Use MR_TRAVEL_LIB else, and change default path ~/.local/lib
 lib =
+  . "${MR_TRAVEL_LIB:-${HOME}/.fries/myrepos/lib}/private-exclude.sh"
   #
-  params_check_force () {
-    for arg in "$@"; do
-      if [ "${arg}" = "-f" ] || [ "${arg}" = "--force" ] ; then
-        return 0
-      fi
-    done
-    return 1
-  }
-  #
-  link_private_exclude () {
-    local exclude_f
-    local relative_path
-    local exclude_fpath
-    local canonicalized
-    local repo_path_n_sep="${MR_REPO}/"
-    # CONVENTION: Store .git/info/exclude files under a directory named
-    # .mrinfuse located in the same directory as the .mrconfig file whose
-    # repo config calls this function. Under the .mrinfuse directory, mimic
-    # the directory alongside the .mrconfig file. For instance, the exclude
-    # file for home-fries (linked from ~/.git/info/exclude) is stored at:
-    #   ~/.mrinfuse/_git/info/exclude
-    # As another example, suppose you had a config file at:
-    #   /my/work/projects/.mrconfig
-    # and you had a public repo underneath that project space at:
-    #   /my/work/projects/cool/product/
-    # you would store your private .gitignore file at:
-    #   /my/work/projects/.mrinfuse/cool/product/_git/info/exclude
-    # Also note that the .git/ directory is mirrored as _git, because git
-    #   will not let you add files from under a directory named .git/.
-    relative_path=${repo_path_n_sep#"$(dirname ${MR_CONFIG})"/}
-    exclude_fpath="$(dirname ${MR_CONFIG})/.mrinfuse/${relative_path}/_git/info/exclude"
-    canonicalized=$(readlink -m "${exclude_fpath}")
-    #
-    local testing=false
-    # Uncomment to spew vars and exit:
-    # testing=true
-    if $testing; then
-      echo "MR_REPO=${MR_REPO}"
-      echo "MR_CONFIG=${MR_CONFIG}"
-      echo "repo_path_n_sep=${repo_path_n_sep}"
-      echo "relative_path=${relative_path}"
-      echo "exclude_fpath=${exclude_fpath}"
-      echo "canonicalized=${canonicalized}"
-      echo "current dir: $(pwd)"
-      return 1
-    fi
-    #
-    if [ ! -f "${canonicalized}" ]; then
-      error "mrt: Failed to create symbolic link!"
-      error "  Did not find linkable .git/info/exclude file at:"
-      error "  ${canonicalized}"
-      return 1
-    fi
-    #
-    #
-    # FIXME: DRY:
-    local noforce=1
-    params_check_force "${@}" && noforce=0 || true
-    for relfile in \
-      ".gitignore.local" \
-      ".git/info/exclude" \
-    ; do
-      if [ -e "${relfile}" ] && [ ! -h "${relfile}" ] && [ ${noforce} -ne 0 ]; then
-        error "mrt: Failed to create symbolic link!"
-        error "  Target exists and is not a symlink at:"
-        error "  ${MR_REPO}/${relfile}"
-        error "Use -f/--force, or remove the file, and try again, or stop trying."
-        return 1
-      fi
-    done
-    #
-    #
-    # CAREFUL: This clobbers!
-    /bin/ln -sf '.git/info/exclude' '.gitignore.local'
-    cd .git/info
-    # CAREFUL: This clobbers!
-    /bin/ln -sf "${canonicalized}" 'exclude'
-    cd ../..
-    #
-    info "Wired .gitignore.local"
-  }
-  #
-  # An alias, of sorts.
   link_private_exclude_force () { link_private_exclude --force "${@}"; }
 
 # MEH: myrepos splits on {\w} but treats underscores specially,

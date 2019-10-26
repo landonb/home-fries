@@ -19,10 +19,16 @@ git_auto_commit_hello () {
   # Only pring the "examining" message once, e.g., affects calls such as:
   #     autocommit = git_auto_commit_one 'some/file' && git_auto_commit_one 'ano/ther'
   if ! ${MR_GIT_AUTO_COMMIT_SAID_HELLO}; then
+    MR_GIT_AUTO_COMMIT_BEFORE_CD="$(pwd -L)"
+    cd "${MR_REPO}"
     debug "  $(fg_mintgreen)$(attr_emphasis)examining$(attr_reset)  " \
       "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
   fi
   MR_GIT_AUTO_COMMIT_SAID_HELLO=true
+}
+
+git_auto_commit_seeya () {
+  cd "${MR_GIT_AUTO_COMMIT_BEFORE_CD}"
 }
 
 git_auto_commit_noop () {
@@ -68,6 +74,7 @@ git_auto_commit_one () {
     fi
   # else, the file is not dirty.
   fi
+  git_auto_commit_seeya
 }
 
 git_auto_commit_all () {
@@ -122,6 +129,7 @@ git_auto_commit_all () {
       echo 'Skipped!'
     fi
   fi
+  git_auto_commit_seeya
 }
 
 git_auto_commit_new () {
@@ -159,6 +167,7 @@ git_auto_commit_new () {
       echo 'Skipped!'
     fi
   fi
+  git_auto_commit_seeya
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
