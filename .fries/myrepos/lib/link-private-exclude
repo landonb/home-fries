@@ -3,9 +3,7 @@
 [DEFAULT]
 # FIXME/2019-10-25 14:32: Use MR_TRAVEL_LIB else, and change default path ~/.local/lib
 lib =
-  . "${MR_TRAVEL_LIB:-${HOME}/.fries/myrepos/lib}/private-exclude.sh"
-  #
-  link_private_exclude_force () { link_private_exclude --force "${@}"; }
+  . "${MR_TRAVEL_LIB:-${HOME}/.fries/myrepos/lib}/link-private-exclude.sh"
 
 # MEH: myrepos splits on {\w} but treats underscores specially,
 #   so we can only use letters and numbers in action names. Bah.

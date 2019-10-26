@@ -40,6 +40,10 @@ if [ -z ${LOG_LEVEL+x} ]; then
   LOG_LEVEL=${LOG_LEVEL_ERROR}
 fi
 
+_echo () {
+  [ "$(echo -e)" = '' ] && echo -e "${@}" || echo "${@}"
+}
+
 log_msg () {
   local FCN_LEVEL=$1
   local FCN_COLOR=$2
@@ -57,11 +61,7 @@ log_msg () {
     [ ${FCN_LEVEL} -ge ${LOG_LEVEL_ERROR} ] && invert_maybe=$(bg_hotpink)
     local echo_msg
     echo_msg="${FCN_COLOR}$(attr_underline)[${FCN_LABEL}]$(attr_reset) ${RIGHT_NOW} ${bold_maybe}${invert_maybe}$@$(attr_reset)"
-    if [ "$0" = 'sh' ]; then
-      echo "${echo_msg}"
-    else
-      echo -e "${echo_msg}"
-    fi
+    _echo "${echo_msg}"
   fi
 }
 

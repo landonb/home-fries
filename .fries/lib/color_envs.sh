@@ -216,11 +216,15 @@ test_colors () {
   }
 
   create_base_color_names
+
+  _echo () {
+    [ "$(echo -e)" = '' ] && echo -e "${@}" || echo "${@}"
+  }
+
   for ((i = 0; i < ${#TERM_COLOR_NAMES[@]}; i++)); do
     local nom="${TERM_COLOR_NAMES[$i]}"
     # BASH: `!` uses a variable's value as other variable's name.
-    echo -e \
-      "Some ${!nom}COLOR ${MK_LINE}is ${MK_BOLD}nice${MK_NORM} surely [${nom}]."
+    _echo "Some ${!nom}COLOR ${MK_LINE}is ${MK_BOLD}nice${MK_NORM} surely [${nom}]."
   done
 }
 

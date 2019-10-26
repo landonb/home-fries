@@ -18,6 +18,300 @@ source_deps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+params_has_switch () {
+  local short_arg="$1"
+  local longr_arg="$2"
+  shift 2
+  for arg in "$@"; do
+    for switch in "${short_arg}" "${longr_arg}"; do
+      if [ "${arg}" = "${switch}" ]; then
+        return 0
+      fi
+    done
+  done
+  return 1
+}
+
+params_check_force () {
+  params_has_switch '-f' '--force' "${@}"
+}
+
+params_check_safe () {
+  params_has_switch '-s' '--safe' "${@}"
+}
+
+symlink_opts_parse () {
+  MRT_LINK_SAFE=1
+  params_check_safe "${@}" && MRT_LINK_SAFE=0 || true
+
+  MRT_LINK_FORCE=1
+  params_check_force "${@}" && MRT_LINK_FORCE=0 || true
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+font_emphasize () {
+  echo "$(attr_emphasis)${1}$(attr_reset)"
+}
+
+font_highlight () {
+  echo "$(fg_lightorange)${1}$(attr_reset)"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+is_relative_path () {
+  # POSIX does not support pattern matching, e.g.,
+  #   if [[ "$DIR" = /* ]]; then ... fi
+  # but we can use a case statement.
+  case $1 in
+    /*) return 1 ;;
+    *) return 0 ;;
+  esac
+  >&2 echo "Unreachable!"
+  exit 1
+}
+
+file_exists_and_not_symlink () {
+  [ -e "${1}" ] && [ ! -h "${1}" ]
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# Source verification.
+
+symlink_verify_source () {
+  local sourcep="$1"
+  local srctype="$2"
+
+  if [ "${srctype}" = 'file' ]; then
+    if [ ! -f "${sourcep}" ]; then
+      error "mrt: Failed to create symbolic link!"
+      error "  Did not find linkable source file at:"
+      error "  ${sourcep}"
+      exit 1
+    fi
+  elif [ "${srctype}" = 'dir' ]; then
+    if [ ! -d "${sourcep}" ]; then
+      error "mrt: Failed to create symbolic link!"
+      error "  Did not find linkable source directory at:"
+      error "  ${sourcep}"
+      exit 1
+    fi
+  else
+    fatal "Not a real srctype: ${srctype}"
+    exit 2
+  fi
+}
+
+ensure_source_file_exists () {
+  symlink_verify_source "$1" 'file'
+}
+
+ensure_source_dir_exists () {
+  symlink_verify_source "$1" 'dir'
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# Target verification.
+
+safe_backup_existing_target () {
+  local targetp="$1"
+  local targetf="$(basename ${targetp})"
+  local backup_postfix=$(date +%Y.%m.%d.%H.%M.%S)
+  local backup_targetp="${targetp}-${backup_postfix}"
+  /bin/mv "${targetp}" "${targetp}-${backup_postfix}"
+  info "Collision resolved: Moved existing ‘${targetf}’ to: ${backup_targetp}"
+}
+
+fail_target_exists_not_link () {
+  local targetp="$1"
+  error "mrt: Failed to create symbolic link!"
+  error "  Target exists and is not a symlink at:"
+  error "  ${targetp}"
+  error "Use -f/--force, or -s/--safe, or remove the file," \
+    "and try again, or stop trying."
+  exit 1
+}
+
+safely_backup_or_die_if_not_forced () {
+  local targetp="$1"
+  shift
+
+  if [ ${MRT_LINK_SAFE} -eq 0 ]; then
+    safe_backup_existing_target "${targetp}"
+  elif [ ${MRT_LINK_FORCE} -ne 0 ]; then
+    fail_target_exists_not_link "${targetp}"
+  fi
+}
+
+# ***
+
+ensure_target_writable () {
+  local targetp="$1"
+  shift
+
+  file_exists_and_not_symlink "${targetp}" || return 0
+
+  safely_backup_or_die_if_not_forced "${targetp}"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# Symlink creation.
+
+symlink_create_informative () {
+  local srctype="$1"
+  local sourcep="$2"
+  local targetp="$3"
+
+  # Caller guarantees (via ! -e and ! -h) that $targetp does not exist.
+
+  local targetd=$(dirname "${targetp}")
+  mkdir -p "${targetd}"
+
+  /bin/ln -s "${sourcep}" "${targetp}"
+  if [ $? -ne 0 ]; then
+    error "Failed to create symlink at: ${targetp}"
+    exit 1
+  fi
+
+  info " Created fresh $(font_emphasize ${srctype}) symlink $(font_highlight ${targetp})"
+}
+
+symlink_update_informative () {
+  local srctype="$1"
+  local sourcep="$2"
+  local targetp="$3"
+
+  local info_msg
+  if [ -h "${targetp}" ]; then
+    local targetd
+    [ "${srctype}" = 'dir' ] && targetd='/' || true
+    # Overwriting existing symlink.
+    info_msg=" Updated $(font_emphasize ${srctype}) symlink $(font_highlight ${targetp}${targetd})"
+  elif [ -f "${targetp}" ]; then
+    # For how this function is used, the code would already have checked
+    # that the user specified -f/--force; or else the code didn't care to
+    # ask. See:
+    #   safely_backup_or_die_if_not_forced.
+    info_msg=" Clobbered file with symlink $(font_highlight ${targetp})"
+  else
+    fatal "Unexpected path: target neither symlink nor file, but exists?"
+    exit 1
+  fi
+
+  # Note if target symlinks to a file, we can overwrite with force, e.g.,
+  #   /bin/ln -sf source/path target/path
+  # but if the target exists and is a symlink to a directory instead,
+  # the new symlink gets created inside the referenced directory.
+  # To handle either situation -- the existing symlink references
+  # either a file or a directory -- remove the target first.
+  /bin/rm "${targetp}"
+
+  /bin/ln -s "${sourcep}" "${targetp}"
+  if [ $? -ne 0 ]; then
+    error "Failed to replace symlink at: ${targetp}"
+    exit 1
+  fi
+
+  info "${info_msg}"
+}
+
+# ***
+
+# Informative because calls info and warn.
+symlink_clobber_typed () {
+  local srctype="$1"
+  local sourcep="$2"
+  local targetp="$3"
+
+  # Check that the source file or directory exists.
+  # This may interrupt the flow if errexit.
+  symlink_verify_source "${sourcep}" "${srctype}"
+
+  # Check if target does not exist (and be sure not broken symlink).
+  if [ ! -e "${targetp}" ] && [ ! -h "${targetp}" ]; then
+    symlink_create_informative "${srctype}" "${sourcep}" "${targetp}"
+  else
+    symlink_update_informative "${srctype}" "${sourcep}" "${targetp}"
+  fi
+
+  # Will generally return 0, as errexit would trip on nonzero earlier.
+  return $?
+}
+
+# ***
+
+symlink_file_clobber () {
+  local sourcep="$1"
+  local targetp="${2:-$(basename "${sourcep}")}"
+  symlink_clobber_typed 'file' "${sourcep}" "${targetp}"
+}
+
+symlink_dir_clobber () {
+  local sourcep="$1"
+  local targetp="${2:-$(basename "${sourcep}")}"
+  symlink_clobber_typed 'dir' "${sourcep}" "${targetp}"
+}
+
+# FIXME/2019-10-26 13:47: delete these:
+#
+#symlink_local_file () {
+#  return symlink_file_clobber "$1/$2" "${3:-$2}"
+#}
+#
+#symlink_local_dir () {
+#  return symlink_dir_clobber "$1/$2" "${3:-$2}"
+#}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+symlink_overlay_typed () {
+  local srctype="$1"
+  local sourcep="$2"
+  local targetp="${3:-$(basename "${sourcep}")}"
+
+  # Caller cd'ed us to "${MR_REPO}".
+
+  # Pass CLI params to check -s/--safe or -f/--force.
+  ensure_target_writable "${targetp}"
+
+  symlink_clobber_typed "${srctype}" "${sourcep}" "${targetp}"
+}
+
+symlink_overlay_file () {
+  symlink_overlay_typed 'file' "${@}"
+}
+
+symlink_overlay_dir () {
+  symlink_overlay_typed 'dir' "${@}"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+symlink_overlay_first_match () {
+  local targetp="$1"
+  shift
+
+  local found_one=false
+
+  local source_f
+  for sourcep in "${@}"; do
+    if [ -e ${sourcep} ]; then
+      symlink_overlay_file "${sourcep}" "${targetp}"
+      found_one=true
+      break
+    fi
+  done
+
+  if ! ${found_one}; then
+    warn "Did not find existing source file to symlink as: ${targetp}"
+    exit 1
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# Resolving magic .mrinfuse/ path.
+
 _info_path_resolve () {
   local relative_path="$1"
   local mrinfuse_path="$2"
@@ -33,7 +327,7 @@ _info_path_resolve () {
     info "mrinfuse_path=${mrinfuse_path}"
     info "canonicalized=${canonicalized}"
     info "current dir: $(pwd)"
-    return 1
+    exit 1
   fi
 }
 
@@ -71,276 +365,10 @@ path_to_mrinfuse_resolve () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-params_has_switch () {
-  local short_arg="$1"
-  local longr_arg="$2"
-  shift 2
-  for arg in "$@"; do
-    for switch in "${short_arg}" "${longr_arg}"; do
-      if [ "${arg}" = "${switch}" ]; then
-        return 0
-      fi
-    done
-  done
-  return 1
-}
-
-params_check_force () {
-  params_has_switch '-f' '--force' "${@}"
-}
-
-params_check_safe () {
-  params_has_switch '-s' '--safe' "${@}"
-}
-
-symlink_opts_parse () {
-  MRT_LINK_SAFE=1
-  params_check_safe "${@}" && MRT_LINK_SAFE=0 || true
-
-  MRT_LINK_FORCE=1
-  params_check_force "${@}" && MRT_LINK_FORCE=0 || true
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-is_relative_path () {
-  # POSIX does not support pattern matching, e.g.,
-  #   if [[ "$DIR" = /* ]]; then ... fi
-  # but we can use a case statement.
-  case $1 in
-    /*) return 1 ;;
-    *) return 0 ;;
-  esac
-  >&2 echo "Unreachable!"
-  exit 1
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-ensure_source_exists () {
-  local sourcep="$1"
-  if [ ! -f "${sourcep}" ]; then
-    error "mrt: Failed to create symbolic link!"
-    error "  Did not find linkable source file at:"
-    error "  ${sourcep}"
-    exit 1
-  fi
-  return 0
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-file_exists_and_not_symlink () {
-  [ -e "${1}" ] && [ ! -h "${1}" ]
-}
-
-# ***
-
-safe_backup_existing_target () {
-  local targetp="$1"
-  local targetf="$(basename ${targetp})"
-  local backup_postfix=$(date +%Y.%m.%d.%H.%M.%S)
-  local backup_targetp="${targetp}-${backup_postfix}"
-  /bin/mv "${targetp}" "${targetp}-${backup_postfix}"
-  info "Collision resolved: Moved existing ‘${targetf}’ to: ${backup_targetp}"
-}
-
-fail_target_exists_not_link () {
-  local targetp="$1"
-  error "mrt: Failed to create symbolic link!"
-  error "  Target exists and is not a symlink at:"
-  error "  ${targetp}"
-  error "Use -f/--force, or -s/--safe, or remove the file," \
-    "and try again, or stop trying."
-  exit 1
-}
-
-safely_backup_or_die_if_not_forced () {
-  local targetp="$1"
-  shift
-
-#  local nosafe=1
-#  params_check_safe "${@}" && nosafe=0 || true
-#
-#  local noforce=1
-#  params_check_force "${@}" && noforce=0 || true
-
-  if [ ${MRT_LINK_SAFE} -eq 0 ]; then
-    safe_backup_existing_target "${targetp}"
-  elif [ ${MRT_LINK_FORCE} -ne 0 ]; then
-    fail_target_exists_not_link "${targetp}"
-  fi
-}
-
-# ***
-
-ensure_target_writable () {
-  local targetp="$1"
-  shift
-
-  file_exists_and_not_symlink "${targetp}" || return 0
-
-  safely_backup_or_die_if_not_forced "${targetp}" "${@}"
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-symlink_create_informative () {
-  local which="$1"
-  local sourcep="$2"
-  local targetp="$3"
-
-  # Caller guarantees (via ! -e and ! -h) that $targetp does not exist.
-
-  if [ "${which}" = 'file' ]; then
-    if [ ! -f "${sourcep}" ]; then
-      warn "Symlink reference not a file: ${sourcep}"
-      return 1
-    fi
-  elif [ "${which}" = 'dir' ]; then
-    if [ ! -d "${sourcep}" ]; then
-      warn "Symlink reference not a directory: ${sourcep}"
-      return 1
-    fi
-  else
-    fatal "Not a real which: ${which}"
-    exit 1
-  fi
-
-  local targetd=$(dirname "${targetp}")
-  mkdir -p "${targetd}"
-
-  /bin/ln -s "${sourcep}" "${targetp}"
-  if [ $? -ne 0 ]; then
-    error "Failed to create symlink at: ${targetp}"
-    return 1
-  fi
-
-  info "Dropped fresh symlink at: ${targetp}"
-}
-
-symlink_update_informative () {
-  local which="$1"
-  local sourcep="$2"
-  local targetp="$3"
-
-  local info_msg
-  if [ -h "${targetp}" ]; then
-    # Overwriting existing symlink.
-    info_msg="Updated symlink at: ${targetp}"
-  elif [ -f "${targetp}" ]; then
-    # For how this function is used, the code would already have checked
-    # that the user specified -f/--force; or else the code didn't care to
-    # ask. See:
-    #   safely_backup_or_die_if_not_forced.
-    info_msg="Clobbered file with symlink at: ${targetp}"
-  else
-    fatal "Unexpected path: target neither symlink nor file, but exists?"
-    exit 1
-  fi
-
-  # Note if target symlinks to a file, we can overwrite with force, e.g.,
-  #   /bin/ln -sf source/path target/path
-  # but if the target exists and is a symlink to a directory instead,
-  # the new symlink gets created inside the referenced directory.
-  # To handle either situation -- the existing symlink references
-  # either a file or a directory -- remove the target first.
-  /bin/rm "${targetp}"
-
-  /bin/ln -s "${sourcep}" "${targetp}"
-  if [ $? -ne 0 ]; then
-    error "Failed to replace symlink at: ${targetp}"
-    return 1
-  fi
-
-  info "${info_msg}"
-}
-
-# Informative because calls info and warn.
-symlink_clobber_informative () {
-  local which="$1"
-  local sourcep="$2"
-  local targetp="$3"
-
-  # Check if target does not exist (and be sure not broken symlink).
-  if [ ! -e "${targetp}" ] && [ ! -h "${targetp}" ]; then
-    symlink_create_informative "${@}"
-  else
-    symlink_update_informative "${@}"
-  fi
-
-  # Will generally return 0, as errexit would trip on nonzero earlier.
-  return $?
-}
-
-# ***
-
-symlink_file_informative () {
-  local sourcep="$1"
-  local targetp="${2:-$(basename "${sourcep}")}"
-  symlink_clobber_informative 'file' "$sourcep" "$targetp"
-}
-
-symlink_dir_informative () {
-  local sourcep="$1"
-  local targetp="${2:-$(basename "${sourcep}")}"
-  symlink_clobber_informative 'dir' "$sourcep" "$targetp"
-}
-
-#symlink_local_file () {
-#  return symlink_file_informative "$1/$2" "${3:-$2}"
-#}
-
-#symlink_local_dir () {
-#  return symlink_dir_informative "$1/$2" "${3:-$2}"
-#}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-symlink_overlay_file2file () {
-  local sourcep="$1"
-  local targetp="$2"
-  shift 2
-
-#  local before_cd="$(pwd -L)"
-  cd "${MR_REPO}"
-
-  # Check that the source file exists.
-  # This may interrupt the flow if errexit.
-  ensure_source_exists "${sourcep}"
-
-  # Pass CLI params to check -s/--safe or -f/--force.
-  ensure_target_writable "${targetp}" "${@}"
-
-
-# FIXME: test if sourcep file or dir?
-#symlink_dir_informative -- tests the sourcep is a dir...
-  symlink_file_informative "${sourcep}" "${targetp}"
-
-
-
-
-#  cd "${before_cd}"
-
-# FIXME/2019-10-26 02:50: This might be redundant now!
-  info "Wired ‘$(basename "${targetp}")’"
-}
-
-symlink_overlay_file () {
-  local sourcep="$1"
-  shift
-
-  local targetp=$(basename "${sourcep}")
-
-  symlink_overlay_file2file "${sourcep}" "${targetp}" "${@}"
-}
-
-# ***
-
-symlink_mrinfuse_file2file () {
-  local lnkpath="$1"
-  local targetp="$2"
-  shift 2
+symlink_mrinfuse_typed () {
+  local srctype="$1"
+  local lnkpath="$2"
+  local targetp="${3:-${lnkpath}}"
 
   local before_cd="$(pwd -L)"
   cd "${MR_REPO}"
@@ -348,71 +376,19 @@ symlink_mrinfuse_file2file () {
   local sourcep
   sourcep="$(path_to_mrinfuse_resolve ${lnkpath})"
 
-  symlink_overlay_file2file "${sourcep}" "${targetp}" "${@}"
+  symlink_overlay_typed "${srctype}" "${sourcep}" "${targetp}"
 
   cd "${before_cd}"
 }
+
+# ***
 
 symlink_mrinfuse_file () {
-  local sourcep="$1"
-  shift
-
-  local targetp="${sourcep}"
-
-  symlink_mrinfuse_file2file "${sourcep}" "${targetp}" "${@}"
-}
-
-# ***
-
-FIXME THIS IS NEW i need a mrinfuse dir func...
-should DRY and use existing, pass 'dir'
-
-symlink_mrinfuse_dir2dir () {
-  local lnkpath="$1"
-  local targetp="$2"
-  shift 2
-
-  local before_cd="$(pwd -L)"
-  cd "${MR_REPO}"
-
-  local sourcep
-  sourcep="$(path_to_mrinfuse_resolve ${lnkpath})"
-
-  symlink_overlay_dir2dir "${sourcep}" "${targetp}" "${@}"
-
-  cd "${before_cd}"
+  symlink_mrinfuse_typed 'file' "${@}"
 }
 
 symlink_mrinfuse_dir () {
-  local sourcep="$1"
-  shift
-
-  local targetp="${sourcep}"
-
-  symlink_mrinfuse_dir2dir "${sourcep}" "${targetp}" "${@}"
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-symlink_overlay_first_match () {
-  local targetp="$1"
-  shift
-
-  local found_one=false
-
-  local source_f
-  for sourcep in "${@}"; do
-    if [ -e ${sourcep} ]; then
-      symlink_overlay_file2file "${sourcep}" "${targetp}" "${@}"
-      found_one=true
-      break
-    fi
-  done
-
-  if ! ${found_one}; then
-    warn "Did not find existing source file to symlink as: ${targetp}"
-    return 1
-  fi
+  symlink_mrinfuse_typed 'dir' "${@}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

@@ -12,12 +12,24 @@ source_deps () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 link_private_ignore () {
-  symlink_mrinfuse_file '.ignore' "${@}"
+  local was_link_force="${MRT_LINK_FORCE}"
+  local was_link_safe="${MRT_LINK_SAFE}"
+  symlink_opts_parse "${@}"
+
+  local before_cd="$(pwd -L)"
+  cd "${MR_REPO}"
+
+  symlink_mrinfuse_file '.ignore'
+
+  cd "${before_cd}"
+
+  MRT_LINK_FORCE="${was_link_force}"
+  MRT_LINK_SAFE="${was_link_safe}"
 }
 
 # An alias, of sorts.
 link_private_ignore_force () {
-  link_private_ignore --force "${@}"
+  link_private_ignore --force
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

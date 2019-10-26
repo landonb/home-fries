@@ -4,11 +4,10 @@ source_deps () {
   # Load: warn, etc.
   . ${HOME}/.fries/lib/logger.sh
 
-  # Load:
-  #   params_check_force
-  #   ensure_source_exists
-  #   ensure_target_writable
-  #   symlink_file_informative
+  # Load: symlink_*
+  #       ensure_source_file_exists
+  #       ensure_target_writable
+  #
   . "${MR_TRAVEL_LIB:-${HOME}/.fries/myrepos/lib}/overlay-symlink.sh"
 }
 
@@ -57,6 +56,10 @@ _info_path_resolve () {
 # ***
 
 link_private_exclude () {
+  local was_link_force="${MRT_LINK_FORCE}"
+  local was_link_safe="${MRT_LINK_SAFE}"
+  symlink_opts_parse "${@}"
+
   local before_cd="$(pwd -L)"
   cd "${MR_REPO}"
 
@@ -65,22 +68,33 @@ link_private_exclude () {
 
   # Check that the source file exists.
   # This may interrupt the flow if errexit.
-  ensure_source_exists "${sourcep}"
+  ensure_source_file_exists "${sourcep}"
 
   # Pass CLI params to check -s/--safe or -f/--force.
-  ensure_target_writable '.gitignore.local' "${@}"
-  ensure_target_writable '.git/info/exclude' "${@}"
+  ensure_target_writable '.gitignore.local'
+  ensure_target_writable '.git/info/exclude'
 
   cd .git/info
-  symlink_file_informative "${sourcep}" 'exclude'
+  # MEH/2019-10-26 14:06: `git init` always puts a descriptive exclude
+  # in place, which we could explicitly look for, and then if still a
+  # file but unknown contents, complain to user and bail (and force them
+  # to run `mr infuse --force` or `mr infuse --safe`. But what's the ROI?
+  # Just clobber the target if a file.
+  symlink_file_clobber "${sourcep}" 'exclude'
   cd ../..
 
-  symlink_file_informative "${TARGET_REL}" '.gitignore.local'
+  # 2019-10-26 14:06: Here we can be more gentle, and not clobber existing
+  # file.
+  symlink_overlay_file "${TARGET_REL}" '.gitignore.local'
 
   cd "${before_cd}"
 
-# FIXME/2019-10-26 02:50: This might be redundant now!
-  info "Wired .gitignore.local"
+  MRT_LINK_FORCE="${was_link_force}"
+  MRT_LINK_SAFE="${was_link_safe}"
+}
+
+link_private_exclude_force () {
+  link_private_exclude --force
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -91,5 +105,5 @@ main () {
   source_deps
 }
 
-main "$@"
+main "${@}"
 
