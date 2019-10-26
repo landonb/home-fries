@@ -42,13 +42,13 @@ _info_path_resolve () {
   # Uncomment to spew vars and exit:
   # testing=true
   if $testing; then
-    info "MR_REPO=${MR_REPO}"
-    info "MR_CONFIG=${MR_CONFIG}"
-    info "repo_path_n_sep=${repo_path_n_sep}"
-    info "relative_path=${relative_path}"
-    info "exclude_fpath=${exclude_fpath}"
-    info "canonicalized=${canonicalized}"
-    info "current dir: $(pwd)"
+    >&2 echo "MR_REPO=${MR_REPO}"
+    >&2 echo "MR_CONFIG=${MR_CONFIG}"
+    >&2 echo "repo_path_n_sep=${repo_path_n_sep}"
+    >&2 echo "relative_path=${relative_path}"
+    >&2 echo "exclude_fpath=${exclude_fpath}"
+    >&2 echo "canonicalized=${canonicalized}"
+    >&2 echo "current dir: $(pwd)"
     return 1
   fi
 }

@@ -58,11 +58,11 @@ _debug_spew_and_die () {
   # Uncomment to spew vars and exit:
   testing=true
   if $testing; then
-    info "MR_REPO=${MR_REPO}"
-    info "MR_CONFIG=${MR_CONFIG}"
-    info "MRT_LINK_SAFE=${MRT_LINK_SAFE}"
-    info "MRT_LINK_FORCE=${MRT_LINK_FORCE}"
-    info "current dir: $(pwd)"
+    >&2 echo "MR_REPO=${MR_REPO}"
+    >&2 echo "MR_CONFIG=${MR_CONFIG}"
+    >&2 echo "MRT_LINK_SAFE=${MRT_LINK_SAFE}"
+    >&2 echo "MRT_LINK_FORCE=${MRT_LINK_FORCE}"
+    >&2 echo "current dir: $(pwd)"
     exit 1
   fi
 }
@@ -368,12 +368,12 @@ _info_path_resolve () {
   # Uncomment to spew vars and exit:
   # testing=true
   if $testing; then
-    info "MR_REPO=${MR_REPO}"
-    info "MR_CONFIG=${MR_CONFIG}"
-    info "relative_path=${relative_path}"
-    info "mrinfuse_path=${mrinfuse_path}"
-    info "canonicalized=${canonicalized}"
-    info "current dir: $(pwd)"
+    >&2 echo "MR_REPO=${MR_REPO}"
+    >&2 echo "MR_CONFIG=${MR_CONFIG}"
+    >&2 echo "relative_path=${relative_path}"
+    >&2 echo "mrinfuse_path=${mrinfuse_path}"
+    >&2 echo "canonicalized=${canonicalized}"
+    >&2 echo "current dir: $(pwd)"
     exit 1
   fi
 }
