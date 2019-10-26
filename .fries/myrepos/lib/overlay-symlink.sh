@@ -93,6 +93,14 @@ params_check_safe () {
   params_has_switch '-s' '--safe' "${@}"
 }
 
+symlink_opts_parse () {
+  MRT_LINK_SAFE=1
+  params_check_safe "${@}" && MRT_LINK_SAFE=0 || true
+
+  MRT_LINK_FORCE=1
+  params_check_force "${@}" && MRT_LINK_FORCE=0 || true
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 is_relative_path () {
@@ -151,15 +159,15 @@ safely_backup_or_die_if_not_forced () {
   local targetp="$1"
   shift
 
-  local nosafe=1
-  params_check_safe "${@}" && nosafe=0 || true
+#  local nosafe=1
+#  params_check_safe "${@}" && nosafe=0 || true
+#
+#  local noforce=1
+#  params_check_force "${@}" && noforce=0 || true
 
-  local noforce=1
-  params_check_force "${@}" && noforce=0 || true
-
-  if [ ${nosafe} -eq 0 ]; then
+  if [ ${MRT_LINK_SAFE} -eq 0 ]; then
     safe_backup_existing_target "${targetp}"
-  elif [ ${noforce} -ne 0 ]; then
+  elif [ ${MRT_LINK_FORCE} -ne 0 ]; then
     fail_target_exists_not_link "${targetp}"
   fi
 }
@@ -268,11 +276,15 @@ symlink_clobber_informative () {
 # ***
 
 symlink_file_informative () {
-  symlink_clobber_informative 'file' "$1" "$2"
+  local sourcep="$1"
+  local targetp="${2:-$(basename "${sourcep}")}"
+  symlink_clobber_informative 'file' "$sourcep" "$targetp"
 }
 
 symlink_dir_informative () {
-  symlink_clobber_informative 'dir' "$1" "$2"
+  local sourcep="$1"
+  local targetp="${2:-$(basename "${sourcep}")}"
+  symlink_clobber_informative 'dir' "$sourcep" "$targetp"
 }
 
 #symlink_local_file () {
@@ -291,7 +303,7 @@ symlink_overlay_file2file () {
   shift 2
 
 #  local before_cd="$(pwd -L)"
-#  cd "${MR_REPO}"
+  cd "${MR_REPO}"
 
   # Check that the source file exists.
   # This may interrupt the flow if errexit.
@@ -300,7 +312,13 @@ symlink_overlay_file2file () {
   # Pass CLI params to check -s/--safe or -f/--force.
   ensure_target_writable "${targetp}" "${@}"
 
+
+# FIXME: test if sourcep file or dir?
+#symlink_dir_informative -- tests the sourcep is a dir...
   symlink_file_informative "${sourcep}" "${targetp}"
+
+
+
 
 #  cd "${before_cd}"
 
@@ -342,6 +360,36 @@ symlink_mrinfuse_file () {
   local targetp="${sourcep}"
 
   symlink_mrinfuse_file2file "${sourcep}" "${targetp}" "${@}"
+}
+
+# ***
+
+FIXME THIS IS NEW i need a mrinfuse dir func...
+should DRY and use existing, pass 'dir'
+
+symlink_mrinfuse_dir2dir () {
+  local lnkpath="$1"
+  local targetp="$2"
+  shift 2
+
+  local before_cd="$(pwd -L)"
+  cd "${MR_REPO}"
+
+  local sourcep
+  sourcep="$(path_to_mrinfuse_resolve ${lnkpath})"
+
+  symlink_overlay_dir2dir "${sourcep}" "${targetp}" "${@}"
+
+  cd "${before_cd}"
+}
+
+symlink_mrinfuse_dir () {
+  local sourcep="$1"
+  shift
+
+  local targetp="${sourcep}"
+
+  symlink_mrinfuse_dir2dir "${sourcep}" "${targetp}" "${@}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

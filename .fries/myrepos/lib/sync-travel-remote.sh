@@ -523,16 +523,20 @@ git_merge_ff_only () {
   # We verified `git status --porcelain` indicated nothing before trying to merge,
   # so this could mean the branch diverged from remote, or something. Inform user.
   if [ ${merge_success} -ne 0 ]; then
+# HEREHERE
+#    git_status_check_report_9chars 'mergefail'
     info "  $(fg_lightorange)$(attr_underline)mergefail$(attr_reset)  " \
       "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
     warn "Merge failed! \`merge --ff-only ${MR_REMOTE}/${source_branch}\` says:"
     warn " ${git_resp}"
     # warn " target_repo: ${target_repo}"
   elif (echo "${git_resp}" | grep '^Already up to date.$' >/dev/null); then
+# HEREHERE
     debug "  $(fg_mediumgrey)up-2-date$(attr_reset)  " \
       "$(fg_mediumgrey)${MR_REPO}$(attr_reset)"
   elif [ -z "${changes_txt}" ] && [ -z "${changes_bin}" ]; then
     # A warning, so you can update the grep above and recognize this output.
+# HEREHERE
     warn "  $(fg_mintgreen)$(attr_emphasis)!familiar$(attr_reset)  " \
       "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
   # else, ${merge_success} true, and either/or changes_txt/_bin,
