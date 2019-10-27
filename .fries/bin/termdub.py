@@ -13,7 +13,7 @@
 
 # FIXME/2016-11-19: Make this its own project.
 #                   Installable with pip (from local sources, too).
-#                   See: /kit/sturdy/chjson
+#                   See: /kit/working/chjson
 #                   http://stackoverflow.com/questions/15031694/
 #                    installing-python-packages-from-local-file-system-folder-with-pip
 #                   This is one of the few (only?) py files in home-fries,
