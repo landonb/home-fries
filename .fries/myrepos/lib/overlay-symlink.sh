@@ -65,7 +65,7 @@ infuser_set_envs () {
 
   # Ensure MR_REPO set so script can be called manually,
   # outside context of myrepos.
-  MR_REPO="${MR_REPO:-"${repodir}"}"
+  MR_REPO="${repodir}"
 
   # Note that if '.vim/.mrconfig' is absent, myrepos will have most likely set
   # MR_CONFIG=~/.mrconfig; but if it's present, then MR_CONFIG=~/.vim/.mrconfig.
@@ -84,7 +84,7 @@ infuser_prepare () {
   shift
 
   infuser_set_envs "${repodir}"
-  info "Infusing $(repo_highlight ${MR_REPO})"
+  info "Infusing $(repo_highlight ${repodir})"
   symlink_opts_parse "${@}"
 }
 
