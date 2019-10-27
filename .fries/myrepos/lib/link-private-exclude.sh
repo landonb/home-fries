@@ -94,6 +94,8 @@ try_clobbering_exclude_otherwise_try_normal_overlay () {
 # ***
 
 link_exclude_resolve_source_and_overlay () {
+  local targetf="${1:-".gitignore.local"}"
+
   local sourcep
   sourcep=$(path_to_mrinfuse_resolve "${SOURCE_REL}")
 
@@ -103,7 +105,7 @@ link_exclude_resolve_source_and_overlay () {
   try_clobbering_exclude_otherwise_try_normal_overlay "${sourcep}"
 
   # Place the ./.gitignore.local symlink.
-  symlink_overlay_file "${TARGET_REL}" '.gitignore.local'
+  symlink_overlay_file "${TARGET_REL}" "${targetf}"
 }
 
 # ***
