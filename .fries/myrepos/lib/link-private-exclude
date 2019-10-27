@@ -11,5 +11,5 @@ lib =
 # Or doesn't report it skipped.
 wireexcludes = true
 # Albeit I seem to use infuse more frequently, e.g.,
-#   infuse = link_private_exclude
+#   infuse = link_private_exclude "${@}"
 
