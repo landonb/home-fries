@@ -1,3 +1,4 @@
+#!/bin/sh
 # vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=sh
 
 source_deps () {
@@ -33,24 +34,61 @@ TARGET_REL='.git/info/exclude'
 
 # ***
 
-_info_path_resolve () {
-  local relative_path="$1"
-  local exclude_fpath="$2"
-  local canonicalized="$3"
-  #
+_info_path_exclude () {
   local testing=false
   # Uncomment to spew vars and exit:
-  # testing=true
+  testing=true
   if $testing; then
     >&2 echo "MR_REPO=${MR_REPO}"
     >&2 echo "MR_CONFIG=${MR_CONFIG}"
-    >&2 echo "repo_path_n_sep=${repo_path_n_sep}"
-    >&2 echo "relative_path=${relative_path}"
-    >&2 echo "exclude_fpath=${exclude_fpath}"
-    >&2 echo "canonicalized=${canonicalized}"
     >&2 echo "current dir: $(pwd)"
+    >&2 echo "MRT_LINK_FORCE=${MRT_LINK_FORCE}"
+    >&2 echo "MRT_LINK_SAFE=${MRT_LINK_SAFE}"
     return 1
   fi
+}
+
+# ***
+
+# `git init` create a descriptive .git/info/exclude file that we can
+# replace without asking if boilerplate.
+#
+# E.g., here's the file that git makes:
+#
+#   $ cat .git/info/exclude
+#   git ls-files --others --exclude-from=.git/info/exclude
+#   Lines that start with '#' are comments.
+#   For a project mostly in C, the following would be a good set of
+#   exclude patterns (uncomment them if you want to use them):
+#   *.[oa]
+#   *~
+#
+# We can use the file checksum to check for change:
+#
+#   $ sha256sum .git/info/exclude | awk '{print $1}'
+#   6671fe83b7a07c8932ee89164d1f2793b2318058eb8b98dc5c06ee0a5a3b0ec1
+
+try_clobbering_exclude_otherwise_try_normal_overlay () {
+  local sourcep="$1"
+
+  cd .git/info
+
+  local clobbered=false
+  local exclude_f='exclude'
+  if [ -f "${exclude_f}" ]; then
+    local xsum=$(sha256sum "${exclude_f}" | awk '{print $1}')
+    if [ "$xsum" = '6671fe83b7a07c8932ee89164d1f2793b2318058eb8b98dc5c06ee0a5a3b0ec1' ]; then
+      # info "Removed default: .git/info/exclude"
+      symlink_file_clobber "${sourcep}" 'exclude'
+      clobbered=true
+    fi
+  fi
+
+  if ! $clobbered; then
+    symlink_overlay_file "${sourcep}" 'exclude'
+  fi
+
+  cd ../..
 }
 
 # ***
@@ -59,25 +97,12 @@ link_exclude_resolve_source_and_overlay () {
   local sourcep
   sourcep=$(path_to_mrinfuse_resolve "${SOURCE_REL}")
 
-  # Check that the source file exists.
-  # This may interrupt the flow if errexit.
-  ensure_source_file_exists "${sourcep}"
+  # Clobber .git/info/exclude if `git init` boilerplate, otherwise try
+  # updating normally (replace/update if symlink, or check --force or
+  # --safe if regular file to decide what to do).
+  try_clobbering_exclude_otherwise_try_normal_overlay "${sourcep}"
 
-  # Pass CLI params to check -s/--safe or -f/--force.
-  ensure_target_writable '.gitignore.local'
-  ensure_target_writable '.git/info/exclude'
-
-  cd .git/info
-  # MEH/2019-10-26 14:06: `git init` always puts a descriptive exclude
-  # in place, which we could explicitly look for, and then if still a
-  # file but unknown contents, complain to user and bail (and force them
-  # to run `mr infuse --force` or `mr infuse --safe`. But what's the ROI?
-  # Just clobber the target if a file.
-  symlink_file_clobber "${sourcep}" 'exclude'
-  cd ../..
-
-  # 2019-10-26 14:06: Here we can be more gentle, and not clobber existing
-  # file.
+  # Place the ./.gitignore.local symlink.
   symlink_overlay_file "${TARGET_REL}" '.gitignore.local'
 }
 
@@ -90,6 +115,8 @@ link_private_exclude () {
 
   local before_cd="$(pwd -L)"
   cd "${MR_REPO}"
+
+  # _info_path_exclude
 
   link_exclude_resolve_source_and_overlay
 
@@ -111,5 +138,10 @@ main () {
   source_deps
 }
 
+set -e
+
+# main justs ensures the dependencies are loaded.
+# Caller is expected to call link_private_exclude*
+# as necessary.
 main "${@}"
 

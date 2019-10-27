@@ -319,7 +319,7 @@ symlink_overlay_typed () {
 
   # Caller cd'ed us to "${MR_REPO}".
 
-  # Pass CLI params to check -s/--safe or -f/--force.
+  # Uses CLI params to check -s/--safe or -f/--force.
   ensure_target_writable "${targetp}"
 
   symlink_clobber_typed "${srctype}" "${sourcep}" "${targetp}"
@@ -374,6 +374,8 @@ _info_path_resolve () {
     >&2 echo "mrinfuse_path=${mrinfuse_path}"
     >&2 echo "canonicalized=${canonicalized}"
     >&2 echo "current dir: $(pwd)"
+    >&2 echo "MRT_LINK_FORCE=${MRT_LINK_FORCE}"
+    >&2 echo "MRT_LINK_SAFE=${MRT_LINK_SAFE}"
     exit 1
   fi
 }
