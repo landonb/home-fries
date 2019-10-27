@@ -55,14 +55,7 @@ _info_path_resolve () {
 
 # ***
 
-link_private_exclude () {
-  local was_link_force="${MRT_LINK_FORCE}"
-  local was_link_safe="${MRT_LINK_SAFE}"
-  symlink_opts_parse "${@}"
-
-  local before_cd="$(pwd -L)"
-  cd "${MR_REPO}"
-
+link_exclude_resolve_source_and_overlay () {
   local sourcep
   sourcep=$(path_to_mrinfuse_resolve "${SOURCE_REL}")
 
@@ -86,6 +79,19 @@ link_private_exclude () {
   # 2019-10-26 14:06: Here we can be more gentle, and not clobber existing
   # file.
   symlink_overlay_file "${TARGET_REL}" '.gitignore.local'
+}
+
+# ***
+
+link_private_exclude () {
+  local was_link_force="${MRT_LINK_FORCE}"
+  local was_link_safe="${MRT_LINK_SAFE}"
+  symlink_opts_parse "${@}"
+
+  local before_cd="$(pwd -L)"
+  cd "${MR_REPO}"
+
+  link_exclude_resolve_source_and_overlay
 
   cd "${before_cd}"
 
