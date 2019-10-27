@@ -11,13 +11,8 @@
 #     sort_file_then_commit 'home/.mrinfuse/.vim/spell/en.utf-8.add'
 
 source_deps () {
-  local libdir="${HOME}/.fries/lib"
-  if [ -n "${BASH_SOURCE}" ]; then
-    libdir="$(dirname -- ${BASH_SOURCE[0]})../../lib/"
-  fi
-
-  # Load: warn.
-  . "${libdir}/logger.sh"
+  # Load: warn, etc.
+  . ${HOME}/.fries/lib/logger.sh
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

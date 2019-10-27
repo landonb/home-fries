@@ -5,15 +5,8 @@
 #  . ${HOME}/.fries/lib/logger.sh
 #}
 source_deps () {
-  local libdir="${HOME}/.fries/lib"
-  if [ -n "${BASH_SOURCE}" ]; then
-    libdir="$(dirname -- ${BASH_SOURCE[0]})../../lib/"
-  fi
-
-#  # Use logger (which loads color_funcs.sh) for colorful, stylized output.
-#  # NOTE: So that this script is POSIX-compliant, use `.`, not `source`.
-  # Load: info, warn, etc.
-  . "${libdir}/logger.sh"
+  # Load: warn, etc.
+  . ${HOME}/.fries/lib/logger.sh
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

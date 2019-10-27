@@ -1,14 +1,8 @@
 # vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=sh
 
 source_deps () {
-  local libdir="${HOME}/.fries/lib"
-  if [ -n "${BASH_SOURCE}" ]; then
-    libdir="$(dirname -- ${BASH_SOURCE[0]})../../lib/"
-  fi
-
-  # Use logger (which loads color_funcs.sh) for colorful, stylized output.
-  # NOTE: So that this script is POSIX-compliant, use `.`, not `source`.
-  . "${libdir}/logger.sh"
+  # Load: warn, etc.
+  . ${HOME}/.fries/lib/logger.sh
 }
 
 reveal_biz_vars () {

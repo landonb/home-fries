@@ -31,12 +31,8 @@ GIT_BARE_REPO='--bare'
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 source_deps () {
-  local libdir="${HOME}/.fries/lib"
-  if [ -n "${BASH_SOURCE}" ]; then
-    libdir="$(dirname -- ${BASH_SOURCE[0]})../../lib/"
-  fi
-
-  . "${libdir}/logger.sh"
+  # Load: warn, etc.
+  . ${HOME}/.fries/lib/logger.sh
 }
 
 reveal_biz_vars () {
