@@ -11,34 +11,85 @@ source_deps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-params_has_switch () {
-  local short_arg="$1"
-  local longr_arg="$2"
-  shift 2
-  for arg in "$@"; do
-    for switch in "${short_arg}" "${longr_arg}"; do
-      if [ "${arg}" = "${switch}" ]; then
-        return 0
-      fi
+if false; then
+  params_has_switch () {
+    local short_arg="$1"
+    local longr_arg="$2"
+    shift 2
+    for arg in "$@"; do
+      for switch in "${short_arg}" "${longr_arg}"; do
+        if [ "${arg}" = "${switch}" ]; then
+          return 0
+        fi
+      done
     done
-  done
-  return 1
-}
+    return 1
+  }
 
-params_check_force () {
-  params_has_switch '-f' '--force' "${@}"
-}
+  params_check_force () {
+    params_has_switch '-f' '--force' "${@}"
+  }
 
-params_check_safe () {
-  params_has_switch '-s' '--safe' "${@}"
-}
+  params_check_safe () {
+    params_has_switch '-s' '--safe' "${@}"
+  }
 
-symlink_opts_parse () {
+  myrepostravel_opts_parse () {
+    MRT_LINK_SAFE=1
+    params_check_safe "${@}" && MRT_LINK_SAFE=0 || true
+
+    MRT_LINK_FORCE=1
+    params_check_force "${@}" && MRT_LINK_FORCE=0 || true
+  }
+fi
+
+# ***
+
+params_register_defaults () {
   MRT_LINK_SAFE=1
-  params_check_safe "${@}" && MRT_LINK_SAFE=0 || true
-
   MRT_LINK_FORCE=1
-  params_check_force "${@}" && MRT_LINK_FORCE=0 || true
+  MRT_AUTO_YES=1
+}
+
+params_register_switches () {
+  while [ "$1" != '' ]; do
+    case $1 in
+      -f)
+        MRT_LINK_FORCE=0
+        shift
+        ;;
+      --force)
+        MRT_LINK_FORCE=0
+        shift
+        ;;
+      -s)
+        MRT_LINK_SAFE=0
+        shift
+        ;;
+      --safe)
+        MRT_LINK_SAFE=0
+        shift
+        ;;
+      -y)
+        MRT_AUTO_YES=0
+        shift
+        ;;
+      --yes)
+        MRT_AUTO_YES=0
+        shift
+        ;;
+      *)
+        fatal "ERROR: Unrecognized argument: $1"
+        shift
+        exit 1  # Be mean.
+        ;;
+    esac
+  done
+}
+
+myrepostravel_opts_parse () {
+  params_register_defaults "${@}"
+  params_register_switches "${@}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -85,7 +136,7 @@ infuser_prepare () {
 
   infuser_set_envs "${repodir}"
   info "Infusing $(repo_highlight ${repodir})"
-  symlink_opts_parse "${@}"
+  myrepostravel_opts_parse "${@}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

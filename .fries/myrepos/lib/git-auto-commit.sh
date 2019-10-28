@@ -9,6 +9,21 @@ reveal_biz_vars () {
   MR_GIT_AUTO_COMMIT_SAID_HELLO=false
 }
 
+git_auto_commit_parse_args () {
+  MR_GIT_AUTO_COMMIT_MSG="${MR_GIT_AUTO_COMMIT_MSG:-""}"
+  # Assume first param the commit message unless an -o/--option.
+  if [ -n "${1}" ] && [ "${1#-}" = "$1" ]; then
+    MR_GIT_AUTO_COMMIT_MSG="${1}"
+    shift
+  fi
+
+  # Note that both `shift` and `set -- $@` are scoped to this function,
+  # so we'll process all args in one go (rather than splitting into two
+  # functions, because myrepostravel_opts_parse complains on unknown args).
+  myrepostravel_opts_parse "${@}"
+  [ ${MRT_AUTO_YES} -eq 0 ] && MR_AUTO_COMMIT=true || true
+}
+
 git_auto_commit_hello () {
   # Only pring the "examining" message once, e.g., affects calls such as:
   #     autocommit = git_auto_commit_one 'some/file' && git_auto_commit_one 'ano/ther'
@@ -32,11 +47,18 @@ git_auto_commit_noop () {
 
 git_auto_commit_one () {
   local repo_file="$1"
-  local commit_msg="${2:-Commit “${repo_file}” [@$(hostname)] using myrepos.}"
-  local extcd
+  shift
+
+  # 2019-10-28: (lb): Trying just base filename, for shorter message.
+  # MR_GIT_AUTO_COMMIT_MSG="Commit “${repo_file}” [@$(hostname)] using myrepos."
+  MR_GIT_AUTO_COMMIT_MSG="Commit “$(basename ${repo_file})” [@$(hostname)] using myrepos."
+  git_auto_commit_parse_args "${@}"
   git_auto_commit_hello
+
+  local extcd
   (git status --porcelain "${repo_file}" |
     grep "^\W*M\W*${repo_file}" >/dev/null 2>&1) || extcd=$?
+
   if [ -z ${extcd} ]; then
     local yorn
     if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
@@ -48,6 +70,7 @@ git_auto_commit_one () {
       debug "Committing dirty file: $(fg_lavender)${MR_REPO}/${repo_file}$(attr_reset)"
       yorn="Y"
     fi
+
     if [ ${yorn#y} != ${yorn#y} ] || [ ${yorn#Y} != ${yorn#Y} ]; then
       git add "${repo_file}"
       # FIXME/2017-04-13: Handle errors better (and maybe don't send to /dev/null).
@@ -59,23 +82,25 @@ git_auto_commit_one () {
       #   fatal: Exiting because of an unresolved conflict.
       # (but it could be that the code won't make it here anymore on
       # those conditions, e.g., maybe merge conflicts are seen earlier).
-      git commit -m "${commit_msg}" >/dev/null 2>&1
+      git commit -m "${MR_GIT_AUTO_COMMIT_MSG}" >/dev/null 2>&1
       if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
         echo 'Committed!'
       fi
     elif [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
       echo 'Skipped!'
     fi
+
   # else, the file is not dirty.
   fi
+
   git_auto_commit_seeya
 }
 
 git_auto_commit_all () {
-  local commit_msg="${1:-Update *dirty* files [@$(hostname)] using myrepos.}"
-  local extcd
+  MR_GIT_AUTO_COMMIT_MSG="Update *dirty* files [@$(hostname)] using myrepos."
+  git_auto_commit_parse_args "${@}"
   git_auto_commit_hello
-  #
+
   # We ignore untracted files here because they cannot be added
   # by a generic `git add -u` -- in fact, git should complain.
   #
@@ -98,6 +123,7 @@ git_auto_commit_all () {
   # later call to git_status_porcelain on the same repo will die.
   #
   #  (git status --porcelain | grep "^\W*M\W*" >/dev/null 2>&1) || extcd=$?
+  local extcd
   (git status --porcelain | grep "^[^\?]" >/dev/null 2>&1) || extcd=$?
   if [ -z ${extcd} ]; then
     local yorn
@@ -111,9 +137,10 @@ git_auto_commit_all () {
       notice "Auto-commit *all* objects: ${pretty_path}"
       yorn="Y"
     fi
+
     if [ ${yorn#y} != ${yorn#y} ] || [ ${yorn#Y} != ${yorn#Y} ]; then
       git add -u
-      git commit -m "${commit_msg}" >/dev/null 2>&1
+      git commit -m "${MR_GIT_AUTO_COMMIT_MSG}" >/dev/null 2>&1
       if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
         echo 'Committed!'
       else
@@ -123,14 +150,18 @@ git_auto_commit_all () {
       echo 'Skipped!'
     fi
   fi
+
   git_auto_commit_seeya
 }
 
 git_auto_commit_new () {
-  local commit_msg="${1:-Insert *untracked* files [@$(hostname)] using myrepos.}"
-  local extcd
+  MR_GIT_AUTO_COMMIT_MSG="Insert *untracked* files [@$(hostname)] using myrepos."
+  git_auto_commit_parse_args "${@}"
   git_auto_commit_hello
+
+  local extcd
   (git status --porcelain . | grep "^[\?][\?]" >/dev/null 2>&1) || extcd=$?
+
   if [ -z ${extcd} ]; then
     local yorn
     if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
@@ -143,6 +174,7 @@ git_auto_commit_new () {
       notice "Auto-commit *new* objects: ${pretty_path}"
       yorn="Y"
     fi
+
     if [ ${yorn#y} != ${yorn#y} ] || [ ${yorn#Y} != ${yorn#Y} ]; then
       # Hilarious. There's one way to programmatically add only
       # untracked files, and it's using the interactive feature.
@@ -151,7 +183,7 @@ git_auto_commit_new () {
       # files.)
       # TOO INCLUSIVE: git add .
       echo "a\n*\nq\n" | git add -i >/dev/null 2>&1
-      git commit -m "${commit_msg}" >/dev/null 2>&1
+      git commit -m "${MR_GIT_AUTO_COMMIT_MSG}" >/dev/null 2>&1
       if [ -z ${MR_AUTO_COMMIT} ] || ! ${MR_AUTO_COMMIT}; then
         echo 'Committed!'
       else
@@ -161,6 +193,7 @@ git_auto_commit_new () {
       echo 'Skipped!'
     fi
   fi
+
   git_auto_commit_seeya
 }
 
