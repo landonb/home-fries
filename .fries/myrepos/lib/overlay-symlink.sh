@@ -228,9 +228,9 @@ safely_backup_or_die_if_not_forced () {
   local targetp="$1"
   shift
 
-  if [ ${MRT_LINK_SAFE} -eq 0 ]; then
+  if [ ${MRT_LINK_SAFE:-1} -eq 0 ]; then
     safe_backup_existing_target "${targetp}"
-  elif [ ${MRT_LINK_FORCE} -ne 0 ]; then
+  elif [ ${MRT_LINK_FORCE:-1} -ne 0 ]; then
     fail_target_exists_not_link "${targetp}"
   fi
 }
