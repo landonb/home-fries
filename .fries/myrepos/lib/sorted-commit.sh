@@ -8,7 +8,7 @@
 #   autocommit =
 #     # Sort the spell file, for easy diff'ing, or merging/meld'ing.
 #     # - The .vimrc startup file will remake the .spl file when you restart Vim.
-#     sort_file_then_commit 'home/.mrinfuse/.vim/spell/en.utf-8.add'
+#     sort_file_then_commit '.mrinfuse/.vim/spell/en.utf-8.add'
 
 source_deps () {
   # Load: warn, etc.
