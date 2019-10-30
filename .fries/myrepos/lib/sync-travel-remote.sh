@@ -619,7 +619,7 @@ git_merge_check_env_repo () {
 }
 
 git_merge_check_env_travel () {
-  [ -z "${MR_TRAVEL}" ] && >&2 echo 'You must set MR_TRAVEL!' && exit 1 || true
+  [ -z "${MR_TRAVEL}" ] && error 'You must set MR_TRAVEL!' && exit 1 || true
 }
 
 # The `mr ffssh` action.
@@ -637,6 +637,9 @@ git_merge_ffonly_ssh_mirror () {
 git_update_ensure_ready () {
   git_merge_check_env_travel
   git_merge_check_env_repo
+}
+
+git_update_dev_path () {
   local dev_path=$(readlink -m "${MR_TRAVEL}/${MR_REPO}")
   echo "${dev_path}"
 }
@@ -645,7 +648,8 @@ git_update_ensure_ready () {
 git_update_device_fetch_from_local () {
   MR_REMOTE=${MR_REMOTE:-$(hostname)}
   local dev_path
-  dev_path=$(git_update_ensure_ready)
+  git_update_ensure_ready
+  dev_path=$(git_update_dev_path)
   git_pack_travel_device "${MR_REPO}" "${dev_path}"
 }
 
@@ -653,7 +657,8 @@ git_update_device_fetch_from_local () {
 git_update_local_fetch_from_device () {
   git_merge_check_env_remote
   local dev_path
-  dev_path=$(git_update_ensure_ready)
+  git_update_ensure_ready
+  dev_path=$(git_update_dev_path)
   git_fetch_n_cobr_n_merge "${dev_path}" "${MR_REPO}" 'travel' 'local'
 }
 
