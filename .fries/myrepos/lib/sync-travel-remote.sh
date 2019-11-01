@@ -273,8 +273,8 @@ git_ensure_or_clone_target () {
   fi
 
   DID_CLONE_REPO=1
-  info "  $(fg_mintgreen)$(attr_emphasis)✓ cloned🖐$(attr_reset)  " \
-    "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
+  info "  $(fg_lightgreen)$(attr_emphasis)✓ cloned🖐$(attr_reset)  " \
+    "$(fg_lightgreen)${MR_REPO}$(attr_reset)"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -366,21 +366,21 @@ git_set_remote_travel () {
 
   if [ ${extcd} -ne 0 ]; then
     #trace "  Fresh remote wired for “${MR_REMOTE}”"
-    info "  $(fg_mintgreen)$(attr_emphasis)✓ remote👈$(attr_reset) " \
-      "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
     git remote add ${MR_REMOTE} "${source_repo}"
     DID_SET_REMOTE=1
     #
     _git_echo_long_op_finis
+    info "  $(fg_green)$(attr_emphasis)✓ r-wired👈$(attr_reset)" \
+      "$(fg_green)${MR_REPO}$(attr_reset)"
   elif [ "${remote_url}" != "${source_repo}" ]; then
-    info "  $(fg_mintgreen)$(attr_emphasis)✓ remote👆$(attr_reset) " \
-      "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
-    debug "  Reset remote wired for “${MR_REMOTE}”" \
-      "(was: $(attr_italic)${remote_url}$(attr_reset))"
     git remote set-url ${MR_REMOTE} "${source_repo}"
     DID_SET_REMOTE=1
     #
     _git_echo_long_op_finis
+    info "  $(fg_green)$(attr_emphasis)✓ r-wired👆$(attr_reset)" \
+      "$(fg_green)${MR_REPO}$(attr_reset)"
+    debug "  Reset remote wired for “${MR_REMOTE}”" \
+      "(was: $(attr_italic)${remote_url}$(attr_reset))"
   else
     #trace "  The “${MR_REMOTE}” remote url is already correct!"
     : # no-op
@@ -414,7 +414,7 @@ git_fetch_remote_travel () {
   # Use `&& true` in case grep does not match anything,
   # so as not to tickle errexit.
   # 2018-03-23: Is the "has become dangling" message meaningful to me?
-   local culled="$(echo "${git_resp}" \
+  local culled="$(echo "${git_resp}" \
     | grep -v "^Fetching " \
     | grep -v "^From " \
     | grep -v "+\? *[a-f0-9]\{7,8\}\.\{2,3\}[a-f0-9]\{7,8\}.*->.*" \
@@ -437,11 +437,11 @@ git_fetch_remote_travel () {
   fi
   if [ "${target_type}" = 'travel' ]; then
     if [ -n "${git_resp}" ]; then
-      info "  $(fg_mintgreen)$(attr_emphasis)✓ fetched🤙$(attr_reset)" \
-        "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
+      info "  $(fg_green)$(attr_emphasis)✓ fetched🤙$(attr_reset)" \
+        "$(fg_green)${MR_REPO}$(attr_reset)"
     else
-      debug "  $(fg_mediumgrey)fetchless$(attr_reset)  " \
-        "$(fg_mediumgrey)${MR_REPO}$(attr_reset)"
+      debug "  $(fg_green)fetchless$(attr_reset)  " \
+        "$(fg_green)${MR_REPO}$(attr_reset)"
     fi
   # else, "$target_type" = 'local'.
   fi
@@ -466,9 +466,6 @@ git_change_branches_if_necessary () {
   if [ "${source_branch}" != "${target_branch}" ]; then
     _git_echo_long_op_start 'branchin’'
     #
-    info "  $(fg_mintgreen)$(attr_emphasis)✓ checkout $(attr_reset)" \
-      "$(fg_lightorange)$(attr_underline)${target_branch}$(attr_reset)" \
-      "》$(fg_lightorange)$(attr_underline)${source_branch}$(attr_reset)"
     if git_is_bare_repository; then
       git symbolic-ref HEAD refs/heads/${source_branch}
     else
@@ -482,6 +479,10 @@ git_change_branches_if_necessary () {
     DID_BRANCH_CHANGE=1
     #
     _git_echo_long_op_finis
+
+    info "  $(fg_mintgreen)$(attr_emphasis)✓ checkout $(attr_reset)" \
+      "$(fg_lightorange)$(attr_underline)${target_branch}$(attr_reset)" \
+      "》$(fg_lightorange)$(attr_underline)${source_branch}$(attr_reset)"
   fi
 
   cd "${before_cd}"
