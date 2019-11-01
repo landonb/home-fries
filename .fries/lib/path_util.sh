@@ -58,7 +58,7 @@ flock_dir () {
 
   $DEBUG_TRACE && echo "Attempting grab on mutex: ${FLOCKING_DIR_PATH}"
 
-  local resp=`/bin/mkdir "${FLOCKING_DIR_PATH}" 2>&1`
+  local resp=$(/bin/mkdir "${FLOCKING_DIR_PATH}" 2>&1)
   if [[ $? -eq 0 ]]; then
     # We made the directory, meaning we got the mutex.
     $DEBUG_TRACE && echo "Got mutex: yes, running script."
