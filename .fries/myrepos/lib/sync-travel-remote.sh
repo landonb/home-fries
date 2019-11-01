@@ -73,6 +73,29 @@ _git_echo_cyclones_frgreen () {
   _echo "$(bg_orange)$(fg_lightgreen)$(printf '🌀 %.0s' {1..36})$(attr_reset)"
 }
 
+_git_echo_long_op_start () {
+  local right_now="$(date "+%Y-%m-%d @ %T")"
+  LONG_OP_MSG=
+  LONG_OP_MSG="$( _echo \
+    "$(fg_lightorange)[WAIT]$(attr_reset) ${right_now} "\
+    "$(fg_lightorange)⏳ ${1}$(attr_reset)" \
+    "$(fg_lightorange)${MR_REPO}...$(attr_reset)" \
+  )"
+  _echon "${LONG_OP_MSG}"
+}
+
+_git_echo_long_op_finis () {
+  _echon "\r"
+  # Clear out the previous message (lest ellipses remain in terminal) e.g., clear:
+  #      "[WAIT] 2019-10-30 @ 19:34:04 ⏳ fetchin’  /..." → 43 chars
+  #                                       fetched🤙 /kit/Coldsprints
+  _echon "                                           "  # add one extra for Unicode, or something.
+  _echon "$(echo "${MR_REPO}..." | /bin/sed -r "s/./ /g")"
+  _echon "\r"
+  LONG_OP_MSG=
+}
+
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -145,6 +168,9 @@ must_be_git_dirs () {
   local source_type="$3"
   local target_type="$4"
 
+  _git_echo_long_op_start 'check-git'
+  #
+
   local a_problem=0
 
   git_dir_check "${source_repo}" "${source_type}"
@@ -152,6 +178,9 @@ must_be_git_dirs () {
 
   git_dir_check "${target_repo}" "${target_type}"
   [ $? -ne 0 ] && a_problem=1
+
+  #
+  _git_echo_long_op_finis
 
   return ${a_problem}
 }
@@ -212,11 +241,12 @@ git_ensure_or_clone_target () {
     fi
   fi
 
+  _git_echo_long_op_start 'clonin’  '
+  #
   local retco=0
-  local git_resp
-  git_resp=$( \
-    git clone ${GIT_BARE_REPO} -- "${source_repo}" "${target_repo}" 2>&1 \
-  ) || retco=$?
+  #
+  _git_echo_long_op_finis
+
   if [ ${retco} -ne 0 ]; then
     warn "Clone failed!"
     warn "  \$ git clone ${GIT_BARE_REPO} -- '${source_repo}' '${target_repo}'"
@@ -301,12 +331,16 @@ git_set_remote_travel () {
   # Instead of $(pwd), could use environ:
   #   local target_repo="${2:-${MR_REPO}}"
 
+  _git_echo_long_op_start 'get-url’g'
+
   local before_cd="$(pwd -L)"
   cd "${target_repo}"
 
   local extcd=0
   local remote_url
   remote_url=$(git remote get-url ${MR_REMOTE} 2>/dev/null) || extcd=$?
+#  #
+#  _git_echo_long_op_finis
 
   #trace "  git_set_remote_travel:"
   #trace "   target: ${target_repo}"
@@ -319,6 +353,8 @@ git_set_remote_travel () {
       "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
     git remote add ${MR_REMOTE} "${source_repo}"
     DID_SET_REMOTE=1
+    #
+    _git_echo_long_op_finis
   elif [ "${remote_url}" != "${source_repo}" ]; then
     info "  $(fg_mintgreen)$(attr_emphasis)✓ remote👆$(attr_reset) " \
       "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
@@ -326,9 +362,12 @@ git_set_remote_travel () {
       "(was: $(attr_italic)${remote_url}$(attr_reset))"
     git remote set-url ${MR_REMOTE} "${source_repo}"
     DID_SET_REMOTE=1
+    #
+    _git_echo_long_op_finis
   else
     #trace "  The “${MR_REMOTE}” remote url is already correct!"
     : # no-op
+    _git_echo_long_op_finis
   fi
 
   cd "${before_cd}"
@@ -342,6 +381,8 @@ git_fetch_remote_travel () {
   #   local target_repo="${1:-${MR_REPO}}"
   local target_type="$2"
 
+  _git_echo_long_op_start 'fetchin’ '
+
   local before_cd="$(pwd -L)"
   cd "${target_repo}"
 
@@ -349,6 +390,9 @@ git_fetch_remote_travel () {
   local git_resp
   git_resp="$(git fetch ${MR_REMOTE} --prune 2>&1)" || extcd=$?
   local fetch_success=${extcd}
+
+  _git_echo_long_op_finis
+
   verbose "git fetch says:\n${git_resp}"
   # Use `&& true` in case grep does not match anything,
   # so as not to tickle errexit.
@@ -403,6 +447,8 @@ git_change_branches_if_necessary () {
   cd "${target_repo}"
 
   if [ "${source_branch}" != "${target_branch}" ]; then
+    _git_echo_long_op_start 'branchin’'
+    #
     info "  $(fg_mintgreen)$(attr_emphasis)✓ checkout $(attr_reset)" \
       "$(fg_lightorange)$(attr_underline)${target_branch}$(attr_reset)" \
       "》$(fg_lightorange)$(attr_underline)${source_branch}$(attr_reset)"
@@ -417,6 +463,8 @@ git_change_branches_if_necessary () {
       fi
     fi
     DID_BRANCH_CHANGE=1
+    #
+    _git_echo_long_op_finis
   fi
 
   cd "${before_cd}"
@@ -431,6 +479,8 @@ git_merge_ff_only () {
   local target_repo="${2:-$(pwd -L)}"
   # Instead of $(pwd), could use environ:
   #   local target_repo="${2:-${MR_REPO}}"
+
+  _git_echo_long_op_start 'mergerin’'
 
   local before_cd="$(pwd -L)"
   cd "${target_repo}"
@@ -483,6 +533,8 @@ git_merge_ff_only () {
     | grep -P -v "${pattern_txt}" \
     | grep -P -v "${pattern_bin}" \
   )"
+
+  _git_echo_long_op_finis
 
   [ -n "${culled}" ] && warn "git merge wha?\n${culled}" || true
   [ -n "${culled}" ] && [ ${LOG_LEVEL} -gt ${LOG_LEVEL_VERBOSE} ] && \
