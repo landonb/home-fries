@@ -243,7 +243,24 @@ git_ensure_or_clone_target () {
 
   _git_echo_long_op_start 'clonin’  '
   #
+  # UNSURE/2019-10-30: Does subprocess mean Ctrl-C won't pass through?
+  # I.e., does calling git-clone not in subprocess make mr command faster killable?
+  if false; then
+    local retco=0
+    local git_resp
+    git_resp=$( \
+      git clone ${GIT_BARE_REPO} -- "${source_repo}" "${target_repo}" 2>&1 \
+    ) || retco=$?
+  fi
+  #
   local retco=0
+  local git_respf="$(mktemp --suffix='.myrepostravel-clone')"
+  set +e
+  git clone ${GIT_BARE_REPO} -- "${source_repo}" "${target_repo}" >"${git_respf}" 2>&1
+  retco=$?
+  set -e
+  local git_resp="$(<"${git_respf}")"
+  /bin/rm "${git_respf}"
   #
   _git_echo_long_op_finis
 
