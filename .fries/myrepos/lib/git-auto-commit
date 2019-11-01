@@ -7,11 +7,13 @@ lib =
   . "${HOME}/.fries/myrepos/lib/git-auto-commit.sh"
 
 # USAGE: E.g.,:
-#   autocommit = git_auto_commit_all
+#   autocommit = git_auto_commit_all "${@}"
 # Or, e.g.,
-#   autocommit = git_auto_commit_all && git_auto_commit_new
+#   autocommit = git_auto_commit_all "${@}" && git_auto_commit_new "${@}"
 # Or, e.g.,
-#   autocommit = git_auto_commit_one 'some/file' && git_auto_commit_one 'ano/ther'
+#   autocommit =
+#     git_auto_commit_one 'some/file' "${@}"
+#     git_auto_commit_one 'ano/ther' "${@}"
 # 2019-10-23: (lb): I defined a default function here (which prints a message),
 #   autocommit = git_auto_commit_noop
 # and the runtime for `mr auto` was 3.09 seconds for (246 ok; 12 skipped).

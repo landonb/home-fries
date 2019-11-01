@@ -19,6 +19,7 @@ source_deps () {
 
 sort_file_then_commit () {
   local targetf="$1"
+  shift
 
   # If `mr` run from a subdir, top-level .mrconfig found, but still run some subdir.
   local before_cd="$(pwd -L)"
@@ -33,7 +34,7 @@ sort_file_then_commit () {
     /bin/cat "${targetf}" | /usr/bin/sort > "${sortedf}"
     /bin/mv -f "${sortedf}" "${targetf}"
 
-    git_auto_commit_one "${targetf}"
+    git_auto_commit_one "${targetf}" "${@}"
   else
     warn
     warn 'WARNING: No file to sort and commit found at:'

@@ -26,7 +26,9 @@ git_auto_commit_parse_args () {
 
 git_auto_commit_hello () {
   # Only pring the "examining" message once, e.g., affects calls such as:
-  #     autocommit = git_auto_commit_one 'some/file' && git_auto_commit_one 'ano/ther'
+  #     autocommit =
+  #       git_auto_commit_one 'some/file' "${@}"
+  #       git_auto_commit_one 'ano/ther' "${@}"
   if ! ${MR_GIT_AUTO_COMMIT_SAID_HELLO}; then
     MR_GIT_AUTO_COMMIT_BEFORE_CD="$(pwd -L)"
     cd "${MR_REPO}"
