@@ -460,6 +460,14 @@ git_change_branches_if_necessary () {
   # Instead of $(pwd), could use environ:
   #   local target_repo="${3:-${MR_REPO}}"
 
+  if [ "${source_branch}" = "HEAD" ]; then
+    # If (detached) HEAD is active branch, do naught.
+    info "  $(fg_mintgreen)$(attr_emphasis)✗ checkout $(attr_reset)" \
+      "SKIP: $(fg_lightorange)$(attr_underline)${target_branch}$(attr_reset)" \
+      "》$(fg_lightorange)$(attr_underline)${source_branch}$(attr_reset)"
+    return
+  fi
+
   local before_cd="$(pwd -L)"
   cd "${target_repo}"
 
