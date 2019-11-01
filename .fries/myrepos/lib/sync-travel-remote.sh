@@ -142,7 +142,7 @@ git_dir_check () {
       fatal
     fi
     warn_repo_problem_9char 'notsynced'
-  elif [ ! -d "${repo_path}/.git" ] && [ ! -f "${repo_path}/HEAD" ]; then
+  elif [ ! -e "${repo_path}/.git" ] && [ ! -f "${repo_path}/HEAD" ]; then
     dir_okay=1
     info "No .git/|HEAD: $(bg_maroon)$(attr_bold)${repo_path}$(attr_reset)"
     warn_repo_problem_9char 'gitless' ' ' ' '
