@@ -35,35 +35,21 @@ dir_resolve () {
 # *** Call ista Flock hart
 
 # Tries to mkdir a directory that's being used as a process lock.
-#
-# DEVS: This fcn. calls `set +e` but doesn't reset it ([lb] doesn't know how
-# to find the current value of that option so we can restore it; oh well).
 
 flock_dir () {
   local not_got_lock=1
 
   local FLOCKING_DIR_PATH=$1
-  local DONT_FLOCKING_CARE=$2
-  local FLOCKING_REQUIRED=$3
-  local FLOCKING_RE_TRIES=$4
-  local FLOCKING_TIMELIMIT=$5
+  local DONT_FLOCKING_CARE=${2:-0}
+  local FLOCKING_REQUIRED=${3:-0}
+  # Use -1 to mean forever, 0 to mean never, or 1 to mean once, 2 twice, etc.
+  local FLOCKING_RE_TRIES=${4:-0}
+  # Use -1 to mean forever, 0 to ignore, or max. # of secs.
+  local FLOCKING_TIMELIMIT=${5:-0}
+
   if [[ -z $FLOCKING_DIR_PATH ]]; then
     echo "Missing flock dir path"
     exit 1
-  fi
-  if [[ -z $DONT_FLOCKING_CARE ]]; then
-    DONT_FLOCKING_CARE=0
-  fi
-  if [[ -z $FLOCKING_REQUIRED ]]; then
-    FLOCKING_REQUIRED=0
-  fi
-  if [[ -z $FLOCKING_RE_TRIES ]]; then
-    # Use -1 to mean forever, 0 to mean never, or 1 to mean once, 2 twice, etc.
-    FLOCKING_RE_TRIES=0
-  fi
-  if [[ -z $FLOCKING_TIMELIMIT ]]; then
-    # Use -1 to mean forever, 0 to ignore, or max. # of secs.
-    FLOCKING_TIMELIMIT=0
   fi
 
   tweak_errexit +eE # Stay on error
