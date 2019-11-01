@@ -100,16 +100,16 @@ warn_repo_problem_9char () {
 
 git_dir_check () {
   local repo_path="$1"
-  local repo_name="$2"
+  local repo_type="$2"
   local dir_okay=0
   if is_ssh_path "${repo_path}"; then
     return ${dir_okay}
   elif [ ! -d "${repo_path}" ]; then
     dir_okay=1
     info "No repo found: $(bg_maroon)$(attr_bold)${repo_path}$(attr_reset)"
-    if [ "${repo_name}" = 'travel' ]; then
+    if [ "${repo_type}" = 'travel' ]; then
       touch ${MR_TMP_TRAVEL_HINT_FILE}
-    else
+    else  # "${repo_type}" = 'local'
       # (lb): This should be unreacheable, because $repo_path is $MR_REPO,
       # and `mr` will have failed before now.
       fatal
@@ -142,15 +142,15 @@ git_dir_check () {
 must_be_git_dirs () {
   local source_repo="$1"
   local target_repo="$2"
-  local source_name="$3"
-  local target_name="$4"
+  local source_type="$3"
+  local target_type="$4"
 
   local a_problem=0
 
-  git_dir_check "${source_repo}" "${source_name}"
+  git_dir_check "${source_repo}" "${source_type}"
   [ $? -ne 0 ] && a_problem=1
 
-  git_dir_check "${target_repo}" "${target_name}"
+  git_dir_check "${target_repo}" "${target_type}"
   [ $? -ne 0 ] && a_problem=1
 
   return ${a_problem}
@@ -340,7 +340,7 @@ git_fetch_remote_travel () {
   local target_repo="${1:-$(pwd -L)}"
   # Instead of $(pwd), could use environ:
   #   local target_repo="${1:-${MR_REPO}}"
-  local target_name="$2"
+  local target_type="$2"
 
   local before_cd="$(pwd -L)"
   cd "${target_repo}"
@@ -374,7 +374,7 @@ git_fetch_remote_travel () {
   if [ -n "${git_resp}" ]; then
     DID_FETCH_CHANGES=1
   fi
-  if [ "${target_name}" = 'travel' ]; then
+  if [ "${target_type}" = 'travel' ]; then
     if [ -n "${git_resp}" ]; then
       info "  $(fg_mintgreen)$(attr_emphasis)✓ fetched🤙$(attr_reset)" \
         "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
@@ -382,6 +382,7 @@ git_fetch_remote_travel () {
       debug "  $(fg_mediumgrey)fetchless$(attr_reset)  " \
         "$(fg_mediumgrey)${MR_REPO}$(attr_reset)"
     fi
+  # else, "$target_type" = 'local'.
   fi
 
   cd "${before_cd}"
@@ -549,10 +550,10 @@ git_merge_ff_only () {
 git_fetch_n_cobr () {
   local source_repo="$1"
   local target_repo="$2"
-  local source_name="$3"
-  local target_name="$4"
+  local source_type="$3"
+  local target_type="$4"
 
-  must_be_git_dirs "${source_repo}" "${target_repo}" "${source_name}" "${target_name}"
+  must_be_git_dirs "${source_repo}" "${target_repo}" "${source_type}" "${target_type}"
   [ $? -ne 0 ] && return $? || true  # Obviously unreacheable if caller used `set -e`.
 
   local source_branch
@@ -562,6 +563,7 @@ git_fetch_n_cobr () {
   else
     source_branch=$(git_checkedout_branch_name_direct "${source_repo}")
   fi
+
   target_branch=$(git_checkedout_branch_name_direct "${target_repo}")
   # A global for later.
   MR_ACTIVE_BRANCH="${source_branch}"
@@ -579,7 +581,7 @@ git_fetch_n_cobr () {
   # 2018-03-22: Set a remote to the sync device. There's always only 1,
   # apparently. I think this'll work well.
   git_set_remote_travel "${source_repo}"
-  git_fetch_remote_travel "${target_repo}" "${target_name}"
+  git_fetch_remote_travel "${target_repo}" "${target_type}"
 
   # Because `cd` above, do not need to pass "${target_repo}" (on $3).
   git_change_branches_if_necessary "${source_branch}" "${target_branch}"
@@ -592,10 +594,10 @@ git_fetch_n_cobr () {
 git_fetch_n_cobr_n_merge () {
   local source_repo="$1"
   local target_repo="$2"
-  local source_name="$3"
-  local target_name="$4"
+  local source_type="$3"
+  local target_type="$4"
   travel_ops_reset_stats
-  git_fetch_n_cobr "${source_repo}" "${target_repo}" "${source_name}" "${target_name}"
+  git_fetch_n_cobr "${source_repo}" "${target_repo}" "${source_type}" "${target_type}"
   # Fast-forward merge, so no new commits, and complain if cannot.
   git_merge_ff_only "${MR_ACTIVE_BRANCH}" "${target_repo}"
 }
