@@ -172,7 +172,7 @@ git_auto_commit_new () {
       echo -n "Add *untracked* paths therein? [y/n] "
       read yorn
     else
-      local pretty_path="$(attr_underline)$(bg_darkgray)${MR_REPO}$(attr_normal)"
+      local pretty_path="$(attr_underline)$(bg_darkgray)${MR_REPO}$(attr_reset)"
       notice "Auto-commit *new* objects: ${pretty_path}"
       yorn="Y"
     fi
