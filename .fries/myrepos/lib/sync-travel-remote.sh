@@ -631,20 +631,12 @@ git_fetch_n_cobr () {
   local source_type="$3"
   local target_type="$4"
 
+  # ...
+
   must_be_git_dirs "${source_repo}" "${target_repo}" "${source_type}" "${target_type}"
   [ $? -ne 0 ] && return $? || true  # Obviously unreacheable if caller used `set -e`.
 
-  local source_branch
-  local target_branch
-  if is_ssh_path "${source_repo}"; then
-    source_branch=$(git_checkedout_branch_name_remote "${target_repo}" "${MR_REMOTE}")
-  else
-    source_branch=$(git_checkedout_branch_name_direct "${source_repo}")
-  fi
-
-  target_branch=$(git_checkedout_branch_name_direct "${target_repo}")
-  # A global for later.
-  MR_ACTIVE_BRANCH="${source_branch}"
+  # ...
 
   local before_cd="$(pwd -L)"
   cd "${target_repo}"  # (lb): Probably $MR_REPO, which is already cwd.
@@ -660,6 +652,20 @@ git_fetch_n_cobr () {
   # apparently. I think this'll work well.
   git_set_remote_travel "${source_repo}"
   git_fetch_remote_travel "${target_repo}" "${target_type}"
+
+  # ...
+
+  local source_branch
+  local target_branch
+  if is_ssh_path "${source_repo}"; then
+    source_branch=$(git_checkedout_branch_name_remote "${target_repo}" "${MR_REMOTE}")
+  else
+    source_branch=$(git_checkedout_branch_name_direct "${source_repo}")
+  fi
+
+  target_branch=$(git_checkedout_branch_name_direct "${target_repo}")
+  # A global for later.
+  MR_ACTIVE_BRANCH="${source_branch}"
 
   # Because `cd` above, do not need to pass "${target_repo}" (on $3).
   git_change_branches_if_necessary "${source_branch}" "${target_branch}"
