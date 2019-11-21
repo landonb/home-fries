@@ -306,6 +306,22 @@ git_checkedout_branch_name_remote () {
   echo "${branch_name}"
 }
 
+git_source_branch_deduce () {
+  local source_repo="$1"
+  local target_repo="$2"
+
+  local source_branch
+  if is_ssh_path "${source_repo}"; then
+    # If detached HEAD (b/c git submodule, or other why), remote-show shows "(unknown)".
+    source_branch=$(git_checkedout_branch_name_remote "${target_repo}" "${MR_REMOTE}")
+  else
+    # If detached HEAD (b/c git submodule, or other), rev-parse--abbrev-ref says "HEAD".
+    source_branch=$(git_checkedout_branch_name_direct "${source_repo}")
+  fi
+
+  echo "${source_branch}"
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # I don't need this fcn. Reports the tracking branch, (generally 'upstream)
@@ -507,12 +523,20 @@ git_merge_ff_only () {
   # Instead of $(pwd), could use environ:
   #   local target_repo="${2:-${MR_REPO}}"
 
+  local to_commit
   # Detached HEAD either "HEAD" (--abbrev-ref) or "(unknown)" (remote show).
   if [ "${source_branch}" = "HEAD" ] || [ "${source_branch}" = "(unknown)" ]; then
-# HEREHERE
     debug "  $(fg_mediumgrey)skip-HEAD$(attr_reset)  " \
       "$(fg_mediumgrey)${MR_REPO}$(attr_reset)"
     return
+    # MEH/2019-11-21 03:12: We could get around detached HEAD by using SHA, e.g.,:
+    #   # Remote is non-local (ssh) and detached head ((unknown)). Get HEAD's SHA.
+    #   to_commit=$(git ls-remote ${MR_REMOTE} | grep -P "\tHEAD$" | cut -f1)
+    # but the use case for detached HEAD is slim (so far just my ~/.vim repo which
+    # has submodules, as far as I'm aware), so I'd rather do nothing/skip merge on
+    # detached HEAD repos.
+  else
+    to_commit="${MR_REMOTE}/${source_branch}"
   fi
 
   _git_echo_long_op_start 'mergerin’'
@@ -529,7 +553,7 @@ git_merge_ff_only () {
 
   local extcd=0
   local git_resp
-  git_resp=$(git merge --ff-only ${MR_REMOTE}/${source_branch} 2>&1) || extcd=$?
+  git_resp=$(git merge --ff-only ${to_commit} 2>&1) || extcd=$?
   local merge_success=${extcd}
 
   # 2018-03-26 16:41: Weird: was this directory moved, hence the => ?
@@ -607,20 +631,18 @@ git_merge_ff_only () {
   # We verified `git status --porcelain` indicated nothing before trying to merge,
   # so this could mean the branch diverged from remote, or something. Inform user.
   if [ ${merge_success} -ne 0 ]; then
-# HEREHERE
-#    git_status_check_report_9chars 'mergefail'
+    # CXPX/NOT-DRY: This info copied from git-check-status, probably same as:
+    #   git_status_check_report_9chars 'mergefail' '  '
     info "  $(fg_lightorange)$(attr_underline)mergefail$(attr_reset)  " \
       "$(fg_lightorange)$(attr_underline)${MR_REPO}$(attr_reset)  $(fg_hotpink)✗$(attr_reset)"
-    warn "Merge failed! \`merge --ff-only ${MR_REMOTE}/${source_branch}\` says:"
+    warn "Merge failed! \`merge --ff-only ${to_commit}\` says:"
     warn " ${git_resp}"
     # warn " target_repo: ${target_repo}"
   elif (echo "${git_resp}" | grep '^Already up to date.$' >/dev/null); then
-# HEREHERE
     debug "  $(fg_mediumgrey)up-2-date$(attr_reset)  " \
       "$(fg_mediumgrey)${MR_REPO}$(attr_reset)"
   elif [ -z "${changes_txt}" ] && [ -z "${changes_bin}" ]; then
     # A warning, so you can update the grep above and recognize this output.
-# HEREHERE
     warn "  $(fg_mintgreen)$(attr_emphasis)!familiar$(attr_reset)  " \
       "$(fg_mintgreen)${MR_REPO}$(attr_reset)"
   # else, ${merge_success} true, and either/or changes_txt/_bin,
@@ -665,13 +687,7 @@ git_fetch_n_cobr () {
   # ...
 
   local source_branch
-  if is_ssh_path "${source_repo}"; then
-    # If detached HEAD (b/c git submodule, or other why), remote-show shows "(unknown)".
-    source_branch=$(git_checkedout_branch_name_remote "${target_repo}" "${MR_REMOTE}")
-  else
-    # If detached HEAD (b/c git submodule, or other), rev-parse--abbrev-ref says "HEAD".
-    source_branch=$(git_checkedout_branch_name_direct "${source_repo}")
-  fi
+  source_branch=$(git_source_branch_deduce "${source_repo}" "${target_repo}")
   # A global for later.
   MR_ACTIVE_BRANCH="${source_branch}"
 
