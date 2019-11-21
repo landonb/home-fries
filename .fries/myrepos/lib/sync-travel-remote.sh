@@ -460,7 +460,8 @@ git_change_branches_if_necessary () {
   # Instead of $(pwd), could use environ:
   #   local target_repo="${3:-${MR_REPO}}"
 
-  if [ "${source_branch}" = "HEAD" ]; then
+  # Detached HEAD either "HEAD" (--abbrev-ref) or "(unknown)" (remote show).
+  if [ "${source_branch}" = "HEAD" ] || [ "${source_branch}" = "(unknown)" ]; then
     # If (detached) HEAD is active branch, do naught.
     info "  $(fg_mintgreen)$(attr_emphasis)✗ checkout $(attr_reset)" \
       "SKIP: $(fg_lightorange)$(attr_underline)${target_branch}$(attr_reset)" \
@@ -505,6 +506,14 @@ git_merge_ff_only () {
   local target_repo="${2:-$(pwd -L)}"
   # Instead of $(pwd), could use environ:
   #   local target_repo="${2:-${MR_REPO}}"
+
+  # Detached HEAD either "HEAD" (--abbrev-ref) or "(unknown)" (remote show).
+  if [ "${source_branch}" = "HEAD" ] || [ "${source_branch}" = "(unknown)" ]; then
+# HEREHERE
+    debug "  $(fg_mediumgrey)skip-HEAD$(attr_reset)  " \
+      "$(fg_mediumgrey)${MR_REPO}$(attr_reset)"
+    return
+  fi
 
   _git_echo_long_op_start 'mergerin’'
 
@@ -656,16 +665,18 @@ git_fetch_n_cobr () {
   # ...
 
   local source_branch
-  local target_branch
   if is_ssh_path "${source_repo}"; then
+    # If detached HEAD (b/c git submodule, or other why), remote-show shows "(unknown)".
     source_branch=$(git_checkedout_branch_name_remote "${target_repo}" "${MR_REMOTE}")
   else
+    # If detached HEAD (b/c git submodule, or other), rev-parse--abbrev-ref says "HEAD".
     source_branch=$(git_checkedout_branch_name_direct "${source_repo}")
   fi
-
-  target_branch=$(git_checkedout_branch_name_direct "${target_repo}")
   # A global for later.
   MR_ACTIVE_BRANCH="${source_branch}"
+
+  local target_branch
+  target_branch=$(git_checkedout_branch_name_direct "${target_repo}")
 
   # Because `cd` above, do not need to pass "${target_repo}" (on $3).
   git_change_branches_if_necessary "${source_branch}" "${target_branch}"
