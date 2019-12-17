@@ -79,7 +79,7 @@ home_fries_create_aliases_general () {
   # *** Vim
 
   # gVim.
-  alias ff='gvim --servername DIGAMMA --remote-silent' # For those special occassions
+  alias fh='gvim --servername DIGAMMA --remote-silent' # For those special occassions
   alias fd='gvim --servername   DELTA --remote-silent' # when you want to get away
   alias fs='gvim --servername   SAMPI --remote-silent' # because relaxation is key
   alias fa='gvim --servername   ALPHA --remote-silent' # follow your spirit.
