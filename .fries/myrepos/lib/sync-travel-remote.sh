@@ -421,6 +421,7 @@ git_fetch_remote_travel () {
 
   local extcd=0
   local git_resp
+  # MAYBE/2019-12-23: Do we need a --prune-tags, too?
   git_resp="$(git fetch ${MR_REMOTE} --prune 2>&1)" || extcd=$?
   local fetch_success=${extcd}
 
