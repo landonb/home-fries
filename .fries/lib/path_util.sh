@@ -271,7 +271,7 @@ symlink_infuse_file () {
 }
 
 symlink_local_file () {
-  return symlink_infuse_file "$1/$2" "${3:-$2}"
+  symlink_infuse_file "$1/$2" "${3:-$2}"
 }
 
 symlink_infuses_files_first () {
