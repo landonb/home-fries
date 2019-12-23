@@ -158,14 +158,29 @@ ensure_trashdir () {
   return ${ensured}
 }
 
+# FIXME/2019-12-22 23:06: Split this long fcn. (And send to own repo. home-fries-rm-safe)
+# FIXME/2019-12-22 23:15: Honor `--` signalling end of options, to ignore -rf feature
+#                         (i.e., treat "-rf" as filename).
 rm_safe () {
+  local rm_recursive_force=false
+  if [[ "-rf" == "${1}" ]]; then
+    >&2 echo "rm_safe(): ‘/bin/rm -rf’ detected."
+    #return 1
+    shift
+    #/bin/rm -rf "$*"
+    rm_recursive_force=true
+  fi
   if [[ ${#*} -eq 0 ]]; then
-    echo "rm_safe: missing operand"
-    echo "Try '/bin/rm --help' for more information."
+    >&2 echo "rm_safe(): missing operand"
+    >&2 echo "Try '/bin/rm --help' for more information."
     return 1
   fi
+  if ${rm_recursive_force}; then
+    /bin/rm -rf "$@"
+    return 0
+  fi
   if [[ -z "${trashdir}" ]]; then
-    echo "rm_safe: no \$trashdir (“”), what gives?"
+    >&2 echo "rm_safe(): no \$trashdir (“”), what gives?"
     return 1
   fi
   # echo "trashdir: ${trashdir}"
@@ -174,6 +189,7 @@ rm_safe () {
   #   /bin/rm -rf ~/.trash && touch ~/.trash
   # You can make the trash with rmtrash or mkdir ~/.trash,
   #   or run the command and you'll be prompted.
+  # EXPLAIN/2019-12-22: (lb): Would $@ instead of $* allow us to avoid IFS?
   local old_IFS=$IFS
   IFS=$'\n'
   local fpath=""
@@ -189,16 +205,16 @@ rm_safe () {
     # used to work!). So check for the empty string, too!
     local trash_device=$(device_on_which_file_resides "${trashdir}")
     if [[ $? -ne 0 || ${trash_device} == "" ]]; then
-      echo "rm_safe(): ERROR: No device for trashdir: ${trashdir}"
+      >&2 echo "rm_safe(): ERROR: No device for trashdir: ${trashdir}"
       return 1
     fi
     # echo "trash_device: ${trash_device}"
     local fpath_device=$(device_on_which_file_resides "${fpath}")
     if [[ $? -ne 0 || ${fpath_device} == "" ]]; then
       if [[ ! -d "${fpath}" && ! -f "${fpath}"  &&! -h "${fpath}" ]]; then
-        echo "rm_safe(): cannot remove ‘$1’: No such file or directory"
+        >&2 echo "rm_safe(): cannot remove ‘$1’: No such file or directory"
       else
-        echo "rm_safe(): ERROR: No device for fpath: ${fpath}"
+        >&2 echo "rm_safe(): ERROR: No device for fpath: ${fpath}"
       fi
       return 1
     fi
@@ -230,7 +246,7 @@ rm_safe () {
       #   ‘/path/to/.trash/symlink.2015_12_03_14h26m51s_179228194’: Not a directory
       /bin/mv "$(dirname -- "${fpath}")/${bname}" "${device_trashdir}/.trash/${fname}"
     elif [[ $? -eq 0 ]]; then
-      # Ye olde original rm alias, now the unpreferred method.
+      # User specifically not using safety trash on this device; or for this file.
       /bin/rm -i "${fpath}"
     fi
   done
