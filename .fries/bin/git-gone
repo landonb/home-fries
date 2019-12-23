@@ -12,8 +12,9 @@
 #   https://stackoverflow.com/questions/7726949/remove-local-branches-no-longer-on-remote
 
 set -e
-git fetch -p
-for branch in $(git branch -vv --no-color | grep ': gone]' | awk '{print $1}'); do
+git fetch -p || echo "WARNING: git-fetch fizzle-failed!"
+for branch in $(git --no-pager branch -vv --no-color | grep ': gone]' | awk '{print $1}'); do
+  echo "Deleting: “$branch”"
   git branch -D $branch
 done
 
