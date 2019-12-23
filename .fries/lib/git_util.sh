@@ -1460,6 +1460,25 @@ git-remote-v-all () {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# git-remote-v-all
+
+# MAYBE/2019-12-23: (lb): Decouple this from the SHA and repo state,
+# e.g., a dirty build might be named "bfg-1.13.1-SNAPSHOT-master-aeee9e3-dirty.jar",
+# and the name always includes the SHA, e.g., "bfg-1.13.1-SNAPSHOT-master-5158aa4.jar".
+# 2019-12-23: (lb): I don't use bfg very often, so better to "categorize" with
+#   'git-' prefix, i.e., do not simply call this `bfg`.
+git-bfg () {
+  local bfg_jar="${HOME}/.local/bin/bfg.jar"
+  if [[ ! -f "${bfg_jar}" ]]; then
+    local zphf_uroi="https://github.com/landonb/zoidy_home-fries"
+    local help_hint="Run the Zoidy Pooh task ‘app-git-the-bfg’ from: ${zphf_uroi}"
+    >&2 echo "ERROR: The BFG is not installed. ${help_hint}"
+    return 1
+  fi
+  java -jar ${HOME}/.local/bin/bfg.jar "$@"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
   source_deps
