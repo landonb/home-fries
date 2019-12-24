@@ -242,32 +242,40 @@ ensure_directory_hierarchy_exists () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+symlink_infuse_path () {
+  local source_f="$1"
+  local target_f="$2"
+  if [[ -h "${target_f}" ]]; then
+    # Already a symlink, which is okay to overwrite, but rather than use
+    # `ln -f`, we remove the target, because if it's a directory, then the
+    # symlink would not overwrite the existing one, but a new one would be
+    # created within the directory linked.
+    info "Symlinking again: ${source_f}"
+    /bin/rm "${target_f}"
+  elif [[ ! -e "${target_f}" ]]; then
+    info "Symlinking fresh: ${source_f}"
+  elif [[ ! -h "${target_f}" ]]; then
+    warn "ERROR: Symlink target exists but not symlink: ${target_f}"
+    # User/caller should fix this manually.
+    return 1
+  fi
+  mkdir -p $(dirname "${target_f}")
+  /bin/ln -s "${source_f}" "${target_f}"
+  if [[ $? -ne 0 ]]; then
+    error "ERROR: Failed to create symlink! ${source_f}"
+    return 1
+  fi
+  return 0
+}
+
 symlink_infuse_file () {
   local source_f="$1"
   local target_f="$2"
-  if [[ ! -e "${target_f}" ]]; then
-    if [[ -f "${source_f}" ]]; then
-      info "Symlinking anew: ${source_f}"
-      mkdir -p $(dirname "${target_f}")
-      /bin/ln -s "${source_f}" "${target_f}"
-      if [[ $? -ne 0 ]]; then
-        error "Failed to create symlink! ${source_f}"
-        return 1
-      fi
-    else
-      warn "Symlink source_f is not file: ${source_f}"
-      return 1
-    fi
-  elif [[ ! -h "${target_f}" ]]; then
-    warn "Symlink target exists but not symlink: ${target_f}"
-    # User/caller should fix this manually.
-  else
-    # Already a symlink; okay to overwrite!
-# FIXME/2018-03-05: There will be issue if symlink exists and is to dir...
-    info "Symlinking again: ${source_f}"
-    /bin/ln -sf "${source_f}" "${target_f}"
+  if [[ ! -f "${source_f}" ]]; then
+    warn "ERROR: symlink_infuse_file: source is not a file: ${source_f}"
+    return 1
   fi
-  return 0
+  symlink_infuse_path "${source_f}" "${target_f}"
 }
 
 symlink_local_file () {
@@ -305,28 +313,11 @@ symlink_infuses_files_first () {
 symlink_infuse_dir () {
   local source_f="$1"
   local target_f="$2"
-  if [[ ! -e "${target_f}" ]]; then
-    if [[ -d "${source_f}" ]]; then
-      info "Symlinking anew: ${source_f}"
-      /bin/ln -s "${source_f}" "${target_f}"
-      if [[ $? -ne 0 ]]; then
-        error "Failed to create symlink! ${source_f}"
-        return 1
-      fi
-    else
-      warn "Symlink source_f is not directory: ${source_f}"
-      return 1
-    fi
-  elif [[ ! -h "${target_f}" ]]; then
-    warn "Symlink target exists but not symlink: ${target_f}"
-    # User/caller should fix this manually.
-  else
-    # Already a symlink; but since to a directory, remove it first.
-    info "Symlinking again: ${source_f}"
-    /bin/rm "${target_f}"
-    /bin/ln -s "${source_f}" "${target_f}"
+  if [[ ! -d "${source_f}" ]]; then
+    warn "ERROR: symlink_infuse_dir: source is not a directory: ${source_f}"
+    return 1
   fi
-  return 0
+  symlink_infuse_path "${source_f}" "${target_f}"
 }
 
 symlink_local_dir () {
