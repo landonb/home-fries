@@ -6,12 +6,13 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 source_deps () {
-  :
+  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
+  source "${curdir}/color_funcs.sh"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-DUBS_USE_TRASH_DIR=''
+echo_boxy=false
 
 # 2016-04-26: I added empty_trashes because, while trashes were being
 # created on different devices from rm_safe, rmtrash was only emptying
@@ -47,7 +48,7 @@ empty_trashes () {
     if [[ -d "${trash_path}" ]]; then
       # FIXME/MAYBE/LATER: Disable asking if you find this code solid enough.
       local yes_or_no=""
-      echo -n "Empty trash at ‘${trash_path}’? [y/n] "
+      echo -n "Empty all items from trash at ‘${trash_path}’? [y/n] "
       read -e yes_or_no
       if [[ ${yes_or_no^^} == "Y" ]]; then
         if [[ -d "${trash_path}-TBD" ]]; then
@@ -57,10 +58,10 @@ empty_trashes () {
         touch "${trash_path}-TBD"
         mkdir "${trash_path}"
       else
-        echo "Skipping: User said not to empty ‘${trash_path}’"
+        echo "Skip! User said not to empty ‘${trash_path}’"
       fi
     else
-      echo "Skipping: No trash at ‘${trash_path}’"
+      echo "Skip! No trash at ‘${trash_path}’"
     fi
   done
 }
@@ -112,19 +113,20 @@ device_filepath_for_file () {
 ensure_trashdir () {
   local device_trashdir="$1"
   local trash_device="$2"
-  local ensured=0
+  local ensured=1
   if [[ -z "${device_trashdir}" ]]; then
     >&2 echo "rm_safe: there is no \$device_trashdir specified"
-    return -1
+    ensured=1  # So caller does nothing more.
+    return ${ensured}
   fi
   if [[ -f "${device_trashdir}/.trash" ]]; then
-    ensured=0
-    # MAYBE: Suppress this message, or at least don't show multiple times
-    #        for same ${trash_device}.
-    >&2 echo "rm_safe: trash is disabled on device ‘${trash_device}’"
+    ensured=2  # So caller invokes `rm -i`.
+    # MAYBE: Suppress this message, or at least don't show multiple times for
+    #        same ${trash_device}, i.e., on `rm *.*` would echo for every file.
+    >&2 echo "The trash is disabled on device ‘${trash_device}’"
   else
     if [[ ! -e "${device_trashdir}/.trash" ]]; then
-      >&2 echo "rm_safe: trash directory not found on ‘${trash_device}’"
+      >&2 echo -e "No root trash found for device ‘$(fg_lavender)${trash_device}$(attr_reset)’"
       sudo_prefix=""
       if [[ "${device_trashdir}" == "/" ]]; then
         # The file being deleted lives on the root device but the default
@@ -133,20 +135,40 @@ ensure_trashdir () {
         # to the encryted space, use an unencrypted trash location, but
         # make the user do it.
         >&2 echo
-        >&2 echo "rm_safe: there's no /.trash directory for the root device."
+        >&2 echo "No root trash directory ‘/.trash’ found on root device ‘/’"
         >&2 echo
-        >&2 echo "rm_safe: this probably means you have an encrypted home directory."
+        >&2 echo "- Possibly because your home is encrypted, good job!"
         >&2 echo
         sudo_prefix="sudo"
         device_trashdir=''
       fi
-      echo "Create a new trash at ‘${device_trashdir}/.trash’ ?"
-      echo -n "Please answer [y/n]: "
+      if $echo_boxy; then
+        #    "┌──────────────────────"                "─────────────┐"
+        echo "┌──────────────────────${device_trashdir//?/─}─────────────┐"
+        echo "│ Create new trash at ‘${device_trashdir}/.trash’ ?   │"
+        #echo -n "Please answer [y/N]: "
+        echo -n "│ Create trash? [y/N]:              ${device_trashdir//?/ }│"
+        echo -n -e "\r"
+        echo -n "│ Create trash? [y/N]: "
+      else
+        >&2 echo -e "- HINT: You can skip ask with: \`$(fg_lavender)touch ${device_trashdir}/.trash$(attr_reset)\`"
+        echo -n -e "rm_safe: create a new trash at ‘$(fg_lavender)${device_trashdir}/.trash$(attr_reset)’? [y/N] "
+      fi
       read the_choice
       if [[ ${the_choice} != "y" && ${the_choice} != "Y" ]]; then
-        ensured=0
-        >&2 echo "To suppress this message, run: touch ${device_trashdir}/.trash"
+        ensured=3  # So caller asks to move to home-trash; or invokes `rm -i`.
+        if $echo_boxy; then
+          #>&2 echo "│ HINT: Avoid ask using touchfile:${device_trashdir//?/ }│"
+          >&2 echo "│ HINT: You can disable this ask:   ${device_trashdir//?/ }│"
+          >&2 echo "│          touch ${device_trashdir}/.trash            │"
+          #>&2 echo "┏━━┛"
+          >&2 echo "└──────────────────────${device_trashdir//?/─}─────────────┘"
+          #>&2 echo "├──────────────────────${device_trashdir//?/─}─────────────┤"
+        else
+          : #>&2 echo "(Set a touchfile to disable this ask: \`touch ${device_trashdir}/.trash\`)"
+        fi
       else
+        # We'll set ensured=4 in the [[ -d ]], last.
         ${sudo_prefix} /bin/mkdir -p "${device_trashdir}/.trash"
         if [[ -n ${sudo_prefix} ]]; then
           sudo chgrp staff /.trash
@@ -155,7 +177,7 @@ ensure_trashdir () {
       fi
     fi
     if [[ -d "${device_trashdir}/.trash" ]]; then
-      ensured=1
+      ensured=4
     fi
   fi
   return ${ensured}
@@ -167,15 +189,15 @@ ensure_trashdir () {
 rm_safe () {
   local rm_recursive_force=false
   if [[ "-rf" == "${1}" ]]; then
-    >&2 echo "rm_safe: ‘/bin/rm -rf’ detected."
+    >&2 echo "rm_safe: ‘/bin/rm -rf’, you got it!"
     #return 1
     shift
     #/bin/rm -rf "$*"
     rm_recursive_force=true
   fi
   if [[ ${#*} -eq 0 ]]; then
-    >&2 echo "rm_safe: missing operand"
-    >&2 echo "Try '/bin/rm --help' for more information."
+    >&2 echo "rm_safe: Missing operand(s)"
+    >&2 echo "Try \`/bin/rm --help\` for more information"
     return 1
   fi
   if ${rm_recursive_force}; then
@@ -184,7 +206,7 @@ rm_safe () {
   fi
   if [[ -z "${DUBS_USE_TRASH_DIR}" ]]; then
     # We set DUBS_USE_TRASH_DIR in this file, so if here, DEV's fault.
-    >&2 echo "rm_safe: no \$DUBS_USE_TRASH_DIR (“”), what gives?"
+    >&2 echo "rm_safe: No \$DUBS_USE_TRASH_DIR (‘’), what gives?"
     return 1
   fi
   # echo "DUBS_USE_TRASH_DIR: ${DUBS_USE_TRASH_DIR}"
@@ -209,16 +231,16 @@ rm_safe () {
     # used to work!). So check for the empty string, too!
     local trash_device=$(device_on_which_file_resides "${DUBS_USE_TRASH_DIR}")
     if [[ $? -ne 0 || ${trash_device} == "" ]]; then
-      >&2 echo "rm_safe: ERROR: No device for supposed trash dir. “${DUBS_USE_TRASH_DIR}”"
+      >&2 echo "rm_safe: No device for supposed trash dir. ‘${DUBS_USE_TRASH_DIR}’"
       return 1
     fi
     # echo "trash_device: ${trash_device}"
     local fpath_device=$(device_on_which_file_resides "${fpath}")
     if [[ $? -ne 0 || ${fpath_device} == "" ]]; then
       if [[ ! -d "${fpath}" && ! -f "${fpath}"  &&! -h "${fpath}" ]]; then
-        >&2 echo "rm_safe: cannot remove ‘$1’: No such file or directory"
+        >&2 echo "rm_safe: Cannot remove ‘$1’: No such file or directory"
       else
-        >&2 echo "rm_safe: ERROR: No device for fpath: ${fpath}"
+        >&2 echo "rm_safe: ERROR: Could not detect device for item ‘${fpath}’"
       fi
       return 1
     fi
@@ -237,7 +259,34 @@ rm_safe () {
       trash_device=${fpath_device}
     fi
     ensure_trashdir "${device_trashdir}" "${trash_device}"
-    if [[ $? -eq 1 ]]; then
+    ensured=$?
+    if [[ ${ensured} -eq 3 ]]; then
+      # Ask if user wants to move file to home-trash instead.
+      device_trashdir="${DUBS_USE_TRASH_DIR}"
+      if $echo_boxy; then
+        echo "┌────────────────────────${device_trashdir//?/─}───────────┐"
+        echo "│ Move to main trash at ‘${device_trashdir}/.trash’ ? │"
+        echo -n "│ Move item? [y/N]:                 ${device_trashdir//?/ }│"
+        echo -n -e "\r"
+        echo -n "│ Move item? [y/N]: "
+      else
+        echo -n -e "rm_safe: move item to trash at ‘$(fg_lavender)${device_trashdir}/.trash$(attr_reset)’? [y/N] "
+      fi
+      read the_choice
+      if $echo_boxy; then
+        >&2 echo "└──────────────────────${device_trashdir//?/─}─────────────┘"
+      fi
+      if [[ ${the_choice} != "y" && ${the_choice} != "Y" ]]; then
+        ensured=2
+      else
+        ensured=4
+      fi
+    fi
+    if [[ ${ensured} -eq 2 ]]; then
+      # User specifically not using safety trash on this device; or for this file.
+      /bin/rm -i "${fpath}"
+    elif [[ ${ensured} -eq 4 ]]; then
+      # ensured=4 means the trash directory exists; move 'deleted' files there.
       local fname=${bname}
       if [[ -e "${device_trashdir}/.trash/${fname}" \
          || -h "${device_trashdir}/.trash/${fname}" ]]; then
@@ -249,9 +298,6 @@ rm_safe () {
       #  /bin/mv: cannot move ‘symlink/’ to
       #   ‘/path/to/.trash/symlink.2015_12_03_14h26m51s_179228194’: Not a directory
       /bin/mv "$(dirname -- "${fpath}")/${bname}" "${device_trashdir}/.trash/${fname}"
-    elif [[ $? -eq 0 ]]; then
-      # User specifically not using safety trash on this device; or for this file.
-      /bin/rm -i "${fpath}"
     fi
   done
   IFS=$old_IFS
