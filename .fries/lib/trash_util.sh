@@ -322,14 +322,11 @@ ensure_trashhome () {
 #####################################
 
 home_fries_create_aliases_trash () {
-  alias rm='rm_safe'
-
   # Remove aliases (where "Remove" is a noun, not a verb! =)
   $DUBS_TRACE && echo "Setting trashhome"
   ensure_trashhome
 
-  # 2016-04-26: Beef up your trash takeout with Beefy Brand Disposal.
-  #   Too weak: alias rmtrash='/bin/rm -rf $trashdir/.trash ; mkdir $trashdir/.trash'
+  alias rm='rm_safe'
   alias rmtrash='empty_trashes'
 }
 
