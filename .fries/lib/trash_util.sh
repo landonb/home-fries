@@ -138,6 +138,7 @@ ensure_trashdir () {
         >&2 echo "rm_safe: this probably means you have an encrypted home directory."
         >&2 echo
         sudo_prefix="sudo"
+        device_trashdir=''
       fi
       echo "Create a new trash at ‘${device_trashdir}/.trash’ ?"
       echo -n "Please answer [y/n]: "
