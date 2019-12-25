@@ -11,6 +11,8 @@ source_deps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+DUBS_USE_TRASH_DIR=''
+
 # 2016-04-26: I added empty_trashes because, while trashes were being
 # created on different devices from rm_safe, rmtrash was only emptying
 # the trash in the user's home.
@@ -37,7 +39,7 @@ empty_trashes () {
   ); do
     local trash_path=''
     if [[ "${device_path}" == "/" ]]; then
-      trash_path="$trashdir/.trash"
+      trash_path="${DUBS_USE_TRASH_DIR}/.trash"
     else
       trash_path="${device_path}/.trash"
     fi
@@ -179,11 +181,12 @@ rm_safe () {
     /bin/rm -rf "$@"
     return 0
   fi
-  if [[ -z "${trashdir}" ]]; then
-    >&2 echo "rm_safe(): no \$trashdir (“”), what gives?"
+  if [[ -z "${DUBS_USE_TRASH_DIR}" ]]; then
+    # We set DUBS_USE_TRASH_DIR in this file, so if here, DEV's fault.
+    >&2 echo "rm_safe: no \$DUBS_USE_TRASH_DIR (“”), what gives?"
     return 1
   fi
-  # echo "trashdir: ${trashdir}"
+  # echo "DUBS_USE_TRASH_DIR: ${DUBS_USE_TRASH_DIR}"
   # The trash can way!
   # You can disable the trash by running
   #   /bin/rm -rf ~/.trash && touch ~/.trash
@@ -203,18 +206,18 @@ rm_safe () {
     # NOTE/2017-06-03: The device_on_which fcn. returns nonzero on error,
     # for reason the $? -ne 0 isn't seeing it (and I could swear that it
     # used to work!). So check for the empty string, too!
-    local trash_device=$(device_on_which_file_resides "${trashdir}")
+    local trash_device=$(device_on_which_file_resides "${DUBS_USE_TRASH_DIR}")
     if [[ $? -ne 0 || ${trash_device} == "" ]]; then
-      >&2 echo "rm_safe(): ERROR: No device for trashdir: ${trashdir}"
+      >&2 echo "rm_safe: ERROR: No device for supposed trash dir. “${DUBS_USE_TRASH_DIR}”"
       return 1
     fi
     # echo "trash_device: ${trash_device}"
     local fpath_device=$(device_on_which_file_resides "${fpath}")
     if [[ $? -ne 0 || ${fpath_device} == "" ]]; then
       if [[ ! -d "${fpath}" && ! -f "${fpath}"  &&! -h "${fpath}" ]]; then
-        >&2 echo "rm_safe(): cannot remove ‘$1’: No such file or directory"
+        >&2 echo "rm_safe: cannot remove ‘$1’: No such file or directory"
       else
-        >&2 echo "rm_safe(): ERROR: No device for fpath: ${fpath}"
+        >&2 echo "rm_safe: ERROR: No device for fpath: ${fpath}"
       fi
       return 1
     fi
@@ -227,7 +230,7 @@ rm_safe () {
       # one specific dir for one drive (generally /home/$LOGNAME/.trash)
       # and then all other drives it's assumed to be at, e.g.,
       # /media/XXX/.trash.
-      device_trashdir="${trashdir}"
+      device_trashdir="${DUBS_USE_TRASH_DIR}"
     else
       device_trashdir=$(device_filepath_for_file "${fpath}")
       trash_device=${fpath_device}
@@ -254,7 +257,7 @@ rm_safe () {
 }
 
 rm_safe_deprecated () {
-  /bin/mv --target-directory ${trashdir}/.trash "$*"
+  /bin/mv --target-directory ${DUBS_USE_TRASH_DIR}/.trash "$*"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -306,11 +309,11 @@ function rmrm () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 ensure_trashhome () {
-  if [[ -z "$DUB_TRASHHOME" ]]; then
+  if [[ -z "${DUB_TRASHHOME}" ]]; then
     # Path is ~/.trash
-    trashdir=$HOME
+    DUBS_USE_TRASH_DIR="${HOME}"
   else
-    trashdir=$DUB_TRASHHOME
+    DUBS_USE_TRASH_DIR="${DUB_TRASHHOME}"
   fi
 }
 
