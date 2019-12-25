@@ -114,17 +114,17 @@ ensure_trashdir () {
   local trash_device="$2"
   local ensured=0
   if [[ -z "${device_trashdir}" ]]; then
-    echo "rm_safe: there is no \$device_trashdir specified"
+    >&2 echo "rm_safe: there is no \$device_trashdir specified"
     return -1
   fi
   if [[ -f "${device_trashdir}/.trash" ]]; then
     ensured=0
     # MAYBE: Suppress this message, or at least don't show multiple times
     #        for same ${trash_device}.
-    echo "Trash is disabled on device ‘${trash_device}’"
+    >&2 echo "rm_safe: trash is disabled on device ‘${trash_device}’"
   else
     if [[ ! -e "${device_trashdir}/.trash" ]]; then
-      echo "Trash directory not found on ‘${trash_device}’"
+      >&2 echo "rm_safe: trash directory not found on ‘${trash_device}’"
       sudo_prefix=""
       if [[ "${device_trashdir}" == "/" ]]; then
         # The file being deleted lives on the root device but the default
@@ -132,11 +132,11 @@ ensure_trashdir () {
         # user has an encrypted home directory. Rather than moving files
         # to the encryted space, use an unencrypted trash location, but
         # make the user do it.
-        echo
-        echo "There's no /.trash directory for the root device."
-        echo
-        echo "This probably means you have an encrypted home directory."
-        echo
+        >&2 echo
+        >&2 echo "rm_safe: there's no /.trash directory for the root device."
+        >&2 echo
+        >&2 echo "rm_safe: this probably means you have an encrypted home directory."
+        >&2 echo
         sudo_prefix="sudo"
       fi
       echo "Create a new trash at ‘${device_trashdir}/.trash’ ?"
@@ -144,7 +144,7 @@ ensure_trashdir () {
       read the_choice
       if [[ ${the_choice} != "y" && ${the_choice} != "Y" ]]; then
         ensured=0
-        echo "To suppress this message, run: touch ${device_trashdir}/.trash"
+        >&2 echo "To suppress this message, run: touch ${device_trashdir}/.trash"
       else
         ${sudo_prefix} /bin/mkdir -p "${device_trashdir}/.trash"
         if [[ -n ${sudo_prefix} ]]; then
@@ -166,14 +166,14 @@ ensure_trashdir () {
 rm_safe () {
   local rm_recursive_force=false
   if [[ "-rf" == "${1}" ]]; then
-    >&2 echo "rm_safe(): ‘/bin/rm -rf’ detected."
+    >&2 echo "rm_safe: ‘/bin/rm -rf’ detected."
     #return 1
     shift
     #/bin/rm -rf "$*"
     rm_recursive_force=true
   fi
   if [[ ${#*} -eq 0 ]]; then
-    >&2 echo "rm_safe(): missing operand"
+    >&2 echo "rm_safe: missing operand"
     >&2 echo "Try '/bin/rm --help' for more information."
     return 1
   fi
