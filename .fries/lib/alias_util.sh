@@ -134,7 +134,7 @@ home_fries_create_aliases_general () {
   # For this to work, not that you must include configs outside user home, e.g.,
   #   $ head -n 1 ~/.mrconfig
   #   include = cat /myrepos/.mrconfig
-  alias st="mr -d / status"
+  alias st="mr -d / mystatus"
 
   # 2016-09-24: Why didn't I think of this 'til now?
   # [Note also that pass can just do it, too.]
