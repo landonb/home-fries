@@ -11,9 +11,11 @@
 
 # *** Home Fries (includes Bash).
 
-# 2016-11-21: So, both / and /* are required for this to work.
+# 2016-11-21: So, both / and /** are required for this to work.
+# (/* and not /** will only match files in top-level .fries/,
+#  but not any subdirectories or their files; so use /**.)
 !.fries/
-!.fries/*
+!.fries/**
 
 # *** Home directory files.
 
