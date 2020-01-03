@@ -68,7 +68,9 @@ source_utils () {
       source "${HOMEFRIES_DIR}/lib/${lib_file}"
       print_elapsed_time "${time_0}" "Source: ${lib_file}"
     else
-      ${DUBS_PROFILING} && echo "MISSING: ${lib_file}"
+      # Was:
+      #  ${DUBS_PROFILING} && echo "MISSING: ${lib_file}"
+      >&2 echo "MISSING: ${lib_file}"
     fi
   done
 
