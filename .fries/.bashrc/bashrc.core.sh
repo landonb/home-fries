@@ -92,16 +92,6 @@ source_addit () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-run_and_unset () {
-  ${DUBS_PROFILING} && echo "Action: $1"
-  local time_0=$(date +%s.%N)
-
-  eval "$@"
-  unset -f "$1"
-
-  print_elapsed_time "${time_0}" "Action: $1"
-}
-
 eval_and_unset () {
   ${DUBS_PROFILING} && echo "Action: $1"
   local time_0=$(date +%s.%N)
@@ -109,6 +99,16 @@ eval_and_unset () {
   # So that the func being sourced can use stdout
   # to have this shell set, e.g., array variables.
   eval $(eval "$@")
+  unset -f "$1"
+
+  print_elapsed_time "${time_0}" "Action: $1"
+}
+
+run_and_unset () {
+  ${DUBS_PROFILING} && echo "Action: $1"
+  local time_0=$(date +%s.%N)
+
+  eval "$@"
   unset -f "$1"
 
   print_elapsed_time "${time_0}" "Action: $1"
