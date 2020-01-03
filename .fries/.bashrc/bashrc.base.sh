@@ -104,6 +104,13 @@ print_elapsed_time () {
 
 fries_tmux_session_attach_or_rename () {
   if [[ -n "${TMUX}" ]]; then
+    local currsess
+    currsess=$(tmux display-message -p '#S')
+    if ! echo "$currsess" | grep '^[0-9]$' > /dev/null; then
+      # Session name not expected single digit number, so bail!
+      return 1
+    fi
+
     local sname="$(date +%Y-%m-%d)"
     # 2020-01-03: Getting weird: At 3 session or more, try using existing.
     # NOTE: The tmux-ls count is still 0 on first tmux session startup.
@@ -127,15 +134,13 @@ fries_tmux_session_attach_or_rename () {
       if [[ ${nsessns} -gt 3 ]] \
         || [[ ! -f ${HOME}/.fries/var/first-names-lengthX.txt ]] \
       ; then
-        local oldsess
-        oldsess=$(tmux display-message -p '#S')
         echo "If you're reading this, I should be dead!"
         tmux switch-client -t "${sname}"
         # NOTE: (lb): Not sure why/how this works, but even after
         #       switch-client, echo goes to old terminal. So, e.g.,
         #         echo "Welcome to the Thunderdome!"
-        #       would still print to the "${oldsess}" session.
-        tmux kill-session -t "${oldsess}"
+        #       would still print to the "${currsess}" session.
+        tmux kill-session -t "${currsess}"
         # Don't continue Bash startup, we're good!
         return 0
       else
