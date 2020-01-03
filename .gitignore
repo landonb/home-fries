@@ -1,22 +1,20 @@
-# 1. First ignore everything so we
-#    don't goggle the home directory.
-
-*
-
-# 2. Next, add things *back* to git scrutiny
-#    in the home directory that you care about.
+# DEV: Copy the next few lines to ~/.git/info/exclude:
 #
-#    This will be files in the home directory,
-#    and the ~/.fries directory.
-
-# *** Home Fries (includes Bash).
-
-# 2016-11-21: So, both / and /** are required for this to work.
-# (/* and not /** will only match files in top-level .fries/,
-#  but not any subdirectories or their files; so use /**.)
-!.fries/
-!.fries/**
-
+#   # Start by ignoring everything.
+#
+#   *
+#
+#   # Then add back that which we're tracking.
+#   # NOTE: Both / and /** are required for this to work.
+#   # NOTE: /* will only match files in top-level .fries/, but
+#   #       not any subdirectories or their files; so use /**.
+#
+#   !.fries/
+#   !.fries/**
+#
+# Note that we cannot put the above herein, because a '*'
+# in .gitignore means a '!' in .git/info/exclude goes unheeded.
+#
 # *** Home directory files.
 
 # Project boilerplate.
