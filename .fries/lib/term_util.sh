@@ -245,8 +245,6 @@ dubs_set_terminal_prompt () {
   #PS2="$(tput bold)${attr_underlined}${fg_green} ${attr_reset} "
   #PS2="${attr_underlined}${fg_green} ${attr_reset} "
   PS2="${fg_green}>${attr_reset} "
-
-  unset -f dubs_logged_on_via_ssh
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
