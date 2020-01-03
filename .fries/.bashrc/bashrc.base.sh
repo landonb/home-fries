@@ -44,6 +44,8 @@ export DUBS_TRACE=${DUBS_TRACE:-false}
 DUBS_PROFILING=${DUBS_PROFILING:-false}
 #DUBS_PROFILING=${DUBS_PROFILING:-true}
 
+[[ -n "${TMUX}" ]] && DUBS_PROFILING=true
+
 # DEVS: Uncomment to show progress times.
 DUBS_PROFILING=${DUBS_PROFILING:-false}
 
