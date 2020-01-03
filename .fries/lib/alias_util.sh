@@ -135,6 +135,8 @@ home_fries_create_aliases_general () {
   #   $ head -n 1 ~/.mrconfig
   #   include = cat /myrepos/.mrconfig
   alias st="mr -d / mystatus"
+  alias aci="mr -d / autocommit -y"
+  alias autoci="mr -d / autocommit -y"
 
   # 2016-09-24: Why didn't I think of this 'til now?
   # [Note also that pass can just do it, too.]
