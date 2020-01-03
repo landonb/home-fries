@@ -11,6 +11,8 @@
 # *** Doobious Sources
 
 source_utils () {
+  local time_outer_0=$(date +%s.%N)
+
   # Generally, FRIES_DIR=${HOME}/.fries [a/k/a /home/${LOGNAME}/.fries]
   export HOMEFRIES_DIR=$(dirname $(dirname -- "${BASH_SOURCE[0]}"))
   if [[ ${HOMEFRIES_DIR} == '/' ]]; then
@@ -63,23 +65,28 @@ source_utils () {
   for lib_file in "${lib_files[@]}"; do
     if [[ -f "${HOMEFRIES_DIR}/lib/${lib_file}" ]]; then
       local time_0=$(date +%s.%N)
-      ${DUBS_PROFILING} && echo "Loading: ${lib_file}"
       source "${HOMEFRIES_DIR}/lib/${lib_file}"
       print_elapsed_time "${time_0}" "Source: ${lib_file}"
     else
       ${DUBS_PROFILING} && echo "MISSING: ${lib_file}"
     fi
   done
-  ${DUBS_PROFILING} && echo "Moving along!"
 
   if [[ -z ${HOMEFRIES_WARNINGS+x} ]]; then
     # Usage, e.g.:
     #   HOMEFRIES_WARNINGS=true bash
     HOMEFRIES_WARNINGS=false
   fi
+
+  print_elapsed_time \
+    "${time_outer_0}" \
+    "Sourced ${#lib_files[@]} files (source_utils)." \
+    "SOURCES: "
 }
 
 source_addit () {
+  local time_outer_0=$(date +%s.%N)
+
   # 2016-11-18: Wow. This has been here for years, commented out,
   # because I haven't use mkvirtualenv in oh so very, very long.
   # Welcome back, friend.
@@ -88,12 +95,16 @@ source_addit () {
   elif [[ -f /usr/local/bin/virtualenvwrapper.sh ]]; then
     source /usr/local/bin/virtualenvwrapper.sh
   fi
+
+  print_elapsed_time \
+    "${time_outer_0}" \
+    "Sourced virtualenvwrapper.sh (source_addit)." \
+    "ADDEDIT: "
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 eval_and_unset () {
-  ${DUBS_PROFILING} && echo "Action: $1"
   local time_0=$(date +%s.%N)
 
   # So that the func being sourced can use stdout
@@ -105,7 +116,6 @@ eval_and_unset () {
 }
 
 run_and_unset () {
-  ${DUBS_PROFILING} && echo "Action: $1"
   local time_0=$(date +%s.%N)
 
   eval "$@"
@@ -117,8 +127,7 @@ run_and_unset () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 home_fries_up () {
-  ${DUBS_PROFILING} && echo "home_fries_up"
-  local time_0=$(date +%s.%N)
+  local time_outer_0=$(date +%s.%N)
 
   #########################
 
@@ -318,7 +327,7 @@ home_fries_up () {
   #   Elapsed: 0.34 min. / Action: home_fries_load_sdkman
   # Disabling until I know more! (Could be because no internet!)
   # - lib/fries_util.sh
-  #run_and_unset "home_fries_load_sdkman"
+  # run_and_unset "home_fries_load_sdkman"
   unset -f home_fries_load_sdkman
 
   # - lib/fries_util.sh
@@ -326,17 +335,19 @@ home_fries_up () {
 
   #########################
 
-  ${DUBS_PROFILING} && echo "disable middle mouse click"
   # - lib/input_util.sh
+  local time_0=$(date +%s.%N)
   logitech-middle-mouse-click-disable
   unset -f logitech-middle-mouse-click-disable
+  print_elapsed_time "${time_0}" "disable middle mouse click"
 
   #########################
 
-  ${DUBS_PROFILING} && echo "hooking direnv"
   # 2018-03-28: Trying direnv (to eventually replace/enhance gogo, perhaps).
+  local time_0=$(date +%s.%N)
   # Sets, e.g., PROMPT_COMMAND=_direnv_hook;
   eval "$(direnv hook bash)"
+  print_elapsed_time "${time_0}" "hooking direnv"
 
   #########################
 
@@ -345,11 +356,20 @@ home_fries_up () {
   # in the window title.
   run_and_unset "fries_hook_titlebar_update"
   # - lib/term_util.sh
+
+  #########################
+
+  print_elapsed_time \
+    "${time_outer_0}" \
+    "Setup actions (home_fries_up)." \
+    "ACTIONS: "
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
+  local time_main_0=$(date +%s.%N)
+
   source_utils
   unset -f source_utils
 
@@ -359,7 +379,7 @@ main () {
   home_fries_up
   unset -f home_fries_up
 
-  ${DUBS_PROFILING} && echo "core.done!"
+  print_elapsed_time "${time_main_0}" "bashrc.core.sh" "+CORESH: "
 }
 
 main "$@"

@@ -47,7 +47,6 @@ DUBS_PROFILING=${DUBS_PROFILING:-false}
 # DEVS: Uncomment to show progress times.
 DUBS_PROFILING=${DUBS_PROFILING:-false}
 
-
 $DUBS_TRACE && echo "User's EUID is $EUID"
 
 # Get the path to this script's parent directory.
@@ -66,12 +65,13 @@ print_elapsed_time () {
   ! ${DUBS_PROFILING} && return
   local time_0="$1"
   local detail="$2"
+  local prefix="${3:-Elapsed: }"
   local time_n=$(date +%s.%N)
-  local elapsed_fract="$(echo "(${time_n} - ${time_0}) / 60" | bc -l)"
-  #echo "elapsed_fract: ${elapsed_fract} min. / Source: ${lib_file}"
-  if [[ $(echo "${elapsed_fract} >= 0.01" | bc -l) -eq 1 ]]; then
-    local elapsed_mins=$(echo ${elapsed_fract} | xargs printf "%.2f")
-    echo "Elapsed: ${elapsed_mins} min. / ${detail}"
+  # local elapsed_fract_mins="$(echo "(${time_n} - ${time_0}) / 60" | bc -l)"
+  local elapsed_fract_secs="$(echo "(${time_n} - ${time_0})" | bc -l)"
+  if [[ $(echo "${elapsed_fract_secs} >= 0.05" | bc -l) -eq 1 ]]; then
+    local elapsed_secs=$(echo ${elapsed_fract_secs} | xargs printf "%.2f")
+    echo "${prefix}${elapsed_secs} secs. / ${detail}"
   fi
 }
 
@@ -81,13 +81,17 @@ print_elapsed_time () {
 # ===================
 
 source_deps () {
+  local time_0=$(date +%s.%N)
+
   # Source global definitions.
   if [[ -f "/etc/bashrc" ]]; then
     # Fedora.
     . /etc/bashrc
+    print_elapsed_time "${time_0}" "Source: /etc/bashrc"
   elif [[ -f "/etc/bash.bashrc" ]]; then
     # Debian/Ubuntu.
     . /etc/bash.bashrc
+    print_elapsed_time "${time_0}" "Source: /etc/bash.bashrc"
   fi
 }
 
@@ -97,9 +101,13 @@ source_deps () {
 # ===================================
 
 source_fries () {
+  local time_0=$(date +%s.%N)
+
   # Load the basic script. Defines aliases, configures things,
   # adjusts the terminal prompt, and adds a few functions.
   source ${hard_path}/bashrc.core.sh
+
+  print_elapsed_time "${time_0}" "Source: bashrc.core.sh" "==FRIES: "
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -120,7 +128,9 @@ source_private () {
     # use the `echo` trick:
     if [[ -f `echo ${hard_path}/bashrx.private.sh` ]]; then
       $DUBS_TRACE && echo "Loading private resource script: bashrx.private.sh"
+      local time_0=$(date +%s.%N)
       source ${hard_path}/bashrx.private.sh
+      print_elapsed_time "${time_0}" "Source: ${hard_path}/bashrx.private.sh"
     fi
 
     # Load a machine-specific, private, uncommitted script, maybe.
@@ -130,20 +140,24 @@ source_private () {
     #          But does it matter which one we use?
     machfile=`echo ${hard_path}/bashrx.private.$HOSTNAME.sh`
 
-    if [[ -f "$machfile" ]]; then
-      $DUBS_TRACE && echo "Loading machine-specific resource script: $machfile"
-      source $machfile
+    if [[ -f "${machfile}" ]]; then
+      $DUBS_TRACE && echo "Loading machine-specific resource script: ${machfile}"
+      local time_0=$(date +%s.%N)
+      source "${machfile}"
+      print_elapsed_time "${time_0}" "Source: ${machfile}"
     else
-      $DUBS_TRACE && echo "Did not find a machine-specific resource: $machfile"
+      $DUBS_TRACE && echo "Did not find a machine-specific resource: ${machfile}"
     fi
 
     userfile=`echo ${hard_path}/bashrx.private.${LOGNAME}.sh`
 
-    if [[ -f "$userfile" ]]; then
-      $DUBS_TRACE && echo "Loading user-specific resource script: $userfile"
-      source $userfile
+    if [[ -f "${userfile}" ]]; then
+      $DUBS_TRACE && echo "Loading user-specific resource script: ${userfile}"
+      local time_0=$(date +%s.%N)
+      source "${userfile}"
+      print_elapsed_time "${time_0}" "Source: ${userfile}"
     else
-      $DUBS_TRACE && echo "Did not find a user-specific resource: $userfile"
+      $DUBS_TRACE && echo "Did not find a user-specific resource: ${userfile}"
     fi
   else
     # If the user is root, we'll just load the core script, and nothing fancy.
@@ -172,8 +186,10 @@ source_projects () {
     for rcfile in $(find ${hard_path} \
         -maxdepth 1 -type f -name "bashrc.*.base.sh" \
                 -or -type l -name "bashrc.*.base.sh"); do
-      $DUBS_TRACE && echo "Loading project-specific Bash resource script: $rcfile"
-      source $rcfile
+      $DUBS_TRACE && echo "Loading project-specific Bash resource script: ${rcfile}"
+      local time_0=$(date +%s.%N)
+      source "${rcfile}"
+      print_elapsed_time "${time_0}" "Source: ${rcfile}"
     done
   fi
 }
@@ -185,15 +201,17 @@ source_projects0 () {
           -type f -name "bashrc0.*.base.sh" \
       -or -type l -name "bashrc0.*.base.sh"); do
     # Avoid stderr message if symlink points at naught.
-    if [[ -e $rcfile ]]; then
+    if [[ -e "${rcfile}" ]]; then
       $DUBS_TRACE && echo "Loading project-specific Bash resource script: $rcfile"
-      if [[ ! -d $rcfile ]]; then
-        source $rcfile
+      if [[ ! -d "${rcfile}" ]]; then
+        local time_0=$(date +%s.%N)
+        source "${rcfile}"
+        print_elapsed_time "${time_0}" "Source: ${rcfile}"
       else
-        $DUBS_TRACE && echo "Is a directory: $rcfile"
+        $DUBS_TRACE && echo "Is a directory: ${rcfile}"
       fi
     else
-      $DUBS_TRACE && echo "No such file: $rcfile"
+      $DUBS_TRACE && echo "No such file: ${rcfile}"
     fi
   done
 }
@@ -232,7 +250,9 @@ start_somewhere_something () {
       # FIXME: Does this hang the startup script? I.e., we're running the command
       #        from this script... so this better be the last command we run!
       #$DUBS_STARTUP
-      eval "$DUBS_STARTUP"
+      local time_0=$(date +%s.%N)
+      eval "${DUBS_STARTUP}"
+      print_elapsed_time "${time_0}" "eval: DUBS_STARTUP"
     fi
 
     # The variables have served us well; now whack 'em.
@@ -248,6 +268,8 @@ start_somewhere_something () {
 # =======
 
 home_fries_bashrc_cleanup () {
+  local time_0=$(date +%s.%N)
+
   # I thought you had to `export` variables for them to persist,
   # but I guess that's not the case when variables are defined
   # in a sourced Bash profile and not defined within a function.
@@ -274,8 +296,10 @@ home_fries_bashrc_cleanup () {
     source 'logger.sh'
     export LOG_LEVEL=${LOG_LEVEL_NOTICE}
     bashrc_time_n=$(date +%s.%N)
-    time_elapsed=$(echo "$bashrc_time_n - $bashrc_time_0" | bc -l)
-    notice "Elapsed: $time_elapsed secs."
+    time_elapsed=$(\
+      echo "${bashrc_time_n} - ${bashrc_time_0}" | bc -l | xargs printf "%.2f" \
+    )
+    notice "home-fries start-up: ${time_elapsed} secs."
     unset -v bashrc_time_n
     unset -v time_elapsed
   fi
@@ -303,6 +327,8 @@ home_fries_bashrc_cleanup () {
     notice "This bash is a ${FG_LIGHTGREEN}${MK_LINE}special${RESET_UNDERLINED} bash!${MK_NORM}" \
       "Version: ${FG_LIGHTYELLOW}${MK_LINE}${MK_BOLD}${BASH_VERSION}"
   fi
+
+  print_elapsed_time "${time_0}" "cleanup"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -316,6 +342,8 @@ home_fries_bashrc_cleanup () {
 #
 # NOTE: (lb): I copied a zsh function and updated it.
 home_fries_run_terminator_init_cmd () {
+  local time_0=$(date +%s.%N)
+
   if [[ -n "${INIT_CMD}" ]]; then
     echo ${INIT_CMD}
     OLD_IFS=$IFS
@@ -337,6 +365,8 @@ home_fries_run_terminator_init_cmd () {
     unset -v INIT_CMD
     IFS=${OLD_IFS}
   fi
+
+  print_elapsed_time "${time_0}" "terminator-init"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -347,6 +377,8 @@ home_fries_run_terminator_init_cmd () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
+  local time_0=$(date +%s.%N)
+
   source_deps
   unset -f source_deps
 
@@ -375,6 +407,8 @@ main () {
 
   home_fries_bashrc_cleanup
   unset -f home_fries_bashrc_cleanup
+
+  print_elapsed_time "${time_0}" "bashrc.bash.sh" "==TOTAL: "
 }
 
 main "$@"
