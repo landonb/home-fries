@@ -43,7 +43,6 @@ export DUBS_TRACE=${DUBS_TRACE:-false}
 # DEVS: Uncomment to show progress times.
 DUBS_PROFILING=${DUBS_PROFILING:-false}
 #DUBS_PROFILING=${DUBS_PROFILING:-true}
-
 [[ -n "${TMUX}" ]] && DUBS_PROFILING=true
 
 # DEVS: Uncomment to show progress times.
@@ -75,6 +74,95 @@ print_elapsed_time () {
     local elapsed_secs=$(echo ${elapsed_fract_secs} | xargs printf "%.2f")
     echo "${prefix}${elapsed_secs} secs. / ${detail}"
   fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Speedier startup using existing tmux session
+# ============================================
+
+# (lb): In tmux, each session can have one or more windows. The window names
+# appear in a list in the middle of the bottom status bar. Each window name
+# defaults to 'bash', but I've got ~/.tmux.conf.local configured to show the
+# circled window number and the current directory basename instead; or to show
+# the name of the active command (w/ args). See, e.g.,
+#   tmux_conf_theme_window_status_format=
+#     '#{circled_window_index} #{b:pane_current_path}/'
+
+# (lb): In tmux, the session name (one per client) appears in the lower left
+# of the screen, leftmost on the bottom status bar. Each session name defaults
+# to a number, incrementing from 0 (which I don't think can be changed, unlike
+# the window number, which is influenced by, e.g., `set -g base-index 1`).
+
+# Here, we set a more memorable session name, using either today's date (YYYY-MM-DD),
+# or a random English first name that's the same length as a date, 10 characters.
+# However, if there are many tmux sessions already running, we try attaching to an
+# existing session.
+
+# You might want to set the session name deliberately for different projects,
+# especially if you end up configuring panes and windows specially.
+
+fries_tmux_session_attach_or_rename () {
+  if [[ -n "${TMUX}" ]]; then
+    local sname="$(date +%Y-%m-%d)"
+    # 2020-01-03: Getting weird: At 3 session or more, try using existing.
+    # NOTE: The tmux-ls count is still 0 on first tmux session startup.
+    if ! tmux has -t "${sname}" &> /dev/null; then
+      tmux rename-session "${sname}"
+    else
+      # NOTE: Cannot *attach* to session from within client, lest warning:
+      #   $ tmux attach-session -t "${sname}"
+      #   sessions should be nested with care, unset $TMUX to force
+      # However, you can *switch* the client to the desired session, e.g.:
+      #   $ tmux switch-client -t "${sname}"
+      # PSA: You can also <C-b (> and <C-b )> to switch sessions
+      #      (aka "switch client" -p/-n previous/next).
+      # - Also, <C-b D>   to use interactive choose-client, or
+      #         <C-b C-f> to enter fuzzy-findable session name, or
+      #         <C-b L>   to toggle between most recent sessions.
+      local nsessns
+      nsessns=$(tmux ls 2> /dev/null | wc -l)
+      if [[ ${nsessns} -gt 3 ]] \
+        || [[ ! -f ${HOME}/.fries/var/first-names-lengthX.txt ]] \
+      ; then
+        local oldsess
+        oldsess=$(tmux display-message -p '#S')
+        echo "If you're reading this, I should be dead!"
+        tmux switch-client -t "${sname}"
+        # NOTE: (lb): Not sure why/how this works, but even after
+        #       switch-client, echo goes to old terminal. So, e.g.,
+        #         echo "Welcome to the Thunderdome!"
+        #       would still print to the "${oldsess}" session.
+        tmux kill-session -t "${oldsess}"
+        # Don't continue Bash startup, we're good!
+        return 0
+      else
+        # Get a random first name from the ten-character name list,
+        # so the random name is as long as when we use a YYYY-MM-DD.
+        local randname
+        randname=$(shuf -n 1 ${HOME}/.fries/var/first-names-lengthX.txt)
+        # To lower.
+        sname=$(echo ${randname} | tr '[:upper:]' '[:lower:]')
+        # Alternatively, to lower with awk:
+        #   sname=$(echo ${randname} | awk '{print tolower($0)}')
+        tmux rename-session "${sname}"
+      fi
+    fi
+  fi
+  return 1
+}
+
+tmux_jump_ship () {
+  local retcode=1
+
+  [[ -z "${TMUX}" ]] && return ${retcode}
+
+  fries_tmux_session_attach_or_rename
+  retcode=$?
+
+  unset -f fries_tmux_session_attach_or_rename
+
+  return ${retcode}
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -384,6 +472,12 @@ home_fries_run_terminator_init_cmd () {
 
 main () {
   local time_0=$(date +%s.%N)
+
+  # Maybe don't startup and reuse existing tmux session, eh.
+  if tmux_jump_ship; then
+    return  # Will have run switch-client and user will be on another session.
+  fi
+  unset -f tmux_jump_ship
 
   source_deps
   unset -f source_deps

@@ -275,23 +275,6 @@ dubs_set_terminal_prompt () {
 #     fi
 #   }
 
-fries_name_tmux_window () {
-  if [[ -n "${TMUX}" ]]; then
-    # 2020-01-03: Window name defaults to 'bash'.
-    # - I tried YYYY-MM-DD format:
-    #     tmux rename-window "$(date +%Y-%m-%d)"
-    #   but really, in ~/.tmux.conf.local, I like the
-    #   circled window number for the active window,
-    #   and the circled number and last bit of path for the rest:
-    #     tmux_conf_theme_window_status_format=
-    #       '#{circled_window_index} …#{=-5:pane_current_path}/'
-    # - I do like setting the session name, which is displayed in
-    #   lower left of terminal, leftmost on status like.
-    #   - For now, show date; I'll set deliberately for projects.
-    tmux rename-session "$(date +%Y-%m-%d)"
-  fi
-}
-
 fries_hook_titlebar_update () {
   # Show the command in the window titlebar.
 
@@ -306,9 +289,6 @@ fries_hook_titlebar_update () {
   # basename of the directory when the prompt is active, but shows the name
   # of the actively running command if there is one, e.g., `man bash`.
   trap 'echo -en "\033]0;${BASH_COMMAND}\007"' DEBUG
-
-  # Set the tmux window title.
-  fries_name_tmux_window
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -817,7 +797,6 @@ unset_f_term_util () {
   unset -f dubs_logged_on_via_ssh
   unset -f fries_format_titlebar
   unset -f dubs_set_terminal_prompt
-  unset -f fries_name_tmux_window
   unset -f fries_hook_titlebar_update
   unset -f dubs_set_PS4
   unset -f dubs_fix_terminal_colors
