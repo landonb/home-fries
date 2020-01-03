@@ -41,42 +41,7 @@ dubs_logged_on_via_ssh () {
   return 1
 }
 
-dubs_set_terminal_prompt () {
-  # (lb): Note that color_util.sh defines similar colors, but without
-  # the ``01;`` part. I cannot remember what that component means....
-# FIXME/2018-05-28: (lb): remove these colors if all's well.
-  local fg_red='\[\033[01;31m\]'
-#  local fg_green="\033[32m"
-  local fg_green='\[\033[01;32m\]'
-#  local fg_yellow='\[\033[1;33m\]'
-  local fg_yellow='\[\033[01;33m\]'
-  local fg_cyan='\[\033[01;36m\]'
-  local fg_gray='\[\033[01;37m\]'
-  local bg_magenta='\[\033[01;45m\]'
-  local cur_user='\u'
-#  local attr_reset="\[\033[m\]"
-  local attr_reset='\[\033[00m\]'
-  local attr_underlined="\033[4m"
-  #local attr_bold="\[\033[1m\]"  # also: tput bold.
-  local mach_name='\h'
-  local basename='\W'
-
-  # Configure a colorful prompt of the following format:
-  #  user@host:dir
-  # See <http://www.termsys.demon.co.uk/vtansi.htm>
-  #  for more about colours.
-  #  There's a nifty chart at <http://www.frexx.de/xterm-256-notes/>
-  #export PS1='\u@\[\033[0;35m\]\h\[\033[0;33m\][\W\[\033[00m\]]: '
-  #export PS1='\u@\[\033[0;32m\]\h\[\033[0;36m\][\W\[\033[00m\]]: '
-  # A;XYm ==>
-  #   A=1 means bright
-  #   XY=30 is Black  31 Red      32 Green  33 Yellow
-  #      34    Blue   35 Magenta  36 Cyan   37 White
-  #   X=3 is Foreground, =4 is Background colors, i.e., 47 is White BG
-  #export PS1='\[\033[1;37m\]\u@\[\033[1;33m\]\h\[\033[1;36m\][\W\[\033[00m\]]: '
-  #from debian .bashrc
-  #PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-
+fries_format_titlebar () {
   # 2012.10.17: Also change the titlebar name for special terminal windows,
   #             like the log-tracing windows.
   # See: http://unix.stackexchange.com/questions/14113/
@@ -99,13 +64,14 @@ dubs_set_terminal_prompt () {
   # "The escape sequence to use is ESC]2;new titleBEL":
   #   https://wiki.archlinux.org/index.php/Bash/Prompt_customization#Customizing_the_terminal_window_title
   # Note also using wmctrl, e.g.,: `wmctrl -r :ACTIVE: -T "On ${1}"`
-  local titlebar
   #titlebar='\[\e]0;\u@\h:\W\a\]'
   # This does the same thing but uses octal ASCII escape chars instead of
   # bash's escape chars:
   #  titlebar='\[\033]2;\u@\h\007\]'
   # Gnome-terminal's default (though it doesn't specify it, it just is):
   #  titlebar='\[\e]0;\u@\h:\w\a\]'
+  local basename='\W'
+  local hellsbells='\a'
 
   local sticky_alert=''
   if ${DUBS_ALWAYS_ON_VISIBLE:-false}; then
@@ -118,6 +84,7 @@ dubs_set_terminal_prompt () {
   #       to pass this environment variable to us.
   # NOTE: To test gnome-terminal, run it from your home directory, otherwise it
   #       won't find your bash scripts.
+  local titlebar
   if ! $(dubs_logged_on_via_ssh); then
     # echo "User not logged on via SSH"
     if [[ "${DUBS_TERMNAME}" != "" ]]; then
@@ -129,17 +96,58 @@ dubs_set_terminal_prompt () {
       #titlebar="\[\e]0;\w\a\]"
       titlebar="\[\e]0;${sticky_alert}${basename}\a\]"
     else
+      # In chroot jail.
       titlebar="\[\e]0;|-${sticky_alert}${basename}-|\a\]"
     fi
   else
     # echo "User *is* logged on via SSH!"
-    #titlebar="\[\e]0;${sticky_alert}$(hostname) → ${basename}\a\]"
-    #titlebar="\[\e]0;${sticky_alert}$(hostname) 🦉 ${basename}\a\]"
-    #titlebar="\[\e]0;${sticky_alert}$(hostname) 👗 ${basename}\a\]"
-    #titlebar="\[\e]0;${sticky_alert}$(hostname) 🌊 ${basename}\a\]"
-    #titlebar="\[\e]0;${sticky_alert}$(hostname) 🌿 ${basename}\a\]"
-    titlebar="\[\e]0;${sticky_alert}$(hostname) 🍍 ${basename}\a\]"
+    local -a choices
+    #choices+=("\[\e]0;${sticky_alert}$(hostname) → ${basename}${hellsbells}\]")
+    choices+=("\[\e]0;${sticky_alert}$(hostname) 🦉 ${basename}${hellsbells}\]")
+    choices+=("\[\e]0;${sticky_alert}$(hostname) 👗 ${basename}${hellsbells}\]")
+    choices+=("\[\e]0;${sticky_alert}$(hostname) 🌊 ${basename}${hellsbells}\]")
+    choices+=("\[\e]0;${sticky_alert}$(hostname) 🌿 ${basename}${hellsbells}\]")
+    choices+=("\[\e]0;${sticky_alert}$(hostname) 🍍 ${basename}${hellsbells}\]")
+    # Using RANDOM builtin.
+    titlebar="${choices[$RANDOM % 5]}"
   fi
+
+  echo "${titlebar}"
+}
+
+dubs_set_terminal_prompt () {
+  # (lb): Note that color_util.sh defines similar colors, but without
+  # the ``01;`` part. I cannot remember what that component means....
+  local fg_red='\[\033[01;31m\]'
+  local fg_green='\[\033[01;32m\]'
+  local fg_yellow='\[\033[01;33m\]'
+  local fg_cyan='\[\033[01;36m\]'
+  local fg_gray='\[\033[01;37m\]'
+  local bg_magenta='\[\033[01;45m\]'
+  local cur_user='\u'
+  local attr_reset='\[\033[00m\]'
+  local attr_underlined="\033[4m"
+  # local attr_bold="\[\033[1m\]"  # See also: $(tput bold).
+  local mach_name='\h'
+  local basename='\W'
+
+  # Configure a colorful prompt of the following format:
+  #  user@host:dir
+  # See <http://www.termsys.demon.co.uk/vtansi.htm>
+  #  for more about colours.
+  #  There's a nifty chart at <http://www.frexx.de/xterm-256-notes/>
+  # export PS1='\u@\[\033[0;35m\]\h\[\033[0;33m\][\W\[\033[00m\]]: '
+  # export PS1='\u@\[\033[0;32m\]\h\[\033[0;36m\][\W\[\033[00m\]]: '
+  # A;XYm ==>
+  #   A=1 means bright
+  #   XY=30 is Black  31 Red      32 Green  33 Yellow
+  #      34    Blue   35 Magenta  36 Cyan   37 White
+  #   X=3 is Foreground, =4 is Background colors, i.e., 47 is White BG
+  # export PS1='\[\033[1;37m\]\u@\[\033[1;33m\]\h\[\033[1;36m\][\W\[\033[00m\]]: '
+  # # From debian .bashrc:
+  # PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+
+  local titlebar="$(fries_format_titlebar)"
 
   # 2012.10.17: The default bash includes ${debian_chroot:+($debian_chroot)} in
   # the PS1 string, but it really shouldn't be set on any of our systems (it's
