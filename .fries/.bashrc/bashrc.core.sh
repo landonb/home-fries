@@ -335,7 +335,16 @@ home_fries_up () {
 
   ${DUBS_PROFILING} && echo "hooking direnv"
   # 2018-03-28: Trying direnv (to eventually replace/enhance gogo, perhaps).
+  # Sets, e.g., PROMPT_COMMAND=_direnv_hook;
   eval "$(direnv hook bash)"
+
+  #########################
+
+  # Update mate-terminal titlebar on each command.
+  # (lb): Note that all commands after this will appear/flicker
+  # in the window title.
+  run_and_unset "fries_hook_titlebar_update"
+  # - lib/term_util.sh
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
