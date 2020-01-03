@@ -122,6 +122,8 @@ fries_tmux_session_attach_or_rename () {
       #         <C-b L>   to toggle between most recent sessions.
       local nsessns
       nsessns=$(tmux ls 2> /dev/null | wc -l)
+      # From: Moby Word Lists by Grady Ward
+      #   https://www.gutenberg.org/ebooks/3201
       if [[ ${nsessns} -gt 3 ]] \
         || [[ ! -f ${HOME}/.fries/var/first-names-lengthX.txt ]] \
       ; then
