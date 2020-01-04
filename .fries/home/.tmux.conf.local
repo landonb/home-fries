@@ -606,8 +606,43 @@ bind c new-window -c '#{pane_current_path}'
 # NOTE: Without the -e, always need to press <q> or similar to exit copy-mode;
 #       but with -e, upon PageDown'ing back to bottom of screen, copy-mode exited.
 # NOTE: `-n` is an alias to `-T root`.
-bind -n S-PageUp copy-mode -eu
-bind -n S-PageDown send-keys PageDown
+# Interesting:
+# - With just the PageUp binding:
+#       bind -n S-PageUp copy-mode -u
+#       # OR:
+#       bind -n S-PageUp copy-mode -eu
+#   PageDown doesn't do anything in copy-mode, and in normal mode, prints:
+#       ;2~
+# - With PageDown added, e.g.,
+#       bind -n S-PageDown send-keys PageDown
+#   - PageDown works, and in normal mode, prints:
+#       ~
+#   - But note that with -e, if you PageDown to bottom of buffer, a fresh
+#     tilde '~' is printed with every addition PageDown pressed.
+#   - I find this more annoying than omitting -e and needing to press 'q'
+#     or similar to exit copy-mode, because at least I don't have to
+#     backspace/delete the stray ~ tildes.
+#     - SKIP -e, e.g.,:
+#         bind -n S-PageUp copy-mode -eu
+#  - Here's what it'd look like:
+#         bind -n S-PageUp copy-mode -u
+#         bind -n S-PageDown send-keys PageDown
+#    - However, if we use send-keys instead, we can change how
+#      Shift-PageDown works at bottom of buffer, so that pressing
+#      Shift-PageDown always enters copy-mode, and never prints ~.
+# - Note that in whatever case, you can omit the Shift after the
+#   initial keypresses, e.g., if you press S-PageDown, tmux enters
+#   copy mode, so then you can just PageUp/PageDown (without Shift).
+# - Note too that C-S-Down is like S-PageDown and you need to exit
+#   copy mode (using 'q' or whatever); but you can also just Shift-End
+#   which always exits copy-mode automatically.
+# - MAYBE/2020-01-04 01:36: Is there a way to have tmux auto-exit copy-mode
+#   when it reaches the bottom of the buffer? (The only reason S-End is wired
+#   is because we can call -X cancel, because we can infer the bottom of the
+#   buffer was reached; but for PageDown and Down, how would we know if we're
+#   at the bottom of the buffer?)
+bind -n S-PageUp copy-mode -u
+bind -n S-PageDown copy-mode \; send-keys -X page-down
 
 # ---------------------------------------------------------- #
 
