@@ -289,6 +289,36 @@ home_fries_export_editor_vim () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# 2020-01-03: More random crap!
+# - I had thought about making a poutine-level command, like fries-findup,
+#   but all that overhead for just a few lines of code?
+# - I also thought about make a ~/.fries/lib/pdf_util.sh, but I thought
+#   again, all that overhead for just a few lines of code?
+# So here it is. Simply enough.
+
+pdf180rot () {
+  if ! command -v qpdf > /dev/null; then
+    >&2 echo "MISSING: Cannot locate executable: \`qpdf\`"
+    return 1
+  fi
+
+  if [[ -z "$1" ]]; then
+    >&2 echo "USAGE: pdf180rot <path/to/pdf>"
+    return 1
+  fi
+
+  if [[ ! -f "$1" ]]; then
+    >&2 echo "ERROR: No such file: ‘$1’"
+    return 1
+  fi
+
+  /bin/cp "$1" "${1}-TBD"
+  qpdf "${1}-TBD" "$1" --rotate=+180:1-z
+  /bin/rm "${1}-TBD"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 unset_f_fries_util () {
   unset -f source_deps
 
