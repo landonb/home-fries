@@ -621,3 +621,45 @@ bind-key -n C-S-Up copy-mode \; send-keys -X scroll-up
 #       deliberately, e.g., press 'q'. Oh, well.
 bind-key -n C-S-Down copy-mode \; send-keys -X scroll-down
 
+# ---------------------------------------------------------- #
+
+# Enable italic font support.
+#
+# Check if italic font is supported:
+#
+#   $ echo -e "\e[3mitalic\e[23m"
+#   # Or:
+#   $ printf '\033[3mitalic\033[0m\n'
+#
+# One could also check:
+#
+#   $ infocmp $TERM | grep sitm
+#   sgr0=\E(B\E[m, sitm=\E[3m, smacs=\E(0, smam=\E[?7h,
+#
+#   $ infocmp $TERM | grep ritm
+#   ri=\EM, rin=\E[%p1%dT, ritm=\E[23m, rmacs=\E(B,
+
+# NOTE: The mate-terminal default is TERM=xterm. But when you run tmux,
+#       it changes (defaults) to 'screen-256color'.
+#
+# (lb): I was at first mislead by blogs and tried setting TERM='tmux', e.g.,
+#   set -g default-terminal "tmux"
+# but then anytime the pager is used, I get a complaint, e.g.,
+#   $ git log
+#   WARNING: terminal is not fully functional
+#   -  (press RETURN)
+# Then I re-discovered xterm, which avoids the error, e.g.,
+#   export TERM=xterm
+# Though it's easier just to set default-terminal here.
+# (Which has the added benefit that you don't need to call `tic` to change any
+#  of the 'tmux', 'tmux-256color', 'screen', or 'screen-256color' settings,
+#  as lots of blog & Stackoverflow posts also suggested.)
+# You can check/verify the default-terminal with:
+#   tmux show -s default-terminal
+set -g default-terminal "xterm"
+
+# Fix italic, which otherwise appears as reverse (flipped bg/fg).
+set -as terminal-overrides ',xterm*:sitm=\E[3m'
+
+# ---------------------------------------------------------- #
+
