@@ -453,7 +453,12 @@ set -g set-titles-string '#T'
 
 # TWEAK: The #W shows the command name (but not args), and is updated when you run
 #   commands, but it takes 15 seconds by default to change. So ridiculously slow!
-set -g status-interval 1
+# (lb): I tried 1, but my CPU profile in the mate-panel area shows little spikes
+# every second, which really is no big deal, but it's distracting to me to see.
+#set -g status-interval 1
+#set -g status-interval 2
+set -g status-interval 5
+#set -g status-interval 10
 
 # ---------------------------------------------------------- #
 
