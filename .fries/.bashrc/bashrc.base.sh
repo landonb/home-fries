@@ -106,8 +106,8 @@ fries_tmux_session_attach_or_rename () {
   if [[ -n "${TMUX}" ]]; then
     local currsess
     currsess=$(tmux display-message -p '#S')
-    if ! echo "$currsess" | grep '^[0-9]$' > /dev/null; then
-      # Session name not expected single digit number, so bail!
+    if ! echo "$currsess" | grep '^[0-9]\+$' > /dev/null; then
+      # Session name not an expected number, so bail.
       return 1
     fi
 
