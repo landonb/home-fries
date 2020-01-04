@@ -22,10 +22,23 @@ is_headless () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# (lb): I know Vim makes doing this fast, but still, why manually generate
-# this? Should really use associate array and eval. The whole file.
+# DX: Hint: Fast downcase: q q v w C-o u <down> q
+#           [2020-01-03: Though now <Q> stops on visual select...]
 
-# Fast downcase: qqvw^ou<down>q
+# NOTE: tmux doesn't show all the ANSI color codes, but maps some to other colors
+#       (like pink and orange to red).
+#       - E.g., for lightorange, when TERM=*-256color:
+#           echo "\033[38;5;215m"
+#         works.
+#       - But in tmux, when TERM=tmux, lightorange maps to red.
+#       - So use RGB format.
+# R,G,B Formats:
+#   \033[38;2;<r>;<g>;<b>m  # RGB foreground color.
+#   \033[48;2;<r>;<g>;<b>m  # RGB background color.
+# (lb): I used Gimp to extract RGB from
+#   https://i.stack.imgur.com/KTSQa.png
+# via
+#   https://en.wikipedia.org/wiki/ANSI_escape_code
 
 fg_pink () {
   is_headless && return
@@ -33,145 +46,201 @@ fg_pink () {
   ### for windows... use colors that don't make your eyes bleed :)
   # NOTE/2017-05-03: Single quotes do not work. What's up with that?
   #   E.g., export PINK='\\033[38;5;211m'
-  echo "\033[38;5;211m"
+  # Via TERM=*-256color:
+  #   echo "\033[38;5;211m"
+  echo "\033[38;2;255;135;175m"
 }
 
 fg_orange () {
   is_headless && return
-  echo "\033[38;5;203m"
+  # Via TERM=*-256color:
+  #   echo "\033[38;5;203m"
+  echo "\033[38;2;255;95;95m"
 }
 
 # 2016-10-09: FG_SKYBLUE broken.
-#fg_skyblue () {
-#  is_headless && return
-#  echo "\033[38;5;111m"
-#}
+fg_skyblue () {
+  is_headless && return
+  # Via TERM=*-256color:
+  #   echo "\033[38;5;111m"
+  echo "\033[38;2;135;175;255m"
+}
 
 fg_mediumgrey () {
   is_headless && return
-  echo "\033[38;5;246m"
+  # Via TERM=*-256color:
+  #   echo "\033[38;5;246m"
+  echo "\033[38;2;148;148;148m"
 }
 
 fg_lavender () {
   is_headless && return
-  echo "\033[38;5;183m"
+  # Via TERM=*-256color:
+  #   echo "\033[38;5;183m"
+  echo "\033[38;2;215;175;255m"
 }
 
 fg_tan () {
   is_headless && return
-  echo "\033[38;5;179m"
+  # Via TERM=*-256color:
+  #   echo "\033[38;5;179m"
+  echo "\033[38;2;215;175;95m"
 }
 
 fg_forest () {
   is_headless && return
-  echo "\033[38;5;22m"
+  # Via TERM=*-256color:
+  #   echo "\033[38;5;22m"
+  echo "\033[38;2;0;95;0m"
 }
 
 fg_maroon () {
   is_headless && return
-  echo "\033[38;5;52m"
+  # Via TERM=*-256color:
+  #   echo "\033[38;5;52m"
+  echo "\033[38;2;95;0;0m"
 }
 
 fg_hotpink () {
   is_headless && return
-  echo "\033[38;5;198m"
+  # Via TERM=*-256color:
+  #   echo "\033[38;5;198m"
+  echo "\033[38;2;255;0;135m"
 }
 
 fg_mintgreen () {
   is_headless && return
-  echo "\033[38;5;121m"
+  # Via TERM=*-256color:
+  #   echo "\033[38;5;121m"
+  echo "\033[38;2;135;255;175m"
 }
 
 fg_lightorange () {
   is_headless && return
-  echo "\033[38;5;215m"
+  # Via TERM=*-256color:
+  #   echo "\033[38;5;215m"
+  echo "\033[38;2;255;175;95m"
 }
 
 fg_lightred () {
   is_headless && return
-  echo "\033[38;5;203m"
+  # Via TERM=*-256color:
+  #   echo "\033[38;5;203m"
+  echo "\033[38;2;255;95;95m"
 }
 
 fg_jade () {
   is_headless && return
-  echo "\033[38;5;35m"
+  # Via TERM=*-256color:
+  #   echo "\033[38;5;35m"
+  echo "\033[38;2;0;175;95m"
 }
 
 fg_lime () {
   is_headless && return
-  echo "\033[38;5;154m"
+  # Via TERM=*-256color:
+  #   echo "\033[38;5;154m"
+  echo "\033[38;2;175;255;0m"
 }
 
 ### background colors
 
 bg_pink () {
   is_headless && return
-  echo "\033[48;5;211m"
+  # Via TERM=*-256color:
+  #   echo "\033[48;5;211m"
+  echo "\033[48;2;255;135;175m"
 }
 
 bg_orange () {
   is_headless && return
-  echo "\033[48;5;203m"
+  # Via TERM=*-256color:
+  #   echo "\033[48;5;203m"
+  echo "\033[48;2;255;95;95m"
 }
 
 bg_skyblue () {
   is_headless && return
-  echo "\033[48;5;111m"
+  # Via TERM=*-256color:
+  #   echo "\033[48;5;111m"
+  echo "\033[48;2;135;175;255m"
 }
 
 bg_mediumgrey () {
   is_headless && return
-  echo "\033[48;5;246m"
+  # Via TERM=*-256color:
+  #   echo "\033[48;5;246m"
+  echo "\033[48;2;148;148;148m"
 }
 
 bg_lavender () {
   is_headless && return
-  echo "\033[48;5;183m"
+  # Via TERM=*-256color:
+  #   echo "\033[48;5;183m"
+  echo "\033[48;2;215;175;255m"
 }
 
 bg_tan () {
   is_headless && return
-  echo "\033[48;5;179m"
+  # Via TERM=*-256color:
+  #   echo "\033[48;5;179m"
+  echo "\033[48;2;215;175;95m"
 }
 
 bg_forest () {
   is_headless && return
-  echo "\033[48;5;22m"
+  # Via TERM=*-256color:
+  #   echo "\033[48;5;22m"
+  echo "\033[48;2;0;95;0m"
 }
 
 bg_maroon () {
   is_headless && return
-  echo "\033[48;5;52m"
+  # Via TERM=*-256color:
+  #   echo "\033[48;5;52m"
+  echo "\033[48;2;95;0;0m"
 }
 
 bg_hotpink () {
   is_headless && return
-  echo "\033[48;5;198m"
+  # Via TERM=*-256color:
+  #   echo "\033[48;5;198m"
+  echo "\033[48;2;255;0;135m"
 }
 
 bg_mintgreen () {
   is_headless && return
-  echo "\033[48;5;121m"
+  # Via TERM=*-256color:
+  #   echo "\033[48;5;121m"
+  echo "\033[48;2;135;255;175m"
 }
 
 bg_lightorange () {
   is_headless && return
-  echo "\033[48;5;215m"
+  # Via TERM=*-256color:
+  #   echo "\033[48;5;215m"
+  echo "\033[48;2;255;175;95m"
 }
 
 bg_lightred () {
   is_headless && return
-  echo "\033[48;5;203m"
+  # Via TERM=*-256color:
+  #   echo "\033[48;5;203m"
+  echo "\033[48;2;255;95;95m"
 }
 
 bg_jade () {
   is_headless && return
-  echo "\033[48;5;35m"
+  # Via TERM=*-256color:
+  #   echo "\033[48;5;35m"
+  echo "\033[48;2;0;175;95m"
 }
 
 bg_lime () {
   is_headless && return
-  echo "\033[48;5;154m"
+  # Via TERM=*-256color:
+  #   echo "\033[48;5;154m"
+  echo "\033[48;2;175;255;0m"
 }
 
 # 2018-03-23: Aha!
