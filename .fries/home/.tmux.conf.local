@@ -4,6 +4,8 @@
 #         without any warranty.
 #         Copyright 2012— Gregory Pakosz (@gpakosz).
 
+# ---------------------------------------------------------- #
+
 # -- navigation ----------------------------------------------------------------
 
 # if you're running tmux within iTerm2
@@ -12,6 +14,8 @@
 #   - and iTerm2 is configured to send [1;9A -> [1;9D for option + arrow keys
 # then uncomment the following line to make Meta + arrow keys mapping work
 #set -ga terminal-overrides "*:kUP3=\e[1;9A,*:kDN3=\e[1;9B,*:kRIT3=\e[1;9C,*:kLFT3=\e[1;9D"
+
+# ---------------------------------------------------------- #
 
 # -- windows & pane creation ---------------------------------------------------
 
@@ -34,6 +38,8 @@ tmux_conf_new_pane_reconnect_ssh=false
 #   - true
 #   - false (default)
 tmux_conf_new_session_prompt=false
+
+# ---------------------------------------------------------- #
 
 # -- display -------------------------------------------------------------------
 
@@ -318,6 +324,8 @@ tmux_conf_battery_status_discharging='↓'    # U+2193
 tmux_conf_theme_clock_colour='#00afff'  # light blue
 tmux_conf_theme_clock_style='24'
 
+# ---------------------------------------------------------- #
+
 # -- clipboard -----------------------------------------------------------------
 
 # in copy mode, copying selection also copies to the OS clipboard
@@ -341,20 +349,31 @@ tmux_conf_theme_clock_style='24'
 # Prerequisites: `sudo apt-get install -y xclip`
 tmux_conf_copy_to_os_clipboard=true
 
+# ---------------------------------------------------------- #
+
 # -- user customizations -------------------------------------------------------
+
 # this is the place to override or undo settings
+
+# ---------------------------------------------------------- #
 
 # increase history size
 #set -g history-limit 10000
 
+# ---------------------------------------------------------- #
+
 # start with mouse mode enabled
 #set -g mouse on
+
+# ---------------------------------------------------------- #
 
 # force Vi mode
 #   really you should export VISUAL or EDITOR environment variable, see manual
 #set -g status-keys vi
 # 2020-01-03: mode-keys vi did not make Shift-Home/-End work.
 #set -g mode-keys vi
+
+# ---------------------------------------------------------- #
 
 # replace C-b by C-a instead of using both prefixes
 # set -gu prefix2
@@ -363,27 +382,37 @@ tmux_conf_copy_to_os_clipboard=true
 # set -g prefix C-a
 # bind C-a send-prefix
 
+# ---------------------------------------------------------- #
+
 # move status line to top
 #set -g status-position top
 
-# *** LNB's SETTINGS <=====================================================     ***
+# ---------------------------------------------------------- #
+
+# *** LNB's SETTINGS <=====================================================     === ***
+
+# ---------------------------------------------------------- #
 
 # Tmux copy with mouse drag.
 #  setw -g mode-mouse on
 #  set -g mouse-select-window on
 set -g mouse on
 
+# ---------------------------------------------------------- #
+
 # 2018-02-15: I do not think I need this; tmuxinator does what I need.
 ## https://github.com/tmux-plugins/tmux-resurrect
 #  set -g @plugin 'tmux-plugins/tmux-resurrect'
 #  set -g @resurrect-capture-pane-contents 'on'
+
+# ---------------------------------------------------------- #
 
 # https://github.com/tmux-plugins/tpm
 #
 # List of plugins
 set -g @plugin 'tmux-plugins/tpm'
 set -g @plugin 'tmux-plugins/tmux-sensible'
-#
+
 # Other examples:
 # set -g @plugin 'github_username/plugin_name'
 # set -g @plugin 'git@github.com/user/plugin'
@@ -391,6 +420,8 @@ set -g @plugin 'tmux-plugins/tmux-sensible'
 #
 # Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
 run '~/.tmux/plugins/tpm/tpm'
+
+# ---------------------------------------------------------- #
 
 # 2020-01-02: (lb): Set the (mate-)window titlebar label.
 #
@@ -418,9 +449,13 @@ run '~/.tmux/plugins/tpm/tpm'
 # NOTE: I tried the #{command} FORMAT variable, but it was empty.
 set -g set-titles-string '#T'
 
+# ---------------------------------------------------------- #
+
 # TWEAK: The #W shows the command name (but not args), and is updated when you run
 #   commands, but it takes 15 seconds by default to change. So ridiculously slow!
 set -g status-interval 1
+
+# ---------------------------------------------------------- #
 
 # Note that you can rename the tmux window name from a tmux prompt, e.g.,
 #
@@ -459,6 +494,8 @@ set -g status-interval 1
 # You can also use an escape sequence:
 #
 #   printf '\033kWINDOW_NAME\033\\'
+
+# ---------------------------------------------------------- #
 
 # https://gist.github.com/spicycode/1229612
 #
@@ -528,11 +565,13 @@ bind -n S-Right next-window
 #set -g status-left '#[fg=green](#S) #(whoami)'
 #set -g status-right '#[fg=yellow]#(cut -d " " -f 1-3 /proc/loadavg)#[default] #[fg=white]%H:%M#[default]'
 
-# From comments:
+# ---------------------------------------------------------- #
 
 # You can add bind-key Z resize-pane -Z to toggle pane full screen.
 # (lb): Convenient!
 bind-key Z resize-pane -Z
+
+# ---------------------------------------------------------- #
 
 # Open panel with current path.
 # (lb): Works, and I like it!
@@ -541,6 +580,8 @@ bind '"' split-window -v -c '#{pane_current_path}'
 # Open window with current path.
 # FIXME/2020-01-03 01:26: Not working for me...
 bind c new-window -c '#{pane_current_path}'
+
+# ---------------------------------------------------------- #
 
 # https://superuser.com/questions/702189/tmux-scroll-up-down-with-shift-page-up-down-into-a-pane
 #bind -n S-Pageup copy-mode -u
@@ -563,12 +604,16 @@ bind c new-window -c '#{pane_current_path}'
 bind -n S-PageUp copy-mode -eu
 bind -n S-PageDown send-keys PageDown
 
+# ---------------------------------------------------------- #
+
 # Shift-Home/-End
 bind -n S-Home copy-mode \; send-keys -X history-top
 # NOTE: -e doesn't help here; still need to exit copy-mode, e.g., press 'q'.
 #  bind -n S-End copy-mode \; send-keys -X history-bottom
 # However, we can just tack on the 'cancel' command to exit copy-mode.
 bind -n S-End copy-mode \; send-keys -X history-bottom\; send-keys -X cancel
+
+# ---------------------------------------------------------- #
 
 # Ctrl-Shift-Up/-Down (in copy-mode, either Ctrl-e/-y or Ctrl-Up/-Down).
 bind-key -n C-S-Up copy-mode \; send-keys -X scroll-up
