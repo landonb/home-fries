@@ -103,6 +103,7 @@ print_elapsed_time () {
 # especially if you end up configuring panes and windows specially.
 
 fries_tmux_session_attach_or_rename () {
+  FRIES_TMUX_LIMIT=10
   if [[ -n "${TMUX}" ]]; then
     local currsess
     currsess=$(tmux display-message -p '#S')
@@ -131,7 +132,7 @@ fries_tmux_session_attach_or_rename () {
       nsessns=$(tmux ls 2> /dev/null | wc -l)
       # From: Moby Word Lists by Grady Ward
       #   https://www.gutenberg.org/ebooks/3201
-      if [[ ${nsessns} -gt 3 ]] \
+      if [[ ${nsessns} -gt ${FRIES_TMUX_LIMIT} ]] \
         || [[ ! -f ${HOME}/.fries/var/first-names-lengthX.txt ]] \
       ; then
         echo "If you're reading this, I should be dead!"
