@@ -531,13 +531,13 @@ set -g history-limit 10000
 # (lb): Not sure I care, because Alt-Arrows work,
 # also awkward keypresses.
 #   bind h select-pane -L
-#   bind j select-pane -D 
+#   bind j select-pane -D
 #   bind k select-pane -U
 #   bind l select-pane -R
 # Use Alt-vim keys without prefix key to switch panes.
 # (lb): Works, but awkward keypresses.
 #   bind -n M-h select-pane -L
-#   bind -n M-j select-pane -D 
+#   bind -n M-j select-pane -D
 #   bind -n M-k select-pane -U
 #   bind -n M-l select-pane -R
 #
@@ -682,23 +682,43 @@ bind-key -n C-S-Down copy-mode \; send-keys -X scroll-down
 #   ri=\EM, rin=\E[%p1%dT, ritm=\E[23m, rmacs=\E(B,
 
 # NOTE: The mate-terminal default is TERM=xterm. But when you run tmux,
-#       it changes (defaults) to 'screen-256color'.
+#       it changes (defaults) to 'screen-256color'. And all the docs say
+#       not to use xterm (or xterm-256color, except that I used xterm no
+#       problem, and with TERM=tmux I get a pager complaint!).
 #
-# (lb): I was at first mislead by blogs and tried setting TERM='tmux', e.g.,
+# (lb): I first tried setting TERM='tmux', e.g.,
+#
 #   set -g default-terminal "tmux"
+#
 # but then anytime the pager is used, I get a complaint, e.g.,
+#
 #   $ git log
 #   WARNING: terminal is not fully functional
 #   -  (press RETURN)
-# Then I re-discovered xterm, which avoids the error, e.g.,
+#
+# Then I tried xterm, which avoids the error, e.g.,
+#
 #   export TERM=xterm
-# Though it's easier just to set default-terminal here.
-# (Which has the added benefit that you don't need to call `tic` to change any
-#  of the 'tmux', 'tmux-256color', 'screen', or 'screen-256color' settings,
-#  as lots of blog & Stackoverflow posts also suggested.)
+#
+# even though everything I read tells me not to use xterm!
+#
+# (Note that instead of using default-terminal here, we could call `tic` to
+#  change any of the 'tmux', 'tmux-256color', 'screen', or 'screen-256color'
+#  settings, as some blog & Stackoverflow posts suggested.)
+#
 # You can check/verify the default-terminal with:
+#
 #   tmux show -s default-terminal
+#
+# Default term:
+#   set -g default-terminal "screen-256color"
+# Breaks pager:
+#   set -g default-terminal "tmux"
+# Others will scold you, but works fine for me!
 set -g default-terminal "xterm"
+# To test everything okay:
+#   test_truecolors   # Print color bar and bold/italic/underline/strike text.
+#   git log           # Test that pager runs without complaint.
 
 # Fix italic, which otherwise appears as reverse (flipped bg/fg).
 set -as terminal-overrides ',xterm*:sitm=\E[3m'
