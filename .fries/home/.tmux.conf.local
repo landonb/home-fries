@@ -715,6 +715,7 @@ bind-key -n C-S-Down copy-mode \; send-keys -X scroll-down
 # Breaks pager:
 #   set -g default-terminal "tmux"
 # Others will scold you, but works fine for me!
+# - (lb): I wonder if because mate-terminal is doing something.
 set -g default-terminal "xterm"
 # To test everything okay:
 #   test_truecolors   # Print color bar and bold/italic/underline/strike text.
