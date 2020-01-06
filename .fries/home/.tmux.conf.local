@@ -705,3 +705,18 @@ set -as terminal-overrides ',xterm*:sitm=\E[3m'
 
 # ---------------------------------------------------------- #
 
+# REMINDER-TO-SELF: (lb): Start using Ctrl-l to clear screen and history, not `reset`.
+
+# ---------------------------------------------------------- #
+
+# MAYBE/2020-01-05: Application-specific bindings.
+#
+# E.g., you could behave differently for Vim vs. not:
+#
+#  # Check if the pane is running vim.
+#  is_vim="ps -o state= -o comm= -t '#{pane_tty}' \ | grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|n?vim?x?)(diff)?$'"
+#  # Type 1 to Vim, or 0 to other/terminal.
+#  bind c if-shell "$is_vim" "send-keys 1" "send-keys 0"
+
+# ---------------------------------------------------------- #
+
