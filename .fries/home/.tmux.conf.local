@@ -542,6 +542,7 @@ set -g history-limit 10000
 #   bind -n M-l select-pane -R
 #
 # Use Alt-arrow keys without prefix key to switch panes.
+# See also builtin: Move cursor between windows: ``ctrl-a <arrow>``
 # (lb): NICE!
 bind -n M-Left select-pane -L
 bind -n M-Right select-pane -R
@@ -641,6 +642,7 @@ bind c new-window -c '#{pane_current_path}'
 #   is because we can call -X cancel, because we can infer the bottom of the
 #   buffer was reached; but for PageDown and Down, how would we know if we're
 #   at the bottom of the buffer?)
+# See also builtin: tmux pageup/pagedown: ``ctrl-a <page-up>|<page-down>``
 bind -n S-PageUp copy-mode -u
 bind -n S-PageDown copy-mode \; send-keys -X page-down
 
