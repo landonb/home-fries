@@ -145,7 +145,14 @@ home_fries_create_aliases_general () {
   # [lb] uses p frequently, just like h and ll.
   alias p='pwd'
 
-  alias cls='clear' # If you're like me and poisoned by DOS memories.
+  # 2020-01-05: I should finally retire this. Haven't used in years!!
+  # alias cls='clear' # If you're like me and poisoned by DOS memories.
+
+  if [[ -n "${TMUX}" ]]; then
+    # REMEMBER: It's quicker and just the same (AFAIK) to
+    #   use Ctrl-l instead of `reset`.
+    alias reset='clear; tmux clear-history; command reset'
+  fi
 
   # *** Python
 
