@@ -1,0 +1,32 @@
+#!/bin/bash
+# vim:tw=0:ts=2:sw=2:et:ft=sh:
+
+# USAGE: Call to focus the Spotify application window,
+#        useful for, e.g., window manager keybindings.
+
+# Note: Spotify renames the window to "Artist - Song Title" so need to
+#   do a little window ID math: get the process ID (PID) using a more
+#   exact path, "spotify/spotify" (to distinguish from the associated
+#   kdocker task). Then use wmctrl to get the window ID, and then to
+#   focus it.
+
+# FIXME/2020-01-07: Figure out how to tell kdocker to restore from tray.
+# - For now, only works if Spotify is windowed, and not solely docked.
+
+keybinding-focus-spotify () {
+  local spotify_pid
+  spotify_pid=$(ps aux | grep 'spotify/spotify$' | awk '{print $2}')
+  spotify_win=$(wmctrl -lp | grep "\<${spotify_pid}\>" | awk '{print $1}')
+  wmctrl -i -a ${spotify_win}
+}
+
+main () {
+  if [[ ${BASH_SOURCE[0]} != "$0" ]]; then
+    export -f keybinding-focus-spotify
+  else
+    keybinding-focus-spotify "${@}"
+  fi
+}
+
+main "${@}"
+
