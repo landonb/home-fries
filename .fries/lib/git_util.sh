@@ -1276,45 +1276,38 @@ git_status_all () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# 2017-06-06 22:11 You've got a /bin/rm monkey patch, why not another
-# dastardly accidentally typed command! Sometimes when I mean to type
-# `git reset HEAD blurgh`, sometimes I start typing `git co -- blurgh`
-# oh no!
+# *** Interrogate user on clobbery git command.
+
+# 2017-06-06: Like the home-fries /bin/rm monkey patch (rm_safe), why not
+# preempt "unsafe" git commands with a similarly pesky are-you-sure? prompt.
+# - Specifically added because sometimes when I mean to type
+#     `git reset HEAD blurgh`  I type instead
+#     `git co -- blurgh`       -- oh no! --
+#   but I will note that since this command (comment) was added I've stopped.
 cis_git () {
-  # "co" is a home frites `co = checkout` alias.
-  # I'm not concerned with the long-form [2017-06-06: Boo, still hyphenated]
-  # counterpart, "checkout". I just don't want to `git co -- oops` without
-  # an undo, like home 🍟
-  local gitted=false
+  local disallow=false
+
+  # Verify `git co -- XXX` command.
+  # NOTE: `co` is a home-🍟 alias, `co = checkout`.
+  # NOTE: (lb): I'm not concerned with the long-form counterpart, `checkout`,
+  #       a command I almost never type, and for which can remain unchecked,
+  #       as a sort of "force-checkout" option to avoid being prompted.
   if [[ "$1" == "co" ]]; then
     if [[ "$2" == "--" ]]; then
       echo -n "Are you sure this is absolutely what you want? [Y/n] "
       read -e YES_OR_NO
       if [[ ${YES_OR_NO^^} =~ ^Y.* || -z ${YES_OR_NO} ]]; then
         # FIXME/2017-06-06: Someday soon I'll remove this sillinessmessage.
+        # - 2020-01-08: lb: I'll see it when I believe it.
         echo "YASSSSSSSSSSSSS"
       else
         echo "I see"
-        gitted=true
+        disallow=true
       fi
     fi
   fi
-  if ! ${gitted}; then
-    # FIXME/2017-06-06: So that Home-fries is universal,
-    #                    need to get git's locale another way.
 
-    # exec creates a new process, so if you `git log` and hit q,
-    # the terminal gets an exit!
-    # WRONG: exec /usr/bin/git "$@"
-
-    # With eval, e.g., git ci -m "Blah (blugh)" responds
-    # bash: syntax error near unexpected token `('
-    # WRONG: eval /usr/bin/git "$@"
-    # WRONG: eval /usr/bin/git "$*"
-    # WRONG: eval "/usr/bin/git $@"
-    # WRONG: eval "/usr/bin/git $*"
-
-    # 2017-06-12: If this works, why was I trying to use exec??
+  if ! ${disallow}; then
     /usr/bin/git "$@"
   fi
 }
