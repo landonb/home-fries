@@ -326,6 +326,8 @@ rm_safe_deprecated () {
 function rmrm () {
   /bin/rm -rf "$@"
 
+  # Disable (by commenting) the `rmrm` command in the terminal's history.
+  #
   # (lb): We could simple delete the history entry, e.g.,
   #
   #           history -d $((HISTCMD-1))
