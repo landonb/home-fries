@@ -223,10 +223,32 @@ tmux_conf_theme_right_separator_sub=''  #   PowerlineSymbols.otf font
 # Who needs the session name, right? It's just the session number, e.g., ❐ 0.
 # Except maybe if I name tmux for project I'm on?
 #   tmux_conf_theme_status_left=' ❐ #S | #{loadavg} ⏲ '
+
+# 2020-01-09 14:00: CPU Spikes. Not a biggie, but I'm curious.
+# 2020-01-09 14:06: Really? It's not battery_* issue (which I saw in SO post)
+#                           but an issue with computing loadavg?
+#                   Well, battery is causing some little spikes...
 tmux_conf_theme_status_left=' ❐ #S | #{loadavg} ⏲ '
+# FIXME/2020-01-09 14:08: Can you restrict loadavg to specific sessions?
+# Use this instead to prevent some spiking:
+# tmux_conf_theme_status_left=' ❐ #S | ⏲ '
 
 # (lb): Use gitmux to show Git working tree status: https://github.com/arl/gitmux
 tmux_conf_theme_status_right='#{prefix}#{pairing} |#(gitmux -cfg ~/.waffle/home/.gitmux.conf #{pane_current_path})#{?battery_status, #{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} | #{username}#{root}|@#{hostname} | %R %d %b '
+
+# 2020-01-09 14:00: CPU Spikes. Not a biggie, but I'm curious.
+# - See above comment, #{loadavg} and #{battery_*} appear to cause CPU spiking on redraw.
+# - See also status-interval
+#
+#tmux_conf_theme_status_right='#{prefix}#{pairing} |GITST-BATTSTAT | #{username}#{root}|@#{hostname} | %R %d %b 
+#'
+# # 2020-01-09 14:02: The spike is cumulative, not too noticeable with one session,
+# #                   but the spike is V. noticeable with ten!
+#
+# # Without battery status:
+#tmux_conf_theme_status_right='#{prefix}#{pairing} |#(gitmux -cfg ~/.waffle/home/.gitmux.conf #{pane_current_path}) | #{username}#{root}|@#{hostname} | %R %d %b '
+# # Yanked='#{?battery_status, #{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},}'
+
 # For weather:
 #   #(curl "wttr.in/?format=1")
 
@@ -457,8 +479,12 @@ set -g set-titles-string '#T'
 # every second, which really is no big deal, but it's distracting to me to see.
 #set -g status-interval 1
 #set -g status-interval 2
-set -g status-interval 5
+#set -g status-interval 5
 #set -g status-interval 10
+# 2020-01-09 14:10: Because CPU spikes when lots of sessions on redraw.
+# Huh, 15 just spaces the spikes way apart... how useful is it at 15 secs, though?
+#  set -g status-interval 15
+set -g status-interval 5
 
 # ---------------------------------------------------------- #
 
