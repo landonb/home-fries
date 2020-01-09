@@ -103,7 +103,7 @@ print_elapsed_time () {
 # especially if you end up configuring panes and windows specially.
 
 fries_tmux_session_attach_or_rename () {
-  FRIES_TMUX_LIMIT=10
+  FRIES_TMUX_LIMIT=99
   if [[ -n "${TMUX}" ]]; then
     local currsess
     currsess=$(tmux display-message -p '#S')
