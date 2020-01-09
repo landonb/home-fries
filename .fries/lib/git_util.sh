@@ -1285,30 +1285,40 @@ git_status_all () {
 #     `git co -- blurgh`       -- oh no! --
 #   but I will note that since this command (comment) was added I've stopped.
 cis_git () {
-  local disallow=false
+  local disallowed=false
+  local prompt_yourself=false
 
-  # Verify `git co -- XXX` command.
-  # NOTE: `co` is a home-🍟 alias, `co = checkout`.
-  # NOTE: (lb): I'm not concerned with the long-form counterpart, `checkout`,
-  #       a command I almost never type, and for which can remain unchecked,
-  #       as a sort of "force-checkout" option to avoid being prompted.
-  if [[ "$1" == "co" ]]; then
-    if [[ "$2" == "--" ]]; then
-      echo -n "Are you sure this is absolutely what you want? [Y/n] "
-      read -e YES_OR_NO
-      if [[ ${YES_OR_NO^^} =~ ^Y.* || -z ${YES_OR_NO} ]]; then
-        # FIXME/2017-06-06: Someday soon I'll remove this sillinessmessage.
-        # - 2020-01-08: lb: I'll see it when I believe it.
-        echo "YASSSSSSSSSSSSS"
-      else
-        echo "I see"
-        disallow=true
-      fi
+  if [ $# -ge 2 ]; then
+    # Verify `git co -- ...` command.
+    # NOTE: `co` is a home-🍟 alias, `co = checkout`.
+    # NOTE: (lb): I'm not concerned with the long-form counterpart, `checkout`,
+    #       a command I almost never type, and for which can remain unchecked,
+    #       as a sort of "force-checkout" option to avoid being prompted.
+    if [ "$1" = "co" -a "$2" = "--" ]; then
+      prompt_yourself=true
+    fi
+
+    # Verify `git reset --hard ...` command.
+    if [ "$1" = "reset" -a "$2" = "--hard" ]; then
+      prompt_yourself=true
     fi
   fi
 
-  if ! ${disallow}; then
-    /usr/bin/git "$@"
+  if ${prompt_yourself}; then
+    echo -n "Are you sure this is absolutely what you want? [Y/n] "
+    read -e YES_OR_NO
+    if [[ ${YES_OR_NO^^} =~ ^Y.* || -z ${YES_OR_NO} ]]; then
+      # FIXME/2017-06-06: Someday soon I'll remove this sillinessmessage.
+      # - 2020-01-08: lb: I'll see it when I believe it.
+      echo "YASSSSSSSSSSSSS"
+    else
+      echo "I see"
+      disallowed=true
+    fi
+  fi
+
+  if ! ${disallowed}; then
+    command git "$@"
   fi
 }
 
