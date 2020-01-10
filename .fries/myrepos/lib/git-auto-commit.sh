@@ -52,8 +52,9 @@ git_auto_commit_one () {
   shift
 
   # 2019-10-28: (lb): Trying just base filename, for shorter message.
-  # MR_GIT_AUTO_COMMIT_MSG="Commit “${repo_file}” [@$(hostname)] using myrepos."
-  MR_GIT_AUTO_COMMIT_MSG="Commit “$(basename ${repo_file})” [@$(hostname)] using myrepos."
+  # MR_GIT_AUTO_COMMIT_MSG="Myrepos: Autocommit: “${repo_file}” [@$(hostname)]."
+  # MR_GIT_AUTO_COMMIT_MSG="Myrepos: Autocommit: “$(basename ${repo_file})” [@$(hostname)]."
+  MR_GIT_AUTO_COMMIT_MSG="myrepos: autoci: Add Favorite: [@$(hostname)] “$(basename ${repo_file})”."
   git_auto_commit_parse_args "${@}"
   git_auto_commit_hello
 
@@ -99,7 +100,7 @@ git_auto_commit_one () {
 }
 
 git_auto_commit_all () {
-  MR_GIT_AUTO_COMMIT_MSG="Update *dirty* files [@$(hostname)] using myrepos."
+  MR_GIT_AUTO_COMMIT_MSG="myrepos: autoci: Add All Dirty [@$(hostname)]."
   git_auto_commit_parse_args "${@}"
   git_auto_commit_hello
 
@@ -157,7 +158,7 @@ git_auto_commit_all () {
 }
 
 git_auto_commit_new () {
-  MR_GIT_AUTO_COMMIT_MSG="Insert *untracked* files [@$(hostname)] using myrepos."
+  MR_GIT_AUTO_COMMIT_MSG="myrepos: autoci: Add Untracked [@$(hostname)]."
   git_auto_commit_parse_args "${@}"
   git_auto_commit_hello
 
