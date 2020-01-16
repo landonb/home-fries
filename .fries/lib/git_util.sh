@@ -1297,6 +1297,10 @@ cis_git () {
     if [ "$1" = "co" -a "$2" = "--" ]; then
       prompt_yourself=true
     fi
+    # Also catch `git co .`.
+    if [ "$1" = "co" -a "$2" = "." ]; then
+      prompt_yourself=true
+    fi
 
     # Verify `git reset --hard ...` command.
     if [ "$1" = "reset" -a "$2" = "--hard" ]; then
@@ -1304,6 +1308,7 @@ cis_git () {
     fi
   fi
 
+  # Prompt if guarded.
   if ${prompt_yourself}; then
     echo -n "Are you sure this is absolutely what you want? [Y/n] "
     read -e YES_OR_NO
