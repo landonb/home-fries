@@ -678,10 +678,7 @@ git_checkedout_remote_branch_name () {
   # Include the name of the remote, e.g., not just feature/foo,
   # but origin/feature/foo.
   pushd_or_die "$1"
-#  # FIXME/2018-03-22: Remove tweak_errexit/reset_errexit; don't think you need.
-#  #tweak_errexit
   local remote_branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{u})
-#  #reset_errexit
   popd_perhaps "$1"
   echo "${remote_branch}"
 }
@@ -1275,7 +1272,7 @@ echo "FIXME: \`rake tagGitRepo\` should wait for build to complete..."
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # git-jockey
 
-# 2019-10-23: Consider instead `mr autocommit` to do this.
+# FIXME/2019-10-23: Consider instead `mr autocommit` to do this.
 git-jockey () {
   find_git_parent .
   #echo "REPO_PATH: $REPO_PATH"
