@@ -667,7 +667,7 @@ git_checkedout_branch_name () {
   pushd_or_die "$1"
   local branch_name=$(git rev-parse --abbrev-ref HEAD)
   popd_perhaps "$1"
-  echo "${branch_name}"
+  echo -n "${branch_name}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -680,7 +680,7 @@ git_checkedout_remote_branch_name () {
   pushd_or_die "$1"
   local remote_branch=$(git rev-parse --abbrev-ref --symbolic-full-name @{u})
   popd_perhaps "$1"
-  echo "${remote_branch}"
+  echo -n "${remote_branch}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
