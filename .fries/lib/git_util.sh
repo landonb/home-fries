@@ -685,6 +685,71 @@ git_checkedout_remote_branch_name () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+git_local_branch_hash () {
+  # NOTE: show-ref returns all remotes' hash values by default, e.g.,
+  #         $ git show-ref master
+  #         a2828b8ebae6551623271b1ae0cf5d6f875aee04 refs/heads/master
+  #         cb99a87b731ca9a9111868c2d88bccb615d1e3b9 refs/remotes/origin/master
+  #         2f17bacb1c5632f985f81de0f703b58c8b291a36 refs/remotes/upstream/master
+  #       but using --verify we can specify the exact .git/ path.
+  # NOTE: Can also get the same SHA1 hash from rev-parse:
+  #         git rev-parse master
+  #         # Same as:
+  #         git show-ref -s --verify refs/heads/master
+  local branch_name="$1"
+  pushd_or_die "$2"
+  local branch_hash=$(git show-ref -s --verify "refs/heads/${branch_name}" 2> /dev/null)
+  popd_perhaps "$2"
+  echo -n "${branch_hash}"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+git_local_tag_hash () {
+  # NOTE: These are generally all the same, but the last one is more robust.
+  #
+  #         git show-ref -s v3.0.0a34
+  #         git show-ref -s --verify refs/tags/v3.0.0a34
+  #         git show-ref -s --verify --tags refs/tags/v3.0.0a34
+  # Ignore leading 'v', e.g., 'v3.0.0a34' → '3.0.0a34'.
+  local tag_name="$(echo $1 | /bin/sed '/^v[^0-9]/! s/^v//')"
+  pushd_or_die "$2"
+  local tag_hash=$(git show-ref -s --verify --tags refs/tags/v${tag_name})
+  popd_perhaps "$2"
+  echo -n "${tag_hash}"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+git_versions_tagged_for_commit () {
+  local hash="$1"
+  if [[ -z "${hash}" ]]; then
+    hash="$(git rev-parse HEAD)"
+  fi
+  # Without -d/--dereference, hash shown is tag object, not commit.
+  # With -d, prints 2 lines per tag, e.g., suppose 2 tags on one commit:
+  #   $ git show-ref --tags -d
+  #   af6ec9a9ae01592d36d06917e47b8ee9822178a7 refs/tags/v1.2.3
+  #   7ca83ee766d31181b34e6aafb340f537e2cc0d6f refs/tags/v1.2.3^{}
+  #   2aadd869b4ff4acc945b073a70be7e6573341ebc refs/tags/v1.2.3a3
+  #   7ca83ee766d31181b34e6aafb340f537e2cc0d6f refs/tags/v1.2.3a3^{}
+  # Where:
+  #   $ git cat-file -t af6ec9a9ae01592d36d06917e47b8ee9822178a7
+  #   tag
+  #   $ git cat-file -t 7ca83ee766d31181b34e6aafb340f537e2cc0d6f
+  #   commit
+  # So search on the known commit hash, which returns refs/tags/<tag>^{},
+  # then isolate just the tag -- and match only tags with a leading digit
+  # (assuming that indicates a version tag, to exclude non-version tags).
+  git show-ref --tags -d \
+    | grep "^${hash}.* refs/tags/v\?[0-9]" \
+    | sed \
+      -e 's#.* refs/tags/v?##' \
+      -e 's/\^\{\}//'
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 git_set_remote_travel () {
   local source_repo="$1"
   local target_repo="${2:-$(pwd)}"
