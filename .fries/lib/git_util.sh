@@ -330,6 +330,9 @@ git_status_porcelain () {
   local dirty_repo=false
   local dirty_warn
 
+  GIT_DIRTY_FILES_FOUND=false
+  export GIT_DIRTY_FILES_FOUND
+
   # WONT_FIX/2018-03-23: Replace `git status --porcelain` with proper plumbing. Or, ?
   # 2019-10-07: The porcelain output is actually meant to be used by scripts.
   #   $ man git status
