@@ -14,99 +14,135 @@
 #
 # Note that we cannot put the above herein, because a '*'
 # in .gitignore means a '!' in .git/info/exclude goes unheeded.
-#
-# *** Home directory files.
 
-# Project boilerplate.
-!LICENSE
-!README.rst
+.bashrc
+.gitignore
+LICENSE
+README.rst
 
-# Simple config files.
-!.cookiecutterrc.m4
-!.gitconfig.m4
-!.gitignore
-# 2016-04-04: Moved to personal, unpublished git repo:
-#!.cookiecutterrc
-#!.ctags
-#!.gitconfig
-#!.inputrc
-#!.psqlrc
-#!.sqliterc
-#!mm.cfg
-# 2016-04-04: These are long gone, aren't they?:
-#!.Xmodmap
-#!.hgrc
+# ***
 
-# Bash and Vim symlinks.
-!.bashrc
-# 2018-02-08: I'm gonna leave installing Dubsacks Vim as a separate exercise.
-#!.vimrc
+# Home-fries symlinks.
+.abcde.conf
+.bashrc
+.gitmux.conf
+.lessfilter
+.mkshrc
+.profile
+.tmux.conf.local
+.zshrc
 
-# 3. Finally, add general ignore rules
-#    (which will just apply to ~/.fries).
+# ***
 
-# Pop those tags.
-tags
+# Home-fries-managed directories.
+.trash/
+.trash-TBD/
 
-# 2016-11-21: Delete remaining once you confirm
-#             everything's d'accord/dac/dak on
-#             all yer fleet machines.
+# ***
 
-# #!.fries/.agignore
-# # ... still nothing.
-#
-# !.fries/.bashrc
-# !.fries/.bashrc/
-# !.fries/.bashrc/*
-# .fries/.bashrc/.agignore
-# .fries/.bashrc/bashrx.private.*.sh
-# !.fries/.bashrc/bashrx.private.sh.template
-# .fries/.bashrc/bashrc0.*.sh
-# # Implicitly still ignored: Directories under .fries/.bashrc
-#
-# # 2016-11-11: An indicator.
-# .fries/.bashrc/disable_trackpad
-#
-# # EXPLAIN: Why the three path varieties? path, path/, and path/*?
-# !.fries/bin
-# !.fries/bin/
-# !.fries/bin/*
-# !.fries/bin/completions/*
-# !.fries/bin/libmypy/*
-# .fries/bin/libmypy/__pycache__/
-# #
-# .fries/bin/completions/*autocomplete.private
-#
-# !.fries/once
-# !.fries/once/
-# !.fries/once/*
-# .fries/once/.agignore
-# .fries/once/*.private.*
-# # Generated files.
-# .fries/once/fries-setup-stage.num
-# .fries/once/fries-setup-mysql.pwd
-# #!.fries/once/archive/*
-# !.fries/once/assets/*
-# #!.fries/once/assets/applications-boardgames-21x21.png
-# !.fries/once/target/*
-# !.fries/once/target/common/*
-# !.fries/once/target/common/etc/*
-# !.fries/once/target/common/etc/init.d/*
-# !.fries/once/target/common/*
-# .fries/once/target/.agignore
-#
-# # 2016-10-09: Weird! the lib/ and lib/* syntax both need to be present
-# #             for it to work! But on recipe/ (not checked in at all),
-# #             the first version (!.fries/recipe) works!?
-# #!.fries/lib
-# !.fries/lib/
-# !.fries/lib/*
-#
-# #!.fries/recipe
-# !.fries/recipe/
-# !.fries/recipe/*
-# #/.fries/recipe/bin/packup.sh
+# Standard fare.
+Desktop/
+Documents/
+Downloads/
+Dropbox/
+Videos/
+VirtualBox_VMs/
 
-# # Sorry, adding this to .git/info/exclude didn't work, so it's here.
-# .fries/.bashrc/bashrc.waffle-encfs.base.sh
+# ***
+
+# Symlinks to private files o' mine.
+.anacron
+ansible_hosts
+.bash_history
+.cobra.yaml
+.cookiecutterrc
+.ctags
+.direnvrc
+.gitconfig
+.gitignore.local
+.gnupg
+.inputrc
+.irb_history
+.irbrc
+.jira.d
+.mlocate
+mm.cfg
+.mrconfig
+.mrinfuse
+.mrtrust
+.multitail.conf
+.netrc
+.password-store
+.psqlrc
+.pypirc
+.secretshare.key
+.secretsharerc
+.sqliterc
+.todos.json
+
+# Symlinks to files in other projects.
+.tmux.conf
+.vimrc
+
+# Other files my user sees at home.
+.ICEauthority
+.Xauthority
+.bash_logout
+.dmrc
+.forward
+.gtkrc-2.0
+.gtkrc-xfce
+.lesshst
+.node_repl_history
+.perl_history
+.photorec.cfg
+.pulse-cookie
+.python_history
+.selected_editor
+.sqlite_history
+.viminfo
+.wget-hsts
+.xsession-errors
+.xsession-errors.old*
+tmux-client-*.log
+tmux-server-*.log
+
+# Other directories my user sees.
+.android/
+.ansible/
+.aptitude/
+.aws/
+.bash_completion.d/
+.binwalk/
+.bundle/
+.cache/
+.config/
+.dropbox-dist/
+.dropbox/
+.fonts/
+.gconf/
+.gem/
+.gimp-2.8/
+.gnome/
+.googleearth/
+.gopath/
+.grip/
+.ivy2/
+.linuxmint/
+.local/
+.mozilla/
+.npm/
+.nvm/
+.pki/
+.rubies/
+.sbt/
+.ssh/
+.subversion/
+.thumbnails/
+.tmux/
+.tox/
+.vim/
+.vim_backups/
+.virtualenvs/
+snap/
 
