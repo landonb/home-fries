@@ -509,7 +509,7 @@ git_status_porcelain () {
         tweak_errexit
 
         # If we didn't --no-color the branch_name, we'd have to strip-color.
-        #  stripcolors='/bin/sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"'
+        #  stripcolors='command sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"'
         local git_push_staleness=$(git remote show ${use_remote} \
           | grep "^\W*${branch_name}\W\+pushes to\W\+${branch_name}\W\+")
 
@@ -659,11 +659,11 @@ git_checkedout_branch_name () {
   #   signal 7 is a bus error, meaning hardware or filesystem or something
   #   is corrupt, most likely. I made a new sync-stick.
   # 2018-03-22: Ha! How have I been so naive? Avoid porcelain!
-  #   git status | head -n 1 | grep "^On branch" | /bin/sed -r "s/^On branch //"
+  #   git status | head -n 1 | grep "^On branch" | command sed -r "s/^On branch //"
   # And this magic!
   #   local branch_name=$(git branch --no-color | grep \* | cut -d ' ' -f2)
   # How many ways did I do it differently herein??
-  #   local branch_name=$(git branch --no-color | head -n 1 | /bin/sed 's/^\*\? *//')
+  #   local branch_name=$(git branch --no-color | head -n 1 | command sed 's/^\*\? *//')
   pushd_or_die "$1"
   local branch_name=$(git rev-parse --abbrev-ref HEAD)
   popd_perhaps "$1"
@@ -712,7 +712,7 @@ git_local_tag_hash () {
   #         git show-ref -s --verify refs/tags/v3.0.0a34
   #         git show-ref -s --verify --tags refs/tags/v3.0.0a34
   # Ignore leading 'v', e.g., 'v3.0.0a34' → '3.0.0a34'.
-  local tag_name="$(echo $1 | /bin/sed '/^v[^0-9]/! s/^v//')"
+  local tag_name="$(echo $1 | command sed '/^v[^0-9]/! s/^v//')"
   pushd_or_die "$2"
   local tag_hash=$(git show-ref -s --verify --tags refs/tags/v${tag_name})
   popd_perhaps "$2"
@@ -743,9 +743,9 @@ git_versions_tagged_for_commit () {
   # (assuming that indicates a version tag, to exclude non-version tags).
   git show-ref --tags -d \
     | grep "^${hash}.* refs/tags/v\?[0-9]" \
-    | sed \
-      -e 's#.* refs/tags/v?##' \
-      -e 's/\^\{\}//'
+    | command sed \
+      -e 's#.* refs/tags/v\?##' \
+      -e 's/\^{}//'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -1073,8 +1073,8 @@ git_merge_ff_only () {
   #   local changes_bin="$(echo "${git_says}" | grep -P "${pattern_bin}")"
   # So use sed to sandwich each line with color changes.
   local grep_sed_sed='
-    /bin/sed "s/\$/\\${FONT_NORMAL}/g" \
-    | /bin/sed "s/^/\\${BG_BLUE}/g"
+    command sed "s/\$/\\${FONT_NORMAL}/g" \
+    | command sed "s/^/\\${BG_BLUE}/g"
   '
   local changes_txt="$( \
     echo "${git_says}" | grep -P "${pattern_txt}" | eval "${grep_sed_sed}" \
@@ -1215,7 +1215,7 @@ git-flip-master () {
 
   local project_name=$(basename -- "$(pwd -P)")
 
-#  local branch_name=$(git branch --no-color | head -n 1 | /bin/sed 's/^\*\? *//')
+#  local branch_name=$(git branch --no-color | head -n 1 | command sed 's/^\*\? *//')
   local branch_name=$(git_checkedout_branch_name)
 
   local master_path="master+${project_name}"
