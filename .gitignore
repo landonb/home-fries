@@ -109,14 +109,24 @@ tmux-server-*.log
 
 # Other directories my user sees.
 .android/
+.AndroidStudio*/
 .ansible/
 .aptitude/
+# MAYBE: Move Arduino preferences to private stash.
+#   .arduino15/preferences.txt
+.arduino*/
+Arduino/
 .aws/
 .bash_completion.d/
+# cinelerra files found under .bcast5/.
+.bcast5/
 .binwalk/
 .bundle/
 .cache/
 .config/
+.dbus/
+.dia/
+.dlv/
 .dropbox-dist/
 .dropbox/
 .fonts/
@@ -128,21 +138,34 @@ tmux-server-*.log
 .gopath/
 .grip/
 .ivy2/
+.java/
 .linuxmint/
 .local/
+# Wow, you go, Flash Playa!
+.macromedia/
 .mozilla/
 .npm/
 .nvm/
+.openshot_qt/
+# An (old) Arduino file thereunder, e.g.,:
+#   .oracle_jre_usage/cf9151025fc077cb.timestamp
+.oracle_jre_usage/
+.pencil/
 .pki/
 .rubies/
 .sbt/
 .ssh/
+# OpenJUMP files (and sextante, as in sextant, weird-looking celestial navigation tool).
+sextante/
+# Snap-installed files (2020-01-20: currently just Spotify).
+snap/
 .subversion/
 .thumbnails/
+.thunderbird/
 .tmux/
 .tox/
 .vim/
 .vim_backups/
 .virtualenvs/
-snap/
+.xinputrc
 
