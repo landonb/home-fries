@@ -714,7 +714,9 @@ git_local_tag_hash () {
   # Ignore leading 'v', e.g., 'v3.0.0a34' → '3.0.0a34'.
   local tag_name="$(echo $1 | command sed '/^v[^0-9]/! s/^v//')"
   pushd_or_die "$2"
-  local tag_hash=$(git show-ref -s --verify --tags refs/tags/v${tag_name})
+  local tag_hash=$(git show-ref --tags -s --verify refs/tags/${tag_name})
+  # Hint: If you want to see 2 lines per tag, to get the commit hash, try:
+  #                git show-ref --tags -d --verify refs/tags/${tag_name}
   popd_perhaps "$2"
   echo -n "${tag_hash}"
 }
