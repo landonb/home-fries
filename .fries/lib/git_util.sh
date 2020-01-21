@@ -614,7 +614,8 @@ git_dir_check () {
     fatal "Not a directory: ${REPO_PATH}"
     fatal " In cwd: $(pwd -P)"
     fatal
-    fatal "Have you run init_travel?"
+    # (lb): Somewhat business knowledge, that this script is run by myrepos.
+    fatal "Have you run \`mr -d / checkout\`?"
     fatal
     # This code path is inconceivable!
     die "I died!"
