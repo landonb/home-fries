@@ -104,14 +104,21 @@ print_elapsed_time () {
 
 fries_tmux_session_entitle_unless_attach_existing () {
   local currsess
-  local sname="$(date +%Y-%m-%d)"
   local FRIES_TMUX_LIMIT=99
+  # An unset bool in bash is same as true, e.g., $unsetvar && echo 'So true!',
+  # so start the flag true.
+  FRIES_TMUX_UNENTITLED=true
+  FRIES_TMUX_UNATTACHED=true
 
   _fries_tmux_session_entitle_unless_attach_existing () {
     # Check the TMUX environ and return now if this is not tmux starting.
     # NOTE: Return falsey indicating did not attach existing, so home-fries
     #       continues loading.
     [[ -z "${TMUX}" ]] && return 1
+
+    # If this is not the first pane, don't bother renaming (otherwise every
+    # pane, when it starts up, would be mucking around here, redundantly).
+    [[ $(tmux display-message -pt "$TMUX_PANE" '#{pane_index}') -ne 1 ]] && return 1
 
     # If the session is not a plain number (which indicates that the user
     # ran a plain `tmux`, and did not specify a session name), return 1 to
@@ -128,6 +135,9 @@ fries_tmux_session_entitle_unless_attach_existing () {
     #       session and ``ls``, display-message from another term.
     #       will show that session.
     currsess=$(tmux display-message -p '#S')
+    if $(tmux ls | grep "^${currsess}: .* (attached)$" > /dev/null); then
+      FRIES_TMUX_UNATTACHED=false
+    fi
     # tmux defaults to naming new sessions with a number (0, 1, 2, ...)
     # which is how we "know" if the 
     if ! echo "$currsess" | grep '^[0-9]\+$' > /dev/null; then
@@ -138,17 +148,7 @@ fries_tmux_session_entitle_unless_attach_existing () {
     return 0
   }
 
-  _fries_tmux_entitle_or_reattach_session () {
-    # First see if there's a session named with today's date;
-    # if not, rename this session to today's date and done.
-    if ! tmux has -t "${sname}" &> /dev/null; then
-      tmux rename-session "${sname}"
-      return 1  # Tell home-fries to continue loading.
-    fi
-    _fries_tmux_entitle10_or_reattach_session
-  }
-
-  _fries_tmux_entitle10_or_reattach_session() {
+  _fries_tmux_entitle_or_reattach_session() {
     # 2020-01-03: Getting weird: At n session or more, try using existing.
     # NOTE: The tmux-ls count is still 0 on first tmux session startup.
 
@@ -160,19 +160,22 @@ fries_tmux_session_entitle_unless_attach_existing () {
       || [[ ! -f ${HOME}/.fries/var/first-names-lengthX.txt ]] \
     ; then
       _fries_too_many_clients_tmux_switch_client
-      # Don't continue Bash startup, we're good!
-      # (Because we switched to existing client).
-      return 0
     else
       _fries_tmux_rename_session_10lettername
-      # We merely renamed the new, loading tmux session,
-      # so tell home-fries to keep loading, too.
-      return 1
     fi
   }
 
   _fries_too_many_clients_tmux_switch_client () {
-    # Switch to existing tmux client.
+    # Use a catch-all session named with the current date
+    # to use when exceeding client maximum.
+    local sname="$(date +%Y-%m-%d)"
+    # First see if there's a session named with today's date;
+    # if not, rename this session to today's date and done.
+    if ! tmux has -t "${sname}" &> /dev/null; then
+      tmux rename-session "${sname}"
+      FRIES_TMUX_UNENTITLED=false
+      return 1  # Tell home-fries to continue loading.
+    fi
     # NOTE: Cannot *attach* to session from within client, lest warning:
     #   $ tmux attach-session -t "${sname}"
     #   sessions should be nested with care, unset $TMUX to force
@@ -191,6 +194,9 @@ fries_tmux_session_entitle_unless_attach_existing () {
     #         echo "Welcome to the Thunderdome!"
     #       would still print to the "${currsess}" session.
     tmux kill-session -t "${currsess}"
+    # Don't continue Bash startup, we're good!
+    # (Because we switched to existing client).
+    return 0
   }
 
   _fries_tmux_rename_session_10lettername () {
@@ -203,6 +209,10 @@ fries_tmux_session_entitle_unless_attach_existing () {
     # Alternatively, to lower with awk:
     #   sname=$(echo ${randname} | awk '{print tolower($0)}')
     tmux rename-session "${sname}"
+    FRIES_TMUX_UNENTITLED=false
+    # We merely renamed the new, loading tmux session,
+    # so tell home-fries to keep loading, too.
+    return 1
   }
 
   _fries_tmux_session_entitle_unless_attach_existing
