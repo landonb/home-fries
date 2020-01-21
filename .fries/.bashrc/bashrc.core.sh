@@ -86,12 +86,34 @@ source_utils () {
     "SOURCES: "
 }
 
-source_addit () {
+source_virtualenvwrapper () {
   local time_outer_0=$(date +%s.%N)
 
-  # 2016-11-18: Wow. This has been here for years, commented out,
-  # because I haven't use mkvirtualenv in oh so very, very long.
-  # Welcome back, friend.
+  # Before sourcing the virturalenv wrapper, remove remnants from PATH.
+  # That is, if you `workon <venv>` and than run `bash` or `tmux`, the
+  # venv binaries will still be on PATH. Then, when sourcing the wrapper
+  # on bash (home-fries) startup, you'd see:
+  #
+  #   /home/<user>/.virtualenvs/<venv>/bin/python:
+  #     Error while finding module specification for 'virtualenvwrapper.hook_loader'
+  #       (ModuleNotFoundError: No module named 'virtualenvwrapper')
+  #   virtualenvwrapper.sh: There was a problem running the initialization hooks.
+  #
+  #   If Python could not import the module virtualenvwrapper.hook_loader,
+  #     check that virtualenvwrapper has been installed for
+  #       VIRTUALENVWRAPPER_PYTHON=/home/landonb/.virtualenvs/dob37/bin/python
+  #         and that PATH is set properly.
+  #
+  # Note the wrapper checks $WORKON_HOME, which defaults to ".virtualenvs"
+  # if blank, to form the path, e.g., workon_home_dir="$HOME/$WORKON_HOME".
+  # - Here we convert PATH separators to newlines;
+  # - ignore any line starting with WORKON; and
+  # - reform the path, converting newlines back to colons.
+  # Note, too, the inner-$, in <$'\n'>, is ANSI-C Quoting.
+  # https://www.gnu.org/software/bash/manual/html_node/ANSI_002dC-Quoting.html
+  PATH=$(echo "${PATH//:/$'\n'}" | grep -v -e "^${HOME}/.virtualenvs/" | tr '\n' ':')
+  export PATH
+
   if [[ -f ${HOME}/.local/bin/virtualenvwrapper.sh ]]; then
     source ${HOME}/.local/bin/virtualenvwrapper.sh
   elif [[ -f /usr/local/bin/virtualenvwrapper.sh ]]; then
@@ -100,8 +122,8 @@ source_addit () {
 
   print_elapsed_time \
     "${time_outer_0}" \
-    "Sourced virtualenvwrapper.sh (source_addit)." \
-    "ADDEDIT: "
+    "Sourced virtualenvwrapper.sh." \
+    "Sourced: "
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -375,8 +397,8 @@ main () {
   source_utils
   unset -f source_utils
 
-  source_addit
-  unset -f source_addit
+  source_virtualenvwrapper
+  unset -f source_virtualenvwrapper
 
   home_fries_up
   unset -f home_fries_up
