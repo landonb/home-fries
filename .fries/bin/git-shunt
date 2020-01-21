@@ -1,0 +1,39 @@
+#!/bin/bash
+#  vim:tw=0:ts=2:sw=2:et:norl:ft=bash
+
+# git-shunt ::is part of:: https://github.com/landonb/home-fries
+# Copyright © 2020 Landon Bouma <landonb+git-shunt &#x40; retrosoft &#x2E; com>
+# Summary: Rebase recent legit commits below WIP limpets. And tag? We'll see. FIXME!
+# License: GPLv3
+# Usage: `git shunt`
+# Definition: shunt /SHənt/ direct or divert (someone or something) to a less
+#             important place or position; Middle English ‘move suddenly aside’.
+
+# 2017-09-27: Delete branches that are "gone" on the remote:
+#   https://stackoverflow.com/questions/7726949/remove-local-branches-no-longer-on-remote
+
+first_commit_past_wips () {
+  local legit_processed=false
+  local regex='^[a-f0-9]+ WIP: '
+  git --no-pager log --pretty=format:"%H %s" \
+  | while IFS= read -r line; do
+    if [[ $line =~ $regex ]]; then
+      legit_processed=true
+      continue
+    elif ${legit_processed}; then
+      echo $line | cut -d ' ' -f1
+      break
+    fi
+  done
+}
+
+# ***
+
+main () {
+  first_commit_past_wips
+}
+
+if [[ "$0" == "${BASH_SOURCE}" ]]; then
+  main "${@}"
+fi
+
