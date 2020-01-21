@@ -653,6 +653,12 @@ must_be_git_dirs () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 git_checkedout_branch_name () {
   # 2017-04-04: I unplugged the USB stick before ``popoff``
   #   (forgot to hit <CR>) and then got errors on unpack herein:
@@ -750,6 +756,12 @@ git_versions_tagged_for_commit () {
       -e 's#.* refs/tags/v\?##' \
       -e 's/\^{}//'
 }
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -895,11 +907,6 @@ git_issue_complain_rebasing () {
   local target_repo="${2:-$(pwd)}"
   local git_says="${3}"
 
-
-
-
-
-
 # FIXME: This message not quite right, depends on error message.
 # make 2+ functions and grep for specific error
 # I wonder, too, if git has specific error codes? the overwritten error code is 1.
@@ -923,7 +930,6 @@ git_issue_complain_rebasing () {
 
   warn "Skipping branch in rebase!"
   warn " ${target_repo}"
-
 
 # FIXME: If you have unstaged changes that'll be overwrit:
 #
@@ -950,9 +956,6 @@ git_issue_complain_rebasing () {
 
   warn "Skipping branch with unstage commits!"
   warn " ${target_repo}"
-
-
-
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -1218,7 +1221,6 @@ git-flip-master () {
 
   local project_name=$(basename -- "$(pwd -P)")
 
-#  local branch_name=$(git branch --no-color | head -n 1 | command sed 's/^\*\? *//')
   local branch_name=$(git_checkedout_branch_name)
 
   local master_path="master+${project_name}"
@@ -1332,10 +1334,13 @@ git_status_all () {
       echo "====================================================="
       echo "Dirty project: $subdir"
       echo
-      # We could just echo, but the we've lost any coloring.
-      # Ok: echo ${gitst}
-      # Better: run git again.
-      #git --git-dir=${subdir} --work-tree=${subdir}/.. status
+      # Note that we ran $(git) in a subshell, which it detected and so
+      # didn't use color (or pager). So a simple echo here would be boring
+      # and uncolorful.
+      # We can do better: echo ${gitst}
+      # Better: run git-status again, outside a subshell.
+      # Note also: Use the --short option, no need to more:
+      # TMI: git --git-dir=${subdir} --work-tree=${subdir}/.. status
       git --git-dir="${subdir}" --work-tree="${subdir}/.." status --short
       echo
     fi
