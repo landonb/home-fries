@@ -102,73 +102,123 @@ print_elapsed_time () {
 # You might want to set the session name deliberately for different projects,
 # especially if you end up configuring panes and windows specially.
 
-fries_tmux_session_attach_or_rename () {
-  FRIES_TMUX_LIMIT=99
-  if [[ -n "${TMUX}" ]]; then
-    local currsess
+fries_tmux_session_entitle_unless_attach_existing () {
+  local currsess
+  local sname="$(date +%Y-%m-%d)"
+  local FRIES_TMUX_LIMIT=99
+
+  _fries_tmux_session_entitle_unless_attach_existing () {
+    # Check the TMUX environ and return now if this is not tmux starting.
+    # NOTE: Return falsey indicating did not attach existing, so home-fries
+    #       continues loading.
+    [[ -z "${TMUX}" ]] && return 1
+
+    # If the session is not a plain number (which indicates that the user
+    # ran a plain `tmux`, and did not specify a session name), return 1 to
+    # tell home-fries to stop loading, because something else afoot.
+    _fries_tmux_is_unnamed_session || return 1
+
+    # For plain tmux startup, assign session names deliberately
+    _fries_tmux_entitle_or_reattach_session
+  }
+
+  _fries_tmux_is_unnamed_session () {
+    # NOTE: From non-tmux terminal, display-message shows name of
+    #       session with most recent activity! I.e., switch to one
+    #       session and ``ls``, display-message from another term.
+    #       will show that session.
     currsess=$(tmux display-message -p '#S')
+    # tmux defaults to naming new sessions with a number (0, 1, 2, ...)
+    # which is how we "know" if the 
     if ! echo "$currsess" | grep '^[0-9]\+$' > /dev/null; then
-      # Session name not an expected number, so bail.
+      # Session name not an expected number, so bail (user might be doing
+      # something else?). Return 1 to continue home-fries startup.
       return 1
     fi
+    return 0
+  }
 
-    local sname="$(date +%Y-%m-%d)"
-    # 2020-01-03: Getting weird: At 3 session or more, try using existing.
-    # NOTE: The tmux-ls count is still 0 on first tmux session startup.
+  _fries_tmux_entitle_or_reattach_session () {
+    # First see if there's a session named with today's date;
+    # if not, rename this session to today's date and done.
     if ! tmux has -t "${sname}" &> /dev/null; then
       tmux rename-session "${sname}"
-    else
-      # NOTE: Cannot *attach* to session from within client, lest warning:
-      #   $ tmux attach-session -t "${sname}"
-      #   sessions should be nested with care, unset $TMUX to force
-      # However, you can *switch* the client to the desired session, e.g.:
-      #   $ tmux switch-client -t "${sname}"
-      # PSA: You can also <C-b (> and <C-b )> to switch sessions
-      #      (aka "switch client" -p/-n previous/next).
-      # - Also, <C-b D>   to use interactive choose-client, or
-      #         <C-b C-f> to enter fuzzy-findable session name, or
-      #         <C-b L>   to toggle between most recent sessions.
-      local nsessns
-      nsessns=$(tmux ls 2> /dev/null | wc -l)
-      # From: Moby Word Lists by Grady Ward
-      #   https://www.gutenberg.org/ebooks/3201
-      if [[ ${nsessns} -gt ${FRIES_TMUX_LIMIT} ]] \
-        || [[ ! -f ${HOME}/.fries/var/first-names-lengthX.txt ]] \
-      ; then
-        echo "If you're reading this, I should be dead!"
-        tmux switch-client -t "${sname}"
-        # NOTE: (lb): Not sure why/how this works, but even after
-        #       switch-client, echo goes to old terminal. So, e.g.,
-        #         echo "Welcome to the Thunderdome!"
-        #       would still print to the "${currsess}" session.
-        tmux kill-session -t "${currsess}"
-        # Don't continue Bash startup, we're good!
-        return 0
-      else
-        # Get a random first name from the ten-character name list,
-        # so the random name is as long as when we use a YYYY-MM-DD.
-        local randname
-        randname=$(shuf -n 1 ${HOME}/.fries/var/first-names-lengthX.txt)
-        # To lower.
-        sname=$(echo ${randname} | tr '[:upper:]' '[:lower:]')
-        # Alternatively, to lower with awk:
-        #   sname=$(echo ${randname} | awk '{print tolower($0)}')
-        tmux rename-session "${sname}"
-      fi
+      return 1  # Tell home-fries to continue loading.
     fi
-  fi
-  return 1
+    _fries_tmux_entitle10_or_reattach_session
+  }
+
+  _fries_tmux_entitle10_or_reattach_session() {
+    # 2020-01-03: Getting weird: At n session or more, try using existing.
+    # NOTE: The tmux-ls count is still 0 on first tmux session startup.
+
+    local nsessns
+    nsessns=$(tmux ls 2> /dev/null | wc -l)
+    # From: Moby Word Lists by Grady Ward
+    #   https://www.gutenberg.org/ebooks/3201
+    if [[ ${nsessns} -gt ${FRIES_TMUX_LIMIT} ]] \
+      || [[ ! -f ${HOME}/.fries/var/first-names-lengthX.txt ]] \
+    ; then
+      _fries_too_many_clients_tmux_switch_client
+      # Don't continue Bash startup, we're good!
+      # (Because we switched to existing client).
+      return 0
+    else
+      _fries_tmux_rename_session_10lettername
+      # We merely renamed the new, loading tmux session,
+      # so tell home-fries to keep loading, too.
+      return 1
+    fi
+  }
+
+  _fries_too_many_clients_tmux_switch_client () {
+    # Switch to existing tmux client.
+    # NOTE: Cannot *attach* to session from within client, lest warning:
+    #   $ tmux attach-session -t "${sname}"
+    #   sessions should be nested with care, unset $TMUX to force
+    # However, you can *switch* the client to the desired session, e.g.:
+    #   $ tmux switch-client -t "${sname}"
+    # PSA: You can also <C-b (> and <C-b )> to switch sessions
+    #      (aka "switch client" -p/-n previous/next).
+    # - Also, <C-b D>   to use interactive choose-client, or
+    #         <C-b C-f> to enter fuzzy-findable session name, or
+    #         <C-b L>   to toggle between most recent sessions.
+    # NOTE: Because switching, any echoes herein go... where?
+    echo "If you're reading this, I should be dead!"
+    tmux switch-client -t "${sname}"
+    # NOTE: (lb): Not sure why/how this works, but even after
+    #       switch-client, echo goes to old terminal. So, e.g.,
+    #         echo "Welcome to the Thunderdome!"
+    #       would still print to the "${currsess}" session.
+    tmux kill-session -t "${currsess}"
+  }
+
+  _fries_tmux_rename_session_10lettername () {
+    # Get a random first name from the ten-character name list,
+    # so the random name is as long as when we use a YYYY-MM-DD.
+    local randname sname
+    randname=$(shuf -n 1 ${HOME}/.fries/var/first-names-lengthX.txt)
+    # To lower.
+    sname=$(echo ${randname} | tr '[:upper:]' '[:lower:]')
+    # Alternatively, to lower with awk:
+    #   sname=$(echo ${randname} | awk '{print tolower($0)}')
+    tmux rename-session "${sname}"
+  }
+
+  _fries_tmux_session_entitle_unless_attach_existing
 }
 
 tmux_jump_ship () {
   local retcode=1
 
+  # Check the TMUX environ and return now if this is not tmux starting.
+  # (Return falsey, because name of function implies "jump ship" if true/0.)
   [[ -z "${TMUX}" ]] && return ${retcode}
 
-  fries_tmux_session_attach_or_rename
+  fries_tmux_session_entitle_unless_attach_existing
   retcode=$?
 
-  unset -f fries_tmux_session_attach_or_rename
+  unset -f fries_tmux_session_entitle_unless_attach_existing
 
   return ${retcode}
 }
