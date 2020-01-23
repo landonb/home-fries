@@ -486,10 +486,14 @@ path_to_mrinfuse_resolve () {
     #   mrinfuse_root="$(dirname ${MR_CONFIG})"
     # But I like to avoid `ls` output wrapping, when possible.
     mrinfuse_root="$(mrinfuse_findup)"
-    [ -n "${mrinfuse_root}" ] || ( warn "Missing .mrinfuse/" && exit 1 )
-    mrinfuse_full=$(readlink -m "${mrinfuse_root}")
+    [ $? -eq 0 ] || ( >&2 echo "ERROR: Missing .mrinfuse/" && exit 1 )
+    if [ -n "${mrinfuse_root}" ]; then
+      mrinfuse_full=$(readlink -m "${mrinfuse_root}")
+    else
+      mrinfuse_full=$(readlink -m '.')
+    fi
     relative_path=${repo_path_n_sep#"${mrinfuse_full}"/}
-    mrinfuse_path="${mrinfuse_root}/${MRT_INFUSE_DIR}/${relative_path}${fpath}"
+    mrinfuse_path="${mrinfuse_root}${MRT_INFUSE_DIR}/${relative_path}${fpath}"
     # MAYBE/2020-01-23: Option to return full path?
     #                     canonicalized=$(readlink -m "${mrinfuse_path}")
     #                   - I like the shorter relative path.
