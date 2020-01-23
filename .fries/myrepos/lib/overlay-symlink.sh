@@ -449,29 +449,15 @@ mrinfuse_findup_canonic () {
 mrinfuse_findup () {
   # Search from parent of this directory (which is probably $MR_REPO)
   # up to the .mrconfig-containing directory looking for .mrinfuse/.
-  local dirpath mr_root
-  dirpath=$(dirname -- $(readlink -m "$(pwd)"))
-  mr_root=$(dirname -- $(readlink -m "${MR_CONFIG}"))
-  if [ "${dirpath#${mr_root}}" = "${dirpath}" ]; then
-    >&2 echo "ERROR: Unexpected: MR_REPO not descendent of MR_CONFIG?"
-    warn "ERROR: Unexpected: MR_REPO not descendent of MR_CONFIG?"
-    exit 1
-  else
-    dirpath=".."
-    while [ "${dirpath}" != '/' ]; do
-      local trypath="${dirpath}/${MRT_INFUSE_DIR}"
-      if [ -d "${trypath}" ]; then
-        echo "${dirpath}"
-        break
-      else
-        fullpath=$(dirname -- $(readlink -m "$(pwd)"))
-        if [ "${fullpath}" = "${mr_root}" ]; then
-          break
-        fi
-      fi
-      dirpath="${dirpath}/.."
-    done
-  fi
+  local dirpath=""
+  while [ -z "${dirpath}" -o "$(readlink -m \"${dirpath}\")" != '/' ]; do
+    if [ -d "${dirpath}${MRT_INFUSE_DIR}" ]; then
+      echo "${dirpath}"
+      return 0
+    fi
+    dirpath="${dirpath}../"
+  done
+  return 1
 }
 
 path_to_mrinfuse_resolve () {
