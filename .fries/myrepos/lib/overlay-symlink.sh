@@ -209,7 +209,7 @@ ensure_source_dir_exists () {
 
 safe_backup_existing_target () {
   local targetp="$1"
-  local targetf="$(basename ${targetp})"
+  local targetf="$(basename "${targetp}")"
   local backup_postfix=$(date +%Y.%m.%d.%H.%M.%S)
   local backup_targetp="${targetp}-${backup_postfix}"
   /bin/mv "${targetp}" "${targetp}-${backup_postfix}"
@@ -258,7 +258,7 @@ symlink_create_informative () {
 
   # Caller guarantees (via ! -e and ! -h) that $targetp does not exist.
 
-  local targetd=$(dirname "${targetp}")
+  local targetd="$(dirname "${targetp}")"
   mkdir -p "${targetd}"
 
   /bin/ln -s "${sourcep}" "${targetp}"
@@ -432,8 +432,8 @@ mrinfuse_findup_canonic () {
   # Search from parent of this directory (which is probably $MR_REPO)
   # up to the .mrconfig-containing directory looking for .mrinfuse/.
   local dirpath mr_root
-  dirpath=$(dirname -- $(readlink -m "$(pwd)"))
-  mr_root=$(dirname -- $(readlink -m "${MR_CONFIG}"))
+  dirpath="$(dirname -- "$(readlink -m "$(pwd)")")"
+  mr_root="$(dirname -- "$(readlink -m "${MR_CONFIG}")")"
   while [ "${dirpath}" != '/' ]; do
     local trypath="${dirpath}/${MRT_INFUSE_DIR}"
     if [ -d "${trypath}" ]; then
@@ -442,7 +442,7 @@ mrinfuse_findup_canonic () {
     elif [ "${dirpath}" = "${mr_root}" ]; then
       break
     fi
-    dirpath=$(dirname -- "${dirpath}")
+    dirpath="$(dirname -- "${dirpath}")"
   done
 }
 
