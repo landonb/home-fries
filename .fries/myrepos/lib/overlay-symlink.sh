@@ -1,3 +1,4 @@
+#!/bin/sh
 # vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=sh
 
 #source_deps () {
@@ -49,6 +50,7 @@ params_register_defaults () {
   MRT_LINK_SAFE=1
   MRT_LINK_FORCE=1
   MRT_AUTO_YES=1
+  MRT_INFUSE_DIR=".mrinfuse"
 }
 
 params_register_switches () {
@@ -426,29 +428,86 @@ _info_path_resolve () {
 
 # ***
 
+mrinfuse_findup_canonic () {
+  # Search from parent of this directory (which is probably $MR_REPO)
+  # up to the .mrconfig-containing directory looking for .mrinfuse/.
+  local dirpath mr_root
+  dirpath=$(dirname -- $(readlink -m "$(pwd)"))
+  mr_root=$(dirname -- $(readlink -m "${MR_CONFIG}"))
+  while [ "${dirpath}" != '/' ]; do
+    local trypath="${dirpath}/${MRT_INFUSE_DIR}"
+    if [ -d "${trypath}" ]; then
+      echo "${dirpath}"
+      break
+    elif [ "${dirpath}" = "${mr_root}" ]; then
+      break
+    fi
+    dirpath=$(dirname -- "${dirpath}")
+  done
+}
+
+mrinfuse_findup () {
+  # Search from parent of this directory (which is probably $MR_REPO)
+  # up to the .mrconfig-containing directory looking for .mrinfuse/.
+  local dirpath mr_root
+  dirpath=$(dirname -- $(readlink -m "$(pwd)"))
+  mr_root=$(dirname -- $(readlink -m "${MR_CONFIG}"))
+  if [ "${dirpath#${mr_root}}" = "${dirpath}" ]; then
+    >&2 echo "ERROR: Unexpected: MR_REPO not descendent of MR_CONFIG?"
+    warn "ERROR: Unexpected: MR_REPO not descendent of MR_CONFIG?"
+    exit 1
+  else
+    dirpath=".."
+    while [ "${dirpath}" != '/' ]; do
+      local trypath="${dirpath}/${MRT_INFUSE_DIR}"
+      if [ -d "${trypath}" ]; then
+        echo "${dirpath}"
+        break
+      else
+        fullpath=$(dirname -- $(readlink -m "$(pwd)"))
+        if [ "${fullpath}" = "${mr_root}" ]; then
+          break
+        fi
+      fi
+      dirpath="${dirpath}/.."
+    done
+  fi
+}
+
 path_to_mrinfuse_resolve () {
   local fpath="$1"
-  # CONVENTION: Store private files under a directory named
-  # .mrinfuse located in the same directory as the .mrconfig file whose
-  # repo config calls this function. Under the .mrinfuse directory, mimic
-  # the directory alongside the .mrconfig file. For instance, suppose you
-  # had a config file at:
+  # CONVENTION: Store private files under a directory named .mrinfuse,
+  # located in the same directory as the .mrconfig file whose repo config
+  # calls this function, or located along the oath between the root and repo.
+  # Under the .mrinfuse directory, mimic the directory alongside the .mrconfig
+  # file. For instance, suppose you had a config file at:
   #   /my/work/projects/.mrconfig
   # and you had a public repo underneath that project space at:
   #   /my/work/projects/cool/product/
   # you would store your private .ignore file at:
   #   /my/work/projects/.mrinfuse/cool/product/.ignore
   # then your infuse function would be specified in your .mrconfig as:
-  #   [my/repo]
+  #   [cool/product]
   #   symlink_mrinfuse_file '.ignore'
   local canonicalized
   if is_relative_path "${fpath}"; then
     local relative_path
+    local mrinfuse_root
     local mrinfuse_path
-    local repo_path_n_sep="${MR_REPO}/"
-    relative_path=${repo_path_n_sep#"$(dirname ${MR_CONFIG})"/}
-    mrinfuse_path="$(dirname ${MR_CONFIG})/.mrinfuse/${relative_path}/${fpath}"
-    canonicalized=$(readlink -m "${mrinfuse_path}")
+    local repo_path_n_sep
+    repo_path_n_sep="${MR_REPO}/"
+    # This produces longer, fuller paths:
+    #   mrinfuse_root="$(dirname ${MR_CONFIG})"
+    # But I like to avoid `ls` output wrapping, when possible.
+    mrinfuse_root="$(mrinfuse_findup)"
+    [ -n "${mrinfuse_root}" ] || ( warn "Missing .mrinfuse/" && exit 1 )
+    mrinfuse_full=$(readlink -m "${mrinfuse_root}")
+    relative_path=${repo_path_n_sep#"${mrinfuse_full}"/}
+    mrinfuse_path="${mrinfuse_root}/${MRT_INFUSE_DIR}/${relative_path}${fpath}"
+    # MAYBE/2020-01-23: Option to return full path?
+    #                     canonicalized=$(readlink -m "${mrinfuse_path}")
+    #                   - I like the shorter relative path.
+    canonicalized="${mrinfuse_path}"
     _info_path_resolve "${relative_path}" "${mrinfuse_path}" "${canonicalized}"
   else
     canonicalized="${fpath}"

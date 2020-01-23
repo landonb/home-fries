@@ -8,6 +8,7 @@ source_deps () {
   # Load: symlink_*
   #       ensure_source_file_exists
   #       ensure_target_writable
+  #       is_relative_path
   #
   . "${MR_TRAVEL_LIB:-${HOME}/.fries/myrepos/lib}/overlay-symlink.sh"
 }
@@ -72,6 +73,10 @@ try_clobbering_exclude_otherwise_try_normal_overlay () {
   local sourcep="$1"
 
   cd .git/info
+  # Because of the two directories nowunder:
+  if is_relative_path "${sourcep}"; then
+    sourcep="../../${sourcep}"
+  fi
 
   local clobbered=false
   local exclude_f='exclude'
