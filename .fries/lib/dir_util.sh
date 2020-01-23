@@ -45,7 +45,7 @@ printdirsincur_better () {
   # HA. HA. HA!
   # http://unix.stackexchange.com/questions/272698/why-is-the-array-empty-after-the-while-loop
   #
-  # This one avoids an issue with the '|' pipe causing a subsheel to run.
+  # This one avoids an issue with the '|' pipe causing a subshell to run.
   #
   # Which means an environment variable you set outside the while loop, such as
   # an array, will not be affected by whatever happens inside the while loop.
