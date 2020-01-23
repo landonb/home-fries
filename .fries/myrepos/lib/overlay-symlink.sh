@@ -311,25 +311,128 @@ symlink_update_informative () {
 
 # ***
 
+# WONKY, SORRY: If source is relative, we verified source exists from the
+# current directory ($(pwd)), but the symlink being created might exist in
+# a subdirectory of this directory, i.e., the relative path for the symlink
+# is different that the one the user specified (because the user specified
+# the path relative to the project directory, not to the target's directory).
+#
+# If the target is also relative, we can count how many subdirectories away
+# it is and prefix the source path accordingly.
+#
+# - For example, suppose user's ~/.vim/.mrconfig infuser specifices
+#         symlink_mrinfuse_file 'spell/en.utf-8.add'
+#   Then this function is called from ~/.vim with
+#          source=.mrinfuse/spell/en.utf-8.add
+#   and with
+#          target=spell/en.utf-8.add,
+#   which is accurate from the current ~/.vim directory's perspective.
+#   But the actual symlink that's placed either needs to be fully
+#   resolved, or it needs to be relative to the target directory, e.g.,
+#          ~/.vim/spell/en.utf-8.add → ../.mrinfuse/spell/en.utf-8.add
+#       or ~/.vim/spell/en.utf-8.add → ~/.vim/.mrinfuse/spell/en.utf-8.add
+#
+# This is not too hard (a little wonky, IMHO, but makes the .mrconfig saner,
+# I suppose).
+# - (lb): But if target path is absolute, I did not go to the trouble of
+#         accommodating that (other than to raise an error-issue).
+#         (There's not much of a use case for handling relative source
+#         but specifying an absolute target; if the target needs to be
+#         an absolute path, there's no reason not to also specify an
+#         absolute path for the source.)
+symlink_adjust_source_relative () {
+  local srctype="$1"
+  local sourcep="$2"
+  local targetp="$3"
+
+  if ! is_relative_path "${sourcep}"; then
+    echo "${sourcep}"
+    return 0
+  fi
+
+  if ! is_relative_path "${targetp}"; then
+    local msg="Not coded for relative source but absolute target"
+    >&2 echo "ERROR: symlink_clobber_typed: ${msg}"
+    >&2 echo "        source: ${sourcep}"
+    >&2 echo "        target: ${targetp}"
+    return 1
+  fi
+
+  # "Walk off" the release target path, directory by directory, ignoring
+  # any '.' current directory in the path, and complaining on '..'
+  # (because hard and unnecessary). For each directory, accumulate an
+  # additional '..' to the source prefix, to walk from the target location
+  # back to the current directory perspective (which is the perspective of
+  # sourcep as specified by the user, which we need to modify here).
+
+  local walk_off
+  walk_off="${targetp}"
+  if [ "${srctype}" = 'file' ]; then
+    walk_off="$(dirname -- "${targetp}")"
+  fi
+
+  local prent_walk
+  while [ "${walk_off}" != '.' ]; do
+    local curname="$(basename -- "${walk_off}")"
+    if [ "${curname}" = '..' ]; then
+      local msg="Not coded that way! relative target should not dot dot: ${targetp}"
+      >&2 echo "ERROR: symlink_clobber_typed: ${msg}"
+      return 1
+    fi
+    [ "${curname}" != '.' ] && prent_walk="../${prent_walk}"
+    walk_off="$(dirname -- "${walk_off}")"
+  done
+
+  if [ "${srctype}" = 'dir' ]; then
+    # Remove one step for the target file itself! I.e., the first time through
+    # the while loop above was for the target itself, which we did not want to
+    # overlook with a $(dirname -- ...) first, because we still wanted to sanity
+    # check that the target itself is not '.' or '..'! So we consider the target
+    # directory in the while loop, but then we retract that consideration here.
+    prent_walk="${prent_walk#../}"
+  fi
+
+  sourcep="${prent_walk}${sourcep}"
+  # >&2 echo "sourcep: $sourcep / targetp: ${targetp} / cwd: $(pwd)"
+  echo "${sourcep}"
+}
+
+symlink_adjusted_source_verify_target () {
+  local targetp="$1"
+  # Double-check that symlink_adjust_source_relative worked!
+  if [ ! -e "${targetp}" ]; then
+    >&2 echo "ERROR: targetp symlink is broken!: ${targetp}"
+    return 1
+  fi
+  return 0
+}
+
 # Informative because calls info and warn.
 symlink_clobber_typed () {
   local srctype="$1"
   local sourcep="$2"
   local targetp="$3"
+  # LATER/2020-01-23: Remove development cruft.
+  # >&2 echo "srctype: ${srctype} / sourcep: ${sourcep} / targetp: ${targetp}"
 
   # Check that the source file or directory exists.
   # This may interrupt the flow if errexit.
   symlink_verify_source "${sourcep}" "${srctype}"
 
+  sourcep="$(symlink_adjust_source_relative "${srctype}" "${sourcep}" "${targetp}")"
+
+  local errcode
   # Check if target does not exist (and be sure not broken symlink).
   if [ ! -e "${targetp}" ] && [ ! -h "${targetp}" ]; then
     symlink_create_informative "${srctype}" "${sourcep}" "${targetp}"
   else
     symlink_update_informative "${srctype}" "${sourcep}" "${targetp}"
   fi
+  errcode=$?
+  # Will generally be 0, as errexit would trip on nonzero earlier.
+  [ ${errcode} -ne 0 ] && return ${errcode}
 
-  # Will generally return 0, as errexit would trip on nonzero earlier.
-  return $?
+  symlink_adjusted_source_verify_target "${targetp}"
 }
 
 # ***
