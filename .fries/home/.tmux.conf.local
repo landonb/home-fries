@@ -535,7 +535,7 @@ set -g base-index 1
 # ??: pane-base-index
 #
 # (lb): Is twice the default really useful? What not a whole factor larger instead?
-set -g history-limit 10000
+set -g history-limit 100000
 #
 # 2020-01-03 11:56: Already bound?:
 #  bind-key v split-window -h
