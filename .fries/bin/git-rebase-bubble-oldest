@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# USAGE:
+#
+#   GIT_SEQUENCE_EDITOR='/path/to/git-rebase-swampend' git rebase -i ...
+#
+# 2020-01-30 16:06: I meant to call this `git-rebase-swap-ends`.
+#
+# TEELDEER: Swaps the first and last commit of an (interactive) rebase
+#           sequence and completes the rebase (sans interaction).
+
+awk -i inplace "
+  BEGIN { state = 0 }
+  state == 0 { hist_line = \$0; state = 1; next };
+  \$0 ~ /^\$/ && state == 1 { print hist_line; state = 2; }
+  1" $1
+
