@@ -216,7 +216,9 @@ home_fries_create_aliases_general () {
 
   # *** Stream editing
 
-  alias sed='sed -r'        # Use extended regex.
+  # Use extended regex (-E, -r, --regexp-extended; -E is POSIX).
+  # 2020-02-06: Disabled. Issues with `fzf`.
+  #  alias sed='sed -E'
 
   # 2016-11-18: If ack -v works (unlike ag -v) I might use this.
   if command -v ack-grep > /dev/null; then
