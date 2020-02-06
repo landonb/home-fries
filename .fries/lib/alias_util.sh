@@ -124,11 +124,11 @@ home_fries_create_aliases_general () {
   alias findi='find . -iname'
   # Show directory statistics: show count of files of each extension.
   # NOTE: \L to convert string to lowercase
-  alias stats="find . -type f -not -path './.git/*' | /bin/sed -n 's/..*\.//p' | /bin/sed -r 's/(.*)/\L\1/' | sort | uniq -c | sort -n -r"
+  alias stats="find . -type f -not -path './.git/*' | /bin/sed -n 's/..*\.//p' | /bin/sed -E 's/(.*)/\L\1/' | sort | uniq -c | sort -n -r"
   # Previous match finds files with dot.ends. Next one includes all files.
-  #   alias mostats="find . -type f -not -path './.git/*' | /bin/sed -n 's/\(..*\.\)\?\(..*\/\)\?//p' | /bin/sed -r 's/(.*)/\L\1/' | sort | uniq -c | sort -n -r"
+  #   alias mostats="find . -type f -not -path './.git/*' | /bin/sed -n 's/\(..*\.\)\?\(..*\/\)\?//p' | /bin/sed -E 's/(.*)/\L\1/' | sort | uniq -c | sort -n -r"
   # Or collect undotted files into one unnamed file count.
-  alias mostats="find . -type f -not -path './.git/*' | /bin/sed -n 's/\(..*\.\)\?//p' | /bin/sed -r 's/(.*)/\L\1/' | /bin/sed -n 's/\(..*\/.*\)\?//p' | sort | uniq -c | sort -n -r"
+  alias mostats="find . -type f -not -path './.git/*' | /bin/sed -n 's/\(..*\.\)\?//p' | /bin/sed -E 's/(.*)/\L\1/' | /bin/sed -n 's/\(..*\/.*\)\?//p' | sort | uniq -c | sort -n -r"
 
   # 2019-10-21: A different kind of stats. Call MyRepos from file system root!
   # For this to work, not that you must include configs outside user home, e.g.,

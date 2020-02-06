@@ -185,7 +185,7 @@ create_ornaments () {
 create_strip_colors () {
   # - Strip color codes from stream. Ref:
   #   http://stackoverflow.com/questions/17998978/removing-colors-from-output
-  alias stripcolors='/bin/sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"'
+  alias stripcolors='/bin/sed -E "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

@@ -203,10 +203,10 @@ prepare_diffables () {
   GIT_ST_CMD="\
     git status ${GREP_EXCLUDE} \
       | /bin/grep 'modified:' \
-      | /bin/sed -r "s/\#//" \
-      | /bin/sed -r 's/.*modified:\\s*//' \
+      | /bin/sed -E "s/\#//" \
+      | /bin/sed -E 's/.*modified:\\s*//' \
       | tr '\n' ' ' \
-      | /bin/sed -r 's/[\x01-\x1F\x7F]\[m//g' \
+      | /bin/sed -E 's/[\x01-\x1F\x7F]\[m//g' \
   "
   echod "${GIT_ST_CMD}"
   DIFFABLES=$(eval "${GIT_ST_CMD}")
@@ -348,7 +348,7 @@ show_extended_git_st () {
   #eval "git status ${GREP_EXCLUDE}" | /bin/sed '/^\s*$/d'
 
   # 2016-10-24: Text colors make word and line boundaries harder to detect.
-  #stripcolors='/bin/sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"'
+  #stripcolors='/bin/sed -E "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"'
   #eval "git status | ${stripcolors} ${GREP_EXCLUDE}"
 
   echod

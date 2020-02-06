@@ -351,7 +351,7 @@ function rmrm () {
   #       So parse the last history entry (which is the current
   #       command, which Bash will replace on the `history -s`).
   history -s "#$(
-    history 1 | /bin/sed -r 's/^ +[0-9]+ +[-0-9]+ +[:0-9]+ //'
+    history 1 | /bin/sed -E 's/^ +[0-9]+ +[-0-9]+ +[:0-9]+ //'
   )"
 }
 

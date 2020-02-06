@@ -438,7 +438,7 @@ home_fries_bashrc_cleanup () {
 
   # Run the sourced-scripts' cleanup functions, to un-declare functions
   # (and remove cruft from user's environment).
-  for unset_f in $(declare -F | grep '^declare -f unset_f_' | sed 's/^declare -f //'); do
+  for unset_f in $(declare -F | grep '^declare -f unset_f_' | /bin/sed 's/^declare -f //'); do
     # Call, e.g., unset_f_alias_util, unset_f_apache_util, etc.
     eval "${unset_f}"
   done
@@ -476,7 +476,7 @@ home_fries_bashrc_cleanup () {
   custom_bash=false
   if [[ "$0" == 'bash' || "$0" == '-bash' ]]; then
     if $(alias bash &> /dev/null); then
-      if [[ $(readlink -f "$(alias bash | sed 's/^.* ([^ ]+\/bash\>).*/\1/')") != '/bin/bash' ]]; then
+      if [[ $(readlink -f "$(alias bash | /bin/sed -E 's/^.* ([^ ]+\/bash\>).*/\1/')") != '/bin/bash' ]]; then
         custom_bash=true
       fi
     elif [[ $(readlink -f "$(command -v bash)") != '/bin/bash' ]]; then

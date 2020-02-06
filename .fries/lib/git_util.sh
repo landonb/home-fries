@@ -509,7 +509,7 @@ git_status_porcelain () {
         tweak_errexit
 
         # If we didn't --no-color the branch_name, we'd have to strip-color.
-        #  stripcolors='command sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"'
+        #  stripcolors='command sed -E "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"'
         local git_push_staleness=$(git remote show ${use_remote} \
           | grep "^\W*${branch_name}\W\+pushes to\W\+${branch_name}\W\+")
 
@@ -666,7 +666,7 @@ git_checkedout_branch_name () {
   #   signal 7 is a bus error, meaning hardware or filesystem or something
   #   is corrupt, most likely. I made a new sync-stick.
   # 2018-03-22: Ha! How have I been so naive? Avoid porcelain!
-  #   git status | head -n 1 | grep "^On branch" | command sed -r "s/^On branch //"
+  #   git status | head -n 1 | grep "^On branch" | command sed -E "s/^On branch //"
   # And this magic!
   #   local branch_name=$(git branch --no-color | grep \* | cut -d ' ' -f2)
   # How many ways did I do it differently herein??

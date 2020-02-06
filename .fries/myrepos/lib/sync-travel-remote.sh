@@ -90,7 +90,7 @@ _git_echo_long_op_finis () {
   #      "[WAIT] 2019-10-30 @ 19:34:04 ⏳ fetchin’  /..." → 43 chars
   #                                       fetched🤙 /kit/Coldsprints
   _echon "                                           "  # add one extra for Unicode, or something.
-  _echon "$(echo "${MR_REPO}..." | /bin/sed -r "s/./ /g")"
+  _echon "$(echo "${MR_REPO}..." | /bin/sed -E "s/./ /g")"
   _echon "\r"
   LONG_OP_MSG=
 }

@@ -212,9 +212,9 @@ patch_export_chruby_use () {
     if false; then
       export GEM_PATH="$(\
         echo ${GEM_PATH} \
-          | /bin/sed -r "s@:?${GEM_HOME}[^:]*:@:@g" \
-          | /bin/sed -r s/^:// \
-          | /bin/sed -r s/:$//
+          | /bin/sed -E "s@:?${GEM_HOME}[^:]*:@:@g" \
+          | /bin/sed -E s/^:// \
+          | /bin/sed -E s/:$//
       )"
     fi
     # Check if patch version.
@@ -227,7 +227,7 @@ patch_export_chruby_use () {
       echo "Monkey patching!"
       ruby_set_gem_path
       # WRONG:
-      #RUBY_ROOT_ZERO=$(echo ${RUBY_ROOT} | /bin/sed -r s/-${RUBY_VERSION}$/-${RUBY_MINOR_ZERO}/)
+      #RUBY_ROOT_ZERO=$(echo ${RUBY_ROOT} | /bin/sed -E s/-${RUBY_VERSION}$/-${RUBY_MINOR_ZERO}/)
       #export PATH="${PATH}:${RUBY_ROOT_ZERO}/bin"
       #export PATH="${PATH}:${GEM_HOME/${RUBY_VERSION}/${RUBY_MINOR_ZERO}}/bin"
       local gem_ruby_bin="${GEM_HOME/${RUBY_VERSION}/${RUBY_MINOR_ZERO}}/bin"

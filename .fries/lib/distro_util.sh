@@ -46,11 +46,11 @@ suss_distro () {
     # /etc/issue is, e.g., 'Ubuntu 12.04 LTS (precise) \n \l'
     UBUNTUVERSABBR=$(cat /etc/issue \
                      | grep Ubuntu \
-                     | /bin/sed -r 's/^Ubuntu ([.0-9]+) [^(]*\((.*)\).*$/\1/')
+                     | /bin/sed -E 's/^Ubuntu ([.0-9]+) [^(]*\((.*)\).*$/\1/')
     # /etc/issue is, e.g., 'Linux Mint 16 Petra \n \l'
     MINTVERSABBR=$(cat /etc/issue \
                    | grep "Linux Mint" \
-                   | /bin/sed -r 's/^Linux Mint ([.0-9]+) .*$/\1/')
+                   | /bin/sed -E 's/^Linux Mint ([.0-9]+) .*$/\1/')
     reset_errexit
   fi
 }
@@ -236,10 +236,10 @@ suss_python () {
   # Convert, e.g., 'Python 2.7.6' to '2.7'.
   PYVERS_RAW2=`python2 --version \
     |& /usr/bin/awk '{print $2}' \
-    | /bin/sed -r 's/^([0-9]+\.[0-9]+)\.[0-9]+/\1/g'`
+    | /bin/sed -E 's/^([0-9]+\.[0-9]+)\.[0-9]+/\1/g'`
   PYVERS2_DOTLESS=`python2 --version \
     |& /usr/bin/awk '{print $2}' \
-    | /bin/sed -r 's/^([0-9]+)\.([0-9]+)\.[0-9]+/\1\2/g'`
+    | /bin/sed -E 's/^([0-9]+)\.([0-9]+)\.[0-9]+/\1\2/g'`
   if [[ -z $PYVERS_RAW2 ]]; then
     echo
     echo "######################################################################"
@@ -273,15 +273,15 @@ suss_postgres () {
     POSTGRESABBR=$( \
       psql --version \
       | grep psql \
-      | /bin/sed -r 's/psql \(PostgreSQL\) ([0-9]+\.[0-9]+)\.[0-9]+/\1/')
+      | /bin/sed -E 's/psql \(PostgreSQL\) ([0-9]+\.[0-9]+)\.[0-9]+/\1/')
     POSTGRES_MAJOR=$( \
       psql --version \
       | grep psql \
-      | /bin/sed -r 's/psql \(PostgreSQL\) ([0-9]+)\.[0-9]+\.[0-9]+/\1/')
+      | /bin/sed -E 's/psql \(PostgreSQL\) ([0-9]+)\.[0-9]+\.[0-9]+/\1/')
     POSTGRES_MINOR=$( \
       psql --version \
       | grep psql \
-      | /bin/sed -r 's/psql \(PostgreSQL\) [0-9]+\.([0-9]+)\.[0-9]+/\1/')
+      | /bin/sed -E 's/psql \(PostgreSQL\) [0-9]+\.([0-9]+)\.[0-9]+/\1/')
   fi # else, psql not installed (yet).
   reset_errexit
 }

@@ -24,7 +24,7 @@ ssh_agent_kick () {
     SSH_ENV="${HOME}/.ssh/environment"
     function start_agent () {
       # echo -n "Initializing new SSH agent... "
-      /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
+      /usr/bin/ssh-agent | /bin/sed 's/^echo/#echo/' > "${SSH_ENV}"
       # echo "ok."
       chmod 600 "${SSH_ENV}"
       # Source the environ the new process spit out.
