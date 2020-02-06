@@ -357,6 +357,9 @@ home_fries_up () {
   # - lib/fries_util.sh
   run_and_unset "home_fries_load_nvm_and_completion"
 
+  # - lib/fries_util.sh
+  run_and_unset "home_fries_enable_fuzzy_finder_fzf"
+
   #########################
 
   # - lib/input_util.sh

@@ -319,6 +319,15 @@ pdf180rot () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# 2020-02-06: This file is the dumping ground for rando!
+
+home_fries_enable_fuzzy_finder_fzf () {
+  # What fzf's ./install appended to my .bashrc:
+  [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 unset_f_fries_util () {
   unset -f source_deps
 
@@ -341,6 +350,8 @@ unset_f_fries_util () {
   unset -f home_fries_punch_anacron
 
   unset -f home_fries_export_editor_vim
+
+  unset -f home_fries_enable_fuzzy_finder_fzf
 
   # So meta.
   unset -f unset_f_fries_util
