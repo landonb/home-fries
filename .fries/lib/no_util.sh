@@ -107,13 +107,8 @@ suss_machine_ip () {
       fi
     fi
     MACHINE_IP=`echo ${IFCFG_DEV} | grep "inet addr" \
-                | sed "s/.*inet addr:([.0-9]+).*/\1/" \
+                | command sed -E "s/.*inet addr:([.0-9]+).*/\1/" \
                 2> /dev/null`
-    if [[ $? != 0 ]]; then
-      MACHINE_IP=`echo ${IFCFG_DEV} | grep "inet addr" \
-                  | sed "s/.*inet addr:\([.0-9]\+\).*/\1/" \
-                  2> /dev/null`
-    fi
   fi
   if [[ -z ${MACHINE_IP} ]]; then
     if [[ -z ${DUBS_MACHINE_IP_WARNED} ]]; then
