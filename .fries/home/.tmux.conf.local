@@ -393,6 +393,7 @@ tmux_conf_copy_to_os_clipboard=true
 #   really you should export VISUAL or EDITOR environment variable, see manual
 #set -g status-keys vi
 # 2020-01-03: mode-keys vi did not make Shift-Home/-End work.
+# 2020-02-05: Per man tmux, vi mode is default because EDITOR contains 'vi'.
 #set -g mode-keys vi
 
 # ---------------------------------------------------------- #
