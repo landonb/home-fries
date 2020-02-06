@@ -219,7 +219,9 @@ home_fries_create_aliases_general () {
   alias sed='sed -r'        # Use extended regex.
 
   # 2016-11-18: If ack -v works (unlike ag -v) I might use this.
-  alias ack="ack-grep"
+  if command -v ack-grep > /dev/null; then
+    alias ack="ack-grep"
+  fi
 
   # *** Vi(m)
 
