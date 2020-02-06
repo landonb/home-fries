@@ -470,7 +470,13 @@ run '~/.tmux/plugins/tpm/tpm'
 # E.g.,
 #   thea ❐ 0 ● 1 bash
 # NOTE: I tried the #{command} FORMAT variable, but it was empty.
-set -g set-titles-string '#T'
+# - 2020-02-05: I was stuck on dd74d33b for past 2 years apparently.
+#   Old method:
+#     set -g set-titles-string '#T'
+#   New equivalent setting:
+#     tmux_conf_theme_terminal_title='#T'
+# - Except we'll do something with a little more flair.
+tmux_conf_theme_terminal_title='#T ┇ #{=3:session_name}'
 
 # ---------------------------------------------------------- #
 

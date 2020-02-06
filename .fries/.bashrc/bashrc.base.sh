@@ -203,7 +203,16 @@ fries_tmux_session_entitle_unless_attach_existing () {
     # Get a random first name from the ten-character name list,
     # so the random name is as long as when we use a YYYY-MM-DD.
     local randname sname
-    randname=$(shuf -n 1 ${HOME}/.fries/var/first-names-lengthX.txt)
+    # 2020-02-06: We had just been getting any 10-letter name, e.g.,:
+    #   randname=$(shuf -n 1 "${HOME}/.fries/var/first-names-lengthX.txt")
+    # but I switched to doling out session names alphabetically, to help
+    # deal with a crashing mate-panel. By using progressively named
+    # sessions and showing the first few characters of the session name
+    # in the window title, if (when) mate-panel crashes, it restarts but
+    # randomly reorders all the windows, but I can use the alphabetization
+    # to drag and reorder my windows back to how they were.
+    # Note: Using eval because select echoes "<()" aka process substitution.
+    randname=$(eval shuf -n 1 $(_fries_tmux_session_names_select))
     # To lower.
     sname=$(echo ${randname} | tr '[:upper:]' '[:lower:]')
     # Alternatively, to lower with awk:
@@ -213,6 +222,25 @@ fries_tmux_session_entitle_unless_attach_existing () {
     # We merely renamed the new, loading tmux session,
     # so tell home-fries to keep loading, too.
     return 1
+  }
+
+  _fries_tmux_session_names_select () {
+    # Get any random name:
+    #   echo "${HOME}/.fries/var/first-names-lengthX.txt"
+    #   return 0
+    # Or get names starting with specific letter:
+    local letter
+    letter=$(_fries_tmux_10lettername_starting_alpha)
+    echo "<(grep -i '^${letter}' ${HOME}/.fries/var/first-names-lengthX.txt)"
+  }
+
+  _fries_tmux_10lettername_starting_alpha () {
+    local letter=${HOME_FRIES_TMUX_START_ALPHA:-z}
+    # Cycle characters a..z. Wrap around from z back to a. tr is magic!
+    letter="$(echo ${letter} | tr '[a-y]z' '[b-z]a')"
+    # Update the tmux environment var. for the next bash session.
+    tmux set-environment -g HOME_FRIES_TMUX_START_ALPHA ${letter}
+    echo ${letter}
   }
 
   _fries_tmux_session_entitle_unless_attach_existing
