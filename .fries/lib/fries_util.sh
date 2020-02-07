@@ -142,8 +142,10 @@ home_fries_append_ld_library_path () {
   #   expect: error while loading shared libraries: libexpect5.45.so:
   #     cannot open shared object file: No such file or directory
   # Do this before the SSH function, which expects expect.
-  if [[ ":${LD_LIBRARY_PATH}:" != *":/usr/lib/expect5.45:"* ]]; then
-    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/lib/expect5.45
+  if [ -d /usr/lib/expect5.45 ]; then
+    if [[ ":${LD_LIBRARY_PATH}:" != *":/usr/lib/expect5.45:"* ]]; then
+      export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/lib/expect5.45
+    fi
   fi
 }
 
