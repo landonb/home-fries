@@ -478,8 +478,14 @@ run '~/.tmux/plugins/tpm/tpm'
 # - Except we'll do something with a little more flair.
 # REVISIT/2020-02-06: I'm undecided how many columns I like best.
 # - Some that I've tried:
-#     tmux_conf_theme_terminal_title='#T ┇ #{=3:session_name}'
-tmux_conf_theme_terminal_title='#T ┇ #{=1:session_name}'
+#   - 3 seems nicest:
+#       tmux_conf_theme_terminal_title='#T ┇ #{=3:session_name}'
+#   - 1 is too short:
+#       tmux_conf_theme_terminal_title='#T ┇ #{=1:session_name}'
+#   - 2 is pretty nice... except when a 'vi' abbrev. distracts you:
+#       tmux_conf_theme_terminal_title='#T ┇ #{=2:session_name}'
+# Maybe I do like 3 the best, the windows have nicknames, sorta.
+tmux_conf_theme_terminal_title='#T ┇ #{=3:session_name}'
 
 # ---------------------------------------------------------- #
 
