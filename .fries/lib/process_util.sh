@@ -55,10 +55,11 @@ die () {
 #
 reset_errexit_ () {
   if ${USING_ERREXIT}; then
-    #set -ex
+    # set -ex
     set -e
   else
-    set +ex
+    # set +ex
+    set +e
   fi
 }
 
