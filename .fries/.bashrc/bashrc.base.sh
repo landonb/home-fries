@@ -78,6 +78,19 @@ print_elapsed_time () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+ensure_pathed () {
+  # HACK!
+  # - Unset BASH_VERSION so ~/.profile doesn't load *us*!
+  #   But updates PATH and LD_LIBRARY_PATH instead.
+  local wasver
+  wasver="${BASH_VERSION}"
+  BASH_VERSION=""
+  source ${HOME}/.profile
+  BASH_VERSION="${wasver}"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # System-wide Profile
 # ===================
 
@@ -384,6 +397,10 @@ home_fries_run_terminator_init_cmd () {
 main () {
   local time_0=$(date +%s.%N)
 
+  # Add ~/.local/bin to PATH, and ~/.local/lib to LD_LIBRARY_PATH,
+  # which we need because that's where my custom tmux et al is at.
+  ensure_pathed
+  unset -f ensure_pathed
   # Maybe don't startup and reuse existing tmux session, eh.
   if source ${hard_path}/prepare-tmux-or-bust; then
     return  # Will have run switch-client and user will be on another session.
