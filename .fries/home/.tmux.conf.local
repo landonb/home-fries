@@ -747,15 +747,68 @@ bind-key -n C-S-Down copy-mode \; send-keys -X scroll-down
 #   set -g default-terminal "screen-256color"
 # Breaks pager:
 #   set -g default-terminal "tmux"
-# Others will scold you, but works fine for me!
-# - (lb): I wonder if because mate-terminal is doing something.
+# Others scold, but "xterm" works fine for me!
+#   set -g default-terminal "xterm"
+# From FAQ:
+#     https://github.com/tmux/tmux/wiki/FAQ
+#   >> Inside tmux TERM must be "screen", "tmux" or similar (such as
+#   >> "tmux-256color"). Don't bother reporting problems where it isn't!
+# Questions/Concerns/Thoughts/Things-
+# - Does mate-terminal have any influence on behavior I see?
+# - Why does tmux FAQ warn, but using xterm works?
+#   - Weird, I just tested a garbage name and tmux looks fine.
+#         set -g default-terminal "garbag3"
+#     and then:
+#         $ tmux
+#         $ echo $TERM
+#         garbag3
+#   - At least pager cares:
+#         $ man tmux
+#         WARNING: terminal is not fully functional
+# - However, I get the same not-fully error with a suggested terminal!
+#     set -g default-terminal "tmux-256color"
+# - Issue with Vim is it does not recognize TERM value, e.g.,
+#     $ vim
+#     E558: Terminal entry not found in terminfo
+#     'tmux-256color' not known. Available builtin terminals are:
+#       ...
+#   - Which we can fix on the fly by setting the TERM, e.g.,
+#     $ TERM=xterm vim
+# - Let's see about the other terms, too.
+#   - screen-256color: pager works; Vim B&W only; italic is just reverse.
+#       set -g default-terminal "screen-256color"
+#       set -as terminal-overrides ",*256col*:Tc"
+#   - screen: Vim is B&W, italic is just inverse, but `man tmux` pages & colorful.
+#       set -g default-terminal "screen"
+#       set -as terminal-overrides ",*screen*:Tc"
+#   - tmux: italic good, but man pager complains,
+#           and Vim cannot find terminal entry in terminfo:
+#       set -g default-terminal "tmux"
+#       set -as terminal-overrides ",*tmux*:Tc"
+# So, yeah, guess I should just stick with the one I'm told not to use.
 set -g default-terminal "xterm"
-# To test everything okay:
-#   test_truecolors   # Print color bar and bold/italic/underline/strike text.
-#   git log           # Test that pager runs without complaint.
 
-# Fix italic, which otherwise appears as reverse (flipped bg/fg).
-set -as terminal-overrides ',xterm*:sitm=\E[3m'
+# - 2020-02-06: I had been using distro's tmux 2.6 for last 3 months or so.
+#   - Today I built 3.1-rc from source and found that italic works fine w/o
+#     this "overrides", but I had to change it for vim's colors to be right.
+# - OLD: For my tmux 2.6:
+#     # Fix italic, which otherwise appears as reverse (flipped bg/fg).
+#     set -as terminal-overrides ',xterm*:sitm=\E[3m'
+# - NEW: For my tmux ~3.1-rc:
+#   - For definition of `Tc`, see:
+#       https://github.com/tmux/tmux/wiki/FAQ#how-do-i-use-rgb-colour
+#       man 5 terminfo
+#     "RGB is the offical [terminfo(5)] flag, Tc is a tmux extension."
+#   - MEH: I'm not sure if there's a diff. RGB vs. Tc; assume latter is better?
+#     I.e., this also works:
+#       set -as terminal-overrides ",xterm*:RGB"
+set -as terminal-overrides ",xterm*:Tc"
+
+# YOU: Test everything is okay!:
+#
+#   test_truecolors   # Print color bar and bold/italic/underline/strike text.
+#
+#   git log           # Test that pager runs without complaint.
 
 # ---------------------------------------------------------- #
 
