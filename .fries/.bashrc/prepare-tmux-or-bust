@@ -1,0 +1,214 @@
+#!/bin/bash
+# vim:tw=0:ts=2:sw=2:et:norl:
+# Project: https://github.com/landonb/home-fries
+# License: GPLv3
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+source_deps () {
+  :
+}
+
+prep_vars () {
+  HOME_FRIES_TMUX_NAMES_FILE="${HOME}/.fries/var/first-names-lengthX.txt"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Speedier startup using existing tmux session
+# ============================================
+
+# (lb): In tmux, each session can have one or more windows. The window names
+# appear in a list in the middle of the bottom status bar. Each window name
+# defaults to 'bash', but I've got ~/.tmux.conf.local configured to show the
+# circled window number and the current directory basename instead; or to show
+# the name of the active command (w/ args). See, e.g.,
+#   tmux_conf_theme_window_status_format=
+#     '#{circled_window_index} #{b:pane_current_path}/'
+
+# (lb): In tmux, the session name (one per client) appears in the lower left
+# of the screen, leftmost on the bottom status bar. Each session name defaults
+# to a number, incrementing from 0 (which I don't think can be changed, unlike
+# the window number, which is influenced by, e.g., `set -g base-index 1`).
+
+# Here, we set a more memorable session name, using either today's date (YYYY-MM-DD),
+# or a random English first name that's the same length as a date, 10 characters.
+# However, if there are many tmux sessions already running, we try attaching to an
+# existing session.
+
+# You might want to set the session name deliberately for different projects,
+# especially if you end up configuring panes and windows specially.
+
+fries_tmux_session_entitle_unless_attach_existing () {
+  local currsess
+  local FRIES_TMUX_LIMIT=99
+  # An unset bool in bash is same as true, e.g., $unsetvar && echo 'So true!',
+  # so start the flag true.
+  FRIES_TMUX_UNENTITLED=true
+  FRIES_TMUX_UNATTACHED=true
+
+  _fries_tmux_session_entitle_unless_attach_existing () {
+    # Check the TMUX environ and return now if this is not tmux starting.
+    # NOTE: Return falsey indicating did not attach existing, so home-fries
+    #       continues loading.
+    [[ -z "${TMUX}" ]] && return 1
+
+    # If this is not the first pane, don't bother renaming (otherwise every
+    # pane, when it starts up, would be mucking around here, redundantly).
+    [[ $(tmux display-message -pt "$TMUX_PANE" '#{pane_index}') -ne 1 ]] && return 1
+
+    # If the session is not a plain number (which indicates that the user
+    # ran a plain `tmux`, and did not specify a session name), return 1 to
+    # tell home-fries to stop loading, because something else afoot.
+    _fries_tmux_is_unnamed_session || return 1
+
+    # For plain tmux startup, assign session names deliberately
+    _fries_tmux_entitle_or_reattach_session
+  }
+
+  _fries_tmux_is_unnamed_session () {
+    # NOTE: From non-tmux terminal, display-message shows name of
+    #       session with most recent activity! I.e., switch to one
+    #       session and ``ls``, display-message from another term.
+    #       will show that session.
+    currsess=$(tmux display-message -p '#S')
+    if $(tmux ls | grep "^${currsess}: .* (attached)$" > /dev/null); then
+      FRIES_TMUX_UNATTACHED=false
+    fi
+    # tmux defaults to naming new sessions with a number (0, 1, 2, ...)
+    # which is how we "know" if the 
+    if ! echo "$currsess" | grep '^[0-9]\+$' > /dev/null; then
+      # Session name not an expected number, so bail (user might be doing
+      # something else?). Return 1 to continue home-fries startup.
+      return 1
+    fi
+    return 0
+  }
+
+  _fries_tmux_entitle_or_reattach_session() {
+    # 2020-01-03: Getting weird: At n session or more, try using existing.
+    # NOTE: The tmux-ls count is still 0 on first tmux session startup.
+
+    local nsessns
+    nsessns=$(tmux ls 2> /dev/null | wc -l)
+    # From: Moby Word Lists by Grady Ward
+    #   https://www.gutenberg.org/ebooks/3201
+    if [[ ${nsessns} -gt ${FRIES_TMUX_LIMIT} ]] \
+      || [[ ! -f ${HOME_FRIES_TMUX_NAMES_FILE} ]] \
+    ; then
+      _fries_too_many_clients_tmux_switch_client
+    else
+      _fries_tmux_rename_session_10lettername
+    fi
+  }
+
+  _fries_too_many_clients_tmux_switch_client () {
+    # Use a catch-all session named with the current date
+    # to use when exceeding client maximum.
+    local sname="$(date +%Y-%m-%d)"
+    # First see if there's a session named with today's date;
+    # if not, rename this session to today's date and done.
+    if ! tmux has -t "${sname}" &> /dev/null; then
+      tmux rename-session "${sname}"
+      FRIES_TMUX_UNENTITLED=false
+      return 1  # Tell home-fries to continue loading.
+    fi
+    # NOTE: Cannot *attach* to session from within client, lest warning:
+    #   $ tmux attach-session -t "${sname}"
+    #   sessions should be nested with care, unset $TMUX to force
+    # However, you can *switch* the client to the desired session, e.g.:
+    #   $ tmux switch-client -t "${sname}"
+    # PSA: You can also <C-b (> and <C-b )> to switch sessions
+    #      (aka "switch client" -p/-n previous/next).
+    # - Also, <C-b D>   to use interactive choose-client, or
+    #         <C-b C-f> to enter fuzzy-findable session name, or
+    #         <C-b L>   to toggle between most recent sessions.
+    # NOTE: Because switching, any echoes herein go... where?
+    echo "If you're reading this, I should be dead!"
+    tmux switch-client -t "${sname}"
+    # NOTE: (lb): Not sure why/how this works, but even after
+    #       switch-client, echo goes to old terminal. So, e.g.,
+    #         echo "Welcome to the Thunderdome!"
+    #       would still print to the "${currsess}" session.
+    tmux kill-session -t "${currsess}"
+    # Don't continue Bash startup, we're good!
+    # (Because we switched to existing client).
+    return 0
+  }
+
+  _fries_tmux_rename_session_10lettername () {
+    # Get a random first name from the ten-character name list,
+    # so the random name is as long as when we use a YYYY-MM-DD.
+    local randname sname
+    # 2020-02-06: We had just been getting any 10-letter name, e.g.,:
+    #   randname=$(shuf -n 1 "${HOME}/.fries/var/first-names-lengthX.txt")
+    # but I switched to doling out session names alphabetically, to help
+    # deal with a crashing mate-panel. By using progressively named
+    # sessions and showing the first few characters of the session name
+    # in the window title, if (when) mate-panel crashes, it restarts but
+    # randomly reorders all the windows, but I can use the alphabetization
+    # to drag and reorder my windows back to how they were.
+    # Note: Using eval because select echoes "<()" aka process substitution.
+    randname=$(eval shuf -n 1 $(_fries_tmux_session_names_select))
+    # To lower.
+    sname=$(echo ${randname} | tr '[:upper:]' '[:lower:]')
+    # Alternatively, to lower with awk:
+    #   sname=$(echo ${randname} | awk '{print tolower($0)}')
+    tmux rename-session "${sname}"
+    FRIES_TMUX_UNENTITLED=false
+    # We merely renamed the new, loading tmux session,
+    # so tell home-fries to keep loading, too.
+    return 1
+  }
+
+  _fries_tmux_session_names_select () {
+    # Get any random name:
+    #   echo "${HOME_FRIES_TMUX_NAMES_FILE}"
+    #   return 0
+    # Or get names starting with specific letter:
+    local letter
+    letter=$(_fries_tmux_10lettername_starting_alpha)
+    echo "<(grep -i '^${letter}' ${HOME_FRIES_TMUX_NAMES_FILE})"
+  }
+
+  _fries_tmux_10lettername_starting_alpha () {
+    local letter=${HOME_FRIES_TMUX_START_ALPHA:-z}
+    # Cycle characters a..z. Wrap around from z back to a. tr is magic!
+    letter="$(echo ${letter} | tr '[a-y]z' '[b-z]a')"
+    # Update the tmux environment var. for the next bash session.
+    tmux set-environment -g HOME_FRIES_TMUX_START_ALPHA ${letter}
+    echo ${letter}
+  }
+
+  _fries_tmux_session_entitle_unless_attach_existing
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+tmux_jump_ship () {
+  local retcode=1
+
+  # Check the TMUX environ and return now if this is not tmux starting.
+  # (Return falsey, because name of function implies "jump ship" if true/0.)
+  [[ -z "${TMUX}" ]] && return ${retcode}
+
+  fries_tmux_session_entitle_unless_attach_existing
+  retcode=$?
+
+  unset -f fries_tmux_session_entitle_unless_attach_existing
+
+  return ${retcode}
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+main () {
+  source_deps
+
+  prep_vars
+
+  tmux_jump_ship
+}
+
+main "$@"
+
