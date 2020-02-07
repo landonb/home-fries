@@ -172,7 +172,14 @@ fries_tmux_session_entitle_unless_attach_existing () {
   }
 
   _fries_tmux_10lettername_starting_alpha () {
-    local letter=${HOME_FRIES_TMUX_START_ALPHA:-z}
+    # Choose a starting letter.
+    # - To start at 'a', choose 'z':
+    #     local letter=${HOME_FRIES_TMUX_START_ALPHA:-z}
+    # - To be complicated, grab from random and munge:
+    #     cat /dev/urandom | tr -dc 'a-z' | fold -w 1 | head -n 1
+    # - To be nice and concise, repurpose pwgen:
+    local randlr=$(pwgen -0 -A 1 1)
+    local letter=${HOME_FRIES_TMUX_START_ALPHA:-${randlr}}
     # Cycle characters a..z. Wrap around from z back to a. tr is magic!
     letter="$(echo ${letter} | tr '[a-y]z' '[b-z]a')"
     # Update the tmux environment var. for the next bash session.
