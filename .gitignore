@@ -25,6 +25,7 @@ README.rst
 .abcde.conf
 .fzf.bash
 .fzf.zsh
+.gitconfig
 .gitmux.conf
 .lessfilter
 .mkshrc
@@ -58,7 +59,7 @@ ansible_hosts
 .cookiecutterrc
 .ctags
 .direnvrc
-.gitconfig
+.gitconfig.local
 .gitignore.local
 .gnupg
 .inputrc
