@@ -23,8 +23,6 @@ README.rst
 
 # Home-fries symlinks.
 .abcde.conf
-.fzf.bash
-.fzf.zsh
 .gitconfig
 .gitmux.conf
 .lessfilter
