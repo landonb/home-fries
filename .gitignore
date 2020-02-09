@@ -56,7 +56,6 @@ VirtualBox_VMs/
 ansible_hosts
 .bash_history
 .cobra.yaml
-.cookiecutterrc
 .ctags
 .direnvrc
 .gitconfig.local
@@ -79,6 +78,7 @@ mm.cfg
 .secretshare.key
 .secretsharerc
 .sqliterc
+# Trust me! I use `dob`, not `todo.sh`, but I do experiment!
 .todos.json
 
 # Symlinks to files in other projects.
