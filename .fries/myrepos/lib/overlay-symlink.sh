@@ -484,9 +484,10 @@ symlink_overlay_dir () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-symlink_overlay_file_first () {
-  local targetp="$1"
-  shift
+symlink_overlay_file_first_handler () {
+  local optional="$1"
+  local targetp="$2"
+  shift 2
 
   local found_one=false
 
@@ -499,10 +500,18 @@ symlink_overlay_file_first () {
     fi
   done
 
-  if ! ${found_one}; then
+  if ! ${found_one} && [ "${optional}" -eq 0 ] ; then
     warn "Did not find existing source file to symlink as: ${targetp}"
     exit 1
   fi
+}
+
+symlink_overlay_file_first () {
+  symlink_overlay_file_first_handler '0' "${@}"
+}
+
+symlink_overlay_file_first_optional () {
+  symlink_overlay_file_first_handler '1' "${@}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -612,14 +621,23 @@ path_to_mrinfuse_resolve () {
 
 symlink_mrinfuse_typed () {
   local srctype="$1"
-  local lnkpath="$2"
-  local targetp="${3:-${lnkpath}}"
+  local optional="$2"
+  local lnkpath="$3"
+  local targetp="${4:-${lnkpath}}"
 
   local before_cd="$(pwd -L)"
   cd "${MR_REPO}"
 
   local sourcep
   sourcep="$(path_to_mrinfuse_resolve ${lnkpath})"
+
+  if [ ! -e ${sourcep} ]; then
+    if [ "${optional}" -eq 0 ]; then
+      warn "Non-optional symlink source not found: ${sourcep}"
+      exit 1
+    fi
+    return 0
+  fi
 
   symlink_overlay_typed "${srctype}" "${sourcep}" "${targetp}"
 
@@ -629,18 +647,23 @@ symlink_mrinfuse_typed () {
 # ***
 
 symlink_mrinfuse_file () {
-  symlink_mrinfuse_typed 'file' "${@}"
+  symlink_mrinfuse_typed 'file' '0' "${@}"
+}
+
+symlink_mrinfuse_file_optional () {
+  symlink_mrinfuse_typed 'file' '1' "${@}"
 }
 
 symlink_mrinfuse_dir () {
-  symlink_mrinfuse_typed 'dir' "${@}"
+  symlink_mrinfuse_typed 'dir' 0 "${@}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-symlink_mrinfuse_file_first () {
-  local targetp="$1"
-  shift
+symlink_mrinfuse_file_first_handler () {
+  local optional="$1"
+  local targetp="$2"
+  shift 2
 
   local found_one=false
 
@@ -655,10 +678,18 @@ symlink_mrinfuse_file_first () {
     fi
   done
 
-  if ! ${found_one}; then
+  if ! ${found_one} && [ "${optional}" -eq 0 ] ; then
     warn "Did not find existing source file to symlink as: ${targetp}"
     exit 1
   fi
+}
+
+symlink_mrinfuse_file_first () {
+  symlink_mrinfuse_file_first_handler '0' "${@}"
+}
+
+symlink_mrinfuse_file_first_optional () {
+  symlink_mrinfuse_file_first_handler '1' "${@}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
