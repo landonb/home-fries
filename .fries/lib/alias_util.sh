@@ -205,9 +205,14 @@ home_fries_create_aliases_general () {
 
   # Do it to it git it st'ok it.
   # MAYBE: Make these git aliases? Or just stick in ~/.local/bin?
-  alias git-st='git-st.sh'
-  alias git-diff='GIT_ST_DIFF=true git-st.sh'
-  alias git-add='GIT_ST_ADDP=true git-st.sh'
+  if command -v git-st.sh > /dev/null; then
+    alias git-st='git-st.sh'
+    alias git-diff='GIT_ST_DIFF=true git-st.sh'
+    alias git-add='GIT_ST_ADDP=true git-st.sh'
+  fi
+
+  # I run `git diff` fairly often. Make it even easier to run.
+  alias dff='git diff'
 
   # *** Home Fries
 
