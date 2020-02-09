@@ -1,0 +1,708 @@
+# vim:tw=0:ts=2:sw=2:et:norl:ft=gitconfig
+
+# #######################################################################
+# ***                            Overview                             ***
+# #######################################################################
+
+# USAGE: Read through the [alias]es defined below for a description of each.
+
+# CONVENTION: Some commands work on branch(es) and remote(s) and will default
+#             to the following unless you pass args indicating otherwise.
+#
+# - Remotes:
+#
+#   'origin' remote -- the actual project repository, or your fork of it.
+#
+#   'upstream' remote -- if you forked a project, the project you forked.
+#
+# - Branches:
+#
+#   'master' branch -- target branch on which to act unless inferred or passed as arg.
+#
+#   'develop' branch -- if present, might also get acted upon, depending on action.
+#
+#   'wip/YYYY-MM-DD-*' -- [w]ork [i]n [p]rogress branches.
+#
+#   'tip/YYYY-MM-DD-abcdef01'
+#                      -- tipped forks, where you periodically rebase your
+#                         changes atop, say, 'upstream/master'; and where you
+#                         do not have a local 'master' branch, but instead
+#                         periodically update the default branch on, say,
+#                         GitHub to reflect the latest rebased branch.
+#                         - Tipping is a way to fork a project;
+#                           and to make some changes without submitting an
+#                           upstream pull request, but also to not publish
+#                           a divergent 'master' branch that you'd have to
+#                           force-push to keep up to date. By using tip/
+#                           branches, we're broadcasting better what's
+#                           going on (and avoiding new DEVs being misled
+#                           by a 'master' branch that's anything but).
+
+# #######################################################################
+# ***                  Your Private .gitconfig.local                  ***
+# #######################################################################
+
+# YOU/DEV: Put your [user] and other private config in a separate file
+#          named '.gitconfig.local' that's located (symlinked) alongside
+#          this file (in the same directory).
+
+[include]
+  path = .gitconfig.local
+
+# #######################################################################
+# ***                       "Engage Your Core"                        ***
+# #######################################################################
+
+[core]
+  # Configure the pager.
+  # - Re: Not using `most`, not `less`, for the pager, because:
+  #   - Using `most` looks a lot like using `less`, but note that `most`
+  #     does not map Vim keys like `less` does. One might say that `most`
+  #     isn't quite more than `less` so much as it is just neither `less`
+  #     nor more. (By which I mean, I prefer `less` because I can use the
+  #     same keys that Vim uses to browse and search.)
+  #   - One possible advantage with `most` is to call it with some options,
+  #     e.g., use `+s +'/---'` to advance `most` to the first change in the
+  #     diff (effectively just skipping the first two lines of the diff...).
+  #     E.g.,
+  #           pager = most +s +'/---'
+  #     But, like I said, I'd rather have Vim-like search and navigation bindings.
+  # - Setting the pager configures `git diff|log|mergetool` to use `less`
+  #   to display text.
+  # - Use `-R`, so `less` interprets ANSI color codes, otherwise they're
+  #   shown raw, e.g., "[ESCapes234".
+  pager = less -R
+
+  # Configure the editor.
+  # - Similar to how Vim defers to another application for paging, Vim also
+  #   defers to another application for editing, e.g., what's invoked when
+  #   you run `git ci -v`, for one, or `git rebase -i ...`, for another.
+  # - Git defaults to using the (Bash) "EDITOR" environment variable to
+  #   determine which application to run. So generally you don't need to
+  #   specify it here, unless you want to do something special.
+  #   - E.g., for a while, I had Vim startup issues when run from git, so
+  #     I just made a Bash script that essentially called `vim --noplugin`,
+  #     and then I wired it here, e.g.,
+  #         editor = ~/.local/bin/git-vim
+  #     or even just:
+  #         editor = vim --noplugin
+  #     but then I got off my tuchus and fixed my Vim scripts.
+  #     So I'm not setting `editor` here.
+  #     - You should rely on the EDITOR environ.
+  # SKIPPING:
+  #   editor = ...
+
+  # Configure git's taste for whitespace.
+  # - I like a blank line at the end of every file. This ensures that when I
+  #   jump the cursor to the end of a file, it then rests at the first column
+  #   of a new line, as opposed to being placed in the last column of some
+  #   unknown-length line of characters.
+  #   - But git complains when you add files that have a trailing new line.
+  #       So tell git not to worry or bark at you.
+  #   - Ref:
+  #       https://stackoverflow.com/questions/27059239/git-new-blank-line-at-eof
+  #   - See also:
+  #       whitespace = cr-at-eol
+  whitespace = -blank-at-eof
+
+# #######################################################################
+# ***                          git colorful                           ***
+# #######################################################################
+
+# - We could enable color one by one, e.g.:
+#
+#     branch = auto
+#     diff = auto
+#     status = auto
+#     interactive = auto
+#
+#   Or we could enable 'em all at once, e.g.:
+#
+#     ui = auto
+#
+# - Instead of `auto`, we could use `always`, so that
+#   piping pipes colors, e.g.,
+#
+#       git config color.ui always
+#       git log --stat | less  # So colorful!
+#
+#   But then -- *caveat* -- you'd want to disable color when parsing output,
+#   lest the color codes break your code, i.e., ruin string comparisons, etc.
+#   Which you could work around with a one-off config override, e.g.,
+#
+#       git -c color.ui=off ...
+#
+#   or by using the global no-color option:
+#
+#     git --no-color ...
+#
+#   but that's just too messy.
+#
+#   Going with 'auto' seems like a happy place.
+
+[color]
+  ui = auto
+
+# 2020-02-09: I added these colors years ago. Source unknown.
+# - But they've withstood the test of time. They look nice.
+
+[color "branch"]
+  current = green bold
+  local = green
+  remote = red bold
+
+[color "diff"]
+  meta = yellow bold
+  frag = magenta bold
+  old = red bold
+  new = green bold
+
+[color "status"]
+  added = green bold
+  changed = yellow bold
+  untracked = red
+
+# #######################################################################
+# ***                          diff N merge                           ***
+# #######################################################################
+
+[diff]
+  # Use the 'minimal' diff algorithm to achieve desired diff behavior.
+  # - For example, in a reST file containing section headers, like "#######",
+  #   I cut and pasted a big block of text, and the default greedy git diff
+  #   algorithm, myers, shows the move as a bunch of small deletions and
+  #   insertions. (But if you diff using `meld`, you see one big deletion
+  #   and one big insertion.) We can use a different algorithm to make the
+  #   diff easier to parse.
+  # - Choices:
+  #    default    aka "myers".
+  #    minimal    Spend extra time to ensure smallest possible diff produced.
+  #    patience   Use "patience diff" algorithm when generating patches.
+  #    histogram  This algorithm extends the patience algorithm to
+  #               "support low-occurrence common elements".
+  algorithm = minimal
+
+  # Hide the path prefix from git-diff output.
+  # - If you'd like to be able to double-click and copy-paste from git-diff
+  #   output, suppress the awkward "a/" and "b/" path prefixes.
+  #   - I think these prefixes are holdovers from old SCMs. See:
+  #       https://stackoverflow.com/questions/6764953/
+  #         what-is-the-reason-for-the-a-b-prefixes-of-git-diff
+  noprefix = true
+
+  # FIXME/2020-01-23: How do you hide a/ and b/ prefixes on `git add -p`?
+  # - I testing with config sections [add], [patch], [status], but none worked.
+  #   - Note that patch isn't a command, it's really git-add--interactive-patch
+  #     (a subcommand of a subcommand?).
+  #   - Also, the `--no-prefix` option is documented in the git-diff --help,
+  #     but it's not found in git-add--help. Perhaps it was just overlooked?
+  #     - MAYBE: Perhaps this could be my first git patch/pull request?
+
+[merge]
+  # Choose which merge tool to use by default.
+  # Options:
+  #   tool = meld
+  #   tool = vimdiff
+  #   tool = diffconflicts
+  tool = meld
+
+[mergetool]
+  # `git mergetool` makes intermediate *.orig files but
+  # doesn't delete them unless we tell it to delete them.
+  keepBackup = false
+
+# #######################################################################
+# ***              Ever-expanding Git Aliases Collection              ***
+# #######################################################################
+
+# NOTE: The aliases are split across multiple groups listed below,
+#       hopefully to make the remainder of the file easier to read
+#       and maintain.
+
+# NOTE: The only way to pass a global option to git is to shell out. AFAIK.
+#
+#       So, e.g., instead of a simple alias such as:
+#
+#         br = branch
+#
+#       You'll see a slightly more complicated alias, e.g.,
+#
+#         br = !git --no-pager branch
+
+# TRICK: You can wrap shell code in an anonymous Bash function
+#        when you need to shell out, to have access to, well,
+#        at least the 'local' function (which can only be used
+#        in functions).
+#        - I read that you need to use an anonymous function to
+#          access command line variables and shell expansion.
+#          But I have aliases that shell out without a function
+#          wrapper, and they access numbered arguments
+#          ($1, $2, etc.) just fine.
+#       - E.g., it's the difference between writing this:
+#           my-alias = ! echo Hello
+#         and this:
+#           my-alias = "! f() { echo Hello; }; f"
+#         but not this (syntax error without quotes):
+#           my-alias = ! f() { echo Hello; }; f
+#       - Here's the article, which is good in its own right:
+#           https://www.atlassian.com/blog/git/advanced-git-aliases
+#       - Nonetheless, you'll see some shell code below wrapped in a
+#         function, and some code not. Just kinda depends.
+#
+# NOTE: Shell code is run by POSIX (e.g., dash), not Bash, so
+#       avoid constructs such as [[ ]] unless you invoke Bash.
+#       - E.g., this is wrong:
+#           test1 = "! f() { [[ -z \"$1\" ]] && echo 'Z!' || echo 'n.'; }; f"
+#         Because it won't be run by Bash, and will throw an error, e.g.,
+#           $ git test1 "sdff"
+#            f() { [[ -z "$1" ]] && echo 'Z!' || echo 'n.'; }; f: 1:
+#             f() { [[ -z "$1" ]] && echo 'Z!' || echo 'n.'; }; f: [[: not found
+#           n.
+#         But you could instead shell out your shell code to Bash, e.g.,
+#           test2 = ! "/bin/bash -c \"f () { [[ -z \\\"$1\\\" ]] && echo Z || echo n; }; f\""
+#         or you could just rewrite it to be POSIX-compliant, e.g.,
+#           test3 = "! f() { [ -z \"$1\" ] && echo 'Z!' || echo 'n.'; }; f"
+#
+# NOTE: One final shell code note: You need to \-delimit line breaks;
+#       and you need to use a semicolon after each line (i.e., you
+#       cannot rely on newlines to signal the parser what's what).
+
+# NOTE: Within each [alias] section, I've arranged my My Most Popular Git
+#       Aliases up top (those that I use the most), above a mini-ruler:
+#
+#       # -------
+
+# #######################################################################
+# ***                     Branch Command Aliases                      ***
+# #######################################################################
+
+[alias]
+
+  br = !git --no-pager branch
+
+  # - Use `git brs` to show all branches, including remote branches.
+  # - git-brs is inherently aliased because found on PATH.
+  #    brs = !${HOME}/.fries/bin/git-brs \"$@\"
+
+  # -------
+
+  # Bro!
+  bro = ! \
+    bash -c 'echo' && \
+    bash -c 'echo -e "\\\\e[31mLocal branches\\\\e[0m"' && \
+    bash -c 'echo -e "\\\\e[31m--------------\\\\e[0m"' && \
+    git --no-pager branch -vv && \
+    bash -c 'echo' && \
+    bash -c 'echo -e "\\\\e[31mRemote branches\\\\e[0m"' && \
+    bash -c 'echo -e "\\\\e[31m---------------\\\\e[0m"' && \
+    git --no-pager ls-remote --heads origin | sed 's?.*refs/heads/??' | sed -e "s/^/\\ \\ /" && \
+    bash -c 'echo'
+
+  brs-all = !git --no-pager branch -avv
+
+  # Delete merged branches except 'master', 'develop', and current branch.
+  #   https://gist.github.com/jantimon/5b9fd9330f38d076a374c03fcbb788e1
+  cleanup = ! \
+    git remote prune origin && \
+    git branch --no-color --merged \
+      | egrep -v '(^\\*|master|develop)' \
+      | xargs git branch -d
+
+  # Show the current branch name.
+  # (I added this alias years ago, but I hardly use it.
+  #  - I usually check for the branch name using `git br`, unless I need to
+  #    script it, and then I just call rev-parse directly.
+  #    - I would have guessed that 'br' would be faster to type the 'cur',
+  #      but they're about the same.
+  #    - I think that `git br` is more versatile -- in addition to seeing what
+  #      branch the tree is on, it also reminds me of what other branches exist.
+  #    - The only reason I see to keep this alias is as a rev-parse usage example.)
+  cur = rev-parse --abbrev-ref HEAD
+
+  # -------
+
+  # - Use `git-cleanbr` to delete a branch locally and on the remote,
+  #   after switching to 'develop' or another branch.
+  # - git-cleanbr is inherently aliased because found on PATH.
+  #    cleanbr = !${HOME}/.fries/bin/git-cleanbr \"$@\"
+
+  # - Use `git-cob` to checkout a branch from an existing remote for which
+  #   there is no local tracking branch, but for which there are multiple
+  #   remotes with the same-named branch, and you cannot simply
+  #   `git checkout <branch>` but have to be remote-specific.
+  # - git-cob is inherently aliased because found on PATH.
+  #    cob = !${HOME}/.fries/bin/git-cob \"$@\"
+
+  # - Use `git-coc` to create a new branch, switch to it, and push it.
+  # - NOTE: I tried doing this inline, e.g.,
+  #     coc = !git branch ${1} && git checkout ${1} && git push ${2:-origin} ${1} -u
+  #   but git puts the args after the command, so the git push ends up looking like:
+  #     git push ${2:-origin} ${1} -u ${1}
+  #   which obviously fails. So shell out!
+  # - git-coc is inherently aliased because found on PATH.
+  #    coc = !${HOME}/.fries/bin/git-coc \"$@\"
+
+  # - Delete branches that are "gone" on the remote.
+  #   - You can find tracking branches with missing remote branches via:
+  #       git branch -vv --no-color | grep ': gone]'
+  #     and then you can big-D delete them thusly:
+  #       git branch -D <branch>
+  # - git-gone is inherently aliased because found on PATH.
+  #    gone = !${HOME}/.fries/bin/git-gone \"$@\"
+
+# #######################################################################
+# ***                         Logging Aliases                         ***
+# #######################################################################
+
+# A few of the --pretty git log format options:
+#
+#   %Cred     red text
+#   %C(cyan)  Choose from: (normal, black, red, green, yellow, blue, magenta, cyan and white)
+#   %h        abbreviated commit hash
+#   %Creset   reset text color
+#   %x0       print a byte from hex code (09: \t)
+#   %an       author name
+#   %x09      TAB
+#   %ad       author date (format respects --date= option)
+#   %x09      TAB
+#   %d        ref names, like the --decorate option of git-log(1)
+#   %s        subject
+#   %<(<N>[,trunc|ltrunc|mtrunc]) make the next placeholder take at least N columns...
+#     * 79c812f My Name  Fri Mar 1q0 17:05:27 2017  Update README.
+#     * 2deef48 My Name  Thu Mar 9 13:02:57 2017 Fix something.
+#     %<(24) is 24 chars for the "Fri Mar 10 17:05:27 2017" date. %>(24) to right justify.
+#   If you add a ` ` (space) after % of a placeholder, a space is inserted immediately
+#   before the expansion if and only if the placeholder expands to a non-empty string.
+
+[alias]
+
+  # Use `git l` to show the latest log message.
+  # - (I tried other, longer names, such as `last`, `l1`, and `l`.
+  #    But I like 'l' the best.
+  #   - I like 'last' because it's descriptive, and the user probably doesn't
+  #     have to guess what it does -- but it's annoying to type an 'a' after
+  #     an 'l' (such a stretch across the keyboard!).
+  #   - I like 'l1' because it's short, and it has a good pneumonic --
+  #     1 log record, or 'l1' (well, '1l', I suppose, but whatever).
+  #   - And I like 'l' because it's also short -- but I don't normally like
+  #     single character abbreviations, because it makes searching more
+  #     difficult (there are usually tons of false-positives to sift through).
+  #     Also, I don't like to use a coveted single character abbreviation
+  #     unless I think it'll be well-used.
+  #   - In this case, with 'l', I do like the single character -- it's quick
+  #     to type, and it's not like this single character appears any place
+  #     other then here (so there's no grep-pollution to worry about). Also,
+  #     I can also use the pneumonic of wanting one log record: And what 1
+  #     character does the word 'log' start with? It's an 'l'! Finally, I
+  #     think I will use this option frequently (I've already started),
+  #     so let's go ahead and use up a single character alias! Worth it!!)
+  l = !git --no-pager log -1
+
+  # Git command to show tag creation dates.
+  # - Optional: Add --graph to see branching lines. E.g.,
+  #     `git tags --graph`
+  tags = \
+    log \
+      --date-order \
+      --tags \
+      --simplify-by-decoration \
+      --pretty='format:%C(green)%ad %C(red)%h %C(reset)%D' \
+      --date=short
+
+  # -------
+
+  # Show how many times each file has been edited, aka churn.
+  #
+  # - Show check for the whole repo:
+  #
+  #   $ git churn
+  #
+  # - Show churn for specific directories:
+  #
+  #   $ git churn app lib
+  #
+  # - Show churn for a time range:
+  #
+  #   $ git churn --since='1 month ago'
+  #
+  # - Obvi., you can pass any git-log argument to churn.
+  #
+  # - Credits: Written by Corey Haines.
+  #            Scriptified by Gary Bernhardt.
+  #            Hacked by me (moved `sort -g` before `awk`, and split long line).
+  churn = ! \
+    git --no-pager log --all -M -C --name-only --format='format:' \"$@\" \
+    | sort \
+    | grep -v '^$' \
+    | uniq -c \
+    | sort -g \
+    | awk 'BEGIN {print "count\tfile"} {print $1 \"\t\" $2}'
+
+  # Use `git lg` to show a very concise single-line log history.
+  #
+  # - Shows one log entry per line formatted like:
+  #
+  #   * HASH - DESCRIPTION (X days ago) <AUTHOR>
+  #
+  #   E.g.,
+  #
+  #   * acbd1234 - Docs: Update README. (4 days ago) <Your Name>
+  #
+  # - Thanks to:
+  #
+  #   https://www.leaseweb.com/labs/2013/08/git-tip-beautiful-colored-and-readable-output/
+  lg = \
+    log --graph --abbrev-commit --date=relative \
+        --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
+
+  # Use `git log1` to show exclusive history for the currently branch.
+  #
+  # - Shows one log entry per line, formatted like:
+  #
+  #   * HASH AUTHOR Mon Jan 01 00:00:00 2001  (HEAD -> my-branch)DESCRIPTION
+  #   * HASH AUTHOR Mon Jan 01 00:00:00 2001  DESCRIPTION
+  #   * ...
+  #
+  # - HINT: %C(auto) uses colors like git-log normally does (e.g., per color.ui).
+  #
+  # - HINT: %+s will add a linefeed between meta and subject.
+  #
+  # - NOTE: I cannot get a space between the %D ref name and the %s subject. Ah, well.
+  log1 = \
+    log --graph --abbrev-commit --date=local --decorate \
+        --pretty="%C(yellow)%h%x09%C(cyan)%<(12)%an%x09%C(blue)%>(24)%ad%C(auto)%x09%D%s"
+
+  # Use `git logs` to show more inclusive history than `git logs`.
+  #
+  # - It looks similar to `git log1` but includes merged branch logs, too.
+  #
+  # - Shows one log entry per line, formatted like:
+  #
+  #   * HASH AUTHOR DATE "HEAD -> my-branch"DESCRIPTION
+  #   * HASH AUTHOR DATE DESCRIPTION
+  #   * ...
+  #   | * HASH AUTHOR DATE "merged-branch"DESCRIPTION
+  #   | * HASH AUTHOR DATE DESCRIPTION
+  #   | * ...
+  #   |/
+  #   * ...
+  #
+  # - Thanks to:
+  #
+  #   https://stackoverflow.com/questions/9437182/git-show-all-branches-but-not-stashes-in-log
+  #
+  # - HINT: The date is added to the output via the --pretty, not the --date.
+  logs = \
+    log --graph --abbrev-commit --date=local --decorate \
+        --branches --remotes --tags --notes --oneline  \
+        --pretty="%C(yellow)%h%x09%C(cyan)%<(12)%an%x09%C(blue)%>(24)%ad%C(auto)%x09%D%s"
+
+  # Use `git since` to show the log history since the last common ancestor
+  # between two branches.
+  # - If no branches are specified, finds the ancestor of 'master'
+  #   and the current branch.
+  # - If a single branch is specified, finds the ancestor of 'master'
+  #   and the named branch.
+  # - If two branches are specified, finds the ancestor of the two
+  #   named branches.
+  since = "! f () { \
+    oth_br=${1:-master}; \
+    local cur_br=$(git rev-parse --abbrev-ref HEAD); \
+    ref_br=${2:-${cur_br}}; \
+    local common_ancestor=$(git merge-base ${ref_br} ${oth_br}); \
+    git log ${common_ancestor}..HEAD; \
+  }; f"
+
+# #######################################################################
+# ***                   Staging and Commit Aliases                    ***
+# #######################################################################
+
+[alias]
+
+  ci = commit
+
+  ls = ls-files
+
+  st = status
+
+  wip = ! \
+    git add -A && \
+    git ci -m WIP
+
+  # -------
+
+  ad = add -p
+  # ADDitional noise.
+  # - Ref:
+  #   https://www.reddit.com/r/git/comments/6ecr4o/git_dad/
+  #   https://icanhazdadjoke.com/api
+  # - Bored?
+  #   curl -H "Accept: application/json" "https://icanhazdadjoke.com/search?term=bar"
+  dad = !curl https://icanhazdadjoke.com/ && echo && git add
+  rad = !echo '   (⌐■_■)' && git add
+
+  # Use `git ci-` if you're too lazy to just type `git ci -m`.
+  ci- = commit -m
+
+  # - Some other commit alias ruminations:
+  #   - Stage modified and deleted files, but not new files:
+  #       git commit -a/--all
+  #   - Show diff of what's being committed at bottom of commit message editor sess:
+  #       git commit -v/--verbose
+  #   - Combine them both for a quickie add-all, review, compose, and commit:
+  #       cia = commit -a -v
+
+  # Use `git cv` to open your EDITOR to compose a commit message.
+  #
+  # - One goal I have in life is to stop composing commit messages
+  #   at the terminal prompt, and to *always* use Vim (my EDITOR).
+  cv = commit -v
+
+  # Use `git dc` to show a diff of what's already been *staged* (which
+  # is what you'd see at the bottom of a `git commit -v` edit session).
+  dc = diff --cached
+
+  # Use `git dd` to dump the diff to the terminal, bypassing the pager.
+  dd = !git --no-pager diff \"$@\"
+
+  # Use `git df` to run diff... if you're that lazy you can't type two
+  # additional characters.
+  # - I git-diff fairly frequently, so I've added an even easier
+  #   Bash alias to my user environment
+  #     # <somewhere deep inside my .bashrc>
+  #     alias dff='git diff'
+  df = diff
+  # - Because I've got `dff` aliased from Bash, I have same
+  #   aliased from git, so I can wire my brain both ways.
+  dff = diff
+
+  # Use `git ignored` to show --assume-unchanged files.
+  # - Docs/Ref:
+  #     -v: "Similar to -t, but use lowercase letters for files that
+  #          are marked as assume unchanged (see git-update-index(1))."
+  #     https://stackoverflow.com/questions/2363197/
+  #       can-i-get-a-list-of-files-marked-assume-unchanged
+  ignored = !git ls-files -v | grep "^[[:lower:]]"
+
+# #######################################################################
+# ***              Redoing Commits and Rewriting History              ***
+# #######################################################################
+
+[alias]
+
+  # HINT: If you `rollback` or `undo` accidentally and need to recover,
+  #       you can find the commit you blew away in the reflog. Just run:
+  #
+  #         git reflog
+  #
+  #       (Though if you just want to undo an undo, run `git undo-undo`.)
+
+  # Use `git rollback` to unwind the latest commit and unstage changes.
+  # - Equivalent to (or just similar?):
+  #     git undo && git reset HEAD *
+  rollback = reset --mixed @~1
+
+  # Use `git undo` to undo the latest commit, but not to unstage.
+  # - This is useful if you want to rewrite the commit message,
+  #   or if you want to incorporate changes without having to
+  #   perform a squash operation.
+  # - NOTE: The git-extras package installs its own /usr/bin/git-undo,
+  #   which shadows any alias defined here, in the .gitconfig.
+  #   - So while this operation could be an alias because it's so simple,
+  #     it instead much be a file found (first) on PATH.
+  # - The operation is very simple. It's essentially:
+  #     undo = reset --soft @~1
+  # - git-undo is inherently aliased because found on PATH.
+  #    undo = !${HOME}/.fries/bin/git-undo \"$@\"
+
+  # -------
+
+  # Use `git undo-undo` to undo an undo, duh!
+  # - The undo-undo command undoes a --soft reset.
+  undo-undo = reset 'HEAD@{1}'
+
+# #######################################################################
+# ***                 Checkout Fetch Push Pull Rebase                 ***
+# #######################################################################
+
+[alias]
+
+  # Use `git co` instead of `git checkout` because the latter is too much typing.
+  co = checkout
+
+  # Use `git po` to push to the most commonly pushed remote (probably), 'origin'.
+  po = push origin HEAD
+
+  # Use `git re` to show the URL of each remote after its name.
+  re = remote -v
+
+  # Run `git sup` periodically (or maybe after every git-pull) to process
+  # any changes to the project submodules).
+  sup = submodule update --init --remote
+
+  # Use `git up` to stash changes, pull, rebase, and pop the stash.
+  # - Benefit (IMO): Runs rebase; not merge like pull does by default.
+  up = pull --rebase --autostash
+
+  # -------
+
+  # Use `git bump` to quickly run a common rebase operation.
+  # - Without arguments, checks out the 'develop' branch, fetches from
+  #   the 'upstream' remote; and rebases 'develop' atop 'upstream/develop'.
+  # - You can specify the following optional arguments:
+  #     git bump <local-branch> <upstream-remote> <upstream-branch> <local-remote>
+  # - The command is essentially:
+  #     git checkout 'develop'  # or the named branch ($1)
+  #     git fetch 'upstream'  # or the named remote ($2)
+  #     git rebase upstream/develop  # or the named upstream branch ($2/$3)
+  # - git-bump is inherently aliased because found on PATH.
+  #    bump = !${HOME}/.fries/bin/git-bump \"$@\"
+
+  # Use `git fam` to fetch from both the 'origin' and 'upstream' remotes,
+  # and to remove from the local branches list those branches deleted
+  # from each of the two remotes.
+  # - NOTE: See notes atop this file re: Why 'origin' and 'upstream' remotes.
+  fam = fetch --multiple origin upstream --prune
+
+  # Use `git fap` to fetch and prune branches deleted from each of the remotes.
+  # - (lb): `--all` fails if any remote cannot be reached, which affects me
+  #         particularly because every repo I've got tracks a backup repo on
+  #         an offline storage device, which is rarely online. Meaning, --all
+  #         almost --all'ways fails for me. Additionally, `--all` can take a
+  #         while if there are many remotes.
+  #         - As such, oftentimes it's better to be deliberate when fetching
+  #         from remotes -- that is, consider using a command like `fam`, not
+  #         like `fap`.
+  fap = fetch --all --prune
+
+  # Use `git pup` to push a branch and add tracking information (e.g., to
+  # be used on a later `git pull`, or for `git status` to tell you things).
+  # - I tried `git pu` for a spell, but it didn't stick, e.g.,
+  #     pu = push -u origin HEAD
+  #   which I think is because 'pu' is not as snappy as 'pup'.
+  #   Pneumonically speaking, remember that you want to set the
+  #   UPstream tracking information on Push, so it's called PUP.
+  pup = push --set-upstream origin HEAD
+
+# #######################################################################
+# ***                    Miscellaneous Git Aliases                    ***
+# #######################################################################
+
+[alias]
+
+  # Open project web page for 'origin' (or specified) remote.
+  open = "! \
+    f () { \
+      sensible-browser $( \
+        git remote get-url ${1:-origin} \
+        | sed -E \
+          -e 's#(git@|git://)#http://#' \
+          -e 's@com:@com/@' \
+          -e 's#\\.git$##' \
+      ) \
+      | head -n1; \
+    }; f &"
+
+  # Empirically speaking.
+  whoami = config user.email
+

@@ -1,30 +1,30 @@
 #!/bin/bash
 #  vim:tw=0:ts=2:sw=2:et:norl:ft=bash
 
-# File: git-gone.sh
-# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.03
 # Project Page: https://github.com/landonb/home-fries
-# Summary: Since apparently you cannot do tricky git from .gitconfig.
-# License: GPLv3
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
 
-# 2017-09-27: I tried making this an alias in ~/.gitconfig::
-# 
-#  bump = !\
-#    /bin/bash -c "\
-#      git checkout ${1:-develop} \
-#      git fetch --all \
-#    "
-#
-# but for some reason `git bump` just spits out the usage message.
+# Rebases 'develop' (or a named branch)
+# atop 'upstream/develop' (or a named remote/branch).
+git-bump () {
+  local local_br="${1:-develop}"
+  local remote_up="${2:-upstream}"
+  local upstream_br="${3:-${1}}"
+  local remote_or="${4:-origin}"
+  git checkout "${local_br}"
+  git fetch "${remote_up}"
+  git rebase "${remote_up}/${upstream_br}"
+  # 2020-02-09: Really push? Let's not.
+  #   # git fetch "${remote_or}"
+  #   git push "${remote_or}"
+}
 
-# 2017-09-27: Fist bump! Update 'develop' or a named branch
-#   to 'upstream' remote or a named remote.
-set -e
-#git fetch --all
-git fetch ${3:-origin}
-git fetch ${2:-upstream}
-git checkout ${1:-develop}
-git rebase ${2:-upstream}/${1:-develop}
-git push ${3:-origin}
+# ***
+
+main () {
+  set -e
+  git-bump "${@}"
+}
+
+main "$@"
 

@@ -1,1 +1,0 @@
-BEGIN { print "count\tfile" } { print $1 "\t" $2 }
