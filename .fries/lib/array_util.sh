@@ -94,8 +94,14 @@ echo_list () {
   if [[ -z ${list} ]]; then
     declare -a list
   fi
-  for ((i = 0; i < ${#list[@]}; i++)); do
-    local elem="${list[$i]}"
+  local ix
+  for ((ix = 0; ix < ${#list[@]}; ix++)); do
+    local elem="${list[$ix]}"
+    echo "elem: ${elem}"
+  done
+  #
+  local elem
+  for elem in "${list[@]}"; do
     echo "elem: ${elem}"
   done
 }
@@ -112,9 +118,10 @@ echo_dict () {
   # [lb] not sure there's a work around, other than, say, using Ruby or Perl
   # to write shell scripts.
   declare -A dict
-  for i in "${!dict[@]}"; do
-    echo "key  : $i"
-    echo "value: ${dict[$i]}"
+  local ix
+  for ix in "${!dict[@]}"; do
+    echo "key  : $ix"
+    echo "value: ${dict[$ix]}"
   done
 }
 
