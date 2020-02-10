@@ -1,12 +1,28 @@
+# Dev's private .bashrc files.
 .bashrc/bashrx.private.*.sh
 
-# 2016-11-18: From ~/.fries/bin/.ignore
-bin/packme
-bin/travel
-bin/unpack
-
-# 2016-11-18: From ~/.fries/once/.ignore
-once/*.private.*
-
-#bin/
+# Symlinks to files I moved to another project,
+#   github.com/landonb/git-FlU
+# but I didn't update my PATH, and I like having
+# references under ~/.fries/bin. But I don't
+# want these double-grepped, either. Hence, this.
+bin/completions/git-completion.bash
+bin/diffconflicts
+bin/git-brs
+bin/git-bump
+bin/git-cleanbr
+bin/git-cob
+bin/git-coc
+bin/git-get
+bin/git-gone
+bin/git-lie-ci
+bin/git-rebase-bubble-commit
+bin/git-rebase-bubble-oldest
+bin/git-shunt
+bin/git-st.sh
+bin/git-undo
+bin/git-vim
+bin/git-wipit
+bin/githexdiff
+bin/gitmelddiff
 
