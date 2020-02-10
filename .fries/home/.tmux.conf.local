@@ -1,11 +1,24 @@
-# (lb): Copied (then Modified) from:
+# (lb): Copied (then modified) from:
+#
 #   https://github.com/gpakosz/.tmux
 # (‑●‑●)> dual licensed under the WTFPL v2 license and the MIT license,
 #         without any warranty.
 #         Copyright 2012— Gregory Pakosz (@gpakosz).
 
-# ---------------------------------------------------------- #
+# (lb): You can diff this file against the upstream source
+#       to easily see all my changes!
 
+# ----------------------------------------------------------------------- #
+
+#  ┌───────────────────────────────────────────────────────────────────┐  #
+#  │                                                                   │  #
+#  ├─── (lb): UPSTREAM SETTINGS ───────────────────────────────────────┤  #
+#  │                                                                   │  #
+#  └───────────────────────────────────────────────────────────────────┘  #
+
+# ----------------------------------------------------------------------- #
+
+# ---------------------------------------------------------- #
 # -- navigation ----------------------------------------------------------------
 
 # if you're running tmux within iTerm2
@@ -16,7 +29,6 @@
 #set -ga terminal-overrides "*:kUP3=\e[1;9A,*:kDN3=\e[1;9B,*:kRIT3=\e[1;9C,*:kLFT3=\e[1;9D"
 
 # ---------------------------------------------------------- #
-
 # -- windows & pane creation ---------------------------------------------------
 
 # new window retains current path, possible values are:
@@ -40,18 +52,25 @@ tmux_conf_new_pane_reconnect_ssh=false
 tmux_conf_new_session_prompt=false
 
 # ---------------------------------------------------------- #
-
-# -- display -------------------------------------------------------------------
+# -- true color ----------------------------------------------------------------
 
 # RGB 24-bit colour support (tmux >= 2.2), possible values are:
 #  - true
 #  - false (default)
-# 2020-01-02: (lb): Without 24-bit color support, RGB values get rounded.
+# (lb): gpakosz/.tmux.git/.tmux.conf.local suggestion:
+#  tmux_conf_theme_24b_colour=false
+# (lb): Without 24-bit color support, RGB values get rounded.
 tmux_conf_theme_24b_colour=true
+
+# ---------------------------------------------------------- #
+# -- window theme --------------------------------------------------------------
 
 # window style
 tmux_conf_theme_window_fg='default'
 tmux_conf_theme_window_bg='default'
+
+# ---------------------------------------------------------- #
+# -- display --- panes -------------------------------------------------
 
 # highlight focused pane (tmux >= 2.1), possible values are:
 #   - true
@@ -75,378 +94,49 @@ tmux_conf_theme_pane_active_border='#00afff'            # light blue
 tmux_conf_theme_pane_indicator='#00afff'                # light blue
 tmux_conf_theme_pane_active_indicator='#00afff'         # light blue
 
+# ---------------------------------------------------------- #
+# -- display --- status line -------------------------------------------
+
 # status line style
 tmux_conf_theme_message_fg='#000000'                    # black
 tmux_conf_theme_message_bg='#ffff00'                    # yellow
 tmux_conf_theme_message_attr='bold'
-#tmux_conf_theme_message_attr='underscore'
 
 # status line command style (<prefix> : Escape)
 tmux_conf_theme_message_command_fg='#ffff00'            # yellow
 tmux_conf_theme_message_command_bg='#000000'            # black
 tmux_conf_theme_message_command_attr='bold'
-#tmux_conf_theme_message_command_attr='underscore'
 
 # window modes style
 tmux_conf_theme_mode_fg='#000000'                       # black
 tmux_conf_theme_mode_bg='#ffff00'                       # yellow
 tmux_conf_theme_mode_attr='bold'
-#tmux_conf_theme_mode_attr='underscore'
+
+# (lb): I also tried underscore instead of bold, but too distracting.
+#  tmux_conf_theme_message_attr='underscore'
+#  tmux_conf_theme_message_command_attr='underscore'
+#  tmux_conf_theme_mode_attr='underscore'
 
 # status line style
 tmux_conf_theme_status_fg='#8a8a8a'                     # light gray
 tmux_conf_theme_status_bg='#080808'                     # dark gray
 tmux_conf_theme_status_attr='none'
 
-# window status style
+# ---------------------------------------------------------- #
+# -- display --- window title ------------------------------------------
+
+# terminal title
 #   - built-in variables are:
 #     - #{circled_window_index}
-tmux_conf_theme_window_status_fg='#8a8a8a'              # light gray
-tmux_conf_theme_window_status_bg='#080808'              # dark gray
-tmux_conf_theme_window_status_attr='none'
-#tmux_conf_theme_window_status_format='#I #W'
-##tmux_conf_theme_window_status_format='#I:#W'
-#tmux_conf_theme_window_status_format='#{circled_window_index} #W'
-# b: → basename of the variable
-# To control length: #{=-5b:pane_current_path}
-#tmux_conf_theme_window_status_format='#{circled_window_index}'
-#tmux_conf_theme_window_status_format='#{circled_window_index} …#{=-5:pane_current_path}/'
-tmux_conf_theme_window_status_format='#{circled_window_index} #{b:pane_current_path}/'
-#tmux_conf_theme_window_status_format='#I #W#{?window_bell_flag,🔔,}#{?window_zoomed_flag,🔍,}'
-
-# window current status style
-#   - built-in variables are:
-#     - #{circled_window_index}
-#tmux_conf_theme_window_status_current_fg='#000000'      # black
-#tmux_conf_theme_window_status_current_bg='#00afff'      # light blue
-#tmux_conf_theme_window_status_current_attr='bold'
-tmux_conf_theme_window_status_current_fg='#050505'      # black
-tmux_conf_theme_window_status_current_bg='#00afff'      # light blue
-tmux_conf_theme_window_status_current_attr='none'
-# This makes the window list names underlined:
-#   tmux_conf_theme_window_status_current_attr='underscore'
-# FORMATS
-#     Variable name          Alias    Replaced with
-#     -------------          -----    -------------
-#     window_index           #I       Index of window
-#     window_name            #W       Name of window
-#tmux_conf_theme_window_status_current_format='#I #W'
-#tmux_conf_theme_window_status_current_format='#I:#W'
-#tmux_conf_theme_window_status_current_format='#{circled_window_index} #W'
-#tmux_conf_theme_window_status_current_format='#W #{circled_window_index}'
-#tmux_conf_theme_window_status_current_format='#{circled_window_index}'
-tmux_conf_theme_window_status_current_format='#{circled_window_index} #{b:pane_current_path}/'
-#tmux_conf_theme_window_status_current_format='#I #W#{?window_zoomed_flag,🔍,}'
-
-# window activity status style
-tmux_conf_theme_window_status_activity_fg='default'
-tmux_conf_theme_window_status_activity_bg='default'
-tmux_conf_theme_window_status_activity_attr='underscore'
-
-# window bell status style
-tmux_conf_theme_window_status_bell_fg='#ffff00'         # yellow
-tmux_conf_theme_window_status_bell_bg='default'
-tmux_conf_theme_window_status_bell_attr='blink,bold'
-
-# window last status style
-tmux_conf_theme_window_status_last_fg='#00afff'         # light blue
-tmux_conf_theme_window_status_last_bg='default'
-tmux_conf_theme_window_status_last_attr='none'
-
-# status left/right sections separators
-#tmux_conf_theme_left_separator_main=''
-#tmux_conf_theme_left_separator_sub='|'
-#tmux_conf_theme_right_separator_main=''
-#tmux_conf_theme_right_separator_sub='|'
-tmux_conf_theme_left_separator_main=''  # /!\ you don't need to install Powerline
-tmux_conf_theme_left_separator_sub=''   #   you only need fonts patched with
-tmux_conf_theme_right_separator_main='' #   Powerline symbols or the standalone
-tmux_conf_theme_right_separator_sub=''  #   PowerlineSymbols.otf font
-
-# status left/right content:
-#   - separate main sections with '|'
-#   - separate subsections with ','
-#   - built-in variables are:
-#     - #{battery_bar}
-#     - #{battery_hbar}
-#     - #{battery_percentage}
-#     - #{battery_status}
-#     - #{battery_vbar}
 #     - #{circled_session_name}
-#     - #{hostname_ssh}
 #     - #{hostname}
-#     - #{loadavg}
-#     - #{pairing}
-#     - #{prefix}
-#     - #{root}
-#     - #{uptime_d}
-#     - #{uptime_h}
-#     - #{uptime_m}
-#     - #{uptime_s}
+#     - #{hostname_ssh}
 #     - #{username}
 #     - #{username_ssh}
+# (lb): gpakosz/.tmux.git/.tmux.conf.local suggestion:
+#  tmux_conf_theme_terminal_title='#h ❐ #S ● #I #W'
 
-# (lb): From:
-#   https://git.linux-help.org/psi-jack/tmux-config/src/commit/105fb54755b0183fc160b76167e86e5c4f35a8d3/README.md
-#     {battery_bar}: horizontal battery charge bar
-#     {battery_percentage}: battery percentage
-#     {battery_status}: is battery charging or discharging?
-#     {battery_vbar}: vertical battery charge bar
-#     {circled_session_name}: circled session number, up to 20
-#     {hostname}: SSH aware hostname information
-#     {hostname_ssh}: SSH aware hostname information, blank when no SSH connection detected
-#     {loadavg}: load average
-#     {pairing}: is session attached to more than one client?
-#     {prefix}: is prefix being depressed?
-#     {root}: is current user root?
-#     {synchronized}: are the panes synchronized?
-#     {uptime_d}: uptime days
-#     {uptime_h}: uptime hours
-#     {uptime_m}: uptime minutes
-#     {uptime_s}: uptime seconds
-#     {username}: SSH aware username information
-#     {username_ssh}: SSH aware username information, blank when no SSH connection detected
-
-# DEFAULT:
-#   tmux_conf_theme_status_left=' ❐ #S | ↑#{?uptime_d, #{uptime_d}d,}#{?uptime_h, #{uptime_h}h,}#{?uptime_m, #{uptime_m}m,} '
-#   tmux_conf_theme_status_right='#{prefix}#{pairing} #{?battery_status, #{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} , %R , %d %b | #{username}#{root}|@#{hostname} '
-# FIXME/EXPLAIN/2020-01-03: Where are the percent-variables documented? E.g., %R.
-#   %R: HH:MM
-#   %d: 01 day
-#   %b: Jan mon.
-# https://leetschau.github.io/develop-with-tmux-in-linux.html
-#   The format strings in status line are interpreted as the followings:
-#   %X: date-time sign, such as %R is time, %F is date, etc.
-#     See full list in "FORMAT controls the output" section in man date;
-
-# Some options for load-average icon: 📈 🔥 🍗 ⏲  🌡 🏋
-# Who needs the session name, right? It's just the session number, e.g., ❐ 0.
-# Except maybe if I name tmux for project I'm on?
-#   tmux_conf_theme_status_left=' ❐ #S | #{loadavg} ⏲ '
-
-# 2020-01-09 14:00: CPU Spikes. Not a biggie, but I'm curious.
-# 2020-01-09 14:06: Really? It's not battery_* issue (which I saw in SO post)
-#                           but an issue with computing loadavg?
-#                   Well, battery is causing some little spikes...
-tmux_conf_theme_status_left=' ❐ #S | #{loadavg} ⏲ '
-# FIXME/2020-01-09 14:08: Can you restrict loadavg to specific sessions?
-# Use this instead to prevent some spiking:
-# tmux_conf_theme_status_left=' ❐ #S | ⏲ '
-
-# (lb): Use gitmux to show Git working tree status: https://github.com/arl/gitmux
-tmux_conf_theme_status_right='#{prefix}#{pairing} |#(gitmux -cfg ~/.waffle/home/.gitmux.conf #{pane_current_path})#{?battery_status, #{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} | #{username}#{root}|@#{hostname} | %R %d %b '
-
-# 2020-01-09 14:00: CPU Spikes. Not a biggie, but I'm curious.
-# - See above comment, #{loadavg} and #{battery_*} appear to cause CPU spiking on redraw.
-# - See also status-interval
-#
-#tmux_conf_theme_status_right='#{prefix}#{pairing} |GITST-BATTSTAT | #{username}#{root}|@#{hostname} | %R %d %b 
-#'
-# # 2020-01-09 14:02: The spike is cumulative, not too noticeable with one session,
-# #                   but the spike is V. noticeable with ten!
-#
-# # Without battery status:
-#tmux_conf_theme_status_right='#{prefix}#{pairing} |#(gitmux -cfg ~/.waffle/home/.gitmux.conf #{pane_current_path}) | #{username}#{root}|@#{hostname} | %R %d %b '
-# # Yanked='#{?battery_status, #{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},}'
-
-# For weather:
-#   #(curl "wttr.in/?format=1")
-
-# *** status left style
-#
-# The status line with 3 items: Session-name | Uptime | Load-average.
-#   tmux_conf_theme_status_left=' ❐ #S | ↑#{?uptime_d, #{uptime_d}d,}#{?uptime_h, #{uptime_h}h,}#{?uptime_m, #{uptime_m}m,} | #{loadavg} ⏲ '
-# One set of colors/attrs:
-#   tmux_conf_theme_status_left_fg='#000000,#e4e4e4,#e4e4e4'  # black, white, white
-#   tmux_conf_theme_status_left_bg='#ffff00,#ff00af,#00afff'  # yellow, pink, white blue
-#   #
-#   tmux_conf_theme_status_left_fg='#000000,#e4e4e4,#050505'  # black, white, black, white
-#   tmux_conf_theme_status_left_bg='#ffff00,#FF7400,#00afff'  # yellow, orange, white blue
-#   tmux_conf_theme_status_left_bg='#ffff00,#c65a00,#00ff00'  # yellow, darker orange, green
-#   #
-#   tmux_conf_theme_status_left_attr='bold,none,none'
-# Another set:
-#   tmux_conf_theme_status_left_fg='#050505,#050505,#050505'  # black, white, black, white
-#   tmux_conf_theme_status_left_bg='#C6C600,#9951C0,#7BB800'  # yellow, purple, green
-#   tmux_conf_theme_status_left_attr='none,none,none'
-# The status line with 2 items: Session-name | Load-average.
-tmux_conf_theme_status_left_fg='#050505,#050505'  # black, white, black, white
-tmux_conf_theme_status_left_bg='#C6C600,#7BB800'  # yellow, purple, green
-tmux_conf_theme_status_left_attr='none,none'
-
-# *** status right style
-#
-# The status line with 3 items: prefix-pairing-battery-HH:MM-01-Jan | username-root | @hostname.
-#   tmux_conf_theme_status_right_fg='#8a8a8a,#e4e4e4,#000000' # light gray, white, black
-#   tmux_conf_theme_status_right_bg='#080808,#d70000,#e4e4e4' # dark gray, red, white
-#   tmux_conf_theme_status_right_fg='#8a8a8a,#e4e4e4,#ffff00' # light gray, white, yellow
-# The status line with 5 items: Alternate dark gray and darker grey.
-tmux_conf_theme_status_right_fg='#ffff00,#e4e4e4,#e4e4e4,#ffff00,#8a8a8a' # yellow, white x 2, yel., light gray
-tmux_conf_theme_status_right_bg='#080808,#282828,#080808,#080808,#282828' # black, dark gray, ...
-tmux_conf_theme_status_right_attr='none,none,bold,bold,none'
-
-# pairing indicator
-tmux_conf_theme_pairing='👓 '          # U+1F453
-tmux_conf_theme_pairing_fg='none'
-tmux_conf_theme_pairing_bg='none'
-tmux_conf_theme_pairing_attr='none'
-
-# prefix indicator
-tmux_conf_theme_prefix='⌨ '            # U+2328
-tmux_conf_theme_prefix_fg='none'
-tmux_conf_theme_prefix_bg='none'
-tmux_conf_theme_prefix_attr='none'
-
-# root indicator
-tmux_conf_theme_root='!'
-tmux_conf_theme_root_fg='none'
-tmux_conf_theme_root_bg='none'
-tmux_conf_theme_root_attr='bold,blink'
-
-# battery bar symbols
-tmux_conf_battery_bar_symbol_full='◼'
-tmux_conf_battery_bar_symbol_empty='◻'
-#tmux_conf_battery_bar_symbol_full='♥'
-#tmux_conf_battery_bar_symbol_empty='·'
-
-# battery bar length (in number of symbols), possible values are:
-#   - auto
-#   - a number, e.g. 5
-tmux_conf_battery_bar_length='auto'
-
-# battery bar palette, possible values are:
-#   - gradient (default)
-#   - heat
-#   - 'colour_full_fg,colour_empty_fg,colour_bg'
-tmux_conf_battery_bar_palette='gradient'
-#tmux_conf_battery_bar_palette='#d70000,#e4e4e4,#000000'   # red, white, black
-
-# battery hbar palette, possible values are:
-#   - gradient (default)
-#   - heat
-#   - 'colour_low,colour_half,colour_full'
-tmux_conf_battery_hbar_palette='gradient'
-#tmux_conf_battery_hbar_palette='#d70000,#ff5f00,#5fff00'  # red, orange, green
-
-# battery vbar palette, possible values are:
-#   - gradient (default)
-#   - heat
-#   - 'colour_low,colour_half,colour_full'
-tmux_conf_battery_vbar_palette='gradient'
-#tmux_conf_battery_vbar_palette='#d70000,#ff5f00,#5fff00'  # red, orange, green
-
-# symbols used to indicate whether battery is charging or discharging
-tmux_conf_battery_status_charging='↑'       # U+2191
-tmux_conf_battery_status_discharging='↓'    # U+2193
-#tmux_conf_battery_status_charging='⚡ '    # U+26A1
-#tmux_conf_battery_status_charging='🔌 '    # U+1F50C
-#tmux_conf_battery_status_discharging='🔋 ' # U+1F50B
-
-# clock style
-tmux_conf_theme_clock_colour='#00afff'  # light blue
-tmux_conf_theme_clock_style='24'
-
-# ---------------------------------------------------------- #
-
-# -- clipboard -----------------------------------------------------------------
-
-# in copy mode, copying selection also copies to the OS clipboard
-#   - true
-#   - false (default)
-# on macOS, this requires installing reattach-to-user-namespace, see README.md
-# on Linux, this requires xsel or xclip
-# DEFAULT:
-#  tmux_conf_copy_to_os_clipboard=false
-# (lb): To use:
-# - Press <Ctrl-b [> to enter selection mode.
-# - Use arrows to position the cursor.
-# - Press <v> to start selecting.
-# - Press arrows or other keys to select (e.g., <w> selects words).
-# - Press <y> or <Enter> to finish.
-# - If tmux_conf_copy_to_os_clipboard is false, you still need to
-#   press <Ctrl-b y> to yank from xclip to terminal clipboard;
-#   otherwise, if this option is true, tmux will do so for you
-#   (such that <Ctrl-Shift-v> works immediately after finishing
-#   the selection).
-# Prerequisites: `sudo apt-get install -y xclip`
-tmux_conf_copy_to_os_clipboard=true
-
-# ---------------------------------------------------------- #
-
-# -- user customizations -------------------------------------------------------
-
-# this is the place to override or undo settings
-
-# ---------------------------------------------------------- #
-
-# increase history size
-#set -g history-limit 10000
-
-# ---------------------------------------------------------- #
-
-# start with mouse mode enabled
-#set -g mouse on
-
-# ---------------------------------------------------------- #
-
-# force Vi mode
-#   really you should export VISUAL or EDITOR environment variable, see manual
-#set -g status-keys vi
-# 2020-01-03: mode-keys vi did not make Shift-Home/-End work.
-# 2020-02-05: Per man tmux, vi mode is default because EDITOR contains 'vi'.
-#set -g mode-keys vi
-
-# ---------------------------------------------------------- #
-
-# replace C-b by C-a instead of using both prefixes
-# set -gu prefix2
-# unbind C-a
-# unbind C-b
-# set -g prefix C-a
-# bind C-a send-prefix
-
-# ---------------------------------------------------------- #
-
-# move status line to top
-#set -g status-position top
-
-# ---------------------------------------------------------- #
-
-# *** LNB's SETTINGS <=====================================================     === ***
-
-# ---------------------------------------------------------- #
-
-# Tmux copy with mouse drag.
-#  setw -g mode-mouse on
-#  set -g mouse-select-window on
-set -g mouse on
-
-# ---------------------------------------------------------- #
-
-# 2018-02-15: I do not think I need this; tmuxinator does what I need.
-## https://github.com/tmux-plugins/tmux-resurrect
-#  set -g @plugin 'tmux-plugins/tmux-resurrect'
-#  set -g @resurrect-capture-pane-contents 'on'
-
-# ---------------------------------------------------------- #
-
-# https://github.com/tmux-plugins/tpm
-#
-# List of plugins
-set -g @plugin 'tmux-plugins/tpm'
-set -g @plugin 'tmux-plugins/tmux-sensible'
-
-# Other examples:
-# set -g @plugin 'github_username/plugin_name'
-# set -g @plugin 'git@github.com/user/plugin'
-# set -g @plugin 'git@bitbucket.com/user/plugin'
-#
-# Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
-run '~/.tmux/plugins/tpm/tpm'
-
-# ---------------------------------------------------------- #
-
-# 2020-01-02: (lb): Set the (mate-)window titlebar label.
+# (lb): Set the (mate-)window titlebar label.
 #
 # FORMATS
 #     Variable name          Alias    Replaced with
@@ -487,22 +177,7 @@ run '~/.tmux/plugins/tpm/tpm'
 # Maybe I do like 3 the best, the windows have nicknames, sorta.
 tmux_conf_theme_terminal_title='#T ┇ #{=3:session_name}'
 
-# ---------------------------------------------------------- #
-
-# TWEAK: The #W shows the command name (but not args), and is updated when you run
-#   commands, but it takes 15 seconds by default to change. So ridiculously slow!
-# (lb): I tried 1, but my CPU profile in the mate-panel area shows little spikes
-# every second, which really is no big deal, but it's distracting to me to see.
-#set -g status-interval 1
-#set -g status-interval 2
-#set -g status-interval 5
-#set -g status-interval 10
-# 2020-01-09 14:10: Because CPU spikes when lots of sessions on redraw.
-# Huh, 15 just spaces the spikes way apart... how useful is it at 15 secs, though?
-#  set -g status-interval 15
-set -g status-interval 5
-
-# ---------------------------------------------------------- #
+# -------
 
 # Note that you can rename the tmux window name from a tmux prompt, e.g.,
 #
@@ -543,136 +218,673 @@ set -g status-interval 5
 #   printf '\033kWINDOW_NAME\033\\'
 
 # ---------------------------------------------------------- #
+# -- display --- status line -------------------------------------------
+
+# window status style
+#   - built-in variables are:
+#     - #{circled_window_index}
+#     - #{circled_session_name}
+#     - #{hostname}
+#     - #{hostname_ssh}
+#     - #{username}
+#     - #{username_ssh}
+tmux_conf_theme_window_status_fg='#8a8a8a'              # light gray
+tmux_conf_theme_window_status_bg='#080808'              # dark gray
+tmux_conf_theme_window_status_attr='none'
+# (lb): gpakosz/.tmux.git/.tmux.conf.local suggestion and commented variations:
+#  tmux_conf_theme_window_status_format='#I #W'
+#  #tmux_conf_theme_window_status_format='#{circled_window_index} #W'
+#  #tmux_conf_theme_window_status_format='#I #W#{?window_bell_flag,🔔,}#{?window_zoomed_flag,🔍,}'
+# (lb): Some variations I tried:
+#  tmux_conf_theme_window_status_format='#{circled_window_index}'
+#  # To control length: #{=-5b:...}
+#  tmux_conf_theme_window_status_format='#{circled_window_index} …#{=-5:pane_current_path}/'
+#  # To get basename of variable: #{b:...}
+tmux_conf_theme_window_status_format='#{circled_window_index} #{b:pane_current_path}/'
+
+# window current status style
+#   - built-in variables are:
+#     - #{circled_window_index}
+#     - #{circled_session_name}
+#     - #{hostname}
+#     - #{hostname_ssh}
+#     - #{username}
+#     - #{username_ssh}
+# (lb): gpakosz/.tmux.git/.tmux.conf.local suggestions:
+#  tmux_conf_theme_window_status_current_fg='#000000'      # black
+#  tmux_conf_theme_window_status_current_bg='#00afff'      # light blue
+#  tmux_conf_theme_window_status_current_attr='bold'
+#
+# (lb): What I like:
+#
+# - I thought I would find gurgle hits on 050505 (Rough(ly) black?)
+#   or 080808 (Vampire Black), that I didn't. Oh, because it's a
+#   print hack! Some printers use different inks for pure black vs.
+#   almost black, and oftentimes almost black is the blacker color.
+tmux_conf_theme_window_status_current_fg='#050505'.
+#
+# Use same light blue background that gpakosz uses.
+tmux_conf_theme_window_status_current_bg='#00afff'
+#
+tmux_conf_theme_window_status_current_attr='none'
+# This makes the window list names underlined:
+#   tmux_conf_theme_window_status_current_attr='underscore'
+
+# (lb): gpakosz/.tmux.git/.tmux.conf.local suggestion and variations:
+#  tmux_conf_theme_window_status_current_format='#I #W'
+#  #tmux_conf_theme_window_status_current_format='#{circled_window_index} #W'
+#  #tmux_conf_theme_window_status_current_format='#I #W#{?window_zoomed_flag,🔍,}'
+# FORMATS
+#     Variable name          Alias    Replaced with
+#     -------------          -----    -------------
+#     window_index           #I       Index of window
+#     window_name            #W       Name of window
+# (lb) Some variations I tried:
+#  tmux_conf_theme_window_status_current_format='#I:#W'
+#  tmux_conf_theme_window_status_current_format='#W #{circled_window_index}'
+#  tmux_conf_theme_window_status_current_format='#{circled_window_index}'
+tmux_conf_theme_window_status_current_format='#{circled_window_index} #{b:pane_current_path}/'
+
+# window activity status style
+tmux_conf_theme_window_status_activity_fg='default'
+tmux_conf_theme_window_status_activity_bg='default'
+tmux_conf_theme_window_status_activity_attr='underscore'
+
+# window bell status style
+tmux_conf_theme_window_status_bell_fg='#ffff00'         # yellow
+tmux_conf_theme_window_status_bell_bg='default'
+tmux_conf_theme_window_status_bell_attr='blink,bold'
+
+# window last status style
+tmux_conf_theme_window_status_last_fg='#00afff'         # light blue
+tmux_conf_theme_window_status_last_bg='default'
+tmux_conf_theme_window_status_last_attr='none'
+
+# status left/right sections separators
+# (lb): gpakosz/.tmux.git/.tmux.conf.local suggestion and variations:
+#  tmux_conf_theme_left_separator_main=''
+#  tmux_conf_theme_left_separator_sub='|'
+#  tmux_conf_theme_right_separator_main=''
+#  tmux_conf_theme_right_separator_sub='|'
+#  #tmux_conf_theme_left_separator_main='\uE0B0'  # /!\ you don't need to install Powerline
+#  #tmux_conf_theme_left_separator_sub='\uE0B1'   #   you only need fonts patched with
+#  #tmux_conf_theme_right_separator_main='\uE0B2' #   Powerline symbols or the standalone
+#  #tmux_conf_theme_right_separator_sub='\uE0B3'  #   PowerlineSymbols.otf font, see README.md
+# (lb): My dubs-mescaline- and powerline-inspired status line separators:
+tmux_conf_theme_left_separator_main=''  # /!\ you don't need to install Powerline
+tmux_conf_theme_left_separator_sub=''   #   you only need fonts patched with
+tmux_conf_theme_right_separator_main='' #   Powerline symbols or the standalone
+tmux_conf_theme_right_separator_sub=''  #   PowerlineSymbols.otf font
+
+# status left/right content:
+#   - separate main sections with '|'
+#   - separate subsections with ','
+#   - built-in variables are:
+#     - #{battery_bar}
+#     - #{battery_hbar}
+#     - #{battery_percentage}
+#     - #{battery_status}
+#     - #{battery_vbar}
+#     - #{circled_session_name}
+#     - #{hostname_ssh}
+#     - #{hostname}
+#     - #{loadavg}
+#     - #{pairing}
+#     - #{prefix}
+#     - #{root}
+#     - #{synchronized}
+#     - #{uptime_y}
+#     - #{uptime_d} (modulo 365 when #{uptime_y} is used)
+#     - #{uptime_h}
+#     - #{uptime_m}
+#     - #{uptime_s}
+#     - #{username}
+#     - #{username_ssh}
+# (lb): Former gpakosz/.tmux.git/.tmux.conf.local suggestions:
+#  # tmux_conf_theme_status_left=' ❐ #S | ↑#{?uptime_d, #{uptime_d}d,}#{?uptime_h, #{uptime_h}h,}#{?uptime_m, #{uptime_m}m,} '
+#  # tmux_conf_theme_status_right='#{prefix}#{pairing} #{?battery_status, #{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} , %R , %d %b | #{username}#{root}|@#{hostname} '
+# (lb): Latest gpakosz/.tmux.git/.tmux.conf.local suggestions:
+#  tmux_conf_theme_status_left=' ❐ #S | ↑#{?uptime_y, #{uptime_y}y,}#{?uptime_d, #{uptime_d}d,}#{?uptime_h, #{uptime_h}h,}#{?uptime_m, #{uptime_m}m,} '
+#  tmux_conf_theme_status_right='#{prefix}#{pairing}#{synchronized} #{?battery_status, #{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} , %R , %d %b | #{username}#{root} | #{hostname} '
+#
+# (lb): From:
+#
+#   https://git.linux-help.org/psi-jack/tmux-config/src/commit/105fb54755b0183fc160b76167e86e5c4f35a8d3/README.md
+#     {battery_bar}: horizontal battery charge bar
+#     {battery_percentage}: battery percentage
+#     {battery_status}: is battery charging or discharging?
+#     {battery_vbar}: vertical battery charge bar
+#     {circled_session_name}: circled session number, up to 20
+#     {hostname}: SSH aware hostname information
+#     {hostname_ssh}: SSH aware hostname information, blank when no SSH connection detected
+#     {loadavg}: load average
+#     {pairing}: is session attached to more than one client?
+#     {prefix}: is prefix being depressed?
+#     {root}: is current user root?
+#     {synchronized}: are the panes synchronized?
+#     {uptime_d}: uptime days
+#     {uptime_h}: uptime hours
+#     {uptime_m}: uptime minutes
+#     {uptime_s}: uptime seconds
+#     {username}: SSH aware username information
+#     {username_ssh}: SSH aware username information, blank when no SSH connection detected
+#
+# FIXME/EXPLAIN/2020-01-03: Where are the percent-variables documented? E.g., %R.
+#   %R: HH:MM
+#   %d: 01 day
+#   %b: Jan mon.
+# https://leetschau.github.io/develop-with-tmux-in-linux.html
+#   The format strings in status line are interpreted as the followings:
+#   %X: date-time sign, such as %R is time, %F is date, etc.
+#     See full list in "FORMAT controls the output" section in man date;
+#
+# Some options for load-average icon: 📈 🔥 🍗 ⏲  🌡 🏋
+# Who needs the session name, right? It's just the session number, e.g., ❐ 0.
+# Except maybe if I name tmux for project I'm on?
+#   tmux_conf_theme_status_left=' ❐ #S | #{loadavg} ⏲ '
+#
+# 2020-01-09 14:00: CPU Spikes. Not a biggie, but I'm curious.
+# 2020-01-09 14:06: Really? It's not battery_* issue (which I saw in SO post)
+#                           but an issue with computing loadavg?
+#                   Well, battery is causing some little spikes...
+tmux_conf_theme_status_left=' ❐ #S | #{loadavg} ⏲ '
+# FIXME/2020-01-09 14:08: Can you restrict loadavg to specific sessions?
+# Use this instead to prevent some spiking:
+# tmux_conf_theme_status_left=' ❐ #S | ⏲ '
+
+# (lb): Use gitmux to show Git working tree status: https://github.com/arl/gitmux
+tmux_conf_theme_status_right='#{prefix}#{pairing} |#(gitmux -cfg ~/.waffle/home/.gitmux.conf #{pane_current_path})#{?battery_status, #{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} | #{username}#{root}|@#{hostname} | %R %d %b '
+
+# # 2020-01-09 14:00: CPU Spikes. Not a biggie, but I'm curious.
+# # - See above comment, #{loadavg} and #{battery_*} appear to cause CPU spiking on redraw.
+# # - See also status-interval
+#
+# tmux_conf_theme_status_right='#{prefix}#{pairing} |GITST-BATTSTAT | #{username}#{root}|@#{hostname} | %R %d %b
+#'
+# # 2020-01-09 14:02: The spike is cumulative, not too noticeable with one session,
+# #                   but the spike is V. noticeable with ten!
+#
+# # Without battery status:
+# tmux_conf_theme_status_right='#{prefix}#{pairing} |#(gitmux -cfg ~/.waffle/home/.gitmux.conf #{pane_current_path}) | #{username}#{root}|@#{hostname} | %R %d %b '
+# # Yanked='#{?battery_status, #{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},}'
+
+# Insert this snippet for weather:
+#
+#   #(curl "wttr.in/?format=1")
+
+# ---------------------------------------------------------- #
+# -- display --- status left/right styles ------------------------------
+
+# status left style
+# (lb): gpakosz/.tmux.git/.tmux.conf.local suggestions:
+#  tmux_conf_theme_status_left_fg='#000000,#e4e4e4,#e4e4e4'  # black, white , white
+#  tmux_conf_theme_status_left_bg='#ffff00,#ff00af,#00afff'  # yellow, pink, white blue
+#  tmux_conf_theme_status_left_attr='bold,none,none'
+#
+# The status line with 3 items: Session-name | Uptime | Load-average.
+#   tmux_conf_theme_status_left=' ❐ #S | ↑#{?uptime_d, #{uptime_d}d,}#{?uptime_h, #{uptime_h}h,}#{?uptime_m, #{uptime_m}m,} | #{loadavg} ⏲ '
+# One set of colors/attrs I tried:
+#   tmux_conf_theme_status_left_fg='#000000,#e4e4e4,#050505'  # black, white, black, white
+#   tmux_conf_theme_status_left_bg='#ffff00,#FF7400,#00afff'  # yellow, orange, white blue
+#   tmux_conf_theme_status_left_bg='#ffff00,#c65a00,#00ff00'  # yellow, darker orange, green
+#   tmux_conf_theme_status_left_attr='bold,none,none'
+# Another set I tried:
+#   tmux_conf_theme_status_left_fg='#050505,#050505,#050505'  # black, white, black, white
+#   tmux_conf_theme_status_left_bg='#C6C600,#9951C0,#7BB800'  # yellow, purple, green
+#   tmux_conf_theme_status_left_attr='none,none,none'
+# The status line with 2 items: Session-name | Load-average.
+tmux_conf_theme_status_left_fg='#050505,#050505'  # black, white, black, white
+tmux_conf_theme_status_left_bg='#C6C600,#7BB800'  # yellow, purple, green
+tmux_conf_theme_status_left_attr='none,none'
+
+# status right style
+# (lb): gpakosz/.tmux.git/.tmux.conf.local suggestions:
+#  tmux_conf_theme_status_right_fg='#8a8a8a,#e4e4e4,#000000' # light gray, white, black
+#  tmux_conf_theme_status_right_bg='#080808,#d70000,#e4e4e4' # dark gray, red, white
+#  tmux_conf_theme_status_right_attr='none,none,bold'
+#
+# The status line with 3 items: prefix-pairing-battery-HH:MM-01-Jan | username-root | @hostname.
+#   tmux_conf_theme_status_right_fg='#8a8a8a,#e4e4e4,#000000' # light gray, white, black
+#   tmux_conf_theme_status_right_bg='#080808,#d70000,#e4e4e4' # dark gray, red, white
+#   tmux_conf_theme_status_right_fg='#8a8a8a,#e4e4e4,#ffff00' # light gray, white, yellow
+# The status line with 5 items: Alternate dark gray and darker grey.
+tmux_conf_theme_status_right_fg='#ffff00,#e4e4e4,#e4e4e4,#ffff00,#8a8a8a' # yellow, white x 2, yel., light gray
+tmux_conf_theme_status_right_bg='#080808,#282828,#080808,#080808,#282828' # black, dark gray, ...
+tmux_conf_theme_status_right_attr='none,none,bold,bold,none'
+
+# ---------------------------------------------------------- #
+# -- display --- status line components --------------------------------
+
+# pairing indicator
+tmux_conf_theme_pairing='👓 '          # U+1F453
+tmux_conf_theme_pairing_fg='none'
+tmux_conf_theme_pairing_bg='none'
+tmux_conf_theme_pairing_attr='none'
+
+# prefix indicator
+tmux_conf_theme_prefix='⌨ '            # U+2328
+tmux_conf_theme_prefix_fg='none'
+tmux_conf_theme_prefix_bg='none'
+tmux_conf_theme_prefix_attr='none'
+
+# root indicator
+tmux_conf_theme_root='!'
+tmux_conf_theme_root_fg='none'
+tmux_conf_theme_root_bg='none'
+tmux_conf_theme_root_attr='bold,blink'
+
+# synchronized indicator
+tmux_conf_theme_synchronized='🔒'     # U+1F512
+tmux_conf_theme_synchronized_fg='none'
+tmux_conf_theme_synchronized_bg='none'
+tmux_conf_theme_synchronized_attr='none'
+
+# battery bar symbols
+tmux_conf_battery_bar_symbol_full='◼'
+tmux_conf_battery_bar_symbol_empty='◻'
+#tmux_conf_battery_bar_symbol_full='♥'
+#tmux_conf_battery_bar_symbol_empty='·'
+
+# battery bar length (in number of symbols), possible values are:
+#   - auto
+#   - a number, e.g. 5
+tmux_conf_battery_bar_length='auto'
+
+# battery bar palette, possible values are:
+#   - gradient (default)
+#   - heat
+#   - 'colour_full_fg,colour_empty_fg,colour_bg'
+tmux_conf_battery_bar_palette='gradient'
+#tmux_conf_battery_bar_palette='#d70000,#e4e4e4,#000000'   # red, white, black
+
+# battery hbar palette, possible values are:
+#   - gradient (default)
+#   - heat
+#   - 'colour_low,colour_half,colour_full'
+tmux_conf_battery_hbar_palette='gradient'
+#tmux_conf_battery_hbar_palette='#d70000,#ff5f00,#5fff00'  # red, orange, green
+
+# battery vbar palette, possible values are:
+#   - gradient (default)
+#   - heat
+#   - 'colour_low,colour_half,colour_full'
+tmux_conf_battery_vbar_palette='gradient'
+#tmux_conf_battery_vbar_palette='#d70000,#ff5f00,#5fff00'  # red, orange, green
+
+# symbols used to indicate whether battery is charging or discharging
+tmux_conf_battery_status_charging='↑'       # U+2191
+tmux_conf_battery_status_discharging='↓'    # U+2193
+#tmux_conf_battery_status_charging='⚡ '    # U+26A1
+#tmux_conf_battery_status_charging='🔌 '    # U+1F50C
+#tmux_conf_battery_status_discharging='🔋 ' # U+1F50B
+
+# clock style (when you hit <prefix> + t)
+# you may want to use %I:%M %p in place of %R in tmux_conf_theme_status_right
+tmux_conf_theme_clock_colour='#00afff'  # light blue
+tmux_conf_theme_clock_style='24'
+
+# ---------------------------------------------------------- #
+# -- clipboard -----------------------------------------------------------------
+
+# in copy mode, copying selection also copies to the OS clipboard
+#   - true
+#   - false (default)
+# on macOS, this requires installing reattach-to-user-namespace, see README.md
+# on Linux, this requires xsel or xclip
+# (lb): gpakosz/.tmux.git/.tmux.conf.local suggestion:
+#  tmux_conf_copy_to_os_clipboard=false
+# (lb): To use:
+# - Press <Ctrl-b [> to enter selection mode.
+# - Use arrows to position the cursor.
+# - Press <v> to start selecting.
+# - Press arrows or other keys to select (e.g., <w> selects words).
+# - Press <y> or <Enter> to finish.
+# - If tmux_conf_copy_to_os_clipboard is false, you still need to
+#   press <Ctrl-b y> to yank from xclip to terminal clipboard;
+#   otherwise, if this option is true, tmux will do so for you
+#   (such that <Ctrl-Shift-v> works immediately after finishing
+#   the selection).
+# Prerequisites: `sudo apt-get install -y xclip`
+tmux_conf_copy_to_os_clipboard=true
+
+# ---------------------------------------------------------- #
+
+# -- user customizations -------------------------------------------------------
+
+# this is the place to override or undo settings
+
+# ---------------------------------------------------------- #
+# -- history length ------------------------------------------------------------
+
+# (lb): gpakosz/.tmux.git/.tmux.conf.local comment
+#  # increase history size
+#  #set -g history-limit 10000
+
+# (lb): Trying a whole factor larger.
+set -g history-limit 100000
+
+# ---------------------------------------------------------- #
+# -- mouse ---------------------------------------------------------------------
+
+# (lb): gpakosz/.tmux.git/.tmux.conf.local comment
+#  # start with mouse mode enabled
+#  #set -g mouse on
+
+# Tmux copy with mouse drag.
+#  setw -g mode-mouse on
+#  set -g mouse-select-window on
+set -g mouse on
+
+# ---------------------------------------------------------- #
+# -- vi mode -------------------------------------------------------------------
+
+# force Vi mode
+#   really you should export VISUAL or EDITOR environment variable, see manual
+# (lb): Really I should? because it's not working. I've got my own vim at:
+#           $ echo $EDITOR
+#           /home/user/.local/bin/vim
+#       but copy-mode-vi not enabled unless I set vi here. I.e.,
+#           $ tmux show -g mode-keys
+#           mode-keys emacs
+# - man tmux: "The default is emacs, unless the VISUAL or EDITOR environment
+#           variables are set and contain the string ‘vi’."
+#           Perhaps the meaning of "string" is /\bvi\b/ word-bounded;
+#           or maybe it doesn't like the path leading up to it.
+# (lb): gpakosz/.tmux.git/.tmux.conf.local suggestions (disabled):
+#  #set -g status-keys vi
+#  #set -g mode-keys vi
+set -g status-keys vi
+set -g mode-keys vi
+
+# ---------------------------------------------------------- #
+# -- prefix binding ------------------------------------------------------------
+
+# replace C-b by C-a instead of using both prefixes
+# set -gu prefix2
+# unbind C-a
+# unbind C-b
+# set -g prefix C-a
+# bind C-a send-prefix
+
+# ---------------------------------------------------------- #
+# -- stats' up -----------------------------------------------------------------
+
+# move status line to top
+#set -g status-position top
+
+# ----------------------------------------------------------------------- #
+
+#  ┌───────────────────────────────────────────────────────────────────┐  #
+#  │                                                                   │  #
+#  ├─── (lb): MY SETTINGS ─────────────────────────────────────────────┤  #
+#  │                                                                   │  #
+#  └───────────────────────────────────────────────────────────────────┘  #
+
+# ----------------------------------------------------------------------- #
+
+# ---------------------------------------------------------- #
+# -- plugin(s) -----------------------------------------------------------------
+
+# https://github.com/tmux-plugins/tpm
+#
+# List of plugins
+set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'tmux-plugins/tmux-sensible'
+
+# Other examples:
+# set -g @plugin 'github_username/plugin_name'
+# set -g @plugin 'git@github.com/user/plugin'
+# set -g @plugin 'git@bitbucket.com/user/plugin'
+#
+# Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
+run '~/.tmux/plugins/tpm/tpm'
+
+# ---------------------------------------------------------- #
+# -- status interval -----------------------------------------------------------
+
+# TWEAK: The #W shows the command name (but not args), and is updated when you run
+#        commands, but it takes 15 seconds by default to change. So ridiculously slow!
+# (lb): I tried 1, but my CPU profile in the mate-panel area shows little spikes
+#       every second, which really is no big deal, but it's distracting to me to see.
+# - Some variations I tried:
+#  # set -g status-interval 1
+#  # set -g status-interval 2
+#  # set -g status-interval 5
+#  # set -g status-interval 10
+#  # # Even at 15 secs., there are still spikes, just less frequently.
+#  # # - And how useful is a slow, 15 second update?
+#  # set -g status-interval 15
+set -g status-interval 5
+
+# ---------------------------------------------------------- #
+# -- numberwang ----------------------------------------------------------------
 
 # https://gist.github.com/spicycode/1229612
-#
+
 # 0 is too far from ` ;)
 set -g base-index 1
 # ??: pane-base-index
-#
-# (lb): Is twice the default really useful? What not a whole factor larger instead?
-set -g history-limit 100000
-#
-# 2020-01-03 11:56: Already bound?:
-#  bind-key v split-window -h
-#  bind-key s split-window -v
-#
-# (lb): Not sure I care about resize-pane,
-# because Ctrl-b Alt-arrow(s) work well.
-#bind-key J resize-pane -D 5
-#bind-key K resize-pane -U 5
-#bind-key H resize-pane -L 5
-#bind-key L resize-pane -R 5
-#
-#bind-key M-j resize-pane -D
-#bind-key M-k resize-pane -U
-#bind-key M-h resize-pane -L
-#bind-key M-l resize-pane -R
-#
-# Vim style pane selection
-# (lb): Not sure I care, because Alt-Arrows work,
-# also awkward keypresses.
-#   bind h select-pane -L
-#   bind j select-pane -D
-#   bind k select-pane -U
-#   bind l select-pane -R
-# Use Alt-vim keys without prefix key to switch panes.
-# (lb): Works, but awkward keypresses.
-#   bind -n M-h select-pane -L
-#   bind -n M-j select-pane -D
-#   bind -n M-k select-pane -U
-#   bind -n M-l select-pane -R
-#
-# Use Alt-arrow keys without prefix key to switch panes.
-# See also builtin: Move cursor between windows: ``ctrl-a <arrow>``
-# (lb): NICE!
-bind -n M-Left select-pane -L
-bind -n M-Right select-pane -R
-bind -n M-Up select-pane -U
-bind -n M-Down select-pane -D
-#
-# Shift arrow to switch windows
-# (lb): SO NICE!
-bind -n S-Left  previous-window
-bind -n S-Right next-window
-#
-# No delay for escape key press
-#set -sg escape-time 0
-#
-# Reload tmux config
-#bind r source-file ~/.tmux.conf
-#
-# THEME
-#set -g status-bg black
-#set -g status-fg white
-#set -g window-status-current-bg white
-#set -g window-status-current-fg black
-#set -g window-status-current-attr bold
-#set -g status-interval 60
-#set -g status-left-length 30
-#set -g status-left '#[fg=green](#S) #(whoami)'
-#set -g status-right '#[fg=yellow]#(cut -d " " -f 1-3 /proc/loadavg)#[default] #[fg=white]%H:%M#[default]'
 
 # ---------------------------------------------------------- #
+# -- escape delay --------------------------------------------------------------
+
+# No delay for escape key press
+# set -sg escape-time 0
+
+# ---------------------------------------------------------- #
+# -- fix the help 3.1 ----------------------------------------------------------
+
+# tmux 3.1 changes Ctrl-a ? default to `list-keys -N`, which
+# appears to hide a lot of the bindings. Call this for the old
+# behavior (complete list):
+bind ? list-keys
+
+# ---------------------------------------------------------- #
+# -- reload the conf -----------------------------------------------------------
+
+# Reload tmux config:
+#   bind r source-file ~/.tmux.conf
+# But really I find that I `tmux kill-ser` and `Super_L m` to reload
+# (where I've got a (MATE) window manager keybinding of the latter to
+# open tmux in a new (mate-terminal) window).
+
+# ---------------------------------------------------------- #
+# -- rotate window focus -------------------------------------------------------
+
+# - Use the same key bindings for switching windows as Dubs Vim uses for
+#   switching Tabs. Not that the two concepts have different names but are
+#   essentially the same construct -- a tmux window is essentially a Vim tab.
+# - Be more like Dubs Vim!
+bind -n M-S-Up previous-window
+bind -n M-S-Down next-window
+
+# ---------------------------------------------------------- #
+# -- rotate pane focus ---------------------------------------------------------
+
+# Bind C-S-Up/-Down to rotating pane focus, just like how in Dubs Vim
+# those 2 keys move focus and cursor between Vim window panes.
+# - SAME: `tmux select-pane -t {previous}` ↔ `tmux select-pane -t -`
+bind -n C-S-Up run \
+  "($is_vim && tmux send-keys C-S-Up) || \
+   tmux select-pane -t {next}"
+# - SAME: `tmux select-pane -t {next}` ↔ `tmux select-pane -t +`
+bind -n C-S-Down run \
+  "($is_vim && tmux send-keys C-S-Down) || \
+   tmux select-pane -t {previous}"
+
+# ---------------------------------------------------------- #
+# -- vim- & fzf-aware pane jumpers ---------------------------------------------
+
+# I love when a quick gurgle lands me somewhere brilliant.
+# - Thanks for doing all the hard work!
+#   https://www.bugsnag.com/blog/tmux-and-vim
+
+is_vim="ps -o state= -o comm= -t '#{pane_tty}' \
+  | grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|n?vim?x?)(diff)?$'"
+
+is_fzf="ps -o state= -o comm= -t '#{pane_tty}' \
+  | grep -iqE '^[^TXZ ]+ +(\\S+\\/)?fzf$'"
+
+# Alt-PageUp maps to select-left-pane, because Alt-Left has forever been a Dubs
+# Vim move-cursor-to-start-of-line. And not that I cannot rewire my brain, but
+# I like that mapping! It goes well with Alt-Shift-Left and Alt-Shift-Right to
+# select from the cursor to the edges of the line. Fortunately, PageUp and PageDown
+# are nestled together with the arrow keys (at least on my T480 laptop keyboard),
+# so this mapping is one key away from Alt-Left, which is the more conventional
+# select-pane navigation mapping (though not as conventional as Ctrl-H, as in
+# "H I J K", which a lot of Vimming tmuxers like to map).
+bind -n M-PageUp run \
+  "($is_vim && tmux send-keys M-PageUp) || \
+   tmux select-pane -L"
+
+# Map select-pane-right to Alt-PageDown, rather than to the more popular C-l,
+# or the more chic M-Right, for reasons mentioned in the previous long comment.
+bind -n M-PageDown run \
+  "($is_vim && tmux send-keys M-PageDown) || \
+   tmux select-pane -R"
+
+# A vim-like select-pane-above might be Ctrl-k, but I like Alt-Up. (I use the
+# meta, arrow, and page keys a lot to navigate, because conveniently located!)
+bind -n M-Up run \
+  "($is_vim && tmux send-keys M-Up) || \
+   ($is_fzf && tmux send-keys M-Up) || \
+   tmux select-pane -U"
+
+# Here's select-pane-below, popularly mapped to C-j, but here to Alt-Down.
+bind -n M-Down run \
+  "($is_vim && tmux send-keys M-Down) || \
+   ($is_fzf && tmux send-keys M-Down) || \
+   tmux select-pane -D"
+
+# 2020-02-07: The Ctrl-\ previous-split snip I copied threw a syntax error:
+#    bind-key -n C-\\ if-shell "$is_vim" "send-keys C-\\" "select-pane -l"
+# - I just added escape:
+#    bind-key -n C-\\ if-shell "$is_vim" "send-keys C-\\" "select-pane -l"
+# - But I wonder if this person's solution is more robust.
+#   https://github.com/christoomey/vim-tmux-navigator#add-a-snippet
+tmux_version='$(tmux -V | sed -En "s/^tmux ([0-9]+(.[0-9]+)?).*/\1/p")'
+if-shell -b '[ "$(echo "$tmux_version < 3.0" | bc)" = 1 ]' \
+  "bind-key -n 'C-\\\\' if-shell \"$is_vim\" 'send-keys C-\\'  'select-pane -l'"
+if-shell -b '[ "$(echo "$tmux_version >= 3.0" | bc)" = 1 ]' \
+  "bind-key -n C-\\ if-shell \"\$is_vim\" 'send-keys C-\\'  'select-pane -l'"
+
+# - The final snip from
+#   "Smart pane switching with awareness of Vim splits."
+#     https://github.com/christoomey/vim-tmux-navigator
+#   binds the same keys in copy mode.
+bind-key -T copy-mode-vi 'M-Up' select-pane -U
+bind-key -T copy-mode-vi 'M-Down' select-pane -D
+# Note again not using Alt-Left/-Right, which seems logical given that we
+# just mapped Alt-Up/-Down, but we use Alt-PageUp/-PageDown instead, per
+# reasoning in long comment earlier in this section.
+bind-key -T copy-mode-vi 'M-PageUp' select-pane -L
+bind-key -T copy-mode-vi 'M-PageDown' select-pane -R
+bind-key -T copy-mode-vi 'M-\' select-pane -l
+
+# ---------------------------------------------------------- #
+# -- home-row resize-pane keys  ------------------------------------------------
+
+# # (lb): Not sure I care about resize-pane,
+# # because Ctrl-b Alt-arrow(s) work well.
+# bind-key J resize-pane -D 5
+# bind-key K resize-pane -U 5
+# bind-key H resize-pane -L 5
+# bind-key L resize-pane -R 5
+
+# ---------------------------------------------------------- #
+# -- new-window binding --------------------------------------------------------
+
+# Open new window with current path.
+# (Then you can test window nav, e.g., Shift-left/Shift-right.)
+bind c new-window -c '#{pane_current_path}'
+
+# ---------------------------------------------------------- #
+# -- resize-pane binding -------------------------------------------------------
 
 # You can add bind-key Z resize-pane -Z to toggle pane full screen.
 # (lb): Convenient!
 bind-key Z resize-pane -Z
 
 # ---------------------------------------------------------- #
+# -- split-window bindings -----------------------------------------------------
 
 # Open panel with current path.
 # (lb): Works, and I like it!
-bind '%' split-window -h -c '#{pane_current_path}'
-bind '"' split-window -v -c '#{pane_current_path}'
-# Open window with current path.
-# FIXME/2020-01-03 01:26: Not working for me...
-bind c new-window -c '#{pane_current_path}'
+# - Wait, what do I like? I have no pneumonic for these bindings...
+#   at least not like '-' and '|' that I'm leaning toward...
+# - Bind % and ", huh:
+#     bind '%' split-window -h -c '#{pane_current_path}'
+#     bind '"' split-window -v -c '#{pane_current_path}'
+# - Other split-window bindings I've seen:
+#     bind-key v split-window -h
+#     bind-key s split-window -v
+
+# The .tmux I use, from https://github.com/gpakosz/.tmux
+# has underscore and minus for splitting, but I cannot
+# remember the underscore! I like idea of using pipe char.
+# Here's gpakosz's:
+#    # split current window horizontally
+#    bind - split-window -v
+#    # split current window vertically
+#    bind _ split-window -h
+unbind -
+unbind _
+
+# - "Simplify vim split and tmux pane creation"
+#   https://www.bugsnag.com/blog/tmux-and-vim
+# split current window horizontally
+bind - split-window -v -c "#{pane_current_path}"
+# split current window vertically
+bind | split-window -h -c "#{pane_current_path}"
 
 # ---------------------------------------------------------- #
+# -- S-PageUp/-PageDown: copy-mode bindings ------------------------------------
 
-# https://superuser.com/questions/702189/tmux-scroll-up-down-with-shift-page-up-down-into-a-pane
-#bind -n S-Pageup copy-mode -u
-#           scroll-down                          C-e             C-Down
-#           scroll-up                            C-y             C-Up
-#bind PageUp copy-mode -eu
-# Weird: If you bind to PageUp, it enables both PageUp/PageDown to work in the
-# terminal, but then PageUp in Vim works all wonky!
-#   bind -n PageUp copy-mode -eu
-# From `man tmux`:
-#   The -u option scrolls one page up.... -e specifies that scrolling to the bottom
-#   of the history (to the visible screen) should exit copy mode. While in copy mode,
-#   pressing a key other than those used for scrolling will disable this behaviour.
-#   This is intended to allow fast scrolling through a pane's history, for example with:
-#       bind PageUp copy-mode -eu
-# Oddly, binding PageUp makes PageDown work, but with S-Pageup, need to map S-Pagedown.
-# NOTE: Without the -e, always need to press <q> or similar to exit copy-mode;
-#       but with -e, upon PageDown'ing back to bottom of screen, copy-mode exited.
-# NOTE: `-n` is an alias to `-T root`.
-# Interesting:
-# - With just the PageUp binding:
-#       bind -n S-PageUp copy-mode -u
-#       # OR:
-#       bind -n S-PageUp copy-mode -eu
-#   PageDown doesn't do anything in copy-mode, and in normal mode, prints:
-#       ;2~
-# - With PageDown added, e.g.,
-#       bind -n S-PageDown send-keys PageDown
-#   - PageDown works, and in normal mode, prints:
-#       ~
-#   - But note that with -e, if you PageDown to bottom of buffer, a fresh
-#     tilde '~' is printed with every addition PageDown pressed.
-#   - I find this more annoying than omitting -e and needing to press 'q'
-#     or similar to exit copy-mode, because at least I don't have to
-#     backspace/delete the stray ~ tildes.
+# - Two possibilities for binding PageUp to copy-mode:
+#     bind -n S-PageUp copy-mode -u
+#     bind -n S-Pageup copy-mode -eu
+# - Some ref:
+#     https://superuser.com/questions/702189/tmux-scroll-up-down-with-shift-page-up-down-into-a-pane
+# - `man tmux` ref:
+#   - Copy mode commands show scrolling already bound to Ctrl-keys,
+#     just not PageUp/PageDown:
+#       Command         vi      emacs
+#       -------         --      -----
+#       scroll-down     C-e     C-Down
+#       scroll-up       C-y     C-Up
+#   - -u and -e options:
+#     The -u option scrolls one page up.... -e specifies that scrolling to the bottom
+#     of the history (to the visible screen) should exit copy mode. While in copy mode,
+#     pressing a key other than those used for scrolling will disable this behaviour.
+#     This is intended to allow fast scrolling through a pane's history, for example with:
+#         bind PageUp copy-mode -eu
+# - Oddly, binding PageUp makes PageDown work, but with S-Pageup, need to map S-Pagedown.
+# - NOTE: Without the -e, always need to press <q> or similar to exit copy-mode;
+#         but with -e, upon PageDown'ing back to bottom of screen, copy-mode exited.
+# - Interesting:
+#   - With just the PageUp binding:
+#         bind -n S-PageUp copy-mode -u
+#         # OR:
+#         bind -n S-PageUp copy-mode -eu
+#     Then PageDown doesn't do anything in copy-mode, and in normal mode, it prints:
+#         ;2~
+#   - With PageDown added, e.g.,
+#         bind -n S-PageDown send-keys PageDown
+#     Then PageDown works, and in normal mode, it prints:
+#         ~
+#     But note that with -e, if you PageDown to bottom of buffer, a fresh
+#     tilde '~' is printed with every additional PageDown pressed.
+#     - I find this more annoying than omitting -e and needing to press 'q'
+#       or similar to exit copy-mode, because at least I don't have to
+#       backspace/delete the stray ~ tildes.
 #     - SKIP -e, e.g.,:
 #         bind -n S-PageUp copy-mode -eu
-#  - Here's what it'd look like:
+#     - Here's what it'd look like:
 #         bind -n S-PageUp copy-mode -u
 #         bind -n S-PageDown send-keys PageDown
-#    - However, if we use send-keys instead, we can change how
-#      Shift-PageDown works at bottom of buffer, so that pressing
-#      Shift-PageDown always enters copy-mode, and never prints ~.
+#     - However, if we use send-keys instead, we can change how
+#       Shift-PageDown works at bottom of buffer, so that pressing
+#       Shift-PageDown always enters copy-mode, and never prints ~.
 # - Note that in whatever case, you can omit the Shift after the
 #   initial keypresses, e.g., if you press S-PageDown, tmux enters
 #   copy mode, so then you can just PageUp/PageDown (without Shift).
@@ -689,23 +901,45 @@ bind -n S-PageUp copy-mode -u
 bind -n S-PageDown copy-mode \; send-keys -X page-down
 
 # ---------------------------------------------------------- #
+# -- history-top/-bottom bindings ----------------------------------------------
 
-# Shift-Home/-End
-bind -n S-Home copy-mode \; send-keys -X history-top
-# NOTE: -e doesn't help here; still need to exit copy-mode, e.g., press 'q'.
-#  bind -n S-End copy-mode \; send-keys -X history-bottom
-# However, we can just tack on the 'cancel' command to exit copy-mode.
-bind -n S-End copy-mode \; send-keys -X history-bottom\; send-keys -X cancel
+# - Map Shift-Home/-End → history-top/-bottom [copy-mode-vi]
+
+# Copy mode bindings:
+#  bind -n S-Home copy-mode \; send-keys -X history-top
+#  # NOTE: -e doesn't help here; still need to exit copy-mode, e.g., press 'q'.
+#  #  bind -n S-End copy-mode \; send-keys -X history-bottom
+#  # However, we can just tack on the 'cancel' command to exit copy-mode.
+#  bind -n S-End copy-mode \; send-keys -X history-bottom\; send-keys -X cancel
+
+# Vi Copy Mode bindings:
+# bind -n S-Home if-shell copy-mode \; send-keys -X history-top
+# bind -n S-End copy-mode \; send-keys -X history-bottom\; send-keys -X cancel
+
+# MAYBE/2020-02-09: Revisit these 2 bindings (and note Dubs Vim does not bind these).
+bind -T copy-mode-vi S-Home send-keys -X history-top
+bind -T copy-mode-vi S-End send-keys -X history-bottom
 
 # ---------------------------------------------------------- #
-
-# Ctrl-Shift-Up/-Down (in copy-mode, either Ctrl-e/-y or Ctrl-Up/-Down).
-bind-key -n C-S-Up copy-mode \; send-keys -X scroll-up
-# NOTE: I tried `\; copy-mode -e` here, but still need to exit copy-mode
-#       deliberately, e.g., press 'q'. Oh, well.
-bind-key -n C-S-Down copy-mode \; send-keys -X scroll-down
+# ********************************************************** #
+# ---------------------------------------------------------- #
 
 # ---------------------------------------------------------- #
+# -- (unused) theming ----------------------------------------------------------
+
+# # Theme setting ideas:
+# set -g status-bg black
+# set -g status-fg white
+# set -g window-status-current-bg white
+# set -g window-status-current-fg black
+# set -g window-status-current-attr bold
+# set -g status-interval 60
+# set -g status-left-length 30
+# set -g status-left '#[fg=green](#S) #(whoami)'
+# set -g status-right '#[fg=yellow]#(cut -d " " -f 1-3 /proc/loadavg)#[default] #[fg=white]%H:%M#[default]'
+
+# ---------------------------------------------------------- #
+# -- italics -------------------------------------------------------------------
 
 # Enable italic font support.
 #
@@ -722,11 +956,22 @@ bind-key -n C-S-Down copy-mode \; send-keys -X scroll-down
 #
 #   $ infocmp $TERM | grep ritm
 #   ri=\EM, rin=\E[%p1%dT, ritm=\E[23m, rmacs=\E(B,
+#
+# NOTE: In older tmux, I had to set `terminal-overrides` to enable italic, e.g.,:
+#
+#   set -as terminal-overrides ',xterm*:sitm=\E[3m'
+#
+# but that is no longer necessary. See long comment in next section for more.
 
-# NOTE: The mate-terminal default is TERM=xterm. But when you run tmux,
-#       it changes (defaults) to 'screen-256color'. And all the docs say
-#       not to use xterm (or xterm-256color, except that I used xterm no
-#       problem, and with TERM=tmux I get a pager complaint!).
+# ---------------------------------------------------------- #
+# -- Tc ------------------------------------------------------------------------
+
+# Enable True Color support.
+
+# NOTE: The mate-terminal default is TERM=xterm. But when you run tmux, it
+#       changes (defaults) it to 'screen-256color'. And all the docs say not
+#       to use xterm (or xterm-256color), except that I use xterm no problem!
+#       Because with other TERMs, I see pager complaints and have other issues.
 #
 # (lb): I first tried setting TERM='tmux', e.g.,
 #
@@ -781,7 +1026,7 @@ bind-key -n C-S-Down copy-mode \; send-keys -X scroll-down
 #     E558: Terminal entry not found in terminfo
 #     'tmux-256color' not known. Available builtin terminals are:
 #       ...
-#   - Which we can fix on the fly by setting the TERM, e.g.,
+#   - Which we can fix (workaround) on the fly by setting the TERM, e.g.,
 #     $ TERM=xterm vim
 # - Let's see about the other terms, too.
 #   - screen-256color: pager works; Vim B&W only; italic is just reverse.
@@ -800,10 +1045,10 @@ set -g default-terminal "xterm"
 # - 2020-02-06: I had been using distro's tmux 2.6 for last 3 months or so.
 #   - Today I built 3.1-rc from source and found that italic works fine w/o
 #     this "overrides", but I had to change it for vim's colors to be right.
-# - OLD: For my tmux 2.6:
+# - OLD: For my distro tmux 2.6:
 #     # Fix italic, which otherwise appears as reverse (flipped bg/fg).
 #     set -as terminal-overrides ',xterm*:sitm=\E[3m'
-# - NEW: For my tmux ~3.1-rc:
+# - NEW: For my new tmux ~3.1-rc:
 #   - For definition of `Tc`, see:
 #       https://github.com/tmux/tmux/wiki/FAQ#how-do-i-use-rgb-colour
 #       man 5 terminfo
@@ -811,28 +1056,15 @@ set -g default-terminal "xterm"
 #   - MEH: I'm not sure if there's a diff. RGB vs. Tc; assume latter is better?
 #     I.e., this also works:
 #       set -as terminal-overrides ",xterm*:RGB"
+# - 2020-02-06: I commented this out and italic worked, but not true colors.
 set -as terminal-overrides ",xterm*:Tc"
 
-# YOU: Test everything is okay!:
+# YOU: Test everything is okay:
 #
-#   test_truecolors   # Print color bar and bold/italic/underline/strike text.
+#   test_truecolor    # Print color bar and bold/italic/underline/strike text.
+#                     # Found in landonb/home-fries/.fries/lib/color_funcs.sh.
 #
 #   git log           # Test that pager runs without complaint.
-
-# ---------------------------------------------------------- #
-
-# REMINDER-TO-SELF: (lb): Start using Ctrl-l to clear screen and history, not `reset`.
-
-# ---------------------------------------------------------- #
-
-# MAYBE/2020-01-05: Application-specific bindings.
-#
-# E.g., you could behave differently for Vim vs. not:
-#
-#  # Check if the pane is running vim.
-#  is_vim="ps -o state= -o comm= -t '#{pane_tty}' \ | grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|n?vim?x?)(diff)?$'"
-#  # Type 1 to Vim, or 0 to other/terminal.
-#  bind c if-shell "$is_vim" "send-keys 1" "send-keys 0"
 
 # ---------------------------------------------------------- #
 
