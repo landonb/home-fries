@@ -8,6 +8,11 @@
 # (lb): You can diff this file against the upstream source
 #       to easily see all my changes!
 
+# HINT: On error, ran manually, e.g.,:
+#
+#       $ cut -c3- ~/.tmux.conf | sh -s _apply_configuration
+#       bad style: fg=#050505.,bg=#00afff,none
+
 # ----------------------------------------------------------------------- #
 
 #  ┌───────────────────────────────────────────────────────────────────┐  #
@@ -261,7 +266,7 @@ tmux_conf_theme_window_status_format='#{circled_window_index} #{b:pane_current_p
 #   or 080808 (Vampire Black), that I didn't. Oh, because it's a
 #   print hack! Some printers use different inks for pure black vs.
 #   almost black, and oftentimes almost black is the blacker color.
-tmux_conf_theme_window_status_current_fg='#050505'.
+tmux_conf_theme_window_status_current_fg='#050505'
 #
 # Use same light blue background that gpakosz uses.
 tmux_conf_theme_window_status_current_bg='#00afff'
