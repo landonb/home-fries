@@ -71,19 +71,6 @@ home_fries_wire_export_less () {
   #      and quits. But for multiple pages, the output remains in the
   #      terminal, which is annoying; I don't like crud!
   export LESS="-iMx2"
-
-  # 2020-02-11: Old (circa 2017) attempt to futz with less, failed.
-  # "Hrmm. I cannot get this to work..." I said to myself.
-  if [ -f "${HOME}/.lessfilter" ]; then
-    # 2017-06-30: Make less and more more colorful.
-    # - Add -R option to previous LESS config:
-    #     -R or --RAW-CONTROL-CHARS
-    # 2020-02-11: (lb): What does -R do? My less already handle color codes ok.
-    export LESS="-iMx2R"
-
-    # 2017-06-30: Preprocess the input with pygmentize, for color.
-    export LESSOPEN='|${HOME}/.lessfilter %s'
-  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
