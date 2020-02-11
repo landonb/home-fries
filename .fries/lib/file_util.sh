@@ -65,20 +65,24 @@ home_fries_wire_export_less () {
   export PAGER=less\ -R
   # -i or --ignore-case
   # -M or --LONG-PROMPT
-  # -xn,... or --tabs=n,...
+  # -xn,... or --tabs=n,... [x2: Sets 2 tab stops. Default: 8, so wide!]
   # NOTE -F or --quit-if-one-screen
   #      This is cool in that, for short files, it just dumps the file
   #      and quits. But for multiple pages, the output remains in the
   #      terminal, which is annoying; I don't like crud!
   export LESS="-iMx2"
 
-  # Hrmm. I cannot get this to work...
-  if false; then
+  # 2020-02-11: Old (circa 2017) attempt to futz with less, failed.
+  # "Hrmm. I cannot get this to work..." I said to myself.
+  if [ -f "${HOME}/.lessfilter" ]; then
     # 2017-06-30: Make less and more more colorful.
-    #   -R or --RAW-CONTROL-CHARS
+    # - Add -R option to previous LESS config:
+    #     -R or --RAW-CONTROL-CHARS
+    # 2020-02-11: (lb): What does -R do? My less already handle color codes ok.
     export LESS="-iMx2R"
+
     # 2017-06-30: Preprocess the input with pygmentize, for color.
-    export LESSOPEN='|~/.lessfilter %s'
+    export LESSOPEN='|${HOME}/.lessfilter %s'
   fi
 }
 
