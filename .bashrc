@@ -1,1 +1,1 @@
-.fries/.bashrc/bashrc.base.sh
+.bashrc-bin/bashrc.base.sh

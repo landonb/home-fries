@@ -6,7 +6,7 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 source_deps () {
-  # When sourced from ~/.fries/.bashrc/bashrc.core.sh, you cannot
+  # When sourced from ~/.fries/.bashrc-bin/bashrc.core.sh, you cannot
   # import other files from this script's dir relatively, e.g., not:
   #   source path_util.sh
   # Note that, when sourced from said script:
