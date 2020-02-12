@@ -169,7 +169,7 @@ source_private () {
       $DUBS_TRACE && echo "Loading user-specific resource script: ${userfile}"
       local time_0=$(date +%s.%N)
       source "${userfile}"
-      print_elapsed_time "${time_0}" "Source: ${userfile}"
+      print_elapsed_time "${time_0}" "Source: $(basename ${userfile})"
     else
       $DUBS_TRACE && echo "Did not find a user-specific resource: ${userfile}"
     fi
