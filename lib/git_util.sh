@@ -12,15 +12,15 @@ TRAVEL_REMOTE="${TRAVEL_REMOTE:-travel}"
 source_deps () {
   # source defaults to the current directory, but the caller's,
   # so this won't always work:
-  #   source bash_base.sh
-  #   source process_util.sh
+  #   . bash_base.sh
+  #   . process_util.sh
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
-  source "${curdir}/bash_base.sh"
+  . "${curdir}/bash_base.sh"
   # Load: pushd_or_die, popd_perhaps
-  source "${curdir}/path_util.sh"
+  . "${curdir}/path_util.sh"
   # Load: die, reset_errexit, tweak_errexit
-  source "${curdir}/process_util.sh"
-  source "${curdir}/logger.sh"
+  . "${curdir}/process_util.sh"
+  . "${curdir}/logger.sh"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

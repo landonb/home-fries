@@ -7,7 +7,7 @@
 
 source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
-  source ${curdir}/logger.sh
+  . ${curdir}/logger.sh
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -368,7 +368,7 @@ home_fries_create_aliases_rg_tag_wrap () {
 
   tag () {
     command tag "$@"
-    source ${TAG_ALIAS_FILE:-/tmp/tag_aliases} 2>/dev/null
+    . ${TAG_ALIAS_FILE:-/tmp/tag_aliases} 2>/dev/null
   }
 
   # [lb] 2019-01-06: BEWARE: --no-ignore-parent can be used to ignore .ignore's

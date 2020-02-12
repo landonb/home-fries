@@ -10,7 +10,7 @@
 source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   # Load: path_prepend
-  source ${curdir}/paths_util.sh
+  . ${curdir}/paths_util.sh
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

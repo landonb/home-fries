@@ -65,7 +65,7 @@ source_utils () {
   for lib_file in "${lib_files[@]}"; do
     if [[ -f "${HOMEFRIES_DIR}/lib/${lib_file}" ]]; then
       local time_0=$(date +%s.%N)
-      source "${HOMEFRIES_DIR}/lib/${lib_file}"
+      . "${HOMEFRIES_DIR}/lib/${lib_file}"
       print_elapsed_time "${time_0}" "Source: ${lib_file}"
     else
       # Was:
@@ -115,9 +115,9 @@ source_virtualenvwrapper () {
   export PATH
 
   if [[ -f ${HOME}/.local/bin/virtualenvwrapper.sh ]]; then
-    source ${HOME}/.local/bin/virtualenvwrapper.sh
+    . ${HOME}/.local/bin/virtualenvwrapper.sh
   elif [[ -f /usr/local/bin/virtualenvwrapper.sh ]]; then
-    source /usr/local/bin/virtualenvwrapper.sh
+    . /usr/local/bin/virtualenvwrapper.sh
   fi
 
   print_elapsed_time \

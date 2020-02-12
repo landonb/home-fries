@@ -7,8 +7,8 @@
 
 source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
-  source ${curdir}/bash_base.sh
-  source ${curdir}/process_util.sh
+  . ${curdir}/bash_base.sh
+  . ${curdir}/process_util.sh
 }
 
 # ============================================================================

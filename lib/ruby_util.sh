@@ -8,17 +8,17 @@
 source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   DEBUG_TRACE=false \
-    source ${curdir}/bash_base.sh
+    . ${curdir}/bash_base.sh
   # Load: path_append, path_prepend
-  source ${curdir}/paths_util.sh
+  . ${curdir}/paths_util.sh
 
   # See:
   #   https://github.com/postmodern/ruby-install
   #   https://github.com/postmodern/chruby
   if [[ -f ${HOME}/.local/share/chruby/chruby.sh ]]; then
-    source ${HOME}/.local/share/chruby/chruby.sh
+    . ${HOME}/.local/share/chruby/chruby.sh
   elif [[ -f /usr/local/share/chruby/chruby.sh ]]; then
-    source /usr/local/share/chruby/chruby.sh
+    . /usr/local/share/chruby/chruby.sh
   fi
 
   # The github.com/postmodern/chruby README lists Anti-Features, starting with:
@@ -67,7 +67,7 @@ source_deps () {
   # it's just the principal of the thing, man.
   if false; then
     if [[ -f /usr/local/share/chruby/auto.sh ]]; then
-      source /usr/local/share/chruby/auto.sh
+      . /usr/local/share/chruby/auto.sh
     fi
   fi
 
@@ -315,7 +315,7 @@ main () {
 
   if [[ -z ${HOMEFRIES_CHRUBY_SETUP+x} ]]; then
     patch_export_chruby_use
-# source ruby_chutil.sh
+# . ruby_chutil.sh
     export HOMEFRIES_CHRUBY_SETUP=true
   fi
   unset -f patch_export_chruby_use

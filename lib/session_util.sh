@@ -8,7 +8,7 @@
 source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   # termdo-all, etc.
-  source ${curdir}/term_util.sh
+  . ${curdir}/term_util.sh
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -82,7 +82,7 @@ termdo-bash-reset () {
 lock_screensaver_and_power_suspend () {
 
 # FIXME: Gah.
-  source /etc/lsb-release
+  . /etc/lsb-release
   [[ ${DISTRIB_CODENAME} == 'rebecca' ]] && echo "Not on $(hostname)!" && return
 
   # 2016-10-25: Heck, why not! At least show some semblance of not being
@@ -99,7 +99,7 @@ lock_screensaver_and_power_suspend () {
     tmux send-keys -t ${_pane} "sudo -K" Enter
   done
 
-  source /etc/lsb-release
+  . /etc/lsb-release
   if [[ ${DISTRIB_CODENAME} = 'xenial' \
      || ${DISTRIB_CODENAME} = 'sarah' \
      || ${DISTRIB_CODENAME} = 'sonya' \
@@ -125,13 +125,13 @@ lock_screensaver_and_power_suspend () {
 lock_screensaver_and_power_suspend_lite () {
 
 # FIXME: Gah.
-  source /etc/lsb-release
+  . /etc/lsb-release
   [[ ${DISTRIB_CODENAME} == 'rebecca' ]] && echo "Not on $(hostname)!" && return
 
   # Show desktop / Minimize all windows
   xdotool key ctrl+alt+d
 
-  source /etc/lsb-release
+  . /etc/lsb-release
   if [[ ${DISTRIB_CODENAME} = 'xenial' \
      || ${DISTRIB_CODENAME} = 'sarah' \
      || ${DISTRIB_CODENAME} = 'sonya' \

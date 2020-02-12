@@ -8,7 +8,7 @@
 source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   # Load: warn
-  source ${curdir}/logger.sh
+  . ${curdir}/logger.sh
 }
 
 # ============================================================================

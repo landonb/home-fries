@@ -9,7 +9,7 @@ source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
   # FIXME/2018-06-04: (lb): Move device_on_which_file_resides out of trash_util.sh?
   # Load device_on_which_file_resides.
-  source ${curdir}/trash_util.sh
+  . ${curdir}/trash_util.sh
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

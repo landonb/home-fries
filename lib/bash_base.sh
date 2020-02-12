@@ -8,15 +8,15 @@
 source_deps () {
   # When sourced from ~/.homefries/.bashrc-bin/bashrc.core.sh, you cannot
   # import other files from this script's dir relatively, e.g., not:
-  #   source path_util.sh
+  #   . path_util.sh
   # Note that, when sourced from said script:
   #  $0: /bin/bash
   #  ${BASH_SOURCE[0]}: /home/user/.homefries/lib/bash_base.sh
   # because /bin/bash is sourced bashrc.core.sh -- it's the owning
   # process. So here we use BASH_SOURCE to get path relative to us.
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
-  source ${curdir}/path_util.sh
-  source ${curdir}/process_util.sh
+  . ${curdir}/path_util.sh
+  . ${curdir}/process_util.sh
 }
 
 # ============================================================================
@@ -115,7 +115,7 @@ gather_script_meta () {
       # E.g., on `/kit/playground/selflink/my_script_that_sources_bash_base.sh`,
       #    #!/bin/bash
       #    HOMEFRIES_LOADED_BASH_BASE=
-      #    source "bash_base.sh"
+      #    . "bash_base.sh"
       # you get,
       #    0: /kit/playground/my_script_that_sources_bash_base.sh
       #    BASH_SOURCE[0]: /home/user/.homefries/lib/bash_base.sh

@@ -9,7 +9,7 @@
 
 source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
-  source ${curdir}/process_util.sh
+  . ${curdir}/process_util.sh
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -89,7 +89,7 @@ home_fries_load_completions () {
     # 2016-06-28: Currently just ./termdub_completion.
     # 2016-10-30: Now with `exo` command completion.
     # 2016-11-16: sourcing a glob doesn't work for symlinks.
-    #   source ${HOMEFRIES_DIR}/bin/completions/*
+    #   . ${HOMEFRIES_DIR}/bin/completions/*
     # I though a find -exec would work, but nope.
     #   find ${HOMEFRIES_DIR}/bin/completions/ ! -type d -exec bash -c "source {}" \;
     # So then just iterate, I suppose.
@@ -98,7 +98,7 @@ home_fries_load_completions () {
       # Check that the file exists (could be broken symlink
       # (e.g., symlink to unmounted encfs on fresh boot)).
       if [[ -e ${file} ]]; then
-        source ${file}
+        . ${file}
       fi
     done < <(find ${HOMEFRIES_DIR}/bin/completions/* -maxdepth 1 ! -path . -print0)
   fi
@@ -111,7 +111,7 @@ home_fries_load_sdkman () {
   #   #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
   if [[ -d "${HOME}/.sdkman" ]]; then
     export SDKMAN_DIR="${HOME}/.sdkman"
-    [[ -s "${HOME}/.sdkman/bin/sdkman-init.sh" ]] && source "/home/landonb/.sdkman/bin/sdkman-init.sh"
+    [[ -s "${HOME}/.sdkman/bin/sdkman-init.sh" ]] && . "/home/landonb/.sdkman/bin/sdkman-init.sh"
   fi
 }
 

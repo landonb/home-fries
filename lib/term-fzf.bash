@@ -13,9 +13,9 @@ fi
 
 # Auto-completion
 # ---------------
-[[ $- == *i* ]] && source "/kit/working/golang/fzf/shell/completion.bash" 2> /dev/null
+[[ $- == *i* ]] && . "/kit/working/golang/fzf/shell/completion.bash" 2> /dev/null
 
 # Key bindings
 # ------------
-source "/kit/working/golang/fzf/shell/key-bindings.bash"
+. "/kit/working/golang/fzf/shell/key-bindings.bash"
 
