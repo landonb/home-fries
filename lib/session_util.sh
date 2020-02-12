@@ -163,7 +163,7 @@ alias q4="lock_screensaver_and_power_suspend_lite"
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # 2016-11-12: I don't use this fcn. I moved it from
-#   ~/.fries/once/setup_ubuntu.sh rather than delete it.
+#   .homefries/once/setup_ubuntu.sh rather than delete it.
 user_window_session_logout () {
   # The logout commands vary according to distro, so check what's there.
   # Bash has three built-its that'll tell is if a command exists on
@@ -198,7 +198,7 @@ user_window_session_logout () {
 
 # 2016-10-05: [lb] not seeing the disable-wake-on-lid action working, from:
 #
-#     ~/.fries/once/recipe/usr/lib/pm-utils/sleep.d/33disablewakeups
+#     .homefries/once/recipe/usr/lib/pm-utils/sleep.d/33disablewakeups
 #
 #             so let's try this here in bashrc.
 

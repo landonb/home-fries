@@ -83,7 +83,7 @@ import dubspy_util
 # env DUBS_TERMNAME="" \
 #  env DUBS_STARTIN="" \
 #  env DUBS_STARTUP="" \
-#  $HOME/.fries/bin/termdub.py -t lhs
+#  ${HOMEFRIES_BIN:-${HOME}/.homefries/bin}/termdub.py -t lhs
 
 class Termdub_Parser(optparse.OptionParser):
 

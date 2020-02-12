@@ -238,7 +238,7 @@ source_projects0 () {
 start_somewhere_something () {
   # See the script:
   #
-  #   ~/.fries/bin/termdub.py
+  #   ~/.homefries/bin/termdub.py
   #
   # which sets the DUBS_* environment variables to tell us what
   # to do once a new terminal is ready. The three options are:
@@ -254,7 +254,7 @@ start_somewhere_something () {
     elif [[ -d "$DUBS_STARTIN_DEFAULT" ]]; then
       cd $DUBS_STARTIN_DEFAULT
     fi
-    # See: ${hard_path}/.fries/bin/openterms.sh for usage.
+    # See: ${hard_path}/.homefries/bin/openterms.sh for usage.
     if [[ -n "$DUBS_STARTUP" ]]; then
       # Add the command we're about to execute to the command history (so if the
       # user Ctrl-C's the process, then can easily re-execute it).

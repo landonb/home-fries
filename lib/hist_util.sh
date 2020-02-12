@@ -36,9 +36,9 @@ _hist_util_hook () {
   #   echo 'XXXXXXXXXXXXXXXX
   #   ....
   #   ' | pass insert -m foo/bar
-  awk -f $HOME/.fries/bin/.bash_history_filter.awk \
-    $HOME/.bash_history > $HOME/.bash_history-AWKed
-  /bin/mv $HOME/.bash_history-AWKed $resolved_p
+  awk -f "${HOMEFRIES_BIN:-${HOME}/.homefries/bin}/.bash_history_filter.awk" \
+    "${HOME}/.bash_history" > "${HOME}/.bash_history-AWKed"
+  /bin/mv "${HOME}/.bash_history-AWKed" "${resolved_p}"
 
   # Redact anything that looks like a (modern, strong) password.
   # Use Perl, because awk does not support look-around assertions,
@@ -111,7 +111,7 @@ home_fries_configure_history () {
   #         ' | pass insert -m 'foo/bar'
   #       You gotta do something more sophisticated. E.g., post-process
   #       the history file before it hits your dotfiles repo. See:
-  #         ~/.fries/bin/.bash_history_filter.awk
+  #         ~/.homefries/bin/.bash_history_filter.awk
   #       for more advanced filtering.
 
   # 2017-11-19: More, please!

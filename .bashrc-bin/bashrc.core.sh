@@ -13,10 +13,10 @@
 source_utils () {
   local time_outer_0=$(date +%s.%N)
 
-  # Generally, FRIES_DIR=${HOME}/.fries [a/k/a /home/${LOGNAME}/.fries]
+  # Generally, FRIES_DIR=${HOME}/.homefries [a/k/a /home/${LOGNAME}/.homefries]
   export HOMEFRIES_DIR=$(dirname $(dirname -- "${BASH_SOURCE[0]}"))
   if [[ ${HOMEFRIES_DIR} == '/' ]]; then
-    echo 'WARNING: Where is .fries installed? For real?'
+    echo 'WARNING: Where is .homefries installed? For real?'
   fi
 
   declare -a lib_files=()
@@ -224,7 +224,7 @@ home_fries_up () {
   #   Identity added: /home/.../.ssh/id_rsa (/home/.../.ssh/id_rsa)
   #   Identity added: /home/.../.ssh/identity (/home/.../.ssh/identity)
 
-  # See: ~/.fries/lib/bash_base.sh
+  # See: ~/.homefries/lib/bash_base.sh
   # - lib/ssh_util.sh
   ssh_agent_kick
 

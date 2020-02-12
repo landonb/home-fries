@@ -294,7 +294,7 @@ home_fries_export_editor_vim () {
 # 2020-01-03: More random crap!
 # - I had thought about making a poutine-level command, like fries-findup,
 #   but all that overhead for just a few lines of code?
-# - I also thought about make a ~/.fries/lib/pdf_util.sh, but I thought
+# - I also thought about make a .homefries/lib/pdf_util.sh, but I thought
 #   again, all that overhead for just a few lines of code?
 # So here it is. Simply enough.
 
@@ -325,8 +325,8 @@ pdf180rot () {
 # - Case in point, I'm adding the (sourcing of the) fzf conf herein!
 
 home_fries_enable_fuzzy_finder_fzf () {
-  local fzf_path="${HOME}/.fries/lib/term-fzf.bash"
-  [ -f "${fzf_path}" ] && source "${fzf_path}"
+  local fzf_path="${HOMEFRIES_LIB:-${HOME}/.homefries/lib}/term-fzf.bash"
+  [ -f "${fzf_path}" ] && . "${fzf_path}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

@@ -4,7 +4,7 @@
 # Symlinks to files I moved to another project,
 #   github.com/landonb/git-FlU
 # but I didn't update my PATH, and I like having
-# references under ~/.fries/bin. But I don't
+# references under ~/.homefries/bin. But I don't
 # want these double-grepped, either. Hence, this.
 bin/completions/git-completion.bash
 bin/diffconflicts

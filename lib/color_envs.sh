@@ -21,7 +21,7 @@ create_colors () {
   #   E.g., export PINK='\\033[38;5;211m'
 
   # NOTE/2020-01-03: Use RGB, not ANSI codes, because tmux.
-  #   - See full comment in ~/.fries/lib/color_funcs.sh
+  #   - See full comment in .homefries/lib/color_funcs.sh
   # - R,G,B Formats:
   #   \033[38;2;<r>;<g>;<b>m  # RGB foreground color.
   #   \033[48;2;<r>;<g>;<b>m  # RGB background color.

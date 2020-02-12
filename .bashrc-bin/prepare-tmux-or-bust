@@ -10,7 +10,7 @@ source_deps () {
 }
 
 prep_vars () {
-  HOME_FRIES_TMUX_NAMES_FILE="${HOME}/.fries/var/first-names-lengthX.txt"
+  HOME_FRIES_TMUX_NAMES_FILE="${HOMEFRIES_VAR:-${HOME}/.homefries/var}/first-names-lengthX.txt"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -141,7 +141,7 @@ fries_tmux_session_entitle_unless_attach_existing () {
     # so the random name is as long as when we use a YYYY-MM-DD.
     local randname sname
     # 2020-02-06: We had just been getting any 10-letter name, e.g.,:
-    #   randname=$(shuf -n 1 "${HOME}/.fries/var/first-names-lengthX.txt")
+    #   randname=$(shuf -n 1 "${HOMEFRIES_VAR:-${HOME}/.homefries/var}/first-names-lengthX.txt")
     # but I switched to doling out session names alphabetically, to help
     # deal with a crashing mate-panel. By using progressively named
     # sessions and showing the first few characters of the session name

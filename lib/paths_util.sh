@@ -120,7 +120,7 @@ home_fries_add_to_path_home_local_bin () {
 # ++++++++++++++++++++++++++++++ #
 
 # MAYBE/2019-09-16: You could move these Node-, Java-/Android-, and golang-specific
-# functions to new language-specific files, e.g., ~/.fries/lib/node_util.sh,
+# functions to new language-specific files, e.g., .homefries/lib/node_util.sh,
 # and .../java_util.sh, .../golang_util.sh.
 
 home_fries_add_to_path_home_local_node_modules_bin () {

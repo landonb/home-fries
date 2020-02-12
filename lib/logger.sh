@@ -8,7 +8,7 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 source_deps () {
-  local curdir="${HOME}/.fries/lib"
+  local curdir="${HOMEFRIES_LIB:-${HOME}/.homefries/lib}"
   if [ -n "${BASH_SOURCE}" ]; then
     curdir=$(dirname -- "${BASH_SOURCE[0]}")
   fi

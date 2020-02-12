@@ -4,7 +4,7 @@
 #
 #   mkdir /tmp/testing-splits
 #   cd /tmp/testing-splits
-#   awk -f ~/.fries/bin/bash_function_to_file_splitter.awk ~/.fries/once/custom_setup.extras.sh
+#   awk -f bash_function_to_file_splitter.awk some/long/bash/script.sh
 
 # HINT: Put filenames in double quotes to redirect to specific files, e.g.,
 #
