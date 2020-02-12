@@ -1,31 +1,5 @@
-# 2020-02-12 03:15: Really?
 .git/
 
 # Dev's private .bashrc files.
 .bashrc/bashrx.private.*.sh
-
-# Symlinks to files I moved to another project,
-#   github.com/landonb/git-FlU
-# but I didn't update my PATH, and I like having
-# references under ~/.homefries/bin. But I don't
-# want these double-grepped, either. Hence, this.
-bin/completions/git-completion.bash
-bin/diffconflicts
-bin/git-brs
-bin/git-bump
-bin/git-cleanbr
-bin/git-cob
-bin/git-coc
-bin/git-get
-bin/git-gone
-bin/git-lie-ci
-bin/git-rebase-bubble-commit
-bin/git-rebase-bubble-oldest
-bin/git-shunt
-bin/git-st.sh
-bin/git-undo
-bin/git-vim
-bin/git-wipit
-bin/githexdiff
-bin/gitmelddiff
 
