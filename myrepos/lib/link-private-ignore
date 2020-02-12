@@ -1,6 +1,0 @@
-# vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=config
-
-[DEFAULT]
-# FIXME/2019-10-25 14:32: Use MR_TRAVEL_LIB else, and change default path ~/.local/lib
-lib =
-  . "${MR_TRAVEL_LIB:-${HOME}/.fries/myrepos/lib}/link-private-ignore.sh"

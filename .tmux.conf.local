@@ -1067,7 +1067,7 @@ set -as terminal-overrides ",xterm*:Tc"
 # YOU: Test everything is okay:
 #
 #   test_truecolor    # Print color bar and bold/italic/underline/strike text.
-#                     # Found in landonb/home-fries/.fries/lib/color_funcs.sh.
+#                     # Found in landonb/home-fries/lib/color_funcs.sh.
 #
 #   git log           # Test that pager runs without complaint.
 
