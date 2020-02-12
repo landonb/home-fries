@@ -3,20 +3,16 @@ Home Fries Scripts
 ==================
 
 Just a collection of one developer's Bash startup scripts
-and other generic and useful project-agnostic scripts. 🍟
+and associated shell functionality. 🍟
 
 Why You Might Care
 ------------------
 
 - You like poking around other people's profiles.
 
-- You're me and using git to stand up a new box.
+- You're looking for ideas to spice up your user home.
 
-Feature Overview
-----------------
-
-Check out the source... nothing really mind blowing, just basic Bash.
-Now go out and play. Or read the
-`tedious Linux development environment setup guide
-<https://github.com/landonb/home-fries/blob/master/.fries/once/README-Standup_Guide-Linux.rst>`__.
+- You've started using ``tmux``, ``Bash``, and ``Vim``,
+  and you're looking for an example of a well-integrated
+  environment.
 
