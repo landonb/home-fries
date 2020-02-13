@@ -80,7 +80,11 @@ home_fries_create_aliases_general () {
 
   # gVim.
   alias fh='gvim --servername DIGAMMA --remote-silent' # For those special occassions
-  alias fd='gvim --servername   DELTA --remote-silent' # when you want to get away
+  # 2020-02-12: New (to me) [f]in[d] tool now occupies ``fd`` -- if I had used
+  # me Dubs Vim fd alias, maybe I'd care to remap the new `fd` instead (which
+  # will be wired to fzf, and I'm not sure I'll call it  directtly... but maybe
+  # I will.)
+  #  alias fd='gvim --servername   DELTA --remote-silent' # when you want to get away
   alias fs='gvim --servername   SAMPI --remote-silent' # because relaxation is key
   alias fa='gvim --servername   ALPHA --remote-silent' # follow your spirit.
 
