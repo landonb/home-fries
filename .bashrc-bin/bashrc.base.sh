@@ -183,57 +183,6 @@ source_private () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Additional Fancy -- Project Specific Profiles
-# =============================================
-
-source_projects () {
-  if [[ $EUID -ne 0 ]]; then
-    # CONVENTION: Load scripts named like bashrc.*.base.sh
-    #
-    #             This lets the user define a bunch of
-    #             project-specific scripts; the *.base.sh
-    #             files will be sourced from here, and then
-    #             those scripts can source whatever else they
-    #             wants, and you, the user, can keep all your
-    #             bash profiles neatly (alphabetically) organized.
-    #
-    # Load all bash scripts that are named thusly: bashrc.*.base.sh
-    local rcfile=""
-    for rcfile in $(find ${hard_path} \
-        -maxdepth 1 -type f -name "bashrc.*.base.sh" \
-                -or -type l -name "bashrc.*.base.sh"); do
-      $DUBS_TRACE && echo "Loading project-specific Bash resource script: ${rcfile}"
-      local time_0=$(date +%s.%N)
-      source "${rcfile}"
-      print_elapsed_time "${time_0}" "Source: ${rcfile}"
-    done
-  fi
-}
-
-source_projects0 () {
-  # Load scripts named like bashrc0.*.base.sh, even for root.
-  local rcfile=""
-  for rcfile in $(find ${hard_path} -maxdepth 1 \
-          -type f -name "bashrc0.*.base.sh" \
-      -or -type l -name "bashrc0.*.base.sh"); do
-    # Avoid stderr message if symlink points at naught.
-    if [[ -e "${rcfile}" ]]; then
-      $DUBS_TRACE && echo "Loading project-specific Bash resource script: $rcfile"
-      if [[ ! -d "${rcfile}" ]]; then
-        local time_0=$(date +%s.%N)
-        source "${rcfile}"
-        print_elapsed_time "${time_0}" "Source: ${rcfile}"
-      else
-        $DUBS_TRACE && echo "Is a directory: ${rcfile}"
-      fi
-    else
-      $DUBS_TRACE && echo "No such file: ${rcfile}"
-    fi
-  done
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 # Additional Fancy -- Starting Directory and Kickoff Command
 # ==========================================================
 
@@ -422,12 +371,6 @@ main () {
   export HOME_FRIES_PRELOAD=false
   source_private
   unset -f source_private
-
-  source_projects
-  unset -f source_projects
-
-  source_projects0
-  unset -f source_projects0
 
   start_somewhere_something
   unset -f start_somewhere_something
