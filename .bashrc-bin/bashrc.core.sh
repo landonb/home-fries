@@ -14,10 +14,17 @@ source_utils () {
   local time_outer_0=$(date +%s.%N)
 
   # Generally, FRIES_DIR=${HOME}/.homefries [a/k/a /home/${LOGNAME}/.homefries]
-  export HOMEFRIES_DIR="$(dirname $(dirname -- "${BASH_SOURCE[0]}"))"
-  if [[ "${HOMEFRIES_DIR}" == '/' ]]; then
-    echo 'WARNING: Where is .homefries installed? For real?'
+  if [[ -z "${HOMEFRIES_DIR}" ]]; then
+    HOMEFRIES_DIR="$(dirname $(dirname -- "${BASH_SOURCE[0]}"))"
   fi
+  if [[ "${HOMEFRIES_DIR}" == '/' ]] || [ ! -d "${HOMEFRIES_DIR}" ]; then
+    >&2 echo 'WARNING: Where is .homefries installed? For real?'
+    return 0
+  fi
+  export HOMEFRIES_DIR
+  export HOMEFRIES_BIN="${HOMEFRIES_BIN:-${HOMEFRIES_DIR}/bin}"
+  export HOMEFRIES_LIB="${HOMEFRIES_LIB:-${HOMEFRIES_DIR}/lib}"
+  export HOMEFRIES_VAR="${HOMEFRIES_VAR:-${HOMEFRIES_DIR}/var}"
 
   declare -a lib_files=()
 
