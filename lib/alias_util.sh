@@ -88,7 +88,25 @@ home_fries_create_aliases_general () {
   alias fs='gvim --servername   SAMPI --remote-silent' # because relaxation is key
   alias fa='gvim --servername   ALPHA --remote-silent' # follow your spirit.
 
+  # *** Vi(m)
+
+  # Vi vs. Vim: When logged on as root, vi is a dumbed-down vim. Root rarely
+  # needs vanilla `vi` -- only when the home directories aren't mounted -- so
+  # we can alias vi to vim.
+  if [[ $EUID -eq 0 ]]; then
+    alias vi="vim"
+  fi
+  # 2019-03-26: Avoid errors when vim.tiny tries to load your ~/.vim! E.g.,
+  #   E319: Sorry, the command is not available in this version: ...
+  alias vim.tiny="vim.tiny -u NONE"
+
+  # 2018-03-28: From MarkM. Except it doesn't quite work for me....
+  #alias v='${EDITOR} $(fc -s) ' # edit results of last command
+
   # *** Miscellany
+
+  # [lb] uses p frequently, just like h and ll.
+  alias p='pwd'
 
   # Misc. directory aliases.
   alias h='history'         # Nothing special, just convenient.
@@ -126,6 +144,8 @@ home_fries_create_aliases_general () {
   # Or collect undotted files into one unnamed file count.
   alias mostats="find . -type f -not -path './.git/*' | /bin/sed -n 's/\(..*\.\)\?//p' | /bin/sed -E 's/(.*)/\L\1/' | /bin/sed -n 's/\(..*\/.*\)\?//p' | sort | uniq -c | sort -n -r"
 
+  # ***
+
   # 2019-10-21: A different kind of stats. Call MyRepos from file system root!
   # For this to work, not that you must include configs outside user home, e.g.,
   #   $ head -n 1 ~/.mrconfig
@@ -134,15 +154,13 @@ home_fries_create_aliases_general () {
   alias aci="mr -d / autocommit -y"
   alias autoci="mr -d / autocommit -y"
 
+  # ***
+
   # 2016-09-24: Why didn't I think of this 'til now?
   # [Note also that pass can just do it, too.]
   alias pwgen16="pwgen -n 16 -s -N 1 -y"
 
-  # [lb] uses p frequently, just like h and ll.
-  alias p='pwd'
-
-  # 2020-01-05: I should finally retire this. Haven't used in years!!
-  # alias cls='clear' # If you're like me and poisoned by DOS memories.
+  # ***
 
   if [[ -n "${TMUX}" ]]; then
     # REMEMBER: It's quicker and just the same (AFAIK) to
@@ -219,21 +237,6 @@ home_fries_create_aliases_general () {
   if command -v ack-grep > /dev/null; then
     alias ack="ack-grep"
   fi
-
-  # *** Vi(m)
-
-  # Vi vs. Vim: When logged on as root, vi is a dumbed-down vim. Root rarely
-  # needs vanilla `vi` -- only when the home directories aren't mounted -- so
-  # we can alias vi to vim.
-  if [[ $EUID -eq 0 ]]; then
-    alias vi="vim"
-  fi
-  # 2019-03-26: Avoid errors when vim.tiny tries to load your ~/.vim! E.g.,
-  #   E319: Sorry, the command is not available in this version: ...
-  alias vim.tiny="vim.tiny -u NONE"
-
-  # 2018-03-28: From MarkM. Except it doesn't quite work for me....
-  #alias v='${EDITOR} $(fc -s) ' # edit results of last command
 
   # ***
 
