@@ -1,3 +1,5 @@
+# vim:tw=0:ts=2:sw=2:et:norl:ft=sh
+
 # INSTRUCTIONS:
 #
 #   Copy and rename this file and fill it with either
@@ -11,4 +13,21 @@
 #   and
 #
 #       bashrx.private.$LOGNAME.sh
-#
+
+main () {
+  # home-fries loads the private templates twice, at first
+  # before loading anything else to give you a chance to
+  # do any magic.
+  # - You might want to set the SSH_SECRETS environ, if using
+  #   that feature.
+  # - If your code doesn't need to do any setup, just return
+  #   immediately when called on preload.
+  ${HOME_FRIES_PRELOAD:-false} && return 0
+
+  # YOU: Fill in the blank here.
+}
+
+main "$@"
+# Because this file is sourced, cleanup!
+unset -f main
+
