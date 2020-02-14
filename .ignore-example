@@ -1,5 +1,5 @@
 .git/
 
 # Dev's private .bashrc files.
-.bashrc/bashrx.private.*.sh
+.bashrc-bin/bashrx.private*.sh
 
