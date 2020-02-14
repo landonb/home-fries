@@ -149,10 +149,12 @@ source_private () {
 
     # Load a machine-specific, private, uncommitted script, maybe.
 
-    # EXPLAIN: Is there a difference between $(hostname) and $HOSTNAME?
-    #          One is a command and one is an environment variable.
-    #          But does it matter which one we use?
-    machfile=`echo ${hard_path}/bashrx.private.$HOSTNAME.sh`
+    # Note that $HOSTNAME is set by Bash, and hostname is an executable.
+    # My understanding is that $HOSTNAME won't change if the user changes
+    # the hostname, which doesn't matter here, because $HOSTNAME will be
+    # freshly set. But I think my convention lately is $() over ${}, and,
+    # if anything, by calling the command, I don't need to type upcase.
+    machfile=`echo ${hard_path}/bashrx.private.$(hostname).sh`
 
     if [[ -f "${machfile}" ]]; then
       $DUBS_TRACE && echo "Loading machine-specific resource script: ${machfile}"
