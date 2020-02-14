@@ -14,8 +14,8 @@ source_utils () {
   local time_outer_0=$(date +%s.%N)
 
   # Generally, FRIES_DIR=${HOME}/.homefries [a/k/a /home/${LOGNAME}/.homefries]
-  export HOMEFRIES_DIR=$(dirname $(dirname -- "${BASH_SOURCE[0]}"))
-  if [[ ${HOMEFRIES_DIR} == '/' ]]; then
+  export HOMEFRIES_DIR="$(dirname $(dirname -- "${BASH_SOURCE[0]}"))"
+  if [[ "${HOMEFRIES_DIR}" == '/' ]]; then
     echo 'WARNING: Where is .homefries installed? For real?'
   fi
 
