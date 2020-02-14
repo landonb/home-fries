@@ -97,14 +97,6 @@ home_fries_create_aliases_general () {
   #   https://utcc.utoronto.ca/~cks/space/blog/linux/ReplacingNetstatNotBad
   alias n='netstat -tulpn'  # --tcp --udp --listening --program (name) --numeric
 
-  # 2018-06-26: `alias t` had been `=tree` since 2017-10-12. ["2017-10-12?"
-  # was my comment.] Before that, it was `=todo.sh` for, like, a day. And
-  # And way long before time ago, it was `=top`. Now I'm thinking, `=todolist`.
-  # 2018-06-26 20:32: We'll see if these catch up. I generally
-  #   tend to make new aliases and then promptly forget them.
-  alias t='todolist'
-  alias todo='todolist'
-
   # It was `=top` way long ago, and then `=todo.sh` for, like, a day.
   #alias t='top -c'          # Show full command.
   alias ht='htop'
@@ -207,15 +199,9 @@ home_fries_create_aliases_general () {
 
   # *** Git
 
-  # Do it to it git it st'ok it.
-  # MAYBE: Make these git aliases? Or just stick in ~/.local/bin?
-  if command -v git-st.sh > /dev/null; then
-    alias git-st='git-st.sh'
-    alias git-diff='GIT_ST_DIFF=true git-st.sh'
-    alias git-add='GIT_ST_ADDP=true git-st.sh'
-  fi
-
   # I run `git diff` fairly often. Make it even easier to run.
+  # 2020-02-13: See also, via git-FlU/.gitconfig:
+  #   `git dc`, `git df`, `git dff`.
   alias dff='git diff'
 
   # *** Home Fries
@@ -248,6 +234,8 @@ home_fries_create_aliases_general () {
 
   # 2018-03-28: From MarkM. Except it doesn't quite work for me....
   #alias v='${EDITOR} $(fc -s) ' # edit results of last command
+
+  # ***
 
   # Apply alias resolution to whatever term follows a `sudo`.
   # 2019-03-26: From Bash manual: "If the last character of the alias value is
