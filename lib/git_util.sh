@@ -1582,8 +1582,8 @@ main () {
   # Hrmm... gitstall? I'm not sold on any alias yet...
   alias gitstall='git_status_all'
 
+  # unalias git 2> /dev/null
   alias git='cis_git'
-  #unalias git
 }
 
 main "$@"
