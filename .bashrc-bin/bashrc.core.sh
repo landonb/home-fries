@@ -269,7 +269,7 @@ home_fries_up () {
 
   #########################
 
-  # Configure the terminal prompt and colors. (From term_util.sh)
+  # Configure the terminal prompt and colors.
 
   # Set `PS1=` to customize the terminal prompt.
   # - lib/term_util.sh
@@ -288,6 +288,7 @@ home_fries_up () {
   run_and_unset "dubs_always_on_visible_desktop"
 
   # Re-bind Ctrl-B from same-as-left-arrow to delete-path-part.
+  # - lib/term_util.sh
   run_and_unset "dubs_hook_filename_rubout"
 
   #########################
