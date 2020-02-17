@@ -38,7 +38,15 @@ source_utils () {
   lib_files+=("color_term.sh")
   # SKIPPING:("cron_util.sh")
   lib_files+=("crypt_util.sh")
-  lib_files+=("curly_util.sh")
+
+  # FIXME/2020-02-17: Verify this, then remove/retire curly_util.sh:
+  # - setup_users_curly_path: +100 points I never use.
+  # - ensure_dropbox_running: pretty sure I don't use.
+  # - passtore-ci: definitely stopped using while back.
+  #  lib_files+=("curly_util.sh")
+  #
+  # SKIPPING:("curly_util.sh")
+
   # SKIPPING:("cygwin_util.sh")
   lib_files+=("date_util.sh")
   lib_files+=("dir_util.sh")
