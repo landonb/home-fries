@@ -149,12 +149,21 @@ fries_tmux_session_entitle_unless_attach_existing () {
     # randomly reorders all the windows, but I can use the alphabetization
     # to drag and reorder my windows back to how they were.
     # Note: Using eval because select echoes "<()" aka process substitution.
-    randname=$(eval shuf -n 1 $(_fries_tmux_session_names_select))
-    # To lower.
-    sname=$(echo ${randname} | tr '[:upper:]' '[:lower:]')
-    # Alternatively, to lower with awk:
-    #   sname=$(echo ${randname} | awk '{print tolower($0)}')
-    tmux rename-session "${sname}"
+    while true; do
+      randname=$(eval shuf -n 1 $(_fries_tmux_session_names_select))
+      # I.e., HOME_FRIES_TMUX_START_ALPHA=${letter}
+      eval "$(tmux show-environment -g HOME_FRIES_TMUX_START_ALPHA)"
+      # To lower.
+      sname=$(echo ${randname} | tr '[:upper:]' '[:lower:]')
+      # Alternatively, to lower with awk:
+      #   sname=$(echo ${randname} | awk '{print tolower($0)}')
+      if ! tmux has -t "${sname}" &> /dev/null; then
+        tmux rename-session "${sname}"
+        break
+      fi
+      echo "Seat's taken: tmux ‘${sname}’ | On: ${HOME_FRIES_TMUX_START_ALPHA}"
+      sleep 0.1
+    done
     FRIES_TMUX_UNENTITLED=false
     # We merely renamed the new, loading tmux session,
     # so tell home-fries to keep loading, too.
@@ -183,6 +192,10 @@ fries_tmux_session_entitle_unless_attach_existing () {
     # Cycle characters a..z. Wrap around from z back to a. tr is magic!
     letter="$(echo ${letter} | tr '[a-y]z' '[b-z]a')"
     # Update the tmux environment var. for the next bash session.
+    # MEH/2020-02-17: There's a race condition if you fire off a bunch
+    # of terminals at once, as a few sessions might see the same value
+    # here until the first one reaches this code. We could use a file
+    # to fix that... or not care?
     tmux set-environment -g HOME_FRIES_TMUX_START_ALPHA ${letter}
     echo ${letter}
   }
