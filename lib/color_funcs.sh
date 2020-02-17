@@ -33,7 +33,7 @@
 #   $ echo -e '#!/bin/bash\necho $PS1' > /tmp/test.sh && /tmp/test.sh
 #   # EMPTY
 
-is_headless () {
+_hofr_no_color () {
   # User/Caller may set HOMEFRIES_NO_COLOR=false to disable color.
   ( [ -z ${HOMEFRIES_NO_COLOR+x} ] || ${HOMEFRIES_NO_COLOR} ) && return 0 || return 1
 }
@@ -59,7 +59,7 @@ is_headless () {
 #   https://en.wikipedia.org/wiki/ANSI_escape_code
 
 fg_pink () {
-  is_headless && return
+  _hofr_no_color && return
   ### === HIGH-COLOR === compatible with most terms including putty
   ### for windows... use colors that don't make your eyes bleed :)
   # NOTE/2017-05-03: Single quotes do not work. What's up with that?
@@ -70,7 +70,7 @@ fg_pink () {
 }
 
 fg_orange () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[38;5;203m"
   echo "\033[38;2;255;95;95m"
@@ -78,84 +78,84 @@ fg_orange () {
 
 # 2016-10-09: FG_SKYBLUE broken.
 fg_skyblue () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[38;5;111m"
   echo "\033[38;2;135;175;255m"
 }
 
 fg_mediumgrey () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[38;5;246m"
   echo "\033[38;2;148;148;148m"
 }
 
 fg_lavender () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[38;5;183m"
   echo "\033[38;2;215;175;255m"
 }
 
 fg_tan () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[38;5;179m"
   echo "\033[38;2;215;175;95m"
 }
 
 fg_forest () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[38;5;22m"
   echo "\033[38;2;0;95;0m"
 }
 
 fg_maroon () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[38;5;52m"
   echo "\033[38;2;95;0;0m"
 }
 
 fg_hotpink () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[38;5;198m"
   echo "\033[38;2;255;0;135m"
 }
 
 fg_mintgreen () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[38;5;121m"
   echo "\033[38;2;135;255;175m"
 }
 
 fg_lightorange () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[38;5;215m"
   echo "\033[38;2;255;175;95m"
 }
 
 fg_lightred () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[38;5;203m"
   echo "\033[38;2;255;95;95m"
 }
 
 fg_jade () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[38;5;35m"
   echo "\033[38;2;0;175;95m"
 }
 
 fg_lime () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[38;5;154m"
   echo "\033[38;2;175;255;0m"
@@ -164,98 +164,98 @@ fg_lime () {
 ### background colors
 
 bg_pink () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[48;5;211m"
   echo "\033[48;2;255;135;175m"
 }
 
 bg_orange () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[48;5;203m"
   echo "\033[48;2;255;95;95m"
 }
 
 bg_skyblue () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[48;5;111m"
   echo "\033[48;2;135;175;255m"
 }
 
 bg_mediumgrey () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[48;5;246m"
   echo "\033[48;2;148;148;148m"
 }
 
 bg_lavender () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[48;5;183m"
   echo "\033[48;2;215;175;255m"
 }
 
 bg_tan () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[48;5;179m"
   echo "\033[48;2;215;175;95m"
 }
 
 bg_forest () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[48;5;22m"
   echo "\033[48;2;0;95;0m"
 }
 
 bg_maroon () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[48;5;52m"
   echo "\033[48;2;95;0;0m"
 }
 
 bg_hotpink () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[48;5;198m"
   echo "\033[48;2;255;0;135m"
 }
 
 bg_mintgreen () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[48;5;121m"
   echo "\033[48;2;135;255;175m"
 }
 
 bg_lightorange () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[48;5;215m"
   echo "\033[48;2;255;175;95m"
 }
 
 bg_lightred () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[48;5;203m"
   echo "\033[48;2;255;95;95m"
 }
 
 bg_jade () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[48;5;35m"
   echo "\033[48;2;0;175;95m"
 }
 
 bg_lime () {
-  is_headless && return
+  _hofr_no_color && return
   # Via TERM=*-256color:
   #   echo "\033[48;5;154m"
   echo "\033[48;2;175;255;0m"
@@ -265,167 +265,167 @@ bg_lime () {
 #   https://misc.flogisoft.com/bash/tip_colors_and_formatting
 
 fg_black () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[30m"
 }
 
 fg_red () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[31m"
 }
 
 fg_green () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[32m"
 }
 
 fg_yellow () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[33m"
 }
 
 fg_blue () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[34m"
 }
 
 fg_magenta () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[35m"
 }
 
 fg_cyan () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[36m"
 }
 
 fg_lightgray () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[37m"
 }
 
 fg_darkgray () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[90m"
 }
 
 fg_lightred () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[91m"
 }
 
 fg_lightgreen () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[92m"
 }
 
 fg_lightyellow () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[93m"
 }
 
 fg_lightblue () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[94m"
 }
 
 fg_lightmagenta () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[95m"
 }
 
 fg_lightcyan () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[96m"
 }
 
 fg_white () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[97m"
 }
 
 bg_black () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[40m"
 }
 
 bg_red () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[41m"
 }
 
 bg_green () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[42m"
 }
 
 bg_yellow () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[43m"
 }
 
 bg_blue () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[44m"
 }
 
 bg_magenta () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[45m"
 }
 
 bg_cyan () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[46m"
 }
 
 bg_lightgray () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[47m"
 }
 
 bg_darkgray () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[100m"
 }
 
 bg_lightred () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[101m"
 }
 
 bg_lightgreen () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[102m"
 }
 
 bg_lightyellow () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[103m"
 }
 
 bg_lightblue () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[104m"
 }
 
 bg_lightmagenta () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[105m"
 }
 
 bg_lightcyan () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[106m"
 }
 
 bg_white () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[107m"
 }
 
 attr_reset () {
-  is_headless && return
+  _hofr_no_color && return
   # Does it matter which one? Using tput seems more generic than ANSI code.
   # Similar to:  echo "\033[0m"
   #echo "$(tput sgr0)"
@@ -434,19 +434,19 @@ attr_reset () {
 }
 
 attr_bold () {
-  is_headless && return
+  _hofr_no_color && return
   # Similar to:  echo "\033[1m"
   echo "\e[1m"
   #echo "$(tput bold)"
 }
 
 attr_dim () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\e[2m"
 }
 
 attr_emphasis () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\e[3m"
 }
 
@@ -455,7 +455,7 @@ attr_italic () {
 }
 
 attr_underline () {
-  is_headless && return
+  _hofr_no_color && return
   #echo "\e[4m"
   echo "\033[4m"
 }
@@ -465,7 +465,7 @@ attr_underlined () {
 }
 
 attr_strikethrough () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\e[9m"
 }
 
@@ -495,32 +495,32 @@ attr_strikethrough () {
 
 # Gnome/Mate do not support blink, <sigh>.
 font_blink () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[5m"
 }
 
 font_invert () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[7m"
 }
 
 font_hidden () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[8m"
 }
 
 reset_bold () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[21m"
 }
 
 reset_dim () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[22m"
 }
 
 reset_emphasis () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[23m"
 }
 
@@ -529,7 +529,7 @@ reset_italic () {
 }
 
 reset_underline () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[24m"
 }
 
@@ -538,17 +538,17 @@ reset_underlined () {
 }
 
 reset_blink () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[25m"
 }
 
 reset_reverse () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[27m"
 }
 
 reset_hidden () {
-  is_headless && return
+  _hofr_no_color && return
   echo "\033[28m"
 }
 
