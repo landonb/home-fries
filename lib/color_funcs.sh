@@ -38,6 +38,14 @@
 #   # EMPTY
 #   $ echo -e '#!/bin/bash\necho $PS1' > /tmp/test.sh && /tmp/test.sh
 #   # EMPTY
+# NOTE:
+# - That said, home-fries does check $- once -- in _export_homefries_no_color,
+#   on startup -- so that it can set (export) HOMEFRIES_NO_COLOR.
+#   - Such that, while $- will not indicate 'i' for subshell processes,
+#     the user's HOMEFRIES_NO_COLOR environ will be set.
+# - This means that whatever the user does from the terminal will be
+#   inherently colorful. But whatever user scripts run from anacron or
+#   similar will have to explicitly ask for color.
 
 _hofr_no_color () {
   # User/Caller may set HOMEFRIES_NO_COLOR=false to disable color.
