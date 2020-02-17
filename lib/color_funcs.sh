@@ -35,7 +35,7 @@
 
 is_headless () {
   # User/Caller may set HOMEFRIES_NO_COLOR=false to disable color.
-  ( [ -z ${FRIES_COLOR+x} ] || ! ${FRIES_COLOR} ) && return 0 || return 1
+  ( [ -z ${HOMEFRIES_NO_COLOR+x} ] || ${HOMEFRIES_NO_COLOR} ) && return 0 || return 1
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
