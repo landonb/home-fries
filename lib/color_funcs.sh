@@ -13,10 +13,10 @@ is_headless () {
   # because user-run scripts can themselves run scripts
   # and the latter-run scripts will not be considered
   # interactive. Compare also:
-  #   /bin/bash -c 'echo "$PS1"'
+  #   $ /bin/bash -c 'echo "$PS1"'
   #   # EMPTY
-  #   # /bin/bash -c 'echo "$LOGNAME"'
-  #   # user
+  #   $ /bin/bash -c 'echo "$LOGNAME"'
+  #   user
   ( [ -n ${FRIES_COLOR} ] && ! ${FRIES_COLOR} ) && return 0 || return 1
 }
 
