@@ -5,18 +5,36 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# NOTE:
+# - We cannot rely on normal interactive terminal checking, e.g.,
+#     [ -z "$PS1" ] && return 0 || return 1
+#     # Or:
+#     [[ "$-" =~ .*i.* ]] && return 1 || return 0
+#   because user-run scripts can themselves run scripts, but
+#   the latter-run scripts would not be considered interactive.
+# - As specified in the bash manual::
+#     PS1 is set and $- includes i if bash is interactive, allowing
+#     a shell script or a startup file to test this state.
+# - More to the point:
+#   $ [[ "$-" =~ .*i.* ]] && echo YES || echo NO
+#   YES
+#   $ /bin/bash -c '[[ "$-" =~ .*i.* ]] && echo YES || echo NO'
+#   NO
+#   $ echo -e "#!/bin/bash\n[[ \"\$-\" =~ .*i.* ]] && echo YES || echo NO\n" \
+#     > /tmp/test.sh
+#   $ chmod 775 /tmp/test.sh
+#   $ /tmp/test.sh
+#   NO
+# Same goes for PS1. I.e.,
+#   $ echo $PS1
+#   \[\e...
+#   $ /bin/bash -c 'echo $PS1'
+#   # EMPTY
+#   $ echo -e '#!/bin/bash\necho $PS1' > /tmp/test.sh && /tmp/test.sh
+#   # EMPTY
+
 is_headless () {
-  # We cannot rely on normal interactive terminal checking, e.g.,
-  #   [ -z "$PS1" ] && return 0 || return 1
-  #   # Or:
-  #   [[ "$-" =~ .*i.* ]] && return 1 || return 0
-  # because user-run scripts can themselves run scripts
-  # and the latter-run scripts will not be considered
-  # interactive. Compare also:
-  #   $ /bin/bash -c 'echo "$PS1"'
-  #   # EMPTY
-  #   $ /bin/bash -c 'echo "$LOGNAME"'
-  #   user
+  # User/Caller may set HOMEFRIES_NO_COLOR=false to disable color.
   ( [ -z ${FRIES_COLOR+x} ] || ! ${FRIES_COLOR} ) && return 0 || return 1
 }
 
