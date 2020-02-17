@@ -96,6 +96,8 @@ _unset_f_color_term () {
 
 main () {
   # Set HOMEFRIES_NO_COLOR=true, probably.
+  # NOTE: color_funcs.sh sets HOMEFRIES_NO_COLOR false by default!
+  #       But still calling this, to feel complete/whole.
   _export_homefries_no_color
 
   _alias_stripcolors

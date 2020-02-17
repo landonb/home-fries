@@ -5,6 +5,20 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# USAGE: Source this file. Call its functions, e.g., in `echo -e` calls,
+# such as:
+#
+#   echo -e "$(fg_pink)Hello!$(attr_reset) $(attr_underlined)Goodbye!$(attr_reset)"
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# (lb): Hrmmm. What's better, Opt-in, or Opt-out?
+# - I wouldn't want people *not* to have a good experience by default.
+
+HOMEFRIES_NO_COLOR=${HOMEFRIES_NO_COLOR:-false}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # Ref:
 # - "Bash tips: Colors and formatting (ANSI/VT100 Control sequences)"
 #   https://misc.flogisoft.com/bash/tip_colors_and_formatting
