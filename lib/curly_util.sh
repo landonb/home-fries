@@ -5,13 +5,6 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps () {
-  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
-  . ${curdir}/logger.sh
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 setup_users_curly_path () {
   source_deps
   unset -f source_deps
@@ -83,15 +76,12 @@ setup_users_curly_path () {
     # We `set -e` above, so if we're here, it worked.
   fi
   USERS_BNAME=$(basename -- "${USERS_CURLY}")
-  #echo
-  info "So-called Curly found at: ${FG_LAVENDER}${USERS_CURLY}"
+  echo "So-called Curly found at: ${FG_LAVENDER}${USERS_CURLY}"
 } # end: setup_users_curly_path
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 ensure_dropbox_running () {
-  #dropbox.py status | grep "Dropbox isn't running" &> /dev/null
-  #if [[ $? -eq 0 ]]; then
   dropbox.py status | grep "Up to date" &> /dev/null
   if [[ $? -ne 0 ]]; then
     echo -n "Starting Dropbox... "
@@ -136,7 +126,7 @@ passtore-ci () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
-  : #source_deps
+  :
 }
 
 main "$@"
