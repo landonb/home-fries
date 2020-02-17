@@ -5,95 +5,26 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# From: https://github.com/ginatrapani/todo.txt-cli/wiki/Tips-and-Tricks
-# See also hex-to-xterm converter: http://www.frexx.de/xterm-256-notes/
-
-# See also similar libraries:
+# Ref:
+#
+#   https://github.com/ginatrapani/todo.txt-cli/wiki/Tips-and-Tricks
+#
+# See also hex-to-xterm converter:
+#
+#   http://www.frexx.de/xterm-256-notes/
+#
+# And similar libraries:
 #
 #   https://github.com/paoloantinori/hhighlighter
+#
+# Also more ref./articles/lite reading:
+#
+#   https://misc.flogisoft.com/bash/tip_colors_and_formatting
 
-create_colors () {
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-  ### === HIGH-COLOR === compatible with most terms including putty
-  ### for windows... use colors that don't make your eyes bleed :)
-
-  # NOTE/2017-05-03: Single quotes do not work. What's up with that?
-  #   E.g., export PINK='\\033[38;5;211m'
-
-  # NOTE/2020-01-03: Use RGB, not ANSI codes, because tmux.
-  #   - See full comment in .homefries/lib/color_funcs.sh
-  # - R,G,B Formats:
-  #   \033[38;2;<r>;<g>;<b>m  # RGB foreground color.
-  #   \033[48;2;<r>;<g>;<b>m  # RGB background color.
-
-  if false; then
-    ### foreground colors
-    export FG_PINK="\033[38;5;211m"
-    export FG_ORANGE="\033[38;5;203m"
-    # 2016-10-09: FG_SKYBLUE broken.
-    #export FG_SKYBLUE="\033[38;5;111m"
-    export FG_MEDIUMGREY="\033[38;5;246m"
-    export FG_LAVENDER="\033[38;5;183m"
-    export FG_TAN="\033[38;5;179m"
-    export FG_FOREST="\033[38;5;22m"
-    export FG_MAROON="\033[38;5;52m"
-    export FG_HOTPINK="\033[38;5;198m"
-    export FG_MINTGREEN="\033[38;5;121m"
-    export FG_LIGHTORANGE="\033[38;5;215m"
-    export FG_LIGHTRED="\033[38;5;203m"
-    export FG_JADE="\033[38;5;35m"
-    export FG_LIME="\033[38;5;154m"
-    ### background colors
-    export BG_PINK="\033[48;5;211m"
-    export BG_ORANGE="\033[48;5;203m"
-    export BG_SKYBLUE="\033[48;5;111m"
-    export BG_MEDIUMGREY="\033[48;5;246m"
-    export BG_LAVENDER="\033[48;5;183m"
-    export BG_TAN="\033[48;5;179m"
-    export BG_FOREST="\033[48;5;22m"
-    export BG_MAROON="\033[48;5;52m"
-    export BG_HOTPINK="\033[48;5;198m"
-    export BG_MINTGREEN="\033[48;5;121m"
-    export BG_LIGHTORANGE="\033[48;5;215m"
-    export BG_LIGHTRED="\033[48;5;203m"
-    export BG_JADE="\033[48;5;35m"
-    export BG_LIME="\033[48;5;154m"
-  else
-    ### foreground colors
-    export FG_PINK="\033[38;2;255;135;175m"
-    export FG_ORANGE="\033[38;2;255;95;95m"
-    export FG_SKYBLUE="\033[38;2;135;175;255m"
-    export FG_MEDIUMGREY="\033[38;2;148;148;148m"
-    export FG_LAVENDER="\033[38;2;215;175;255m"
-    export FG_TAN="\033[38;2;215;175;95m"
-    export FG_FOREST="\033[38;2;0;95;0m"
-    export FG_MAROON="\033[38;2;95;0;0m"
-    export FG_HOTPINK="\033[38;2;255;0;135m"
-    export FG_MINTGREEN="\033[38;2;135;255;175m"
-    export FG_LIGHTORANGE="\033[38;2;255;175;95m"
-    export FG_LIGHTRED="\033[38;2;255;95;95m"
-    export FG_JADE="\033[38;2;0;175;95m"
-    export FG_LIME="\033[38;2;175;255;0m"
-    ### background colors
-    export BG_PINK="\033[48;2;255;135;175m"
-    export BG_ORANGE="\033[48;2;255;95;95m"
-    export BG_SKYBLUE="\033[48;2;135;175;255m"
-    export BG_MEDIUMGREY="\033[48;2;148;148;148m"
-    export BG_LAVENDER="\033[48;2;215;175;255m"
-    export BG_TAN="\033[48;2;215;175;95m"
-    export BG_FOREST="\033[48;2;0;95;0m"
-    export BG_MAROON="\033[48;2;95;0;0m"
-    export BG_HOTPINK="\033[48;2;255;0;135m"
-    export BG_MINTGREEN="\033[48;2;135;255;175m"
-    export BG_LIGHTORANGE="\033[48;2;255;175;95m"
-    export BG_LIGHTRED="\033[48;2;255;95;95m"
-    export BG_JADE="\033[48;2;0;175;95m"
-    export BG_LIME="\033[48;2;175;255;0m"
-  fi
-
-  # 2018-03-23: Aha!
-  #   https://misc.flogisoft.com/bash/tip_colors_and_formatting
-
+_export_colors_basic () {
+  ### foreground colors
   export FG_BLACK="\033[30m"
   export FG_RED="\033[31m"
   export FG_GREEN="\033[32m"
@@ -110,7 +41,7 @@ create_colors () {
   export FG_LIGHTMAGENTA="\033[95m"
   export FG_LIGHTCYAN="\033[96m"
   export FG_WHITE="\033[97m"
-
+  ### background colors
   export BG_BLACK="\033[40m"
   export BG_RED="\033[41m"
   export BG_GREEN="\033[42m"
@@ -129,9 +60,98 @@ create_colors () {
   export BG_WHITE="\033[107m"
 }
 
+# ***
+
+# NOTE/2020-01-03: Use RGB, not ANSI codes, because tmux.
+# - See full comment in:
+#     ~/.homefries/lib/color_funcs.sh
+# - R,G,B formats:
+#     \033[38;2;<r>;<g>;<b>m  # RGB foreground color.
+#     \033[48;2;<r>;<g>;<b>m  # RGB background color.
+
+_export_colors_fancy_rgb () {
+  ### foreground colors
+  export FG_PINK="\033[38;2;255;135;175m"
+  export FG_ORANGE="\033[38;2;255;95;95m"
+  export FG_SKYBLUE="\033[38;2;135;175;255m"
+  export FG_MEDIUMGREY="\033[38;2;148;148;148m"
+  export FG_LAVENDER="\033[38;2;215;175;255m"
+  export FG_TAN="\033[38;2;215;175;95m"
+  export FG_FOREST="\033[38;2;0;95;0m"
+  export FG_MAROON="\033[38;2;95;0;0m"
+  export FG_HOTPINK="\033[38;2;255;0;135m"
+  export FG_MINTGREEN="\033[38;2;135;255;175m"
+  export FG_LIGHTORANGE="\033[38;2;255;175;95m"
+  export FG_LIGHTRED="\033[38;2;255;95;95m"
+  export FG_JADE="\033[38;2;0;175;95m"
+  export FG_LIME="\033[38;2;175;255;0m"
+  ### background colors
+  export BG_PINK="\033[48;2;255;135;175m"
+  export BG_ORANGE="\033[48;2;255;95;95m"
+  export BG_SKYBLUE="\033[48;2;135;175;255m"
+  export BG_MEDIUMGREY="\033[48;2;148;148;148m"
+  export BG_LAVENDER="\033[48;2;215;175;255m"
+  export BG_TAN="\033[48;2;215;175;95m"
+  export BG_FOREST="\033[48;2;0;95;0m"
+  export BG_MAROON="\033[48;2;95;0;0m"
+  export BG_HOTPINK="\033[48;2;255;0;135m"
+  export BG_MINTGREEN="\033[48;2;135;255;175m"
+  export BG_LIGHTORANGE="\033[48;2;255;175;95m"
+  export BG_LIGHTRED="\033[48;2;255;95;95m"
+  export BG_JADE="\033[48;2;0;175;95m"
+  export BG_LIME="\033[48;2;175;255;0m"
+}
+
+_export_colors_fancy_256 () {
+  ### foreground colors
+  export FG_PINK="\033[38;5;211m"
+  export FG_ORANGE="\033[38;5;203m"
+  # 2016-10-09: FG_SKYBLUE broken.
+  #export FG_SKYBLUE="\033[38;5;111m"
+  export FG_MEDIUMGREY="\033[38;5;246m"
+  export FG_LAVENDER="\033[38;5;183m"
+  export FG_TAN="\033[38;5;179m"
+  export FG_FOREST="\033[38;5;22m"
+  export FG_MAROON="\033[38;5;52m"
+  export FG_HOTPINK="\033[38;5;198m"
+  export FG_MINTGREEN="\033[38;5;121m"
+  export FG_LIGHTORANGE="\033[38;5;215m"
+  export FG_LIGHTRED="\033[38;5;203m"
+  export FG_JADE="\033[38;5;35m"
+  export FG_LIME="\033[38;5;154m"
+  ### background colors
+  export BG_PINK="\033[48;5;211m"
+  export BG_ORANGE="\033[48;5;203m"
+  export BG_SKYBLUE="\033[48;5;111m"
+  export BG_MEDIUMGREY="\033[48;5;246m"
+  export BG_LAVENDER="\033[48;5;183m"
+  export BG_TAN="\033[48;5;179m"
+  export BG_FOREST="\033[48;5;22m"
+  export BG_MAROON="\033[48;5;52m"
+  export BG_HOTPINK="\033[48;5;198m"
+  export BG_MINTGREEN="\033[48;5;121m"
+  export BG_LIGHTORANGE="\033[48;5;215m"
+  export BG_LIGHTRED="\033[48;5;203m"
+  export BG_JADE="\033[48;5;35m"
+  export BG_LIME="\033[48;5;154m"
+}
+
+_export_colors_fancy () {
+  # (lb): I didn't have consistent luck with 256 colors; RGB better.
+  #   _export_colors_fancy_256
+  _export_colors_fancy_rgb
+}
+
+# ***
+
+_export_colors () {
+  _export_colors_basic
+  _export_colors_fancy
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-create_ornaments () {
+_export_ornamentations () {
   # 2016-08-15: `tput` discovers the right sequences to send to the terminal:
   # 2018-05-28: Haha. Run `env` and after TPUT_BOLD, everything is bold! Duh!!
   #   export TPUT_BOLD=$(tput bold)
@@ -178,14 +198,6 @@ create_ornaments () {
   export MK_NORM=${FONT_NORMAL}
   export MK_BOLD=${FONT_BOLD}
   export MK_LINE=${FONT_UNDERLINE}
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-create_strip_colors () {
-  # - Strip color codes from stream. Ref:
-  #   http://stackoverflow.com/questions/17998978/removing-colors-from-output
-  alias stripcolors='/bin/sed -E "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -273,29 +285,28 @@ test_colors () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_color_util () {
-  unset -f create_colors
+_unset_f_color_envs () {
+  unset -f _export_colors
+  #
+  unset -f _export_colors_fancy
+  unset -f _export_colors_fancy_256
+  unset -f _export_colors_fancy_rgb
+  #
+  unset -f _export_colors_basic
 
-  unset -f create_ornaments
-
-  unset -f create_strip_colors
+  unset -f _export_ornamentations
 
   # So meta.
-  unset -f unset_f_color_util
+  unset -f _unset_f_color_envs
 }
 
 main () {
-  create_colors
-  unset -f create_colors
+  _export_colors
 
-  create_ornaments
-  unset -f create_ornaments
+  _export_ornamentations
 
-  create_strip_colors
-  unset -f create_strip_colors
-
-  # DEVS: Uncomment to test, or call yourself after sourcing this file.
-  #test_colors
+  # Cleanup after self.
+  _unset_f_color_envs
 }
 
 main "$@"

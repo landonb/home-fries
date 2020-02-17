@@ -5,6 +5,22 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+source_deps () {
+  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
+  . ${curdir}/color_envs.sh
+  . ${curdir}/color_funcs.sh
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+_alias_stripcolors () {
+  # - Strip color codes from stream. Ref:
+  #   http://stackoverflow.com/questions/17998978/removing-colors-from-output
+  alias stripcolors='/bin/sed -E "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g"'
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # "Want colored man pages?"
 #
 #   http://boredzo.org/blog/archives/2016-08-15/colorized-man-pages-understood-and-customized
@@ -51,8 +67,18 @@ test_truecolor () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+_unset_f_color_term () {
+  unset -f _alias_stripcolors
+
+  # So meta.
+  unset -f unset_f_color_term
+}
+
 main () {
-  :
+  _alias_stripcolors
+
+  # Cleanup after self.
+  _unset_f_color_term
 }
 
 main "$@"
