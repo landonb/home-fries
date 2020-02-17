@@ -94,25 +94,25 @@ warn () {
 }
 
 notice () {
-  log_msg "${LOG_LEVEL_NOTICE}" $(fg_lime) NOTC "$@"
+  log_msg "${LOG_LEVEL_NOTICE}" "$(fg_lime)" NOTC "$@"
 }
 
 # FIXME: Shadows /usr/bin/info
 #        Name it `infom`?
 info () {
-  log_msg "${LOG_LEVEL_INFO}" $(fg_mintgreen) INFO "$@"
+  log_msg "${LOG_LEVEL_INFO}" "$(fg_mintgreen)" INFO "$@"
 }
 
 debug () {
-  log_msg "${LOG_LEVEL_DEBUG}" $(fg_jade) DBUG "$@"
+  log_msg "${LOG_LEVEL_DEBUG}" "$(fg_jade)" DBUG "$@"
 }
 
 trace () {
-  log_msg "${LOG_LEVEL_TRACE}" $(fg_mediumgrey) TRCE "$@"
+  log_msg "${LOG_LEVEL_TRACE}" "$(fg_mediumgrey)" TRCE "$@"
 }
 
 verbose () {
-  log_msg "${LOG_LEVEL_VERBOSE}" $(fg_mediumgrey) VERB "$@"
+  log_msg "${LOG_LEVEL_VERBOSE}" "$(fg_mediumgrey)" VERB "$@"
 }
 
 test_logger () {
