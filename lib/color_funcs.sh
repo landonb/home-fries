@@ -5,6 +5,12 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# Ref:
+# - "Bash tips: Colors and formatting (ANSI/VT100 Control sequences)"
+#   https://misc.flogisoft.com/bash/tip_colors_and_formatting
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # NOTE:
 # - We cannot rely on normal interactive terminal checking, e.g.,
 #     [ -z "$PS1" ] && return 0 || return 1
@@ -40,8 +46,24 @@ _hofr_no_color () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# DX: Hint: Fast downcase: q q v w C-o u <down> q
-#           [2020-01-03: Though now <Q> stops on visual select...]
+# (lb): In Bash, the escape sequences \e, \033 and \x1b can be used
+#       interchangeably, but \033 is the more portable of the 3.
+# - The `\e` is a character escape sequence; the other two are Oct.
+#   and Hex. reps., respect. (See also ^[, i.e., you can hit Ctrl-[
+#   to send ESCAPE sequence. And also 27, the decimal equivalent.)
+# - Because the `\e` representation feels more Bashy (and probably is
+#   less universal), we'll use either the octal or hexadecimal format.
+#   - Let's use the octal format.
+#     - A search on "\033" returns 255,000 hits,
+#     - A search on "\x1b" returns 74,100 results.
+#     - (And on "\e", 4,970,000 results, but that includes
+#       "\E NO. 316 - City of Drain" in the top 100 results
+#       (AN ORDINANCE FIXING ELECTRICAL RATES).)
+#     - Not that we should not always be sheep and follow the
+#       masses, but we gotta decide somehow.
+# tl,dr: Prefer `\033` below, not `\e` or `\x1b`.
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # NOTE: tmux doesn't show all the ANSI color codes, but maps some to other colors
 #       (like pink and orange to red).
@@ -57,6 +79,8 @@ _hofr_no_color () {
 #   https://i.stack.imgur.com/KTSQa.png
 # via
 #   https://en.wikipedia.org/wiki/ANSI_escape_code
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 fg_pink () {
   _hofr_no_color && return
@@ -261,8 +285,7 @@ bg_lime () {
   echo "\033[48;2;175;255;0m"
 }
 
-# 2018-03-23: Aha!
-#   https://misc.flogisoft.com/bash/tip_colors_and_formatting
+# ***
 
 fg_black () {
   _hofr_no_color && return
@@ -424,30 +447,38 @@ bg_white () {
   echo "\033[107m"
 }
 
+# ***
+
+# Note that you can also use tput to clear formatting, e.g.,
+#   $ echo -e "$(fg_green)$(attr_underline)Hello$(tput sgr0), Whirl"
+#   Hello, Whirl
+#   -----
+# (where the "Hello" is formatted).
+# However, tput does not appear to inject into the output stream:
+#   $ echo "$(fg_green)$(attr_underline)Hello$(tput sgr0), Whirl"
+#   \033[32m\033[4mHello, Whirl
+# so just to be safe -- so that this function can be used to build
+# a string -- use the escape code.
 attr_reset () {
   _hofr_no_color && return
-  # Does it matter which one? Using tput seems more generic than ANSI code.
-  # Similar to:  echo "\033[0m"
-  #echo "$(tput sgr0)"
-  # 2018-05-31: Actually, I think it does matter. `tput sgr0` seems noop.
   echo "\033[0m"
 }
 
 attr_bold () {
   _hofr_no_color && return
-  # Similar to:  echo "\033[1m"
-  echo "\e[1m"
-  #echo "$(tput bold)"
+  # See also:
+  #   echo "$(tput bold)"
+  echo "\033[1m"
 }
 
 attr_dim () {
   _hofr_no_color && return
-  echo "\e[2m"
+  echo "\033[2m"
 }
 
 attr_emphasis () {
   _hofr_no_color && return
-  echo "\e[3m"
+  echo "\033[3m"
 }
 
 attr_italic () {
@@ -456,7 +487,6 @@ attr_italic () {
 
 attr_underline () {
   _hofr_no_color && return
-  #echo "\e[4m"
   echo "\033[4m"
 }
 
@@ -466,9 +496,10 @@ attr_underlined () {
 
 attr_strikethrough () {
   _hofr_no_color && return
-  echo "\e[9m"
+  echo "\033[9m"
 }
 
+# ***
 # 2018-06-07 14:21: Hrmmmm... I kind like this:
 #  ansi ()          { echo -e "\e[${1}m${*:2}\e[0m"; }
 #  bold ()          { ansi 1 "$@"; }
@@ -552,6 +583,7 @@ reset_hidden () {
   echo "\033[28m"
 }
 
+# *** Convenience aliases.
 res_dim () { reset_dim; }
 res_emphasis () { reset_emphasis; }
 res_italic () { reset_italic; }
