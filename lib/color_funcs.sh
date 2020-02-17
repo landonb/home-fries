@@ -500,29 +500,6 @@ attr_strikethrough () {
 }
 
 # ***
-# 2018-06-07 14:21: Hrmmmm... I kind like this:
-#  ansi ()          { echo -e "\e[${1}m${*:2}\e[0m"; }
-#  bold ()          { ansi 1 "$@"; }
-#  italic ()        { ansi 3 "$@"; }
-#  underline ()     { ansi 4 "$@"; }
-#  strikethrough () { ansi 9 "$@"; }
-#  red ()           { ansi 31 "$@"; }
-#
-# Via:
-#  https://askubuntu.com/questions/528928/how-to-do-underline-bold-italic-strikethrough-color-background-and-size-i
-#
-# Another color table:
-#  https://misc.flogisoft.com/bash/tip_colors_and_formatting
-
-# 2018-06-08: Care about cursor movements? I mean, this file is way
-# beyond just colors at this point...
-#
-#   Example cursor-up movements:
-#
-#        echo -e "\x1b[A"     # 1 row (looks like no-op in Bash, because Enter)
-#        echo -e "\x1b[5A"    # 5 rows (run in shell, effectively 3 lines up)
-#        echo -e "\u001b[A"   # 1 row
-#        echo -e "\u001b[5A"  # 5 rows
 
 # Gnome/Mate do not support blink, <sigh>.
 font_blink () {
@@ -592,81 +569,4 @@ res_underlined () { reset_underlined; }
 res_blink () { reset_blink; }
 res_reverse () { reset_reverse; }
 res_hidden () { reset_hidden; }
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-# Examples:
-#
-#   - Combining foreground and background
-#
-#     export PRI_A=${FG_HOTPINK}${BG_MEDIUMGREY}${MK_UNDERLINE}
-#
-#   - Raw
-#
-#     echo -e "Some \e[93mCOLOR"
-#
-#   - Using exported environs
-#
-#     echo -e "Some ${MINTGREEN}COLOR ${MK_underline_bash}is ${MK_bold_bash}nice${MK_normal_bash} surely."
-#
-# Hints:
-#
-#   - Reset text attributes to normal without clear.
-#
-#     tput sgr0
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-# "Want colored man pages?"
-#
-#   http://boredzo.org/blog/archives/2016-08-15/colorized-man-pages-understood-and-customized
-#
-#   https://superuser.com/questions/452034/bash-colorized-man-page
-
-man () {
-  # 2018-06-29 12:43: This was fine in a normal terminal, then I tried
-  # it in a Terminator, and needs quotes all of a sudden?
-  env \
-    LESS_TERMCAP_mb="$(printf "\e[1;31m")" \
-    LESS_TERMCAP_md="$(printf "\e[1;31m")" \
-    LESS_TERMCAP_me="$(printf "\e[0m")" \
-    LESS_TERMCAP_se="$(printf "\e[0m")" \
-    LESS_TERMCAP_so="$(printf "\e[1;44;33m")" \
-    LESS_TERMCAP_ue="$(printf "\e[0m")" \
-    LESS_TERMCAP_us="$(printf "\e[1;32m")" \
-    /usr/bin/man "$@"
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-test_truecolor () {
-  # https://jdhao.github.io/2018/10/19/tmux_nvim_true_color/
-  awk 'BEGIN{
-      s="/\\/\\/\\/\\/\\"; s=s s s s s s s s;
-      for (colnum = 0; colnum<77; colnum++) {
-          r = 255-(colnum*255/76);
-          g = (colnum*510/76);
-          b = (colnum*255/76);
-          if (g>255) g = 510-g;
-          printf "\033[48;2;%d;%d;%dm", r,g,b;
-          printf "\033[38;2;%d;%d;%dm", 255-r,255-g,255-b;
-          printf "%s\033[0m", substr(s,colnum+1,1);
-      }
-      printf "\n";
-  }'
-  echo -e \
-    "$(attr_bold)bold$(attr_reset) " \
-    "$(attr_italic)italic$(attr_reset) " \
-    "$(attr_underline)underline$(attr_reset) " \
-    "$(attr_strikethrough)strikethrough$(attr_reset)"
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-main () {
-  :
-}
-
-main "$@"
-unset -f main
 

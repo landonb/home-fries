@@ -35,6 +35,7 @@ source_utils () {
   lib_files+=("bash_base.sh")
   lib_files+=("color_envs.sh")
   lib_files+=("color_funcs.sh")
+  lib_files+=("color_term.sh")
   # SKIPPING:("cron_util.sh")
   lib_files+=("crypt_util.sh")
   lib_files+=("curly_util.sh")
