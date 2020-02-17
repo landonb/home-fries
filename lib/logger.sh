@@ -45,9 +45,9 @@ _echo () {
 }
 
 log_msg () {
-  local FCN_LEVEL=$1
-  local FCN_COLOR=$2
-  local FCN_LABEL=$3
+  local FCN_LEVEL="$1"
+  local FCN_COLOR="$2"
+  local FCN_LABEL="$3"
   shift 3
   if [ ${FCN_LEVEL} -ge ${LOG_LEVEL} ]; then
     #echo "${FCN_COLOR} $@"
@@ -66,53 +66,53 @@ log_msg () {
 }
 
 fatal () {
-  #log_msg ${LOG_LEVEL_FATAL} "$(bg_hotpink)$(attr_bold)" FATL "$@"
-  #log_msg ${LOG_LEVEL_FATAL} "$(bg_pink)$(fg_black)$(attr_bold)" FATL "$@"
-  log_msg ${LOG_LEVEL_FATAL} "$(bg_white)$(fg_lightred)$(attr_bold)" FATL "$@"
+  #log_msg "${LOG_LEVEL_FATAL}" "$(bg_hotpink)$(attr_bold)" FATL "$@"
+  #log_msg "${LOG_LEVEL_FATAL}" "$(bg_pink)$(fg_black)$(attr_bold)" FATL "$@"
+  log_msg "${LOG_LEVEL_FATAL}" "$(bg_white)$(fg_lightred)$(attr_bold)" FATL "$@"
   # So that errexit can be used to stop execution.
   return 1
 }
 
 critical () {
-  #log_msg ${LOG_LEVEL_CRITICAL} "$(fg_hotpink)$(attr_bold)" CRIT "$@"
-  log_msg ${LOG_LEVEL_CRITICAL} "$(bg_pink)$(fg_black)$(attr_bold)" CRIT "$@"
+  #log_msg "${LOG_LEVEL_CRITICAL}" "$(fg_hotpink)$(attr_bold)" CRIT "$@"
+  log_msg "${LOG_LEVEL_CRITICAL}" "$(bg_pink)$(fg_black)$(attr_bold)" CRIT "$@"
 }
 
 error () {
-  #log_msg ${LOG_LEVEL_ERROR} "$(fg_orange)$(attr_bold)" ERRR "$@"
+  #log_msg "${LOG_LEVEL_ERROR}" "$(fg_orange)$(attr_bold)" ERRR "$@"
   critical "$@"
 }
 
 warning () {
-  #log_msg ${LOG_LEVEL_WARNING} "$(fg_lightred)$(attr_bold)" WARN "$@"
-  log_msg ${LOG_LEVEL_WARNING} "$(fg_hotpink)$(attr_bold)" WARN "$@"
+  #log_msg "${LOG_LEVEL_WARNING}" "$(fg_lightred)$(attr_bold)" WARN "$@"
+  log_msg "${LOG_LEVEL_WARNING}" "$(fg_hotpink)$(attr_bold)" WARN "$@"
 }
 
 warn () {
-  #log_msg ${LOG_LEVEL_WARNING} "$(fg_pink)$(attr_bold)" WARN "$@"
+  #log_msg "${LOG_LEVEL_WARNING}" "$(fg_pink)$(attr_bold)" WARN "$@"
   warning "$@"
 }
 
 notice () {
-  log_msg ${LOG_LEVEL_NOTICE} $(fg_lime) NOTC "$@"
+  log_msg "${LOG_LEVEL_NOTICE}" $(fg_lime) NOTC "$@"
 }
 
 # FIXME: Shadows /usr/bin/info
 #        Name it `infom`?
 info () {
-  log_msg ${LOG_LEVEL_INFO} $(fg_mintgreen) INFO "$@"
+  log_msg "${LOG_LEVEL_INFO}" $(fg_mintgreen) INFO "$@"
 }
 
 debug () {
-  log_msg ${LOG_LEVEL_DEBUG} $(fg_jade) DBUG "$@"
+  log_msg "${LOG_LEVEL_DEBUG}" $(fg_jade) DBUG "$@"
 }
 
 trace () {
-  log_msg ${LOG_LEVEL_TRACE} $(fg_mediumgrey) TRCE "$@"
+  log_msg "${LOG_LEVEL_TRACE}" $(fg_mediumgrey) TRCE "$@"
 }
 
 verbose () {
-  log_msg ${LOG_LEVEL_VERBOSE} $(fg_mediumgrey) VERB "$@"
+  log_msg "${LOG_LEVEL_VERBOSE}" $(fg_mediumgrey) VERB "$@"
 }
 
 test_logger () {
