@@ -17,7 +17,7 @@ is_headless () {
   #   # EMPTY
   #   $ /bin/bash -c 'echo "$LOGNAME"'
   #   user
-  ( [ -n ${FRIES_COLOR} ] && ! ${FRIES_COLOR} ) && return 0 || return 1
+  ( [ -z ${FRIES_COLOR+x} ] || ! ${FRIES_COLOR} ) && return 0 || return 1
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
