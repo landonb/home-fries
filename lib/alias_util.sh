@@ -242,6 +242,12 @@ home_fries_create_aliases_general () {
     alias ack="ack-grep"
   fi
 
+  # *** `fd`
+
+  if command -v fd > /dev/null; then
+    alias fd="fd -H"
+  fi
+
   # ***
 
   # Apply alias resolution to whatever term follows a `sudo`.
