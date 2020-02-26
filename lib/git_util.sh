@@ -1310,7 +1310,7 @@ git-jockey () {
 # git subdirectory statusr
 
 # I maintain a bunch of Vim plugins,
-# published at https://github.com/landonb/dubs_*,
+# published at https://github.com/landonb/vim-*,
 # that are loaded as submodules in an uber-project
 # that makes it easy to share my plugins and makes
 # it simple to deploy them to a new machine, found
@@ -1319,10 +1319,10 @@ git-jockey () {
 # However, git status doesn't work like, say, svn status:
 # you can't postpend a directory path and have it search
 # that. For example, from the parent directory of the plugins,
-# e.g., from ~/.vim/bundle_/, using git status doesn't
-# work, e.g., running `git status git_ignores_this` no matter
+# e.g., from ~/.vim/pack/landonb/start, using git status doesn't
+# work, e.g., running `git status my_package` no matter
 # what the third token is always reports on the git status of
-# the working directory, which in my case is ~/.vim.
+# the working directory, which in this case would be ~/.vim.
 
 # 2019-10-23: Consider instead `mr mystatus` to do this.
 git_status_all () {
