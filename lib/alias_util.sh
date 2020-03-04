@@ -372,6 +372,7 @@ home_fries_create_aliases_rg_tag_wrap () {
   export TAG_SEARCH_PROG=${engine}
 
   tag () {
+    # See: ${HOME}/.gopath/bin/tag
     command tag "$@"
     . ${TAG_ALIAS_FILE:-/tmp/tag_aliases} 2>/dev/null
   }
