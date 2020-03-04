@@ -317,7 +317,7 @@ home_fries_run_terminator_init_cmd () {
     echo ${INIT_CMD}
     OLD_IFS=$IFS
     # (lb): setopt, and shwordsplit, and Z Shell-specific, to emulate Bash behavior.
-    #setopt shwordsplit
+    #  setopt shwordsplit
     IFS=';'
     local cmd
     for cmd in ${INIT_CMD}; do
@@ -327,7 +327,7 @@ home_fries_run_terminator_init_cmd () {
       #   Unescaped left brace in regex is deprecated, passed through in regex;
       #   marked by <-- HERE in m/%{ <-- HERE (.*?)}/ at /usr/bin/print line 528.
       #
-      #print -s "${cmd}"  # add to history
+      #  print -s "${cmd}"  # add to history
       history -s "${cmd}"  # add to history
       eval "${cmd}"
     done
