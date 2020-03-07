@@ -55,7 +55,7 @@ fries_tmux_session_entitle_unless_attach_existing () {
 
     # If this is not the first pane, don't bother renaming (otherwise every
     # pane, when it starts up, would be mucking around here, redundantly).
-    [[ $(tmux display-message -pt "$TMUX_PANE" '#{pane_index}') -ne 1 ]] && return 1
+    [[ $(tmux display-message -pt "${TMUX_PANE}" '#{pane_index}') -ne 1 ]] && return 1
 
     # If the session is not a plain number (which indicates that the user
     # ran a plain `tmux`, and did not specify a session name), return 1 to
