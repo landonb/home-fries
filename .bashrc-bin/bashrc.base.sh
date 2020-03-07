@@ -302,44 +302,6 @@ home_fries_bashrc_cleanup () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Thanks, Amir Rachum, for the magic!
-#   https://amir.rachum.com/blog/2015/11/28/terminator-multiple-custom-commands/
-# This gets past a Terminator behavior where it's hard to run a custom
-# command that sets up an interactive shell. So you can, e.g., use this
-# as your Terminator custom command:
-#   env INIT_CMD="cd bla; export PYTHONPATH=/tmp; workon project" zsh
-#
-# NOTE: (lb): I copied a zsh function and updated it.
-home_fries_run_terminator_init_cmd () {
-  local time_0=$(date +%s.%N)
-
-  if [[ -n "${INIT_CMD}" ]]; then
-    echo ${INIT_CMD}
-    OLD_IFS=$IFS
-    # (lb): setopt, and shwordsplit, and Z Shell-specific, to emulate Bash behavior.
-    #  setopt shwordsplit
-    IFS=';'
-    local cmd
-    for cmd in ${INIT_CMD}; do
-      # (lb): Is `print` how you add to history in Z Shell? I get an error.
-      #
-      #   $ /usr/bin/print
-      #   Unescaped left brace in regex is deprecated, passed through in regex;
-      #   marked by <-- HERE in m/%{ <-- HERE (.*?)}/ at /usr/bin/print line 528.
-      #
-      #  print -s "${cmd}"  # add to history
-      history -s "${cmd}"  # add to history
-      eval "${cmd}"
-    done
-    unset -v INIT_CMD
-    IFS=${OLD_IFS}
-  fi
-
-  print_elapsed_time "${time_0}" "terminator-init"
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 # Prevent creationix/nvm/install.sh from appending this file.
 # Just be sure that its grep commands find "/nvm.sh" and "$NVM_DIR/bash_completion" [so meta].
 
@@ -374,9 +336,6 @@ main () {
 
   start_somewhere_something
   unset -f start_somewhere_something
-
-  home_fries_run_terminator_init_cmd
-  unset -f home_fries_run_terminator_init_cmd
 
   home_fries_bashrc_cleanup
   unset -f home_fries_bashrc_cleanup
