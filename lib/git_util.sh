@@ -26,7 +26,6 @@ source_deps () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 # find_git_parent
 
-# FIXME/2017-06-24: When translating for Go, make generic/work on any target dir.
 find_git_parent () {
   local file_path="$1"
   #echo "find_git_parent: file_path: ${1}"
