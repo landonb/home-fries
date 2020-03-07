@@ -151,6 +151,8 @@ home_fries_create_aliases_general () {
   #   $ head -n 1 ~/.mrconfig
   #   include = cat /myrepos/.mrconfig
   alias st="mr -d / mystatus"
+  # aka "mr -d . mystatus", aka "git st":
+  alias stt="git my-merge-status"
   alias aci="mr -d / autocommit -y"
   alias autoci="mr -d / autocommit -y"
 
