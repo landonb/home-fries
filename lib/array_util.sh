@@ -94,14 +94,24 @@ echo_list () {
   if [[ -z ${list} ]]; then
     declare -a list
   fi
+
   local ix
   for ((ix = 0; ix < ${#list[@]}; ix++)); do
     local elem="${list[$ix]}"
     echo "elem: ${elem}"
   done
-  #
+
   local elem
   for elem in "${list[@]}"; do
+    echo "elem: ${elem}"
+  done
+
+  # HINT: Not Bash? In POSIX, there's only one array -- the positional arguments --
+  # so you could iterate this way:
+  set -- ${list}
+  while [ "$1" != '' ]; do
+    local elem="$1"
+    shift
     echo "elem: ${elem}"
   done
 }
