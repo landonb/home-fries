@@ -13,24 +13,6 @@ source_deps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# See long comment atop _hofr_no_color in color_funcs.sh for notes on $-
-# and when (and when not) to check it to see if the shell is interactive.
-# - Basically, the color_funcs.sh color functions run in subshells, so $-
-#   will never not indicate non-interactive. (Otherwise, we could just skip
-#   this setup and let the color library decide if it should show color.)
-# - We can at least check the interactive flag during Bashrc startup.
-#   - As such, in all likelihood, $- will always show interactivity
-#     in this function, because this file will only ever be sourced
-#     when the user starts an interactive terminal session.
-
-_export_homefries_no_color () {
-  HOMEFRIES_NO_COLOR=false
-  [[ "$-" =~ .*i.* ]] || HOMEFRIES_NO_COLOR=true
-  export HOMEFRIES_NO_COLOR
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 _alias_stripcolors () {
   # - Strip color codes from stream. Ref:
   #   http://stackoverflow.com/questions/17998978/removing-colors-from-output
@@ -86,8 +68,6 @@ test_truecolor () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 _unset_f_color_term () {
-  unset -f _export_homefries_no_color
-
   unset -f _alias_stripcolors
 
   # So meta.
@@ -95,11 +75,6 @@ _unset_f_color_term () {
 }
 
 main () {
-  # Set HOMEFRIES_NO_COLOR=true, probably.
-  # NOTE: color_funcs.sh sets HOMEFRIES_NO_COLOR false by default!
-  #       But still calling this, to feel complete/whole.
-  _export_homefries_no_color
-
   _alias_stripcolors
 
   # Cleanup after self.

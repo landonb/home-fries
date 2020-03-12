@@ -12,58 +12,42 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# (lb): Hrmmm. What's better, Opt-in, or Opt-out?
-# - I wouldn't want people *not* to have a good experience by default.
-
-HOMEFRIES_NO_COLOR=${HOMEFRIES_NO_COLOR:-false}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 # Ref:
 # - "Bash tips: Colors and formatting (ANSI/VT100 Control sequences)"
 #   https://misc.flogisoft.com/bash/tip_colors_and_formatting
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# NOTE:
-# - We cannot rely on normal interactive terminal checking, e.g.,
-#     [ -z "$PS1" ] && return 0 || return 1
-#     # Or:
-#     [[ "$-" =~ .*i.* ]] && return 1 || return 0
-#   because user-run scripts can themselves run scripts, but
-#   the latter-run scripts would not be considered interactive.
-# - As specified in the bash manual::
-#     PS1 is set and $- includes i if bash is interactive, allowing
-#     a shell script or a startup file to test this state.
-# - More to the point:
-#   $ [[ "$-" =~ .*i.* ]] && echo YES || echo NO
-#   YES
-#   $ /bin/bash -c '[[ "$-" =~ .*i.* ]] && echo YES || echo NO'
-#   NO
-#   $ echo -e "#!/bin/bash\n[[ \"\$-\" =~ .*i.* ]] && echo YES || echo NO\n" \
-#     > /tmp/test.sh
-#   $ chmod 775 /tmp/test.sh
-#   $ /tmp/test.sh
-#   NO
-# Same goes for PS1. I.e.,
-#   $ echo $PS1
-#   \[\e...
-#   $ /bin/bash -c 'echo $PS1'
-#   # EMPTY
-#   $ echo -e '#!/bin/bash\necho $PS1' > /tmp/test.sh && /tmp/test.sh
-#   # EMPTY
-# NOTE:
-# - That said, home-fries does check $- once -- in _export_homefries_no_color,
-#   on startup -- so that it can set (export) HOMEFRIES_NO_COLOR.
-#   - Such that, while $- will not indicate 'i' for subshell processes,
-#     the user's HOMEFRIES_NO_COLOR environ will be set.
-# - This means that whatever the user does from the terminal will be
-#   inherently colorful. But whatever user scripts run from anacron or
-#   similar will have to explicitly ask for color.
+# *** Color On/Off controls.
+
+# YOU: To deliberately control whether to color or not, set
+#         HOMEFRIES_NO_COLOR=true|false
+#      otherwise, [ -t 1 ] is used when this script is sourced
+#      to determine if color should be used. (More specifically,
+#      it determines whether to inject ANSI control codes into the
+#      output or not, based on whether stdout (1) is attached to a
+#      terminal.)
+
+# Set color flag globally, because _hofr_no_color is called in a pipeline
+# from within this script, e.g., `_hofr_no_color && return`. And [ -t 1 ]
+# won't work therein (will always be falsey).
+if [ -z ${HOMEFRIES_NO_COLOR+x} ]; then
+  [ -t 1 ] &&
+    HOMEFRIES_NO_COLOR=false ||
+    HOMEFRIES_NO_COLOR=true
+fi
+
 
 _hofr_no_color () {
-  # User/Caller may set HOMEFRIES_NO_COLOR=false to disable color.
-  ( [ -z ${HOMEFRIES_NO_COLOR+x} ] || ${HOMEFRIES_NO_COLOR} ) && return 0 || return 1
+  if [ -z ${HOMEFRIES_NO_COLOR+x} ]
+  then
+    # Note that in a pipeline, e.g., `_hofr_no_color && return`, [ -t 1 ]
+    # will always be false, so generally HOMEFRIES_NO_COLOR will be set,
+    # and this check won't be called. But it's here just in case.
+    ! [ -t 1 ]
+  else
+    ${HOMEFRIES_NO_COLOR}
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

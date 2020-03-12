@@ -341,6 +341,8 @@ dubs_fix_terminal_colors () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# FIXME/2020-03-12 02:41: Unused: Can probably delete this function.
+
 invoked_from_terminal () {
   # E.g., Consider the fcn. and script,
   #
@@ -367,6 +369,63 @@ invoked_from_terminal () {
   fi
 
   return ${bashed}
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# NOTE: In addition to [ -t 1 ], there are other ways to test if there is a tty
+#       attached or not. But the other methods I tried didn't work.
+#
+# - Consider how the -t test works:
+#
+#   $ if [ -t 1 ]; then >&2 echo TERMinal; else >&2 echo NOTERM; fi
+#   TERMinal
+#   $ /bin/bash -c 'if [ -t 1 ]; then >&2 echo TERMinal; else >&2 echo NOTERM; fi'
+#   TERMinal
+#   $ echo -e '#!/bin/bash\nif [ -t 1 ]; then >&2 echo TERMinal; else >&2 echo NOTERM; fi' \
+#     > /tmp/test.sh && chmod 775 /tmp/test.sh && /tmp/test.sh
+#   TERMinal
+#
+# - Compare that to another interactive terminal test, the $- 'i' flag, e.g.,:
+#
+#   [[ "$-" =~ .*i.* ]] && return 1 || return 0
+#
+#   And consider how it behaves differently in a subshell:
+#
+#   $ [[ "$-" =~ .*i.* ]] && echo YES || echo NO
+#   YES
+#   $ /bin/bash -c '[[ "$-" =~ .*i.* ]] && echo YES || echo NO'
+#   NO
+#   $ echo -e "#!/bin/bash\n[[ \"\$-\" =~ .*i.* ]] && echo YES || echo NO\n" \
+#       > /tmp/test.sh && chmod 775 /tmp/test.sh && /tmp/test.sh
+#   NO
+#
+# - See also testing `$PS1`, oddly enough, e.g.,
+#
+#   [ -z "$PS1" ] && return 0 || return 1
+#
+#   And:
+#
+#   $ echo $PS1
+#   \[\e...
+#   $ /bin/bash -c 'echo $PS1'
+#   # EMPTY
+#   $ echo -e '#!/bin/bash\necho $PS1' > /tmp/test.sh && /tmp/test.sh
+#   # EMPTY
+#
+# So for this to all work, use [ -t 1 ].
+#
+# Ref: man test (and man bash):
+#
+#     -t FD  file descriptor FD is opened on a terminal
+#
+# Ref: man bash:
+#
+#     PS1 is set and $- includes i if bash is interactive, allowing
+#     a shell script or a startup file to test this state.
+
+stdout_isatty () {
+  [ -t 1 ]
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
