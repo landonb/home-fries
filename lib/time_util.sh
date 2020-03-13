@@ -15,8 +15,8 @@ simpletimeit () {
   # Python has a great timeit fcn. you could use on a command, or
   # you could just do it in Bash. Except msg is not as friendly here.
   local time_0
-  if [[ -z ${simpletimeit_0+x} ]]; then
-    if [[ -z $1 ]]; then
+  if [ -z ${simpletimeit_0+x} ]; then
+    if [ -z $1 ]; then
       echo "Nothing took no time."
       return
     else

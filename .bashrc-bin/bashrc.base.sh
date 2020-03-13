@@ -253,10 +253,11 @@ home_fries_bashrc_cleanup () {
   # Show startup stats if we already polluted console with ``expect`` stuff,
   # or if being run in tmuxinator/tmux/screen,
   # or if user is profiling bashrc, or already tracing.
-  if ( [[ ! -z ${SSH_ENV_FRESH+x} ]] && ${SSH_ENV_FRESH} ) || \
-     ( [[ "${TERM}" == "screen" || "${TERM}" == "screen-256color" ]] && \
-       [[ -n "${TMUX}" ]] ) || \
-     ( ${DUBS_TRACE} || ${DUBS_PROFILING} ) \
+  if ( [ ! -z ${SSH_ENV_FRESH+x} ] && ${SSH_ENV_FRESH} ) \
+     || ( ( [ "${TERM}" = "screen" ] || \
+            [ "${TERM}" = "screen-256color" ] ) \
+          && [ -n "${TMUX}" ] ) \
+     || ( ${DUBS_TRACE} || ${DUBS_PROFILING} ) \
   then
     bashrc_time_n=$(date +%s.%N)
     time_elapsed=$(\

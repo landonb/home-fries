@@ -24,11 +24,10 @@ source_deps () {
 
 # Enable HOMEFRIES_WARNINGS for more blather.
 default_homefries_warnings () {
-  if [[ -z ${HOMEFRIES_WARNINGS+x} ]]; then
-    # Usage, e.g.:
-    #   HOMEFRIES_WARNINGS=true bash
+  # Usage, e.g.:
+  #   HOMEFRIES_WARNINGS=true bash
+  [ -z ${HOMEFRIES_WARNINGS+x} ] &&
     HOMEFRIES_WARNINGS=false
-  fi
 }
 
 # ============================================================================

@@ -1573,9 +1573,8 @@ main () {
   FRIES_GIT_ISSUES_RESOLUTIONS=()
   export FRIES_GIT_ISSUES_RESOLUTIONS
 
-  if [[ -z ${FRIES_FAIL_ON_GIT_ISSUE+x} ]]; then
+  [ -z ${FRIES_FAIL_ON_GIT_ISSUE+x} ] &&
     FRIES_FAIL_ON_GIT_ISSUE=false
-  fi
 
   alias git_st_all='git_status_all'
   # Hrmm... gitstall? I'm not sold on any alias yet...

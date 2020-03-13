@@ -37,10 +37,8 @@ if [ -z ${HOMEFRIES_NO_COLOR+x} ]; then
     HOMEFRIES_NO_COLOR=true
 fi
 
-
 _hofr_no_color () {
-  if [ -z ${HOMEFRIES_NO_COLOR+x} ]
-  then
+  if [ -z ${HOMEFRIES_NO_COLOR+x} ]; then
     # Note that in a pipeline, e.g., `_hofr_no_color && return`, [ -t 1 ]
     # will always be false, so generally HOMEFRIES_NO_COLOR will be set,
     # and this check won't be called. But it's here just in case.

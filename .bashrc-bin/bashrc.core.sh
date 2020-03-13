@@ -90,11 +90,10 @@ source_utils () {
     fi
   done
 
-  if [[ -z ${HOMEFRIES_WARNINGS+x} ]]; then
-    # Usage, e.g.:
-    #   HOMEFRIES_WARNINGS=true bash
+  # Usage, e.g.:
+  #   HOMEFRIES_WARNINGS=true bash
+  [ -z ${HOMEFRIES_WARNINGS+x} ] &&
     HOMEFRIES_WARNINGS=false
-  fi
 
   print_elapsed_time \
     "${time_outer_0}" \

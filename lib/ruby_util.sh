@@ -71,11 +71,10 @@ source_deps () {
     fi
   fi
 
-  if [[ -z ${HOMEFRIES_WARNINGS+x} ]]; then
-    # Usage, e.g.:
-    #   HOMEFRIES_WARNINGS=true bash
+  # Usage, e.g.:
+  #   HOMEFRIES_WARNINGS=true bash
+  [ -z ${HOMEFRIES_WARNINGS+x} ] &&
     HOMEFRIES_WARNINGS=false
-  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -313,9 +312,8 @@ main () {
 
   ruby_set_gem_path
 
-  if [[ -z ${HOMEFRIES_CHRUBY_SETUP+x} ]]; then
+  if [ -z ${HOMEFRIES_CHRUBY_SETUP+x} ]; then
     patch_export_chruby_use
-# . ruby_chutil.sh
     export HOMEFRIES_CHRUBY_SETUP=true
   fi
   unset -f patch_export_chruby_use
