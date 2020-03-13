@@ -66,10 +66,14 @@ _hofr_no_color () {
 #     - Not that we should not always be sheep and follow the
 #       masses, but we gotta decide somehow.
 # tl,dr: Prefer `\033` below, not `\e` or `\x1b`.
+# - And let's not talk about double- versus single-quotes. Single
+#   is technically more responsible to signal that you want nothing
+#   interpolated, but double looks nicer, IMHO. Though single is
+#   easier to type. Such difficult decisions!
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# NOTE: tmux doesn't show all the ANSI color codes, but maps some to other colors
+# NOTE: tmux does not show all ANSI color codes, but maps some to other colors
 #       (like pink and orange to red).
 #       - E.g., for lightorange, when TERM=*-256color:
 #           echo "\033[38;5;215m"
@@ -88,10 +92,6 @@ _hofr_no_color () {
 
 fg_pink () {
   _hofr_no_color && return
-  ### === HIGH-COLOR === compatible with most terms including putty
-  ### for windows... use colors that don't make your eyes bleed :)
-  # NOTE/2017-05-03: Single quotes do not work. What's up with that?
-  #   E.g., export PINK='\\033[38;5;211m'
   # Via TERM=*-256color:
   #   echo "\033[38;5;211m"
   echo "\033[38;2;255;135;175m"
@@ -104,7 +104,6 @@ fg_orange () {
   echo "\033[38;2;255;95;95m"
 }
 
-# 2016-10-09: FG_SKYBLUE broken.
 fg_skyblue () {
   _hofr_no_color && return
   # Via TERM=*-256color:
@@ -472,6 +471,7 @@ attr_bold () {
   _hofr_no_color && return
   # See also:
   #   echo "$(tput bold)"
+  # - but like noted above, prefer this escape code.
   echo "\033[1m"
 }
 
