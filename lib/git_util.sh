@@ -20,7 +20,7 @@
 #     `git reset HEAD blurgh`  I type instead
 #     `git co -- blurgh`       -- oh no! --
 #   but I will note that since this command (comment) was added I've stopped.
-cis_git () {
+_paranoid_git () {
   local disallowed=false
   local prompt_yourself=false
 
@@ -30,16 +30,16 @@ cis_git () {
     # NOTE: (lb): I'm not concerned with the long-form counterpart, `checkout`,
     #       a command I almost never type, and for which can remain unchecked,
     #       as a sort of "force-checkout" option to avoid being prompted.
-    if [ "$1" = "co" -a "$2" = "--" ]; then
+    if [ "$1" = "co" ] && [ "$2" = "--" ]; then
       prompt_yourself=true
     fi
     # Also catch `git co .`.
-    if [ "$1" = "co" -a "$2" = "." ]; then
+    if [ "$1" = "co" ] && [ "$2" = "." ]; then
       prompt_yourself=true
     fi
 
     # Verify `git reset --hard ...` command.
-    if [ "$1" = "reset" -a "$2" = "--hard" ]; then
+    if [ "$1" = "reset" ] && [ "$2" = "--hard" ]; then
       prompt_yourself=true
     fi
   fi
@@ -48,7 +48,7 @@ cis_git () {
   if ${prompt_yourself}; then
     echo -n "Are you sure this is absolutely what you want? [Y/n] "
     read -e YES_OR_NO
-    if [[ ${YES_OR_NO^^} =~ ^Y.* || -z ${YES_OR_NO} ]]; then
+    if [[ ${YES_OR_NO^^} =~ ^Y.* ]] || [ -z "${YES_OR_NO}" ]; then
       # FIXME/2017-06-06: Someday soon I'll remove this sillinessmessage.
       # - 2020-01-08: lb: I'll see it when I believe it.
       echo "YASSSSSSSSSSSSS"
@@ -67,17 +67,12 @@ cis_git () {
 
 # *** git-bfg wrapper.
 
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-# git-remote-v-all
-
-# MAYBE/2019-12-23: (lb): Decouple this from the SHA and repo state,
-# e.g., a dirty build might be named "bfg-1.13.1-SNAPSHOT-master-aeee9e3-dirty.jar",
-# and the name always includes the SHA, e.g., "bfg-1.13.1-SNAPSHOT-master-5158aa4.jar".
-# 2019-12-23: (lb): I don't use bfg very often, so better to "categorize" with
-#   'git-' prefix, i.e., do not simply call this `bfg`.
 git-bfg () {
+  # Note that the ZP Ansible git-bfg install task makes a symlink to the BFG JAR,
+  # whose name includes the version, SHA, and branch, e.g., it might really be
+  # called "bfg-1.13.1-SNAPSHOT-master-5158aa4.jar".
   local bfg_jar="${HOME}/.local/bin/bfg.jar"
-  if [[ ! -f "${bfg_jar}" ]]; then
+  if [ ! -f "${bfg_jar}" ]; then
     local zphf_uroi="https://github.com/landonb/zoidy_home-fries"
     local help_hint="Run the Zoidy Pooh task ‘app-git-the-bfg’ from: ${zphf_uroi}"
     >&2 echo "ERROR: The BFG is not installed. ${help_hint}"
@@ -90,7 +85,7 @@ git-bfg () {
 
 main () {
   # unalias git 2> /dev/null
-  alias git='cis_git'
+  alias git='_paranoid_git'
 }
 
 main "$@"
