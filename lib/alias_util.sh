@@ -146,18 +146,6 @@ home_fries_create_aliases_general () {
 
   # ***
 
-  # 2019-10-21: A different kind of stats. Call MyRepos from file system root!
-  # For this to work, not that you must include configs outside user home, e.g.,
-  #   $ head -n 1 ~/.mrconfig
-  #   include = cat /myrepos/.mrconfig
-  alias st="mr -d / mystatus"
-  # aka "mr -d . mystatus", aka "git st":
-  alias stt="git my-merge-status"
-  alias aci="mr -d / autocommit -y"
-  alias autoci="mr -d / autocommit -y"
-
-  # ***
-
   # 2016-09-24: Why didn't I think of this 'til now?
   # [Note also that pass can just do it, too.]
   alias pwgen16="pwgen -n 16 -s -N 1 -y"
@@ -262,6 +250,60 @@ home_fries_create_aliases_general () {
   # Thanks also:
   #   https://askubuntu.com/questions/22037/aliases-not-available-when-using-sudo
   alias sudo='sudo '
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# The `st` command shows a one-line report for all your repos
+# that indicates if each repo is tidy, or has work to be done.
+#
+# - If you use any `skip = mr_exclusive 'foo'` groups, you can
+#   specify one as a parameter, e.g., `st foo`.
+#
+# Note that we really need the root directory `/` here because `mr`
+# excludes any projects not under the -d path, regardless of being
+# referenced from a .mrconfig file or not.
+# - E.g., if ~/.mrconfig references a path outside user home, such as:
+#     $ head -n 2 ~/.mrconfig
+#     [/foo/bar]
+#   then running `mr` command on user home will exclude that project, e.g.,
+#     $ mr -d / ls
+#   shows the project, but this would not show the project:
+#     $ mr -d ~ ls
+#   - Well, not unless /foo/bar was really a symlink to a directory under ${HOME}!
+#
+# And, yup, this is straight-up a two-character command, `st`.
+# - I use it all the time!
+st () {
+  local exclusive="${1}"
+  [ -n "${exclusive}" ] && exclusive="MR_INCLUDE=${exclusive}"
+  eval "${exclusive} OMR_MYSTATUS_FANCY=${OMR_MYSTATUS_FANCY:-false} mr -d / mystatus"
+}
+
+home_fries_create_aliases_ohmyrepos () {
+  # The `stf` command (alias) shows a fancier, more information-dense one-line
+  # report for all your repos, indicating not only if each project is tidy or
+  # not, but what sort of remote branch work might also need to be done. Note
+  # the fancy report takes 5-10 times as long as a plain, is-it-tidy-or-not
+  # report, which is why it's not as easy to type as the `st` command.
+  # - Anecdotally, for the author's 265 repos: plain, non-fancy just ran in
+  #   ~12 secs, while a fancy report ran in ~78 secs, 6.5 times longer.
+  # So here's that report as its own cmd, like `st`, but with a little `f`ancy.
+  alias stf="OMR_MYSTATUS_FANCY=true st"
+
+  # Use `stt` to print the fancy report for the current repo, followed by
+  # porcelain status. Note that you might have three of the same command:
+  #   $ stt                  # github.com:landonb/home-fries
+  #   $ git st               # github.com:landonb/git-my-merge-status/.gitconfig.example
+  #   $ git my-merge-status  # github.com:landonb/git-my-merge-status/bin/git-my-serve-status
+  # - There's also a `git stt` alias (from git-my-merge-status) which (despite
+  #   its name) is not exactly like this `stt` alias. It shows a column-aligned
+  #   fancy status like the `st` and `stf` reports show (where the spacing might
+  #   look a little weird for a single line, when not appearing alongside others).
+  alias stt="git my-merge-status"
+
+  # Auto commit. Things like notes files, Vim spell file, .vimprojects, etc.
+  alias aci="mr -d / autocommit -y"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -515,6 +557,8 @@ unset_f_alias_util () {
   unset -f source_deps
 
   unset -f home_fries_create_aliases_general
+
+  unset -f home_fries_create_aliases_ohmyrepos
 
   unset -f home_fries_create_aliases_greppers
 

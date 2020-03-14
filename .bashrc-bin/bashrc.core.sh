@@ -251,6 +251,9 @@ home_fries_up () {
   # - lib/alias_util.sh
   run_and_unset "home_fries_create_aliases_general"
 
+  # - lib/alias_util.sh
+  run_and_unset "home_fries_create_aliases_ohmyrepos"
+
   # Set: `rg` => `rg --smart-case --hidden --colors ...`
   # - lib/alias_util.sh
   run_and_unset "home_fries_create_aliases_greppers"
