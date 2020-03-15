@@ -64,12 +64,17 @@ check_deps () {
   # - The author uses a ~/.homefries/.bashrc-bin/bashrx.private.user.sh script
   #   to put these on PATH.
   # Verify sh-colorlib/bin/colorlib.sh loaded.
-  check_dep '_hofr_no_color'
+  #check_dep '_hofr_no_color'
+  check_dep 'colorlib.sh'
   # Verify sh-logger/bin/logger.sh loaded.
-  check_dep '_sh_logger_log_msg'
+  #check_dep '_sh_logger_log_msg'
+  check_dep 'logger.sh'
   # Verify sh-pathlib/bin/path* loaded.
-  check_dep 'path_prefix'
-  check_dep 'path_suffix'
+  #check_dep 'path_prefix'
+  #check_dep 'path_suffix'
+  check_dep 'pathlib.sh'
+  # Verify sh-rm_safe/bin/* loaded.
+  check_dep 'rm_safe'
 }
 
 # *** Doobious Sources
@@ -80,22 +85,22 @@ source_utils_all () {
   # *** External projects (you've loaded via private Bash).
 
   # sh-colorlib/bin/colorlib.sh
-  # source_it "colorlib.sh"
-  # source_it "test_colorlib"
+  #  source_it "colorlib.sh"
+  #  source_it "test_colorlib"
 
   # sh-logger/bin/logger.sh
-  # source_it "logger.sh"
+  #  source_it "logger.sh"
 
   # sh-pathlib/bin/*
-  # source_it "pathlib.sh"
-  # source_it "path_prefix"
-  # source_it "path_suffix"
+  #  source_it "pathlib.sh"
+  #  source_it "path_prefix"
+  #  source_it "path_suffix"
 
   # sh-rm_safe/bin/*
-  # source_it "path_device"
-  # source_it "rm_rotate"
-  # source_it "rm_safe"
-  # source_it "rmrm"
+  #  source_it "path_device"
+  #  source_it "rm_rotate"
+  #  source_it "rm_safe"
+  #  source_it "rmrm"
 
   # *** Load order matters, to limit number of `.` invocations.
 
