@@ -1,6 +1,7 @@
 #!/bin/bash
 # vim:tw=0:ts=2:sw=2:et:norl:ft=sh
-# Project: https://github.com/landonb/home-fries
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/landonb/home-fries#🍟
 # License: MIT
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

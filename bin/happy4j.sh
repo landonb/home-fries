@@ -1,4 +1,10 @@
 #!/bin/bash
+# vim:tw=0:ts=4:sw=4:noet:norl:ft=sh
+# Author: https://www.linuxjournal.com/content/fireworks-command-line
+# Titled: "Fireworks from the Command Line" by Mitch Frazier, 2009-07-02.
+# License: n/a [this file only; Frazier has (c) because no License specified]
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 rows=$(tput lines)
 cols=$(tput cols)
@@ -156,7 +162,4 @@ echo
 
 sleep 5
 clear
-
-# vim: tabstop=4: shiftwidth=4: noexpandtab:
-# kate: tab-width 4; indent-width 4; replace-tabs false;
 

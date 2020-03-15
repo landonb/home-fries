@@ -1,11 +1,10 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
-# File: termdub.py
+#!/usr/bin/env bash
+# vim:tw=0:ts=2:sw=2:et:norl:ft=sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.10.03
-# Project Page: https://github.com/landonb/home-fries
-# License: GPLv3
+# Project: https://github.com/landonb/home-fries#🍟
+# License: MIT
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # HINT: Looking for a window's geometry? The current mate-terminals x and y position?
 #

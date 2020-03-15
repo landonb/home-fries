@@ -1,9 +1,9 @@
-# File: bashrc.base.sh
-# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Project: https://github.com/landonb/home-fries
-# Summary: Smart Bash Startup Script
-# License: MIT
 # vim:tw=0:ts=2:sw=2:et:norl:ft=sh
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/landonb/home-fries#🍟
+# License: MIT
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Overview
 # ========

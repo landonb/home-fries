@@ -1,5 +1,15 @@
 #!/bin/bash
-# This file was originally taken from iterm2 https://github.com/gnachman/iTerm2/blob/master/tests/24-bit-color.sh
+# vim:tw=0:ts=2:sw=2:et:norl:ft=sh
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/landonb/home-fries#🍟
+# License: GPLv2 [this file only]
+#   https://github.com/gnachman/iTerm2/blob/master/LICENSE
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# This file was originally taken from iterm2
+#
+#   https://github.com/gnachman/iTerm2/blob/master/tests/24-bit-color.sh
 #
 #   This file echoes a bunch of 24-bit color codes
 #   to the terminal to demonstrate its functionality.

@@ -1,7 +1,8 @@
 #!/bin/bash
 # vim:tw=0:ts=2:sw=2:et:norl:ft=sh
-# Project: https://github.com/landonb/home-fries
-# License: GPLv3
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/landonb/home-fries#🍟
+# License: MIT
 
 # NOTE/2017-10-03: This particular script has no useful fcns, just environs.
 

@@ -1,5 +1,12 @@
+#!/usr/bin/env bash
+# vim:tw=0:ts=4:sw=4:noet:norl:ft=sh
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/landonb/home-fries#🍟
+# License: MIT
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # Bash completion (compspec) for termdub.sh.
-#  vim:tw=0:ts=4:sw=4:noet:norl:ft=sh:
 
 # The Bash manual describes command completion but it might be
 # confusing (overwhelming?) to someone new to completion -- and
