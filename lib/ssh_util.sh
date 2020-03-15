@@ -84,7 +84,7 @@ ssh_agent_kick () {
     fi
   fi
   export LOG_LEVEL=${old_level}
-} # end: ssh_agent_kick
+}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 

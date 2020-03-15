@@ -1,7 +1,7 @@
 #!/bin/bash
-# vim:tw=0:ts=2:sw=2:et:norl:
+# vim:tw=0:ts=2:sw=2:et:norl:ft=sh
 # Project: https://github.com/landonb/home-fries
-# License: GPLv3
+# License: MIT
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -16,10 +16,6 @@ check_deps () {
 
 # *** Path-related
 
-# When you run a Bash script, generally:
-#  SCRIPT_BASE=$(dirname -- "$0")
-#  CALLED_FROM=$(pwd -P)
-# where SCRIPT_BASE is relative to CALLED_FROM.
 dir_resolve () {
   # Squash error messages but return error status, maybe.
   pushd "$1" &> /dev/null || return $?

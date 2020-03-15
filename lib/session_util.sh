@@ -1,7 +1,7 @@
 #!/bin/bash
-# vim:tw=0:ts=2:sw=2:et:norl:
+# vim:tw=0:ts=2:sw=2:et:norl:ft=sh
 # Project: https://github.com/landonb/home-fries
-# License: GPLv3
+# License: MIT
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -210,7 +210,7 @@ disable_wakeup_on_lid () {
       echo " LID" | tee /proc/acpi/wakeup
     fi
   fi
-} # end: disable_wakeup_on_lid
+}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 

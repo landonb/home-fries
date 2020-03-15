@@ -180,6 +180,9 @@ exit_on_last_error () {
   fi
 }
 
+# # Start timer...
+# export script_time_0=$(date +%s.%N)
+#
 wait_bg_tasks () {
   WAITPIDS=$1
   WAITLOGS=$2

@@ -89,9 +89,9 @@ fries_format_titlebar () {
       titlebar="\[\e]0;${sticky_alert}${DUBS_TERMNAME}\a\]"
     elif [[ $(stat -c %i /) -eq 2 ]]; then
       # Not in chroot jail.
-      #titlebar="\[\e]0;\u@\h:\w\a\]"
-      #titlebar="\[\e]0;\w:(\u@\h)\a\]"
-      #titlebar="\[\e]0;\w\a\]"
+      #  titlebar="\[\e]0;\u@\h:\w\a\]"
+      #  titlebar="\[\e]0;\w:(\u@\h)\a\]"
+      #  titlebar="\[\e]0;\w\a\]"
       titlebar="\[\e]0;${sticky_alert}${basename}\a\]"
     else
       # In chroot jail.
@@ -100,7 +100,7 @@ fries_format_titlebar () {
   else
     # echo "User *is* logged on via SSH!"
     local -a choices
-    #choices+=("\[\e]0;${sticky_alert}$(hostname) → ${basename}${hellsbells}\]")
+    #  choices+=("\[\e]0;${sticky_alert}$(hostname) → ${basename}${hellsbells}\]")
     choices+=("\[\e]0;${sticky_alert}$(hostname) 🦉 ${basename}${hellsbells}\]")
     choices+=("\[\e]0;${sticky_alert}$(hostname) 👗 ${basename}${hellsbells}\]")
     choices+=("\[\e]0;${sticky_alert}$(hostname) 🌊 ${basename}${hellsbells}\]")
@@ -114,7 +114,7 @@ fries_format_titlebar () {
 }
 
 dubs_set_terminal_prompt () {
-  # (lb): Note that color_util.sh defines similar colors, but without
+  # (lb): Note that colorlib.sh defines similar colors, but without
   # the ``01;`` part. I cannot remember what that component means....
   local fg_red='\[\033[01;31m\]'
   local fg_green='\[\033[01;32m\]'
@@ -237,11 +237,11 @@ dubs_set_terminal_prompt () {
   #         PROMPT_COMMAND='echo -ne "${titlebar}\[\033[01;36m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]\$ "'
 
   # 2018-05-28: How about a bold PS2 (continuation) prompt?
-  #PS2="$(tput bold)>${attr_reset} "
-  #PS2="$(tput bold)${attr_underlined}${fg_green}>${attr_reset} "
-  #PS2="$(tput bold)${fg_green}_${attr_reset} "
-  #PS2="$(tput bold)${attr_underlined}${fg_green} ${attr_reset} "
-  #PS2="${attr_underlined}${fg_green} ${attr_reset} "
+  #  PS2="$(tput bold)>${attr_reset} "
+  #  PS2="$(tput bold)${attr_underlined}${fg_green}>${attr_reset} "
+  #  PS2="$(tput bold)${fg_green}_${attr_reset} "
+  #  PS2="$(tput bold)${attr_underlined}${fg_green} ${attr_reset} "
+  #  PS2="${attr_underlined}${fg_green} ${attr_reset} "
   PS2="${fg_green}>${attr_reset} "
 }
 

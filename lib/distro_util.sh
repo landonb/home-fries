@@ -98,11 +98,11 @@ determine_window_manager () {
       exit 1
     fi
   fi
-  #echo "WM_IS_CINNAMON: $WM_IS_CINNAMON"
-  #echo "WM_IS_XFCE: $WM_IS_XFCE"
-  #echo "WM_IS_MATE: $WM_IS_MATE"
-  #echo "WM_IS_UNKNOWN: $WM_IS_UNKNOWN"
-  #echo "WM_TERMINAL_APP: $WM_TERMINAL_APP"
+  # echo "WM_IS_CINNAMON: $WM_IS_CINNAMON"
+  # echo "WM_IS_XFCE: $WM_IS_XFCE"
+  # echo "WM_IS_MATE: $WM_IS_MATE"
+  # echo "WM_IS_UNKNOWN: $WM_IS_UNKNOWN"
+  # echo "WM_TERMINAL_APP: $WM_TERMINAL_APP"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

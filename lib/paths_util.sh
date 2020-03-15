@@ -1,7 +1,7 @@
 #!/bin/bash
 # vim:tw=0:ts=2:sw=2:et:norl:
 # Project: https://github.com/landonb/home-fries
-# License: GPLv3
+# License: MIT
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -83,7 +83,7 @@ path_append () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # MEH/2019-09-16: Some of these paths are author-specific.
-# But they're also paths to commands installed via Zoidy Pooh.
+# But they're also paths to commands installed via Zoidy Pooh Ansible.
 # So it's not that much of a stretch to include them herein, as
 # opposed to moving to the author's private startup script.
 
