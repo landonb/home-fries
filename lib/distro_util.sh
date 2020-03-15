@@ -189,29 +189,29 @@ suss_python () {
   #  PYTHONVERS2=python2.7
   #fi
 
-  # Convert, e.g., 'Python 2.7.6' to '2.7'.
-  PYVERS_RAW2=`python2 --version \
+  # Convert, e.g., 'Python 3.6.9' to '3.6'.
+  PYVERS_RAW3=`python3 --version \
     |& /usr/bin/awk '{print $2}' \
     | /bin/sed -E 's/^([0-9]+\.[0-9]+)\.[0-9]+/\1/g'`
-  PYVERS2_DOTLESS=`python2 --version \
+  PYVERS3_DOTLESS=`python3 --version \
     |& /usr/bin/awk '{print $2}' \
     | /bin/sed -E 's/^([0-9]+)\.([0-9]+)\.[0-9]+/\1\2/g'`
-  if [[ -z $PYVERS_RAW2 ]]; then
+  if [[ -z $PYVERS_RAW3 ]]; then
     echo
     echo "######################################################################"
     echo
-    echo "WARNING: Unexpected: Could not parse Python2 version."
+    echo "WARNING: Unexpected: Could not parse Python3 version."
     echo
     echo "######################################################################"
     echo
     exit 1
   fi
-  PYVERS_RAW2=python${PYVERS_RAW2}
-  PYVERS_RAW2_m=python${PYVERS_RAW2}m
-  PYVERS_CYTHON2=${PYVERS2_DOTLESS}m
+  PYVERS_RAW3=python${PYVERS_RAW3}
+  PYVERS_RAW3_m=python${PYVERS_RAW3}m
+  PYVERS_CYTHON3=${PYVERS3_DOTLESS}m
   #
-  PYTHONVERS2=python${PYVERS_RAW2}
-  PYVERSABBR2=py${PYVERS_RAW2}
+  PYTHONVERS3=python${PYVERS_RAW3}
+  PYVERSABBR3=py${PYVERS_RAW3}
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
