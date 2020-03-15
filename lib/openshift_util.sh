@@ -17,7 +17,7 @@ home_fries_add_to_path_openshift_origin () {
   # OpenShift Origin server.
   [ ! -d "${HOME}/.downloads/openshift-origin-server" ] && return
 
-  path_prepend "${HOME}/.downloads/openshift-origin-server"
+  path_prefix "${HOME}/.downloads/openshift-origin-server"
 
   # OpenShift development.
   #  https://github.com/openshift/origin/blob/master/CONTRIBUTING.adoc#develop-locally-on-your-host

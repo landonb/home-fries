@@ -83,7 +83,7 @@ source_deps () {
 home_fries_add_to_path_ruby_version_manager () {
   # 2017-04-27: Note that if you run script at https://get.rvm.io
   #             it'll append code to set PATH to your .bashrc.
-  path_append "${HOME}/.rvm/bin"
+  path_suffix "${HOME}/.rvm/bin"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -161,18 +161,17 @@ ruby_set_gem_path () {
     # ...
 
     # E.g., ${HOME}/.rubies/ruby-2.3.3/ruby/2.3.0/bin
-    path_prepend ${HOME}/.rubies/ruby-${RUBY_VERS}/ruby/${RUBY_MINOR_ZERO}/bin
+    path_prefix "${HOME}/.rubies/ruby-${RUBY_VERS}/ruby/${RUBY_MINOR_ZERO}/bin"
 
     # 2017-06-26: For work, PATH should be to ~/.gems, not ~/.rubies.
-    path_prepend ${HOME}/.gem/ruby/${RUBY_VERS}/ruby/${RUBY_MINOR_ZERO}/bin
+    path_prefix "${HOME}/.gem/ruby/${RUBY_VERS}/ruby/${RUBY_MINOR_ZERO}/bin"
   fi
 
   if false; then
     # Put this at first place in the PATH. If it exists.
-    path_prepend ${HOME}/.gem/ruby/${RUBY_MINOR_ZERO}/bin
-    path_prepend ${HOME}/.gem/ruby/${RUBY_VERS}/bin
+    path_prefix "${HOME}/.gem/ruby/${RUBY_MINOR_ZERO}/bin"
+    path_prefix "${HOME}/.gem/ruby/${RUBY_VERS}/bin"
   fi
-
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

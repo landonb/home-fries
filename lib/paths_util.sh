@@ -8,76 +8,6 @@
 check_deps () {
   check_dep 'path_prefix'
   check_dep 'path_suffix'
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-# *** PATH builder commands.
-
-# For the sake of vanity, keep PATH tight and narrow by checking if any path
-# already added and not adding again; or by removing any path first before
-# appending or prefixing it to PATH. (Otherwise, when you reload bash, say,
-# by running /bin/bash from within a terminal, your PATH would otherwise
-# grow with duplicate entries. Which is not harmful, just annoying.)
-
-# If you're curious what paths are part of PATH, try:
-#
-#   $ echo $PATH | tr : '\n'
-
-path_prepend_lazy () {
-  # DEAD_PATH/2019-09-16: Included for posterity, but this fcn. not used.
-  #                 (lb): I want to show off the ``:${}: != *:${}:*`` trick.
-  echo "ERROR: path_prepend_lazy() not called"
-
-  local path_part="$1"
-  if [[ -d "${path_part}" ]]; then
-    # Only bother if the path is not already indicated in PATH.
-    if [[ ":${PATH}:" != *":${path_elem}:"* ]]; then
-      PATH="${path_elem}:${PATH}"
-      export PATH
-    fi
-  fi
-}
-
-path_part_remove () {
-  local path_part="$1"
-  # Substitute: s/^prefix://
-  PATH=${PATH#${path_part}:}
-  # Substitute: s/:suffix$//
-  PATH=${PATH%:${path_part}}
-  # Substitute: s/^sole-path$//
-  if [[ ${PATH} == ${path_part} ]]; then
-    PATH=""
-  fi
-  # Substitute: s/:inside:/:/
-  PATH=${PATH/:${path_part}:/:}
-  # The caller should finalize the export::
-  #   export PATH
-}
-
-path_prepend () {
-  local path_part="$1"
-  if [[ -d "${path_part}" ]]; then
-    # Remove the path from PATH.
-    path_part_remove "${path_part}"
-    # Prepend the new path to PATH.
-    PATH="${path_part}:${PATH}"
-    # Make PATH available to subsequently executed commands.
-    export PATH
-  # else, do nothing if dir not found. (We could warn, but noise.)
-  fi
-}
-
-path_add_part () {
-  path_prepend "$1"
-}
-
-path_append () {
-  local path_part="$1"
-  if [[ -d "${path_part}" ]]; then
-    path_part_remove "${path_part}"
-    PATH="${PATH}:${path_part}"
-    export PATH
-  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -94,24 +24,24 @@ home_fries_add_to_path_sbin () {
   #   The command could not be located because '/sbin' is not included in the PATH environment variable.
   #   This is most likely caused by the lack of administrative privileges associated with your user account.
   #   ifconfig: command not found
-  path_append "/sbin"
+  path_suffix "/sbin"
 }
 
 home_fries_add_to_path_home_fries_lib () {
   # Make sourcing Home Fries files easy.
-  path_prepend "${HOMEFRIES_DIR}/lib"
+  path_prefix "${HOMEFRIES_DIR}/lib"
 }
 
 home_fries_add_to_path_home_fries_bin () {
   # Make Home Fries commands available.
-  path_prepend "${HOMEFRIES_DIR}/bin"
+  path_prefix "${HOMEFRIES_DIR}/bin"
 }
 
 home_fries_add_to_path_home_local_bin () {
   # Make commands installed by Zoidy Pooh et al available.
   # E.g., ~/.local/bin is where `pip install --user blah` installs.
   # And where zoidy_home-fries installs non-apt/-snap applications.
-  path_prepend "${HOME}/.local/bin"
+  path_prefix "${HOME}/.local/bin"
 }
 
 # ++++++++++++++++++++++++++++++ #
@@ -122,7 +52,7 @@ home_fries_add_to_path_home_local_bin () {
 
 home_fries_add_to_path_home_local_node_modules_bin () {
   # Make Ansible Zoidy Pooh-installed Node/NPM executables available.
-  path_prepend "${HOME}/.local/node_modules/.bin"
+  path_prefix "${HOME}/.local/node_modules/.bin"
 }
 
 home_fries_add_to_path_java_jdk_jre () {
@@ -135,16 +65,16 @@ home_fries_add_to_path_java_jdk_jre () {
     export JAVA_HOME="${jdk_dir}"
     export JRE_HOME="${JAVA_HOME}/jre"
 
-    path_append "${JAVA_HOME}/bin"
-    path_append "${JRE_HOME}/bin"
+    path_suffix "${JAVA_HOME}/bin"
+    path_suffix "${JRE_HOME}/bin"
   fi
 }
 
 home_fries_add_to_path_android_studio () {
   local install_dir="${HOME}/.downloads"
 
-  path_append "${install_dir}/android-studio/bin"
-  path_append "${install_dir}/android-sdk/platform-tools"
+  path_suffix "${install_dir}/android-studio/bin"
+  path_suffix "${install_dir}/android-sdk/platform-tools"
 
   # 2017-02-25: Have I been missing ANDROID_HOME for this long??
   local sdk_dir="${install_dir}/Android/Sdk"
@@ -152,7 +82,7 @@ home_fries_add_to_path_android_studio () {
     # FIXME/2019-09-16: Seems like a weird side-effect of updating PATH
     #                   to also be exporting other variables.
     export ANDROID_HOME=${install_dir}/Android/Sdk
-    path_append "${ANDROID_HOME}/tools"
+    path_suffix "${ANDROID_HOME}/tools"
   fi
 }
 
@@ -164,8 +94,8 @@ home_fries_add_to_path_golang () {
     export GOPATH="${go_dir}"
     # You can check GOPATH with: `go env`.
 
-    path_prepend "${GOPATH}/bin"
-    path_prepend "${GOPATH}"
+    path_prefix "${GOPATH}/bin"
+    path_prefix "${GOPATH}"
   fi
 }
 
