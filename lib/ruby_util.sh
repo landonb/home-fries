@@ -309,8 +309,9 @@ main () {
   unset -f home_fries_add_to_path_ruby_version_manager
 
   ruby_set_gem_path
+  # Not unsetting: ruby_set_gem_path
 
-  if [ -z ${HOMEFRIES_CHRUBY_SETUP+x} ]; then
+  if ! ${HOMEFRIES_CHRUBY_SETUP:-false}; then
     patch_export_chruby_use
     export HOMEFRIES_CHRUBY_SETUP=true
   fi
