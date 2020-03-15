@@ -5,10 +5,6 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps () {
-  :
-}
-
 prep_vars () {
   HOME_FRIES_TMUX_NAMES_FILE="${HOMEFRIES_VAR:-${HOME}/.homefries/var}/first-names-lengthX.txt"
 }
@@ -223,8 +219,6 @@ tmux_jump_ship () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
-  source_deps
-
   prep_vars
 
   tmux_jump_ship

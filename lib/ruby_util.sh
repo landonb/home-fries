@@ -5,19 +5,20 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps () {
-  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
-  DEBUG_TRACE=false \
-    . ${curdir}/bash_base.sh
-  # Load: path_append, path_prepend
-  . ${curdir}/paths_util.sh
+check_deps () {
+  check_dep 'path_prefix'
+  check_dep 'path_suffix'
 
+  HOMEFRIES_WARNINGS=${HOMEFRIES_WARNINGS:-false}
+}
+
+source_deps () {
   # See:
   #   https://github.com/postmodern/ruby-install
   #   https://github.com/postmodern/chruby
-  if [[ -f ${HOME}/.local/share/chruby/chruby.sh ]]; then
-    . ${HOME}/.local/share/chruby/chruby.sh
-  elif [[ -f /usr/local/share/chruby/chruby.sh ]]; then
+  if [ -f "${HOME}/.local/share/chruby/chruby.sh" ]; then
+    . "${HOME}/.local/share/chruby/chruby.sh"
+  elif [ -f /usr/local/share/chruby/chruby.sh ]; then
     . /usr/local/share/chruby/chruby.sh
   fi
 
@@ -304,6 +305,9 @@ unset_f_ruby_util () {
 }
 
 main () {
+  check_deps
+  unset -f check_deps
+
   source_deps
   unset -f source_deps
 

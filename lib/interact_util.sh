@@ -5,10 +5,9 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps () {
-  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
-  . ${curdir}/bash_base.sh
-  . ${curdir}/process_util.sh
+check_deps () {
+  # Verify process_util.sh loaded.
+  check_dep 'tweak_errexit'
 }
 
 # ============================================================================
@@ -146,8 +145,8 @@ alias invert='flicker'
 # ============================================================================
 
 main () {
-  source_deps
-  unset -f source_deps
+  check_deps
+  unset -f check_deps
 }
 
 main "$@"

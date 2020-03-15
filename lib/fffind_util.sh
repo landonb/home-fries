@@ -5,8 +5,9 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps () {
-  :
+check_deps () {
+  # Verify path_util.sh loaded.
+  check_dep 'dir_resolve'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -79,8 +80,8 @@ fffind () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
-  : #source_deps
-  unset -f source_deps
+  check_deps
+  unset -f check_deps
 }
 
 main "$@"

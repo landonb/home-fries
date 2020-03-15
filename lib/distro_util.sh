@@ -5,10 +5,9 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps () {
-  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
-  . ${curdir}/bash_base.sh
-  . ${curdir}/process_util.sh
+check_deps () {
+  # Verify process_util.sh loaded.
+  check_dep 'tweak_errexit'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -288,26 +287,9 @@ suss_postgres () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_distro_util () {
-  unset -f source_deps
-
-  unset -f distro_complain_not_ubuntu_or_red_hat
-  unset -f suss_distro
-
-  unset -f suss_apache
-  unset -f ccp_apache_reload
-
-  unset -f suss_python
-
-  unset -f suss_postgres
-
-  # So meta.
-  unset -f unset_f_distro_util
-}
-
 main () {
-  source_deps
-  unset -f source_deps
+  check_deps
+  unset -f check_deps
 
   suss_distro
   unset -f suss_distro

@@ -7,10 +7,8 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps () {
-  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
-  # Load: path_prepend
-  . ${curdir}/paths_util.sh
+check_deps () {
+  check_dep 'path_prefix'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -136,8 +134,8 @@ oc-rsh () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
-  source_deps
-  unset -f source_deps
+  check_deps
+  unset -f check_deps
 
   home_fries_add_to_path_openshift_origin
   unset -f home_fries_add_to_path_openshift_origin

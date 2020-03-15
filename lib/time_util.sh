@@ -5,12 +5,6 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps () {
-  :
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 simpletimeit () {
   # Python has a great timeit fcn. you could use on a command, or
   # you could just do it in Bash. Except msg is not as friendly here.
@@ -35,8 +29,7 @@ simpletimeit () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
-  : #source_deps
-  unset -f source_deps
+  :
 }
 
 main "$@"

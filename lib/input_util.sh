@@ -5,10 +5,9 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps () {
-  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
-  # Load: warn, etc.
-  . ${curdir}/logger.sh
+check_deps () {
+  # Verify logger.sh loaded.
+  check_dep '_sh_logger_log_msg'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -233,18 +232,9 @@ desktop-notification-test () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_input_util () {
-  unset -f source_deps
-
-  unset -f logitech-middle-mouse-click-disable
-
-  # So meta.
-  unset -f unset_f_input_util
-}
-
 main () {
-  source_deps
-  unset -f source_deps
+  check_deps
+  unset -f check_deps
 }
 
 main "$@"

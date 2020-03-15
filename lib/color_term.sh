@@ -7,7 +7,6 @@
 
 source_deps () {
   local curdir=$(dirname -- "${BASH_SOURCE[0]}")
-  . ${curdir}/color_envs.sh
   . ${curdir}/color_funcs.sh
 }
 

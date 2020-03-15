@@ -5,12 +5,6 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps () {
-  :
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 # C.f. ${HOMEFRIES_DIR}/lib/bash_base.sh.
 dir_resolve () {
   # Squash error messages but return error status, maybe.
@@ -59,8 +53,7 @@ unset -f printdirsincur_better
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
-  : #source_deps
-  unset -f source_deps
+  :
 }
 
 main "$@"

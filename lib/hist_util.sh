@@ -5,12 +5,6 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps () {
-  :
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 _hist_util_hook () {
   # Write/append this session's history to the shared history file.
   # (I know, interleaving, deal with it! -Alternatively, we could
@@ -190,18 +184,8 @@ home_fries_configure_history () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_hist_util () {
-  unset -f source_deps
-
-  unset -f home_fries_configure_history
-
-  # So meta.
-  unset -f unset_f_hist_util
-}
-
 main () {
-  : #source_deps
-  unset -f source_deps
+  :
 }
 
 main "$@"

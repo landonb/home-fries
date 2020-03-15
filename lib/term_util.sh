@@ -5,15 +5,13 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps () {
-  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
-  # determine_window_manager
-  . ${curdir}/distro_util.sh
-  # (lb): I'm addicted to colors.
-  . ${curdir}/color_envs.sh
-  . ${curdir}/color_funcs.sh
-  #
-  . ${curdir}/logger.sh
+check_deps () {
+  # Verify colorlib.sh loaded.
+  check_dep '_hofr_no_color'
+  # Verify logger.sh loaded.
+  check_dep '_sh_logger_log_msg'
+  # Verify distro_util.sh loaded.
+  check_dep 'suss_window_manager'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -850,29 +848,9 @@ dubs_hook_filename_rubout () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_term_util () {
-  unset -f source_deps
-
-  unset -f dubs_logged_on_via_ssh
-  unset -f fries_format_titlebar
-  unset -f dubs_set_terminal_prompt
-  unset -f fries_hook_titlebar_update
-  unset -f dubs_set_PS4
-  unset -f dubs_fix_terminal_colors
-
-  unset -f enable_vi_style_editing
-  unset -f sleep_then_ensure_always_on_visible_desktop
-  unset -f dubs_always_on_visible_desktop
-
-  unset -f dubs_hook_filename_rubout
-
-  # So meta.
-  unset -f unset_f_term_util
-}
-
 main () {
-  source_deps
-  unset -f source_deps
+  check_deps
+  unset -f check_deps
 }
 
 main "$@"

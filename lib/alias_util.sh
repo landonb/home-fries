@@ -5,9 +5,9 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps () {
-  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
-  . ${curdir}/logger.sh
+check_deps () {
+  # Verify logger.sh loaded.
+  check_dep '_sh_logger_log_msg'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -554,7 +554,7 @@ home_fries_create_aliases_tab_completion () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 unset_f_alias_util () {
-  unset -f source_deps
+  unset -f check_deps
 
   unset -f home_fries_create_aliases_general
 
@@ -571,8 +571,8 @@ unset_f_alias_util () {
 }
 
 main () {
-  source_deps
-  unset -f source_deps
+  check_deps
+  unset -f check_deps
 }
 
 main "$@"

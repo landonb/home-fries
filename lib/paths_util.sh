@@ -5,12 +5,9 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps () {
-  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
-  # FIXME/2018-06-04: (lb): Move device_on_which_file_resides out of trash_util.sh?
-  # Load device_on_which_file_resides.
-  . ${curdir}/trash_util.sh
-}
+check_deps () {
+  check_dep 'path_prefix'
+  check_dep 'path_suffix'
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -274,36 +271,9 @@ home_fries_configure_manpath () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_paths_util () {
-  unset -f source_deps
-
-  unset -f home_fries_add_to_path_sbin
-
-  unset -f home_fries_add_to_path_home_fries_lib
-
-  unset -f home_fries_add_to_path_home_fries_bin
-
-  unset -f home_fries_add_to_path_home_local_bin
-
-  unset -f home_fries_add_to_path_home_local_node_modules_bin
-
-  unset -f home_fries_add_to_path_java_jdk_jre
-
-  unset -f home_fries_add_to_path_android_studio
-
-  unset -f home_fries_add_to_path_golang
-
-  unset -f home_fries_set_path_environ
-
-  unset -f home_fries_configure_manpath
-
-  # So meta.
-  unset -f unset_f_paths_util
-}
-
 main () {
-  source_deps
-  unset -f source_deps
+  check_deps
+  unset -f check_deps
 }
 
 main "$@"
