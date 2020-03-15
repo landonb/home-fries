@@ -33,27 +33,6 @@ distro_complain_not_ubuntu_or_red_hat () {
   fi
 }
 
-suss_distro () {
-  # 2017-05-03: Disabling. Nothing uses any of these vars, AFAICT.
-  if false; then
-    # In the regex, \1 is the Fedora release, e.g., '14', and \2 is the friendly
-    # name, e.g., 'Laughlin'.
-    tweak_errexit
-    FEDORAVERSABBR=$(cat /etc/issue \
-                     | grep Fedora \
-                     | /bin/sed 's/^Fedora release ([0-9]+) \((.*)\)$/\1/')
-    # /etc/issue is, e.g., 'Ubuntu 12.04 LTS (precise) \n \l'
-    UBUNTUVERSABBR=$(cat /etc/issue \
-                     | grep Ubuntu \
-                     | /bin/sed -E 's/^Ubuntu ([.0-9]+) [^(]*\((.*)\).*$/\1/')
-    # /etc/issue is, e.g., 'Linux Mint 16 Petra \n \l'
-    MINTVERSABBR=$(cat /etc/issue \
-                   | grep "Linux Mint" \
-                   | /bin/sed -E 's/^Linux Mint ([.0-9]+) .*$/\1/')
-    reset_errexit
-  fi
-}
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # *** Window Manager Wat.
@@ -162,28 +141,6 @@ suss_apache () {
     # echo Red Hat.
     httpd_user=apache
     httpd_etc_dir=/etc/httpd
-  else
-    echo "Error: Unknown OS."
-    exit 1
-  fi
-}
-
-# Reload the Web server.
-ccp_apache_reload () {
-  ${DUBS_TRACE} && echo "ccp_apache_reload"
-  if [[ -z "$1" ]]; then
-    COMMAND="reload"
-  elif [[ $1 -ne 1 ]]; then
-    COMMAND="reload"
-  else
-    COMMAND="restart"
-  fi
-  if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
-    # echo Ubuntu.
-    sudo /etc/init.d/apache2 $COMMAND
-  elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
-    # echo Red Hat.
-    sudo service httpd $COMMAND
   else
     echo "Error: Unknown OS."
     exit 1
