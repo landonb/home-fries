@@ -1,5 +1,5 @@
 #!/bin/bash
-# vim:tw=0:ts=2:sw=2:et:norl:
+# vim:tw=0:ts=2:sw=2:et:norl:ft=sh
 # Project: https://github.com/landonb/home-fries
 # License: MIT
 
