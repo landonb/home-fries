@@ -133,11 +133,11 @@ screensaver_lockon () {
 
 suss_apache () {
   # Determine the name of the apache user.
-  if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
+  if [[ "$(cat /proc/version | grep Ubuntu)" ]]; then
     # echo Ubuntu.
     httpd_user=www-data
     httpd_etc_dir=/etc/apache2
-  elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
+  elif [[ "$(cat /proc/version | grep Red\ Hat)" ]]; then
     # echo Red Hat.
     httpd_user=apache
     httpd_etc_dir=/etc/httpd
