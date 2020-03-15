@@ -29,7 +29,7 @@
 _termdub () {
 
 	# Completion boilerplate.
-    COMPREPLY=()
+	COMPREPLY=()
 	local cur prev words cword
 	if command -v _init_completion > /dev/null; then
 		# lsb_release -d: Linux Mint 17.1 Rebecca
