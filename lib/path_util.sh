@@ -26,6 +26,13 @@ dir_resolve () {
   echo "${dir_resolved}"
 }
 
+# symlink_dirname gets the dirname of
+# a filepath after following symlinks;
+# can be used in lieu of dir_resolve.
+symlink_dirname () {
+  echo $(dirname -- $(readlink -f -- "$1"))
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # *** Call ista Flock hart

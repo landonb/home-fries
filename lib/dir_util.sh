@@ -5,25 +5,6 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# C.f. ${HOMEFRIES_DIR}/lib/bash_base.sh.
-dir_resolve () {
-  # Squash error messages but return error status, maybe.
-  pushd "$1" &> /dev/null || return $?
-  # -P returns the full, link-resolved path.
-  local dir_resolved="`pwd -P`"
-  popd &> /dev/null
-  echo "$dir_resolved"
-}
-
-# symlink_dirname gets the dirname of
-# a filepath after following symlinks;
-# can be used in lieu of dir_resolve.
-symlink_dirname () {
-  echo $(dirname -- $(readlink -f -- "$1"))
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 # 2016-09-26: This is just a reminder of a good way to iterate over directories.
 # I used to just change IFS, but this trick handles newlines and asterisks in paths,
 # in addition to spaces in file/directory/path names.
