@@ -1,23 +1,23 @@
 # File: bashrc.core.sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Last Modified: 2017.12.17
-# Project Page: https://github.com/landonb/home-fries
+# Project: https://github.com/landonb/home-fries
 # Summary: One Developer's Bash Profile [Home-🍟]
-# License: GPLv3
-# vim:tw=0:ts=2:sw=2:et:norl:
+# License: MIT
+# vim:tw=0:ts=2:sw=2:et:norl:ft=sh
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# *** Doobious Sources
-
-source_utils () {
-  local time_outer_0=$(date +%s.%N)
+export_homefries_envs () {
+  DEBUG_TRACE=${DEBUG_TRACE:-false}
+  # Usage, e.g.:
+  #   HOMEFRIES_WARNINGS=true bash
+  HOMEFRIES_WARNINGS=${HOMEFRIES_WARNINGS:-false}
 
   # Generally, FRIES_DIR=${HOME}/.homefries [a/k/a /home/${LOGNAME}/.homefries]
-  if [[ -z "${HOMEFRIES_DIR}" ]]; then
+  if [ -z "${HOMEFRIES_DIR}" ]; then
     HOMEFRIES_DIR="$(dirname $(dirname -- "${BASH_SOURCE[0]}"))"
   fi
-  if [[ "${HOMEFRIES_DIR}" == '/' ]] || [ ! -d "${HOMEFRIES_DIR}" ]; then
+  if [ "${HOMEFRIES_DIR}" = '/' ] || [ ! -d "${HOMEFRIES_DIR}" ]; then
     >&2 echo 'WARNING: Where is .homefries installed? For real?'
     return 0
   fi
