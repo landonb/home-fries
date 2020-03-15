@@ -25,81 +25,138 @@ export_homefries_envs () {
   export HOMEFRIES_BIN="${HOMEFRIES_BIN:-${HOMEFRIES_DIR}/bin}"
   export HOMEFRIES_LIB="${HOMEFRIES_LIB:-${HOMEFRIES_DIR}/lib}"
   export HOMEFRIES_VAR="${HOMEFRIES_VAR:-${HOMEFRIES_DIR}/var}"
+}
 
-  declare -a lib_files=()
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-  unset -v HOMEFRIES_LOADED_BASH_BASE
-  lib_files+=("alias_util.sh")
-  lib_files+=("apache_util.sh")
-  lib_files+=("array_util.sh")
-  lib_files+=("bash_base.sh")
-  lib_files+=("color_envs.sh")
-  lib_files+=("color_funcs.sh")
-  lib_files+=("color_term.sh")
-  # SKIPPING:("cron_util.sh")
-  lib_files+=("crypt_util.sh")
+source_from_user_path_or_homefries_lib () {
+  local lib_file="$1"
+  local time_0=$(date +%s.%N)
+  ${DUBS_TRACE} && echo ". FRIES: ${lib_file}"
+  if command -v "${lib_file}" > /dev/null; then
+    # Prefer finding the script on PATH.
+    . "${lib_file}"
+    let 'SOURCE_CNT += 1'
+  elif [ -f "${HOMEFRIES_DIR}/lib/${lib_file}" ]; then
+    # Rather than put ~/.homefries/lib on PATH, this.
+    . "${HOMEFRIES_DIR}/lib/${lib_file}"
+    let 'SOURCE_CNT += 1'
+  else
+    # No exceptions: Complain if file missing.
+    # - Nothing here is optional.
+    >&2 echo "MISSING: ${lib_file}"
+  fi
+  print_elapsed_time "${time_0}" "Source: ${lib_file}"
+}
 
-  # FIXME/2020-02-17: Verify this, then remove/retire curly_util.sh:
-  # - setup_users_curly_path: +100 points I never use.
-  # - ensure_dropbox_running: pretty sure I don't use.
-  # - passtore-ci: definitely stopped using while back.
-  #  lib_files+=("curly_util.sh")
-  #
-  # SKIPPING:("curly_util.sh")
+source_it () {
+  source_from_user_path_or_homefries_lib "$@"
+}
 
-  # SKIPPING:("cygwin_util.sh")
-  lib_files+=("date_util.sh")
-  lib_files+=("dir_util.sh")
-  # SKIPPING:("direnv_util.sh")
-  lib_files+=("distro_util.sh")
-  lib_files+=("docker_util.sh")
-  lib_files+=("fffind_util.sh")
-  lib_files+=("file_util.sh")
-  # SKIPPING:("find_util.sh")
-  lib_files+=("fries_util.sh")
-  lib_files+=("git_util.sh")
-  lib_files+=("hist_util.sh")
-  lib_files+=("input_util.sh")
-  lib_files+=("interact_util.sh")
-  lib_files+=("keys_util.sh")
-  # SKIPPING:("logger.sh")
-  lib_files+=("no_util.sh")
-  lib_files+=("openshift_util.sh")
-  lib_files+=("path_util.sh")
-  lib_files+=("paths_util.sh")
-  lib_files+=("process_util.sh")
-  lib_files+=("python_util.sh")
-  # SKIPPING:("ruby_chutil.sh")
-  lib_files+=("ruby_util.sh")
-  lib_files+=("session_util.sh")
-  lib_files+=("ssh_util.sh")
-  lib_files+=("term_util.sh")
-  lib_files+=("time_util.sh")
-  lib_files+=("trash_util.sh")
+# For sourced files to ensure things setup as expected, too.
+check_dep () {
+  ! command -v $1 &> /dev/null &&
+    >&2 echo "WARNING: Missing dependency: ‘$1’"
+}
 
-  DEBUG_TRACE=false
-  for lib_file in "${lib_files[@]}"; do
-    if [[ -f "${HOMEFRIES_DIR}/lib/${lib_file}" ]]; then
-      local time_0=$(date +%s.%N)
-      . "${HOMEFRIES_DIR}/lib/${lib_file}"
-      print_elapsed_time "${time_0}" "Source: ${lib_file}"
-    else
-      # Was:
-      #  ${DUBS_PROFILING} && echo "MISSING: ${lib_file}"
-      >&2 echo "MISSING: ${lib_file}"
-    fi
-  done
+check_deps () {
+  # Onus is on user to figure out how to wire these!
+  # - The author uses a ~/.homefries/.bashrc-bin/bashrx.private.user.sh script
+  #   to put these on PATH.
+  # Verify sh-colorlib/bin/colorlib.sh loaded.
+  check_dep '_hofr_no_color'
+  # Verify sh-logger/bin/logger.sh loaded.
+  check_dep '_sh_logger_log_msg'
+  # Verify sh-pathlib/bin/path* loaded.
+  check_dep 'path_prefix'
+  check_dep 'path_suffix'
+}
 
-  # Usage, e.g.:
-  #   HOMEFRIES_WARNINGS=true bash
-  [ -z ${HOMEFRIES_WARNINGS+x} ] &&
-    HOMEFRIES_WARNINGS=false
+# *** Doobious Sources
+
+source_utils_all () {
+  check_deps
+
+  # *** External projects (you've loaded via private Bash).
+
+  # sh-colorlib/bin/colorlib.sh
+  # source_it "colorlib.sh"
+  # source_it "test_colorlib"
+
+  # sh-logger/bin/logger.sh
+  # source_it "logger.sh"
+
+  # sh-pathlib/bin/*
+  # source_it "pathlib.sh"
+  # source_it "path_prefix"
+  # source_it "path_suffix"
+
+  # sh-rm_safe/bin/*
+  # source_it "path_device"
+  # source_it "rm_rotate"
+  # source_it "rm_safe"
+  # source_it "rmrm"
+
+  # *** Load order matters, to limit number of `.` invocations.
+
+  source_it "process_util.sh"
+  source_it "path_util.sh"
+
+  source_it "distro_util.sh"
+
+  source_it "term_util.sh"
+
+  # *** Load order does not matter (remaining files only depend
+  #     on those previously loaded); so alphabetical.
+
+  source_it "alias_util.sh"
+  source_it "apache_util.sh"
+  source_it "array_util.sh"
+  source_it "color_term.sh"
+  source_it "crypt_util.sh"
+  source_it "date_util.sh"
+  source_it "dir_util.sh"
+  # Earlier: "distro_util.sh"
+  source_it "docker_util.sh"
+  source_it "fffind_util.sh"
+  source_it "file_util.sh"
+  source_it "fries_util.sh"
+  source_it "git_util.sh"
+  source_it "hist_util.sh"
+  source_it "input_util.sh"
+  source_it "interact_util.sh"
+  source_it "keys_util.sh"
+  source_it "manpath_util.sh"
+  source_it "openshift_util.sh"
+  # Earlier: "path_util.sh"
+  source_it "paths_util.sh"
+  # Earlier: "process_util.sh"
+  source_it "python_util.sh"
+  source_it "ruby_util.sh"
+  source_it "session_util.sh"
+  source_it "ssh_util.sh"
+  # Loaded specially: "term-fzf.bash"
+  # Earlier: "term_util.sh"
+  source_it "time_util.sh"
+  source_it "trash_util.sh"
+}
+
+# ***
+
+source_utils () {
+  local time_outer_0=$(date +%s.%N)
+  SOURCE_CNT=0
+
+  source_utils_all
 
   print_elapsed_time \
     "${time_outer_0}" \
-    "Sourced ${#lib_files[@]} files (source_utils)." \
+    "Sourced ${SOURCE_CNT} files (source_utils)." \
     "SOURCES: "
+  unset SOURCE_CNT
 }
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 source_virtualenvwrapper () {
   local time_outer_0=$(date +%s.%N)
@@ -126,12 +183,12 @@ source_virtualenvwrapper () {
   # - reform the path, converting newlines back to colons.
   # Note, too, the inner-$, in <$'\n'>, is ANSI-C Quoting.
   # https://www.gnu.org/software/bash/manual/html_node/ANSI_002dC-Quoting.html
-  PATH=$(echo "${PATH//:/$'\n'}" | grep -v -e "^${HOME}/.virtualenvs/" | tr '\n' ':')
+  PATH="$(echo "${PATH//:/$'\n'}" | grep -v -e "^${HOME}/.virtualenvs/" | tr '\n' ':')"
   export PATH
 
-  if [[ -f ${HOME}/.local/bin/virtualenvwrapper.sh ]]; then
-    . ${HOME}/.local/bin/virtualenvwrapper.sh
-  elif [[ -f /usr/local/bin/virtualenvwrapper.sh ]]; then
+  if [ -f "${HOME}/.local/bin/virtualenvwrapper.sh" ]; then
+    . "${HOME}/.local/bin/virtualenvwrapper.sh"
+  elif [ -f /usr/local/bin/virtualenvwrapper.sh ]; then
     . /usr/local/bin/virtualenvwrapper.sh
   fi
 
@@ -239,7 +296,6 @@ home_fries_up () {
   #   Identity added: /home/.../.ssh/id_rsa (/home/.../.ssh/id_rsa)
   #   Identity added: /home/.../.ssh/identity (/home/.../.ssh/identity)
 
-  # See: ~/.homefries/lib/bash_base.sh
   # - lib/ssh_util.sh
   ssh_agent_kick
 
@@ -416,7 +472,13 @@ home_fries_up () {
 main () {
   local time_main_0=$(date +%s.%N)
 
+  export_homefries_envs
+  unset -f export_homefries_envs
+
   source_utils
+  unset -f source_utils_all
+  unset -f source_it
+  unset -f source_from_user_path_or_homefries_lib
   unset -f source_utils
 
   source_virtualenvwrapper
