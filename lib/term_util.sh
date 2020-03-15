@@ -23,10 +23,10 @@ dubs_logged_on_via_ssh () {
   # https://unix.stackexchange.com/questions/9605/how-can-i-detect-if-the-shell-is-controlled-from-ssh
   # "If one of the variables SSH_CLIENT or SSH_TTY is defined, it's an ssh session.
   #  If the login shell's parent process name is sshd, it's an ssh session."
-  if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
+  if [ -n "${SSH_CLIENT}" ] || [ -n "${SSH_TTY}" ]; then
     return 0
   else
-    case $(ps -o comm= -p $PPID) in
+    case $(ps -o comm= -p ${PPID}) in
       sshd|*/sshd)
         return 0
         ;;
@@ -85,7 +85,7 @@ fries_format_titlebar () {
   local titlebar
   if ! $(dubs_logged_on_via_ssh); then
     # echo "User not logged on via SSH"
-    if [[ "${DUBS_TERMNAME}" != "" ]]; then
+    if [ "${DUBS_TERMNAME}" != '' ]; then
       titlebar="\[\e]0;${sticky_alert}${DUBS_TERMNAME}\a\]"
     elif [[ $(stat -c %i /) -eq 2 ]]; then
       # Not in chroot jail.

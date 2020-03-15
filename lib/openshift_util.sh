@@ -15,7 +15,7 @@ check_deps () {
 
 home_fries_add_to_path_openshift_origin () {
   # OpenShift Origin server.
-  [[ ! -d ${HOME}/.downloads/openshift-origin-server ]] && return
+  [ ! -d "${HOME}/.downloads/openshift-origin-server" ] && return
 
   path_prepend "${HOME}/.downloads/openshift-origin-server"
 
@@ -30,7 +30,7 @@ home_fries_add_to_path_openshift_origin () {
 
 oc-rsh-mysql () {
   OC_PROJECT=""
-  if [[ -n $1 ]]; then
+  if [ -n "$1" ]; then
     OC_PROJECT=" -n $1"
   fi
 
@@ -95,12 +95,12 @@ oc-rsh-mysql () {
     return 1
   fi
 
-  echo "Trying \`oc${OC_PROJECT} rsh ${MYSQL_POD}\`"
+  echo "Trying \$(oc${OC_PROJECT} rsh ${MYSQL_POD})"
   oc${OC_PROJECT} rsh ${MYSQL_POD}
   if [[ $? -ne 0 ]]; then
     if ! $refreshed_pod_name; then
       MYSQL_POD=$(oc${OC_PROJECT} get pods | grep -m 1 "^mysql-" | awk '{print $1}')
-      echo "Trying \`oc${OC_PROJECT} rsh ${MYSQL_POD}\`"
+      echo "Trying \$(oc${OC_PROJECT} rsh ${MYSQL_POD})"
       oc${OC_PROJECT} rsh ${MYSQL_POD}
       if [[ $? -ne 0 ]]; then
         echo "ERROR: Tried twice but unable to \`oc rsh\` to pod: ${MYSQL_POD}"
@@ -124,7 +124,7 @@ oc-rsh () {
     | jq -r '.items[] | select(.status.phase | contains("Running")) | .metadata.name' \
   )
 
-  echo "Trying \`oc rsh ${POD_NAME}\`"
+  echo "Trying \$(oc rsh ${POD_NAME})"
   oc rsh ${POD_NAME}
   if [[ $? -ne 0 ]]; then
     echo "ERROR: Unable to \`oc rsh\` to pod: ${MYSQL_POD}"

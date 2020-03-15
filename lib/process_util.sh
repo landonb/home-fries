@@ -245,31 +245,29 @@ wait_bg_tasks () {
 # ============================================================================
 # *** Llik gnihtemos.
 
-# SYNC_ME: See also fcn. of same name in bash_base.sh/bashrc_core.sh.
-# EXPLAIN/FIXME: Why doesn't bash_core.sh just use what's in bash_base.sh
-#                and share like a normal script?
 killsomething () {
-  #[[ -z $1 ]] && warn 'Not killing nothing!' && return 1
-  [[ -z $1 ]] && echo 'Not killing nothing!' && return 1
-  local something=$1
-  ${DUBS_TRACE} && echo "killsomething: $something"
+  [ -z "$1" ] && echo 'Not killing nothing!' && return 1
+  local something="$1"
+  ${DUBS_TRACE} && echo "killsomething: ${something}"
   # The $2 is the awk way of saying, second column. I.e., ps aux shows
   #   apache 27635 0.0 0.1 238736 3168 ? S 12:51 0:00 /usr/sbin/httpd
   # and awk splits it on whitespace and sets $1..$11 to what was split.
   # You can even {print $99999} but it's just a newline for each match.
   #somethings=`ps aux | grep "${something}" | awk '{print $2}'`
   # Let's exclude the grep process that our grep is what is.
-  local somethings=`ps aux | grep "${something}" | grep -v "\<grep\>" | awk '{print $2}'`
+  local somethings=$(ps aux | grep "${something}" | grep -v "\<grep\>" | awk '{print $2}')
   # NOTE: The quotes in awk are loosely placed:
   #         similarly: `... | awk {'print $2'}`
-  if [[ "$somethings" != "" ]]; then
+  if [ "${somethings}" != "" ]; then
     # FIXME: From command, line these two echos make sense; from another script, no.
     ${DUBS_TRACE} && echo $(ps aux | grep "${something}" | grep -v "\<grep\>")
-    ${DUBS_TRACE} && echo "Killing: $somethings"
-    echo $somethings | xargs sudo kill -s 9 >/dev/null 2>&1
+    ${DUBS_TRACE} && echo "Killing: ${somethings}"
+    echo "${somethings}" | xargs sudo kill -s 9 >/dev/null 2>&1
   fi
   return 0
 }
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
   suss_errexit_errtrace

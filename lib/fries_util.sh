@@ -78,7 +78,7 @@ home_fries_direxpand_completions () {
 
 home_fries_load_completions () {
   # Bash command completion (for dub's apps).
-  if [[ -d ${HOMEFRIES_DIR}/bin/completions ]]; then
+  if [ -d "${HOMEFRIES_DIR}/bin/completions" ]; then
     # 2016-06-28: Currently just ./termdub_completion.
     # 2016-10-30: Now with `exo` command completion.
     # 2016-11-16: sourcing a glob doesn't work for symlinks.
@@ -90,7 +90,7 @@ home_fries_load_completions () {
       #echo "file = $file"
       # Check that the file exists (could be broken symlink
       # (e.g., symlink to unmounted encfs on fresh boot)).
-      if [[ -e ${file} ]]; then
+      if [ -e "${file}" ]; then
         . ${file}
       fi
     done < <(find ${HOMEFRIES_DIR}/bin/completions/* -maxdepth 1 ! -path . -print0)
@@ -102,9 +102,10 @@ home_fries_load_completions () {
 home_fries_load_sdkman () {
   # 2017-02-25: Such Yellers! The SDKMAN! installer appended this to .bashrc:
   #   #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-  if [[ -d "${HOME}/.sdkman" ]]; then
+  if [ -d "${HOME}/.sdkman" ]; then
     export SDKMAN_DIR="${HOME}/.sdkman"
-    [[ -s "${HOME}/.sdkman/bin/sdkman-init.sh" ]] && . "/home/landonb/.sdkman/bin/sdkman-init.sh"
+    [ -s "${HOME}/.sdkman/bin/sdkman-init.sh" ] &&
+      . "/home/landonb/.sdkman/bin/sdkman-init.sh"
   fi
 }
 
@@ -113,7 +114,7 @@ home_fries_load_sdkman () {
 home_fries_load_nvm_and_completion () {
   # 2017-07-20: What nvm writes to the end of ~/.bashrc.
   #  curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash
-  if [[ -d $HOME/.nvm ]]; then
+  if [ -d "$HOME/.nvm" ]; then
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
@@ -137,7 +138,7 @@ home_fries_append_ld_library_path () {
   # Do this before the SSH function, which expects expect.
   if [ -d /usr/lib/expect5.45 ]; then
     if [[ ":${LD_LIBRARY_PATH}:" != *":/usr/lib/expect5.45:"* ]]; then
-      export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/lib/expect5.45
+      export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/lib/expect5.45"
     fi
   fi
 }
@@ -176,14 +177,14 @@ home_fries_alias_crontab () {
   alias ct='crontab -e -u ${LOGNAME}'
 
   local vim_editor=""
-  if [[ -e "/usr/bin/vim.basic" ]]; then
+  if [ -e "/usr/bin/vim.basic" ]; then
     vim_editor=/usr/bin/vim.basic
-  elif [[ -e "/usr/bin/vim.tiny" ]]; then
+  elif [ -e "/usr/bin/vim.tiny" ]; then
     vim_editor=/usr/bin/vim.tiny
   fi
   # 2015.01.25: FIXME: Not sure what best to use...
   vim_editor=/usr/bin/vim
-  if [[ -n ${vim_editor} ]]; then
+  if [ -n "${vim_editor}" ]; then
     alias ct-www='\
       ${DUBS_TRACE} && echo "ct-www" ; \
       sudo -u ${httpd_user} \
@@ -231,10 +232,10 @@ home_fries_alias_crontab () {
 #     how-do-i-find-files-that-are-created-modified-accessed-before-reboot
 
 home_fries_punch_anacron () {
-  if [[ ! -e ${HOME}/.anacron/anacrontab ]]; then
+  if [ ! -e "${HOME}/.anacron/anacrontab" ]; then
     return
   fi
-  if [[ ! -d ${HOME}/.anacron/spool ]]; then
+  if [ ! -d "${HOME}/.anacron/spool" ]; then
     return
   fi
 
@@ -247,7 +248,7 @@ home_fries_punch_anacron () {
   local punchfile="${HOME}/.anacron/punched"
 
   # Run anacron if never punched, or if booted more recently than punched.
-  if [[ ! -e ${punchfile} || ${boottouch} -nt ${punchfile} ]]; then
+  if [ ! -e "${punchfile}" ] || [ ${boottouch} -nt ${punchfile} ]; then
     touch ${punchfile}
     # -s | Serialize jobs execution.
     /usr/sbin/anacron \
@@ -269,13 +270,13 @@ home_fries_export_editor_vim () {
   # Some apps use the variable directly, while others, like crontab, call
   # /usr/bin/sensible-editor. You can also set the editor interactively using
   # /usr/bin/select-editor (but the UI won't find your local builds).
-  if [[ -e "${HOME}/.local/bin/vim" ]]; then
+  if [ -e "${HOME}/.local/bin/vim" ]; then
     export EDITOR="${HOME}/.local/bin/vim"
-  elif [[ -e '/srv/opt/bin/bin/vim' ]]; then
+  elif [ -e '/srv/opt/bin/bin/vim' ]; then
     export EDITOR='/srv/opt/bin/bin/vim'
-  elif [[ -e '/usr/bin/vim.basic' ]]; then
+  elif [ -e '/usr/bin/vim.basic' ]; then
     export EDITOR='/usr/bin/vim.basic'
-  elif [[ -e '/usr/bin/vim' ]]; then
+  elif [ -e '/usr/bin/vim' ]; then
     export EDITOR='/usr/bin/vim'
   else
     echo "WARNING: bashrc.core.sh: did not set EDITOR: No vim found"
@@ -297,12 +298,12 @@ pdf180rot () {
     return 1
   fi
 
-  if [[ -z "$1" ]]; then
+  if [ -z "$1" ]; then
     >&2 echo "USAGE: pdf180rot <path/to/pdf>"
     return 1
   fi
 
-  if [[ ! -f "$1" ]]; then
+  if [ ! -f "$1" ]; then
     >&2 echo "ERROR: No such file: ‘$1’"
     return 1
   fi

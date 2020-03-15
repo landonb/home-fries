@@ -67,7 +67,7 @@ source_deps () {
   # run a Bash command. And it's not not that's slow,
   # it's just the principal of the thing, man.
   if false; then
-    if [[ -f /usr/local/share/chruby/auto.sh ]]; then
+    if [ -f /usr/local/share/chruby/auto.sh ]; then
       . /usr/local/share/chruby/auto.sh
     fi
   fi
@@ -119,16 +119,16 @@ ruby_set_gem_path () {
 
   # E.g., ${HOME}/.rubies/ruby-2.3.3/ruby/2.3.0
   local ruby_path="${HOME}/.rubies/ruby-${RUBY_VERS}/ruby/${RUBY_MINOR_ZERO}"
-  if [[ -d ${ruby_path} ]]; then
+  if [ -d "${ruby_path}" ]; then
     GEM_PATHS+=(${HOME}/.rubies/ruby-${RUBY_VERS}/ruby/${RUBY_MINOR_ZERO})
   fi
 
   for ((i = 0; i < ${#GEM_PATHS[@]}; i++)); do
     local PATH_ELEM="${GEM_PATHS[$i]}"
-    #echo "PATH_ELEM: $PATH_ELEM"
-    if [[ -d "${PATH_ELEM}" ]]; then
+    # echo "PATH_ELEM: $PATH_ELEM"
+    if [ -d "${PATH_ELEM}" ]; then
       if [[ ":${GEM_PATH}:" != *":${PATH_ELEM}:"* ]]; then
-        if [[ -n ${GEM_PATH} ]]; then
+        if [ -n "${GEM_PATH}" ]; then
           GEM_PATH="${GEM_PATH}:"
         fi
         GEM_PATH="${GEM_PATH}${PATH_ELEM}"
