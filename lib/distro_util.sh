@@ -247,24 +247,6 @@ suss_postgres () {
 main () {
   check_deps
   unset -f check_deps
-
-  suss_distro
-  unset -f suss_distro
-
-  # FIXME/2017-10-03: Find-n-Replace: determine_window_manager => suss_window_manager
-  determine_window_manager
-
-  suss_apache
-  unset -f suss_apache
-
-  #ccp_apache_reload
-  unset -f ccp_apache_reload
-
-  suss_python
-  unset -f suss_python
-
-  suss_postgres
-  unset -f suss_postgres
 }
 
 main "$@"
