@@ -228,75 +228,14 @@ patch_export_chruby_use () {
       #if [[ ":${PATH}:" != *":${gem_ruby_bin}:"* ]]; then
       #  export PATH="${PATH}:${gem_ruby_bin}"
       #fi
-      path_prepend ${gem_ruby_bin}
+      path_prefix ${gem_ruby_bin}
     fi
   }
 
   export -f chruby_use
 }
 
-# 2018-09-17: A wrapper I made to support installing same Ruby version
-# multiple times. Had to re-write wrapper because ~/.gem path hardcoded!
-#
-# See also:
-#
-#   - "Manage your rubies with direnv and ruby-install"
-#
-#     https://github.com/direnv/direnv/blob/master/docs/ruby.md
-chruby_use_GEMZ_DIR () {
-  if [[ ! -x "$1/bin/ruby" ]]; then
-    echo "chruby: $1/bin/ruby not executable" 1>&2;
-    return 1;
-  fi;
-  [[ -n "$RUBY_ROOT" ]] && chruby_reset;
-  export RUBY_ROOT="$1";
-  export RUBYOPT="$2";
-  export PATH="$RUBY_ROOT/bin:$PATH";
-  eval "$("$RUBY_ROOT/bin/ruby" - <<EOF
-puts "export RUBY_ENGINE=#{defined?(RUBY_ENGINE) ? RUBY_ENGINE : 'ruby'};"
-puts "export RUBY_VERSION=#{RUBY_VERSION};"
-begin; require 'rubygems'; puts "export GEM_ROOT=#{Gem.default_dir.inspect};"; rescue LoadError; end
-EOF
-)";
-  if (( $UID != 0 )); then
-    export GEM_HOME="$HOME/.gemz/$RUBY_ENGINE/$RUBY_VERSION";
-    export GEM_PATH="$GEM_HOME${GEM_ROOT:+:$GEM_ROOT}${GEM_PATH:+:$GEM_PATH}";
-    export PATH="$GEM_HOME/bin${GEM_ROOT:+:$GEM_ROOT/bin}:$PATH";
-  fi
-}
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-# 2017-06-19: So confused.
-# At work, `cmd rspec` indicates ???.
-# At home, it's ${HOME}/.rubies/ruby-2.3.3/ruby/2.3.0/bin/rspec
-# At work, rspec could not find the rainbow gem,
-# because it's RUBY_VERSION was 2.3.1, not 2.3.3.
-#    $ alias rspec=~/.gem/ruby/2.3.3/ruby/2.3.0/bin/rspec
-#    @home $ locate rspec | grep "\/rspec$"
-#    ~/.gem/ruby/2.3.0/ruby/2.3.0/bin/rspec -v    <== 3.5.4
-#    ~/.gem/ruby/2.3.3/ruby/2.3.0/bin/rspec -v    <== 3.5.4
-#    ~/.rubies/ruby-2.3.3/ruby/2.3.0/bin/rspec -v <== 3.5.4
-#    hrmmm...
-ruby_set_rspec_alias () {
-  : # FIXME: Maybe write this for work.
-}
-#ruby_set_rspec_alias
-unset -f ruby_set_rspec_alias
-
-# 2017-06-25 18:24
-# alias rake=/home/landonb/.rubies/ruby-2.3.3/bin/rake
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-unset_f_ruby_util () {
-  unset -f source_deps
-
-  unset -f home_fries_add_to_path_ruby_version_manager
-
-  # So meta.
-  unset -f unset_f_ruby_util
-}
 
 main () {
   check_deps
