@@ -71,11 +71,6 @@ source_deps () {
       . /usr/local/share/chruby/auto.sh
     fi
   fi
-
-  # Usage, e.g.:
-  #   HOMEFRIES_WARNINGS=true bash
-  [ -z ${HOMEFRIES_WARNINGS+x} ] &&
-    HOMEFRIES_WARNINGS=false
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
