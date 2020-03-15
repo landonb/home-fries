@@ -465,7 +465,7 @@ get_terminal_window_ids () {
 #   checking the desktop of the terminal window before sending it keystrokes.
 
 termdo-all () {
-  determine_window_manager
+  suss_window_manager
   local THIS_WINDOW_ID=$(xdotool getactivewindow)
   local WINDOW_IDS=$(get_terminal_window_ids)
   local winid
@@ -516,7 +516,7 @@ if false; then
 fi
 
 termdo-reset () {
-  determine_window_manager
+  suss_window_manager
   local THIS_WINDOW_ID=$(xdotool getactivewindow)
   local WINDOW_IDS=$(get_terminal_window_ids)
   local winid
@@ -544,7 +544,7 @@ termdo-reset () {
 }
 
 termdo-cmd () {
-  determine_window_manager
+  suss_window_manager
   local THIS_WINDOW_ID=$(xdotool getactivewindow)
   local WINDOW_IDS=$(get_terminal_window_ids)
   local winid

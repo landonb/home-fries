@@ -40,7 +40,7 @@ distro_complain_not_ubuntu_or_red_hat () {
 # NOTE: VirtualBox does not supply a graphics driver for Cinnamon 2.0,
 #       which runs DRI2 (Direct Rendering Interface2). But Xfce runs
 #       DRI1, which VirtualBox supports.
-determine_window_manager () {
+suss_window_manager () {
   WM_IS_CINNAMON=false
   WM_IS_XFCE=false
   WM_IS_MATE=false # Pronouced, mah-tay!
@@ -89,7 +89,7 @@ determine_window_manager () {
 # *** Screen saver on/off
 
 screensaver_lockoff () {
-  determine_window_manager
+  suss_window_manager
   if ${WM_IS_MATE}; then
     # Disable screen saver and lock-out.
     #  gsettings doesn't seem to stick 'til now.
@@ -113,7 +113,7 @@ screensaver_lockoff () {
 }
 
 screensaver_lockon () {
-  determine_window_manager
+  suss_window_manager
   if ${WM_IS_MATE}; then
     gsettings set org.mate.screensaver idle-activation-enabled true
     gsettings set org.mate.screensaver lock-enabled true
