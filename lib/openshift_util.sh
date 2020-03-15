@@ -34,9 +34,11 @@ oc-rsh-mysql () {
     OC_PROJECT=" -n $1"
   fi
 
+  local token_errmsg="error: You must be logged in to the server (the server has asked for the client to provide credentials)"
+
   SERIOUSLY_WHO_AM_I=$(oc${OC_PROJECT} whoami 2>&1)
   retcode=$?
-  if [[ ${SERIOUSLY_WHO_AM_I} == "error: You must be logged in to the server (the server has asked for the client to provide credentials)" ]]; then
+  if [ "${SERIOUSLY_WHO_AM_I}" = "${token_errmsg}" ]; then
     echo "ERROR: You need to hit the oauth/token/request endpoint and \`oc login\`."
     return 1
   elif [[ $retcode -ne 0 ]]; then
