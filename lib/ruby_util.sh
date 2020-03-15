@@ -92,7 +92,7 @@ ruby_set_gem_path () {
   if false; then
     # 2017-05-03: I started having issues at work... I think this is all too much!
 
-    if ``command -v ruby >/dev/null 2>&1``; then
+    if command -v ruby >/dev/null 2>&1; then
       # E.g., ${HOME}/.gem/ruby/2.3.0
       GEM_PATHS+=(${HOME}/.gem/ruby/${RUBY_MINOR_ZERO})
       # 2017-05-03: MAYBE: Do we need this one, too? If anything, it's same as previous.
