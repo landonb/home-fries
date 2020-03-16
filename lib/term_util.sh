@@ -7,7 +7,7 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 check_deps () {
-  # Verify colorlib.sh loaded.
+  # Verify colors.sh loaded.
   check_dep '_hofr_no_color'
   # Verify logger.sh loaded.
   check_dep '_sh_logger_log_msg'
@@ -115,7 +115,7 @@ fries_format_titlebar () {
 }
 
 dubs_set_terminal_prompt () {
-  # (lb): Note that colorlib.sh defines similar colors, but without
+  # (lb): Note that colors.sh defines similar colors, but without
   # the ``01;`` part. I cannot remember what that component means....
   local fg_red='\[\033[01;31m\]'
   local fg_green='\[\033[01;32m\]'

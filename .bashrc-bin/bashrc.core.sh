@@ -61,16 +61,16 @@ check_deps () {
   # Onus is on user to figure out how to wire these!
   # - The author uses a ~/.homefries/.bashrc-bin/bashrx.private.user.sh script
   #   to put these on PATH.
-  # Verify sh-colorlib/bin/colorlib.sh loaded.
+  # Verify sh-colors/bin/colors.sh loaded.
   #check_dep '_hofr_no_color'
-  check_dep 'colorlib.sh'
+  check_dep 'colors.sh'
   # Verify sh-logger/bin/logger.sh loaded.
   #check_dep '_sh_logger_log_msg'
   check_dep 'logger.sh'
-  # Verify sh-pathlib/bin/path* loaded.
+  # Verify sh-pather/bin/path* loaded.
   #check_dep 'path_prefix'
   #check_dep 'path_suffix'
-  check_dep 'pathlib.sh'
+  check_dep 'pather.sh'
   # Verify sh-rm_safe/bin/* loaded.
   check_dep 'rm_safe'
 }
@@ -82,15 +82,15 @@ source_utils_all () {
 
   # *** External projects (you've loaded via private Bash).
 
-  # sh-colorlib/bin/colorlib.sh
-  #  source_it "colorlib.sh"
-  #  source_it "test_colorlib"
+  # sh-colors/bin/colors.sh
+  #  source_it "colors.sh"
+  #  source_it "test_colors"
 
   # sh-logger/bin/logger.sh
   #  source_it "logger.sh"
 
-  # sh-pathlib/bin/*
-  #  source_it "pathlib.sh"
+  # sh-pather/bin/*
+  #  source_it "pather.sh"
   #  source_it "path_prefix"
   #  source_it "path_suffix"
 
