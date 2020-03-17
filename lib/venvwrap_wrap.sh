@@ -28,7 +28,7 @@ source_virtualenvwrapper () {
   #
   #   If Python could not import the module virtualenvwrapper.hook_loader,
   #     check that virtualenvwrapper has been installed for
-  #       VIRTUALENVWRAPPER_PYTHON=/home/landonb/.virtualenvs/dob37/bin/python
+  #       VIRTUALENVWRAPPER_PYTHON=/home/landonb/.virtualenvs/dob3x/bin/python
   #         and that PATH is set properly.
   #
   # Note the wrapper checks $WORKON_HOME, which defaults to ".virtualenvs"
