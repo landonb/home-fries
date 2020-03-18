@@ -58,14 +58,14 @@ ${DUBS_TRACE} && echo "User's EUID is ${EUID}"
 # Carnally related:
 #   hard_path=$(dirname $(readlink -f ~/.bashrc))
 # Universally Bashy:
-hard_path="$(dirname $(readlink -f -- "${BASH_SOURCE[0]}"))"
+export HOMEFRIES_BASHRCBIN="$(dirname $(readlink -f -- "${BASH_SOURCE[0]}"))"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # *** Profiling.
 
 print_elapsed_time () {
-  "${hard_path}/../bin/echo-elapsed" "$@"
+  "${HOMEFRIES_BASHRCBIN}/../bin/echo-elapsed" "$@"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -111,7 +111,7 @@ source_fries () {
 
   # Load the basic script. Defines aliases, configures things,
   # adjusts the terminal prompt, and adds a few functions.
-  . "${hard_path}/bashrc.core.sh"
+  . "${HOMEFRIES_BASHRCBIN}/bashrc.core.sh"
 
   print_elapsed_time "${time_0}" "Source: bashrc.core.sh" "==FRIES: "
 }
@@ -136,15 +136,15 @@ source_privately () {
 
 source_private_scripts () {
   # If present, local a private (uncommitted; symlinked?) bash profile script.
-  local privsrc="${hard_path}/bashrx.private.sh"
+  local privsrc="${HOMEFRIES_BASHRCBIN}/bashrx.private.sh"
   source_privately "${privsrc}" "private"
 
   # If present, load a machine-specific script.
-  local privhost="${hard_path}/bashrx.private.$(hostname).sh"
+  local privhost="${HOMEFRIES_BASHRCBIN}/bashrx.private.$(hostname).sh"
   source_privately "${privhost}" "host-specific"
 
   # If present, load a user-specific script.
-  local privuser="${hard_path}/bashrx.private.${LOGNAME}.sh"
+  local privuser="${HOMEFRIES_BASHRCBIN}/bashrx.private.${LOGNAME}.sh"
   source_privately "${privuser}" "user-specific"
 }
 
@@ -187,7 +187,7 @@ start_somewhere_something () {
     cd "${DUBS_STARTIN_DEFAULT}"
   fi
 
-  # See: ${hard_path}/.homefries/bin/openterms.sh for usage.
+  # See: ${HOMEFRIES_BASHRCBIN}/.homefries/bin/openterms.sh for usage.
   if [ -n "${DUBS_STARTUP}" ]; then
     # Add the command we're about to execute to the command history (so if the
     # user Ctrl-C's the process, then can easily re-execute it).
@@ -214,14 +214,6 @@ start_somewhere_something () {
 
 home_fries_bashrc_cleanup () {
   local time_0=$(date +%s.%N)
-
-  # I thought you had to `export` variables for them to persist,
-  # but I guess that's not the case when variables are defined
-  # in a sourced Bash profile and not defined within a function.
-
-  unset -v hard_path
-  unset -v machfile
-  unset -v userfile
 
   # Run the sourced-scripts' cleanup functions, to un-declare functions
   # (and remove cruft from user's environment).
@@ -287,12 +279,15 @@ home_fries_bashrc_cleanup () {
 environ_cleanup () {
   # OCD cleanup to not pollute user's namespace (à la `env`, `set`, etc.).
 
+  unset -v HOMEFRIES_BASHRCBIN
+
   # Unset so calling echo-elapsed works without threshold being met.
   unset -v DUBS_PROFILING
 
   unset -v HOME_FRIES_PRELOAD
 
   unset -f main
+  # Self Disembowelment.
   unset -f environ_cleanup
 }
 
@@ -306,7 +301,7 @@ main () {
   ensure_pathed
   unset -f ensure_pathed
   # Maybe don't startup and reuse existing tmux session, eh.
-  if source ${hard_path}/prepare-tmux-or-bust; then
+  if source ${HOMEFRIES_BASHRCBIN}/prepare-tmux-or-bust; then
     return  # Will have run switch-client and user will be on another session.
   fi
 
