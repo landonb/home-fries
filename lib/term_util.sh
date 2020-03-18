@@ -173,21 +173,21 @@ dubs_set_terminal_prompt () {
 
   # NOTE: Using "" below instead of '' so that ${titlebar} is resolved by the
   #       shell first.
-  $DUBS_TRACE && echo "Setting prompt"
+  ${HOMEFRIES_TRACE} && echo "Setting prompt"
   if [[ -e /proc/version ]]; then
     if [[ $EUID -eq 0 ]]; then
-      $DUBS_TRACE && echo "Running as root!"
+      ${HOMEFRIES_TRACE} && echo "Running as root!"
       if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
-        $DUBS_TRACE && echo "Ubuntu"
+        ${HOMEFRIES_TRACE} && echo "Ubuntu"
         PS1="${titlebar}${bg_magenta}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_cyan}${basename}${attr_reset}\$ "
       elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
-        $DUBS_TRACE && echo "Red Hat"
+        ${HOMEFRIES_TRACE} && echo "Red Hat"
         PS1="${titlebar}${bg_magenta}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_gray}${basename}${attr_reset}\$ "
       else
         echo "WARNING: Not enough info. to set PS1."
       fi
     elif [[ "`cat /proc/version | grep Ubuntu`" ]]; then
-      $DUBS_TRACE && echo "Ubuntu"
+      ${HOMEFRIES_TRACE} && echo "Ubuntu"
       # 2015.03.04: I need to know when I'm in chroot hell.
       # NOTE: There's a better way using sudo to check if in chroot jail
       #       (which is compatible with Mac, BSD, etc.) but we don't want
@@ -219,7 +219,7 @@ dubs_set_terminal_prompt () {
         PS1="${titlebar}${fg_red}**${cur_user}@**${fg_cyan}${mach_name}${attr_reset}:${fg_yellow}${basename}${attr_reset} "'! '
       fi
     elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
-      $DUBS_TRACE && echo "Red Hat"
+      ${HOMEFRIES_TRACE} && echo "Red Hat"
       PS1="${titlebar}${fg_cyan}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_gray}${basename}${attr_reset}\$ "
     else
         echo "WARNING: dubs_set_terminal_prompt: Not enough info. to set PS1."

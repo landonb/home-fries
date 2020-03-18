@@ -37,17 +37,17 @@ apache_create_control_aliases () {
   if [[ -e /proc/version ]]; then
     if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
       alias re='\
-        ${DUBS_TRACE} && echo "re" ; \
+        ${HOMEFRIES_TRACE} && echo "re" ; \
         sudo /etc/init.d/apache2 reload'
       alias res='\
-        ${DUBS_TRACE} && echo "res" ; \
+        ${HOMEFRIES_TRACE} && echo "res" ; \
         sudo /etc/init.d/apache2 restart'
     elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
       alias re='\
-        ${DUBS_TRACE} && echo "re" ; \
+        ${HOMEFRIES_TRACE} && echo "re" ; \
         sudo service httpd reload'
       alias res='\
-        ${DUBS_TRACE} && echo "res" ; \
+        ${HOMEFRIES_TRACE} && echo "res" ; \
         sudo service httpd restart'
     fi
   # else, in unrigged chroot.

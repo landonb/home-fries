@@ -39,8 +39,8 @@
 HOMEFRIES_TIME0=$(date +%s.%N)
 
 # YOU: Uncomment to enable logging to stdout:
-#  export DUBS_TRACE=${DUBS_TRACE:-true}
-export DUBS_TRACE=${DUBS_TRACE:-false}
+#  export HOMEFRIES_TRACE=${HOMEFRIES_TRACE:-true}
+export HOMEFRIES_TRACE=${HOMEFRIES_TRACE:-false}
 
 # YOU: Uncomment to show progress times.
 #  DUBS_PROFILING=${DUBS_PROFILING:-true}
@@ -50,7 +50,7 @@ export DUBS_PROFILING=${DUBS_PROFILING:-false}
 #   startup time. Seeing profiling of slow calls helps.
 [ -n "${TMUX}" ] && DUBS_PROFILING=true
 
-${DUBS_TRACE} && echo "User's EUID is ${EUID}"
+${HOMEFRIES_TRACE} && echo "User's EUID is ${EUID}"
 
 # Get the path to this script's parent directory.
 # Doesn't work?!:
@@ -125,12 +125,12 @@ source_privately () {
   local srcfile="$1"
   local srctype="$2"
   if [ -f "${srcfile}" ]; then
-    ${DUBS_TRACE} && echo "Loading ${srctype} resource script: ${srcfile}"
+    ${HOMEFRIES_TRACE} && echo "Loading ${srctype} resource script: ${srcfile}"
     local time_0=$(date +%s.%N)
     . "${srcfile}"
     print_elapsed_time "${time_0}" "Source: ${srcfile}"
   else
-    ${DUBS_TRACE} && echo "Did not find a ${srctype} resource: ${srcfile}"
+    ${HOMEFRIES_TRACE} && echo "Did not find a ${srctype} resource: ${srcfile}"
   fi
 }
 
@@ -152,11 +152,11 @@ source_private () {
   # Load the machine-specific scripts first so their exports are visible.
   if [ ${EUID} -eq 0 ]; then
     # If the user is root, we'll just load the core script, and nothing fancy.
-    ${DUBS_TRACE} && echo "User is root"
+    ${HOMEFRIES_TRACE} && echo "User is root"
     return
   fi
 
-  ${DUBS_TRACE} && echo "User is not root"
+  ${HOMEFRIES_TRACE} && echo "User is not root"
   source_private_scripts
 }
 
@@ -229,7 +229,7 @@ home_fries_bashrc_cleanup () {
      || ( ( [ "${TERM}" = "screen" ] || \
             [ "${TERM}" = "screen-256color" ] ) \
           && [ -n "${TMUX}" ] ) \
-     || ( ${DUBS_TRACE} || ${DUBS_PROFILING} ) \
+     || ( ${HOMEFRIES_TRACE} || ${DUBS_PROFILING} ) \
   then
     local bashrc_time_n="$(date +%s.%N)"
     local time_elapsed=$(\
@@ -274,7 +274,7 @@ home_fries_bashrc_cleanup () {
 environ_cleanup () {
   # OCD cleanup to not pollute user's namespace (à la `env`, `set`, etc.).
 
-  unset -v DUBS_TRACE
+  unset -v HOMEFRIES_TRACE
 
   # Unset so calling echo-elapsed works without threshold being met.
   unset -v DUBS_PROFILING

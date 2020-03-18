@@ -249,7 +249,7 @@ wait_bg_tasks () {
 killsomething () {
   [ -z "$1" ] && echo 'Not killing nothing!' && return 1
   local something="$1"
-  ${DUBS_TRACE} && echo "killsomething: ${something}"
+  ${HOMEFRIES_TRACE} && echo "killsomething: ${something}"
   # The $2 is the awk way of saying, second column. I.e., ps aux shows
   #   apache 27635 0.0 0.1 238736 3168 ? S 12:51 0:00 /usr/sbin/httpd
   # and awk splits it on whitespace and sets $1..$11 to what was split.
@@ -261,8 +261,8 @@ killsomething () {
   #         similarly: `... | awk {'print $2'}`
   if [ "${somethings}" != "" ]; then
     # FIXME: From command, line these two echos make sense; from another script, no.
-    ${DUBS_TRACE} && echo $(ps aux | grep "${something}" | grep -v "\<grep\>")
-    ${DUBS_TRACE} && echo "Killing: ${somethings}"
+    ${HOMEFRIES_TRACE} && echo $(ps aux | grep "${something}" | grep -v "\<grep\>")
+    ${HOMEFRIES_TRACE} && echo "Killing: ${somethings}"
     echo "${somethings}" | xargs sudo kill -s 9 >/dev/null 2>&1
   fi
   return 0

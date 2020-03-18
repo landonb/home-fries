@@ -187,7 +187,7 @@ home_fries_alias_crontab () {
   vim_editor=/usr/bin/vim
   if [ -n "${vim_editor}" ]; then
     alias ct-www='\
-      ${DUBS_TRACE} && echo "ct-www" ; \
+      ${HOMEFRIES_TRACE} && echo "ct-www" ; \
       sudo -u ${httpd_user} \
         SELECTED_EDITOR=${vim_editor} \
         crontab -e -u $httpd_user'

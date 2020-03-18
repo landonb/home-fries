@@ -88,13 +88,13 @@ webperms () {
   # execute permission for some user.
   ##chmod -R o+rX $1
   #chmod -R u+rwX,g+rwX,o+rX $1
-  ${DUBS_TRACE} && echo "Web dir.: $1"
+  ${HOMEFRIES_TRACE} && echo "Web dir.: $1"
   #chmod -R o+rX $1 &> /dev/null || sudo chmod -R o+rX $1
   chmod -R u+rwX,g+rwX,o+rX $1 &> /dev/null || sudo chmod -R u+rwX,g+rwX,o+rX $1
   # Also fix the ancestor permissions.
   local cur_dir=$1
   while [[ -n ${cur_dir} && $(dirname -- "${cur_dir}") != '/' ]]; do
-    ${DUBS_TRACE} && echo "Ancestor: ${cur_dir}"
+    ${HOMEFRIES_TRACE} && echo "Ancestor: ${cur_dir}"
     # NOTE: Not giving read access, just execute.
       chmod -R o+X ${cur_dir} &> /dev/null || sudo chmod -R o+X ${cur_dir}
     local cur_dir=$(dirname -- "${cur_dir}")

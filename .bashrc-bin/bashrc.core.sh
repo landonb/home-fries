@@ -30,7 +30,7 @@ export_homefries_envs () {
 source_from_user_path_or_homefries_lib () {
   local lib_file="$1"
   local time_0=$(date +%s.%N)
-  ${DUBS_TRACE} && echo ". FRIES: ${lib_file}"
+  ${HOMEFRIES_TRACE} && echo ". FRIES: ${lib_file}"
   if command -v "${lib_file}" > /dev/null; then
     # Prefer finding the script on PATH.
     . "${lib_file}"
