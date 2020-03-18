@@ -285,9 +285,9 @@ environ_cleanup () {
   # OCD cleanup to not pollute user's namespace (à la `env`, `set`, etc.).
 
   # Unset so calling echo-elapsed works without threshold being met.
-  unset DUBS_PROFILING
+  unset -v DUBS_PROFILING
 
-  unset HOME_FRIES_PRELOAD
+  unset -v HOME_FRIES_PRELOAD
 
   unset -f main
   unset -f environ_cleanup
