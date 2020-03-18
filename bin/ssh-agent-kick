@@ -6,6 +6,17 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+check_deps () {
+  check_dep () {
+    ! command -v $1 > /dev/null 2>&1 &&
+      >&2 echo "WARNING: Missing dependency: ‘$1’"
+  }
+
+  check_dep 'colors.sh'
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 ssh_agent_kick () {
   # Note that EUID is a Bash-ism. Check nonzero ID,
   # i.e., insist that user is not root.
@@ -98,6 +109,8 @@ ssh_agent_kick () {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+check_deps
 
 this_file_name="ssh-agent-kick"
 shell_sourced () { [ "$(basename -- "$0")" != "${this_file_name}" ]; }
