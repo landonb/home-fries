@@ -177,7 +177,7 @@ start_somewhere_something () {
   # to do once a new terminal is ready. The three options are:
   #
   #   DUBS_STARTIN  -- Where to `cd`.
-  #   DUBS_STARTUP  -- Some command to run.
+  #   HOMEFRIES_EVAL  -- Some command to run.
   #   HOMEFRIES_TITLE -- Title of the terminal window.
 
   # Start out in the preferred development directory.
@@ -188,22 +188,22 @@ start_somewhere_something () {
   fi
 
   # See: ${HOMEFRIES_BASHRCBIN}/.homefries/bin/openterms.sh for usage.
-  if [ -n "${DUBS_STARTUP}" ]; then
+  if [ -n "${HOMEFRIES_EVAL}" ]; then
     # Add the command we're about to execute to the command history (so if the
     # user Ctrl-C's the process, then can easily re-execute it).
     # See also: history -c, which clears the history.
-    history -s "${DUBS_STARTUP}"
+    history -s "${HOMEFRIES_EVAL}"
     # Run the command.
     # FIXME: Does this hang the startup script? I.e., we're running the command
     #        from this script... so this better be the last command we run!
     local time_0="$(date +%s.%N)"
-    eval "${DUBS_STARTUP}"
-    print_elapsed_time "${time_0}" "eval: DUBS_STARTUP"
+    eval "${HOMEFRIES_EVAL}"
+    print_elapsed_time "${time_0}" "eval: HOMEFRIES_EVAL"
   fi
 
   # The variables have served us well; now whack 'em.
   unset -v DUBS_STARTIN
-  unset -v DUBS_STARTUP
+  unset -v HOMEFRIES_EVAL
   unset -v HOMEFRIES_TITLE
 }
 

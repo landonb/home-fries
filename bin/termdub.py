@@ -81,7 +81,7 @@ import dubspy_util
 
 # env HOMEFRIES_TITLE="" \
 #  env DUBS_STARTIN="" \
-#  env DUBS_STARTUP="" \
+#  env HOMEFRIES_EVAL="" \
 #  ${HOMEFRIES_BIN:-${HOME}/.homefries/bin}/termdub.py -t lhs
 
 class Termdub_Parser(optparse.OptionParser):
@@ -128,9 +128,9 @@ class Termdub_Parser(optparse.OptionParser):
          help='specify exact geometry for terminal window')
 
    # FIXME: Add
-   # HOMEFRIES_TITLE="" DUBS_STARTIN="" DUBS_STARTUP=""
+   # HOMEFRIES_TITLE="" DUBS_STARTIN="" HOMEFRIES_EVAL=""
    # to options, since the gnome shortcut keeps running
-   # DUBS_STARTUP for the first window (winpdb)...
+   # HOMEFRIES_EVAL for the first window (winpdb)...
    # and I can't pass an env var to termdub from the
    # gnome applet, for whatever reason.
 
