@@ -137,7 +137,6 @@ source_utils_all () {
   source_it "python_util.sh"
   source_it "ruby_util.sh"
   source_it "session_util.sh"
-  source_it "ssh_util.sh"
   # Loaded specially: "term-fzf.bash"
   # Earlier: "term_util.sh"
   source_it "time_util.sh"
@@ -258,8 +257,13 @@ home_fries_up () {
   #   Identity added: /home/.../.ssh/id_rsa (/home/.../.ssh/id_rsa)
   #   Identity added: /home/.../.ssh/identity (/home/.../.ssh/identity)
 
-  # - lib/ssh_util.sh
-  ssh_agent_kick
+  # 2020-03-18: Is this really still necessary?
+  # - Let's try... without.
+  #   - Perhaps rely on private dotfiles to kick.
+  #   - Another reason not to call on shell startup: The kick really only
+  #     needs to happen on desktop logon, i.e., once after booting machine;
+  #     and is not necessary for every shell.
+  #  ${HOMEFRIES_BIN}/ssh-agent-kick
 
   #########################
 

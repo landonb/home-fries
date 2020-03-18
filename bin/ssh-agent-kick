@@ -1,18 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 # vim:tw=0:ts=2:sw=2:et:norl:ft=sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
 # Project: https://github.com/landonb/home-fries#🍟
 # License: MIT
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-check_deps () {
-  # Verify logger.sh loaded.
-  check_dep '_sh_logger_log_msg'
-}
-
-# ============================================================================
-# *** Kick that ssh-agent.
 
 ssh_agent_kick () {
   local old_level=${LOG_LEVEL}
@@ -89,11 +81,17 @@ ssh_agent_kick () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
-  check_deps
-  unset -f check_deps
-}
+this_file_name="ssh-agent-kick"
+shell_sourced () { [ "$(basename -- "$0")" != "${this_file_name}" ]; }
+# Note that bash_sourced only meaningful if shell_sourced is true.
+bash_sourced () { declare -p FUNCNAME > /dev/null 2>&1; }
 
-main "$@"
-unset -f main
+if ! shell_sourced; then
+  ssh_agent_kick "${@}"
+else
+  bash_sourced && export -f ssh_agent_kick
+  unset this_file_name
+  unset -f shell_sourced
+  unset -f bash_sourced
+fi
 
