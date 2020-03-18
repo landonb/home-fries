@@ -44,7 +44,7 @@ export DUBS_TRACE=${DUBS_TRACE:-false}
 
 # YOU: Uncomment to show progress times.
 #  DUBS_PROFILING=${DUBS_PROFILING:-true}
-DUBS_PROFILING=${DUBS_PROFILING:-false}
+export DUBS_PROFILING=${DUBS_PROFILING:-false}
 [ -n "${TMUX}" ] && DUBS_PROFILING=true
 
 ${DUBS_TRACE} && echo "User's EUID is ${EUID}"
@@ -55,23 +55,14 @@ ${DUBS_TRACE} && echo "User's EUID is ${EUID}"
 # Carnally related:
 #   hard_path=$(dirname $(readlink -f ~/.bashrc))
 # Universally Bashy:
-hard_path="$(dirname $(readlink -f -- "${BASH_SOURCE}"))"
+hard_path="$(dirname $(readlink -f -- "${BASH_SOURCE[0]}"))"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # *** Profiling.
 
 print_elapsed_time () {
-  ! ${DUBS_PROFILING} && return
-  local time_0="$1"
-  local detail="$2"
-  local prefix="${3:-Elapsed: }"
-  local time_n=$(date +%s.%N)
-  local elapsed_fract_secs="$(echo "(${time_n} - ${time_0})" | bc -l)"
-  if [ $(echo "${elapsed_fract_secs} >= 0.05" | bc -l) -eq 1 ]; then
-    local elapsed_secs=$(echo ${elapsed_fract_secs} | xargs printf "%.2f")
-    echo "${prefix}${elapsed_secs} secs. / ${detail}"
-  fi
+  "${hard_path}/../bin/echo-elapsed" "$@"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

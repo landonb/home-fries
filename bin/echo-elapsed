@@ -1,0 +1,43 @@
+#!/bin/sh
+# vim:tw=0:ts=2:sw=2:et:norl:ft=sh
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/landonb/home-fries#🍟
+# License: MIT
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+echo_elapsed () {
+  # Optional out-opt. Useful on startup. But disabled by default
+  # to make calling this command not have to worry about setting
+  # a bool.
+  ! ${DUBS_PROFILING:-true} && return
+  local time_0="$1"
+  local detail="$2"
+  local prefix="${3:-Elapsed: }"
+  local time_n=$(date +%s.%N)
+  local elapsed_fract_secs="$(echo "(${time_n} - ${time_0})" | bc -l)"
+  if [ -z ${DUBS_PROFILING+x} ] || \
+     [ $(echo "${elapsed_fract_secs} >= 0.05" | bc -l) -eq 1 ] ; \
+  then
+    local elapsed_secs=$(echo ${elapsed_fract_secs} | xargs printf "%.2f")
+    echo "${prefix}${elapsed_secs} secs. / ${detail}"
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+this_file_name="echo-elapsed"
+shell_sourced () { [ "$(basename -- "$0")" != "${this_file_name}" ]; }
+# Note that bash_sourced only meaningful if shell_sourced is true.
+bash_sourced () { declare -p FUNCNAME > /dev/null 2>&1; }
+
+if ! shell_sourced; then
+  echo_elapsed "${@}"
+else
+  bash_sourced && export -f echo_elapsed
+  unset this_file_name
+  unset -f shell_sourced
+  unset -f bash_sourced
+fi
+
+
