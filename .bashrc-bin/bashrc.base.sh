@@ -43,12 +43,12 @@ HOMEFRIES_TIME0=$(date +%s.%N)
 export HOMEFRIES_TRACE=${HOMEFRIES_TRACE:-false}
 
 # YOU: Uncomment to show progress times.
-#  DUBS_PROFILING=${DUBS_PROFILING:-true}
-export DUBS_PROFILING=${DUBS_PROFILING:-false}
+#  HOMEFRIES_PROFILING=${HOMEFRIES_PROFILING:-true}
+export HOMEFRIES_PROFILING=${HOMEFRIES_PROFILING:-false}
 # LATER/2020-03-18: For now, showing profiling on TMUX,
 #   because I open them frequently, and I want to improve
 #   startup time. Seeing profiling of slow calls helps.
-[ -n "${TMUX}" ] && DUBS_PROFILING=true
+[ -n "${TMUX}" ] && HOMEFRIES_PROFILING=true
 
 ${HOMEFRIES_TRACE} && echo "User's EUID is ${EUID}"
 
@@ -229,7 +229,7 @@ home_fries_bashrc_cleanup () {
      || ( ( [ "${TERM}" = "screen" ] || \
             [ "${TERM}" = "screen-256color" ] ) \
           && [ -n "${TMUX}" ] ) \
-     || ( ${HOMEFRIES_TRACE} || ${DUBS_PROFILING} ) \
+     || ( ${HOMEFRIES_TRACE} || ${HOMEFRIES_PROFILING} ) \
   then
     local bashrc_time_n="$(date +%s.%N)"
     local time_elapsed=$(\
@@ -277,7 +277,7 @@ environ_cleanup () {
   unset -v HOMEFRIES_TRACE
 
   # Unset so calling echo-elapsed works without threshold being met.
-  unset -v DUBS_PROFILING
+  unset -v HOMEFRIES_PROFILING
 
   unset -v HOMEFRIES_BASHRCBIN
 

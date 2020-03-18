@@ -47,9 +47,9 @@ source_virtualenvwrapper () {
     . /usr/local/bin/virtualenvwrapper.sh
   fi
 
-  # You: Remove DUBS_PROFILING=false (or set =true) to confirm that
+  # You: Remove HOMEFRIES_PROFILING=false (or set =true) to confirm that
   # sourcing virtualenvwrapper takes a noticeable amount of time.
-  DUBS_PROFILING=false print_elapsed_time \
+  HOMEFRIES_PROFILING=false print_elapsed_time \
     "${time_outer_0}" \
     "Sourced virtualenvwrapper.sh." \
     "Sourced: "

@@ -389,7 +389,7 @@ home_fries_up () {
 
   #########################
 
-  # 2018-09-27 13:41: !!!! PROFILING/DUBS_PROFILING:
+  # 2018-09-27 13:41: !!!! PROFILING/HOMEFRIES_PROFILING:
   #   Elapsed: 0.34 min. / Action: home_fries_load_sdkman
   # Disabling until I know more! (Could be because no internet!)
   # - lib/fries_util.sh

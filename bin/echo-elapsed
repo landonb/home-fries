@@ -10,13 +10,13 @@ echo_elapsed () {
   # Optional out-opt. Useful on startup. But disabled by default
   # to make calling this command not have to worry about setting
   # a bool.
-  ! ${DUBS_PROFILING:-true} && return
+  ! ${HOMEFRIES_PROFILING:-true} && return
   local time_0="$1"
   local detail="$2"
   local prefix="${3:-Elapsed: }"
   local time_n=$(date +%s.%N)
   local elapsed_fract_secs="$(echo "(${time_n} - ${time_0})" | bc -l)"
-  if [ -z ${DUBS_PROFILING+x} ] || \
+  if [ -z ${HOMEFRIES_PROFILING+x} ] || \
      [ $(echo "${elapsed_fract_secs} >= 0.05" | bc -l) -eq 1 ] ; \
   then
     local elapsed_secs=$(echo ${elapsed_fract_secs} | xargs printf "%.2f")
