@@ -15,7 +15,7 @@ check_deps () {
 
 # Fix `rm` to be a respectable trashcan.
 home_fries_create_aliases_trash () {
-  DUBS_USE_TRASH_DIR="${DUBS_USE_TRASH_DIR:-${HOME}}"
+  RM_SAFE_TRASH_HOME="${RM_SAFE_TRASH_HOME:-${HOME}}"
   alias rm='rm_safe'
   alias rmtrash='rm_rotate'
 }
