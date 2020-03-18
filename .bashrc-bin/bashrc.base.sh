@@ -237,11 +237,12 @@ home_fries_bashrc_cleanup () {
     )
 
     # NOTE: Startup scripts will have wired PATH so logger will be found.
-    . logger.sh
-    local old_level=${LOG_LEVEL}
-    export LOG_LEVEL=${LOG_LEVEL_NOTICE}
-    notice "home-fries start-up: ${time_elapsed} secs."
-    export LOG_LEVEL=${old_level}
+    if command -v 'logger.sh' > /dev/null 2>&1; then
+      local old_level=${LOG_LEVEL}
+      export LOG_LEVEL=${LOG_LEVEL_NOTICE}
+      notice "home-fries start-up: ${time_elapsed} secs."
+      export LOG_LEVEL=${old_level}
+    fi
   fi
 
   # Tell user when running non-standard Bash.
@@ -262,8 +263,10 @@ home_fries_bashrc_cleanup () {
     custom_bash=true
   fi
   if ${custom_bash}; then
-    notice "This bash is a ${FG_LIGHTGREEN}${MK_LINE}special${RESET_UNDERLINED} bash!${MK_NORM}" \
-      "Version: ${FG_LIGHTYELLOW}${MK_LINE}${MK_BOLD}${BASH_VERSION}"
+    if command -v 'logger.sh' > /dev/null 2>&1; then
+      notice "This bash is a $(fg_lightgreen)$(attr_underline)special$(res_underline) bash!$(attr_reset)" \
+        "Version: $(fg_lightyellow)$(attr_underline)$(attr_bold)${BASH_VERSION}$(attr_reset)"
+    fi
   fi
 
   print_elapsed_time "${time_0}" "cleanup"
