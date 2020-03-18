@@ -178,7 +178,7 @@ start_somewhere_something () {
   #
   #   DUBS_STARTIN  -- Where to `cd`.
   #   DUBS_STARTUP  -- Some command to run.
-  #   DUBS_TERMNAME -- Title of the terminal window.
+  #   HOMEFRIES_TITLE -- Title of the terminal window.
 
   # Start out in the preferred development directory.
   if [ -n "${DUBS_STARTIN}" ]; then
@@ -204,7 +204,7 @@ start_somewhere_something () {
   # The variables have served us well; now whack 'em.
   unset -v DUBS_STARTIN
   unset -v DUBS_STARTUP
-  unset -v DUBS_TERMNAME
+  unset -v HOMEFRIES_TITLE
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

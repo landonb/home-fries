@@ -79,7 +79,7 @@ import time
 
 import dubspy_util
 
-# env DUBS_TERMNAME="" \
+# env HOMEFRIES_TITLE="" \
 #  env DUBS_STARTIN="" \
 #  env DUBS_STARTUP="" \
 #  ${HOMEFRIES_BIN:-${HOME}/.homefries/bin}/termdub.py -t lhs
@@ -128,7 +128,7 @@ class Termdub_Parser(optparse.OptionParser):
          help='specify exact geometry for terminal window')
 
    # FIXME: Add
-   # DUBS_TERMNAME="" DUBS_STARTIN="" DUBS_STARTUP=""
+   # HOMEFRIES_TITLE="" DUBS_STARTIN="" DUBS_STARTUP=""
    # to options, since the gnome shortcut keeps running
    # DUBS_STARTUP for the first window (winpdb)...
    # and I can't pass an env var to termdub from the
@@ -594,7 +594,7 @@ class Termdub(object):
       # the window first before bashrc runs the command, since gnome-terminal
       # doesn't update its titlebar until after bashrc completes.
 
-      termname = os.getenv('DUBS_TERMNAME')
+      termname = os.getenv('HOMEFRIES_TITLE')
       if termname is not None:
          termname = '--title "%s"' % (termname,)
       else:

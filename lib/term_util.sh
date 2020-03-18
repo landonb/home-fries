@@ -86,8 +86,8 @@ fries_format_titlebar () {
   local titlebar
   if ! $(dubs_logged_on_via_ssh); then
     # echo "User not logged on via SSH"
-    if [ "${DUBS_TERMNAME}" != '' ]; then
-      titlebar="\[\e]0;${sticky_alert}${DUBS_TERMNAME}\a\]"
+    if [ "${HOMEFRIES_TITLE}" != '' ]; then
+      titlebar="\[\e]0;${sticky_alert}${HOMEFRIES_TITLE}\a\]"
     elif [[ $(stat -c %i /) -eq 2 ]]; then
       # Not in chroot jail.
       #  titlebar="\[\e]0;\u@\h:\w\a\]"
