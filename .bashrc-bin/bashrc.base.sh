@@ -45,6 +45,9 @@ export DUBS_TRACE=${DUBS_TRACE:-false}
 # YOU: Uncomment to show progress times.
 #  DUBS_PROFILING=${DUBS_PROFILING:-true}
 export DUBS_PROFILING=${DUBS_PROFILING:-false}
+# LATER/2020-03-18: For now, showing profiling on TMUX,
+#   because I open them frequently, and I want to improve
+#   startup time. Seeing profiling of slow calls helps.
 [ -n "${TMUX}" ] && DUBS_PROFILING=true
 
 ${DUBS_TRACE} && echo "User's EUID is ${EUID}"
