@@ -166,8 +166,8 @@ source_private () {
 # ==========================================================
 
 start_somewhere_something () {
-  # Unless root, then boot.
-  [ ${EUID} -eq 0 ] && return
+  # Unless root, then boot. I.e., ${EUID} -eq 0.
+  [ $(id -u) -eq 0 ] && return
 
   # See the script:
   #
@@ -196,15 +196,15 @@ start_somewhere_something () {
     # Run the command.
     # FIXME: Does this hang the startup script? I.e., we're running the command
     #        from this script... so this better be the last command we run!
-    local time_0=$(date +%s.%N)
+    local time_0="$(date +%s.%N)"
     eval "${DUBS_STARTUP}"
     print_elapsed_time "${time_0}" "eval: DUBS_STARTUP"
   fi
 
   # The variables have served us well; now whack 'em.
-  export DUBS_STARTIN=''
-  export DUBS_STARTUP=''
-  export DUBS_TERMNAME=''
+  unset -v DUBS_STARTIN
+  unset -v DUBS_STARTUP
+  unset -v DUBS_TERMNAME
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -213,7 +213,7 @@ start_somewhere_something () {
 # =======
 
 home_fries_bashrc_cleanup () {
-  local time_0=$(date +%s.%N)
+  local time_0="$(date +%s.%N)"
 
   # Run the sourced-scripts' cleanup functions, to un-declare functions
   # (and remove cruft from user's environment).
@@ -231,8 +231,8 @@ home_fries_bashrc_cleanup () {
           && [ -n "${TMUX}" ] ) \
      || ( ${DUBS_TRACE} || ${DUBS_PROFILING} ) \
   then
-    bashrc_time_n=$(date +%s.%N)
-    time_elapsed=$(\
+    local bashrc_time_n="$(date +%s.%N)"
+    local time_elapsed=$(\
       echo "${bashrc_time_n} - ${HOMEFRIES_TIME0}" | bc -l | xargs printf "%.2f" \
     )
 
@@ -242,19 +242,14 @@ home_fries_bashrc_cleanup () {
     export LOG_LEVEL=${LOG_LEVEL_NOTICE}
     notice "home-fries start-up: ${time_elapsed} secs."
     export LOG_LEVEL=${old_level}
-
-    unset -v bashrc_time_n
-    unset -v time_elapsed
   fi
-  unset -v HOMEFRIES_TIME0
 
   # Tell user when running non-standard Bash.
   # E.g., when on local terminal invoked by launcher and running mate-terminal,
   #   $0 == '/user/home/.local/bin/bash'
   # and when on remote terminal over ssh,
   #   $0 == '-bash'
-  local custom_bash
-  custom_bash=false
+  local custom_bash=false
   if [ "$0" = 'bash' ] || [ "$0" = '-bash' ]; then
     if $(alias bash &> /dev/null); then
       if [ "$(readlink -f "$(alias bash | /bin/sed -E 's/^.* ([^ ]+\/bash\>).*/\1/')")" != '/bin/bash' ]; then
@@ -279,15 +274,15 @@ home_fries_bashrc_cleanup () {
 environ_cleanup () {
   # OCD cleanup to not pollute user's namespace (à la `env`, `set`, etc.).
 
-  unset -v HOMEFRIES_BASHRCBIN
+  unset -v DUBS_TRACE
 
   # Unset so calling echo-elapsed works without threshold being met.
   unset -v DUBS_PROFILING
 
-  unset -v HOME_FRIES_PRELOAD
+  unset -v HOMEFRIES_BASHRCBIN
 
-  unset -f main
   # Self Disembowelment.
+  unset -f main
   unset -f environ_cleanup
 }
 
@@ -319,6 +314,7 @@ main () {
   export HOME_FRIES_PRELOAD=false
   source_private
   unset -f source_private
+  unset -v HOME_FRIES_PRELOAD
 
   start_somewhere_something
   unset -f start_somewhere_something
@@ -330,6 +326,8 @@ main () {
   environ_cleanup
 
   print_elapsed_time "${time_0}" "bashrc.bash.sh" "==TOTAL: "
+  unset -f print_elapsed_time
+  unset -v HOMEFRIES_TIME0
 }
 
 main "$@"
