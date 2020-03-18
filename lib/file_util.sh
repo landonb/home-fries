@@ -154,7 +154,7 @@ mv_based_on_name () {
   [[ ! -f $src_path ]] && echo "ERROR: FILE is not: “$src_path”" && return 2
 
   local dst_base
-  dst_base=${2:-${DUBS_MEDIA_BASE}}
+  dst_base=${2:-${HOMEFRIES_MEDIA_BASE}}
   dst_base=${dst_base:-.}
 
   local copy_safe_dont_skip

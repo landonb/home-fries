@@ -173,8 +173,8 @@ start_somewhere_something () {
   #
   #   ~/.homefries/bin/termdub.py
   #
-  # which sets the DUBS_* environment variables to tell us what
-  # to do once a new terminal is ready. The three options are:
+  # which sets the HOMEFRIES_* environment variables to tell us what
+  # to do once the new session is ready. The three options are:
   #
   #   HOMEFRIES_CD  -- Where to `cd`.
   #   HOMEFRIES_EVAL  -- Some command to run.
