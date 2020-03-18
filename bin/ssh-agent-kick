@@ -8,7 +8,7 @@
 
 ssh_agent_kick () {
   local old_level=${LOG_LEVEL}
-  export LOG_LEVEL=${LOG_LEVEL_NOTICE}
+  LOG_LEVEL=${LOG_LEVEL_NOTICE}
   # Note that EUID is a Bash-ism. Check nonzero ID,
   # i.e., insist that user is not root.
   if [ $(id -u) -ne 0 ] &&
@@ -80,7 +80,7 @@ ssh_agent_kick () {
       start_agent
     fi
   fi
-  export LOG_LEVEL=${old_level}
+  LOG_LEVEL=${old_level}
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
