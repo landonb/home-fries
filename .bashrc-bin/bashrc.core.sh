@@ -56,6 +56,7 @@ check_dep () {
   ! command -v $1 &> /dev/null &&
     >&2 echo "WARNING: Missing dependency: ‘$1’"
 }
+export -f check_dep
 
 check_deps () {
   # Onus is on user to figure out how to wire these!
