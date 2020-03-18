@@ -86,7 +86,6 @@ home_fries_add_to_path_ruby_version_manager () {
 
 ruby_set_gem_path () {
   local GEM_PATHS=()
-  export GEM_PATH=''
 
   local RUBY_MINOR_ZERO=$(ruby -e "puts RUBY_VERSION.split('.')[0..1].join('.') + '.0'")
   local RUBY_VERS=$(ruby -e "puts RUBY_VERSION")
@@ -106,16 +105,17 @@ ruby_set_gem_path () {
           GEM_PATH="${GEM_PATH}:"
         fi
         GEM_PATH="${GEM_PATH}${PATH_ELEM}"
-        #echo "GEM_PATH: $GEM_PATH"
+        # echo "GEM_PATH: $GEM_PATH"
       else
-        #echo "Already added: $PATH_ELEM"
+        # echo "Already added: $PATH_ELEM"
         :
       fi
     else
-      #echo "Not a directory: $PATH_ELEM"
+      # echo "Not a directory: $PATH_ELEM"
       :
     fi
   done
+  export GEM_PATH
 
   #  echo "GEM_PATH=$GEM_PATH"
 
@@ -136,7 +136,6 @@ ruby_set_gem_path () {
 
   # 2017-06-26: For work, PATH should be to ~/.gems, not ~/.rubies.
   path_prefix "${HOME}/.gem/ruby/${RUBY_VERS}/ruby/${RUBY_MINOR_ZERO}/bin"
-
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -165,25 +164,23 @@ patch_export_chruby_use () {
     $HOMEFRIES_WARNINGS && echo "WARNING: chruby_use() not found"
   fi
 
-  # And here's our
-  #   MONKEY PATCH!
+  # See chruby_use in
+  #   /usr/local/share/chruby/chruby.sh
+  #   ${HOME}/.local/share/chruby/chruby.sh
+
+  # Here's our *monkey patch!*
   chruby_use () {
     orig_chruby_use $*
-    # See chruby_use in
-    #   /usr/local/share/chruby/chruby.sh
-    #   ${HOME}/.local/share/chruby/chruby.sh
     # MAYBE: If you need to cleanup old paths, something like this:
-    if false; then
-      export GEM_PATH="$(\
-        echo ${GEM_PATH} \
-          | /bin/sed -E "s@:?${GEM_HOME}[^:]*:@:@g" \
-          | /bin/sed -E s/^:// \
-          | /bin/sed -E s/:$//
-      )"
-    fi
+    #          GEM_PATH="$(\
+    #            echo ${GEM_PATH} \
+    #            | /bin/sed -E "s@:?${GEM_HOME}[^:]*:@:@g" \
+    #            | /bin/sed -E s/^:// \
+    #            | /bin/sed -E s/:$//
+    #          )"
     # Check if patch version.
     PATCH_NUM=$(ruby -e "puts RUBY_VERSION.split('.')[2]")
-    if [[ ${PATCH_NUM} -gt 0 ]]; then
+    if [ ${PATCH_NUM} -gt 0 ]; then
       # NOTE/2016-12-11: If there's a .ruby-version file in the current
       #   directory, running *any* command might invoke us, since auto.sh
       #   sets a trap on DEBUG which runs before every command. Just FYI.
@@ -217,7 +214,9 @@ main () {
   home_fries_add_to_path_ruby_version_manager
   unset -f home_fries_add_to_path_ruby_version_manager
 
-  ruby_set_gem_path
+  # 2020-03-18: Wait to call: takes ~0.10 to call `ruby -e` twice.
+  # - chruby_use will call ruby_set_gem_path.
+  #  ruby_set_gem_path
   # Not unsetting: ruby_set_gem_path
 
   if ! ${HOMEFRIES_CHRUBY_SETUP:-false}; then
