@@ -36,7 +36,7 @@
 # Script Setup
 # ============
 
-bashrc_time_0=$(date +%s.%N)
+HOMEFRIES_TIME0=$(date +%s.%N)
 
 # YOU: Uncomment to enable logging to stdout:
 #  export DUBS_TRACE=${DUBS_TRACE:-true}
@@ -238,7 +238,7 @@ home_fries_bashrc_cleanup () {
   then
     bashrc_time_n=$(date +%s.%N)
     time_elapsed=$(\
-      echo "${bashrc_time_n} - ${bashrc_time_0}" | bc -l | xargs printf "%.2f" \
+      echo "${bashrc_time_n} - ${HOMEFRIES_TIME0}" | bc -l | xargs printf "%.2f" \
     )
 
     # NOTE: Startup scripts will have wired PATH so logger will be found.
@@ -251,7 +251,7 @@ home_fries_bashrc_cleanup () {
     unset -v bashrc_time_n
     unset -v time_elapsed
   fi
-  unset -v bashrc_time_0
+  unset -v HOMEFRIES_TIME0
 
   # Tell user when running non-standard Bash.
   # E.g., when on local terminal invoked by launcher and running mate-terminal,
