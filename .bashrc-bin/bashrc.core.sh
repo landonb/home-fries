@@ -63,14 +63,10 @@ check_deps () {
   # - The author uses a ~/.homefries/.bashrc-bin/bashrx.private.user.sh script
   #   to put these on PATH.
   # Verify sh-colors/bin/colors.sh loaded.
-  #check_dep '_hofr_no_color'
   check_dep 'colors.sh'
   # Verify sh-logger/bin/logger.sh loaded.
-  #check_dep '_sh_logger_log_msg'
   check_dep 'logger.sh'
   # Verify sh-pather/bin/path* loaded.
-  #check_dep 'path_prefix'
-  #check_dep 'path_suffix'
   check_dep 'pather.sh'
   # Verify sh-rm_safe/bin/* loaded.
   check_dep 'rm_safe'
