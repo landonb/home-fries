@@ -220,7 +220,7 @@ home_fries_create_aliases_general () {
 
   # 2016-06-28: Stay in same dir when launching bash.
   unalias bash 2> /dev/null
-  alias bash='DUBS_STARTIN="$(pwd)" bash'
+  alias bash='HOMEFRIES_CD="$(pwd)" bash'
 
   # *** Stream editing
 

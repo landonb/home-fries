@@ -176,15 +176,15 @@ start_somewhere_something () {
   # which sets the DUBS_* environment variables to tell us what
   # to do once a new terminal is ready. The three options are:
   #
-  #   DUBS_STARTIN  -- Where to `cd`.
+  #   HOMEFRIES_CD  -- Where to `cd`.
   #   HOMEFRIES_EVAL  -- Some command to run.
   #   HOMEFRIES_TITLE -- Title of the terminal window.
 
   # Start out in the preferred development directory.
-  if [ -n "${DUBS_STARTIN}" ]; then
-    cd "${DUBS_STARTIN}"
-  elif [ -d "${DUBS_STARTIN_DEFAULT}" ]; then
-    cd "${DUBS_STARTIN_DEFAULT}"
+  if [ -n "${HOMEFRIES_CD}" ]; then
+    cd "${HOMEFRIES_CD}"
+  elif [ -d "${HOMEFRIES_CD_DEFAULT}" ]; then
+    cd "${HOMEFRIES_CD_DEFAULT}"
   fi
 
   # See: ${HOMEFRIES_BASHRCBIN}/.homefries/bin/openterms.sh for usage.
@@ -202,7 +202,7 @@ start_somewhere_something () {
   fi
 
   # The variables have served us well; now whack 'em.
-  unset -v DUBS_STARTIN
+  unset -v HOMEFRIES_CD
   unset -v HOMEFRIES_EVAL
   unset -v HOMEFRIES_TITLE
 }
