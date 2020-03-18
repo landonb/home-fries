@@ -274,6 +274,8 @@ home_fries_bashrc_cleanup () {
 environ_cleanup () {
   # OCD cleanup to not pollute user's namespace (à la `env`, `set`, etc.).
 
+  unset -v HOMEFRIES_TIME0
+
   unset -v HOMEFRIES_TRACE
 
   # Unset so calling echo-elapsed works without threshold being met.
@@ -322,12 +324,11 @@ main () {
   home_fries_bashrc_cleanup
   unset -f home_fries_bashrc_cleanup
 
-  # Cover our tracks!
-  environ_cleanup
-
   print_elapsed_time "${time_0}" "bashrc.bash.sh" "==TOTAL: "
   unset -f print_elapsed_time
-  unset -v HOMEFRIES_TIME0
+
+  # Cover our tracks!
+  environ_cleanup
 }
 
 main "$@"
