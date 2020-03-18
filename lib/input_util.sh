@@ -124,7 +124,24 @@ xinput_set_prop_touchpad_device_off () {
 #   🍄 $ xinput get-button-map 10
 #   1 2 3 4 5 6 7
 
+touched_since_up () {
+  local suffix="$1"
+  local touched_since=false
+  local touchfile
+  # See `man mktemp`: It defaults to TMPDIR or /tmp.
+  touchfile="$(find ${TMPDIR:-/tmp}/ -maxdepth 1 -type f -name "*${suffix}" | head -1)"
+  if [ -n "${touchfile}" ]; then
+    local boottouch=$(mktemp --suffix "-HOMEFRIES_TOUCHYBOOT")
+    touch -d "$(uptime -s)" "${boottouch}"
+    [ "${boottouch}" -ot "${touchfile}" ] && touched_since=true
+    /bin/rm "${boottouch}"
+  fi
+  ${touched_since}
+}
+
 logitech-middle-mouse-click-disable () {
+  local suffix="-HOMEFRIES_SET_BUTTON_MAP"
+  touched_since_up "${suffix}" && return
   # Look for Logitech M325c mouse (or, I guess, the USB receiver device, so this'll
   # probably match other models than just the M325c).
   if $(lsusb | grep "046d:c52f Logitech, Inc. Unifying Receiver" >& /dev/null); then
@@ -139,6 +156,12 @@ logitech-middle-mouse-click-disable () {
       | xargs -I % /bin/bash -c 'xinput set-button-map % 1 0 3'
     fi
   fi
+  # Leave touchfile so we skip this operation on subsequent sessions.
+  mktemp --suffix="${suffix}" > /dev/null
+}
+
+middle-mouse-click-disable () {
+  logitech-middle-mouse-click-disable
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

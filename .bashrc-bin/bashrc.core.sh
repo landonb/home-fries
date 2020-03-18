@@ -404,7 +404,7 @@ home_fries_up () {
   local time_0=$(date +%s.%N)
   logitech-middle-mouse-click-disable
   unset -f logitech-middle-mouse-click-disable
-  print_elapsed_time "${time_0}" "disable middle mouse click"
+  print_elapsed_time "${time_0}" "Action: middle-mouse-click-disable"
 
   #########################
 
