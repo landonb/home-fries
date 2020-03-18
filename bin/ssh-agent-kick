@@ -9,12 +9,15 @@
 ssh_agent_kick () {
   local old_level=${LOG_LEVEL}
   export LOG_LEVEL=${LOG_LEVEL_NOTICE}
-  if [[ ${EUID} -ne 0 \
-     && "dumb" != "${TERM}" \
-     && -e "${HOME}/.ssh" ]]; then
+  # Note that EUID is a Bash-ism. Check nonzero ID,
+  # i.e., insist that user is not root.
+  if [ $(id -u) -ne 0 ] &&
+     [ "dumb" != "${TERM}" ] &&
+     [ -e "${HOME}/.ssh" ]
+  then
     # See http://help.github.com/working-with-key-passphrases/
     SSH_ENV="${HOME}/.ssh/environment"
-    function start_agent () {
+    start_agent () {
       # echo -n "Initializing new SSH agent... "
       /usr/bin/ssh-agent | /bin/sed 's/^echo/#echo/' > "${SSH_ENV}"
       # echo "ok."
@@ -22,17 +25,18 @@ ssh_agent_kick () {
       # Source the environ the new process spit out.
       . "${SSH_ENV}" > /dev/null
       # Look for keys to load. Use cheat PWDs as appropriate.
-      local rsa_keys=$(/bin/ls ${HOME}/.ssh/*_ed25519 ${HOME}/.ssh/*_rsa 2> /dev/null)
+      local rsa_keys="$(/bin/ls ${HOME}/.ssh/*_ed25519 ${HOME}/.ssh/*_rsa 2> /dev/null)"
       for pvt_key in ${rsa_keys}; do
         local sent_passphrase=false
-        local secret_name=$(basename -- "${pvt_key}")
-        if [[ -n "${SSH_SECRETS}" \
-           && -d "${SSH_SECRETS}" \
-           && -e "${SSH_SECRETS}/${secret_name}" ]]; then
-          if [[ $(command -v expect > /dev/null && echo true) ]]; then
+        local secret_name="$(basename -- "${pvt_key}")"
+        if [ -n "${SSH_SECRETS}" ] && \
+           [ -d "${SSH_SECRETS}" ] && \
+           [ -e "${SSH_SECRETS}/${secret_name}" ]; \
+        then
+          if $(command -v expect > /dev/null); then
             # CUTE! If $pphrase has a bracket in it, e.g., "1234[", expect complains:
             #        "missing close-bracket while executing send "1234["
-            local pphrase=$(cat ${SSH_SECRETS}/${secret_name})
+            local pphrase="$(cat ${SSH_SECRETS}/${secret_name})"
             /usr/bin/expect -c " \
               spawn /usr/bin/ssh-add ${pvt_key}; \
               expect \"Enter passphrase for /home/${LOGNAME}/.ssh/${secret_name}:\"; \
@@ -44,8 +48,8 @@ ssh_agent_kick () {
           else
             notice "no expect: ignoring: ${SSH_SECRETS}/${pvt_key}"
           fi
-        elif [[ ! -d "${SSH_SECRETS}" ]]; then
-          if [[ -z ${SSH_SECRETS} ]]; then
+        elif [ ! -d "${SSH_SECRETS}" ]; then
+          if [ -z "${SSH_SECRETS}" ]; then
             notice 'No SSH_SECRETS directory defined.'
           else
             notice "No directory at: ${SSH_SECRETS}"
@@ -62,7 +66,7 @@ ssh_agent_kick () {
     }
 
     # Source SSH settings, if applicable
-    if [[ -f "${SSH_ENV}" ]]; then
+    if [ -f "${SSH_ENV}" ]; then
       # Source SSH setings.
       . "${SSH_ENV}" > /dev/null
       # Look for existing ssh-agent.
