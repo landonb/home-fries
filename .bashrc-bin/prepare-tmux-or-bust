@@ -148,8 +148,8 @@ fries_tmux_session_entitle_unless_attach_existing () {
     # Note: Using eval because select echoes "<()" aka process substitution.
     while true; do
       randname=$(eval shuf -n 1 $(_fries_tmux_session_names_select))
-      # I.e., HOME_FRIES_TMUX_START_ALPHA=${letter}
-      eval "$(tmux show-environment -g HOME_FRIES_TMUX_START_ALPHA)"
+      # I.e., HOMEFRIES_TMUX_ALPHA=${letter}
+      eval "$(tmux show-environment -g HOMEFRIES_TMUX_ALPHA)"
       # To lower.
       sname=$(echo ${randname} | tr '[:upper:]' '[:lower:]')
       # Alternatively, to lower with awk:
@@ -158,7 +158,7 @@ fries_tmux_session_entitle_unless_attach_existing () {
         tmux rename-session "${sname}"
         break
       fi
-      echo "Seat's taken: tmux ‘${sname}’ | On: ${HOME_FRIES_TMUX_START_ALPHA}"
+      echo "Seat's taken: tmux ‘${sname}’ | On: ${HOMEFRIES_TMUX_ALPHA}"
       sleep 0.1
     done
     FRIES_TMUX_UNENTITLED=false
@@ -180,12 +180,12 @@ fries_tmux_session_entitle_unless_attach_existing () {
   _fries_tmux_10lettername_starting_alpha () {
     # Choose a starting letter.
     # - To start at 'a', choose 'z':
-    #     local letter=${HOME_FRIES_TMUX_START_ALPHA:-z}
+    #     local letter=${HOMEFRIES_TMUX_ALPHA:-z}
     # - To be complicated, grab from random and munge:
     #     cat /dev/urandom | tr -dc 'a-z' | fold -w 1 | head -n 1
     # - To be nice and concise, repurpose pwgen:
     local randlr=$(pwgen -0 -A 1 1)
-    local letter=${HOME_FRIES_TMUX_START_ALPHA:-${randlr}}
+    local letter=${HOMEFRIES_TMUX_ALPHA:-${randlr}}
     # Cycle characters a..z. Wrap around from z back to a. tr is magic!
     letter="$(echo ${letter} | tr '[a-y]z' '[b-z]a')"
     # Update the tmux environment var. for the next bash session.
@@ -193,7 +193,7 @@ fries_tmux_session_entitle_unless_attach_existing () {
     # of terminals at once, as a few sessions might see the same value
     # here until the first one reaches this code. We could use a file
     # to fix that... or not care?
-    tmux set-environment -g HOME_FRIES_TMUX_START_ALPHA ${letter}
+    tmux set-environment -g HOMEFRIES_TMUX_ALPHA ${letter}
     echo ${letter}
   }
 
