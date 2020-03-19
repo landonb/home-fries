@@ -54,8 +54,12 @@ source_it () {
 
 # For sourced files to ensure things setup as expected, too.
 check_dep () {
-  ! command -v $1 > /dev/null 2>&1 &&
+  if ! command -v $1 > /dev/null 2>&1; then
     >&2 echo "WARNING: Missing dependency: ‘$1’"
+    false
+  else
+    true
+  fi
 }
 export -f check_dep
 
