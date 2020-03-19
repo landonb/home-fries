@@ -7,12 +7,9 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 check_deps () {
-  # Verify colors.sh loaded.
-  check_dep '_hofr_no_color'
-  # Verify logger.sh loaded.
-  check_dep '_sh_logger_log_msg'
-  # Verify distro_util.sh loaded.
-  check_dep 'suss_window_manager'
+  check_dep 'colors.sh'
+  check_dep 'logger.sh'
+  check_dep 'distro_util.sh'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

@@ -7,10 +7,9 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 check_deps () {
-  # Verify logger.sh loaded.
-  check_dep '_sh_logger_log_msg'
+  check_dep 'logger.sh'
   # Verify process_util.sh loaded (die, reset_errexit, tweak_errexit).
-  check_dep 'reset_errexit'
+  check_dep 'process_util.sh'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
