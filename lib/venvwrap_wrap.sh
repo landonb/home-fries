@@ -58,6 +58,9 @@ source_virtualenvwrapper () {
   fi
 }
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# `workon` lazy-loader.
 workon () {
   unset -f workon
 
