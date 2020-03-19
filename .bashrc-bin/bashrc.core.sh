@@ -67,13 +67,19 @@ check_deps () {
   # Onus is on user to figure out how to wire these!
   # - The author uses a ~/.homefries/.bashrc-bin/bashrx.private.user.sh script
   #   to put these on PATH.
+  # - Note that we're not checking that these have been sourced, just on PATH,
+  #   so check for their filename, not for functions they export.
   # Verify sh-colors/bin/colors.sh loaded.
+  #   check_dep '_hofr_no_color'
   check_dep 'colors.sh'
   # Verify sh-logger/bin/logger.sh loaded.
+  #   check_dep '_sh_logger_log_msg'
   check_dep 'logger.sh'
   # Verify sh-pather/bin/path* loaded.
+  #   check_dep '_sh_pather_path_part_remove'
   check_dep 'pather.sh'
   # Verify sh-rm_safe/bin/* loaded.
+  #   check_dep '_sh_rm_safe_device_on_which_file_resides'
   check_dep 'rm_safe'
 }
 

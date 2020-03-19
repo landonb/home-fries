@@ -7,7 +7,8 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 check_deps () {
-  check_dep 'logger.sh'
+  # Verify sh-logger/bin/logger.sh loaded.
+  check_dep '_sh_logger_log_msg'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

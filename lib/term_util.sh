@@ -6,10 +6,16 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# FIXME/2020-03-19 02:20: Add already-loaded flag to Home Fries, like Vim,
+# e.g., this file being sourced twice on startup.
+
 check_deps () {
-  check_dep 'colors.sh'
-  check_dep 'logger.sh'
-  check_dep 'distro_util.sh'
+  # Verify sh-colors/bin/colors.sh loaded.
+  check_dep '_hofr_no_color'
+  # Verify sh-logger/bin/logger.sh loaded.
+  check_dep '_sh_logger_log_msg'
+  # Verify distro_util.sh loaded.
+  check_dep 'suss_window_manager'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
