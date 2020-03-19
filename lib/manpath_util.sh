@@ -69,7 +69,7 @@ home_fries_configure_manpath () {
     local whereat
     whereat="$(path_device ${prospect})"
     if [[ ! $(echo ${whereat} | grep -E "^cryfs@") ]]; then
-      [[ -n ${newpath} ]] && newpath="${newpath}:"
+      [ -n "${newpath}" ] && newpath="${newpath}:"
       newpath="${newpath}${prospect}"
     fi
   done
