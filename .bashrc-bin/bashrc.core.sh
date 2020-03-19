@@ -112,6 +112,8 @@ source_utils_all () {
 
   source_it "process_util.sh"
   source_it "path_util.sh"
+  # Setup PATH.
+  source_it "paths_util.sh"
 
   source_it "distro_util.sh"
 
@@ -140,7 +142,7 @@ source_utils_all () {
   source_it "manpath_util.sh"
   source_it "openshift_util.sh"
   # Earlier: "path_util.sh"
-  source_it "paths_util.sh"
+  # Earlier: "paths_util.sh"
   # Earlier: "process_util.sh"
   source_it "python_util.sh"
   source_it "ruby_util.sh"
