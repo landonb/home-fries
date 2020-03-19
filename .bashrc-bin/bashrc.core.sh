@@ -31,6 +31,7 @@ source_from_user_path_or_homefries_lib () {
   local lib_file="$1"
   local time_0=$(date +%s.%N)
   ${HOMEFRIES_TRACE} && echo ". FRIES: ${lib_file}"
+  print_loading_dot
   if command -v "${lib_file}" > /dev/null; then
     # Prefer finding the script on PATH.
     . "${lib_file}"
@@ -171,6 +172,8 @@ eval_and_unset () {
 
 run_and_unset () {
   local time_0=$(date +%s.%N)
+
+  print_loading_dot
 
   eval "$@"
   unset -f "$1"

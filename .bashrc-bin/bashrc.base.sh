@@ -48,7 +48,11 @@ export HOMEFRIES_PROFILING=${HOMEFRIES_PROFILING:-false}
 # LATER/2020-03-18: For now, showing profiling on TMUX,
 #   because I open them frequently, and I want to improve
 #   startup time. Seeing profiling of slow calls helps.
-[ -n "${TMUX}" ] && HOMEFRIES_PROFILING=true
+#  [ -n "${TMUX}" ] && HOMEFRIES_PROFILING=true
+export HOMEFRIES_LOADINGDOTS=${HOMEFRIES_LOADINGDOTS:-false}
+HOMEFRIES_LOADINGSEP='.'
+[ -n "${TMUX}" ] && HOMEFRIES_LOADINGDOTS=true
+HOMEFRIES_LOADEDDOTS=''
 
 ${HOMEFRIES_TRACE} && echo "User's EUID is ${EUID}"
 
@@ -66,6 +70,33 @@ export HOMEFRIES_BASHRCBIN="$(dirname $(readlink -f -- "${BASH_SOURCE[0]}"))"
 
 print_elapsed_time () {
   "${HOMEFRIES_BASHRCBIN}/../bin/echo-elapsed" "$@"
+}
+
+print_loading_dot () {
+  ${HOMEFRIES_LOADINGDOTS:-false} || return
+  echo -n "${HOMEFRIES_LOADINGSEP}"
+  HOMEFRIES_LOADEDDOTS="${HOMEFRIES_LOADEDDOTS}${HOMEFRIES_LOADINGSEP}"
+}
+
+cleanup_loading_dots () {
+  local time_0="$1"
+
+  ${HOMEFRIES_LOADINGDOTS:-false} || return
+  echo -e -n "\r"
+  echo -e -n "${HOMEFRIES_LOADEDDOTS}" | tr "${HOMEFRIES_LOADINGSEP}" ' '
+  echo -e -n "\r"
+
+  flash_elapsed () {
+    local elapsed
+    elapsed="$(HOMEFRIES_PROFILING= "${HOMEFRIES_BASHRCBIN}/../bin/echo-elapsed" "${time_0}")"
+    echo -e -n "${elapsed} "
+    sleep 0.666
+    echo -e -n "\r"
+    echo -n "${elapsed}" | /bin/sed 's/./ /'
+    echo -e -n "\r"
+  }
+  # YOU: Uncomment for quick, forgettable elapsed display.
+  #  flash_elapsed
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -284,6 +315,11 @@ environ_cleanup () {
   # Unset so calling echo-elapsed works without threshold being met.
   unset -v HOMEFRIES_PROFILING
 
+  unset -v HOMEFRIES_LOADINGDOTS
+  unset -v HOMEFRIES_LOADINGSEP
+  unset -v HOMEFRIES_LOADEDDOTS
+  unset -f print_loading_dot
+
   unset -v HOMEFRIES_BASHRCBIN
 
   # Self Disembowelment.
@@ -329,6 +365,9 @@ main () {
 
   print_elapsed_time "${time_0}" "bashrc.bash.sh" "==TOTAL: "
   unset -f print_elapsed_time
+
+  cleanup_loading_dots "${time_0}"
+  unset -f cleanup_loading_dots
 
   # Cover our tracks!
   environ_cleanup
