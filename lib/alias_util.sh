@@ -291,6 +291,9 @@ home_fries_create_aliases_ohmyrepos () {
   #   ~12 secs, while a fancy report ran in ~78 secs, 6.5 times longer.
   # So here's that report as its own cmd, like `st`, but with a little `f`ancy.
   alias stf="OMR_MYSTATUS_FANCY=true st"
+  # 2020-03-19: Trialing simpler `sf`...
+  # FIXME/LATER/2020-03-19 17:21: Decide on 'stf' or 'sf'.
+  alias sf="OMR_MYSTATUS_FANCY=true st"
 
   # Use `stt` to print the fancy report for the current repo, followed by
   # porcelain status. Note that you might have three of the same command:
