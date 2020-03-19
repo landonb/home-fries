@@ -218,7 +218,9 @@ home_fries_up () {
   # (lb): Set MANPATH. (Specifically, cull paths to anything on a CryFS mount,
   # which makes `man <topic>` takes so many seconds to load; sheesh, annoying!)
   # - lib/paths_util.sh
-  run_and_unset "home_fries_configure_manpath"
+  # 2020-03-19: Lazy-load MANPATH when user first runs `man` in a session. #profiling
+  # - Takes ~0.14 secs otherwise!
+  #  run_and_unset "home_fries_configure_manpath"
 
   # Set umask to 0002
   # - lib/file_util.sh

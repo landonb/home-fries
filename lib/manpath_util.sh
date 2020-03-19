@@ -83,6 +83,18 @@ home_fries_configure_manpath () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# `man` lazy-loader. Sneaky sneaky. Shaves tenth sec. or so off session start.
+man () {
+  unset -f man
+
+  home_fries_configure_manpath
+  unset -f home_fries_configure_manpath
+
+  man "$@"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 main () {
   check_deps
   unset -f check_deps
