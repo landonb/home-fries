@@ -117,9 +117,21 @@ home_fries_load_nvm_and_completion () {
   #  curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash
   if [ -d "$HOME/.nvm" ]; then
     export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+    # Load `nvm`.
+    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+    # Load its completioner.
+    [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
   fi
+}
+
+# `nvm` lazy-loader. Saves ~0.09 secs. on session standup! #profiling
+nvm () {
+  unset -f nvm
+
+  home_fries_load_nvm_and_completion
+  unset -f home_fries_load_nvm_and_completion
+
+  nvm "$@"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
