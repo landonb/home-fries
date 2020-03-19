@@ -6,13 +6,11 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-check_deps () {
-  check_dep () {
-    ! command -v $1 > /dev/null 2>&1 &&
-      >&2 echo "WARNING: Missing dependency: ‘$1’"
-  }
-
-  check_dep 'colors.sh'
+source_deps () {
+  # It's expected that the user sets up PATH accordingly.
+  #   https://github.com/landonb/sh-colors
+  #   https://github.com/landonb/sh-logger
+  . "logger.sh"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -110,7 +108,7 @@ ssh_agent_kick () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-check_deps
+source_deps
 
 this_file_name="ssh-agent-kick"
 shell_sourced () { [ "$(basename -- "$0")" != "${this_file_name}" ]; }
