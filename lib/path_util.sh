@@ -340,6 +340,12 @@ symlink_local_dir () {
 
 # FIXME/2018-03-23 13:13: Verify all pushd usage in git_util.sh and travel.sh.
 
+# FIXME/2020-03-19 02:10: Replace pushd usage with cd:
+#  local before_cd="$(pwd -L)"
+#  cd "${<>}"
+#  ...
+#  cd "${before_cd}"
+
 pushd_or_die () {
   [[ -z "$1" ]] && return
   pushd "$1" &> /dev/null
