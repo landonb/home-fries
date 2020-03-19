@@ -49,10 +49,13 @@ source_virtualenvwrapper () {
 
   # You: Remove HOMEFRIES_PROFILING=false (or set =true) to confirm that
   # sourcing virtualenvwrapper takes a noticeable amount of time.
-  HOMEFRIES_PROFILING=false print_elapsed_time \
-    "${time_outer_0}" \
-    "Sourced virtualenvwrapper.sh." \
-    "Sourced: "
+  # 2020-03-18: Now that venv-wrap deferred, print_elapsed_time has been unset.
+  if command -v "print_elapsed_time" > /dev/null; then
+    HOMEFRIES_PROFILING=false print_elapsed_time \
+      "${time_outer_0}" \
+      "Sourced virtualenvwrapper.sh." \
+      "Sourced: "
+  fi
 }
 
 workon () {
