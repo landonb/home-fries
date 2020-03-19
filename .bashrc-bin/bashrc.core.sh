@@ -392,7 +392,7 @@ home_fries_up () {
   #      so we need a new strategy for this to work.
   #      (NOTE/2018-01-29: Only affects Lenovo X201, I believe.)
   # - lib/session_util.sh
-  #run_and_unset "disable_wakeup_on_lid"
+  #  run_and_unset "disable_wakeup_on_lid"
   unset -f disable_wakeup_on_lid
 
   #########################
@@ -406,7 +406,7 @@ home_fries_up () {
   #   Elapsed: 0.34 min. / Action: home_fries_load_sdkman
   # Disabling until I know more! (Could be because no internet!)
   # - lib/fries_util.sh
-  # run_and_unset "home_fries_load_sdkman"
+  #  run_and_unset "home_fries_load_sdkman"
   unset -f home_fries_load_sdkman
 
   # - lib/fries_util.sh
