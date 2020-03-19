@@ -43,16 +43,27 @@ HOMEFRIES_TIME0=$(date +%s.%N)
 export HOMEFRIES_TRACE=${HOMEFRIES_TRACE:-false}
 
 # YOU: Uncomment to show progress times.
-#  HOMEFRIES_PROFILING=${HOMEFRIES_PROFILING:-true}
+#  export HOMEFRIES_PROFILING=${HOMEFRIES_PROFILING:-true}
 export HOMEFRIES_PROFILING=${HOMEFRIES_PROFILING:-false}
-# LATER/2020-03-18: For now, showing profiling on TMUX,
-#   because I open them frequently, and I want to improve
-#   startup time. Seeing profiling of slow calls helps.
-#  [ -n "${TMUX}" ] && HOMEFRIES_PROFILING=true
+# YOU: Uncomment to show all or more startup function timings, otherwise
+#      only tasks that take longer than it (e.g., 0.12 secs.) are traced.
+#      - Note also the `export`, because echo-elapsed is its own fcn.
+#  export HOMEFRIES_PROFILE_THRESHOLD=${HOMEFRIES_PROFILE_THRESHOLD:-0}
+#  # Or perhaps with a tiny bit of filtering:
+#  export HOMEFRIES_PROFILE_THRESHOLD=${HOMEFRIES_PROFILE_THRESHOLD:-0.01}
+
+# 2020-03-19: (lb): For tmux, which already has bells and whistles
+# of its own, like a status bar, show a series of dots for each
+# bashrc task performed, than reset the line before showing the
+# prompt (so if user looked away during logon they wouldn't see
+# any evidence or trace of the dots afterwards).
+# - Note that I tried non ASCII here, the `Sb` digraph, '∙',
+#   but the for unknown reasons I ended up with 2 newlines
+#   before prompt. So sticking with a simple dot, '.', here.
 export HOMEFRIES_LOADINGDOTS=${HOMEFRIES_LOADINGDOTS:-false}
-HOMEFRIES_LOADINGSEP='.'
 [ -n "${TMUX}" ] && HOMEFRIES_LOADINGDOTS=true
 HOMEFRIES_LOADEDDOTS=''
+HOMEFRIES_LOADINGSEP='.'
 
 ${HOMEFRIES_TRACE} && echo "User's EUID is ${EUID}"
 
