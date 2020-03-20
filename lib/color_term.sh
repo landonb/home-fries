@@ -29,15 +29,11 @@ man () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 _unset_f_color_term () {
-  unset -f _alias_stripcolors
-
   # So meta.
   unset -f unset_f_color_term
 }
 
 main () {
-  _alias_stripcolors
-
   # Cleanup after self.
   _unset_f_color_term
 }
