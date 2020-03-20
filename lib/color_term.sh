@@ -6,13 +6,6 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_deps () {
-  local curdir=$(dirname -- "${BASH_SOURCE[0]}")
-  . ${curdir}/color_funcs.sh
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 _alias_stripcolors () {
   # - Strip color codes from stream. Ref:
   #   http://stackoverflow.com/questions/17998978/removing-colors-from-output
