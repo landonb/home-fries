@@ -4,6 +4,10 @@
 # Project: https://github.com/landonb/home-fries#🍟
 # License: MIT
 
+# YOU: Uncomment to re-source this file.
+#  unset -v _LOADED_HF_TERM_UTIL
+${_LOADED_HF_TERM_UTIL:-false} && return || _LOADED_HF_TERM_UTIL=true
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # FIXME/2020-03-19 02:20: Add already-loaded flag to Home Fries, like Vim,
