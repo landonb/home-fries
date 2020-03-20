@@ -93,6 +93,34 @@ man () {
   man "$@"
 }
 
+# We don't need to explicitly set the "loaded" indicator,
+# but by doing so, user can re-source file to reset this
+# man mechanism.
+_LOADED_HF_MANPATH_UTIL_MAN=false
+
+man () {
+  ${_LOADED_HF_MANPATH_UTIL_MAN:-false} &&
+    home_fries_configure_manpath
+  _LOADED_HF_MANPATH_UTIL_MAN=true
+
+  # "Want colored man pages?"
+  #   http://boredzo.org/blog/archives/2016-08-15/colorized-man-pages-understood-and-customized
+  #   https://superuser.com/questions/452034/bash-colorized-man-page
+  colorman () {
+    env \
+      LESS_TERMCAP_mb="$(printf "\e[1;31m")" \
+      LESS_TERMCAP_md="$(printf "\e[1;31m")" \
+      LESS_TERMCAP_me="$(printf "\e[0m")" \
+      LESS_TERMCAP_se="$(printf "\e[0m")" \
+      LESS_TERMCAP_so="$(printf "\e[1;44;33m")" \
+      LESS_TERMCAP_ue="$(printf "\e[0m")" \
+      LESS_TERMCAP_us="$(printf "\e[1;32m")" \
+      /usr/bin/man "$@"
+  }
+
+  colorman "$@"
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {

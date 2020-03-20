@@ -125,7 +125,6 @@ source_utils_all () {
   source_it "alias_util.sh"
   source_it "apache_util.sh"
   source_it "array_util.sh"
-  source_it "color_term.sh"
   source_it "crypt_util.sh"
   source_it "date_util.sh"
   source_it "dir_util.sh"
