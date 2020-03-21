@@ -15,6 +15,28 @@ source_deps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+_sh_ssh_agent_kick_notice_no_secrets () {
+  local prev_notice=${SSH_SECRETS_NOTICE:-0}
+  SSH_SECRETS_NOTICE="$(date +%s.%N)"
+  if [ ${prev_notice} != "0" ]; then
+    local now="$(date +%s.%N)"
+    if [ "$(echo "(${now} - ${prev_notice}) < 1.0" | bc -l)" -ne 0 ] ; then
+      # It's been less than 1 second since previous notice; don't repeat yourself
+      # so soon.
+      return
+    fi
+  fi
+
+  if [ -z "${SSH_SECRETS}" ]; then
+    notice 'No SSH_SECRETS directory defined.'
+  else
+    notice "No directory at: ${SSH_SECRETS}"
+  fi
+  notice '        Set this up yourself.'
+  notice '        To test again: ssh-agent -k'
+  notice '          and then open a new terminal.'
+}
+
 ssh_agent_kick () {
   # Note that EUID is a Bash-ism. Check nonzero ID,
   # i.e., insist that user is not root.
@@ -72,14 +94,7 @@ ssh_agent_kick () {
           notice "no expect: ignoring: ${SSH_SECRETS}/${pvt_key}"
         fi
       elif [ ! -d "${SSH_SECRETS}" ]; then
-        if [ -z "${SSH_SECRETS}" ]; then
-          notice 'No SSH_SECRETS directory defined.'
-        else
-          notice "No directory at: ${SSH_SECRETS}"
-        fi
-        notice '        Set this up yourself.'
-        notice '        To test again: ssh-agent -k'
-        notice '          and then open a new terminal.'
+        _sh_ssh_agent_kick_notice_no_secrets
       fi
       if ! ${sent_passphrase}; then
         /usr/bin/ssh-add "${pvt_key}"
