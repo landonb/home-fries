@@ -856,9 +856,28 @@ dubs_hook_filename_rubout () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# 2020-03-20: I really need to split this file into dozens of little plugs!
+# - For now, adding just another function to this really long file.
+# - I don't normally care about Ctrl-s too much, but I find that the more
+# I run Vim in a terminal (because I'm wicked into tmux panes recently),
+# the more I inadvertently type Ctrl-s, thinking that I'm saving, then
+# freaking out for a split second thinking my machine or Vim froze, to
+# getting frustrated that I typed Ctrl-s and need to Ctrl-q, then :w. Ug.
+# - tl;dr Make Ctrl-s work in terminal vim.
+# - AFAIK, XON/XOFF flow control is only used for serial connections
+#   (RS-232), so nothing lost by disabling this.
+unhook_stty_ixon_ctrl_s_xon_xoff_flow_control () {
+  # Disable XON/XOFF flow control.
+  stty -ixon
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 main () {
   check_deps
   unset -f check_deps
+
+  unhook_stty_ixon_ctrl_s_xon_xoff_flow_control
 }
 
 main "$@"
