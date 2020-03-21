@@ -866,9 +866,15 @@ dubs_hook_filename_rubout () {
 # - tl;dr Make Ctrl-s work in terminal vim.
 # - AFAIK, XON/XOFF flow control is only used for serial connections
 #   (RS-232), so nothing lost by disabling this.
+# - Ref: Some interesting background information on these settings:
+#     https://unix.stackexchange.com/questions/12107/
+#       how-to-unfreeze-after-accidentally-pressing-ctrl-s-in-a-terminal#12146
 unhook_stty_ixon_ctrl_s_xon_xoff_flow_control () {
-  # Disable XON/XOFF flow control.
-  stty -ixon
+  # Disable XON/XOFF flow control, and sending of start/stop characters,
+  # i.e., reclaim Ctrl-s and Ctrl-q.
+  # - (lb): For whatever reason, -ixoff is already default for me, even on
+  #           bash --noprofile --norc
+  stty -ixon -ixoff
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
