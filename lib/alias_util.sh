@@ -214,7 +214,9 @@ home_fries_create_aliases_general () {
   alias dff='git diff'
   # 2020-02-17: Will it be confusing to have a similar alias
   #             ('d'-double-consonant) but without the pager?
-  alias dcc='git --no-pager diff --cached'
+  #  alias dcc='git --no-pager diff --cached'
+  alias dcd='git --no-pager diff --cached'
+  alias dcc='git diff --cached'
 
   # *** Home Fries
 
