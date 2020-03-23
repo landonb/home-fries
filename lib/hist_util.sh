@@ -71,7 +71,7 @@ home_fries_configure_history () {
   # file.
 
   if [[ ! $PROMPT_COMMAND =~ "_hist_util_hook" ]]; then
-    export PROMPT_COMMAND="_hist_util_hook;$PROMPT_COMMAND"
+    export PROMPT_COMMAND="_hist_util_hook;${PROMPT_COMMAND}"
   fi
 
   # 2017-02-20: HISTFILESIZE defaults to 500...
