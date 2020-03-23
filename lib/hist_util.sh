@@ -71,7 +71,7 @@ home_fries_configure_history () {
   # file.
 
   if [[ ! $PROMPT_COMMAND =~ "_hist_util_hook" ]]; then
-    export PROMPT_COMMAND="_hist_util_hook;${PROMPT_COMMAND}"
+    PROMPT_COMMAND="_hist_util_hook;${PROMPT_COMMAND}"
   fi
 
   # 2017-02-20: HISTFILESIZE defaults to 500...
@@ -122,7 +122,7 @@ home_fries_configure_history () {
   export HISTTIMEFORMAT="%Y-%m-%d %T "
 
   # Whenever displaying the prompt, write the previous line to disk.
-  # export PROMPT_COMMAND="history -a"
+  #  PROMPT_COMMAND="history -a"
 
   # Related shell options: cmdhist, lithist.
 

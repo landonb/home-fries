@@ -277,7 +277,7 @@ dubs_set_terminal_prompt () {
 #
 #   fries_hook_titlebar_update () {
 #     if [[ ! ${PROMPT_COMMAND} =~ "_fries_term_hook" ]]; then
-#       export PROMPT_COMMAND="_fries_term_hook;${PROMPT_COMMAND}"
+#       PROMPT_COMMAND="_fries_term_hook;${PROMPT_COMMAND}"
 #     fi
 #   }
 
