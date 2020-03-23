@@ -222,7 +222,11 @@ home_fries_create_aliases_general () {
 
   # 2016-06-28: Stay in same dir when launching bash.
   unalias bash 2> /dev/null
-  alias bash='HOMEFRIES_CD="$(pwd)" bash'
+  # 2020-03-22: If run from tmux, ensure PROMPT_COMMAND unset,
+  #             lest on every command you see, e.g.,
+  #               __vte_prompt_command: command not found
+  #             (AFAIK, __vte_prompt_command added by tmux.)
+  alias bash='HOMEFRIES_CD="$(pwd)" PROMPT_COMMAND= bash'
 
   # *** Stream editing
 
