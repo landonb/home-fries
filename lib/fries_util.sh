@@ -78,24 +78,23 @@ home_fries_direxpand_completions () {
 # --- Generic completions
 
 home_fries_load_completions () {
+  [ -d "${HOMEFRIES_DIR}/bin/completions" ] || return
   # Bash command completion (for dub's apps).
-  if [ -d "${HOMEFRIES_DIR}/bin/completions" ]; then
-    # 2016-06-28: Currently just ./termdub_completion.
-    # 2016-10-30: Now with `exo` command completion.
-    # 2016-11-16: sourcing a glob doesn't work for symlinks.
-    #   . ${HOMEFRIES_DIR}/bin/completions/*
-    # I though a find -exec would work, but nope.
-    #   find ${HOMEFRIES_DIR}/bin/completions/ ! -type d -exec bash -c "source {}" \;
-    # So then just iterate, I suppose.
-    while IFS= read -r -d '' file; do
-      #echo "file = $file"
-      # Check that the file exists (could be broken symlink
-      # (e.g., symlink to unmounted encfs on fresh boot)).
-      if [ -e "${file}" ]; then
-        . ${file}
-      fi
-    done < <(find ${HOMEFRIES_DIR}/bin/completions/* -maxdepth 1 ! -path . -print0)
-  fi
+  # 2016-06-28: Currently just ./termdub_completion.
+  # 2016-10-30: Now with `exo` command completion.
+  # 2016-11-16: sourcing a glob doesn't work for symlinks.
+  #   . ${HOMEFRIES_DIR}/bin/completions/*
+  # I though a find -exec would work, but nope.
+  #   find ${HOMEFRIES_DIR}/bin/completions/ ! -type d -exec bash -c "source {}" \;
+  # So then just iterate, I suppose.
+  while IFS= read -r -d '' file; do
+    #echo "file = $file"
+    # Check that the file exists (could be broken symlink
+    # (e.g., symlink to unmounted encfs on fresh boot)).
+    if [ -e "${file}" ]; then
+      . ${file}
+    fi
+  done < <(find ${HOMEFRIES_DIR}/bin/completions/* -maxdepth 1 ! -path . -print0)
 }
 
 # --- SDKMAN
