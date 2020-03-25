@@ -21,7 +21,9 @@
 #     `git reset HEAD blurgh`  I type instead
 #     `git co -- blurgh`       -- oh no! --
 #   but I will note that since this command (comment) was added I've stopped.
-_paranoid_git () {
+# NOTE: The name of this function appears in the terminal window title, e.g.,
+#       on `git log`, the tmux window title might be, `_git_safe log | abc`.
+_git_safe () {
   local disallowed=false
   local prompt_yourself=false
 
@@ -86,7 +88,7 @@ git-bfg () {
 
 main () {
   # unalias git 2> /dev/null
-  alias git='_paranoid_git'
+  alias git='_git_safe'
 }
 
 main "$@"
