@@ -122,6 +122,35 @@ fries_format_titlebar () {
 }
 
 dubs_set_terminal_prompt () {
+  # If the user sets a custom PS1, e.g., for an `asciinema rec` demo
+  # recording, honor it.
+  # - (lb): Note that you can `export PS1` but I could not get around Bash
+  #   changing it on startup except via `export` and `--noprofile --norc`.
+  #   - For instance, if you do not export PS1, then Bash sets its own prompt:
+  #     my-crazy-prompt $ export -n PS1
+  #     my-crazy-prompt $ bash --noprofile --norc
+  #     bash-4.4$
+  #   Otherwise, if you export PS1, Bash respects it:
+  #     my-crazy-prompt $ export PS1
+  #     my-crazy-prompt $ bash --noprofile --norc
+  #     my-crazy-prompt $
+  # - Because PS1 will be set either way -- whether it's from
+  #   parent session, or whether it's from Bashrc -- we cannot
+  #   easily tell how it got set.
+  #   - We could compare against observed Bashrc defaults, e.g.,
+  #       [ "$PS1" != '\s-\v\$ ' ] && return
+  #     but that seems fragile, and it doesn't account for other
+  #     distros, or what prompt Bashrc makes for the root user.
+  #   - We could check if PS1 is marked for export, but that's
+  #     pointless, as system bashrc changes it regardless. E.g.,
+  #       # If calling process/session called `export PS1`, leave it.
+  #       declare -p | grep '^declare -x PS1=' > /dev/null && return
+  #   - So instead we use our own special environment variable.
+  if [ -n "${HOMEFRIES_TERM_UTIL_PS1}" ]; then
+    PS1="${HOMEFRIES_TERM_UTIL_PS1}"
+    return
+  fi
+
   # (lb): Note that colors.sh defines similar colors, but without
   # the ``01;`` part. I cannot remember what that component means....
   local fg_red='\[\033[01;31m\]'
