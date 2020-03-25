@@ -60,8 +60,8 @@ export HOMEFRIES_PROFILING=${HOMEFRIES_PROFILING:-false}
 # - Note that I tried non ASCII here, the `Sb` digraph, '∙',
 #   but the for unknown reasons I ended up with 2 newlines
 #   before prompt. So sticking with a simple dot, '.', here.
+[ -n "${TMUX}" ] && HOMEFRIES_LOADINGDOTS=${HOMEFRIES_LOADINGDOTS:-true}
 export HOMEFRIES_LOADINGDOTS=${HOMEFRIES_LOADINGDOTS:-false}
-[ -n "${TMUX}" ] && HOMEFRIES_LOADINGDOTS=true
 HOMEFRIES_LOADEDDOTS=''
 HOMEFRIES_LOADINGSEP='.'
 
