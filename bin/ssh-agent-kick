@@ -15,6 +15,8 @@ source_deps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# FIXME/2020-03-27 12:11: Convert to using pass store.
+
 _sh_ssh_agent_kick_notice_no_secrets () {
   local prev_notice=${SSH_SECRETS_NOTICE:-0}
   SSH_SECRETS_NOTICE="$(date +%s.%N)"
@@ -59,29 +61,30 @@ ssh_agent_kick () {
 
   local old_level=${LOG_LEVEL}
   LOG_LEVEL=${LOG_LEVEL_NOTICE}
-  LOG_LEVEL=0
 
   # See http://help.github.com/working-with-key-passphrases/
-  SSH_ENV="${HOME}/.ssh/environment"
-  start_agent () {
+  local sshenv="${HOME}/.ssh/environment"
+
+  # ***
+
+  start_agent_and_feed () {
     debug "Initializing new SSH agent... "
-    /usr/bin/ssh-agent | /bin/sed 's/^echo/#echo/' > "${SSH_ENV}"
-    chmod 600 "${SSH_ENV}"
+    /usr/bin/ssh-agent | /bin/sed 's/^echo/#echo/' > "${sshenv}"
+    chmod 600 "${sshenv}"
     # Source the environ the new process spit out.
-    . "${SSH_ENV}" > /dev/null
+    . "${sshenv}" > /dev/null
     # Look for keys to load. Use cheat PWDs as appropriate.
     local rsa_keys="$(/bin/ls ${HOME}/.ssh/*_ed25519 ${HOME}/.ssh/*_rsa 2> /dev/null)"
     debug "rsa_keys=${rsa_keys}"
     for pvt_key in ${rsa_keys}; do
       local sent_passphrase=false
       local secret_name="$(basename -- "${pvt_key}")"
-      debug "secret_name=${secret_name}"
       if [ -n "${SSH_SECRETS}" ] && \
          [ -d "${SSH_SECRETS}" ] && \
          [ -e "${SSH_SECRETS}/${secret_name}" ]; \
       then
         if $(command -v expect > /dev/null); then
-          debug "SSH_SECRETS/secret_name=${SSH_SECRETS}/${secret_name}"
+          debug "secret_name=${SSH_SECRETS}/${secret_name}"
           # CUTE! If $pphrase has a bracket in it, e.g., "1234[", expect complains:
           #        "missing close-bracket while executing send "1234["
           local pphrase="$(cat ${SSH_SECRETS}/${secret_name})"
@@ -101,25 +104,64 @@ ssh_agent_kick () {
       fi
       if ! ${sent_passphrase}; then
         /usr/bin/ssh-add "${pvt_key}"
+        sent_passphrase=true
+      fi
+      if ${sent_passphrase}; then
+        # Set global variable telling caller we called ssh-add.
+        # - (lb): I use to trip a one-time message on v. first logon post boot.
+        # - Code that cares can `unset -v` to have variable set again on next
+        #   kick; or code can set =false to disable and have kick avoid resetting.
+        [ -z ${SSH_ENV_FRESH+x} ] && SSH_ENV_FRESH=true
       fi
     done
     # Test: ssh-agent -k # then, open a terminal (or call ssh_agent_kick).
   }
 
-  # Source SSH settings, if applicable
-  if [ -f "${SSH_ENV}" ]; then
-    # Source SSH setings.
-    . "${SSH_ENV}" > /dev/null
-    # Look for existing ssh-agent.
-    ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
-      start_agent
-      # Set global variable telling caller we called ssh-add.
-      export SSH_ENV_FRESH=true
-      # It's up to whatever code that cares to `unset SSH_ENV_FRESH`.
-    }
-  else
-    start_agent
+  ps_by_grep () {
+    ps -ef | grep '\bssh-agent$'
+  }
+
+  is_running_ps () {
+    ps_by_grep > /dev/null
+  }
+
+  # We could care about defunct but they do no harm, just confusion.
+  #  is_defunct_ps () {
+  #    ps -ef | grep '\[ssh-agent\] <defunct>$' > /dev/null
+  #  }
+
+  ps_by_pid () {
+    ps --no-headers -p ${SSH_AGENT_PID}
+  }
+
+  is_running_pid () {
+    [ -z "${SSH_AGENT_PID}" ] && return 1
+    ps_by_pid > /dev/null
+  }
+
+  is_defunct_pid () {
+    [ -z "${SSH_AGENT_PID}" ] && return 1
+    ps_by_pid | grep ' <defunct>$' > /dev/null
+  }
+
+  # ***
+
+  # Source (potentially invalid) SSH settings (if agent-created file exists).
+  if [ -f "${sshenv}" ]; then
+    . "${sshenv}" > /dev/null
   fi
+
+  if is_running_ps || (is_running_pid && ! is_defunct_pid); then
+    notice "agent running: use \`ssh-agent -k\` to kill"
+    if ! (is_running_ps && is_running_pid); then
+      warn "ssh-agent: !(ps && pid)."
+      ps_by_grep
+      return 1
+    fi
+    return 0
+  fi
+
+  start_agent_and_feed
 
   LOG_LEVEL=${old_level}
 }
