@@ -38,24 +38,24 @@ _sh_ssh_agent_kick_notice_no_secrets () {
 }
 
 ssh_agent_kick () {
-  # Note that EUID is a Bash-ism. Check nonzero ID,
-  # i.e., insist that user is not root.
+  # Note that EUID is a Bash-ism, so using `id` instead.
+  # - Check nonzero ID, i.e., insist that user is not root.
   if [ $(id -u) -eq 0 ]; then
     >&2 echo "ERROR: Please try again as not root."
     return 1
   fi
-  # 2020-03-18: (lb): I do not recall why checking TERM matters. Adding
-  # ERROR message, so I'll at least know if/when this'd be called.
+  # 2020-03-18: (lb): I do not recall why checking TERM matters.
+  # - Adding ERROR message, at least I'll know if/when it's called.
   if [ "${TERM}" = "dumb" ]; then
     >&2 echo "ERROR: Not an appropriate context: TERM too dumb."
     return 1
   fi
-  # Pretty obvi. No .ssh/: nothing to do.
+  # Pretty obvious: Lacking .ssh/, do nothing.
   if [ ! -e "${HOME}/.ssh" ]; then
     >&2 echo "ERROR: User's ~/.ssh not online; nothing to kick!"
     return 1
   fi
-  # Not we made it!
+  # Now we made it!
 
   local old_level=${LOG_LEVEL}
   LOG_LEVEL=${LOG_LEVEL_NOTICE}
