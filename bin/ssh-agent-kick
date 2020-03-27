@@ -59,26 +59,29 @@ ssh_agent_kick () {
 
   local old_level=${LOG_LEVEL}
   LOG_LEVEL=${LOG_LEVEL_NOTICE}
+  LOG_LEVEL=0
 
   # See http://help.github.com/working-with-key-passphrases/
   SSH_ENV="${HOME}/.ssh/environment"
   start_agent () {
-    # echo -n "Initializing new SSH agent... "
+    debug "Initializing new SSH agent... "
     /usr/bin/ssh-agent | /bin/sed 's/^echo/#echo/' > "${SSH_ENV}"
-    # echo "ok."
     chmod 600 "${SSH_ENV}"
     # Source the environ the new process spit out.
     . "${SSH_ENV}" > /dev/null
     # Look for keys to load. Use cheat PWDs as appropriate.
     local rsa_keys="$(/bin/ls ${HOME}/.ssh/*_ed25519 ${HOME}/.ssh/*_rsa 2> /dev/null)"
+    debug "rsa_keys=${rsa_keys}"
     for pvt_key in ${rsa_keys}; do
       local sent_passphrase=false
       local secret_name="$(basename -- "${pvt_key}")"
+      debug "secret_name=${secret_name}"
       if [ -n "${SSH_SECRETS}" ] && \
          [ -d "${SSH_SECRETS}" ] && \
          [ -e "${SSH_SECRETS}/${secret_name}" ]; \
       then
         if $(command -v expect > /dev/null); then
+          debug "SSH_SECRETS/secret_name=${SSH_SECRETS}/${secret_name}"
           # CUTE! If $pphrase has a bracket in it, e.g., "1234[", expect complains:
           #        "missing close-bracket while executing send "1234["
           local pphrase="$(cat ${SSH_SECRETS}/${secret_name})"
