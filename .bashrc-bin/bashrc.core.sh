@@ -270,12 +270,10 @@ home_fries_up () {
   #   Identity added: /home/.../.ssh/id_rsa (/home/.../.ssh/id_rsa)
   #   Identity added: /home/.../.ssh/identity (/home/.../.ssh/identity)
 
-  # 2020-03-18: Is this really still necessary?
-  # - Let's try... without.
-  #   - Perhaps rely on private dotfiles to kick.
-  #   - Another reason not to call on shell startup: The kick really only
-  #     needs to happen on desktop logon, i.e., once after booting machine;
-  #     and is not necessary for every shell.
+  # NOTE: No longer calling ssh-kick-agent.
+  # - YOU: Call from private dotfiles or crypt-mount script, etc.
+  #   - (lb): E.g., I only need to call on one of my machines, after I
+  #     logon and run a crypt-mount script that brings ~/.ssh online.
   #  ${HOMEFRIES_BIN}/ssh-agent-kick
 
   #########################
