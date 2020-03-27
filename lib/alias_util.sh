@@ -333,6 +333,12 @@ home_fries_create_aliases_ohmyrepos () {
 
   # Auto commit. Things like notes files, Vim spell file, .vimprojects, etc.
   alias aci="mr -d / autocommit -y"
+
+  # 2020-03-25: Is this completely insane?
+  alias gb='git br'
+  alias gr='git r'
+  alias g='git r && git br && sf'
+  alias g='sf && git br && git r'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
