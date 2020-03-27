@@ -128,8 +128,12 @@ ssh_agent_kick () {
 
 source_deps
 
-this_file_name="ssh-agent-kick"
-shell_sourced () { [ "$(basename -- "$0")" != "${this_file_name}" ]; }
+shell_sourced () {
+  for filename in "ssh-agent-kick" "ssh-kick-agent"; do
+    [ "$(basename -- "$0")" = "${filename}" ] && return 1
+  done
+  true
+}
 # Note that bash_sourced only meaningful if shell_sourced is true.
 bash_sourced () { declare -p FUNCNAME > /dev/null 2>&1; }
 
