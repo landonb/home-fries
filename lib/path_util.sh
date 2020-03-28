@@ -51,7 +51,7 @@ flock_dir () {
   # Use -1 to mean forever, 0 to ignore, or max. # of secs.
   local FLOCKING_TIMELIMIT=${5:-0}
 
-  if [[ -z $FLOCKING_DIR_PATH ]]; then
+  if [ -z "${FLOCKING_DIR_PATH}" ]; then
     echo "Missing flock dir path"
     exit 1
   fi
@@ -63,12 +63,12 @@ flock_dir () {
   $DEBUG_TRACE && echo "Attempting grab on mutex: ${FLOCKING_DIR_PATH}"
 
   local resp=$(/bin/mkdir "${FLOCKING_DIR_PATH}" 2>&1)
-  if [[ $? -eq 0 ]]; then
+  if [ $? -eq 0 ]; then
     # We made the directory, meaning we got the mutex.
     $DEBUG_TRACE && echo "Got mutex: yes, running script."
     $DEBUG_TRACE && echo ""
     not_got_lock=0
-  elif [[ ${DONT_FLOCKING_CARE} -eq 1 ]]; then
+  elif [ ${DONT_FLOCKING_CARE} -eq 1 ]; then
     # We were unable to make the directory, but the dev. wants us to go on.
     #
     # E.g., mkdir: cannot create directory `tmp': File exists
@@ -130,8 +130,8 @@ flock_dir () {
       #       once in a while).
       #
       local spoken_once=false
-      while [[ ${FLOCKING_RE_TRIES} -ne 0 ]]; do
-        if [[ ${FLOCKING_RE_TRIES} -gt 0 ]]; then
+      while [ ${FLOCKING_RE_TRIES} -ne 0 ]; do
+        if [ ${FLOCKING_RE_TRIES} -gt 0 ]; then
           FLOCKING_RE_TRIES=$((FLOCKING_RE_TRIES - 1))
         fi
         # Pick a random number btw. 1 and 10.
@@ -153,7 +153,7 @@ flock_dir () {
         local fcn_time_1=$(date +%s.%N)
         local elapsed_time=$(echo "($fcn_time_1 - $fcn_time_0) / 1.0" | bc -l)
         # See if we made it.
-        if [[ ${success} -eq 0 ]]; then
+        if [ ${success} -eq 0 ]; then
           $DEBUG_TRACE && echo "Got mutex: took: ${elapsed_time} secs." \
                                 "/ tries left: ${FLOCKING_RE_TRIES}."
           $DEBUG_TRACE && echo ""
@@ -171,7 +171,7 @@ flock_dir () {
             # There's still time left, but see if an echo is in order.
             local last_spoken=$(echo "($fcn_time_1 - $spoken_time_0) / 1.0" | bc -l)
             # What's a good time here? Every ten minutes?
-            if [[ $last_spoken -gt 600 ]]; then
+            if [ $last_spoken -gt 600 ]; then
               local elapsed_mins=$(echo "($fcn_time_1 - $fcn_time_0) / 60.0" | bc -l)
               $DEBUG_TRACE && echo "Update: Mutex still in use after: "\
                                    "${elapsed_mins} mins.; still trying..."
@@ -184,12 +184,12 @@ flock_dir () {
     fi
   fi
 
-  if [[ ${not_got_lock} -eq 0 ]]; then
+  if [ ${not_got_lock} -eq 0 ]; then
     /bin/chmod 2777 "${FLOCKING_DIR_PATH}" &> /dev/null
     # Let the world know who's the boss
     local script_name=$(basename -- "$0")
     /bin/mkdir -p "${FLOCKING_DIR_PATH}-${script_name}"
-  elif [[ ${FLOCKING_REQUIRED} -ne 0 ]]; then
+  elif [ ${FLOCKING_REQUIRED} -ne 0 ]; then
     $DEBUG_TRACE && echo "Mutex in use: giving up!"
 
     $DEBUG_TRACE && echo "Could not secure flock dir: Bailing now."
@@ -275,7 +275,7 @@ symlink_infuse_path () {
 symlink_infuse_file () {
   local source_f="$1"
   local target_f="$2"
-  if [[ ! -f "${source_f}" ]]; then
+  if [ ! -f "${source_f}" ]; then
     warn "ERROR: symlink_infuse_file: source is not a file: ${source_f}"
     return 1
   fi
@@ -289,14 +289,14 @@ symlink_local_file () {
 symlink_infuses_files_first () {
   local target_f="$1"
   shift
-  if [[ ! -e "${target_f}" || -h "${target_f}" ]]; then
+  if [ ! -e "${target_f}" ] || [ -h "${target_f}" ]; then
     local source_f
     local found_one=false
     for source_f in "$@"; do
       if [[ -e ${source_f} ]]; then
         info "Symlinking: ${source_f}"
         /bin/ln -sf "${source_f}" "${target_f}"
-        if [[ $? -ne 0 ]]; then
+        if [ $? -ne 0 ]; then
           error "Failed to create symlink! ${source_f}"
         fi
         found_one=true
@@ -317,7 +317,7 @@ symlink_infuses_files_first () {
 symlink_infuse_dir () {
   local source_f="$1"
   local target_f="$2"
-  if [[ ! -d "${source_f}" ]]; then
+  if [ ! -d "${source_f}" ]; then
     warn "ERROR: symlink_infuse_dir: source is not a directory: ${source_f}"
     return 1
   fi
@@ -347,18 +347,18 @@ symlink_local_dir () {
 #  cd "${before_cd}"
 
 pushd_or_die () {
-  [[ -z "$1" ]] && return
+  [ -z "$1" ] && return
   pushd "$1" &> /dev/null
-  [[ $? -ne 0 ]] && error "No such path: $1" && error " working dir: $(pwd -P)" && die
+  [ $? -ne 0 ] && error "No such path: $1" && error " working dir: $(pwd -P)" && die
   # Be sure to return a zero success value: If we left the `$? -ne 0`
   # as the last line, it'll trigger errexit!
   return 0
 }
 
 popd_perhaps () {
-  [[ -z "$1" ]] && return
+  [ -z "$1" ] && return
   popd &> /dev/null
-  [[ $? -ne 0 ]] && error "Unexpected popd failure in: $(pwd -P)" && die
+  [ $? -ne 0 ] && error "Unexpected popd failure in: $(pwd -P)" && die
   return 0
 }
 

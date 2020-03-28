@@ -40,13 +40,13 @@ home_fries_create_aliases_general () {
   #         mv. '*' some/place
   #
   mv_dotglob () {
-    if [[ -z "$1" && -z "$2" ]]; then
+    if [ -z "$1" ] && [ -z "$2" ]; then
       echo "mv_gotglob: missing args weirdo"
     fi
     shopt -s dotglob
     # or,
     #  set -f
-    if [[ $1 == '-f' ]]; then
+    if [ "$1" = '-f' ]; then
       /bin/mv $*
     else
       mv $*

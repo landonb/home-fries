@@ -150,8 +150,8 @@ fi
 
 mv_based_on_name () {
   local src_path=$1
-  [[ -z $src_path ]] && echo 'USAGE: mv_based_on_name FILE-PATH [TARGET-BASE]' && return 1
-  [[ ! -f $src_path ]] && echo "ERROR: FILE is not: “$src_path”" && return 2
+  [ -z "${src_path}" ] && echo 'USAGE: mv_based_on_name FILE-PATH [TARGET-BASE]' && return 1
+  [ ! -f "${src_path}" ] && echo "ERROR: FILE is not: “$src_path”" && return 2
 
   local dst_base
   dst_base=${2:-${HOMEFRIES_MEDIA_BASE}}
@@ -167,7 +167,7 @@ mv_based_on_name () {
     /bin/sed -E 's#.*(^|/)(IMG_|VID_)?([0-9]{4})([0-9]{2})([0-9]{2})_(.*)$#'${dst_base}'/\3/\4/\3_\4_\5#' \
   )"
 
-  if [[ "$src_path" == "$dst_subd" ]]; then
+  if [ "$src_path" = "$dst_subd" ]; then
     dst_subd="$( \
       echo "$src_path" | \
       /bin/sed -E 's#.*(^|/)([0-9]{4})_([0-9]{2})_([0-9]{2})/(IMG_|VID_)(.*)$#'${dst_base}'/\2/\3/\2_\3_\4#' \
@@ -184,7 +184,7 @@ mv_based_on_name () {
   local dst_path
   dst_path="${dst_subd}/${dst_file}"
 
-  if [[ -e "${dst_path}" || -h "${dst_path}" ]]; then
+  if [ -e "${dst_path}" ] || [ -h "${dst_path}" ]; then
     # MEH/2019-04-25: We could add a `diff` here to skip/not copy if not changed.
     # - (lb): But all my use cases are to use fdupes beforehand, so... hrmmm.....
     if diff "${src_path}" "${dst_path}"; then

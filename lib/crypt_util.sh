@@ -78,7 +78,7 @@
 #         ...
 #
 home_fries_mlocate_wire_private_db () {
-  if [[ -f ${HOME}/.mlocate/mlocate.db ]]; then
+  if [ -f "${HOME}/.mlocate/mlocate.db" ]; then
     alias locate="cat ${HOME}/.mlocate/mlocate.db | /usr/bin/locate -d-"
   fi
 }
