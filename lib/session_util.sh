@@ -298,6 +298,38 @@ alias function_exists=fn_exists
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# 2020-03-27: I added this to help ssh-agent-kick check the env file,
+#               HOMEFRIES_SSH_ENV="${HOME}/.ssh/environment"
+#             to see if it had been created since user logged on.
+#             - Then I realized I didn't need to.
+#               So I'm recording this function to have a copy of it,
+#               but note that nothing calls it,
+#               and my feelings won't be hurt if you remove it.
+touched_since_logged_on_desktop () {
+  local cmpfile="$1"
+  local touched_since=false
+
+  # $ last -1 --fulltimes
+  # user  tty7         :0               Fri Mar 27 17:25:50 2020   gone - no logout
+  #
+  # wtmp begins Wed Mar  4 20:06:32 2020
+  #
+  # $ last -1 --fulltimes | head -1 | /bin/sed -E 's/ +/ /g' | cut -d' ' -f4-8
+  # Fri Mar 27 17:25:50 2020
+  local logontime
+  logontime="$(last -1 --fulltimes | head -1 | /bin/sed -E 's/ +/ /g' | cut -d' ' -f4-8)"
+
+  # See `man mktemp`: It defaults to TMPDIR or /tmp.
+  local logontouch=$(mktemp --suffix "-HOMEFRIES_TOUCHYLOGON")
+  touch -d "${logontime}" "${logontouch}"
+  [ "${logontouch}" -ot "${cmpfile}" ] && touched_since=true
+  /bin/rm "${logontouch}"
+
+  ${touched_since}
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 main () {
   check_deps
   unset -f check_deps
