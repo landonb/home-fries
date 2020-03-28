@@ -330,6 +330,23 @@ touched_since_logged_on_desktop () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+touched_since_up () {
+  local suffix="$1"
+  local touched_since=false
+  local touchfile
+  # See `man mktemp`: It defaults to TMPDIR or /tmp.
+  touchfile="$(find ${TMPDIR:-/tmp}/ -maxdepth 1 -type f -name "*${suffix}" | head -1)"
+  if [ -n "${touchfile}" ]; then
+    local boottouch=$(mktemp --suffix "-HOMEFRIES_TOUCHYBOOT")
+    touch -d "$(uptime -s)" "${boottouch}"
+    [ "${boottouch}" -ot "${touchfile}" ] && touched_since=true
+    /bin/rm "${boottouch}"
+  fi
+  ${touched_since}
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 main () {
   check_deps
   unset -f check_deps
