@@ -1,0 +1,59 @@
+#!/bin/sh
+# vim:tw=0:ts=2:sw=2:et:norl:ft=sh
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/landonb/home-fries#🍟
+# License: MIT
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+ps_ssh_agent_all () {
+  ps -ef | grep -e '\bssh-agent[ $]' | grep -v 'grep'
+}
+
+ps_ssh_agent_ids () {
+  ps_ssh_agent_all | awk '{print $2}'
+}
+
+ssh_agent_kill () {
+  # We could try relying on $SSH_AGENT_PID and just call ssh-agent -k, e.g.,
+  #
+  #   /usr/bin/ssh-agent -k
+  #
+  # or we could load *our* environment file and try its pid, e.g.,
+  #
+  #   local sshenv="${HOME}/.ssh/environment"
+  #   [ -f "${sshenv}" ] && . "${sshenv}"
+  #   /usr/bin/ssh-agent -k
+  #
+  # but sometimes you have more than one ssh-agent, or maybe the environ
+  # no longer matches. So you want a more sure-fire solution. Just `ps`.
+
+  # NOTE: No quotes, so newlines excluded.
+  notice Killing: $(ps_ssh_agent_ids)
+  ps_ssh_agent_ids | xargs kill
+
+  local HOMEFRIES_SSH_ENV="${HOME}/.ssh/environment"
+  notice "Removing: ${HOMEFRIES_SSH_ENV}"
+  /bin/rm -f "${HOMEFRIES_SSH_ENV}"
+
+  notice "Unsetting: SSH_*"
+  unset -v SSH_AGENT_PID
+  unset -v SSH_AUTH_SOCK
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+this_file_name="ssh-agent-kill"
+shell_sourced () { [ "$(basename -- "$0")" != "${this_file_name}" ]; }
+# Note that bash_sourced only meaningful if shell_sourced is true.
+bash_sourced () { declare -p FUNCNAME > /dev/null 2>&1; }
+
+if ! shell_sourced; then
+  ssh_agent_kill "${@}"
+else
+  bash_sourced && export -f ssh_agent_kill
+  unset this_file_name
+  unset -f shell_sourced
+  unset -f bash_sourced
+fi
+

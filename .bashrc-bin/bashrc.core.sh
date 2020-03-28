@@ -146,6 +146,7 @@ source_utils_all () {
   source_it "python_util.sh"
   source_it "ruby_util.sh"
   source_it "session_util.sh"
+  source_it "ssh_util.sh"
   # Loaded specially: "term-fzf.bash"
   # Earlier: "term_util.sh"
   source_it "time_util.sh"
