@@ -270,7 +270,7 @@ home_fries_up () {
   #   Identity added: /home/.../.ssh/id_rsa (/home/.../.ssh/id_rsa)
   #   Identity added: /home/.../.ssh/identity (/home/.../.ssh/identity)
 
-  # NOTE: No longer calling ssh-kick-agent.
+  # NOTE: No longer calling ssh-agent-kick.
   # - YOU: Call from private dotfiles or crypt-mount script, etc.
   #   - (lb): E.g., I only need to call on one of my machines, after I
   #     logon and run a crypt-mount script that brings ~/.ssh online.
