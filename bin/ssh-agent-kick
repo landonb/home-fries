@@ -4,7 +4,29 @@
 # Project: https://github.com/landonb/home-fries#🍟
 # License: MIT
 
+# FIXME/2020-03-27 12:11: Convert to using pass store, not $SSH_SECRETS dir.
+
+# USAGE: Call once after logging on.
+#
+# If you're having issues, you might want to try
+# `ssh-agent -k` or use `ps -ef | grep ssh-agent`
+# to find and kill existing agents.
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+check_dep () {
+  if ! command -v $1 > /dev/null 2>&1; then
+    >&2 echo "WARNING: Missing dependency: ‘$1’"
+    false
+  else
+    true
+  fi
+}
+
+check_deps () {
+  # Verify sh-logger/bin/logger.sh loaded.
+  check_dep 'expect' || exit 1
+}
 
 source_deps () {
   # It's expected that the user sets up PATH accordingly.
@@ -15,9 +37,12 @@ source_deps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# FIXME/2020-03-27 12:11: Convert to using pass store.
+gripe_secrets_absent () {
+  [ -n "${SSH_SECRETS}" ] && [ -d "${SSH_SECRETS}" ] && return 1
+  # We could return and not care if [ ! -z ${SSH_SECRETS+x} ], i.e.,
+  # so called could set SSH_SECRETS= to disable. But this script is
+  # called deliberately, so we'll tell user how to use it.
 
-_sh_ssh_agent_kick_notice_no_secrets () {
   local prev_notice=${SSH_SECRETS_NOTICE:-0}
   SSH_SECRETS_NOTICE="$(date +%s.%N)"
   if [ ${prev_notice} != "0" ]; then
@@ -25,152 +50,295 @@ _sh_ssh_agent_kick_notice_no_secrets () {
     if [ "$(echo "(${now} - ${prev_notice}) < 1.0" | bc -l)" -ne 0 ] ; then
       # It's been less than 1 second since previous notice; don't repeat yourself
       # so soon.
-      return
+      return 0
     fi
   fi
 
   if [ -z "${SSH_SECRETS}" ]; then
-    notice 'No SSH_SECRETS directory defined.'
+    warn 'Undefined: Please set SSH_SECRETS to the secrets path.'
   else
-    notice "No directory at: ${SSH_SECRETS}"
+    warn "Missing: No directory at SSH_SECRETS: ${SSH_SECRETS}"
   fi
-  notice '        Set this up yourself.'
-  notice '        To test again: ssh-agent -k'
-  notice '          and then open a new terminal.'
+  return 0
 }
 
-ssh_agent_kick () {
+verify_sanity () {
   # Note that EUID is a Bash-ism, so using `id` instead.
   # - Check nonzero ID, i.e., insist that user is not root.
   if [ $(id -u) -eq 0 ]; then
-    >&2 echo "ERROR: Please try again as not root."
+    >&2 warn "ERROR: Please try again as not root."
     return 1
   fi
   # 2020-03-18: (lb): I do not recall why checking TERM matters.
   # - Adding ERROR message, at least I'll know if/when it's called.
   if [ "${TERM}" = "dumb" ]; then
-    >&2 echo "ERROR: Not an appropriate context: TERM too dumb."
+    >&2 warn "ERROR: Not an appropriate context: TERM too dumb."
     return 1
   fi
   # Pretty obvious: Lacking .ssh/, do nothing.
   if [ ! -e "${HOME}/.ssh" ]; then
-    >&2 echo "ERROR: User's ~/.ssh not online; nothing to kick!"
+    >&2 warn "ERROR: User's ~/.ssh not online; nothing to kick!"
     return 1
   fi
+  gripe_secrets_absent && return 1
   # Now we made it!
+  return 0
+}
 
-  local old_level=${LOG_LEVEL}
-  LOG_LEVEL=${LOG_LEVEL_NOTICE}
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-  # See http://help.github.com/working-with-key-passphrases/
-  local sshenv="${HOME}/.ssh/environment"
+# See http://help.github.com/working-with-key-passphrases/
+HOMEFRIES_SSH_ENV="${HOME}/.ssh/environment"
 
-  # ***
+start_agent () {
+  notice "Initializing new SSH agent."
+  # Around web you'll also see:
+  #   eval `ssh-agent -s`
+  # but we save to a file instead, and source that.
+  /usr/bin/ssh-agent | /bin/sed 's/^echo/# echo/' > "${HOMEFRIES_SSH_ENV}"
+  chmod 600 "${HOMEFRIES_SSH_ENV}"
+  # Source the SSH_* environs the new process spits out.
+  . "${HOMEFRIES_SSH_ENV}" > /dev/null
+}
 
-  start_agent_and_feed () {
-    debug "Initializing new SSH agent... "
-    /usr/bin/ssh-agent | /bin/sed 's/^echo/#echo/' > "${sshenv}"
-    chmod 600 "${sshenv}"
-    # Source the environ the new process spit out.
-    . "${sshenv}" > /dev/null
-    # Look for keys to load. Use cheat PWDs as appropriate.
-    local rsa_keys="$(/bin/ls ${HOME}/.ssh/*_ed25519 ${HOME}/.ssh/*_rsa 2> /dev/null)"
-    debug "rsa_keys=${rsa_keys}"
-    for pvt_key in ${rsa_keys}; do
-      local sent_passphrase=false
-      local secret_name="$(basename -- "${pvt_key}")"
-      if [ -n "${SSH_SECRETS}" ] && \
-         [ -d "${SSH_SECRETS}" ] && \
-         [ -e "${SSH_SECRETS}/${secret_name}" ]; \
-      then
-        if $(command -v expect > /dev/null); then
-          debug "secret_name=${SSH_SECRETS}/${secret_name}"
-          # CUTE! If $pphrase has a bracket in it, e.g., "1234[", expect complains:
-          #        "missing close-bracket while executing send "1234["
-          local pphrase="$(cat ${SSH_SECRETS}/${secret_name})"
-          /usr/bin/expect -c " \
-            spawn /usr/bin/ssh-add ${pvt_key}; \
-            expect \"Enter passphrase for /home/${LOGNAME}/.ssh/${secret_name}:\"; \
-            send \"${pphrase}\n\"; \
-            interact ; \
-          "
-          unset -v pphrase
-          sent_passphrase=true
-        else
-          notice "no expect: ignoring: ${SSH_SECRETS}/${pvt_key}"
-        fi
-      elif [ ! -d "${SSH_SECRETS}" ]; then
-        _sh_ssh_agent_kick_notice_no_secrets
-      fi
-      if ! ${sent_passphrase}; then
-        /usr/bin/ssh-add "${pvt_key}"
-        sent_passphrase=true
-      fi
-      if ${sent_passphrase}; then
-        # Set global variable telling caller we called ssh-add.
-        # - (lb): I use to trip a one-time message on v. first logon post boot.
-        # - Code that cares can `unset -v` to have variable set again on next
-        #   kick; or code can set =false to disable and have kick avoid resetting.
-        [ -z ${SSH_ENV_FRESH+x} ] && SSH_ENV_FRESH=true
-      fi
-    done
-    # Test: ssh-agent -k # then, open a terminal (or call ssh_agent_kick).
-  }
+# write_env () {
+#   cat << EOF > "${HOMEFRIES_SSH_ENV}"
+# # Via ssh-agent-kick!
+# SSH_AUTH_SOCK=${SSH_AUTH_SOCK}; export SSH_AUTH_SOCK;
+# SSH_AGENT_PID=${SSH_AGENT_PID}; export SSH_AGENT_PID;
+# # echo Agent pid ${SSH_AGENT_PID};
+# EOF
+# }
 
-  ps_by_grep () {
-    ps -ef | grep '\bssh-agent$'
-  }
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-  is_running_ps () {
-    ps_by_grep > /dev/null
-  }
+feed_agent () {
+  # Look for keys to load. Use cheat PWDs as appropriate.
+  local rsa_keys="$(
+    /bin/ls ${HOME}/.ssh/*_ed25519 ${HOME}/.ssh/*_rsa 2> /dev/null
+  )"
+  debug "rsa_keys=\n${rsa_keys}"
 
-  # We could care about defunct but they do no harm, just confusion.
-  #  is_defunct_ps () {
-  #    ps -ef | grep '\[ssh-agent\] <defunct>$' > /dev/null
-  #  }
-
-  ps_by_pid () {
-    ps --no-headers -p ${SSH_AGENT_PID}
-  }
-
-  is_running_pid () {
-    [ -z "${SSH_AGENT_PID}" ] && return 1
-    ps_by_pid > /dev/null
-  }
-
-  is_defunct_pid () {
-    [ -z "${SSH_AGENT_PID}" ] && return 1
-    ps_by_pid | grep ' <defunct>$' > /dev/null
-  }
-
-  # ***
-
-  # Source (potentially invalid) SSH settings (if agent-created file exists).
-  if [ -f "${sshenv}" ]; then
-    . "${sshenv}" > /dev/null
-  fi
-
-  if is_running_ps || (is_running_pid && ! is_defunct_pid); then
-    notice "agent running: use \`ssh-agent -k\` to kill"
-    if ! (is_running_ps && is_running_pid); then
-      warn "ssh-agent: !(ps && pid)."
-      ps_by_grep
-      return 1
+  for pvt_key in ${rsa_keys}; do
+    local sent_passphrase=false
+    local secret_name="$(basename -- "${pvt_key}")"
+    local ssh_keyname="/home/${LOGNAME}/.ssh/${secret_name}"
+    local secret_path="${SSH_SECRETS}/${secret_name}"
+    verbose "secret_path=${secret_path}"
+    if [ -e "${secret_path}" ]; then
+      local pphrase="$(cat ${SSH_SECRETS}/${secret_name})"
+      # CUTE! If $pphrase has a bracket in it, e.g., "1234[", expect complains:
+      #        "missing close-bracket while executing send "1234["
+      pphrase="$(echo "${pphrase}" | /bin/sed -E 's#\[#\\[#g')"
+      /usr/bin/expect -c " \
+        spawn /usr/bin/ssh-add ${pvt_key}; \
+        expect \"Enter passphrase for ${ssh_keyname}:\"; \
+        send \"${pphrase}\n\"; \
+        interact ; \
+      "
+    else
+      /usr/bin/ssh-add "${pvt_key}"
     fi
-    return 0
+  done
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# 2020-03-27: (lb): I overhauled this script today because... issues.
+#
+# - A few take-aways:
+#
+#   - I could not figure out how to tell if we've fed passphrases to
+#     ssh-add previously. On inspection, `ssh-add -l` reported the
+#     same list of keys before and I after I run this script.
+#
+#   - I could see that a second ssh-agent gets launched after the first
+#     `ssh-add` call, e.g., a `ssh-add -l` will create it.
+#
+#     E.g., on initial login, mate-session will have started one agent,
+#     and `ps` reports:
+#
+#   user   9264  9249  0 17:25 ?  00:00:00 mate-session
+#   user   9346  9264  0 17:25 ?  00:00:00 /usr/bin/ssh-agent /usr/bin/im-launch mate-session
+#
+#     and then after a simple `ssh-add -l`, the keyring daemon will start
+#     another instance, e.g.,
+#
+#   user   9257     1  0 17:25 ?  00:00:00 /usr/bin/gnome-keyring-daemon --daemonize --login
+#   user  11244  9257  0 17:26 ?  00:00:00 /usr/bin/ssh-agent -D -a /run/user/1000/keyring/.ssh
+#
+#     While I don't quite understand the mechanics of what's happening,
+#     it's not really necessary. I used to have this code wired into
+#     the session Bashrc, but I've since unwired it, so that I have to
+#     call it deliberately.
+#
+#     As such -- because this script is only called deliberately -- I've
+#     added some additional tracing, and removed code that kills ssh-agent
+#     or tries to figure out if the passphrases were previously added.
+#
+#   - Finally, we can expect mate-session to have set the two environs,
+#     SSH_AUTH_SOCK and SSH_AGENT_PID. In this code previously, it saved
+#     the output of `ssh-agent -s` to ~/.ssh/environment and would source
+#     that on session startup; but that should be unnecessary if mate-session
+#     is setting the vars for us.
+
+# ***
+
+ps_mate_session_agent () {
+  ps -ef |
+    grep -e ' /usr/bin/ssh-agent /usr/bin/im-launch mate-session$' |
+    grep -v 'grep'
+}
+
+is_mate_session_agent_running () {
+  ps_mate_session_agent > /dev/null
+}
+
+mate_session_agent_pid () {
+  ps_mate_session_agent | awk '{print $2}'
+}
+
+mate_session_agent_pid_verify () {
+  ! is_mate_session_agent_running && return 1
+  notice "Detected ‘ssh-agent mate-session’."
+  if [ ${SSH_AGENT_PID} -ne $(mate_session_agent_pid) ]; then
+    local prefix="mismatch: \$SSH_AGENT_PID != \$(ps ...)"
+    warn "${prefix}: ${SSH_AGENT_PID} != $(mate_session_agent_pid)"
+    # MAYBE/2020-03-27 19:14: If this path happens, what? We could rewrite
+    #   ~/.ssh/environment, but I'd like to understand use case first. I.e.,
+    #   wait until you see this warning to know what to do.
+    error "I don't know how to proceed!"
+    exit 1
+  fi
+  return 0
+}
+
+# ***
+
+ps_gnome_keyring_daemon_agent () {
+  ps -ef |
+    grep -e " /usr/bin/ssh-agent -D -a /run/user/$(id -u)/keyring/.ssh\$" |
+    grep -v 'grep'
+}
+
+is_gnome_keyring_daemon_agent_running () {
+  ps_gnome_keyring_daemon_agent > /dev/null
+}
+
+# gnome_keyring_daemon_agent_pid () {
+#   ps_gnome_keyring_daemon_agent | awk '{print $2}'
+# }
+
+# ***
+
+ps_by_pid () {
+  ps --no-headers -p ${SSH_AGENT_PID}
+}
+
+is_running_pid () {
+  [ -n "${SSH_AGENT_PID}" ] && ps_by_pid > /dev/null
+}
+
+# ***
+
+ps_ssh_agent_all () {
+  ps -ef | grep -e '\bssh-agent[ $]' | grep -v 'grep'
+}
+
+ps_ssh_agent_all_count () {
+  ps_ssh_agent_all | wc -l
+}
+
+# ***
+
+is_socketed () {
+  [ -n "${SSH_AUTH_SOCK}" ] && [ -S ${SSH_AUTH_SOCK} ]
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+verify_sanity () {
+  local max_agents=0
+  if mate_session_agent_pid_verify; then
+    if is_gnome_keyring_daemon_agent_running; then
+      notice "Both mate-session and gnome-keyring-daemon ssh-agent agents online."
+      max_agents=2
+    else
+      notice "Only the mate-session ssh-agent agent is online."
+      max_agents=1
+    fi
+  elif is_running_pid; then
+    notice "Solo ssh-agent agent detected (not the mate-session agent)."
+    max_agents=1
+  elif [ -n "${SSH_AGENT_PID}" ]; then
+    error "SSH_AGENT_PID set but no such process (${SSH_AGENT_PID})"
+    exit 1
   fi
 
-  start_agent_and_feed
+  local cnt_agents=$(ps_ssh_agent_all_count)
+  if [ ${max_agents} -eq 0 ] && [ ${cnt_agents} -eq 1 ]; then
+    # See if we dropped a hint for this agent.
+    if [ ! -f "${HOMEFRIES_SSH_ENV}" ]; then
+      error "ssh-agent running but we don't have its environs: try \`ssh-agent -k\`"
+      exit 1
+    fi
+    . "${HOMEFRIES_SSH_ENV}" > /dev/null
+    if ! is_running_pid; then
+      error "ssh-agent running but environs file is outdated: try \`ssh-agent -k\`"
+      exit 1
+    fi
+    notice "Solo ssh-agent agent found via our ssh environs file."
+    max_agents=1
+  fi
 
+  if [ ${max_agents} -ne ${cnt_agents} ]; then
+    error "Unexpected ssh-agent count: expected (${max_agents}) != actual (${cnt_agents})"
+
+    echo "ps -ef | grep -e '\\\\bssh-agent\\\\b' | grep -v 'grep' | wc -l"
+    ps -ef | grep -e '\bssh-agent\b' | grep -v 'grep' | wc -l
+    ps -ef | grep -e '\bssh-agent\b' | grep -v 'grep'
+
+    exit 1
+  fi
+
+  if [ ${max_agents} -gt 0 ] && ! is_socketed; then
+    error "Missing socket: Nothing found at SSH_AUTH_SOCK: ‘${SSH_AUTH_SOCK}’"
+    exit 1
+  fi
+
+  if [ ${max_agents} -eq 0 ]; then
+    start_agent
+  fi
+
+  return 0
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+ssh_agent_kick () {
+  # USAGE: `ssh_agent_kick` or ssh_agent_kick -v`.
+  local old_level=${LOG_LEVEL}
+  [ "$1" = "-v" ] && LOG_LEVEL=0 || LOG_LEVEL=${LOG_LEVEL_NOTICE}
+  if verify_sanity; then
+    feed_agent
+  fi
   LOG_LEVEL=${old_level}
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+check_deps
+
 source_deps
 
+# ***
+
 shell_sourced () {
+  # 2020-03-27: Meh. I created an ssh-kick-agent alias, because I kept
+  # typing ssh-k<TAB>, but then I realized I only need to call this
+  # function from another command I used to load cryted mounts. So I
+  # removed the symlink.
+  # - Nonetheless, this checks if $0 is either of these 2 filenames:
   for filename in "ssh-agent-kick" "ssh-kick-agent"; do
     [ "$(basename -- "$0")" = "${filename}" ] && return 1
   done
