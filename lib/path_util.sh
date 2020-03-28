@@ -159,7 +159,7 @@ flock_dir () {
           $DEBUG_TRACE && echo ""
           not_got_lock=0
           FLOCKING_RE_TRIES=0
-        elif [[ ${FLOCKING_TIMELIMIT} > 0 ]]; then
+        elif [ ${FLOCKING_TIMELIMIT} -gt 0 ]; then
           # [lb] doesn't know how to compare floats in bash, so divide by 1
           #      to convert to int.
           if [[ $elapsed_time -gt ${FLOCKING_TIMELIMIT} ]]; then
