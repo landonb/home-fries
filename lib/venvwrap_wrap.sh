@@ -60,14 +60,31 @@ source_virtualenvwrapper () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+_homefries_venv_unset_lazy_loaders () {
+  unset -f mkvirtualenv
+  unset -f workon
+  unset -f _homefries_venv_unset_lazy_loaders
+}
+
 # `workon` lazy-loader.
 workon () {
-  unset -f workon
+  _homefries_venv_unset_lazy_loaders
 
   source_virtualenvwrapper
   unset -f source_virtualenvwrapper
 
   workon "$@"
+}
+
+# So that you don't have to run `workon` before `mkvirtualenv`.
+# `workon` lazy-loader.
+mkvirtualenv () {
+  _homefries_venv_unset_lazy_loaders
+
+  source_virtualenvwrapper
+  unset -f source_virtualenvwrapper
+
+  mkvirtualenv "$@"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
