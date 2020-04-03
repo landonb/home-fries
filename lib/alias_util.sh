@@ -478,9 +478,9 @@ home_fries_create_aliases_rg_tag_wrap () {
 
   # rgt -- Open search result in Vim in current terminal.
   alias rgt="\
-    TAG_CMD_FMT_STRING=\"
-      vim -c 'call cursor({{.LineNumber}}, {{.ColumnNumber}})' '{{.Filename}}'
-    \" \
+    TAG_CMD_FMT_STRING=' \
+      vim -c \"call cursor({{.LineNumber}}, {{.ColumnNumber}})\" \"{{.Filename}}\"
+    ' \
     ${rg_wrap_with_options} \
   "
 
