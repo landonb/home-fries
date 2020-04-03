@@ -451,9 +451,13 @@ home_fries_create_aliases_rg_tag_wrap () {
   export TAG_SEARCH_PROG=${engine}
 
   tag () {
+    local aliases="${TAG_ALIAS_FILE:-/tmp/tag_aliases}"
+    /bin/rm -f "${aliases}"
     # See: ${HOME}/.gopath/bin/tag
     command tag "$@"
-    . ${TAG_ALIAS_FILE:-/tmp/tag_aliases} 2>/dev/null
+    # The tag command does not set $? on error, not sure why.
+    [ -s "${aliases}" ] || return 1
+    . "${aliases}" 2>/dev/null
   }
 
   # [lb] 2019-01-06: BEWARE: --no-ignore-parent can be used to ignore .ignore's
