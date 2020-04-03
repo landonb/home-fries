@@ -488,13 +488,27 @@ home_fries_create_aliases_rg_tag_wrap () {
   # FIXME/2018-03-26: The servername, SAMPI, is hardcoded: Make Home Fries $var.
   # NOTE: (lb): I could not get "-c 'call cursor()" to work in same call as
   #       --remote-silent, so split into two calls, latter using --remote-send.
+  #
+  # WEIRD/2020-04-02 22:58: Getting this warning on e* command:
+  #                           XGetWindowProperty[_NET_WM_DESKTOP] failed (code=1)
+  #                         It's the final call:
+  #                           xdotool search --name SAMPI windowactivate
+  #                         except without that, Gvim not foregrounded!
+  #                         Same happens with hex, e.g.,:
+  #                           xdotool windowactivate 0x03e00003
+  #                           # Switches to Vim but outputs:
+  #                           XGetWindowProperty[_NET_WM_DESKTOP] failed (code=1)
+  #                         Can we just ignore it?
+  #
+  # WEIRD/2020-04-02 23:08: `rgt` works smoothly. `rgg` switches to Gvim and then
+  # you see a <blip>, not sure if a bell is being rung or what, but Vim not alerts!
   alias rgg="\
     TAG_CMD_FMT_STRING=' \
       true \
       && gvim --servername SAMPI --remote-silent \"{{.Filename}}\" \
       && gvim --servername SAMPI --remote-send \
         \"<ESC>:call cursor({{.LineNumber}}, {{.ColumnNumber}})<CR>\" \
-      && xdotool search --name SAMPI windowactivate \
+      && xdotool search --name SAMPI windowactivate &> /dev/null \
     ' \
     ${rg_wrap_with_options} \
   "
