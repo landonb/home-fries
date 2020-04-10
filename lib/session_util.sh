@@ -66,6 +66,18 @@ termdo-bash-reset () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+_homefries_screensaver_command () {
+  # Could instead run:
+  #   suss_window_manager
+  #   if ${WM_IS_MATE}; then
+  #     ...
+  if command -v mate-screensaver-command > /dev/null; then
+    mate-screensaver-command "$@"
+  else
+    gnome-screensaver-command "$@"
+  fi
+}
+
 # 2016-10-10: Starting last month, on both 14.04/rebecca/trusty and
 # 16.04/sarah/xenial, both laptop and desktop stopped asking for
 # password on resume from suspend.
@@ -104,10 +116,10 @@ lock_screensaver_and_power_suspend () {
      || ${DISTRIB_CODENAME} = 'sarah' \
      || ${DISTRIB_CODENAME} = 'sonya' \
      ]]; then
-    gnome-screensaver-command --lock && \
+    _homefries_screensaver_command --lock && \
       systemctl suspend -i
   elif [[ ${DISTRIB_CODENAME} = 'trusty' || ${DISTRIB_CODENAME} = 'rebecca' ]]; then
-    gnome-screensaver-command --lock && \
+    _homefries_screensaver_command --lock && \
       dbus-send --system --print-reply --dest=org.freedesktop.UPower \
         /org/freedesktop/UPower org.freedesktop.UPower.Suspend
   else
@@ -136,10 +148,10 @@ lock_screensaver_and_power_suspend_lite () {
      || ${DISTRIB_CODENAME} = 'sarah' \
      || ${DISTRIB_CODENAME} = 'sonya' \
      ]]; then
-    gnome-screensaver-command --lock && \
+    _homefries_screensaver_command --lock && \
       systemctl suspend -i
   elif [[ ${DISTRIB_CODENAME} = 'trusty' || ${DISTRIB_CODENAME} = 'rebecca' ]]; then
-    gnome-screensaver-command --lock && \
+    _homefries_screensaver_command --lock && \
       dbus-send --system --print-reply --dest=org.freedesktop.UPower \
         /org/freedesktop/UPower org.freedesktop.UPower.Suspend
   else
@@ -149,7 +161,7 @@ lock_screensaver_and_power_suspend_lite () {
 }
 
 lock_screensaver_and_do_nothing_else () {
-  gnome-screensaver-command --lock
+  _homefries_screensaver_command --lock
   # I'm iffy about enabling locking screensaver on simple qq.
   # But also thinking maybe yeah.
   screensaver_lockon
