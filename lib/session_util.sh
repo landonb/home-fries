@@ -188,9 +188,9 @@ user_window_session_logout () {
   #  $ hash foo       2>/dev/null     || { echo >&2 "Not found."; exit 1; }
   # Thanks to http://stackoverflow.com/questions/592620/
   #             how-to-check-if-a-program-exists-from-a-bash-script
-  if ``command -v mate-session-save >/dev/null 2>&1``; then
+  if command -v mate-session-save > /dev/null; then
     mate-session-save --logout
-  elif ``command -v gnome-session-save >/dev/null 2>&1``; then
+  elif command -v gnome-session-save > /dev/null; then
     gnome-session-save --logout
   else
     # This is the most destructive way to logout, so don't do it:
