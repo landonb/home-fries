@@ -7,6 +7,8 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 check_deps () {
+  # Verify distro_util.sh loaded.
+  check_dep 'suss_window_manager'
   # Verify term_util.sh loaded.
   check_dep 'termdo-all'
 }
@@ -248,19 +250,47 @@ home_fries_configure_shell_options () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 pm-latest () {
-  if command -v journalctl &> /dev/null; then
+  # See also:
+  #   journalctl --list-boots
+  # https://www.digitalocean.com/community/tutorials/how-to-use-journalctl-to-view-and-manipulate-systemd-logs
+  # But takes a moment to run.
+  # Also, this did not work like I expected it would:
+  #   journalctl --list-boots -r -n 1
+  # For log from previous boot (not suspend/wake):
+  #   journalctl -b -1
+  if command -v journalctl &> /dev/null; then    #
     # NOTE: In lieu of a /var/log/pm-suspend.log, which you won't find
     #       on Ubuntu, use journalctl to see when system was last woke.
     #       (2018-01-29: (lb): I use this for back-filling hamster if
     #       I forget when I got to work, resumed, and started working.)
-    journalctl -b 0 -r -t systemd-sleep \
-      | grep -m 1 "Suspending system...$" \
-      | awk '{print "Suspend at "$1" "$2" "$3}'
+    # 2020-04-09: Not finding good docs on values for --identifier=SYSLOG_IDENTIFIER.
+    # And on latest Mint MATE, 'systemd-sleep' begets '-- No entries --'.
+    # 'kernel' works for me, though.
+    # - For posterity, the old code:
+    if false; then
+      show_latest_suspend_resume () {
+        journalctl -b 0 -r -t systemd-sleep \
+          | grep -m 1 "$1" \
+          | awk '{print "$2 at "$1" "$2" "$3}'
+      }
+      show_latest_suspend_resume "Suspending system...$" "Suspend"
+      show_latest_suspend_resume "System resumed.$" "Resumed"
+    fi
+    echo "FIXME: pm-latest is broke! and doesn't know to get get suspend or resume time."
+    # 2020-04-09: Here's what I see nowadays, on Linux Mint MATE:
+    #   Dec 12 16:29:59 lethe kernel: PM: suspend entry (deep)
+    #   Dec 12 19:06:52 lethe kernel: PM: Syncing filesystems ... done.
+    # except that's on a previous boot... I should just test this...
+    show_latest_suspend_resume () {
+      journalctl -b 0 -r -t kernel \
+        | grep -m 1 "$1" \
+        | awk '{print "$2 at "$1" "$2" "$3}'
+    }
+    show_latest_suspend_resume "kernel: PM: suspend entry (deep)$" "Suspend"
+    show_latest_suspend_resume "kernel: PM: Syncing filesystems ... done.$" "Resumed"
+  fi
 
-    journalctl -b 0 -r -t systemd-sleep \
-      | grep -m 1 "System resumed.$" \
-      | awk '{print "Resumed at "$1" "$2" "$3}'
-  else
+  if [ -f "/var/log/pm-suspend.log" ]; then
     # E.g.,
     #  Wed Jan  3 13:04:19 CST 2018: Awake.
     #  Wed Jan  3 13:04:19 CST 2018: Running hooks for resume
@@ -294,10 +324,18 @@ pm-latest () {
   #     how-can-i-know-when-my-screen-was-locked-last-time
   #
   # Use `tac` ("cat" backwards) to "concatenate and print files in reverse".
-  tac /var/log/auth.log \
-    | grep -m 1 \
-      "gnome-screensaver-dialog: gkr-pam: unlocked login keyring" \
-    | awk '{print "Unlockd at "$1" "$2" "$3}'
+  suss_window_manager
+  if ${WM_IS_MATE}; then
+    tac /var/log/auth.log \
+      | grep -m 1 \
+        "mate-screensaver-dialog: gkr-pam: unlocked login keyring" \
+      | awk '{print "Unlockd at "$1" "$2" "$3}'
+  else
+    tac /var/log/auth.log \
+      | grep -m 1 \
+        "gnome-screensaver-dialog: gkr-pam: unlocked login keyring" \
+      | awk '{print "Unlockd at "$1" "$2" "$3}'
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
