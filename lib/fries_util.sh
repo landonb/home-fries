@@ -282,14 +282,22 @@ home_fries_export_editor_vim () {
   # Some apps use the variable directly, while others, like crontab, call
   # /usr/bin/sensible-editor. You can also set the editor interactively using
   # /usr/bin/select-editor (but the UI won't find your local builds).
+  local vim_path
   if [ -e "${HOME}/.local/bin/vim" ]; then
-    export EDITOR="${HOME}/.local/bin/vim"
+    vim_path="${HOME}/.local/bin/vim"
   elif [ -e '/srv/opt/bin/bin/vim' ]; then
-    export EDITOR='/srv/opt/bin/bin/vim'
+    vim_path='/srv/opt/bin/bin/vim'
   elif [ -e '/usr/bin/vim.basic' ]; then
-    export EDITOR='/usr/bin/vim.basic'
+    vim_path='/usr/bin/vim.basic'
   elif [ -e '/usr/bin/vim' ]; then
-    export EDITOR='/usr/bin/vim'
+    vim_path='/usr/bin/vim'
+  fi
+  if [ -n "${vim_path}" ]; then
+    export EDITOR="${vim_path}"
+    # FIXME: editor.py does not like this:
+    # export EDITOR="${vim_path} -c 'startinsert'"
+    # I could use a new extension .dob that's reST and then use au.
+    #   autocmd BufRead,BufNewFile * start
   else
     echo "WARNING: bashrc.core.sh: did not set EDITOR: No vim found"
   fi
