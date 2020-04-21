@@ -1,0 +1,25 @@
+#!/bin/bash
+# vim:tw=0:ts=2:sw=2:et:norl:ft=sh
+# Author: Landon Bouma <https://tallybark.com/>
+# Project: https://github.com/landonb/home-fries#🍟
+# License: MIT
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+editor_vim_0_0_insert () {
+  # Calling cursor() then startinsert puts cursor at start of second row:
+  #   vim -c 'call cursor(0,0)' -c 'startinsert' "${@}"
+  # Swapping the two calls put it on the third row:
+  #   vim -c 'startinsert' -c 'call cursor(0,0)' "${@}"
+  # But exiting Ex mode to run `gg` works great!
+  vim -c 'startinsert' -c 'norm! gg' "${@}"
+}
+
+# ***
+
+main () {
+  editor_vim_0_0_insert "$@"
+}
+
+main "$@"
+
