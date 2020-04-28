@@ -1,5 +1,5 @@
 #!/bin/awk -f
-# vim:tw=0:ts=2:sw=2:et:norl:ft=sh
+# vim:tw=0:ts=2:sw=2:et:norl:ft=awk
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
 # Project: https://github.com/landonb/home-fries#🍟
 # License: MIT
@@ -21,10 +21,12 @@ function check_histentry() {
   should_retain = 0
   if (arraysize > 0) {
     should_retain = 1
+    # 2020-04-28: (lb) Note that I've since started using `pass edit`,
+    # so this unreliable pass-insert scrubber should not be necessary.
     for (ix = 1; ix <= arraysize; ix++) {
       if (histentry[ix] ~ /^['"] \| pass insert -m /) {
         should_retain = 0
-        #print "DROPPING:", timestamp
+        # print "DROPPING:", timestamp
         break
       }
     }
