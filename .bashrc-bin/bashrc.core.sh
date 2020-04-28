@@ -106,7 +106,7 @@ source_utils_all () {
   #  source_it "path_device"
   #  source_it "rm_rotate"
   #  source_it "rm_safe"
-  #  source_it "rmrm"
+  #  source_it "rmrm"  # See later: We do source this.
 
   # *** Load order matters, to limit number of `.` invocations.
 
@@ -118,6 +118,12 @@ source_utils_all () {
   source_it "distro_util.sh"
 
   source_it "term_util.sh"
+
+  # *** External projects (revisited).
+
+  # So that each `rmrm` command is stored in Bash history as `#rmrm`,
+  # source the rmrm script (otherwise `history -s` has no effect).
+  source_it "rmrm"
 
   # *** Load order does not matter (remaining files only depend
   #     on those previously loaded); so alphabetical.
