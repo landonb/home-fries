@@ -322,20 +322,28 @@ pm-latest () {
   #
   #   Respek: https://askubuntu.com/questions/435069/
   #     how-can-i-know-when-my-screen-was-locked-last-time
-  #
-  # Use `tac` ("cat" backwards) to "concatenate and print files in reverse".
+  auth_log_grep_latest () {
+    # Use `tac` ("cat" backwards) to "concatenate and print files in reverse".
+    tac /var/log/auth.log | grep -m 1 "$2" | awk "{print \"$1 \"\$1\" \"\$2\" \"\$3\"\"}"
+  }
+
   suss_window_manager
+  local screensaver_app
   if ${WM_IS_MATE}; then
-    tac /var/log/auth.log \
-      | grep -m 1 \
-        "mate-screensaver-dialog: gkr-pam: unlocked login keyring" \
-      | awk '{print "Unlockd at "$1" "$2" "$3}'
+    screensaver_app="mate-screensaver-dialog"
   else
-    tac /var/log/auth.log \
-      | grep -m 1 \
-        "gnome-screensaver-dialog: gkr-pam: unlocked login keyring" \
-      | awk '{print "Unlockd at "$1" "$2" "$3}'
+    screensaver_app="gnome-screensaver-dialog"
   fi
+
+  # E.g.,: 17350 Apr 30 23:44:11 host systemd-logind[1163]: Lid closed.
+  auth_log_grep_latest "Lidclsd at" "systemd-logind\[[0-9]\+]: Lid closed\."
+  # E.g.,: 17348 Apr 30 23:41:49 host systemd-logind[1163]: Lid opened.
+  auth_log_grep_latest "Lidopnd at" "systemd-logind\[[0-9]\+]: Lid opened\."
+  # E.g.,: 17349 Apr 30 23:41:56 lethe mate-screensaver-dialog: gkr-pam: unlocked login keyring
+  # 2020-05-01: Note that I do not see a corresponding "locked" event.
+  # - See some (too much work) solutions at:
+  #   https://superuser.com/questions/662974/logging-lock-screen-events
+  auth_log_grep_latest "Unlockd at" "${screensaver_app}: gkr-pam: unlocked login keyring"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
