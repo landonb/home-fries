@@ -17,6 +17,9 @@
 
 # FIXME/2020-01-07: Figure out how to tell kdocker to restore from tray.
 # - For now, only works if Spotify is windowed, and not solely docked.
+# 2020-04-28 19:32: Doesn't appear possible via CLI. And it tells you to click:
+# "This window is already docked.\nClick on system tray icon to toggle docking."
+# https://github.com/user-none/KDocker/blob/master/src/trayitemmanager.cpp#L305
 
 keybinding-focus-spotify () {
   local spotify_pid
