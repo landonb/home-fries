@@ -148,6 +148,7 @@ source_utils_all () {
   source_it "openshift_util.sh"
   # Earlier: "path_util.sh"
   # Earlier: "paths_util.sh"
+  source_it "perl_util.sh"
   # Earlier: "process_util.sh"
   source_it "python_util.sh"
   source_it "ruby_util.sh"
