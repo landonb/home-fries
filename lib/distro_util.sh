@@ -42,21 +42,68 @@ distro_complain_not_ubuntu_or_red_hat () {
 #       which runs DRI2 (Direct Rendering Interface2). But Xfce runs
 #       DRI1, which VirtualBox supports.
 suss_window_manager () {
-  WM_IS_CINNAMON=false
-  WM_IS_XFCE=false
-  WM_IS_MATE=false # Pronouced, mah-tay!
-  WM_IS_UNKNOWN=false
-  WM_TERMINAL_APP=''
+  _suss_window_manager () {
+    suss_window_manager_reset
 
-  tweak_errexit
-  WIN_MGR_INFO=`wmctrl -m >/dev/null 2>&1`
-  if [[ $? -ne 0 ]]; then
-    # E.g., if you're ssh'ed into a server, returns 1 and "Cannot open display."
-    WM_IS_UNKNOWN=true
-  fi
-  reset_errexit
+    tweak_errexit
+    WIN_MGR_INFO=`wmctrl -m >/dev/null 2>&1`
+    local exitcode=$?
+    reset_errexit
+    if [ ${exitcode} -ne 0 ]; then
+      # E.g., ssh into a machine, and wmctrl -m returns 1, echoes "Cannot open display."
+      WM_DETACHED=true
+      # MAYBE/2020-05-11: Remove wmctrl greps below, and use command -v checks instead?
+      suss_window_manager_via_command_v
+    fi
 
-  if ! ${WM_IS_UNKNOWN}; then
+    if ! ${WM_IS_UNKNOWN}; then
+      suss_window_manager_via_wmctrl_m
+    fi
+
+    suss_window_manager_report
+
+    suss_window_manager_response
+  }
+
+  suss_window_manager_reset () {
+    WM_IS_CINNAMON=false
+    WM_IS_GNOME=false
+    WM_IS_KDE=false
+    WM_IS_MATE=false
+    WM_IS_XFCE=false
+    WM_IS_UNKNOWN=false
+    WM_DETACHED=false
+    WM_TERMINAL_APP=''
+  }
+
+  suss_window_manager_report () {
+    return
+    echo "WM_IS_CINNAMON: $WM_IS_CINNAMON"
+    echo "WM_IS_GNOME: $WM_IS_GNOME"
+    echo "WM_IS_KDE: $WM_IS_KDE"
+    echo "WM_IS_MATE: $WM_IS_MATE"
+    echo "WM_IS_XFCE: $WM_IS_XFCE"
+    echo "WM_IS_UNKNOWN: $WM_IS_UNKNOWN"
+    echo "WM_DETACHED: $WM_DETACHED"
+    echo "WM_TERMINAL_APP: $WM_TERMINAL_APP"
+  }
+
+  suss_window_manager_via_command_v () {
+    if command -v mate-terminal > /dev/null 2>&1; then
+      WM_IS_MATE=true
+      WM_TERMINAL_APP='mate-terminal'
+    elif command -v gnome-terminal > /dev/null 2>&1; then
+      WM_IS_GNOME=true
+      WM_TERMINAL_APP='gnome-terminal'
+    elif command -v konsole > /dev/null 2>&1; then
+      WM_IS_KDE=true
+      WM_TERMINAL_APP='konsole'
+    else
+      WM_IS_UNKNOWN=true
+    fi
+  }
+
+  suss_window_manager_via_wmctrl_m () {
     if [[ `wmctrl -m | grep -e "^Name: Mutter (Muffin)$"` ]]; then
       WM_IS_CINNAMON=true
       WM_TERMINAL_APP='gnome-terminal'
@@ -71,18 +118,23 @@ suss_window_manager () {
       # Linux Mint 17.
       WM_IS_MATE=true
       WM_TERMINAL_APP='mate-terminal'
+    elif [[ `wmctrl -m | grep -e "^Name: KWin$"` ]]; then
+      # openSUSE, etc.
+      WM_IS_KDE=true
+      WM_TERMINAL_APP='konsole'
     else
       WM_IS_UNKNOWN=true
-      echo
-      echo "ERROR: Unknown Window manager."
-      exit 1
     fi
-  fi
-  # echo "WM_IS_CINNAMON: $WM_IS_CINNAMON"
-  # echo "WM_IS_XFCE: $WM_IS_XFCE"
-  # echo "WM_IS_MATE: $WM_IS_MATE"
-  # echo "WM_IS_UNKNOWN: $WM_IS_UNKNOWN"
-  # echo "WM_TERMINAL_APP: $WM_TERMINAL_APP"
+  }
+
+  suss_window_manager_response () {
+    ! ${WM_IS_UNKNOWN} && return 0
+    echo
+    echo "ERROR: Unknown Window manager."
+    return 1
+  }
+
+  _suss_window_manager
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
