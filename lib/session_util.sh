@@ -289,6 +289,11 @@ pm-latest () {
     show_latest_suspend_resume "kernel: PM: suspend entry (deep)$" "Suspend"
     show_latest_suspend_resume "kernel: PM: Syncing filesystems ... done.$" "Resumed"
   fi
+  # 2020-05-11: Booting openSUSE from VM, you'll see a reboot message, e.g.,:
+  #     journalctl -r | grep -m 1 "\-- Reboot --"
+  # but it's on its own line, so include life after (before, because -r) for context:
+  #     journalctl -r | grep -m 1 "\-- Reboot --" -B 1
+  # Just FYI. Not plumbing into this function.
 
   if [ -f "/var/log/pm-suspend.log" ]; then
     # E.g.,
@@ -327,14 +332,6 @@ pm-latest () {
     tac /var/log/auth.log | grep -m 1 "$2" | awk "{print \"$1 \"\$1\" \"\$2\" \"\$3\"\"}"
   }
 
-  suss_window_manager
-  local screensaver_app
-  if ${WM_IS_MATE}; then
-    screensaver_app="mate-screensaver-dialog"
-  else
-    screensaver_app="gnome-screensaver-dialog"
-  fi
-
   # E.g.,: 17350 Apr 30 23:44:11 host systemd-logind[1163]: Lid closed.
   auth_log_grep_latest "Lidclsd at" "systemd-logind\[[0-9]\+]: Lid closed\."
   # E.g.,: 17348 Apr 30 23:41:49 host systemd-logind[1163]: Lid opened.
@@ -343,7 +340,11 @@ pm-latest () {
   # 2020-05-01: Note that I do not see a corresponding "locked" event.
   # - See some (too much work) solutions at:
   #   https://superuser.com/questions/662974/logging-lock-screen-events
-  auth_log_grep_latest "Unlockd at" "${screensaver_app}: gkr-pam: unlocked login keyring"
+  # - This is a screensave message, e.g.,
+  #     mate-screensaver-dialog: gkr-pam: unlocked login keyring
+  #   or
+  #     gnome-screensaver-dialog: gkr-pam: unlocked login keyring
+  auth_log_grep_latest "Unlockd at" "gkr-pam: unlocked login keyring"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
