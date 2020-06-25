@@ -405,7 +405,27 @@ tmux_conf_theme_right_separator_sub=''  #   PowerlineSymbols.otf font
 tmux_conf_theme_status_left=' ❐ #S | ⏲ '
 
 # (lb): Use gitmux to show Git working tree status: https://github.com/arl/gitmux
-tmux_conf_theme_status_right='#{prefix}#{pairing} |#(gitmux -cfg ~/.waffle/home/.gitmux.conf #{pane_current_path})#{?battery_status, #{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} | #{username}#{root}|@#{hostname} | %R %d %b '
+#
+# - 2020-06-06: Following is a status bar I'd been running for a while, but it causes
+#   intermittent terminal freezes (or hiccups or whatever you want to call them) --
+#   terminal input and output (interaction) is unresponsive at seemingly random
+#   intervals, but happens all too often (probably every 11th second when the status
+#   is updated, per status-interval).
+#
+#  tmux_conf_theme_status_right='#{prefix}#{pairing} |#(gitmux -cfg ~/.waffle/home/.gitmux.conf #{pane_current_path})#{?battery_status, #{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} | #{username}#{root}|@#{hostname} | %R %d %b '
+#
+# - 2020-06-06: The following, simpler status bar alleviates the every-11-seconds
+#   interruption that I'd experience using the terminal.
+# - 2020-06-25: I can confirm this works; I cannot remember the last time I was
+#   flustered by terminal unresponsiveness.
+#   - Also, I don't miss the battery status, or the git working tree status (which I
+#     never really used/looked at, anyway; I prefer my git-my-merge-status command
+#     (wired to `st`) and other git aliases I have wired, and interact with the terminal
+#     to get working tree status when necessary.
+#   - Not to lay blame, but I didn't bother checking if it was the battery status, or
+#     the gitmux plugin that's slow. But per previous comment, also don't really care.
+#
+tmux_conf_theme_status_right='#{prefix}#{pairing} | | #{username}#{root}|@#{hostname} | %R %d %b '
 
 # # 2020-01-09 14:00: CPU Spikes. Not a biggie, but I'm curious.
 # # - See above comment, #{loadavg} and #{battery_*} appear to cause CPU spiking on redraw.
