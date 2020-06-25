@@ -422,6 +422,9 @@ home_fries_up () {
   # - lib/fries_util.sh
   run_and_unset "home_fries_enable_fuzzy_finder_fzf"
 
+  # - lib/fries_util.sh
+  run_and_unset "home_fries_load_travis_ci_completions"
+
   #########################
 
   # - lib/input_util.sh

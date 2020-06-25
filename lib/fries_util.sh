@@ -133,6 +133,19 @@ nvm () {
   nvm "$@"
 }
 
+# --- Travis CI
+
+home_fries_load_travis_ci_completions () {
+  # What the Travis CI CLI adds to your bashrc on install. E.g., from::
+  #   gem install travis --no-document
+
+  # added by travis gem
+  [ ! -s ${HOME}/.travis/travis.sh ] || source ${HOME}/.travis/travis.sh
+
+  # Except we don't need to call this function if we just symlink travis
+  # from Home-Fries' bin/completions.
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # LD_LIBRARY_PATH
