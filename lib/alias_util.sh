@@ -209,7 +209,7 @@ home_fries_create_aliases_general () {
   # *** Git
 
   # I run `git diff` fairly often. Make it even easier to run.
-  # 2020-02-13: See also, via git-FlU/.gitconfig:
+  # 2020-02-13: See also, via git-smart/.gitconfig:
   #   `git dc`, `git df`, `git dff`.
   alias dff='git diff'
   # 2020-02-17: Will it be confusing to have a similar alias
@@ -313,7 +313,7 @@ st () {
 
 # Use `stt` to print the fancy report one-liner for the current repo,
 # followed by the porcelain status.
-# - Note, if you use github.com/landonb/git-FlU, these 3 commands are the same:
+# - Note, if you use github.com/landonb/git-smart, these 3 commands are the same:
 #   $ stt                  # github.com:landonb/home-fries
 #   $ git st               # github.com:landonb/git-my-merge-status/.gitconfig.example
 #   $ git my-merge-status  # github.com:landonb/git-my-merge-status/bin/git-my-serve-status

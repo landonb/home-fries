@@ -6,9 +6,9 @@
 
 # Most of my Git magic is elsewhere:
 #
-#   github.com:landonb/git-FlU
-#   github.com:landonb/git-veggie-patch
-#   github.com:landonb/git-my-merge-status
+#   github.com:landonb/git-smart#💡
+#   github.com:landonb/git-veggie-patch#🥦
+#   github.com:landonb/git-my-merge-status#🌵
 #   and more to come!
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
