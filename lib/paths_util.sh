@@ -54,6 +54,8 @@ home_fries_add_to_path_home_local_bin () {
 home_fries_add_to_path_home_local_node_modules_bin () {
   # Make Ansible Zoidy Pooh-installed Node/NPM executables available.
   path_prefix "${HOME}/.local/node_modules/.bin"
+  # path_prefix "${HOME}/.local/lib/nodejs/node-v12.18.2-linux-x64/bin"
+  path_prefix "/usr/local/lib/nodejs/node-v12.18.2-linux-x64/bin"
 }
 
 home_fries_add_to_path_java_jdk_jre () {
