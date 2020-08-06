@@ -306,6 +306,9 @@ home_fries_up () {
   # - lib/alias_util.sh
   run_and_unset "home_fries_create_aliases_tab_completion"
 
+  # - lib/alias_util.sh
+  run_and_unset "home_fries_create_alias_flatpak_gimp"
+
   # Set: `rm` => `rm_safe` [e.g., "remove" to ~/.trash]
   # - lib/trash_util.sh
   run_and_unset "home_fries_create_aliases_trash"

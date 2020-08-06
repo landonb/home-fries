@@ -604,6 +604,19 @@ home_fries_create_aliases_tab_completion () {
   #
 }
 
+home_fries_create_alias_flatpak_gimp () {
+  if [[ -d $HOME/.var/app/org.gimp.GIMP ]]; then
+    # Desktop entry is more complicated:
+    #   /usr/bin/flatpak run \
+    #     --branch=stable \
+    #     --arch=x86_64 \
+    #     --command=gimp-2.10 \
+    #     --file-forwarding org.gimp.GIMP \
+    #     @@u %U @@
+    alias gimp='flatpak run org.gimp.GIMP'
+  fi
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 unset_f_alias_util () {
@@ -618,6 +631,8 @@ unset_f_alias_util () {
   unset -f home_fries_create_aliases_chdir
 
   unset -f home_fries_create_aliases_tab_completion
+
+  unset -f home_fries_create_alias_flatpak_gimp
 
   # So meta.
   unset -f unset_f_alias_util
