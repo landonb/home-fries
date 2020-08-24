@@ -73,6 +73,7 @@ ${HOMEFRIES_TRACE} && echo "User's EUID is ${EUID}"
 # Carnally related:
 #   hard_path=$(dirname $(readlink -f ~/.bashrc))
 # Universally Bashy:
+echo "0=$0"
 HOMEFRIES_BASHRC_SH="$(readlink -f -- "${BASH_SOURCE[0]}" 2> /dev/null)"
 if [ -n "${HOMEFRIES_BASHRC_SH}" ]; then
   # Linux.
