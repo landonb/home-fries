@@ -83,10 +83,16 @@ else
   # macOS: No `readlink -f`.
   echo "BASH_SOURCE[0]=${BASH_SOURCE[0]}"
   # WRONG: export HOMEFRIES_BASHRCBIN="$(cd "$(dirname -- "${BASH_SOURCE[0]}")"; pwd -P)"
+  # https://stackoverflow.com/questions/5756524/how-to-get-absolute-path-name-of-shell-script-on-macos
+  # See also: `realpath`, from Homebrew coreutils.
+  # And also, $(readlink -- "${BASH_SOURCE[0]}") returns its relative path.
+  # Perl works, too:
   export HOMEFRIES_BASHRCBIN=$(perl -MCwd=realpath -e "print realpath '${BASH_SOURCE[0]}'")
+  export HOMEFRIES_BASHRCBIN2="$(dirname -- "${BASH_SOURCE[0]}")/$(readlink -- "${BASH_SOURCE[0]}")"
 fi
 unset HOMEFRIES_BASHRC_SH
 echo "HOMEFRIES_BASHRCBIN=$HOMEFRIES_BASHRCBIN"
+echo "HOMEFRIES_BASHRCBIN2=$HOMEFRIES_BASHRCBIN2"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
