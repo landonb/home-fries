@@ -3,6 +3,12 @@
 # Project: https://github.com/landonb/home-fries#🍟
 # License: MIT
 
+
+
+# FIXME/2020-08-24 14:27: TEMPORARY ECHO ENABLEMENT:
+export HOMEFRIES_TRACE=${HOMEFRIES_TRACE:-true}
+
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Overview
@@ -73,15 +79,14 @@ ${HOMEFRIES_TRACE} && echo "User's EUID is ${EUID}"
 # Carnally related:
 #   hard_path=$(dirname $(readlink -f ~/.bashrc))
 # Universally Bashy:
-echo "0=$0"
 HOMEFRIES_BASHRC_SH="$(readlink -f -- "${BASH_SOURCE[0]}" 2> /dev/null)"
 if [ -n "${HOMEFRIES_BASHRC_SH}" ]; then
   # Linux.
-  echo "HOMEFRIES_BASHRC_SH=$HOMEFRIES_BASHRC_SH"
+  ${HOMEFRIES_TRACE} && echo "HOMEFRIES_BASHRC_SH=$HOMEFRIES_BASHRC_SH"
   export HOMEFRIES_BASHRCBIN="$(dirname -- "${HOMEFRIES_BASHRC_SH}")"
 else
   # 2020-08-24: macOS: No `readlink -f`.
-  echo "BASH_SOURCE[0]=${BASH_SOURCE[0]}"
+  ${HOMEFRIES_TRACE} && echo "BASH_SOURCE[0]=${BASH_SOURCE[0]}"
   # https://stackoverflow.com/questions/5756524/how-to-get-absolute-path-name-of-shell-script-on-macos
   # External (non-Bash) solutions:
   # - Homebrew coreutils:
@@ -103,7 +108,9 @@ else
   unset BASHRC_F
 fi
 unset HOMEFRIES_BASHRC_SH
-echo "HOMEFRIES_BASHRCBIN=$HOMEFRIES_BASHRCBIN"
+${HOMEFRIES_TRACE} && echo "XXX"
+${HOMEFRIES_TRACE} && echo "HOMEFRIES_BASHRCBIN=${HOMEFRIES_BASHRCBIN}"
+${HOMEFRIES_TRACE} && echo "YYY"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
