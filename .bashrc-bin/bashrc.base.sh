@@ -73,7 +73,14 @@ ${HOMEFRIES_TRACE} && echo "User's EUID is ${EUID}"
 # Carnally related:
 #   hard_path=$(dirname $(readlink -f ~/.bashrc))
 # Universally Bashy:
-export HOMEFRIES_BASHRCBIN="$(dirname $(readlink -f -- "${BASH_SOURCE[0]}"))"
+if [ -n "${BASH_SOURCE[0]}" ]; then
+  # Linux.
+  export HOMEFRIES_BASHRCBIN="$(dirname $(readlink -f -- "${BASH_SOURCE[0]}"))"
+else
+  # macOS. Neither $BASH_SOURCE nor `readlink -f`.
+  export HOMEFRIES_BASHRCBIN="$(cd "$(dirname -- "$0")"; pwd -P)"
+fi
+echo "HOMEFRIES_BASHRCBIN=$HOMEFRIES_BASHRCBIN"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
