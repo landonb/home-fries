@@ -74,43 +74,55 @@ HOMEFRIES_LOADINGSEP='.'
 ${HOMEFRIES_TRACE} && echo "User's EUID is ${EUID}"
 
 # Get the path to this script's parent directory.
-# Doesn't work?!:
-#   hard_path=$(dirname $(readlink -f -- "$0"))
-# Carnally related:
-#   hard_path=$(dirname $(readlink -f ~/.bashrc))
-# Universally Bashy:
-HOMEFRIES_BASHRC_SH="$(readlink -f -- "${BASH_SOURCE[0]}" 2> /dev/null)"
-if [ -n "${HOMEFRIES_BASHRC_SH}" ]; then
-  # Linux.
-  ${HOMEFRIES_TRACE} && echo "HOMEFRIES_BASHRC_SH=$HOMEFRIES_BASHRC_SH"
-  export HOMEFRIES_BASHRCBIN="$(dirname -- "${HOMEFRIES_BASHRC_SH}")"
-else
-  # 2020-08-24: macOS: No `readlink -f`.
-  ${HOMEFRIES_TRACE} && echo "BASH_SOURCE[0]=${BASH_SOURCE[0]}"
-  # https://stackoverflow.com/questions/5756524/how-to-get-absolute-path-name-of-shell-script-on-macos
-  # External (non-Bash) solutions:
-  # - Homebrew coreutils:
-  #     realpath {}
-  # - Perl:
-  #     BASHRC_F=$(perl -MCwd=realpath -e "print realpath '${BASH_SOURCE[0]}'")
-  # - Linux:
-  #     readlink -f {}
-  #
-  # - Pure-shell approach, using recursion, and knowing `readlink {}`
-  #   returns empty string on non-symlink. So recurse until resolved.
-  # FIXME/2020-08-24 14:23: Probably make this a utility function...
-  BASHRC_F="${BASH_SOURCE[0]}"
-  while [ -h "${BASHRC_F}" ]; do
-    BASHRC_F="$(dirname -- "${BASHRC_F}")/$(readlink -- "${BASHRC_F}")"
-  done
-  #
-  export HOMEFRIES_BASHRCBIN="$(dirname -- "${BASHRC_F}")"
-  unset BASHRC_F
-fi
-unset HOMEFRIES_BASHRC_SH
-${HOMEFRIES_TRACE} && echo "XXX"
+# Note that macOS's readlink is wicked old.
+readlink_f () {
+  local resolve_path="$1"
+  local ret_code=0
+  if [ "$(readlink --version 2> /dev/null)" ]; then
+    # Linux: Modern readlink.
+    resolve_path="$(readlink -f -- "${resolve_path}")"
+  else
+    # macOHHHH-ESS/macOS: No `readlink -f`.
+    local before_cd="$(pwd -L)"
+    while [ -n "${resolve_path}" ] && [ -h "${resolve_path}" ]; do
+      local basedir_link="$(dirname -- "${resolve_path}")"
+      # `readlink -f` checks all but final component exist.
+      # So if dir path leading to final componenet missing, return empty string.
+      if [ ! -e "${basedir_link}" ]; then
+        resolve_path=""
+        ret_code=1
+      else
+        local resolve_file
+        resolve_link="$(readlink -- "${resolve_path}")"
+        case "${resolve_link}" in
+          /*)
+            # Absolute path.
+            resolve_file="${resolve_link}"
+            ;;
+          *)
+            # Relative path.
+            resolve_file="${basedir_link}/${resolve_link}"
+            ;;
+        esac
+        local resolved_dir="$(dirname -- "${resolve_file}")"
+        if [ ! -d "${resolved_dir}" ]; then
+          resolve_path=""
+          ret_code=1
+        else
+          cd $(dirname -- "${resolve_file}") > /dev/null
+          resolve_path="$(pwd -P)/$(basename -- "${resolve_file}")"
+        fi
+      fi
+    done
+    cd "${before_cd}"
+  fi
+  echo -n "${resolve_path}"
+  [ -n "${resolve_path}" ] && echo
+  return ${ret_code}
+}
+
+export HOMEFRIES_BASHRCBIN="$(dirname -- "$(readlink_f "${BASH_SOURCE[0]}")")"
 ${HOMEFRIES_TRACE} && echo "HOMEFRIES_BASHRCBIN=${HOMEFRIES_BASHRCBIN}"
-${HOMEFRIES_TRACE} && echo "YYY"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -325,13 +337,16 @@ home_fries_bashrc_cleanup () {
   local custom_bash=false
   if [ "$0" = 'bash' ] || [ "$0" = '-bash' ]; then
     if $(alias bash &> /dev/null); then
-      if [ "$(readlink -f "$(alias bash | /bin/sed -E 's/^.* ([^ ]+\/bash\>).*/\1/')")" != '/bin/bash' ]; then
+      # if [ "$(readlink -f "$(alias bash | /bin/sed -E 's/^.* ([^ ]+\/bash\>).*/\1/')")" != '/bin/bash' ]; then
+      if [ "$(readlink_f "$(alias bash | /bin/sed -E 's/^.* ([^ ]+\/bash\>).*/\1/')")" != '/bin/bash' ]; then
         custom_bash=true
       fi
-    elif [ "$(readlink -f "$(command -v bash)")" != '/bin/bash' ]; then
+    # elif [ "$(readlink -f "$(command -v bash)")" != '/bin/bash' ]; then
+    elif [ "$(readlink_f "$(command -v bash)")" != '/bin/bash' ]; then
       custom_bash=true
     fi
-  elif [ "$(readlink -f "$0")" != '/bin/bash' ]; then
+  # elif [ "$(readlink -f "$0")" != '/bin/bash' ]; then
+  elif [ "$(readlink_f "$0")" != '/bin/bash' ]; then
     custom_bash=true
   fi
   if ${custom_bash}; then

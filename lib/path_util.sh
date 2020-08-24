@@ -15,6 +15,88 @@ check_deps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# macOS compatibility shim.
+
+# https://stackoverflow.com/questions/5756524/how-to-get-absolute-path-name-of-shell-script-on-macos
+# External (non-Bash) solutions:
+# - Homebrew coreutils:
+#     realpath {}
+# - Perl:
+#     BASHRC_F=$(perl -MCwd=realpath -e "print realpath '${BASH_SOURCE[0]}'")
+# - Linux:
+#     readlink -f {}
+#
+# - Pure-shell approach, using recursion, and knowing `readlink {}`
+#   returns empty string on non-symlink. So recurse until resolved.
+
+readlink_f () {
+  local resolve_path="$1"
+  local ret_code=0
+  if [ "$(readlink --version 2> /dev/null)" ]; then
+    # Linux: Modern readlink.
+    resolve_path="$(readlink -f -- "${resolve_path}")"
+  else
+    # macOHHHH-ESS/macOS: No `readlink -f`.
+    local before_cd="$(pwd -L)"
+    while [ -n "${resolve_path}" ] && [ -h "${resolve_path}" ]; do
+      local basedir_link="$(dirname -- "${resolve_path}")"
+      # `readlink -f` checks all but final component exist.
+      # So if dir path leading to final componenet missing, return empty string.
+      if [ ! -e "${basedir_link}" ]; then
+        resolve_path=""
+        ret_code=1
+      else
+        local resolve_file
+        resolve_link="$(readlink -- "${resolve_path}")"
+        case "${resolve_link}" in
+          /*)
+            # Absolute path.
+            resolve_file="${resolve_link}"
+            ;;
+          *)
+            # Relative path.
+            resolve_file="${basedir_link}/${resolve_link}"
+            ;;
+        esac
+        local resolved_dir="$(dirname -- "${resolve_file}")"
+        if [ ! -d "${resolved_dir}" ]; then
+          resolve_path=""
+          ret_code=1
+        else
+          cd $(dirname -- "${resolve_file}") > /dev/null
+          resolve_path="$(pwd -P)/$(basename -- "${resolve_file}")"
+        fi
+      fi
+    done
+    cd "${before_cd}"
+  fi
+  echo -n "${resolve_path}"
+  [ -n "${resolve_path}" ] && echo
+  return ${ret_code}
+}
+
+readlink_e () {
+  local resolve_path="$1"
+  local ret_code=0
+  if [ "$(readlink --version 2> /dev/null)" ]; then
+    # Linux: Modern readlink.
+    resolve_path="$(readlink -e -- "${resolve_path}")"
+  else
+    # macOHHHH-ESS/macOS: No `readlink -e`.
+    resolve_path="$(readlink_f "${resolve_path}")"
+    # The `readlink -e` ensures all path components exist.
+    if [ ! -e "${resolve_path}" ]; then
+      resolve_path=""
+      ret_code=1
+    fi
+  fi
+  echo -n "${resolve_path}"
+  [ -n "${resolve_path}" ] && echo
+  return ${ret_code}
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # *** Path-related
 
 dir_resolve () {
@@ -31,7 +113,7 @@ dir_resolve () {
 # a filepath after following symlinks;
 # can be used in lieu of dir_resolve.
 symlink_dirname () {
-  echo $(dirname -- $(readlink -f -- "$1"))
+  echo "$(dirname -- "$(readlink_f "$1")")"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
