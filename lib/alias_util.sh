@@ -9,6 +9,8 @@
 check_deps () {
   # Verify sh-logger/bin/logger.sh loaded.
   check_dep '_sh_logger_log_msg'
+  # Verify .homefries/lib/distro_util.sh loaded.
+  check_dep 'os_is_macos'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -60,22 +62,25 @@ home_fries_create_aliases_general () {
 
   # *** Directory listings.
 
+  local color_opt="--color=auto"
+  os_is_macos && color_opt="-G"
+
   # 2015.01.20: Used to use --color=tty (which still works), but man says =auto.
-  alias ls='/bin/ls -hFA --color=auto'  # Human readable, classify files, shows
+  alias ls="/bin/ls -hFA ${color_opt}"  # Human readable, classify files, shows
                                         #   almost all (excludes ./ and ../),
                                         #   and uses colour.
   # See `l` function, below, so we can pipe to tail and get rid of "total" line.
-  # alias l='/bin/ls -lhFA --color=auto --group-directories-first'
+  # alias l="/bin/ls -lhFA ${color_opt} --group-directories-first"
                                         # Compact listing (same as -hFA, really),
                                         #   but list directories first which
                                         #   seems to make the output cleaner.
-  alias ll='/bin/ls -lhFa --color=auto' # Long listing; includes ./ and ../
+  alias ll="/bin/ls -lhFa ${color_opt}" # Long listing; includes ./ and ../
                                         #   (so you can check permissions)
-  alias lll='ll --time-style=long-iso'  # 2017-07-10: Show timestamps always.
-  alias lo='ll -rt'                     # Reverse sort by time.
-  alias llo='lo --time-style=long-iso'  # 2017-07-10: You get the ideaa.
-  alias lS='/bin/ls --color=auto -lhFaS' # Sort by size, from largest (empties last).
-  alias lS-='/bin/ls --color=auto -lFaS | sort -n -k5' # Sort by size, largest last.
+  alias lll="ll --time-style=long-iso"  # 2017-07-10: Show timestamps always.
+  alias lo="ll -rt"                     # Reverse sort by time.
+  alias llo="lo --time-style=long-iso"  # 2017-07-10: You get the ideaa.
+  alias lS="/bin/ls ${color_opt} -lhFaS" # Sort by size, from largest (empties last).
+  alias lS-="/bin/ls ${color_opt} -lFaS | sort -n -k5" # Sort by size, largest last.
 
   # *** Vim
 
