@@ -82,23 +82,28 @@ if [ -n "${HOMEFRIES_BASHRC_SH}" ]; then
 else
   # 2020-08-24: macOS: No `readlink -f`.
   echo "BASH_SOURCE[0]=${BASH_SOURCE[0]}"
-  # WRONG: export HOMEFRIES_BASHRCBIN="$(cd "$(dirname -- "${BASH_SOURCE[0]}")"; pwd -P)"
   # https://stackoverflow.com/questions/5756524/how-to-get-absolute-path-name-of-shell-script-on-macos
-  # See also: `realpath`, from Homebrew coreutils.
-  # And also, $(readlink -- "${BASH_SOURCE[0]}") returns its relative path.
-  # Perl works, too:
-  export HOMEFRIES_BASHRCBIN=$(perl -MCwd=realpath -e "print realpath '${BASH_SOURCE[0]}'")
-  # This is close, except it resolves just the first symlink. So if a symlink
-  # points to another symlink, you'd need to keep iterating.
+  # External (non-Bash) solutions:
+  # - Homebrew coreutils:
+  #     realpath {}
+  # - Perl:
+  #     BASHRC_F=$(perl -MCwd=realpath -e "print realpath '${BASH_SOURCE[0]}'")
+  # - Linux:
+  #     readlink -f {}
+  #
+  # - Pure-shell approach, using recursion, and knowing `readlink {}`
+  #   returns empty string on non-symlink. So recurse until resolved.
+  # FIXME/2020-08-24 14:23: Probably make this a utility function...
   BASHRC_F="${BASH_SOURCE[0]}"
   while [ -h "${BASHRC_F}" ]; do
     BASHRC_F="$(dirname -- "${BASHRC_F}")/$(readlink -- "${BASHRC_F}")"
   done
-  export HOMEFRIES_BASHRCBIN2="$(dirname -- "${BASHRC_F}")"
+  #
+  export HOMEFRIES_BASHRCBIN="$(dirname -- "${BASHRC_F}")"
+  unset BASHRC_F
 fi
 unset HOMEFRIES_BASHRC_SH
 echo "HOMEFRIES_BASHRCBIN=$HOMEFRIES_BASHRCBIN"
-echo "HOMEFRIES_BASHRCBIN2=$HOMEFRIES_BASHRCBIN2"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
