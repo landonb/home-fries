@@ -88,7 +88,7 @@ else
   # And also, $(readlink -- "${BASH_SOURCE[0]}") returns its relative path.
   # Perl works, too:
   export HOMEFRIES_BASHRCBIN=$(perl -MCwd=realpath -e "print realpath '${BASH_SOURCE[0]}'")
-  export HOMEFRIES_BASHRCBIN2="$(dirname -- "${BASH_SOURCE[0]}")/$(readlink -- "${BASH_SOURCE[0]}")"
+  export HOMEFRIES_BASHRCBIN2="$(dirname -- "${BASH_SOURCE[0]}")/$(dirname -- $(readlink -- "${BASH_SOURCE[0]}")"
 fi
 unset HOMEFRIES_BASHRC_SH
 echo "HOMEFRIES_BASHRCBIN=$HOMEFRIES_BASHRCBIN"
