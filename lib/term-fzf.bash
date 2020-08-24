@@ -68,6 +68,9 @@ fzf_wire_default_cmd_fd () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
+  # FIXME/2020-08-24 14:40: Make this path generic.
+  [ -d "/kit/working/golang/fzf" ] || return
+
   fzf_update_path
   fzf_wire_completion
   fzf_wire_key_bindings
