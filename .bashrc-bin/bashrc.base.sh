@@ -82,7 +82,8 @@ if [ -n "${HOMEFRIES_BASHRC_SH}" ]; then
 else
   # macOS: No `readlink -f`.
   echo "BASH_SOURCE[0]=${BASH_SOURCE[0]}"
-  export HOMEFRIES_BASHRCBIN="$(cd "$(dirname -- "${BASH_SOURCE[0]}")"; pwd -P)"
+  # WRONG: export HOMEFRIES_BASHRCBIN="$(cd "$(dirname -- "${BASH_SOURCE[0]}")"; pwd -P)"
+  export HOMEFRIES_BASHRCBIN=$(perl -MCwd=realpath -e "print realpath '${BASH_SOURCE[0]}'")
 fi
 unset HOMEFRIES_BASHRC_SH
 echo "HOMEFRIES_BASHRCBIN=$HOMEFRIES_BASHRCBIN"
