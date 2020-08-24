@@ -9,5 +9,5 @@
 # but then it sources ~/.bashrc on /bin/bash command.
 
 # sw_vers is macOS's ProductName, ProductVersion, and BuildVersion reporter.
-[ "$(sw_vers &> /dev/null)" ] && [ -r ~/.bashrc ] && . ~/.bashrc
+sw_vers &> /dev/null && [ -r ~/.bashrc ] && . ~/.bashrc
 
