@@ -76,9 +76,11 @@ ${HOMEFRIES_TRACE} && echo "User's EUID is ${EUID}"
 HOMEFRIES_BASHRC_SH="$(readlink -f -- "${BASH_SOURCE[0]}" 2> /dev/null)"
 if [ -n "${HOMEFRIES_BASHRC_SH}" ]; then
   # Linux.
+  echo "HOMEFRIES_BASHRC_SH=$HOMEFRIES_BASHRC_SH"
   export HOMEFRIES_BASHRCBIN="$(dirname -- "${HOMEFRIES_BASHRC_SH}")"
 else
   # macOS: No `readlink -f`.
+  echo "BASH_SOURCE[0]=${BASH_SOURCE[0]}"
   export HOMEFRIES_BASHRCBIN="$(cd "$(dirname -- "${BASH_SOURCE[0]}")"; pwd -P)"
 fi
 unset HOMEFRIES_BASHRC_SH
