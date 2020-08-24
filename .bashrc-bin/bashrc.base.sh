@@ -168,7 +168,16 @@ ensure_pathed () {
   local was_version
   was_version="${BASH_VERSION}"
   BASH_VERSION=""
-  . "${HOME}/.profile"
+# FIXME/2020-08-24 18:37: Temporary patch...
+#  . "${HOME}/.profile"
+  if [ -f "${HOME}/.profile" ]; then
+    . "${HOME}/.profile"
+  elif [ -f "${HOME}/.profile-OFF" ]; then
+# (lb): So that opening new terminal on macos does not load homefries,
+# while I'm making it macOS-compatible.
+    . "${HOME}/.profile-OFF"
+  fi
+
   BASH_VERSION="${was_version}"
 }
 
