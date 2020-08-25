@@ -655,11 +655,18 @@ enable_vi_style_editing () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# 2020-08-25: Replace ${VAR^^} with POSIX-compliant pipe chain (because macOS's
+# deprecated Bash is 3.x and does not support ${VAR^^} capitalization operator,
+# and the now-default zsh shell does not support ${VAR^^} capitalization).
+first_char_capped () {
+  echo "$1" | cut -c1-1 | tr '[:lower:]' '[:upper:]'
+}
+
 # 2017-06-06: Still refining Bash input experience.
 default_yes_question () {
   echo -n "Tell me yes or no. [Y/n] "
   read -e YES_OR_NO
-  if [[ ${YES_OR_NO^^} =~ ^Y.* || -z ${YES_OR_NO} ]]; then
+  if [ -z "${YES_OR_NO}" ] || [ "$(first_char_capped ${YES_OR_NO})" = 'Y' ]; then
     echo "YESSSSSSSSSSSSS"
   else
     echo "Apparently not"

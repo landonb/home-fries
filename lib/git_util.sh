@@ -13,6 +13,12 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+check_deps () {
+  check_dep 'first_char_capped'
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # *** Interrogate user on clobbery git command.
 
 # 2017-06-06: Like the home-fries /bin/rm monkey patch (rm_safe), why not
@@ -51,7 +57,10 @@ _git_safe () {
   if ${prompt_yourself}; then
     echo -n "Are you sure this is absolutely what you want? [Y/n] "
     read -e YES_OR_NO
-    if [[ ${YES_OR_NO^^} =~ ^Y.* ]] || [ -z "${YES_OR_NO}" ]; then
+    # As writ for Bash 4.x+ only:
+    #   if [[ ${YES_OR_NO^^} =~ ^Y.* ]] || [ -z "${YES_OR_NO}" ]; then
+    # Or as writ for POSIX-compliance:
+    if [ -z "${YES_OR_NO}" ] || [ "$(first_char_capped ${YES_OR_NO})" = 'Y' ]; then
       # FIXME/2017-06-06: Someday soon I'll remove this sillinessmessage.
       # - 2020-01-08: lb: I'll see it when I believe it.
       echo "YASSSSSSSSSSSSS"
@@ -87,6 +96,9 @@ git-bfg () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
+  check_deps
+  unset -f check_deps
+
   # unalias git 2> /dev/null
   alias git='_git_safe'
 }
