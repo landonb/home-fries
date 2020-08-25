@@ -207,18 +207,17 @@ suss_apache () {
 # Determine the Python version-path.
 suss_python () {
   # NOTE: The |& redirects the python output (which goes to stderr) to stdout.
+  #       Except to support Bash 3 (macOS Catalina), change `|&` → `2>&1 |`.
 
   # FIXME: Delete this and use the parsing version below.
   #
-  ## FIXME: Is this flexible enough? Probably...
-  ## 2012.08.21: Ubuntu 8.04 does not support the |& redirection syntax?
   #if [[ -n "`cat /etc/issue | grep '^Ubuntu 8.04'`" ]]; then
   #  PYTHONVERS2=python2.5
   #  PYVERSABBR2=py2.5
-  #elif [[ -n "`python --version |& grep 'Python 2.7'`" ]]; then
+  #elif [[ -n "`python --version 2>&1 | grep 'Python 2.7'`" ]]; then
   #  PYTHONVERS2=python2.7
   #  PYVERSABBR2=py2.7
-  #elif [[ -n "`python --version |& grep 'Python 2.6'`" ]]; then
+  #elif [[ -n "`python --version 2>&1 | grep 'Python 2.6'`" ]]; then
   #  PYTHONVERS2=python2.6
   #  PYVERSABBR2=py2.6
   #else
@@ -243,11 +242,12 @@ suss_python () {
   #fi
 
   # Convert, e.g., 'Python 3.6.9' to '3.6'.
-  PYVERS_RAW3=`python3 --version \
-    |& /usr/bin/awk '{print $2}' \
+  # Bash 3 (macOS) compatibility: more verbose `2>&1 |`, not shorter-hand `|&`.
+  PYVERS_RAW3=`python3 --version 2>&1 \
+    | /usr/bin/awk '{print $2}' \
     | /usr/bin/env sed -E 's/^([0-9]+\.[0-9]+)\.[0-9]+/\1/g'`
-  PYVERS3_DOTLESS=`python3 --version \
-    |& /usr/bin/awk '{print $2}' \
+  PYVERS3_DOTLESS=`python3 --version 2>&1 \
+    | /usr/bin/awk '{print $2}' \
     | /usr/bin/env sed -E 's/^([0-9]+)\.([0-9]+)\.[0-9]+/\1\2/g'`
   if [[ -z $PYVERS_RAW3 ]]; then
     echo
