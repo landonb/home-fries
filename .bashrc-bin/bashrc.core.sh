@@ -117,6 +117,9 @@ source_utils_all () {
 
   source_it "distro_util.sh"
 
+  # Ensure term_util.sh does not short-circuit return, as it does
+  # to skip reloading if already loaded -- expect here, on the first
+  # time through, we ensure that the latest term_util is always sourced.
   export _LOADED_HF_TERM_UTIL=false
   source_it "term_util.sh"
 
@@ -471,6 +474,7 @@ main () {
   unset -f source_it
   unset -f source_from_user_path_or_homefries_lib
   unset -f source_utils
+  unset -v _LOADED_HF_TERM_UTIL
 
   home_fries_up
   unset -f home_fries_up
