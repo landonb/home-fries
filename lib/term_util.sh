@@ -216,19 +216,19 @@ dubs_set_terminal_prompt () {
   # NOTE: Using "" below instead of '' so that ${titlebar} is resolved by the
   #       shell first.
   ${HOMEFRIES_TRACE} && echo "Setting prompt"
-  if [[ -e /proc/version ]]; then
-    if [[ $EUID -eq 0 ]]; then
+  if [ -e /proc/version ]; then
+    if [ $EUID -eq 0 ]; then
       ${HOMEFRIES_TRACE} && echo "Running as root!"
-      if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
+      if [ "$(cat /proc/version | grep Ubuntu)" ]; then
         ${HOMEFRIES_TRACE} && echo "Ubuntu"
         PS1="${titlebar}${bg_magenta}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_cyan}${basename}${attr_reset}\$ "
-      elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
+      elif [ "$(cat /proc/version | grep Red\ Hat)" ]; then
         ${HOMEFRIES_TRACE} && echo "Red Hat"
         PS1="${titlebar}${bg_magenta}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_gray}${basename}${attr_reset}\$ "
       else
         echo "WARNING: Not enough info. to set PS1."
       fi
-    elif [[ "`cat /proc/version | grep Ubuntu`" ]]; then
+    elif [ "$(cat /proc/version | grep Ubuntu)" ]; then
       ${HOMEFRIES_TRACE} && echo "Ubuntu"
       # 2015.03.04: I need to know when I'm in chroot hell.
       # NOTE: There's a better way using sudo to check if in chroot jail
@@ -260,7 +260,7 @@ dubs_set_terminal_prompt () {
         #             so use the Unicode \uXXXX escape in the outer only.
         PS1="${titlebar}${fg_red}**${cur_user}@**${fg_cyan}${mach_name}${attr_reset}:${fg_yellow}${basename}${attr_reset} "'! '
       fi
-    elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
+    elif [ "$(cat /proc/version | grep Red\ Hat)" ]; then
       ${HOMEFRIES_TRACE} && echo "Red Hat"
       PS1="${titlebar}${fg_cyan}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_gray}${basename}${attr_reset}\$ "
     else
@@ -363,15 +363,15 @@ dubs_fix_terminal_colors () {
   # Use the following commands to generate the export variable on your machine:
   # dircolors --print-database
   # dircolors --sh
-  if [[ -e /proc/version ]]; then
-    if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
+  if [ -e /proc/version ]; then
+    if [ "$(cat /proc/version | grep Ubuntu)" ]; then
       # echo Ubuntu!
       LS_COLORS='no=00:fi=00:di=01;34:ln=01;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:su=37;41:sg=30;43:tw=30;47:ow=34;47:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.svgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.lzma=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.bz2=01;31:*.bz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.rar=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:'
-    elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
+    elif [ "$(cat /proc/version | grep Red\ Hat)" ]; then
       # echo Red Hat!
       LS_COLORS='rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:su=37;41:sg=30;43:ca=30;41:tw=30;47:ow=34;47:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.xz=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.rar=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.lz=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.axv=01;35:*.anx=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.axa=00;36:*.oga=00;36:*.spx=00;36:*.xspf=00;36:';
     fi
-    if [[ -n ${LS_COLORS} ]]; then
+    if [ -n "${LS_COLORS}" ]; then
       export LS_COLORS
     fi
   else
@@ -405,7 +405,7 @@ invoked_from_terminal () {
   # just kill a script or if it will exit the user's terminal.
 
   local bashed=0
-  if [[ `echo "$0" | grep "bash$" -` ]]; then
+  if [ $(echo "$0" | grep "bash$" -) ]; then
     bashed=1
   fi
 
@@ -515,12 +515,12 @@ termdo-all () {
   for winid in ${WINDOW_IDS}; do
     # Don't send the command to this window, at least not yet, since it'll
     # end up on stdin of this fcn. and won't be honored as a bash command.
-    if [[ ${THIS_WINDOW_ID} -ne ${winid} ]]; then
+    if [ ${THIS_WINDOW_ID} -ne ${winid} ]; then
       # See if this is a legit window or not.
       local DESKTOP_NUM=$(xdotool get_desktop_for_window ${winid} 2> /dev/null)
       # For real terminal, the number is 0 or greater;
       # for the fakey, it's 0, and also xdotool returns 1.
-      if [[ $? -eq 0 ]]; then
+      if [ $? -eq 0 ]; then
         # This was my first attempt, before realizing the obvious.
         #   if false; then
         #     xdotool windowactivate --sync $winid
@@ -564,9 +564,9 @@ termdo-reset () {
   local WINDOW_IDS=$(get_terminal_window_ids)
   local winid
   for winid in $WINDOW_IDS; do
-    if [[ $THIS_WINDOW_ID -ne $winid ]]; then
+    if [ $THIS_WINDOW_ID -ne $winid ]; then
       local DESKTOP_NUM=$(xdotool get_desktop_for_window $winid 2> /dev/null)
-      if [[ $? -eq 0 ]]; then
+      if [ $? -eq 0 ]; then
         # Note that the terminal from whence this command is being run
         # will get the keystrokes -- but since the command is running,
         # the keystrokes sit on stdin and are ignored. Then along comes
@@ -592,9 +592,9 @@ termdo-cmd () {
   local WINDOW_IDS=$(get_terminal_window_ids)
   local winid
   for winid in $WINDOW_IDS; do
-    if [[ $THIS_WINDOW_ID -ne ${winid} ]]; then
+    if [ $THIS_WINDOW_ID -ne ${winid} ]; then
       local DESKTOP_NUM=$(xdotool get_desktop_for_window ${winid} 2> /dev/null)
-      if [[ $? -eq 0 ]]; then
+      if [ $? -eq 0 ]; then
 
         xdotool windowactivate --sync ${winid} key ctrl+c
         xdotool windowactivate --sync ${winid} key ctrl+d
@@ -743,7 +743,7 @@ echo_wmctrl_sticky_cmd_winid () {
 echo_wmctrl_sticky_cmd_winname () {
   local winname=$1
   local winid=$(wmctrl -l | grep "${winname}$" | cut -d ' ' -f 1)
-  if [[ -n ${winid} ]]; then
+  if [ -n "${winid}" ]; then
     winid="$(fg_mintgreen)${winid}"
   else
     #winid='~NOTFOUND~'
@@ -778,7 +778,7 @@ if false; then
       #   wmctrl -b add,sticky -r "${winnames[$i]}"
       # But Grep let's us be a little more precise (i.e., use $ for EOL).
       local winid=$(wmctrl -l | grep "${winnames[$i]}$" | cut -d ' ' -f 1)
-      if [[ -n ${winid} ]]; then
+      if [ -n "${winid}" ]; then
         wmctrl -b add,sticky -i -r ${winid}
       fi
     done
