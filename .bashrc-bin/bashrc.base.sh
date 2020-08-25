@@ -42,7 +42,15 @@ export HOMEFRIES_TRACE=${HOMEFRIES_TRACE:-true}
 # Script Setup
 # ============
 
-HOMEFRIES_TIME0=$(date +%s.%N)
+home_fries_nanos_now () {
+  if date --version &> /dev/null; then
+    date +%s.%N
+  else
+    python -c 'import time; print("{:.9f}".format(time.time()))'
+  fi
+}
+
+HOMEFRIES_TIME0="$(home_fries_nanos_now)"
 
 # YOU: Uncomment to enable logging to stdout:
 #  export HOMEFRIES_TRACE=${HOMEFRIES_TRACE:-true}
@@ -187,7 +195,7 @@ ensure_pathed () {
 # ===================
 
 source_system_rc () {
-  local time_0=$(date +%s.%N)
+  local time_0="$(home_fries_nanos_now)"
 
   # Source global definitions.
   if [ -f "/etc/bashrc" ]; then
@@ -207,7 +215,7 @@ source_system_rc () {
 # ===================================
 
 source_fries () {
-  local time_0=$(date +%s.%N)
+  local time_0="$(home_fries_nanos_now)"
 
   # Load the basic script. Defines aliases, configures things,
   # adjusts the terminal prompt, and adds a few functions.
@@ -226,7 +234,7 @@ source_privately () {
   local srctype="$2"
   if [ -f "${srcfile}" ]; then
     ${HOMEFRIES_TRACE} && echo "Loading ${srctype} resource script: ${srcfile}"
-    local time_0=$(date +%s.%N)
+    local time_0="$(home_fries_nanos_now)"
     . "${srcfile}"
     print_elapsed_time "${time_0}" "Source: ${srcfile}"
   else
@@ -296,7 +304,7 @@ start_somewhere_something () {
     # Run the command.
     # FIXME: Does this hang the startup script? I.e., we're running the command
     #        from this script... so this better be the last command we run!
-    local time_0="$(date +%s.%N)"
+    local time_0="$(home_fries_nanos_now)"
     eval "${HOMEFRIES_EVAL}"
     print_elapsed_time "${time_0}" "eval: HOMEFRIES_EVAL"
   fi
@@ -313,7 +321,7 @@ start_somewhere_something () {
 # =======
 
 home_fries_bashrc_cleanup () {
-  local time_0="$(date +%s.%N)"
+  local time_0="$(home_fries_nanos_now)"
 
   # Run the sourced-scripts' cleanup functions, to un-declare functions
   # (and remove cruft from user's environment).
@@ -324,7 +332,7 @@ home_fries_bashrc_cleanup () {
 
   # Show startup stats if user already tracing, or if profiling bashrc.
   if ${HOMEFRIES_TRACE:-false} || ${HOMEFRIES_PROFILING:-false}; then
-    local bashrc_time_n="$(date +%s.%N)"
+    local bashrc_time_n="$(home_fries_nanos_now)"
     local time_elapsed=$(\
       echo "${bashrc_time_n} - ${HOMEFRIES_TIME0}" | bc -l | xargs printf "%.2f" \
     )
@@ -395,7 +403,7 @@ environ_cleanup () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
-  local time_0=$(date +%s.%N)
+  local time_0="$(home_fries_nanos_now)"
 
   # Add ~/.local/bin to PATH, and ~/.local/lib to LD_LIBRARY_PATH,
   # which we need because that's where my custom tmux et al is at.

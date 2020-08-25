@@ -29,7 +29,7 @@ export_homefries_envs () {
 
 source_from_user_path_or_homefries_lib () {
   local lib_file="$1"
-  local time_0=$(date +%s.%N)
+  local time_0="$(home_fries_nanos_now)"
   ${HOMEFRIES_TRACE} && echo ". FRIES: ${lib_file}"
   print_loading_dot
   if command -v "${lib_file}" > /dev/null; then
@@ -168,7 +168,7 @@ source_utils_all () {
 # ***
 
 source_utils () {
-  local time_outer_0=$(date +%s.%N)
+  local time_outer_0="$(home_fries_nanos_now)"
   SOURCE_CNT=0
 
   source_utils_all
@@ -183,7 +183,7 @@ source_utils () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 eval_and_unset () {
-  local time_0=$(date +%s.%N)
+  local time_0="$(home_fries_nanos_now)"
 
   # So that the func being sourced can use stdout
   # to have this shell set, e.g., array variables.
@@ -194,7 +194,7 @@ eval_and_unset () {
 }
 
 run_and_unset () {
-  local time_0=$(date +%s.%N)
+  local time_0="$(home_fries_nanos_now)"
 
   print_loading_dot
 
@@ -207,7 +207,7 @@ run_and_unset () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 home_fries_up () {
-  local time_outer_0=$(date +%s.%N)
+  local time_outer_0="$(home_fries_nanos_now)"
 
   #########################
 
@@ -432,7 +432,7 @@ home_fries_up () {
   #########################
 
   # - lib/input_util.sh
-  local time_0=$(date +%s.%N)
+  local time_0="$(home_fries_nanos_now)"
   logitech-middle-mouse-click-disable
   unset -f logitech-middle-mouse-click-disable
   print_elapsed_time "${time_0}" "Action: middle-mouse-click-disable"
@@ -464,7 +464,7 @@ home_fries_up () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
-  local time_main_0=$(date +%s.%N)
+  local time_main_0="$(home_fries_nanos_now)"
 
   export_homefries_envs
   unset -f export_homefries_envs
