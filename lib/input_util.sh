@@ -146,7 +146,10 @@ logitech-middle-mouse-click-disable () {
     fi
   fi
   # Leave touchfile so we skip this operation on subsequent sessions.
-  mktemp --suffix="${suffix}" > /dev/null
+  # (lb): macOS does not support --suffix option.
+  #         mktemp --suffix="${suffix}" > /dev/null
+  local temptf="$(mktemp)"
+  mv "${temptf}" "${temptf}${suffix}"
 }
 
 middle-mouse-click-disable () {
