@@ -29,6 +29,8 @@ check_deps () {
 # - Pure-shell approach, using recursion, and knowing `readlink {}`
 #   returns empty string on non-symlink. So recurse until resolved.
 
+# SYNC_ME: This fcn. duplicated for each sh-* projects' source_deps boilerplate.
+
 readlink_f () {
   local resolve_path="$1"
   local ret_code=0
