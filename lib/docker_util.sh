@@ -120,9 +120,9 @@ docker_logs_all () {
   while read -r name; do
     echo "Tailing $name"
     # Show the container name in jobs list.
-    #echo eval "docker logs -f --tail=5 \"$name\" | /bin/sed -e \"s/^/[-- $name --] /\" &"
-    #eval "docker logs -f --tail=5 \"$name\" | /bin/sed -e \"s/^/[-- $name --] /\" &"
-    eval "docker logs -f --tail=100 \"$name\" | /bin/sed -e \"s/^/[-- $name --] /\" &"
+    #echo eval "docker logs -f --tail=5 \"$name\" | /usr/bin/env sed -e \"s/^/[-- $name --] /\" &"
+    #eval "docker logs -f --tail=5 \"$name\" | /usr/bin/env sed -e \"s/^/[-- $name --] /\" &"
+    eval "docker logs -f --tail=100 \"$name\" | /usr/bin/env sed -e \"s/^/[-- $name --] /\" &"
   done <<< "$names"
 
   # Don't exit this script until a Ctrl+C or all tails exit.

@@ -21,7 +21,7 @@ whats_python3 () {
   # 2016-07-18: Ubuntu 16.04: Adds a plus sign!: Python 3.5.1+
   local PYVERS_RAW3=`python3 --version \
     |& /usr/bin/awk '{print $2}' \
-    | /bin/sed -E 's/^([0-9]+\.[0-9]+)\.[0-9]+\+?/\1/g'`
+    | /usr/bin/env sed -E 's/^([0-9]+\.[0-9]+)\.[0-9]+\+?/\1/g'`
   if [[ -n $PYVERS_RAW3 ]]; then
     export PYTHONVERS3=python${PYVERS_RAW3}
     export PYVERSABBR3=py${PYVERS_RAW3}
@@ -33,7 +33,7 @@ whats_python3 () {
     echo "python3 --version: `python3 --version`"
     python3 --version
     python3 --version |& /usr/bin/awk '{print $2}'
-    python3 --version |& /usr/bin/awk '{print $2}' | /bin/sed -E 's/^([0-9]+\.[0-9]+)\.[0-9]+\+?/\1/g'
+    python3 --version |& /usr/bin/awk '{print $2}' | /usr/bin/env sed -E 's/^([0-9]+\.[0-9]+)\.[0-9]+\+?/\1/g'
     echo
     echo "######################################################################"
     echo
@@ -48,10 +48,10 @@ whats_python2 () {
   #              Default on Ubuntu 16.04: Python 2.7.12
   local PYVERS_RAW2=`python2 --version \
     |& /usr/bin/awk '{print $2}' \
-    | /bin/sed -E 's/^([0-9]+\.[0-9]+)\.[0-9]+/\1/g'`
+    | /usr/bin/env sed -E 's/^([0-9]+\.[0-9]+)\.[0-9]+/\1/g'`
   local PYVERS_DOTLESS2=`python2 --version \
     |& /usr/bin/awk '{print $2}' \
-    | /bin/sed -E 's/^([0-9]+)\.([0-9]+)\.[0-9]+/\1\2/g'`
+    | /usr/bin/env sed -E 's/^([0-9]+)\.([0-9]+)\.[0-9]+/\1\2/g'`
   if [[ -z $PYVERS_RAW2 ]]; then
     echo
     echo "######################################################################"

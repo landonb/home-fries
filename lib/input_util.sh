@@ -116,7 +116,7 @@ xinput_set_prop_touchpad_device_off () {
 #
 #   xinput list | grep pointer | grep Logitech | grep 'id='
 #
-#   xinput list | grep pointer | grep Logitech | /bin/sed -E 's/^.*id=([0-9]+).*/\1/'
+#   xinput list | grep pointer | grep Logitech | /usr/bin/env sed -E 's/^.*id=([0-9]+).*/\1/'
 #
 #   # My mouse has 2 IDs, 9 and 10.
 #   🍄 $ xinput get-button-map 9
@@ -138,7 +138,7 @@ logitech-middle-mouse-click-disable () {
       xinput list \
       | grep pointer \
       | grep Logitech \
-      | /bin/sed -E 's/^.*id=([0-9]+).*/\1/' \
+      | /usr/bin/env sed -E 's/^.*id=([0-9]+).*/\1/' \
       | xargs -I % /bin/bash -c 'xinput set-button-map % 1 0 3'
     fi
   fi

@@ -144,11 +144,11 @@ home_fries_create_aliases_general () {
   alias findi='find . -iname'
   # Show directory statistics: show count of files of each extension.
   # NOTE: \L to convert string to lowercase
-  alias stats="find . -type f -not -path './.git/*' | /bin/sed -n 's/..*\.//p' | /bin/sed -E 's/(.*)/\L\1/' | sort | uniq -c | sort -n -r"
+  alias stats="find . -type f -not -path './.git/*' | /usr/bin/env sed -n 's/..*\.//p' | /usr/bin/env sed -E 's/(.*)/\L\1/' | sort | uniq -c | sort -n -r"
   # Previous match finds files with dot.ends. Next one includes all files.
-  #   alias mostats="find . -type f -not -path './.git/*' | /bin/sed -n 's/\(..*\.\)\?\(..*\/\)\?//p' | /bin/sed -E 's/(.*)/\L\1/' | sort | uniq -c | sort -n -r"
+  #   alias mostats="find . -type f -not -path './.git/*' | /usr/bin/env sed -n 's/\(..*\.\)\?\(..*\/\)\?//p' | /usr/bin/env sed -E 's/(.*)/\L\1/' | sort | uniq -c | sort -n -r"
   # Or collect undotted files into one unnamed file count.
-  alias mostats="find . -type f -not -path './.git/*' | /bin/sed -n 's/\(..*\.\)\?//p' | /bin/sed -E 's/(.*)/\L\1/' | /bin/sed -n 's/\(..*\/.*\)\?//p' | sort | uniq -c | sort -n -r"
+  alias mostats="find . -type f -not -path './.git/*' | /usr/bin/env sed -n 's/\(..*\.\)\?//p' | /usr/bin/env sed -E 's/(.*)/\L\1/' | /usr/bin/env sed -n 's/\(..*\/.*\)\?//p' | sort | uniq -c | sort -n -r"
 
   # ***
 
@@ -237,6 +237,7 @@ home_fries_create_aliases_general () {
 
   # Use extended regex (-E, -r, --regexp-extended; -E is POSIX).
   # 2020-02-06: Disabled. Issues with `fzf`.
+  # 2020-08-24: Also I think my brained wiring got confused,
   #  alias sed='sed -E'
 
   # 2016-11-18: If ack -v works (unlike ag -v) I might use this.

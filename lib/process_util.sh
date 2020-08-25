@@ -45,7 +45,7 @@ die () {
 #
 # NOTE: You can determine the current setting from the shell using:
 #
-#        $ set -o | grep errexit | /bin/sed -E 's/^errexit\s+//'
+#        $ set -o | grep errexit | /usr/bin/env sed -E 's/^errexit\s+//'
 #
 #       which returns on or off.
 #

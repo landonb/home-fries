@@ -27,12 +27,12 @@ while [[ $# > 1 ]]; do
 done
 
 # Filter out false matches from class method regex
-/bin/sed -i -r \
+/usr/bin/env sed -i -E \
   '/^(if|switch|function|module\.exports|it|describe)	.+language:js$/d' \
   ${FILE}
 
 # Filter out false matches from object definition regex
-/bin/sed -i -r \
+/usr/bin/env sed -i -E \
   '/var[ 	]+[a-zA-Z0-9_$]+[ 	]+=[ 	]+require\(.+language:js$/d' \
   ${FILE}
 

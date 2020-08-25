@@ -245,10 +245,10 @@ suss_python () {
   # Convert, e.g., 'Python 3.6.9' to '3.6'.
   PYVERS_RAW3=`python3 --version \
     |& /usr/bin/awk '{print $2}' \
-    | /bin/sed -E 's/^([0-9]+\.[0-9]+)\.[0-9]+/\1/g'`
+    | /usr/bin/env sed -E 's/^([0-9]+\.[0-9]+)\.[0-9]+/\1/g'`
   PYVERS3_DOTLESS=`python3 --version \
     |& /usr/bin/awk '{print $2}' \
-    | /bin/sed -E 's/^([0-9]+)\.([0-9]+)\.[0-9]+/\1\2/g'`
+    | /usr/bin/env sed -E 's/^([0-9]+)\.([0-9]+)\.[0-9]+/\1\2/g'`
   if [[ -z $PYVERS_RAW3 ]]; then
     echo
     echo "######################################################################"
@@ -273,24 +273,22 @@ suss_python () {
 
 suss_postgres () {
   # Set this to, e.g., '8.4' or '9.1'.
-  #
-  # Note that if you alias sed, e.g., sed='sed -r', then you'll get an error if
-  # you source this script from the command line (e.g., it expands to sed -r -r).
-  # So use /bin/sed to avoid any alias.
+  # Note this uses `/usr/bin/env sed` and not just `sed`, so that it
+  # ignores any aliasing (especially `sed -E`, when you don't want it).
   tweak_errexit
   if [[ `command -v psql` ]]; then
     POSTGRESABBR=$( \
       psql --version \
       | grep psql \
-      | /bin/sed -E 's/psql \(PostgreSQL\) ([0-9]+\.[0-9]+)\.[0-9]+/\1/')
+      | /usr/bin/env sed -E 's/psql \(PostgreSQL\) ([0-9]+\.[0-9]+)\.[0-9]+/\1/')
     POSTGRES_MAJOR=$( \
       psql --version \
       | grep psql \
-      | /bin/sed -E 's/psql \(PostgreSQL\) ([0-9]+)\.[0-9]+\.[0-9]+/\1/')
+      | /usr/bin/env sed -E 's/psql \(PostgreSQL\) ([0-9]+)\.[0-9]+\.[0-9]+/\1/')
     POSTGRES_MINOR=$( \
       psql --version \
       | grep psql \
-      | /bin/sed -E 's/psql \(PostgreSQL\) [0-9]+\.([0-9]+)\.[0-9]+/\1/')
+      | /usr/bin/env sed -E 's/psql \(PostgreSQL\) [0-9]+\.([0-9]+)\.[0-9]+/\1/')
   fi # else, psql not installed (yet).
   reset_errexit
 }

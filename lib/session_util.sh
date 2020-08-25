@@ -373,10 +373,10 @@ touched_since_logged_on_desktop () {
   #
   # wtmp begins Wed Mar  4 20:06:32 2020
   #
-  # $ last -1 --fulltimes | head -1 | /bin/sed -E 's/ +/ /g' | cut -d' ' -f4-8
+  # $ last -1 --fulltimes | head -1 | /usr/bin/env sed -E 's/ +/ /g' | cut -d' ' -f4-8
   # Fri Mar 27 17:25:50 2020
   local logontime
-  logontime="$(last -1 --fulltimes | head -1 | /bin/sed -E 's/ +/ /g' | cut -d' ' -f4-8)"
+  logontime="$(last -1 --fulltimes | head -1 | /usr/bin/env sed -E 's/ +/ /g' | cut -d' ' -f4-8)"
 
   # See `man mktemp`: It defaults to TMPDIR or /tmp.
   local logontouch=$(mktemp --suffix "-HOMEFRIES_TOUCHYLOGON")

@@ -152,7 +152,7 @@ cleanup_loading_dots () {
     echo -e -n "${elapsed} "
     sleep 0.666
     echo -e -n "\r"
-    echo -n "${elapsed}" | /bin/sed 's/./ /'
+    echo -n "${elapsed}" | /usr/bin/env sed 's/./ /'
     echo -e -n "\r"
   }
   # YOU: Uncomment for quick, forgettable elapsed display.
@@ -317,7 +317,7 @@ home_fries_bashrc_cleanup () {
 
   # Run the sourced-scripts' cleanup functions, to un-declare functions
   # (and remove cruft from user's environment).
-  for unset_f in $(declare -F | grep '^declare -f unset_f_' | /bin/sed 's/^declare -f //'); do
+  for unset_f in $(declare -F | grep '^declare -f unset_f_' | /usr/bin/env sed 's/^declare -f //'); do
     # Call, e.g., unset_f_alias_util, unset_f_apache_util, etc.
     eval "${unset_f}"
   done
@@ -346,8 +346,8 @@ home_fries_bashrc_cleanup () {
   local custom_bash=false
   if [ "$0" = 'bash' ] || [ "$0" = '-bash' ]; then
     if $(alias bash &> /dev/null); then
-      # if [ "$(readlink -f "$(alias bash | /bin/sed -E 's/^.* ([^ ]+\/bash\>).*/\1/')")" != '/bin/bash' ]; then
-      if [ "$(readlink_f "$(alias bash | /bin/sed -E 's/^.* ([^ ]+\/bash\>).*/\1/')")" != '/bin/bash' ]; then
+      # if [ "$(readlink -f "$(alias bash | /usr/bin/env sed -E 's/^.* ([^ ]+\/bash\>).*/\1/')")" != '/bin/bash' ]; then
+      if [ "$(readlink_f "$(alias bash | /usr/bin/env sed -E 's/^.* ([^ ]+\/bash\>).*/\1/')")" != '/bin/bash' ]; then
         custom_bash=true
       fi
     # elif [ "$(readlink -f "$(command -v bash)")" != '/bin/bash' ]; then

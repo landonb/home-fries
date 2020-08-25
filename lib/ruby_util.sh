@@ -174,9 +174,9 @@ patch_export_chruby_use () {
     # MAYBE: If you need to cleanup old paths, something like this:
     #          GEM_PATH="$(\
     #            echo ${GEM_PATH} \
-    #            | /bin/sed -E "s@:?${GEM_HOME}[^:]*:@:@g" \
-    #            | /bin/sed -E s/^:// \
-    #            | /bin/sed -E s/:$//
+    #            | /usr/bin/env sed -E "s@:?${GEM_HOME}[^:]*:@:@g" \
+    #            | /usr/bin/env sed -E s/^:// \
+    #            | /usr/bin/env sed -E s/:$//
     #          )"
     # Check if patch version.
     PATCH_NUM=$(ruby -e "puts RUBY_VERSION.split('.')[2]")
@@ -188,7 +188,7 @@ patch_export_chruby_use () {
       echo "Monkey patching!"
       ruby_set_gem_path
       # WRONG:
-      #RUBY_ROOT_ZERO=$(echo ${RUBY_ROOT} | /bin/sed -E s/-${RUBY_VERSION}$/-${RUBY_MINOR_ZERO}/)
+      #RUBY_ROOT_ZERO=$(echo ${RUBY_ROOT} | /usr/bin/env sed -E s/-${RUBY_VERSION}$/-${RUBY_MINOR_ZERO}/)
       #export PATH="${PATH}:${RUBY_ROOT_ZERO}/bin"
       #export PATH="${PATH}:${GEM_HOME/${RUBY_VERSION}/${RUBY_MINOR_ZERO}}/bin"
       local gem_ruby_bin="${GEM_HOME/${RUBY_VERSION}/${RUBY_MINOR_ZERO}}/bin"
