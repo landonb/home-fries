@@ -216,10 +216,10 @@ dubs_set_terminal_prompt () {
   # NOTE: Using "" below instead of '' so that ${titlebar} is resolved by the
   #       shell first.
   ${HOMEFRIES_TRACE} && echo "Setting prompt"
-  if [ -e /proc/version ]; then
+  if [ -e /proc/version ] || os_is_macos ; then
     if [ $EUID -eq 0 ]; then
       ${HOMEFRIES_TRACE} && echo "Running as root!"
-      if [ "$(cat /proc/version | grep Ubuntu)" ]; then
+      if os_is_macos || [ "$(cat /proc/version | grep Ubuntu)" ]; then
         ${HOMEFRIES_TRACE} && echo "Ubuntu"
         PS1="${titlebar}${bg_magenta}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_cyan}${basename}${attr_reset}\$ "
       elif [ "$(cat /proc/version | grep Red\ Hat)" ]; then
@@ -228,7 +228,7 @@ dubs_set_terminal_prompt () {
       else
         echo "WARNING: Not enough info. to set PS1."
       fi
-    elif [ "$(cat /proc/version | grep Ubuntu)" ]; then
+    elif os_is_macos || [ "$(cat /proc/version | grep Ubuntu)" ]; then
       ${HOMEFRIES_TRACE} && echo "Ubuntu"
       # 2015.03.04: I need to know when I'm in chroot hell.
       # NOTE: There's a better way using sudo to check if in chroot jail
