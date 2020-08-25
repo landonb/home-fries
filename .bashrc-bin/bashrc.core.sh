@@ -117,6 +117,7 @@ source_utils_all () {
 
   source_it "distro_util.sh"
 
+  export _LOADED_HF_TERM_UTIL=false
   source_it "term_util.sh"
 
   # *** External projects (revisited).
