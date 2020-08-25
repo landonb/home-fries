@@ -19,6 +19,7 @@ check_deps () {
   # Verify sh-logger/bin/logger.sh loaded.
   check_dep '_sh_logger_log_msg'
   # Verify distro_util.sh loaded.
+  # - Including 'os_is_macos'.
   check_dep 'suss_window_manager'
 }
 
@@ -45,6 +46,11 @@ dubs_logged_on_via_ssh () {
     esac
   fi
   return 1
+}
+
+user_not_trapped_chroot () {
+  ( os_is_linux && [ $(stat -c %i /) -eq 2 ] ) ||
+  ( os_is_macos && [ $(stat -f %i /) -eq 2 ] )
 }
 
 fries_format_titlebar () {
@@ -95,7 +101,7 @@ fries_format_titlebar () {
     # echo "User not logged on via SSH"
     if [ "${HOMEFRIES_TITLE}" != '' ]; then
       titlebar="\[\e]0;${sticky_alert}${HOMEFRIES_TITLE}\a\]"
-    elif [[ $(stat -c %i /) -eq 2 ]]; then
+    elif user_not_trapped_chroot; then
       # Not in chroot jail.
       #  titlebar="\[\e]0;\u@\h:\w\a\]"
       #  titlebar="\[\e]0;\w:(\u@\h)\a\]"
@@ -233,7 +239,7 @@ dubs_set_terminal_prompt () {
       if $(dubs_logged_on_via_ssh); then
         # 2018-12-23: Killer.
         PS1="${titlebar}${fg_gray}${cur_user}$(attr_italic)$(attr_underline)$(fg_lightorange)@${mach_name}${attr_reset}:${fg_cyan}${basename}${attr_reset} ${u_skull} \$ "
-      elif [[ $(stat -c %i /) -eq 2 ]]; then
+      elif user_not_trapped_chroot; then
         #PS1="${titlebar}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]\$ "
         # 2015.03.04: The chroot is Ubuntu 12.04, and it's Bash v4.2 does not
         #             support Unicode \uXXXX escapes, so use the escape in the
