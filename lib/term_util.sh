@@ -169,7 +169,11 @@ dubs_set_terminal_prompt () {
   local attr_reset='\[\033[00m\]'
   local attr_underlined="\033[4m"
   # local attr_bold="\[\033[1m\]"  # See also: $(tput bold).
+  #
   local mach_name='\h'
+  # (lb): 2020-08-24: At least on Mac I use, hostname is 16-character MAC.
+  is_on_macos && mach_name="$(scutil --get LocalHostName | sed -E 's/(.{8}).*/\1/')"
+  #
   local basename='\W'
 
   # Configure a colorful prompt of the following format:
@@ -205,7 +209,11 @@ dubs_set_terminal_prompt () {
   local u_anchor=$(echo -e "\u2693")            # ⚓
   local u_evergreen_tree=$(echo -e "\U1F332")   # 🌲
   local u_cactus=$(echo -e "\U1F335")           # 🌵
+  #
   local u_mushroom=$(echo -e "\U1F344")         # 🍄
+  # NOTE: Bash \u support was added 4.2, and macOS Catalina on 3.x...
+  is_on_macos && u_mushroom=🍄
+  #
   local u_skull=$(echo -e "\U1F480")            # 💀
   # Skull and Crossbones draws too light:
   #  local u_skull_n_xbones=$(echo -e "\u2620") # ☠
