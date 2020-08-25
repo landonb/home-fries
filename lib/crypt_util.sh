@@ -116,6 +116,9 @@ daemonize_gpg_agent () {
   if [ -n "${SSH_CLIENT}" ] || [ -n "${SSH_TTY}" ] || [ -n "${SSH_CONNECTION}" ]; then
       return
   fi
+  # 2020-08-24: (lb): Skip if no gpg-agent (e.g., macOS Catalina).
+  command -v gpg-agent > /dev/null || return
+  # Check if gpg-agent is running, and start if not.
   ps -C gpg-agent &> /dev/null
   if [[ $? -ne 0 ]]; then
     local eff_off_gkr
