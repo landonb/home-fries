@@ -3,12 +3,6 @@
 # Project: https://github.com/landonb/home-fries#🍟
 # License: MIT
 
-
-
-# FIXME/2020-08-24 14:27: TEMPORARY ECHO ENABLEMENT:
-export HOMEFRIES_TRACE=${HOMEFRIES_TRACE:-true}
-
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Overview
@@ -172,20 +166,11 @@ cleanup_loading_dots () {
 ensure_pathed () {
   # HACK!
   # - Unset BASH_VERSION so ~/.profile doesn't load *us*!
-  #   But updates PATH and LD_LIBRARY_PATH instead.
+  #   The script will update PATH and LD_LIBRARY_PATH instead.
   local was_version
   was_version="${BASH_VERSION}"
   BASH_VERSION=""
-# FIXME/2020-08-24 18:37: Temporary patch...
-#  . "${HOME}/.profile"
-  if [ -f "${HOME}/.profile" ]; then
-    . "${HOME}/.profile"
-  elif [ -f "${HOME}/.profile-OFF" ]; then
-# (lb): So that opening new terminal on macos does not load homefries,
-# while I'm making it macOS-compatible.
-    . "${HOME}/.profile-OFF"
-  fi
-
+  . "${HOME}/.profile"
   BASH_VERSION="${was_version}"
 }
 
