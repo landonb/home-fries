@@ -120,10 +120,10 @@ daemonize_gpg_agent () {
   command -v gpg-agent > /dev/null || return
   # Check if gpg-agent is running, and start if not.
   ps -C gpg-agent &> /dev/null
-  if [[ $? -ne 0 ]]; then
+  if [ $? -ne 0 ]; then
     local eff_off_gkr
     eff_off_gkr=$(gpg-agent --daemon 2> /dev/null)
-    if [[ $? -eq 0 ]]; then
+    if [ $? -eq 0 ]; then
       eval "${eff_off_gkr}"
     else
       # else, do I care?
