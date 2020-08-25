@@ -341,6 +341,10 @@ home_fries_up () {
   # - lib/term_util.sh
   run_and_unset "dubs_hook_filename_rubout"
 
+  # Silence a macOS-specific logon alert.
+  # - lib/term_util.sh
+  run_and_unset "dubs_macos_silence_bash_warning"
+
   #########################
 
   # Setup distro-agnostic Python and Apache wrappers, aliases, and environs.
