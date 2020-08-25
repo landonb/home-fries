@@ -121,6 +121,8 @@ fries_format_titlebar () {
   echo "${titlebar}"
 }
 
+echo "XXXXXXXXXXXXXXXx: dubs_set_terminal_prompt"
+
 dubs_set_terminal_prompt () {
   # If the user sets a custom PS1, e.g., for an `asciinema rec` demo
   # recording, honor it.
