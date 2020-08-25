@@ -172,7 +172,7 @@ dubs_set_terminal_prompt () {
   #
   local mach_name='\h'
   # (lb): 2020-08-24: At least on Mac I use, hostname is 16-character MAC.
-  is_on_macos && mach_name="$(scutil --get LocalHostName | sed -E 's/(.{8}).*/\1/')"
+  os_is_macos && mach_name="$(scutil --get LocalHostName | sed -E 's/(.{8}).*/\1/')"
   #
   local basename='\W'
 
@@ -212,7 +212,7 @@ dubs_set_terminal_prompt () {
   #
   local u_mushroom=$(echo -e "\U1F344")         # 🍄
   # NOTE: Bash \u support was added 4.2, and macOS Catalina on 3.x...
-  is_on_macos && u_mushroom=🍄
+  os_is_macos && u_mushroom=🍄
   #
   local u_skull=$(echo -e "\U1F480")            # 💀
   # Skull and Crossbones draws too light:
