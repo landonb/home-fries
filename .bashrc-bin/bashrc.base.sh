@@ -37,9 +37,14 @@
 # ============
 
 home_fries_nanos_now () {
-  if date --version &> /dev/null; then
+  if command -v gdate &> /dev/null; then
+    # macOS (brew install coreutils).
+    gdate +%s.%N
+  elif date --version &> /dev/null; then
+    # Linux/GNU.
     date +%s.%N
   else
+    # macOS pre-coreutils.
     python -c 'import time; print("{:.9f}".format(time.time()))'
   fi
 }

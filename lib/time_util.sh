@@ -15,13 +15,13 @@ simpletimeit () {
       echo "Nothing took no time."
       return
     else
-      time_0=$(date +%s.%N)
+      time_0=$(home_fries_nanos_now)
       $*
     fi
   else
     time_0=${simpletimeit_0}
   fi
-  local time_1=$(date +%s.%N)
+  local time_1=$(home_fries_nanos_now)
   local elapsed=`printf "%.2F" $(echo "($time_1 - $time_0) / 60.0" | bc -l)`
   echo
   echo "Your task took ${elapsed} mins."

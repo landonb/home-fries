@@ -14,7 +14,7 @@
 #   but consistently slow!)
 
 source_virtualenvwrapper () {
-  local time_outer_0=$(date +%s.%N)
+  local time_outer_0=$(home_fries_nanos_now)
 
   # Before sourcing the virturalenv wrapper, remove remnants from PATH.
   # That is, if you `workon <venv>` and than run `bash` or `tmux`, the

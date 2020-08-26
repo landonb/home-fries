@@ -182,7 +182,7 @@ exit_on_last_error () {
 }
 
 # # Start timer...
-# export script_time_0=$(date +%s.%N)
+# export script_time_0=$(home_fries_nanos_now)
 #
 wait_bg_tasks () {
   WAITPIDS=$1
@@ -194,7 +194,7 @@ wait_bg_tasks () {
   $DEBUG_TRACE && echo "                           ... WAITTAIL=${WAITTAIL[*]}"
 
   if [[ -n ${WAITPIDS} ]]; then
-    time_1=$(date +%s.%N)
+    time_1=$(home_fries_nanos_now)
     $DEBUG_TRACE && printf "Waiting for background tasks after %.2F mins.\n" \
         $(echo "(${time_1} - ${script_time_0}) / 60.0" | bc -l)
 
@@ -216,7 +216,7 @@ wait_bg_tasks () {
     $DEBUG_TRACE && echo "All background tasks complete!"
     $DEBUG_TRACE && echo ""
 
-    time_2=$(date +%s.%N)
+    time_2=$(home_fries_nanos_now)
     $DEBUG_TRACE && printf "Waited for background tasks for %.2F mins.\n" \
         $(echo "(${time_2} - ${time_1}) / 60.0" | bc -l)
   fi

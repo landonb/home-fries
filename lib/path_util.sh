@@ -141,7 +141,7 @@ flock_dir () {
 
   tweak_errexit +eE # Stay on error
 
-  local fcn_time_0=$(date +%s.%N)
+  local fcn_time_0=$(home_fries_nanos_now)
 
   $DEBUG_TRACE && echo "Attempting grab on mutex: ${FLOCKING_DIR_PATH}"
 
@@ -227,13 +227,13 @@ flock_dir () {
             "or for at most ${FLOCKING_TIMELIMIT} secs."
           spoken_once=true
         fi
-        local spoken_time_0=$(date +%s.%N)
+        local spoken_time_0=$(home_fries_nanos_now)
         sleep ${RAND_0_to_10}
         # Try again.
         local resp=`/bin/mkdir "${FLOCKING_DIR_PATH}" 2>&1`
         local success=$?
         # Get the latest time.
-        local fcn_time_1=$(date +%s.%N)
+        local fcn_time_1=$(home_fries_nanos_now)
         local elapsed_time=$(echo "($fcn_time_1 - $fcn_time_0) / 1.0" | bc -l)
         # See if we made it.
         if [ ${success} -eq 0 ]; then
@@ -258,7 +258,7 @@ flock_dir () {
               local elapsed_mins=$(echo "($fcn_time_1 - $fcn_time_0) / 60.0" | bc -l)
               $DEBUG_TRACE && echo "Update: Mutex still in use after: "\
                                    "${elapsed_mins} mins.; still trying..."
-              spoken_time_0=$(date +%s.%N)
+              spoken_time_0=$(home_fries_nanos_now)
             fi
           fi
         # else, loop forever, maybe. ;)
