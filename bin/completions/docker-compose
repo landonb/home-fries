@@ -7,7 +7,7 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # (lb): 2020-08-24: Apparently not on macOS: Syntax error on `@($`, below.
-if bash --version | grep "^GNU bash, version 3." > /dev/null; then
+if echo ${BASH_VERSION} | grep "^3." > /dev/null; then
 	>&2 echo "WARNING: Skipping: ${BASH_SOURCE[0]} (Bash version 3.x)"
 	return
 fi
