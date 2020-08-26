@@ -118,8 +118,7 @@ readlink_f () {
     done
     cd "${before_cd}"
   fi
-  echo -n "${resolve_path}"
-  [ -n "${resolve_path}" ] && echo
+  [ -n "${resolve_path}" ] && echo "${resolve_path}"
   return ${ret_code}
 }
 
