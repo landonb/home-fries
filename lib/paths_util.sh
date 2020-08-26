@@ -25,15 +25,15 @@ home_fries_add_to_path_sbin () {
   #   The command could not be located because '/sbin' is not included in the PATH environment variable.
   #   This is most likely caused by the lack of administrative privileges associated with your user account.
   #   ifconfig: command not found
-  path_suffix "/sbin"
+  path_prefix "/sbin"
 }
 
 home_fries_add_to_path_usr_local_bins () {
   # 2020-08-26: On macOS, default `bash --noprofile --norc` PATH is:
   #   /usr/bin:/bin:/usr/sbin:/sbin
   # Where's /usr/local/bin? Did I do something to mess it up?
-  path_suffix "/usr/local/bin"
-  path_suffix "/usr/local/sbin"
+  path_prefix "/usr/local/sbin"
+  path_prefix "/usr/local/bin"
 }
 
 home_fries_add_to_path_home_fries_lib () {
