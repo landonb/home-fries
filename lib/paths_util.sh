@@ -28,6 +28,14 @@ home_fries_add_to_path_sbin () {
   path_suffix "/sbin"
 }
 
+home_fries_add_to_path_usr_local_bins () {
+  # 2020-08-26: On macOS, default `bash --noprofile --norc` PATH is:
+  #   /usr/bin:/bin:/usr/sbin:/sbin
+  # Where's /usr/local/bin? Did I do something to mess it up?
+  path_suffix "/usr/local/bin"
+  path_suffix "/usr/local/sbin"
+}
+
 home_fries_add_to_path_home_fries_lib () {
   # Make sourcing Home Fries files easy.
   path_prefix "${HOMEFRIES_DIR}/lib"
@@ -121,6 +129,9 @@ home_fries_set_path_environ () {
 
   home_fries_add_to_path_sbin
   unset -f home_fries_add_to_path_sbin
+
+  home_fries_add_to_path_usr_local_bins
+  unset -f home_fries_add_to_path_usr_local_bins
 
   home_fries_add_to_path_home_fries_lib
   unset -f home_fries_add_to_path_home_fries_lib
