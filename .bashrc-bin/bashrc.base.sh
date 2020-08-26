@@ -37,7 +37,7 @@
 # ============
 
 home_fries_nanos_now () {
-  if command -v gdate &> /dev/null; then
+  if command -v gdate > /dev/null; then
     # macOS (brew install coreutils).
     gdate +%s.%N
   elif date --version &> /dev/null; then
