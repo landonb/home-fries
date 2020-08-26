@@ -29,8 +29,8 @@ home_fries_add_to_path_bins () {
 }
 
 home_fries_add_to_path_usr_bins () {
-  path_prefix "/local/sbin"
-  path_prefix "/local/bin"
+  path_prefix "/usr/sbin"
+  path_prefix "/usr/bin"
 }
 
 home_fries_add_to_path_usr_local_bins () {
