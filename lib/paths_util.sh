@@ -13,12 +13,11 @@ check_deps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# MEH/2019-09-16: Some of these paths are author-specific.
-# But they're also paths to commands installed via Zoidy Pooh Ansible.
-# So it's not that much of a stretch to include them herein, as
-# opposed to moving to the author's private startup script.
+# Some of the standard system path components will already exist, but
+# set them here so our code reorders these, keeping them clustered
+# together.
 
-home_fries_add_to_path_sbin () {
+home_fries_add_to_path_bins () {
   # No whep. 2016.04.28 and this is the first time I've seen this.
   #   $ ifconfig
   #   Command 'ifconfig' is available in '/sbin/ifconfig'
@@ -26,6 +25,12 @@ home_fries_add_to_path_sbin () {
   #   This is most likely caused by the lack of administrative privileges associated with your user account.
   #   ifconfig: command not found
   path_prefix "/sbin"
+  path_prefix "/bin"
+}
+
+home_fries_add_to_path_bins () {
+  path_prefix "/local/sbin"
+  path_prefix "/local/bin"
 }
 
 home_fries_add_to_path_usr_local_bins () {
@@ -35,6 +40,8 @@ home_fries_add_to_path_usr_local_bins () {
   path_prefix "/usr/local/sbin"
   path_prefix "/usr/local/bin"
 }
+
+# ++++++++++++++++++++++++++++++ #
 
 home_fries_add_to_path_home_fries_lib () {
   # Make sourcing Home Fries files easy.
@@ -54,6 +61,11 @@ home_fries_add_to_path_home_local_bin () {
 }
 
 # ++++++++++++++++++++++++++++++ #
+
+# MEH/2019-09-16: Some of these paths are author-specific.
+# But they're also paths to commands installed via Zoidy Pooh Ansible.
+# So it's not that much of a stretch to include them herein, as
+# opposed to moving to the author's private startup script.
 
 # MAYBE/2019-09-16: You could move these Node-, Java-/Android-, and golang-specific
 # functions to new language-specific files, e.g., .homefries/lib/node_util.sh,
@@ -127,8 +139,11 @@ home_fries_set_path_environ () {
 
   # ++++++++++++++++++++++++++++++ #
 
-  home_fries_add_to_path_sbin
-  unset -f home_fries_add_to_path_sbin
+  home_fries_add_to_path_bins
+  unset -f home_fries_add_to_path_bins
+
+  home_fries_add_to_path_usr_bins
+  unset -f home_fries_add_to_path_usr_bins
 
   home_fries_add_to_path_usr_local_bins
   unset -f home_fries_add_to_path_usr_local_bins
