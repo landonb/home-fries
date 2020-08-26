@@ -82,7 +82,7 @@ home_fries_add_to_path_java_jdk_jre () {
   local install_dir="${HOME}/.downloads"
 
   local jdk_dir="${install_dir}/jdk"
-  if [[ -d "${jdk_dir}" ]]; then
+  if [ -d "${jdk_dir}" ]; then
     # FIXME/2019-09-16: Seems like a weird side-effect of updating PATH
     #                   to also be exporting other variables.
     export JAVA_HOME="${jdk_dir}"
@@ -101,7 +101,7 @@ home_fries_add_to_path_android_studio () {
 
   # 2017-02-25: Have I been missing ANDROID_HOME for this long??
   local sdk_dir="${install_dir}/Android/Sdk"
-  if [[ -d "${sdk_dir}" ]]; then
+  if [ -d "${sdk_dir}" ]; then
     # FIXME/2019-09-16: Seems like a weird side-effect of updating PATH
     #                   to also be exporting other variables.
     export ANDROID_HOME=${install_dir}/Android/Sdk
@@ -111,7 +111,7 @@ home_fries_add_to_path_android_studio () {
 
 home_fries_add_to_path_golang () {
   local go_dir="${HOME}/.gopath"
-  if [[ -d "${go_dir}" ]]; then
+  if [ -d "${go_dir}" ]; then
     # FIXME/2019-09-16: Seems like a weird side-effect of updating PATH
     #                   to also be exporting other variables.
     export GOPATH="${go_dir}"
