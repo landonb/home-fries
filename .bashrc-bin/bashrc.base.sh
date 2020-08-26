@@ -411,6 +411,7 @@ main () {
   export HOME_FRIES_PRELOAD=true
   source_private
 
+  # This sources bashrc.core.sh.
   source_fries
   unset -f source_fries
 
