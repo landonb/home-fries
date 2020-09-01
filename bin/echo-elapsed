@@ -54,4 +54,3 @@ else
   unset -f bash_sourced
 fi
 
-
