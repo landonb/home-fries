@@ -100,7 +100,7 @@ readlink_f () {
         ret_code=1
       else
         local resolve_file
-        resolve_link="$(readlink -- "${resolve_path}")"
+        local resolve_link="$(readlink -- "${resolve_path}")"
         case "${resolve_link}" in
           /*)
             # Absolute path.
@@ -116,7 +116,7 @@ readlink_f () {
           resolve_path=""
           ret_code=1
         else
-          cd $(dirname -- "${resolve_file}") > /dev/null
+          cd "${resolved_dir}" > /dev/null
           resolve_path="$(pwd -P)/$(basename -- "${resolve_file}")"
         fi
       fi
