@@ -110,7 +110,20 @@ home_fries_mlocate_wire_private_db () {
 #     gpg-agent --daemon > /home/landonb/.gnupg/gpg-agent-info-larry
 #     ssh-agent -k
 #     bash
-#
+
+ps_check_if_running () {
+  local process_name="$1"
+  # Check if GNU ps or not, which returns a version of, e.g.,
+  #   ps from procps-ng 3.3.12
+  # And where non-GNU ps, specifically macOS, fails on:
+  #   ps: illegal option -- -
+  if ps --version > /dev/null 2>&1; then
+    ps -C "${process_name}" &> /dev/null
+  else
+    ps axc | grep "${process_name}" > /dev/null
+  fi
+}
+
 daemonize_gpg_agent () {
   # 2018-06-26: (lb): Skip if in SSH session.
   if [ -n "${SSH_CLIENT}" ] || [ -n "${SSH_TTY}" ] || [ -n "${SSH_CONNECTION}" ]; then
@@ -119,8 +132,7 @@ daemonize_gpg_agent () {
   # 2020-08-24: (lb): Skip if no gpg-agent (e.g., macOS Catalina).
   command -v gpg-agent > /dev/null || return
   # Check if gpg-agent is running, and start if not.
-  ps -C gpg-agent &> /dev/null
-  if [ $? -ne 0 ]; then
+  if ! ps_check_if_running "gpg-agent"; then
     local eff_off_gkr
     eff_off_gkr=$(gpg-agent --daemon 2> /dev/null)
     if [ $? -eq 0 ]; then
