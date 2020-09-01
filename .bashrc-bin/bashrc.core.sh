@@ -99,8 +99,11 @@ source_utils_all () {
 
   # sh-pather/bin/*
   #  source_it "pather.sh"
-  #  source_it "path_prefix"
-  #  source_it "path_suffix"
+  # Ensure these are sourced so that the function is executed,
+  # and not the script, because running a script (a subprocess)
+  # cannot change the current environment's PATH.
+  source_it "path_prefix"
+  source_it "path_suffix"
 
   # sh-rm_safe/bin/*
   #  source_it "path_device"
