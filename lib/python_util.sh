@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # vim:tw=0:ts=2:sw=2:et:norl:ft=sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
 # Project: https://github.com/landonb/home-fries#🍟
@@ -45,7 +45,7 @@ whats_python3 () {
     echo
     echo "######################################################################"
     echo
-    # If we exit, you cannot log on the terminal! Because /bin/bash exits...
+    # If we exit, you cannot log on the terminal! Because bash exits...
     #exit 1
   fi
 }
@@ -68,7 +68,7 @@ whats_python2 () {
     echo
     echo "######################################################################"
     echo
-    # If we exit, you cannot log on the terminal! Because /bin/bash exits...
+    # If we exit, you cannot log on the terminal! Because bash exits...
     #exit 1
   fi
   PYVERS_RAW2=${PYVERS_RAW2}

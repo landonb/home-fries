@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # vim:tw=0:ts=4:sw=4:noet:norl:ft=sh
 # Author: https://github.com/Bash-it/bash-it/blob/master/completion/available/docker-compose.completion.bash
 # Project: https://github.com/landonb/home-fries#🍟

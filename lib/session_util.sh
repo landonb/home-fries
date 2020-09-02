@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # vim:tw=0:ts=2:sw=2:et:norl:ft=sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
 # Project: https://github.com/landonb/home-fries#🍟
@@ -43,7 +43,7 @@ termdo-bash-reset () {
   # Nonetheless, if you like a mostly clean house, we can exit any
   # subshells first to minimize the depth of the bash hole we make.
   #
-  # On approach might be to use kill. But then how do you distinguish
+  # One approach might be to use kill. But then how do you distinguish
   # between a terminal that's in a subshell vs one that's not?
   # If you look at `ps aux | grep bash`, you'll see that the top-level
   # terminal processes are just 'bash', and subshells created are
@@ -61,8 +61,9 @@ termdo-bash-reset () {
   # don't work from the same shell (the second is apparently ignored),
   # so sub-shell the first call and sleep to make it work.
   termdo-all bash-exit-bash-hole &
-  #sleep 0.5
+  #  sleep 0.5
   sleep 1.0
+  # FIXME/2020-09-01: Does this still work now that `/bin/bash` → `/usr/bin/env bash`?
   termdo-all /bin/bash
 }
 

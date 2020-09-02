@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # vim:tw=0:ts=2:sw=2:et:norl:ft=sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
 # Project: https://github.com/landonb/home-fries#🍟
@@ -142,7 +142,7 @@ logitech-middle-mouse-click-disable () {
       | grep pointer \
       | grep Logitech \
       | /usr/bin/env sed -E 's/^.*id=([0-9]+).*/\1/' \
-      | xargs -I % /bin/bash -c 'xinput set-button-map % 1 0 3'
+      | xargs -I % /usr/bin/env bash -c 'xinput set-button-map % 1 0 3'
     fi
   fi
   # Leave touchfile so we skip this operation on subsequent sessions.

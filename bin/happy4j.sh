@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # vim:tw=0:ts=4:sw=4:noet:norl:ft=sh
 # Author: https://www.linuxjournal.com/content/fireworks-command-line
 # Titled: "Fireworks from the Command Line" by Mitch Frazier, 2009-07-02.
