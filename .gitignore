@@ -1,4 +1,4 @@
 .ignore
 
-.bashrc-bin/bashrx.private.*.sh
+.bashrc-bin/bashrx.private*.sh
 
