@@ -887,6 +887,13 @@ dubs_always_on_visible_desktop () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# MAYBE/2020-09-09 15:58: Consider moving to .inputrc, e.g.,:
+#   #bind \\C-b:unix-filename-rubout
+#   bind "\C-b": unix-filename-rubout
+# https://superuser.com/questions/606212/bash-readline-deleting-till-the-previous-slash
+
+# DOCS/2020-09-09 16:00: Use Ctrl-b in shell to delete backward to space or slash.
+
 #  $ bind -P | grep -e unix-filename-rubout -e C-b
 #  backward-char can be found on "\C-b", "\eOD", "\e[D".
 #  unix-filename-rubout is not bound to any keys
