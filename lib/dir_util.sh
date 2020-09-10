@@ -34,6 +34,30 @@ unset -f printdirsincur_better
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# The opposite of dir_empty, in a sense, is dir.any?.
+dir_any () {
+  local test_dir="$1"
+  if [ ! -e "${test_dir}" ]; then
+    >&2 echo "ERROR: No such path: “${test_dir}”"
+    return 4
+  fi
+  if [ ! -d "${test_dir}" ]; then
+    >&2 echo "ERROR: Not a directory: “${test_dir}”"
+    return 3
+  fi
+  if ! $(/usr/bin/env ls -A "${test_dir}" > /dev/null 2>&1); then
+    # Permissions error, etc.
+    >&2 echo "ERROR: Unreadable directory: “${test_dir}”"
+    return 2
+  fi
+  if [ -n "$(/usr/bin/env ls -A "${test_dir}")" ]; then
+    return 0
+  fi
+  return 1
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 main () {
   :
 }
