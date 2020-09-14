@@ -77,6 +77,10 @@ home_fries_direxpand_completions () {
 
 # --- Generic completions
 
+# SECURITY_ALERT!: This sources any file it finds within
+#                    ~/.homefries/bin/completions/
+#                  you've been warned!
+
 home_fries_load_completions () {
   [ -d "${HOMEFRIES_DIR}/bin/completions" ] || return
   # Bash command completion (for dub's apps).
