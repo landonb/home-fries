@@ -420,6 +420,9 @@ main () {
   unset -f source_private
   unset -v HOME_FRIES_PRELOAD
 
+  cleanup_loading_dots "${time_0}"
+  unset -f cleanup_loading_dots
+
   start_somewhere_something
   unset -f start_somewhere_something
 
@@ -428,9 +431,6 @@ main () {
 
   print_elapsed_time "${time_0}" "bashrc.bash.sh" "==TOTAL: "
   unset -f print_elapsed_time
-
-  cleanup_loading_dots "${time_0}"
-  unset -f cleanup_loading_dots
 
   # Cover our tracks!
   environ_cleanup
