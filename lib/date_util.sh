@@ -77,7 +77,8 @@ TTT_ () {
 # The current time (hour and minute).
 
 tt () {
-  echo "$(date '+%H:%M')"
+  local tmsep="${1:-:}"
+  echo "$(date "+%H${tmsep}%M")"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
