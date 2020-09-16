@@ -50,9 +50,13 @@ TTT () {
 # Prints the date time, e.g., "2020-09-16 12:25".
 # Accepts two optional arguments, major and minor separators.
 TTTtt () {
-  local mjsep="${1:- }"
-  local mnsep="${2:--}"
-  local tmsep="${3:-:}"
+  local mjsep=" "
+  local mnsep="-"
+  local tmsep=":"
+  [ -z ${1+x} ] || mjsep="$1"
+  [ -z ${2+x} ] || mnsep="$2"
+  [ -z ${3+x} ] || tmsep="$3"
+
   echo "$(date "+%Y${mnsep}%m${mnsep}%d${mjsep}%H${tmsep}%M")"
 }
 
@@ -77,7 +81,9 @@ TTT_ () {
 # The current time (hour and minute).
 
 tt () {
-  local tmsep="${1:-:}"
+  local tmsep=":"
+  [ -z ${1+x} ] || tmsep="$1"
+
   echo "$(date "+%H${tmsep}%M")"
 }
 
