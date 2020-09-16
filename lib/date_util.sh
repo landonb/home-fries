@@ -48,8 +48,12 @@ TTT () {
 }
 
 # Prints the date time, e.g., "2020-09-16 12:25".
+# Accepts two optional arguments, major and minor separators.
 TTTtt () {
-  TTT:tt
+  local mjsep="${1:- }"
+  local mnsep="${2:--}"
+  local tmsep="${3:-:}"
+  echo "$(date "+%Y${mnsep}%m${mnsep}%d${mjsep}%H${tmsep}%M")"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
