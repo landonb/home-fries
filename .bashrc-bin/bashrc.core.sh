@@ -54,8 +54,11 @@ source_it () {
 
 # For sourced files to ensure things setup as expected, too.
 check_dep () {
-  if ! command -v $1 > /dev/null 2>&1; then
-    >&2 echo "WARNING: Missing dependency: ‘$1’"
+  local cname="$1"
+  local ahint="$2"
+  if ! command -v "${cname}" > /dev/null 2>&1; then
+    >&2 echo "WARNING: Missing dependency: ‘${cname}’"
+    [ -n "${ahint}" ] && >&2 echo "${ahint}"
     false
   else
     true
