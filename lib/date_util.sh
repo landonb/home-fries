@@ -40,10 +40,12 @@ touch_datefile () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# Prints the date, e.g., "2020-09-16".
 TTT () {
   TTT-
 }
 
+# Prints the date time, e.g., "2020-09-16 12:25".
 TTTtt () {
   TTT:tt
 }
@@ -76,14 +78,6 @@ tt () {
 
 # The current date and time.
 
-# TTTtt: () {
-#   echo "$(date '+%Y-%m-%d:%H:%M')"
-# }
-
-# TTTtt- () {
-#   echo "$(date '+%Y-%m-%d-%H-%M')"
-# }
-
 TTTtt0 () {
   echo "$(date '+%Y%m%d%H%M')"
 }
@@ -100,11 +94,6 @@ TTT#tt () {
   echo "$(date '+%Y-%m-%d#%H:%M')"
 }
 
-# Variable identifier.
-#TTT$tt () {
-#  echo "$(date '+%Y-%m-%d$%H:%M')"
-#}
-
 TTT%tt () {
   echo "$(date '+%Y-%m-%d%%H:%M')"
 }
@@ -113,11 +102,6 @@ TTT^tt () {
   echo "$(date '+%Y-%m-%d^%H:%M')"
 }
 
-# Background process operator.
-#TTT&tt () {
-#  echo "$(date '+%Y-%m-%d&%H:%M')"
-#}
-
 TTT*tt () {
   echo "$(date '+%Y-%m-%d*%H:%M')"
 }
@@ -125,6 +109,10 @@ TTT*tt () {
 TTT-tt () {
   echo "$(date '+%Y-%m-%d-%H:%M')"
 }
+
+# TTTtt- () {
+#   echo "$(date '+%Y-%m-%d-%H-%M')"
+# }
 
 TTT-tt1 () {
   echo "$(date '+%Y-%m-%d %H:%M')"
@@ -137,21 +125,6 @@ TTT_tt () {
 TTT+tt () {
   echo "$(date '+%Y-%m-%d+%H:%M')"
 }
-
-# Backslash is not gonna work.
-#TTT\tt () {
-#  echo "$(date '+%Y-%m-%d\%H:%M')"
-#}
-
-# Bash doesn't complain about this one, but spits on date only.
-#TTT|tt () {
-#  echo "$(date '+%Y-%m-%d|%H:%M')"
-#}
-
-# ; is statement delimiter.
-#TTT;tt () {
-#  echo "$(date '+%Y-%m-%d;%H:%M')"
-#}
 
 TTT:tt () {
   echo "$(date '+%Y-%m-%d:%H:%M')"
