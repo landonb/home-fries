@@ -64,14 +64,17 @@ TTTtt () {
 
 # The current date (year, month, day).
 
+# Same as: $(TTT -)
 TTT- () {
   echo "$(date +%Y-%m-%d)"
 }
 
+# Same as: $(TTT .)
 TTT. () {
   echo "$(date +%Y.%m.%d)"
 }
 
+# Same as: $(TTT _)
 TTT_ () {
   echo "$(date +%Y_%m_%d)"
 }
@@ -91,68 +94,37 @@ tt () {
 
 # The current date and time.
 
+# Same as: $(TTTtt '' '' '')
 TTTtt0 () {
   echo "$(date '+%Y%m%d%H%M')"
 }
 
-TTT!tt () {
-  echo "$(date '+%Y-%m-%d!%H:%M')"
+TTTtt- () {
+  echo "$(date '+%Y-%m-%d-%H-%M')"
 }
 
-TTT@tt () {
-  echo "$(date '+%Y-%m-%d@%H:%M')"
-}
-
-TTT#tt () {
-  echo "$(date '+%Y-%m-%d#%H:%M')"
-}
-
-TTT%tt () {
-  echo "$(date '+%Y-%m-%d%%H:%M')"
-}
-
-TTT^tt () {
-  echo "$(date '+%Y-%m-%d^%H:%M')"
-}
-
-TTT*tt () {
-  echo "$(date '+%Y-%m-%d*%H:%M')"
-}
-
-TTT-tt () {
-  echo "$(date '+%Y-%m-%d-%H:%M')"
-}
-
-# TTTtt- () {
-#   echo "$(date '+%Y-%m-%d-%H-%M')"
-# }
-
-TTT-tt1 () {
-  echo "$(date '+%Y-%m-%d %H:%M')"
-}
-
+# Same as: $(TTTtt '_')
 TTT_tt () {
   echo "$(date '+%Y-%m-%d_%H:%M')"
 }
 
+# Same as: $(TTTtt '+')
 TTT+tt () {
   echo "$(date '+%Y-%m-%d+%H:%M')"
 }
 
+# Same as: $(TTTtt ':')
 TTT:tt () {
   echo "$(date '+%Y-%m-%d:%H:%M')"
 }
 
-# TTTtt: () {
-#   echo "$(date '+%Y-%m-%d:%H:%M')"
-# }
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-TTT/tt () {
-  echo "$(date '+%Y-%m-%d/%H:%M')"
-}
+# The current date and time (including seconds).
 
-TTT?tt () {
-  echo "$(date '+%Y-%m-%d?%H:%M')"
+# The only TTT* to include seconds.
+TTTttt () {
+  echo "$(date '+%Y%m%d%H%M%S')"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
