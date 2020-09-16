@@ -41,8 +41,10 @@ touch_datefile () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Prints the date, e.g., "2020-09-16".
+# Optional argument specifies date component separator character.
 TTT () {
-  TTT-
+  local sep="${1:--}"
+  echo "$(date "+%Y${sep}%m${sep}%d")"
 }
 
 # Prints the date time, e.g., "2020-09-16 12:25".
