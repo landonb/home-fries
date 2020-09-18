@@ -952,8 +952,6 @@ dubs_macos_silence_bash_warning () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 dubs_macos_alias_clear_really_clear () {
-  os_is_macos || return
-
   # Clear the screen, and then clear the scrollback buffer.
   #
   # - "Terminal supports an extension of the ED (Erase in Display)
@@ -974,7 +972,47 @@ dubs_macos_alias_clear_really_clear () {
 
   # See also Edit > Clear Buffer (Cmd-K) in iTerm2.
 
-  alias clear='clear && printf "\\e[3J"'
+  # 1st answer to SE.com Q, 63 (up)votes [2020-09-18], is
+  # calling `clear` and sending ED command (see above).
+  #
+  #   alias clear='clear && printf "\\e[3J"'
+
+  # 2nd answer to SE.com Q, 31 (up)votes, suggests Cmd-K
+  # (View > Clear scrollback), and even automating with
+  # osascript, but a few issues:
+  # - This is OS and terminal application dependent; it'd
+  #   be better to use a portable, generic shell solution.
+  # - The author suggests using an osascript so you can at
+  #   least create a shell alias, but the command is still
+  #   OS- and application-dependent. E.g.,
+  #     osascript -e \
+  #       'tell application "System Events" to keystroke "k" using command down'
+  # - I've found that osascript is slow.
+
+  # 3rd answer to SE.com Q, 12 (up)votes:
+  # - The author suggests chaining CSI commands:
+  #   - CSI 2 J (E2): Clear visible.
+  #   - CSI 3 J (The "E3 extension"): Clear scrollback.
+  #   - CSI 1 ; 1 H (Cursor Position (CUP) command): Cursor to top-left.
+  # - I like this version -- it's explicit and seems the most universal.
+  # - Also, `clear` on Linux Mint 19.3 seems to clear scrollback back
+  #   not visible, but it also scrolls the view so it looks like the
+  #   screen is blank, but if you page up, you'll see one screenful
+  #   of scrollback. Fail!
+  # - Ref:
+  #   - See *HISTORY* in `man clear`
+  #   - See *XTerm Control Sequences*,
+  #     e.g., https://www.x.org/docs/xterm/ctlseqs.pdf
+  #   - See *Erase in Display (ED)*
+  #     https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_sequences
+  #     https://en.wikipedia.org/wiki/ANSI_escape_code#Terminal_output_sequences
+  #     https://www.vt100.net/docs/vt100-ug/chapter3.html#ED
+  # - Meh:
+  #   - The CUP default is 1,1, so '\033[1;1H' → '\033[;H' → '\033[H';
+  #     also '\033' → '\e', so this could be shortened
+  #            printf "\\e[2J\\e[3J\\e[;H"'
+  #     but for some reason (compatibility?) I generally prefer \033 over \e.
+  alias clear='printf "\\033[2J\\033[3J\\033[1;1H"'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
