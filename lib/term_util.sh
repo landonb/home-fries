@@ -212,6 +212,7 @@ dubs_set_terminal_prompt () {
   #
   local u_mushroom=$(echo -e "\U1F344")         # 🍄
   # NOTE: Bash \u support was added 4.2, and macOS Catalina on 3.x...
+  # - Except you have Homebrew Bash (5.x) installed, right?
   os_is_macos && u_mushroom=🍄
   #
   local u_skull=$(echo -e "\U1F480")            # 💀
