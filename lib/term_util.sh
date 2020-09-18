@@ -974,7 +974,7 @@ dubs_macos_alias_clear_really_clear () {
 
   # See also Edit > Clear Buffer (Cmd-K) in iTerm2.
 
-  alias clear="clear && printf '\e[3J'"
+  alias clear='clear && printf "\\e[3J"'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
