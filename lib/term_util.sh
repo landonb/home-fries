@@ -951,6 +951,34 @@ dubs_macos_silence_bash_warning () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+dubs_macos_alias_clear_really_clear () {
+  os_is_macos || return
+
+  # Clear the screen, and then clear the scrollback buffer.
+  #
+  # - "Terminal supports an extension of the ED (Erase in Display)
+  #    escape sequence to erase the scroll-back."
+  #
+  #     https://apple.stackexchange.com/questions/31872/
+  #       how-do-i-reset-the-scrollback-in-the-terminal-via-a-shell-command
+  #
+  #     ESC [ Ps J
+  #
+  #       Parameter   Parameter Meaning
+  #
+  #       0           Erase from the active position to the end of the screen
+  #       1           Erase from start of the screen to the active position
+  #       2           Erase all of the display
+  #
+  #    https://www.vt100.net/docs/vt100-ug/chapter3.html#ED
+
+  # See also Edit > Clear Buffer (Cmd-K) in iTerm2.
+
+  alias clear="clear && printf '\e[3J'"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 main () {
   check_deps
   unset -f check_deps

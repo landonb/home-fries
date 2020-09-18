@@ -351,6 +351,10 @@ home_fries_up () {
   # - lib/term_util.sh
   run_and_unset "dubs_macos_silence_bash_warning"
 
+  # Add a clear (reset) on macOS that clears (scrollback) buffer.
+  # - lib/term_util.sh
+  run_and_unset "dubs_macos_alias_clear_really_clear"
+
   #########################
 
   # Setup distro-agnostic Python and Apache wrappers, aliases, and environs.
