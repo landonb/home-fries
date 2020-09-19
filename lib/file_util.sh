@@ -56,8 +56,10 @@ home_fries_wire_export_less () {
   # and when you're done, the output isn't left as crud in the window.
   # 2014.11.20: Add -R so ANSI "color" escape sequences work, otherwise
   # commands like `git log` will show escape characters as, e.g., ESC[33mc.
-  #export PAGER=less
+  #
+  #  export PAGER=less
   export PAGER=less\ -R
+
   # -i or --ignore-case
   # -M or --LONG-PROMPT
   # -xn,... or --tabs=n,... [x2: Sets 2 tab stops. Default: 8, so wide!]
@@ -65,6 +67,7 @@ home_fries_wire_export_less () {
   #      This is cool in that, for short files, it just dumps the file
   #      and quits. But for multiple pages, the output remains in the
   #      terminal, which is annoying; I don't like crud!
+  #
   export LESS="-iMx2"
 }
 
