@@ -222,6 +222,11 @@ home_fries_create_aliases_general () {
   alias whyami="echo 'Because you gotta be somebody.' ; \
                 /usr/bin/python /usr/lib/command-not-found whyami"
 
+  # *** Colorful Diff
+
+  # 2020-09-18: Surprised I never ran across this before!
+  alias diff='diff --color=auto'
+
   # *** Git
 
   # I run `git diff` fairly often. Make it even easier to run.
