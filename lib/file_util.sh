@@ -69,6 +69,38 @@ home_fries_wire_export_less () {
   #      terminal, which is annoying; I don't like crud!
   #
   export LESS="-iMx2"
+
+  # 2020-09-19: Whoa, this one's nifty!
+  # - Enable `less` syntax highlighting,
+  #   like you see in your normal editor!
+  # - Thanks to:
+  #   https://danyspin97.org/blog/colorize-your-cli/#highlight
+  # - Uses `highlight` (already included in many distributions):
+  #   http://www.andre-simon.de/doku/highlight/highlight.php
+  # - You can add line numbers, but they seem distracting, or at least
+  #   line numbers only seem useful for an editor, not a viewer.
+  #     --line-numbers
+  # - You can change the theme easily.
+  #     --style <style>
+  #   Some theme examples (screenshots):
+  #     http://www.andre-simon.de/doku/highlight/theme-samples.php
+  #   Some themes I like:
+  #     candy
+  #     matrix
+  #     vampire
+  #     molokai
+  #     moria
+  #     night
+  #     edit-vim-dark [what default theme looks like]
+  #   Find themes under:
+  #     /usr/share/highlight/themes/
+  # - To see list of supported file types:
+  #     highlight --list-scripts=langs
+  #
+  # FIXME/2020-09-19: Default color (when not a recognized file type) is
+  #                   green. Is that better than default white foreground
+  #                   color (i.e., `LESSOPEN='' less ...`).
+  export LESSOPEN="| /usr/bin/highlight %s --out-format xterm256 --force"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
