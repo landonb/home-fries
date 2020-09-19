@@ -93,32 +93,113 @@ man () {
   man "$@"
 }
 
-# We don't need to explicitly set the "loaded" indicator,
-# but by doing so, user can re-source file to reset this
-# man mechanism.
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# *** Colorful `man`.
+
+# Original inspiration, from 2016-08-29:
+#
+# - "Want colored man pages?"
+#
+#   http://boredzo.org/blog/archives/2016-08-15/colorized-man-pages-understood-and-customized
+#
+#   https://superuser.com/questions/452034/bash-colorized-man-page
+
+# Refreshed inspiration, 2020-09-19 (mostly just notes):
+#
+# - "Colorize Your CLI" [2020-07-26] DanySpin97
+#
+#   https://danyspin97.org/blog/colorize-your-cli/#man
+#
+# - First, remember that `home_fries_wire_export_less` in file_util.sh sets:
+#
+#     export LESS="-iMx2"
+#
+#   But this article simply sets:
+#
+#     export LESS="--RAW-CONTROL-CHARS"
+#
+#   - However, when I added the "-R" flag and test, I did not see
+#     any change from the solution I already had plubmed.
+#
+#     E.g., when I add the "-R" flag, then
+#
+#       export LESS="-iMRx2"
+#
+#     draws man pages no different than:
+#
+#       export LESS="-iMx2"
+#
+#   - Says `man less`:
+#
+#       -R or --RAW-CONTROL-CHARS
+#
+#         Like -r, but only ANSI "color" escape sequences are output
+#         in "raw" form.
+#
+#     Compared to the -r option, ANSI escapes do not move the cursor,
+#     so artifacts like line-wrapping too early should not happen.
+#     (But, like I said, without with -r or -R, I see color,
+#     and no weird line wrapping.)
+#
+# - The article also moves the variables to a separate file and just
+#   sources that. Which doesn't seem like a bad idea. Unless the
+#   variables might interfere with other apps that use `less`?
+#
+#   But if we source a settings file before every `man` call, it
+#   means the user can tweak `man` colors without reloading Bash.
+#   So we'll give it a shot. Seems more robust.
+#
+#   See:
+#
+#     ~/.config/less/termcap
+#
+#     ~/.homefries/lib/less_termcap.sh
+
+# Note: We don't need to explicitly set the "loaded" indicator,
+#       but by doing so, the user can source this file again to
+#       to reset the man mechanism (MANPATH).
+#
 _LOADED_HF_MANPATH_UTIL_MAN=false
+
+home_fries_colorman () {
+  # This is used if a less/termcap or less_termcap.sh file not found.
+  env \
+    LESS_TERMCAP_mb="$(printf "\e[1;31m")" \
+    LESS_TERMCAP_md="$(printf "\e[1;31m")" \
+    LESS_TERMCAP_me="$(printf "\e[0m")" \
+    LESS_TERMCAP_se="$(printf "\e[0m")" \
+    LESS_TERMCAP_so="$(printf "\e[1;44;33m")" \
+    LESS_TERMCAP_ue="$(printf "\e[0m")" \
+    LESS_TERMCAP_us="$(printf "\e[1;32m")" \
+    /usr/bin/man "$@"
+}
 
 man () {
   ${_LOADED_HF_MANPATH_UTIL_MAN:-false} &&
     home_fries_configure_manpath
   _LOADED_HF_MANPATH_UTIL_MAN=true
 
-  # "Want colored man pages?"
-  #   http://boredzo.org/blog/archives/2016-08-15/colorized-man-pages-understood-and-customized
-  #   https://superuser.com/questions/452034/bash-colorized-man-page
-  colorman () {
-    env \
-      LESS_TERMCAP_mb="$(printf "\e[1;31m")" \
-      LESS_TERMCAP_md="$(printf "\e[1;31m")" \
-      LESS_TERMCAP_me="$(printf "\e[0m")" \
-      LESS_TERMCAP_se="$(printf "\e[0m")" \
-      LESS_TERMCAP_so="$(printf "\e[1;44;33m")" \
-      LESS_TERMCAP_ue="$(printf "\e[0m")" \
-      LESS_TERMCAP_us="$(printf "\e[1;32m")" \
-      /usr/bin/man "$@"
-  }
+  local try_path_1="${HOME}/.config/less/termcap"
+  local try_path_2="${HOMEFRIES_LIB:-${HOME}/.homefries/lib}/less_termcap.sh"
+  local loaded_less_termcap=false
 
-  colorman "$@"
+  if [ -f "${try_path_1}" ]; then
+    # QUESTION/2020-09-19: Now that we persist the LESS_TERMCAP_*
+    # variables (and don't just set them for the `man` command
+    # being called), will it affect any other commands (like `less`)?
+    . "${try_path_1}"
+    loaded_less_termcap=true
+  elif [ -f "${try_path_2}" ]; then
+    . "${try_path_2}"
+    loaded_less_termcap=true
+  fi
+
+  if ${loaded_less_termcap}; then
+    /usr/bin/man "$@"
+  else
+    home_fries_colorman "$@"
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
