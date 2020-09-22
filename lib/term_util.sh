@@ -1028,6 +1028,8 @@ dubs_macos_alias_clear_really_clear () {
   #            printf "\\e[2J\\e[3J\\e[;H"'
   #     but for some reason (compatibility?) I generally prefer \033 over \e.
   alias clear='printf "\\033[2J\\033[3J\\033[1;1H"'
+  # Why not also do the same for `reset`, which you can type with one hand.
+  alias reset='printf "\\033[2J\\033[3J\\033[1;1H"'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
