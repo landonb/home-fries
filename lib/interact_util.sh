@@ -83,8 +83,8 @@ ask_yes_no_default () {
     not_done=false
     # FIXME/2017-10-03: for local elaps a thing?
     for elaps in `seq 0 $((timeo - 1))`; do
-      echo -en \
-        "[Default in $((timeo - elaps)) seconds...] Please answer $choices "
+      printf '%s' \
+        "[Default in $((timeo - elaps)) seconds...] Please answer ${choices} "
       read -n 1 -t 1 the_choice
       if [[ $? -eq 0 ]]; then
         # Thanks for the hint, stoverflove.
@@ -96,7 +96,7 @@ ask_yes_no_default () {
           break
         else
           echo
-          #echo "Please try answering with a Y/y/N/n answer!"
+          # echo "Please try answering with a Y/y/N/n answer!"
           echo "That's not the answer I was hoping for..."
           echo "Let's try this again, shall we?"
           sleep 1
@@ -106,14 +106,14 @@ ask_yes_no_default () {
       fi
       if [[ $elaps -lt $((timeo - 1)) ]]; then
         # Return to the start of the line.
-        echo -en "\r"
+        printf '\r'
       fi
     done
   done
 
   if [[ -z $the_choice ]]; then
     the_choice=${choice1_u}
-    #echo $1'!'
+    # echo $1'!'
   fi
 
   # Uppercase the return character. Which we return in a variable.

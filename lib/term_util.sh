@@ -124,7 +124,7 @@ fries_format_titlebar () {
     titlebar="${choices[$RANDOM % 5]}"
   fi
 
-  echo "${titlebar}"
+  printf "${titlebar}"
 }
 
 dubs_set_terminal_prompt () {
@@ -286,7 +286,7 @@ dubs_set_terminal_prompt () {
   #         PROMPT_COMMAND='echo -ne "\033]0;SOME TITLE HERE\007"'
   #       But the escapes don't work the same. E.g., this looks really funny:
   #         titlebar="\[\e]0;THIS IS A TEST\a\]"
-  #         PROMPT_COMMAND='echo -ne "${titlebar}\[\033[01;36m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]\$ "'
+  #         PROMPT_COMMAND='printf '%b' "${titlebar}\[\033[01;36m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]\$ "'
 
   # 2018-05-28: How about a bold PS2 (continuation) prompt?
   #  PS2="$(tput bold)>${attr_reset} "
@@ -338,7 +338,7 @@ fries_hook_titlebar_update () {
   # title is restored. This makes for a nice titlebar title that shows the
   # basename of the directory when the prompt is active, but shows the name
   # of the actively running command if there is one, e.g., `man bash`.
-  trap 'echo -en "\033]0;${BASH_COMMAND}\007"' DEBUG
+  trap 'printf "\033]0;${BASH_COMMAND}\007"' DEBUG
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -420,7 +420,7 @@ invoked_from_terminal () {
   # just kill a script or if it will exit the user's terminal.
 
   local bashed=0
-  if [ $(echo "$0" | grep "bash$" -) ]; then
+  if [ $(printf "$0" | grep "bash$" -) ]; then
     bashed=1
   fi
 
@@ -666,12 +666,12 @@ enable_vi_style_editing () {
 # deprecated Bash is 3.x and does not support ${VAR^^} capitalization operator,
 # and the now-default zsh shell does not support ${VAR^^} capitalization).
 first_char_capped () {
-  echo "$1" | cut -c1-1 | tr '[:lower:]' '[:upper:]'
+  printf "$1" | cut -c1-1 | tr '[:lower:]' '[:upper:]'
 }
 
 # 2017-06-06: Still refining Bash input experience.
 default_yes_question () {
-  echo -n "Tell me yes or no. [Y/n] "
+  printf %s "Tell me yes or no. [Y/n] "
   read -e YES_OR_NO
   if [ -z "${YES_OR_NO}" ] || [ "$(first_char_capped ${YES_OR_NO})" = 'Y' ]; then
     echo "YESSSSSSSSSSSSS"
@@ -682,9 +682,10 @@ default_yes_question () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# NOTE: You can also precede the echo:
-#         >&2 echo "blah"
-echoerr () { echo "$@" 1>&2; }
+echoerr () (
+  IFS=" "
+  printf '%s\n' "$*" 1>&2
+)
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -709,7 +710,7 @@ echoerr () { echo "$@" 1>&2; }
 space () {
   local re_num='^[1-4]+$'
   if ! [[ $1 =~ ${re_num} ]]; then
-    echo 'USAGE: space [1-4]' >&2
+    echo 'USAGE: space [1-4]' 1>&2
     return 1
   fi
   local wspace=$(($1 - 1))
@@ -758,8 +759,9 @@ space () {
 
 echo_wmctrl_sticky_cmd_winid () {
   local winid=$1
-  echo -e " wmctrl -b add,sticky -i -r ${winid}" \
-    "$(fg_mintgreen)$(wmctrl -l | grep "^${winid}" | cut -d ' ' -f 4-)$(attr_reset)"
+  printf '%s%b\n' \
+    " wmctrl -b add,sticky -i -r ${winid}" \
+    " $(fg_mintgreen)$(wmctrl -l | grep "^${winid}" | cut -d ' ' -f 4-)$(attr_reset)"
 }
 
 echo_wmctrl_sticky_cmd_winname () {
@@ -773,7 +775,7 @@ echo_wmctrl_sticky_cmd_winname () {
     # On second thought, don't pollute.
     return
   fi
-  echo -e " wmctrl -b add,sticky -i -r ${winid}$(attr_reset) ${winname}"
+  printf '%b\n' " wmctrl -b add,sticky -i -r ${winid}$(attr_reset) ${winname}"
 }
 
 # TIPS: You can add your own, personal windows to the sticky list,

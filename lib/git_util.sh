@@ -55,7 +55,7 @@ _git_safe () {
 
   # Prompt if guarded.
   if ${prompt_yourself}; then
-    echo -n "Are you sure this is absolutely what you want? [Y/n] "
+    printf "Are you sure this is absolutely what you want? [Y/n] "
     read -e YES_OR_NO
     # As writ for Bash 4.x+ only:
     #   if [[ ${YES_OR_NO^^} =~ ^Y.* ]] || [ -z "${YES_OR_NO}" ]; then

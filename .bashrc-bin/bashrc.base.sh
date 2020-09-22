@@ -140,7 +140,7 @@ print_elapsed_time () {
 
 print_loading_dot () {
   ${HOMEFRIES_LOADINGDOTS:-false} || return
-  echo -n "${HOMEFRIES_LOADINGSEP}"
+  printf %s "${HOMEFRIES_LOADINGSEP}"
   HOMEFRIES_LOADEDDOTS="${HOMEFRIES_LOADEDDOTS}${HOMEFRIES_LOADINGSEP}"
 }
 
@@ -148,18 +148,18 @@ cleanup_loading_dots () {
   local time_0="$1"
 
   ${HOMEFRIES_LOADINGDOTS:-false} || return
-  echo -e -n "\r"
-  echo -e -n "${HOMEFRIES_LOADEDDOTS}" | tr "${HOMEFRIES_LOADINGSEP}" ' '
-  echo -e -n "\r"
+  printf '\r'
+  printf "${HOMEFRIES_LOADEDDOTS}" | tr "${HOMEFRIES_LOADINGSEP}" ' '
+  printf '\r'
 
   flash_elapsed () {
     local elapsed
     elapsed="$(HOMEFRIES_PROFILING= "${HOMEFRIES_BASHRCBIN}/../bin/echo-elapsed" "${time_0}")"
-    echo -e -n "${elapsed} "
+    printf "${elapsed} "
     sleep 0.666
-    echo -e -n "\r"
-    echo -n "${elapsed}" | /usr/bin/env sed 's/./ /'
-    echo -e -n "\r"
+    printf '\r'
+    printf "${elapsed}" | /usr/bin/env sed 's/./ /'
+    printf '\r'
   }
   # YOU: Uncomment for quick, forgettable elapsed display.
   #  flash_elapsed

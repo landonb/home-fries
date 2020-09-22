@@ -54,8 +54,8 @@ readlink_e () {
       ret_code=1
     fi
   fi
-  echo -n "${resolve_path}"
-  [ -n "${resolve_path}" ] && echo
+  printf %s "${resolve_path}"
+  [ -n "${resolve_path}" ] && printf '\n'
   return ${ret_code}
 }
 
@@ -112,24 +112,24 @@ flock_dir () {
   if [ $? -eq 0 ]; then
     # We made the directory, meaning we got the mutex.
     $DEBUG_TRACE && echo "Got mutex: yes, running script."
-    $DEBUG_TRACE && echo ""
+    $DEBUG_TRACE && echo
     not_got_lock=0
   elif [ ${DONT_FLOCKING_CARE} -eq 1 ]; then
     # We were unable to make the directory, but the dev. wants us to go on.
     #
     # E.g., mkdir: cannot create directory `tmp': File exists
-    if [[ `echo $resp | grep exists` ]]; then
+    if [ $(printf "${resp}" | grep 'exists') ]; then
       $DEBUG_TRACE && echo "Mutex exists and owned but: DONT_FLOCKING_CARE."
-      $DEBUG_TRACE && echo ""
+      $DEBUG_TRACE && echo
     #
     # E.g., mkdir: cannot create directory `tmp': Permission denied
-    elif [[ `echo $resp | grep denied` ]]; then
+  elif [ $(printf "${resp}" | grep 'denied') ]; then
       $DEBUG_TRACE && echo "Mutex cannot be created but: DONT_FLOCKING_CARE."
-      $DEBUG_TRACE && echo ""
+      $DEBUG_TRACE && echo
     #
     else
       $DEBUG_TRACE && echo "ERROR: Unexpected response from mkdir: $resp."
-      $DEBUG_TRACE && echo ""
+      $DEBUG_TRACE && echo
       exit 1
     fi
   else
@@ -138,15 +138,15 @@ flock_dir () {
     # We'll either: a) try again; b) give up; or c) fail miserably.
     #
     # E.g., mkdir: cannot create directory `tmp': Permission denied
-    if [[ `echo $resp | grep denied` ]]; then
+    if [ $(printf "${resp}" | grep 'denied') ]; then
       # This is a developer problem. Fix perms. and try again.
-      echo ""
+      echo
       echo "=============================================="
       echo "ERROR: The directory could not be created."
       echo "Hey, you, DEV: This is probably _your_ fault."
       echo "Try: chmod 2777 `dirname ${FLOCKING_DIR_PATH}`"
       echo "=============================================="
-      echo ""
+      echo
     #
     # We expect that the directory already exists... though maybe the other
     # process deleted it already!
@@ -200,9 +200,10 @@ flock_dir () {
         local elapsed_time=$(echo "($fcn_time_1 - $fcn_time_0) / 1.0" | bc -l)
         # See if we made it.
         if [ ${success} -eq 0 ]; then
-          $DEBUG_TRACE && echo "Got mutex: took: ${elapsed_time} secs." \
-                                "/ tries left: ${FLOCKING_RE_TRIES}."
-          $DEBUG_TRACE && echo ""
+          $DEBUG_TRACE && echo \
+            "Got mutex: took: ${elapsed_time} secs." \
+            "/ tries left: ${FLOCKING_RE_TRIES}."
+          $DEBUG_TRACE && echo
           not_got_lock=0
           FLOCKING_RE_TRIES=0
         elif [ ${FLOCKING_TIMELIMIT} -gt 0 ]; then
@@ -211,7 +212,7 @@ flock_dir () {
           if [[ $elapsed_time -gt ${FLOCKING_TIMELIMIT} ]]; then
             $DEBUG_TRACE && echo "Could not get mutex: ${FLOCKING_DIR_PATH}."
             $DEBUG_TRACE && echo "Waited too long for mutex: ${elapsed_time}."
-            $DEBUG_TRACE && echo ""
+            $DEBUG_TRACE && echo
             FLOCKING_RE_TRIES=0
           else
             # There's still time left, but see if an echo is in order.
@@ -219,8 +220,9 @@ flock_dir () {
             # What's a good time here? Every ten minutes?
             if [ $last_spoken -gt 600 ]; then
               local elapsed_mins=$(echo "($fcn_time_1 - $fcn_time_0) / 60.0" | bc -l)
-              $DEBUG_TRACE && echo "Update: Mutex still in use after: "\
-                                   "${elapsed_mins} mins.; still trying..."
+              $DEBUG_TRACE && echo \
+                "Update: Mutex still in use after: "\
+                "${elapsed_mins} mins.; still trying..."
               spoken_time_0=$(home_fries_nanos_now)
             fi
           fi
