@@ -203,24 +203,37 @@ dubs_set_terminal_prompt () {
   #  https://en.wikipedia.org/wiki/Chroot
 
   # MAYBE/2018-12-23: Move these definitions to color_util.sh or similar?
-  # - NOTE: Use capital `\U`, not lowercase `\u`, when more than 16 bit unicode char.
+  # - NOTE: Bash 4.2 added Unicode support, i.e.,
+  #           echo -e "\uHHHH"
+  #           printf "\uHHHH"
+  # - NOTE: For 5 to 8 digiti Unicode character, use \U, e.g.,
+  #           echo -e "\UHHHHHHHH"
+  #           printf "\UHHHHHHHH"
+  # - NOTE: Pad the \U to 8 digits, or built-in printf may complain.
+  #           @mint19.3 $ printf "\U1F4A9"
+  #           💩
+  #           @mint19.3 $ /usr/bin/printf "\U1F4A9"
+  #           /usr/bin/printf: missing hexadecimal number in escape
+  #           @mint19.3 $ /usr/bin/printf "\U0001F4A9"
+  #           💩
+  #         (though latest Bash `echo` and `printf` do not care).
   # - NOTE: If set in PS1 directly, need to $'interpolate', e.g.,
   #           PS1="${titlebar}${prompt_stuff}"$' \U1F480 '"\$ "
-  local u_anchor=$(echo -e "\u2693")            # ⚓
-  local u_evergreen_tree=$(echo -e "\U1F332")   # 🌲
-  local u_cactus=$(echo -e "\U1F335")           # 🌵
-  #
-  local u_mushroom=$(echo -e "\U1F344")         # 🍄
-  # NOTE: Bash \u support was added 4.2, and macOS Catalina on 3.x...
-  # - Except you have Homebrew Bash (5.x) installed, right?
-  os_is_macos && u_mushroom=🍄
-  #
-  local u_skull=$(echo -e "\U1F480")            # 💀
-  # Skull and Crossbones draws too light:
-  #  local u_skull_n_xbones=$(echo -e "\u2620") # ☠
-  local u_owl=$(echo -e "\U1F989")              # 🦉
-  local u_herb=$(echo -e "\U1F33F")             # 🌿
-  local u_pineapple=$(echo -e "\U1F34D")        # 🍍
+  # - NOTE: And now that I've noted all of this, It's actually
+  #         easier to just embed the Unicode within this file.
+  #         And then raw macOS (with system Bash 3.x, whose `echo`
+  #         and `printf` won't recognize the \Unicode syntax)
+  #         will work.
+  local u_anchor="⚓"             # ⚓  $(printf "\u2693")
+  local u_evergreen_tree="🌲"     # 🌲  $(printf "\U1F332")
+  local u_cactus="🌵"             # 🌵  $(printf "\U1F335")
+  local u_mushroom="🍄"           # 🍄  $(printf "\U1F344")
+  local u_skull="💀"              # 💀  $(printf "\U1F480")
+  local u_owl="🦉"                # 🦉  $(printf "\U1F989")
+  local u_herb="🌿"               # 🌿  $(printf "\U1F33F")
+  local u_pineapple="🍍"          # 🍍  $(printf "\U1F34D")
+  # (Draws too light to see:)
+  #  local u_skull_n_xbones="☠"   # ☠  $(printf "\u2620")
 
   # NOTE: Using "" below instead of '' so that ${titlebar} is resolved by the
   #       shell first.
