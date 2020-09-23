@@ -82,6 +82,12 @@ ${HOMEFRIES_TRACE} && echo "User's EUID is ${EUID}"
 
 # Get the path to this script's parent directory.
 # Note that macOS's readlink is wicked old.
+# INTEREST/2020-09-23: From `man readlink`:
+#   Note realpath(1) is the preferred command to use for canonicalization functionality.
+# but also realpath is from Homebrew... so question is, how much do we care
+# to support Bash 3.x (or to work on vanilla macOS). Though maybe Zsh is the
+# answer if we want to support vanilla macOS, and for our Bash scripts we
+# should just assume 4.x+ and use `realpath`.
 readlink_f () {
   local resolve_path="$1"
   local ret_code=0
@@ -91,7 +97,9 @@ readlink_f () {
   else
     # macOHHHH-ESS/macOS: No `readlink -f`.
     local before_cd="$(pwd -L)"
-    while [ -n "${resolve_path}" ] && [ -h "${resolve_path}" ]; do
+    local just_once=true
+    while [ -n "${resolve_path}" ] && ( [ -h "${resolve_path}" ] || ${just_once} ); do
+      just_once=false
       local basedir_link="$(dirname -- "${resolve_path}")"
       # `readlink -f` checks all but final component exist.
       # So if dir path leading to final componenet missing, return empty string.
@@ -99,18 +107,20 @@ readlink_f () {
         resolve_path=""
         ret_code=1
       else
-        local resolve_file
+        local resolve_file="${resolve_path}"
         local resolve_link="$(readlink -- "${resolve_path}")"
-        case "${resolve_link}" in
-          /*)
-            # Absolute path.
-            resolve_file="${resolve_link}"
-            ;;
-          *)
-            # Relative path.
-            resolve_file="${basedir_link}/${resolve_link}"
-            ;;
-        esac
+        if [ -n "${resolve_link}" ]; then
+          case "${resolve_link}" in
+            /*)
+              # Absolute path.
+              resolve_file="${resolve_link}"
+              ;;
+            *)
+              # Relative path.
+              resolve_file="${basedir_link}/${resolve_link}"
+              ;;
+          esac
+        fi
         local resolved_dir="$(dirname -- "${resolve_file}")"
         if [ ! -d "${resolved_dir}" ]; then
           resolve_path=""
