@@ -67,16 +67,8 @@ home_fries_add_to_path_home_local_bin () {
 # So it's not that much of a stretch to include them herein, as
 # opposed to moving to the author's private startup script.
 
-# MAYBE/2019-09-16: You could move these Node-, Java-/Android-, and golang-specific
-# functions to new language-specific files, e.g., .homefries/lib/node_util.sh,
-# and .../java_util.sh, .../golang_util.sh.
-
-home_fries_add_to_path_home_local_node_modules_bin () {
-  # Make Ansible Zoidy Pooh-installed Node/NPM executables available.
-  path_prefix "${HOME}/.local/node_modules/.bin"
-  # path_prefix "${HOME}/.local/lib/nodejs/node-v12.18.2-linux-x64/bin"
-  path_prefix "/usr/local/lib/nodejs/node-v12.18.2-linux-x64/bin"
-}
+# MAYBE/2019-09-16: You could move these Java-/Android-, and golang-specific functions
+# to new language-specific files, e.g., .homefries/lib/java_util.sh, golang_util.sh.
 
 home_fries_add_to_path_java_jdk_jre () {
   local install_dir="${HOME}/.downloads"
