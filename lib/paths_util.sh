@@ -117,8 +117,20 @@ home_fries_add_to_path_golang () {
 # ++++++++++++++++++++++++++++++ #
 
 home_fries_set_path_environ () {
-  home_fries_add_to_path_home_local_node_modules_bin
-  unset -f home_fries_add_to_path_home_local_node_modules_bin
+
+  # Add systemwide path prefixes first, so the the
+  # local paths added later take precedence.
+
+  home_fries_add_to_path_bins
+  unset -f home_fries_add_to_path_bins
+
+  home_fries_add_to_path_usr_bins
+  unset -f home_fries_add_to_path_usr_bins
+
+  home_fries_add_to_path_usr_local_bins
+  unset -f home_fries_add_to_path_usr_local_bins
+
+  # ++++++++++++++++++++++++++++++ #
 
   home_fries_add_to_path_java_jdk_jre
   unset -f home_fries_add_to_path_java_jdk_jre
@@ -130,15 +142,6 @@ home_fries_set_path_environ () {
   unset -f home_fries_add_to_path_golang
 
   # ++++++++++++++++++++++++++++++ #
-
-  home_fries_add_to_path_bins
-  unset -f home_fries_add_to_path_bins
-
-  home_fries_add_to_path_usr_bins
-  unset -f home_fries_add_to_path_usr_bins
-
-  home_fries_add_to_path_usr_local_bins
-  unset -f home_fries_add_to_path_usr_local_bins
 
   home_fries_add_to_path_home_fries_lib
   unset -f home_fries_add_to_path_home_fries_lib
