@@ -88,14 +88,14 @@ suss_errexit_errtrace () {
   set +eE
   #
   echo ${shell_opts} | grep errexit >/dev/null 2>&1
-  if [[ $? -eq 0 ]]; then
+  if [ $? -eq 0 ]; then
     USING_ERREXIT=true
   else
     USING_ERREXIT=false
   fi
   #
   echo ${shell_opts} | grep errtrace >/dev/null 2>&1
-  if [[ $? -eq 0 ]]; then
+  if [ $? -eq 0 ]; then
     USING_ERRTRACE=true
   else
     USING_ERRTRACE=false
