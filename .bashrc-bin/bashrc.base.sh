@@ -325,7 +325,7 @@ home_fries_bashrc_cleanup () {
   # Run the sourced-scripts' cleanup functions, to un-declare functions
   # (and remove cruft from user's environment).
   for unset_f in $(declare -F | grep '^declare -f unset_f_' | /usr/bin/env sed 's/^declare -f //'); do
-    # Call, e.g., unset_f_alias_util, unset_f_apache_util, etc.
+    # Call, e.g., unset_f_alias_util, etc.
     eval "${unset_f}"
   done
 

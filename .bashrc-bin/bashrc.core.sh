@@ -139,7 +139,6 @@ source_utils_all () {
   #     on those previously loaded); so alphabetical.
 
   source_it "alias_util.sh"
-  source_it "apache_util.sh"
   source_it "array_util.sh"
   source_it "crypt_util.sh"
   source_it "date_util.sh"
@@ -365,9 +364,6 @@ home_fries_up () {
   # - lib/python_util.sh
   run_and_unset "whats_python2"
 
-  # - lib/apache_util.sh
-  run_and_unset "whats_apache"
-
   #########################
 
   # - lib/fries_util.sh
@@ -377,11 +373,6 @@ home_fries_up () {
 
   # - lib/fries_util.sh
   run_and_unset "home_fries_punch_anacron"
-
-  #########################
-
-  # - lib/apache_util.sh
-  run_and_unset "apache_create_control_aliases"
 
   #########################
 
