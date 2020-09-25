@@ -6,6 +6,15 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+check_dep () {
+  if ! command -v $1 > /dev/null 2>&1; then
+    >&2 echo "WARNING: Missing dependency: ‘$1’"
+    false
+  else
+    true
+  fi
+}
+
 check_deps () {
   # Verify logger.sh loaded (die, reset_errexit, tweak_errexit).
   check_dep '_sh_logger_log_msg'
