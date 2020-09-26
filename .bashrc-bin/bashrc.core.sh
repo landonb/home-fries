@@ -32,9 +32,11 @@ source_from_user_path_or_homefries_lib () {
   local time_0="$(home_fries_nanos_now)"
   ${HOMEFRIES_TRACE} && echo "   . FRIES: ${lib_file}"
   print_loading_dot
-  if command -v "${lib_file}" > /dev/null; then
+
+  local lib_path="$(type -p "${lib_file}")"
+  if [ -f "${lib_path}" ]; then
     # Prefer finding the script on PATH.
-    . "${lib_file}"
+    . "${lib_path}"
     let 'SOURCE_CNT += 1'
   elif [ -f "${HOMEFRIES_DIR}/lib/${lib_file}" ]; then
     # Rather than put ~/.homefries/lib on PATH, this.
