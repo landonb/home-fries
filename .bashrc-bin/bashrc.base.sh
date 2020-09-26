@@ -76,7 +76,7 @@ export HOMEFRIES_LOADINGDOTS=${HOMEFRIES_LOADINGDOTS:-false}
 HOMEFRIES_LOADEDDOTS=''
 HOMEFRIES_LOADINGSEP='.'
 
-${HOMEFRIES_TRACE} && echo "User's EUID is ${EUID}"
+${HOMEFRIES_TRACE} && echo "─ Welcome, User (EUID=${EUID})"
 
 # Get the path to this script's parent directory.
 # Note that macOS's readlink is wicked old.
@@ -136,7 +136,7 @@ readlink_f () {
 }
 
 export HOMEFRIES_BASHRCBIN="$(dirname -- "$(readlink_f "${BASH_SOURCE[0]}")")"
-${HOMEFRIES_TRACE} && echo "HOMEFRIES_BASHRCBIN=${HOMEFRIES_BASHRCBIN}"
+${HOMEFRIES_TRACE} && echo "── HOMEFRIES_BASHRCBIN=${HOMEFRIES_BASHRCBIN}"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -195,14 +195,21 @@ source_system_rc () {
   local time_0="$(home_fries_nanos_now)"
 
   # Source global definitions.
+  local sys_rc
   if [ -f "/etc/bashrc" ]; then
     # Fedora.
-    . /etc/bashrc
-    print_elapsed_time "${time_0}" "Source: /etc/bashrc"
+    sys_rc="/etc/bashrc"
   elif [ -f "/etc/bash.bashrc" ]; then
     # Debian/Ubuntu.
-    . /etc/bash.bashrc
-    print_elapsed_time "${time_0}" "Source: /etc/bash.bashrc"
+    sys_rc="/etc/bash.bashrc"
+  fi
+
+  if [ -n "${sys_rc}" ]; then
+    ${HOMEFRIES_TRACE} && echo "──┬ Loading OS system scripts"
+    ${HOMEFRIES_TRACE} && echo "   . FRIES: ${sys_rc}"
+    . "${sys_rc}"
+    print_elapsed_time "${time_0}" "Source: ${sys_rc}"
+    ${HOMEFRIES_TRACE} && echo "  └─"
   fi
 }
 
@@ -214,11 +221,15 @@ source_system_rc () {
 source_fries () {
   local time_0="$(home_fries_nanos_now)"
 
+  ${HOMEFRIES_TRACE} && echo "──┬ Loading Homefries scripts"
+
   # Common Bash standup. Defines aliases, configures things,
   # adjusts the terminal prompt, and adds a few functions.
   . "${HOMEFRIES_BASHRCBIN}/bashrc.core.sh"
 
   print_elapsed_time "${time_0}" "Source: bashrc.core.sh" "==FRIES: "
+
+  ${HOMEFRIES_TRACE} && echo "  └─"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -230,19 +241,19 @@ source_privately () {
   local srcfile="$1"
   local srctype="$2"
   if [ -f "${srcfile}" ]; then
-    ${HOMEFRIES_TRACE} && echo "Loading ${srctype} resource script: ${srcfile}"
+    ${HOMEFRIES_TRACE} && echo "  ├─ Loading from a ${srctype} resource: ✓ ${srcfile}"
     local time_0="$(home_fries_nanos_now)"
     . "${srcfile}"
     print_elapsed_time "${time_0}" "Source: ${srcfile}"
   else
-    ${HOMEFRIES_TRACE} && echo "Did not find a ${srctype} resource: ${srcfile}"
+    ${HOMEFRIES_TRACE} && echo "  ├─ Did not find a ${srctype} resource: ✗ ${srcfile}"
   fi
 }
 
 source_private_scripts () {
   # If present, local a private (uncommitted; symlinked?) bash profile script.
   local privsrc="${HOMEFRIES_BASHRCBIN}/bashrx.private.sh"
-  source_privately "${privsrc}" "private"
+  source_privately "${privsrc}" "non-exclusive"
 
   # If present, load a machine-specific script.
   local privhost="${HOMEFRIES_BASHRCBIN}/bashrx.private.$(hostname).sh"
@@ -257,12 +268,20 @@ source_private () {
   # Load the machine-specific scripts first so their exports are visible.
   if [ ${EUID} -eq 0 ]; then
     # If the user is root, we'll just load the core script, and nothing fancy.
-    ${HOMEFRIES_TRACE} && echo "User is root"
+    ${HOMEFRIES_TRACE} && echo "── Skipping private scripts (User is root)"
     return
   fi
 
-  ${HOMEFRIES_TRACE} && echo "User is not root"
+  if ${HOMEFRIES_TRACE}; then
+    local msg_adj
+    ${HOME_FRIES_PRELOAD} && msg_adj='Preceding' || msg_adj='Following'
+    echo "──┬ Loading ${msg_adj} scripts"
+  fi
+
+  # ${HOMEFRIES_TRACE} && echo "User is not root"
   source_private_scripts
+
+  ${HOMEFRIES_TRACE} && echo "  └─"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
