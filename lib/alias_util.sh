@@ -152,7 +152,7 @@ home_fries_create_aliases_general () {
 
   # ***
 
-  if [[ -n "${TMUX}" ]]; then
+  if [ -n "${TMUX}" ]; then
     # REMEMBER: It's quicker and just the same (AFAIK) to
     #   use Ctrl-l instead of `reset`.
     alias reset='clear; tmux clear-history; command reset'
@@ -376,21 +376,21 @@ home_fries_create_aliases_chdir () {
 
   # IDEA/MAYBE: Enhance completions on cdd (limit to directories).
   function cdd () {
-    if [[ -n $2 ]]; then
+    if [ -n "$2" ]; then
       echo 'You wish!' $*
       return 1
     fi
-    if [[ -n $1 ]]; then
+    if [ -n "$1" ]; then
       pushd "$1" &> /dev/null
       # Same as:
       #  pushd -n "$1" &> /dev/null
       #  cd "$1"
-      if [[ $? -ne 0 ]]; then
+      if [ $? -ne 0 ]; then
         # Maybe the stupid user provided a path to a file.
         local pdir="$(dirname -- "$1")"
-        if [[ -n $pdir && '.' != $pdir ]]; then
-          pushd "$pdir" &> /dev/null
-          if [[ $? -ne 0 ]]; then
+        if [ -n "${pdir}" ] && [ '.' != "${pdir}" ]; then
+          pushd "${pdir}" &> /dev/null
+          if [ $? -ne 0 ]; then
             echo "You're dumb."
           else
             # alias errcho='>&2 echo'
@@ -402,7 +402,7 @@ home_fries_create_aliases_chdir () {
         fi
       fi
     else
-      pushd ${HOME} &> /dev/null
+      pushd "${HOME}" &> /dev/null
     fi
   }
   export -f cdd
@@ -443,7 +443,7 @@ home_fries_create_aliases_tab_completion () {
 }
 
 home_fries_create_alias_flatpak_gimp () {
-  if [[ -d $HOME/.var/app/org.gimp.GIMP ]]; then
+  if [ -d "${HOME}/.var/app/org.gimp.GIMP" ]]; then
     # Desktop entry is more complicated:
     #   /usr/bin/flatpak run \
     #     --branch=stable \
