@@ -4,6 +4,9 @@
 # Project: https://github.com/landonb/home-fries#🍟
 # License: MIT
 
+# NOTE: These functions are mostly for reference. None of homefries
+#       or any of this author's other projects use any of these.
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # *** Bash array contains
@@ -139,7 +142,7 @@ echo_dict () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
-  #alias elem_in_arr=array_in
+  # alias elem_in_arr=array_in
   :
 }
 
