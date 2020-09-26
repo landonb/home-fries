@@ -139,7 +139,6 @@ source_utils_all () {
   #     on those previously loaded); so alphabetical.
 
   source_it "alias_util.sh"
-  source_it "array_util.sh"
   source_it "crypt_util.sh"
   source_it "date_util.sh"
   source_it "dir_util.sh"
@@ -167,7 +166,9 @@ source_utils_all () {
   # Earlier: "term_util.sh"
   source_it "time_util.sh"
   source_it "trash_util.sh"
-  source_it "venvwrap_wrap.sh"
+  source_it "virtualenvwrapperer.sh"
+  # Just some example Bash author might reference:
+  #  source_it "show-n-tell/array_iterations.sh"
 }
 
 # ***
