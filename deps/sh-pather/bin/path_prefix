@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# vim:tw=0:ts=2:sw=2:et:norl:ft=sh
+# Project: https://github.com/landonb/sh-pather#🛁
+# License: MIT
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+path_prefix () {
+  local path_part="$1"
+  if [ -d "${path_part}" ]; then
+    # Remove the path from PATH.
+    _sh_pather_path_part_remove "${path_part}"
+    # Prepend the new path to PATH.
+    PATH="${path_part}:${PATH}"
+    # Make PATH available to subsequently executed commands.
+    export PATH
+  # else, do nothing if dir not found. (We could warn, but noise.)
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+. "$(dirname -- "${BASH_SOURCE[0]}")/pather.sh"
+
+if [ "${BASH_SOURCE[0]}" = "$0" ]; then
+  >&2 echo "WARNING: Changes to PATH do not stick unless path_prefix the function is run: ${@}"
+  path_prefix "${@}"
+else
+  export -f path_prefix
+fi
+

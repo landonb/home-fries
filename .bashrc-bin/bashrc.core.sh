@@ -29,6 +29,7 @@ export_homefries_envs () {
 
 source_from_user_path_or_homefries_lib () {
   local lib_file="$1"
+  local deps_path="$2"
   local time_0="$(home_fries_nanos_now)"
   ${HOMEFRIES_TRACE} && echo "   . FRIES: ${lib_file}"
   print_loading_dot
@@ -41,6 +42,13 @@ source_from_user_path_or_homefries_lib () {
   elif [ -f "${HOMEFRIES_DIR}/lib/${lib_file}" ]; then
     # Rather than put ~/.homefries/lib on PATH, this.
     . "${HOMEFRIES_DIR}/lib/${lib_file}"
+    let 'SOURCE_CNT += 1'
+  elif true && \
+    [ -n "${deps_path}" ] && \
+    [ -f "${HOMEFRIES_DIR}/deps/${deps_path}/${lib_file}" ] \
+  ; then
+    # Rather than put ~/.homefries/lib on PATH, this.
+    . "${HOMEFRIES_DIR}/deps/${deps_path}/${lib_file}"
     let 'SOURCE_CNT += 1'
   else
     # No exceptions: Complain if file missing.
@@ -109,8 +117,8 @@ source_utils_all () {
   # Ensure these are sourced so that the function is executed,
   # and not the script, because running a script (a subprocess)
   # cannot change the current environment's PATH.
-  source_it "path_prefix"
-  source_it "path_suffix"
+  source_it "path_prefix" "sh-pather/bin"
+  source_it "path_suffix" "sh-pather/bin"
 
   # sh-rm_safe/bin/*
   #  source_it "path_device"
@@ -137,7 +145,7 @@ source_utils_all () {
 
   # So that each `rmrm` command is stored in Bash history as `#rmrm`,
   # source the rmrm script (otherwise `history -s` has no effect).
-  source_it "rmrm"
+  source_it "rmrm" "sh-rm_safe/bin"
 
   # *** Load order does not matter (remaining files only depend
   #     on those previously loaded); so alphabetical.
