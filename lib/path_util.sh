@@ -8,7 +8,7 @@
 
 check_dep () {
   if ! command -v $1 > /dev/null 2>&1; then
-    >&2 echo "WARNING: Missing dependency: ‘$1’"
+    >&2 printf '\r%s\n' "WARNING: Missing dependency: ‘$1’"
     false
   else
     true

@@ -69,7 +69,7 @@ check_dep () {
   local cname="$1"
   local ahint="$2"
   if ! command -v "${cname}" > /dev/null 2>&1; then
-    >&2 echo "WARNING: Missing dependency: ‘${cname}’"
+    >&2 printf '\r%s\n' "WARNING: Missing dependency: ‘${cname}’"
     [ -n "${ahint}" ] && >&2 echo "${ahint}"
     false
   else
