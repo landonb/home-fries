@@ -153,8 +153,10 @@ source_utils_all () {
   #     on those previously loaded); so alphabetical.
 
   source_alias_sources
+  unset -f source_alias_sources
 
   source_crypt_sources
+  unset -f source_crypt_sources
 
   source_it "datetime_now_TTT.sh"
   source_it "dir_util.sh"
@@ -239,6 +241,7 @@ source_utils () {
   SOURCE_CNT=0
 
   source_utils_all
+  unset -f source_utils_all
 
   print_elapsed_time \
     "${time_outer_0}" \
@@ -361,6 +364,7 @@ home_fries_up () {
 
   # - lib/alias/*.sh
   run_and_unset_home_fries_create_aliases
+  unset -f run_and_unset_home_fries_create_aliases
 
   #########################
 
@@ -624,17 +628,20 @@ main () {
   unset -f export_homefries_envs
 
   source_utils
-  unset -f source_utils_all
   unset -f source_it
   unset -f source_from_user_path_or_homefries_lib
   unset -f source_utils
+  #
   unset -v _LOADED_HF_TERM_UTIL
 
   home_fries_up
   unset -f home_fries_up
+  unset -f eval_and_unset
+  unset -f run_and_unset
 
   print_elapsed_time "${time_main_0}" "bashrc.core.sh" "+CORESH: "
 }
 
 main "$@"
+unset -f main
 
