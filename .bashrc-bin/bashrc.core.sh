@@ -53,7 +53,9 @@ source_from_user_path_or_homefries_lib () {
   else
     # No exceptions: Complain if file missing.
     # - Nothing here is optional.
-    >&2 echo "MISSING: ${lib_file}"
+    >&2 printf '\r%s\n' "MISSING: ${lib_file}"
+    # Just in case something else calls this function... ???
+    eval "${lib_file} () { >&2 printf '\r%s\n' \"TRAPPED: ${@}\"; }"
   fi
   print_elapsed_time "${time_0}" "Source: ${lib_file}"
 }
