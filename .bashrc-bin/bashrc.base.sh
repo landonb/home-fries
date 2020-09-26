@@ -244,6 +244,11 @@ source_privately () {
     ${HOMEFRIES_TRACE} && echo "  ├─ Loading from a ${srctype} resource: ✓ ${srcfile}"
     local time_0="$(home_fries_nanos_now)"
     . "${srcfile}"
+    # To allow monkey-patching, private source can have us call its main.
+    if declare -f _homefries_private_main > /dev/null; then
+      _homefries_private_main
+      unset -f _homefries_private_main
+    fi
     print_elapsed_time "${time_0}" "Source: ${srcfile}"
   else
     ${HOMEFRIES_TRACE} && echo "  ├─ Did not find a ${srctype} resource: ✗ ${srcfile}"
