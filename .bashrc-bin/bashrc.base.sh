@@ -148,6 +148,14 @@ print_elapsed_time () {
 
 print_loading_dot () {
   ${HOMEFRIES_LOADINGDOTS:-false} || return
+  ${HOMEFRIES_TRACE:-false} && return
+  # 2020-09-26: Try to avoid wrapping to a new line, because
+  # then the '\r' later won't work as intended (it'll leave
+  # previous lines of dots visible).
+  # - Alt to `${#VAR}` → `expr length "${VAR}"`
+  if [ ${#HOMEFRIES_LOADEDDOTS} -ge ${HOMEFRIES_LOADDOTSLIMIT:-77} ]; then
+    cleanup_loading_dots
+  fi
   printf %s "${HOMEFRIES_LOADINGSEP}"
   HOMEFRIES_LOADEDDOTS="${HOMEFRIES_LOADEDDOTS}${HOMEFRIES_LOADINGSEP}"
 }
@@ -159,8 +167,10 @@ cleanup_loading_dots () {
   printf '\r'
   printf "${HOMEFRIES_LOADEDDOTS}" | tr "${HOMEFRIES_LOADINGSEP}" ' '
   printf '\r'
+  HOMEFRIES_LOADEDDOTS=''
 
   flash_elapsed () {
+    [ -n "${time_0}" ] || return
     local elapsed
     elapsed="$(HOMEFRIES_PROFILING= "${HOMEFRIES_BASHRCBIN}/../bin/echo-elapsed" "${time_0}")"
     printf "${elapsed} "
