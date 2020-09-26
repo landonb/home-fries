@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# vim:tw=0:ts=2:sw=2:et:norl:ft=sh
+# Project: https://github.com/landonb/sh-rm_safe#🗑
+# License: MIT
+
+RM_SAFE_TRASH_HOME="${RM_SAFE_TRASH_HOME:-${HOME}}"
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+echo_boxy=false
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+first_char_capped () {
+  printf "$1" | cut -c1-1 | tr '[:lower:]' '[:upper:]'
+}
+
+# 2016-04-26: I added rm_rotate because, while trashes were being
+# created on different devices from rm_safe, rmtrash was only emptying
+# the trash in the user's home.
+#   Also: I find myself feeling more comfortable moving .trash to .trash-TBD
+#   for a while and then deleting the .trash-TBD, just in case I don't, say,
+#   in a week realize I deleted something. So here's a two-step trash:
+#   if you call rmtrash once, it'll temporarily backup the .trash dirs;
+#   when you call rmtrash again, it'll remove the last temporary backups.
+#   In this manner, you can call rmtrash periodically, like once a month
+#   or whatever, and you won't have to worry about accidentally deleting
+#   things.
+#   MAYBE: You could do an anacron check on the timestamp of the .trash-TBD
+#          and call rm_rotate after a certain amount of time has elapsed.
+rm_rotate () {
+  local device_path=''
+  for device_path in $( \
+    mount \
+      | grep \
+        -e " type fuse.encfs (" \
+        -e " type fuse.gocryptfs (" \
+        -e " type ext4 (" \
+      | awk '{print $3}' \
+  ); do
+    local trash_path=''
+    if [ "${device_path}" = "/" ]; then
+      trash_path="${RM_SAFE_TRASH_HOME}/.trash"
+    else
+      trash_path="${device_path}/.trash"
+    fi
+    YES_OR_NO="N"
+    if [ -d "${trash_path}" ]; then
+      local yes_or_no=""
+      printf %s "Empty all items from trash at ‘${trash_path}’? [y/n] "
+      read -e yes_or_no
+      # Was Bash-only:
+      #   if [ "${yes_or_no^^}" = "Y" ]; then
+      # But now POSIX:
+      if [ "$(first_char_capped ${yes_or_no})" = 'Y' ]; then
+        if [ -d "${trash_path}-TBD" ]; then
+          /bin/rm -rf -- "${trash_path}-TBD"
+        fi
+        /bin/mv -- "${trash_path}" "${trash_path}-TBD"
+        touch -- "${trash_path}-TBD"
+        mkdir -- "${trash_path}"
+      else
+        echo "Skip! User said not to empty ‘${trash_path}’"
+      fi
+    else
+      echo "Skip! No trash at ‘${trash_path}’"
+    fi
+  done
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+if [ "${BASH_SOURCE[0]}" = "$0" ]; then
+  rm_rotate "${@}"
+else
+  export -f rm_rotate
+fi
+

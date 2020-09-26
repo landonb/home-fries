@@ -1,0 +1,382 @@
+#!/usr/bin/env bash
+# vim:tw=0:ts=2:sw=2:et:norl:ft=sh
+# Project: https://github.com/landonb/sh-rm_safe#🗑
+# License: MIT
+
+RM_SAFE_TRASH_HOME="${RM_SAFE_TRASH_HOME:-${HOME}}"
+
+# ***
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# *** <beg boilerplate `source_deps`: ------------------------------|
+#                                                                   |
+
+readlink_f () {
+  local resolve_path="$1"
+  local ret_code=0
+  if [ "$(readlink --version 2> /dev/null)" ]; then
+    # Linux: Modern readlink.
+    resolve_path="$(readlink -f -- "${resolve_path}")"
+  else
+    # macOHHHH-ESS/macOS: No `readlink -f`.
+    local before_cd="$(pwd -L)"
+    local just_once=true
+    while [ -n "${resolve_path}" ] && ( [ -h "${resolve_path}" ] || ${just_once} ); do
+      just_once=false
+      local basedir_link="$(dirname -- "${resolve_path}")"
+      # `readlink -f` checks all but final component exist.
+      # So if dir path leading to final componenet missing, return empty string.
+      if [ ! -e "${basedir_link}" ]; then
+        resolve_path=""
+        ret_code=1
+      else
+        local resolve_file="${resolve_path}"
+        local resolve_link="$(readlink -- "${resolve_path}")"
+        if [ -n "${resolve_link}" ]; then
+          case "${resolve_link}" in
+            /*)
+              # Absolute path.
+              resolve_file="${resolve_link}"
+              ;;
+            *)
+              # Relative path.
+              resolve_file="${basedir_link}/${resolve_link}"
+              ;;
+          esac
+        fi
+        local resolved_dir="$(dirname -- "${resolve_file}")"
+        if [ ! -d "${resolved_dir}" ]; then
+          resolve_path=""
+          ret_code=1
+        else
+          cd "${resolved_dir}" > /dev/null
+          resolve_path="$(pwd -P)/$(basename -- "${resolve_file}")"
+        fi
+      fi
+    done
+    cd "${before_cd}"
+  fi
+  [ -n "${resolve_path}" ] && echo "${resolve_path}"
+  return ${ret_code}
+}
+
+# ***
+
+source_deps () {
+  local thispth="$1"
+  local prefix=""
+  local depsnok=false
+
+  _source_it () {
+    local prfx="${1:-.}"
+    local depd="${2:-.}"
+    local file="${3:-.}"
+    local path="${prfx}/${depd}/${file}"
+    if command -v "${file}" > /dev/null; then
+      # Use version found on PATH.
+      . "${file}"
+    elif [ -f "${path}" ]; then
+      # Fallback on local deps/ copy.
+      # NOTE: `dash` complains if missing './'.
+      . "${path}"
+    else
+      local depstxt=''
+      [ "${prfx}" != "." ] && depstxt="in ‘${prfx}/${depd}’ or "
+      >&2 echo "MISSING: ‘${file}’ not found ${depstxt}on PATH."
+      depsnok=true
+    fi
+  }
+
+  # Allow user to symlink executables and not libraries.
+  # E.g., `ln -s /path/to/bin/logger.sh /tmp/logger.sh ; /tmp/logger.sh`
+  # knows that it can look relative to /path/to/bin/ for sourceable files.
+  prefix="$(dirname -- "$(readlink_f -- "${thispth}")")"
+
+  #                                                                 |
+  # *** stop boilerplate> ------------------------------------------|
+
+  # https://github.com/landonb/sh-colors
+  _source_it "${prefix}" "../deps/sh-colors/bin" "colors.sh"
+
+  . "$(dirname -- "${BASH_SOURCE[0]}")/path_device"
+
+  # *** <more boilerplate: -----------------------------------------|
+  #                                                                 |
+
+  ! ${depsnok}
+}
+
+#                                                                   |
+# *** end boilerplate `source_deps`> -------------------------------|
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# ***
+
+_trace () { :; }
+# YOU: Uncomment if you want a few runtime details.
+#  _trace () { >&2 echo "$@"; }
+
+_sh_rm_safe_device_filepath_for_file () {
+  local file="$1"
+  local device_path=''
+  local usage_report=''
+  # NOTE: We could use awk to get the second line of output, e.g.,
+  #   usage_report=$(/bin/df -T "$1")
+  #   device_path=$(echo "${usage_report}" | awk 'NR == 2 {for(i=7;i<=NF;++i) print $i}')
+  # but it seems easier to me (lb) -- or at least more intuitive -- to use tail-tr-cut.
+  # 2020-08-25: (lb): I had `df -T` here, but it's not macOS-compatible: it prints file
+  # system type on GNU/Linux, but filters by type on macOS. Also don't use its output here.
+  # And switching to `/usr/bin/env df` to avoid any aliasing.
+  # - Note that on Linux/Gnu, df prints 6 columns/fields:
+  #     Filesystem    1K-blocks  Used  Available  Use%      Mounted on
+  #   Note that on macOS/BSD, df prints 9 columns/fields:
+  #     Filesystem   512-blocks  Used  Available  Capacity  iused  ifree  %iused  Mounted on
+  #   But rather than test `is_os_macos` and/or `is_os_linux`,
+  #   we could do some shell pipeline trickery. E.g., consider:
+  #     $ echo 'maps.google.com' | rev | cut -d'.' -f 1 | rev
+  #     com
+  usage_report="$(/usr/bin/env df -- "${file}" | tail -1)"
+  if [ $? -eq 0 ]; then
+    # Linux df (without -T):
+    #   device_path="$(echo "${usage_report}" | tr -s ' ' | cut -d ' ' -f6)"
+    # Linux- and macOS-compatible:
+    device_path="$(echo "${usage_report}" | tr -s ' ' | rev | cut -d' ' -f1) | rev"
+    _trace "usage_report=${usage_report}"
+  else
+    # 2020-08-25: Does this happen only on ${file} not found? (lb): I think so.
+    if [ ! -L "${file}" ]; then
+      # df didn't find file, and file not a symlink.
+      echo "WARNING: Using relative path because not a file: ${file}"
+    # else, df didn't find symlink because it points at non existent file.
+    fi
+    # 2020-08-25: (lb): See comment above: I removed `-T` option.
+    # 2020-08-25: HAHA: Instead of piping to/out of `rev`, use awk `NF`.
+    # - Not sure why, why I was using a more complicated for-loop:
+    #     device_path="$( \
+    #       /usr/bin/env df -- "$(dirname -- "${file}")" \
+    #       | awk 'NR == 2 {for(i=NF;i<=NF;++i) print $i}' \
+    #     )"
+    # but it occurs to me now this is much simpler:
+    device_path="$( \
+      /usr/bin/env df -- "$(dirname -- "${file}")" \
+      | awk 'NR == 2 {print $NF}' \
+    )"
+  fi
+  _trace "device_path=${device_path}"
+  echo "${device_path}"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+_sh_rm_safe_ensure_trashdir () {
+  local device_trashdir="$1"
+  local trash_device="$2"
+  local ensured=1
+  if [ -z "${device_trashdir}" ]; then
+    >&2 echo 'rm_safe: No $device_trashdir (‘’) specified'
+    ensured=1  # So caller does nothing more.
+    return ${ensured}
+  fi
+  if [ -f "${device_trashdir}/.trash" ]; then
+    ensured=2  # So caller invokes `rm -i`.
+    # MAYBE: Suppress this message, or at least don't show multiple times for
+    #        same ${trash_device}, i.e., or `rm *.*` will echo for every file.
+    >&2 echo "The trash is disabled on device ‘${trash_device}’"
+  else
+    if [ ! -e "${device_trashdir}/.trash" ]; then
+      >&2 printf '%b\n' \
+        "No root trash found for device ‘$(fg_lavender)${trash_device}$(attr_reset)’"
+      sudo_prefix=""
+      if [ "${device_trashdir}" = "/" ]; then
+        # The file being deleted lives on the root device but the default
+        # trash directory is not on the same device. This could mean the
+        # user has an encrypted home directory. Rather than moving files
+        # to the encryted space, use an unencrypted trash location, but
+        # make the user do it.
+        >&2 echo
+        >&2 echo "No root trash directory ‘/.trash’ found on root device ‘/’"
+        >&2 echo
+        >&2 echo "- Possibly because your home is encrypted, good job!"
+        >&2 echo
+        sudo_prefix="sudo"
+        device_trashdir=''
+      fi
+      if ${echo_boxy}; then
+        printf '%s\n' "┌──────────────────────${device_trashdir//?/─}─────────────┐"
+        printf '%s\n' "│ Create new trash at ‘${device_trashdir}/.trash’ ?   │"
+        printf '%s'   "│ Create trash? [y/N]:              ${device_trashdir//?/ }│"
+        printf '\r'
+        printf '%s'   "│ Create trash? [y/N]: "
+      else
+        >&2 printf '%b\n' \
+          "- HINT: To skip this ask: $(fg_lavender)touch ${device_trashdir}/.trash$(attr_reset)"
+        printf '%b' \
+          "rm_safe: create a new trash at ‘$(fg_lavender)${device_trashdir}/.trash$(attr_reset)’? [y/N] "
+      fi
+      read the_choice
+      if [ "${the_choice}" != "y" ] && [ "${the_choice}" != "Y" ]; then
+        ensured=3  # So caller asks to move to home-trash; or invokes `rm -i`.
+        if ${echo_boxy}; then
+          >&2 echo "│ HINT: To disable this ask:        ${device_trashdir//?/ }│"
+          >&2 echo "│          touch ${device_trashdir}/.trash            │"
+          >&2 echo "└──────────────────────${device_trashdir//?/─}─────────────┘"
+        fi
+      else
+        # We'll set ensured=4 in the [[ -d ]], last.
+        ${sudo_prefix} /bin/mkdir -p "${device_trashdir}/.trash"
+        if [ -n "${sudo_prefix}" ]; then
+          sudo chgrp staff /.trash
+          sudo chmod 2775 /.trash
+        fi
+      fi
+    fi
+    if [ -d "${device_trashdir}/.trash" ]; then
+      ensured=4
+    fi
+  fi
+  return ${ensured}
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# FIXME/2019-12-22 23:06: Split this long fcn.
+# FIXME/2019-12-22 23:15: Honor `--` signalling end of options, to ignore -rf feature
+#                         (i.e., treat "-rf" as filename).
+rm_safe () {
+  local rm_recursive_force=false
+  if [ "-rf" = "${1}" ]; then
+    >&2 echo "rm_safe: ‘/bin/rm -rf’, you got it!"
+    shift
+    rm_recursive_force=true
+  fi
+  if [ ${#*} -eq 0 ]; then
+    >&2 echo "rm_safe: Missing operand(s)"
+    >&2 echo "Try \`/bin/rm --help\` for more information"
+    return 1
+  fi
+  if ${rm_recursive_force}; then
+    /bin/rm -rf "$@"
+    return 0
+  fi
+  if [ -z "${RM_SAFE_TRASH_HOME}" ]; then
+    # We set RM_SAFE_TRASH_HOME in this file, so if here, DEV's fault.
+    >&2 echo 'rm_safe: No $RM_SAFE_TRASH_HOME (‘’), what gives?'
+    return 1
+  fi
+  # echo "RM_SAFE_TRASH_HOME: ${RM_SAFE_TRASH_HOME}"
+  # The trash can way!
+  # You can disable the trash by running
+  #   /bin/rm -rf ~/.trash && touch ~/.trash
+  # You can make the trash with rmtrash or mkdir ~/.trash,
+  #   or run the command and you'll be prompted.
+  # EXPLAIN/2019-12-22: (lb): Would $@ instead of $* allow us to avoid IFS?
+  local old_IFS=$IFS
+  IFS=$'\n'
+  local fpath=""
+  for fpath in $*; do
+    local bname=$(basename -- "${fpath}")
+    if [ "${bname}" = '.' ] || [ "${bname}" = '..' ]; then
+      continue
+    fi
+
+    # A little trick to make sure to use the trash can on
+    # the right device, to avoid copying files.
+    # NOTE/2017-06-03: The device_on_which fcn. returns nonzero on error,
+    # for reason the $? -ne 0 isn't seeing it (and I could swear that it
+    # used to work!). So check for the empty string, too!
+    local trash_device=$(path_device "${RM_SAFE_TRASH_HOME}")
+    if [ $? -ne 0 ] || [ "${trash_device}" = "" ]; then
+      >&2 echo "rm_safe: No device for supposed trash dir. ‘${RM_SAFE_TRASH_HOME}’"
+      return 1
+    fi
+    _trace "trash_device=${trash_device}"  # E.g., "/dev/sda2"
+
+    local fpath_device
+    fpath_device="$(path_device "${fpath}")"
+    if [ $? -ne 0 ] || [ "${fpath_device}" == "" ]; then
+      if [ ! -d "${fpath}" ] && [ ! -f "${fpath}" ] && [ ! -h "${fpath}" ]; then
+        >&2 echo "rm_safe: Cannot remove ‘${fpath}’: No such file or directory"
+      else
+        >&2 echo "rm_safe: ERROR: Could not detect device for item ‘${fpath}’"
+      fi
+      return 1
+    fi
+    _trace "fpath_device=${fpath_device}"  # E.g., "/dev/sdb1"
+
+    local device_trashdir=""
+    if [ "${trash_device}" = "${fpath_device}" ]; then
+      # MAYBE: Update this fcn. to support specific trash
+      # directories on each device. For now you can specify
+      # one specific dir for one drive (generally /home/$LOGNAME/.trash)
+      # and then all other drives it's assumed to be at, e.g.,
+      # /media/XXX/.trash.
+      device_trashdir="${RM_SAFE_TRASH_HOME}"
+    else
+      device_trashdir=$(_sh_rm_safe_device_filepath_for_file "${fpath}")
+      trash_device=${fpath_device}
+    fi
+
+    _sh_rm_safe_ensure_trashdir "${device_trashdir}" "${trash_device}"
+    ensured=$?
+    if [ ${ensured} -eq 3 ]; then
+      # Ask if user wants to move file to home-trash instead.
+      device_trashdir="${RM_SAFE_TRASH_HOME}"
+      if ${echo_boxy}; then
+        printf '%s\n' "┌────────────────────────${device_trashdir//?/─}───────────┐"
+        printf '%s\n' "│ Move to main trash at ‘${device_trashdir}/.trash’ ? │"
+        printf '%s'   "│ Move item? [y/N]:                 ${device_trashdir//?/ }│"
+        printf '\r'
+        printf '%s'   "│ Move item? [y/N]: "
+      else
+        printf '%b' \
+          "rm_safe: move item to trash at ‘$(fg_lavender)${device_trashdir}/.trash$(attr_reset)’? [y/N] "
+      fi
+      read the_choice
+      if ${echo_boxy}; then
+        >&2 echo      "└──────────────────────${device_trashdir//?/─}─────────────┘"
+      fi
+      if [ "${the_choice}" != "y" ] && [ "${the_choice}" != "Y" ]; then
+        ensured=2
+      else
+        ensured=4
+      fi
+    fi
+
+    if [ ${ensured} -eq 2 ]; then
+      # User specifically not using safety trash on this device; or for this file.
+      /bin/rm -i "${fpath}"
+    elif [ ${ensured} -eq 4 ]; then
+      # ensured=4 means the trash directory exists; move 'deleted' files there.
+      local fname=${bname}
+      if [ -e "${device_trashdir}/.trash/${fname}" ] || \
+         [ -h "${device_trashdir}/.trash/${fname}" ]; \
+      then
+        # 2020-08-26: Note that `date +%N` is not an option on macOS, prints just 'N'.
+        # We could call home_fries_nanos_now for nanos, but we're adding the N to
+        # generate a unique name -- so might as well replace with UUID fragment.
+        fname="${bname}.$(date +%Y_%m_%d_%Hh%Mm%Ss)-$(uuidgen | head -c8)"
+      fi
+      # If fpath is a symlink and includes a trailing slash, doing a raw mv:
+      #  /bin/mv "${fpath}" "${device_trashdir}/.trash/${fname}"
+      # causes the response:
+      #  /bin/mv: cannot move ‘symlink/’ to
+      #   ‘/path/to/.trash/symlink.2015_12_03_14h26m51s_179228194’: Not a directory
+      /bin/mv "$(dirname -- "${fpath}")/${bname}" "${device_trashdir}/.trash/${fname}"
+    fi
+  done
+  IFS=$old_IFS
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+source_deps "${BASH_SOURCE[0]}"
+unset -f source_deps
+
+if [ "${BASH_SOURCE[0]}" = "$0" ]; then
+  rm_safe "${@}"
+else
+  export -f rm_safe
+fi
+

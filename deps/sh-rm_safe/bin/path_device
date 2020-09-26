@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# vim:tw=0:ts=2:sw=2:et:norl:ft=sh
+# Project: https://github.com/landonb/sh-rm_safe#🗑
+# License: MIT
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+_sh_rm_safe_device_on_which_file_resides () {
+  local file="$1"
+  local owning_device=""
+  # 2020-08-25: (lb): Changed `df -T` → `df` b/c macOS, and we're not using that field.
+  if [ -d "${file}" ] || [ -f "${file}" ]; then
+    owning_device=$(/usr/bin/env df -- "${file}" | awk 'NR == 2 {print $1}')
+  elif [ -h "${file}" ]; then
+    # A symbolic link, so don't use the linked-to file's location, and don't
+    # die if the link is dangling (df says "No such file or directory").
+    owning_device="$(/usr/bin/env df -- "$(dirname -- "${file}")" | awk 'NR == 2 {print $1}')"
+  else
+    owning_device=""
+    # 2017-06-03: For some reason, the caller checking $? for nonzero
+    # is not working, so echo empty string instead.
+    #  echo "ERROR: Not a directory, regular file, or symbolic link: $1."
+    echo ""
+    return 1
+  fi
+  if [ "${owning_device}" == "" ]; then
+    echo "WARNING: ‘df’ returned empty string but file exists?: ${file}"
+  fi
+  echo "${owning_device}"
+}
+
+path_device () {
+  _sh_rm_safe_device_on_which_file_resides "$@"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+if [ "${BASH_SOURCE[0]}" = "$0" ]; then
+  _sh_rm_safe_device_on_which_file_resides "${@}"
+else
+  export -f _sh_rm_safe_device_on_which_file_resides
+  export -f path_device
+fi
+

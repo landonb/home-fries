@@ -78,23 +78,48 @@ check_dep () {
 }
 export -f check_dep
 
-check_deps () {
-  # Onus is on user to figure out how to wire these!
-  # - The author uses a ~/.homefries/.bashrc-bin/bashrx.private.user.sh script
-  #   to put these on PATH.
-  # - Note that we're not checking that these have been sourced, just on PATH,
-  #   so check for their filename, not for functions they export.
-  # Verify sh-colors/bin/colors.sh loaded.
-  #   check_dep '_hofr_no_color'
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+ensure_pathed () {
+  local lib_file="$1"
+  local deps_path="$2"
+  local lib_path="$(type -p "${lib_file}")"
+  if [ ! -f "${lib_path}" ]; then
+    path_suffix "${HOMEFRIES_DIR}/deps/${deps_path}"
+  fi
+}
+
+ensure_deps () {
+  # User is welcome to install the dependencies and ensure
+  # they're found on PATH. If not, we'll use copies we keep
+  # in this repo.
+  # HINT: If you want to make changes to Homefries and the
+  # other projects, use hardlinks so you don't have to sync
+  # files manually (though you may when Git committing).
+  # - The author uses a private script at
+  #     ~/.homefries/.bashrc-bin/bashrx.private.user.sh
+  #   to update PATH to includes these projects, which,
+  #   is sourced before this script.
+  #   - FIXME/2020-09-26: Add link to the Waffle Batter project.
+
+  # Ensure sh-colors/bin/colors.sh on PATH.
+  # - Project includes: colors.sh
+  ensure_pathed 'colors.sh' 'sh-colors/bin'
   check_dep 'colors.sh'
-  # Verify sh-logger/bin/logger.sh loaded.
-  #   check_dep '_sh_logger_log_msg'
+
+  # Ensure sh-logger/bin/logger.sh on PATH.
+  # - Project includes: logger.sh
+  ensure_pathed 'logger.sh' 'sh-logger/bin'
   check_dep 'logger.sh'
-  # Verify sh-pather/bin/path* loaded.
-  #   check_dep '_sh_pather_path_part_remove'
+
+  # Ensure sh-pather/bin/path* on PATH.
+  # - Project includes: pather.sh, path_prefix, path_suffix
+  ensure_pathed 'pather.sh' 'sh-pather/bin'
   check_dep 'pather.sh'
-  # Verify sh-rm_safe/bin/* loaded.
-  #   check_dep '_sh_rm_safe_device_on_which_file_resides'
+
+  # Ensure sh-rm_safe/bin/* on PATH.
+  # - Project includes: path_device, rm_rotate, rm_safe, rmrm
+  ensure_pathed 'rm_safe' 'sh-rm_safe/bin'
   check_dep 'rm_safe'
 }
 
@@ -103,30 +128,24 @@ check_deps () {
 # *** Doobious Sources
 
 source_utils_all () {
-  check_deps
 
-  # *** External projects (you've loaded via private Bash).
+  # *** Dependencies: Other Bash projects.
 
-  # sh-colors/bin/colors.sh
-  #  source_it "colors.sh"
-  #  source_it "test_colors"
+  # HINT: You can ensure these are on PATH before sourcing this
+  #       file, or you can just not care and Homefries will load
+  #       local copies of the dependencies.
 
-  # sh-logger/bin/logger.sh
-  #  source_it "logger.sh"
-
-  # sh-pather/bin/*
-  #  source_it "pather.sh"
-  # Ensure these are sourced so that the function is executed,
-  # and not the script, because running a script (a subprocess)
-  # cannot change the current environment's PATH.
+  # Note that 'path_prefix' and 'path_suffix' are executable files, but
+  # we source them into the environment, because just running a script
+  # (in a subprocess) has no impact on the current environment's PATH.
   source_it "path_prefix" "sh-pather/bin"
   source_it "path_suffix" "sh-pather/bin"
 
-  # sh-rm_safe/bin/*
-  #  source_it "path_device"
-  #  source_it "rm_rotate"
-  #  source_it "rm_safe"
-  #  source_it "rmrm"  # See later: We do source this.
+  # Ensure other dependencies are either on PATH, or update PATH to
+  # include our local copies.
+  ensure_deps
+  unset -f ensure_deps
+  unset -f ensure_pathed
 
   # *** Load order matters, to limit number of `.` invocations.
 
