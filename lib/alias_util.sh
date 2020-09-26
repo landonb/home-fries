@@ -120,8 +120,7 @@ home_fries_create_aliases_general () {
   #   https://utcc.utoronto.ca/~cks/space/blog/linux/ReplacingNetstatNotBad
   alias n='netstat -tulpn'  # --tcp --udp --listening --program (name) --numeric
 
-  # It was `=top` way long ago, and then `=todo.sh` for, like, a day.
-  #alias t='top -c'          # Show full command.
+  # alias t='top -c'        # Show full command.
   alias ht='htop'
 
   alias cmd='command -v $1' # Show executable path or alias definition.
@@ -359,7 +358,7 @@ home_fries_create_aliases_ohmyrepos () {
   # 2020-03-25: Is this completely insane?
   alias gb='git br'
   alias gr='git r'
-  alias g='git r && git br && sf'
+  # alias g='git r && git br && sf'
   alias g='sf && git br && git r'
 }
 
