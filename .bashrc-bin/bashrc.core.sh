@@ -140,8 +140,6 @@ source_utils_all () {
   # *** Load order does not matter (remaining files only depend
   #     on those previously loaded); so alphabetical.
 
-# IN_PROGRESS/2020-09-26 14:45: Moving from alias_util.sh → alias/*.sh
-  source_it "alias_util.sh"
   source_alias_sources
 
   source_crypt_sources
@@ -171,7 +169,6 @@ source_utils_all () {
   # Loaded specially: "term-fzf.bash"
   # Earlier: "term_util.sh"
   source_it "time_util.sh"
-  source_it "trash_util.sh"
   source_it "virtualenvwrapperer.sh"
   # Just some example Bash author might reference:
   #  source_it "show-n-tell/array_iterations.sh"
@@ -181,9 +178,37 @@ source_utils_all () {
 
 source_alias_sources () {
   source_it "alias/alias_ag.sh"
+  source_it "alias/alias_bash.sh"
+  source_it "alias/alias_cd_pushd_popd.sh"
+  source_it "alias/alias_completion.sh"
+  source_it "alias/alias_cp.sh"
   source_it "alias/alias_df.sh"
+  source_it "alias/alias_diff.sh"
+  source_it "alias/alias_du.sh"
+  source_it "alias/alias_fd.sh"
+  source_it "alias/alias_find.sh"
+  source_it "alias/alias_free.sh"
+  source_it "alias/alias_gimp.sh"
+  source_it "alias/alias_git.sh"
   source_it "alias/alias_grep_egrep.sh"
+  source_it "alias/alias_hash_type_command.sh"
+  source_it "alias/alias_history.sh"
+  source_it "alias/alias_htop.sh"
+  source_it "alias/alias_less.sh"
+  source_it "alias/alias_ls.sh"
+  source_it "alias/alias_mv.sh"
+  source_it "alias/alias_netstat.sh"
+  source_it "alias/alias_ohmyrepos.sh"
+  source_it "alias/alias_pwd.sh"
+  source_it "alias/alias_pwgen.sh"
+  source_it "alias/alias_python.sh"
   source_it "alias/alias_rg_tag.sh"
+  source_it "alias/alias_ruby.sh"
+  source_it "alias/alias_sudo.sh"
+  source_it "alias/alias_rm_rmtrash.sh"
+  source_it "alias/alias_tmux_reset.sh"
+  source_it "alias/alias_vim_gvim.sh"
+  source_it "alias/whowherewhatami.sh"
 }
 
 # ***
@@ -322,40 +347,8 @@ home_fries_up () {
 
   # Configure Bash session aliases.
 
-# IN_PROGRESS/2020-09-26 14:45: Moving from alias_util.sh → alias/*.sh
-  # - lib/alias_util.sh
-  run_and_unset "home_fries_create_aliases_general"
-# - lib/alias/*.sh
-  # - lib/alias/alias_df.sh
-  run_and_unset "home_fries_aliases_wire_df"
-
-  # - lib/alias_util.sh
-  run_and_unset "home_fries_create_aliases_ohmyrepos"
-
-  # Set: `ag` => `ag --smart-case --hidden`, etc.
-  # - lib/alias/alias_ag.sh
-  run_and_unset "home_fries_aliases_wire_ag"
-  # Set: `grep` => `grep --color`, etc.
-  # - lib/alias/alias_grep_egrep.sh
-  run_and_unset "home_fries_aliases_wire_grep_egrep"
-  # Setup `rg` wrapper around `tag`, which will wire
-  # `e*` commands for each search to view hits in Vim.
-  # - lib/alias/alias_rg_tag.sh
-  run_and_unset "home_fries_aliases_wire_rg_tag"
-
-  # Set: `cdd` => pushd wrapper; `cdc` => popd; `cddc` => toggle cd last
-  # - lib/alias_util.sh
-  run_and_unset "home_fries_create_aliases_chdir"
-
-  # - lib/alias_util.sh
-  run_and_unset "home_fries_create_aliases_tab_completion"
-
-  # - lib/alias_util.sh
-  run_and_unset "home_fries_create_alias_flatpak_gimp"
-
-  # Set: `rm` => `rm_safe` [e.g., "remove" to ~/.trash]
-  # - lib/trash_util.sh
-  run_and_unset "home_fries_create_aliases_trash"
+  # - lib/alias/*.sh
+  run_and_unset_home_fries_create_aliases
 
   #########################
 
@@ -501,6 +494,113 @@ home_fries_up () {
     "${time_outer_0}" \
     "Setup actions (home_fries_up)." \
     "ACTIONS: "
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+run_and_unset_home_fries_create_aliases () {
+
+  # Set: `ag` => `ag --smart-case --hidden`, etc.
+  # - lib/alias/alias_ag.sh
+  run_and_unset "home_fries_aliases_wire_ag"
+
+  # - lib/alias/alias_bash.sh
+  run_and_unset "home_fries_aliases_wire_bash"
+
+  # Set: `cdd` => pushd wrapper; `cdc` => popd; `cddc` => toggle cd last
+  # - lib/alias/alias_cd_pushd_popd.sh
+  run_and_unset "home_fries_aliases_wire_cd_pushd_popd"
+
+  # - lib/alias/alias_completion.sh
+  run_and_unset "home_fries_aliases_wire_completion"
+
+  # - lib/alias/alias_cp.sh
+  run_and_unset "home_fries_aliases_wire_cp"
+
+  # - lib/alias/alias_diff.sh
+  run_and_unset "home_fries_aliases_wire_diff"
+
+  # - lib/alias/alias_df.sh
+  run_and_unset "home_fries_aliases_wire_df"
+
+  # - lib/alias/alias_du.sh
+  run_and_unset "home_fries_aliases_wire_du"
+
+  # - lib/alias/alias_fd.sh
+  run_and_unset "home_fries_aliases_wire_fd"
+
+  # - lib/alias/alias_find.sh
+  run_and_unset "home_fries_aliases_wire_find"
+
+  # - lib/alias/alias_free.sh
+  run_and_unset "home_fries_aliases_wire_free"
+
+  # - lib/alias/alias_gimp.sh
+  run_and_unset "home_fries_aliases_wire_gimp"
+
+  # - lib/alias/alias_git.sh
+  run_and_unset "home_fries_aliases_wire_git"
+
+  # Set: `grep` => `grep --color`, etc.
+  # - lib/alias/alias_grep_egrep.sh
+  run_and_unset "home_fries_aliases_wire_grep_egrep"
+
+  # - lib/alias/alias_hash_type_command.sh
+  run_and_unset "home_fries_aliases_wire_hash_type_command"
+
+  # - lib/alias/alias_history.sh
+  run_and_unset "home_fries_aliases_wire_history"
+
+  # - lib/alias/alias_htop.sh
+  run_and_unset "home_fries_aliases_wire_htop"
+
+  # - lib/alias/alias_less.sh
+  run_and_unset "home_fries_aliases_wire_less"
+
+  # - lib/alias/alias_ls.sh
+  run_and_unset "home_fries_aliases_wire_ls"
+
+  # - lib/alias/alias_mv.sh
+  run_and_unset "home_fries_aliases_wire_mv"
+
+  # - lib/alias/alias_netstat.sh
+  run_and_unset "home_fries_aliases_wire_netstat"
+
+  # - lib/alias/alias_ohmyrepos.sh
+  run_and_unset "home_fries_aliases_wire_ohmyrepos"
+
+  # - lib/alias/alias_pwd.sh
+  run_and_unset "home_fries_aliases_wire_pwd"
+
+  # - lib/alias/alias_pwgen.sh
+  run_and_unset "home_fries_aliases_wire_pwgen"
+
+  # - lib/alias/alias_python.sh
+  run_and_unset "home_fries_aliases_wire_python"
+
+  # Set: `rm` => `rm_safe` [e.g., "remove" to ~/.trash]
+  # - lib/alias/alias_rm_rmtrash.sh
+  run_and_unset "home_fries_aliases_wire_rm_rmtrash"
+
+  # Setup `rg` wrapper around `tag`, which will wire
+  # `e*` commands for each search to view hits in Vim.
+  # - lib/alias/alias_rg_tag.sh
+  run_and_unset "home_fries_aliases_wire_rg_tag"
+
+  # - lib/alias/alias_ruby.sh
+  #  run_and_unset "home_fries_aliases_wire_ruby"
+
+  # - lib/alias/alias_sudo.sh
+  run_and_unset "home_fries_aliases_wire_sudo"
+
+  # - lib/alias/alias_tmux_reset.sh
+  run_and_unset "home_fries_aliases_wire_tmux_reset"
+
+  # - lib/alias/alias_vim_gvim.sh
+  run_and_unset "home_fries_aliases_wire_vim_gvim"
+
+  # - lib/alias/whowherewhatami.sh
+  run_and_unset "home_fries_aliases_wire_amis"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

@@ -13,6 +13,13 @@ check_deps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+home_fries_aliases_wire_rg_tag () {
+  home_fries_create_aliases_rg_tag_wrap
+  home_fries_create_aliases_rg_options
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # 2018-03-26: Fancy ag/rg wrapper makes jumping to search result seamless!
 #
 #   https://github.com/aykamko/tag
@@ -136,13 +143,6 @@ home_fries_create_aliases_rg_options () {
   function rg_peek () {
     rg -A 0 -B 0 --hidden --follow --max-count 1 $* 2> /dev/null
   }
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-home_fries_aliases_wire_rg_tag () {
-  home_fries_create_aliases_rg_tag_wrap
-  home_fries_create_aliases_rg_options
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

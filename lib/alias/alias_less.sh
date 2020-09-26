@@ -6,27 +6,25 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-check_deps () {
-  check_dep 'rm_safe'
-  check_dep 'rm_rotate'
+home_fries_aliases_wire_less () {
+  # alias less='less -r'     # Raw control characters.
+  alias less='less -R'      # Better Raw control characters (aka color).
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Fix `rm` to be a respectable trashcan.
-home_fries_create_aliases_trash () {
-  RM_SAFE_TRASH_HOME="${RM_SAFE_TRASH_HOME:-${HOME}}"
-  alias rm='rm_safe'
-  alias rmtrash='rm_rotate'
+unset_f_alias_less () {
+  unset -f home_fries_aliases_wire_less
+  # So meta.
+  unset -f unset_f_alias_less
 }
 
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 
 main () {
-  check_deps
-  unset -f check_deps
+  :
 }
 
-main "$@"
+main ""
 unset -f main
 
