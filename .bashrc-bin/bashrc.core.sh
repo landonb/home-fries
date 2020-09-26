@@ -86,6 +86,8 @@ check_deps () {
   check_dep 'rm_safe'
 }
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # *** Doobious Sources
 
 source_utils_all () {
@@ -138,12 +140,13 @@ source_utils_all () {
   # *** Load order does not matter (remaining files only depend
   #     on those previously loaded); so alphabetical.
 
+# IN_PROGRESS/2020-09-26 14:45: Moving from alias_util.sh → alias/*.sh
   source_it "alias_util.sh"
-  source_it "crypt/add_user_mlocate_db.sh"
-  source_it "crypt/daemonize_gpg_agent.sh"
-  source_it "crypt/is_mount_type_crypt.sh"
-  source_it "crypt/set_environ_gpg_tty.sh"
-  source_it "date_util.sh"
+  source_alias_sources
+
+  source_crypt_sources
+
+  source_it "datetime_now_TTT.sh"
   source_it "dir_util.sh"
   # Earlier: "distro_util.sh"
   source_it "docker_util.sh"
@@ -172,6 +175,24 @@ source_utils_all () {
   source_it "virtualenvwrapperer.sh"
   # Just some example Bash author might reference:
   #  source_it "show-n-tell/array_iterations.sh"
+}
+
+# ***
+
+source_alias_sources () {
+  source_it "alias/alias_ag.sh"
+  source_it "alias/alias_df.sh"
+  source_it "alias/alias_grep_egrep.sh"
+  source_it "alias/alias_rg_tag.sh"
+}
+
+# ***
+
+source_crypt_sources () {
+  source_it "crypt/add_user_mlocate_db.sh"
+  source_it "crypt/daemonize_gpg_agent.sh"
+  source_it "crypt/is_mount_type_crypt.sh"
+  source_it "crypt/set_environ_gpg_tty.sh"
 }
 
 # ***
@@ -301,16 +322,26 @@ home_fries_up () {
 
   # Configure Bash session aliases.
 
-  # Set: `ll` => `ls -ls`, etc.
+# IN_PROGRESS/2020-09-26 14:45: Moving from alias_util.sh → alias/*.sh
   # - lib/alias_util.sh
   run_and_unset "home_fries_create_aliases_general"
+# - lib/alias/*.sh
+  # - lib/alias/alias_df.sh
+  run_and_unset "home_fries_aliases_wire_df"
 
   # - lib/alias_util.sh
   run_and_unset "home_fries_create_aliases_ohmyrepos"
 
-  # Set: `rg` => `rg --smart-case --hidden --colors ...`
-  # - lib/alias_util.sh
-  run_and_unset "home_fries_create_aliases_greppers"
+  # Set: `ag` => `ag --smart-case --hidden`, etc.
+  # - lib/alias/alias_ag.sh
+  run_and_unset "home_fries_aliases_wire_ag"
+  # Set: `grep` => `grep --color`, etc.
+  # - lib/alias/alias_grep_egrep.sh
+  run_and_unset "home_fries_aliases_wire_grep_egrep"
+  # Setup `rg` wrapper around `tag`, which will wire
+  # `e*` commands for each search to view hits in Vim.
+  # - lib/alias/alias_rg_tag.sh
+  run_and_unset "home_fries_aliases_wire_rg_tag"
 
   # Set: `cdd` => pushd wrapper; `cdc` => popd; `cddc` => toggle cd last
   # - lib/alias_util.sh

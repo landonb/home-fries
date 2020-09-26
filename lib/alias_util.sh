@@ -16,9 +16,6 @@ check_deps () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 home_fries_create_aliases_general () {
-  # Hint: To run the native command and not the alias, use a \ prefix, e.g.,
-  #       \rm will call the real /bin/rm not the alias.
-
   # *** File commands
 
   # NOTE: Sometimes the -i doesn't get overriden by -f so it's best to call
@@ -128,19 +125,6 @@ home_fries_create_aliases_general () {
   alias less='less -R'      # Better Raw control characters (aka color).
   alias whence='type -a'    # `where`, of a sort.
 
-  # Show resource usage, and default to human readable figures.
-  # df -h: "Human-readable" output. [Not sure why man uses quotes.]
-  # E.g., without -h:
-  #         Filesystem  1K-blocks      Used Available Use% Mounted on
-  #         /foo/bar    926199176 628671508 250409540  72% /baz/bat
-  # and then with -h:
-  #         Filesystem  Size  Used Avail Use% Mounted on
-  #         /foo/bar    884G  600G  239G  72% /baz/bat
-  if os_is_linux; then
-    alias df='df -h -T'
-  elif os_is_macos; then
-    alias df='df -h'
-  fi
 
   alias du='du -h'
   alias dum="du -m -d 1 . | sort -n"
@@ -385,173 +369,6 @@ function l () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_create_aliases_grep_and_egrep () {
-  alias grep='grep --color' # Show differences in colour.
-
-  # Preferred grep switches and excludes.
-  #   -n, --line-number
-  #   -R, --dereference-recursive
-  #   -i, --ignore-case
-  if [ -e "$HOME/.grepignore" ]; then
-    alias eg='egrep -n -R -i --color --exclude-from="$HOME/.grepignore"'
-    alias egi='egrep -n -R --color --exclude-from="$HOME/.grepignore"'
-  fi
-}
-
-home_fries_create_aliases_ag_options () {
-  # The Silver Search.
-  # Always allow lowercase, and, more broadly, all smartcase.
-  alias ag='ag --smart-case --hidden'
-  # When you use the -m/--max-count option, you'll see a bunch of
-  #   ERR: Too many matches in somefile. Skipping the rest of this file.
-  # which come on stderr from each process thread and ends up interleaving
-  # with the results, making the output messy and unpredicatable.
-  # So that Vim can predictably parse the output, use this shim of a fcn.,
-  # i.e., from Vim as `set grepprg=ag_peek`. (2018-01-12: Deprecated;
-  # favor just inlining in the .vim file.)
-  # 2018-01-29: Obsolete. In Vim, idea to `set grepprg=ag_peek`, but didn't work.
-  function ag_peek () {
-    ag -A 0 -B 0 --hidden --follow --max-count 1 $* 2> /dev/null
-  }
-}
-
-home_fries_create_aliases_rg_options () {
-  # 2017-09-13: ripgrep!
-  # https://github.com/BurntSushi/ripgrep
-  # I'm only doing this because The Silver Searcher is identifying
-  # one of my reST files as binary, and I don't care to figure out
-  # why.
-  #alias rg='rg --smart-case --hidden'
-  # 2017-10-16: Output is difficult to read. Emulate The Silver Searcher.
-  #  Colors: red, blue, green, cyan, magenta, yellow, white, black.
-  #  Styles: nobold, bold, nointense, intense.
-  #  Format is {type}:{attribute}:{value}.
-  #    {type}: path, line, column, match.
-  #    {attribute}: fg, bg style.
-  #    {value} is either a color (for fg and bg) or a text style.
-  alias rgn="\
-    rg \
-      --smart-case \
-      --hidden \
-      --colors 'path:fg:yellow' \
-      --colors 'path:style:bold' \
-      --colors 'line:fg:green' \
-      --colors 'line:style:bold' \
-      --colors 'match:bg:white' \
-    "
-
-  # DELETE/2018-01-29: This fcn., rg_peek, is not called.
-  # 2018-01-29: Obsolete. In Vim, idea to `set grepprg=rg_peek`, but didn't work.
-  function rg_peek () {
-    rg -A 0 -B 0 --hidden --follow --max-count 1 $* 2> /dev/null
-  }
-}
-
-home_fries_create_aliases_rg_tag_wrap () {
-  # 2018-03-26: Fancy ag/rg wrapper makes jumping to search result seamless!
-  #
-  #   https://github.com/aykamko/tag
-  #
-  #   OPTIONS             Default/Choices
-  #   ------------------  --------------------------------------------------------
-  #   TAG_SEARCH_PROG     ag | rg
-  #   TAG_ALIAS_FILE      /tmp/tag_aliases
-  #   TAG_ALIAS_PREFIX    e                 [e.g., ``e1`` opens first match]
-  #   TAG_CMD_FMT_STRING  vim \
-  #                         -c 'call cursor({{.LineNumber}}, {{.ColumnNumber}})' \
-  #                         '{{.Filename}}'
-
-  local engine='rg'
-
-  if ! hash ${engine} 2>/dev/null; then
-    warn "No Silver Search or Rip Grep found [${engine}]"
-    return 1
-  fi
-
-  # Choices: ag, rg
-  export TAG_SEARCH_PROG=${engine}
-
-  tag () {
-    local aliases="${TAG_ALIAS_FILE:-/tmp/tag_aliases}"
-    /bin/rm -f "${aliases}"
-    # See: ${HOME}/.gopath/bin/tag
-    command tag "$@"
-    # The tag command does not set $? on error, not sure why.
-    [ -s "${aliases}" ] || return 1
-    . "${aliases}" 2>/dev/null
-  }
-
-  # [lb] 2019-01-06: BEWARE: --no-ignore-parent can be used to ignore .ignore's
-  #   up the path. I mention it because the feature is easily forgotton when one
-  #   is tracking down which .ignore file is resposible for a file being ignored.
-  local rg_wrap_with_options=" \
-    tag \
-      --smart-case \
-      --hidden \
-      --follow \
-      --no-ignore-vcs \
-      --colors 'path:fg:yellow' \
-      --colors 'path:style:bold' \
-      --colors 'line:fg:green' \
-      --colors 'line:style:bold' \
-      --colors 'match:bg:white' \
-  "
-
-  # rgt -- Open search result in Vim in current terminal.
-  alias rgt="\
-    TAG_CMD_FMT_STRING=' \
-      vim -c \"call cursor({{.LineNumber}}, {{.ColumnNumber}})\" \"{{.Filename}}\"
-    ' \
-    ${rg_wrap_with_options} \
-  "
-
-  # rgg -- Open search result in specific Gvim window, and switch to it.
-  # FIXME/2018-03-26: The servername, SAMPI, is hardcoded: Make Home Fries $var.
-  # NOTE: (lb): I could not get "-c 'call cursor()" to work in same call as
-  #       --remote-silent, so split into two calls, latter using --remote-send.
-  #
-  # WEIRD/2020-04-02 22:58: Getting this warning on e* command:
-  #                           XGetWindowProperty[_NET_WM_DESKTOP] failed (code=1)
-  #                         It's the final call:
-  #                           xdotool search --name SAMPI windowactivate
-  #                         except without that, Gvim not foregrounded!
-  #                         Same happens with hex, e.g.,:
-  #                           xdotool windowactivate 0x03e00003
-  #                           # Switches to Vim but outputs:
-  #                           XGetWindowProperty[_NET_WM_DESKTOP] failed (code=1)
-  #                         Can we just ignore it?
-  #
-  # WEIRD/2020-04-02 23:08: `rgt` works smoothly. `rgg` switches to Gvim and then
-  # you see a <blip>, not sure if a bell is being rung or what, but Vim not alerts!
-  alias rgg="\
-    TAG_CMD_FMT_STRING=' \
-      true \
-      && gvim --servername SAMPI --remote-silent \"{{.Filename}}\" \
-      && gvim --servername SAMPI --remote-send \
-        \"<ESC>:call cursor({{.LineNumber}}, {{.ColumnNumber}})<CR>\" \
-      && xdotool search --name SAMPI windowactivate &> /dev/null \
-    ' \
-    ${rg_wrap_with_options} \
-  "
-  alias rg="rgg"
-}
-
-home_fries_create_aliases_greppers () {
-  home_fries_create_aliases_grep_and_egrep
-  unset -f home_fries_create_aliases_grep_and_egrep
-
-  home_fries_create_aliases_ag_options
-  unset -f home_fries_create_aliases_ag_options
-
-  home_fries_create_aliases_rg_options
-  unset -f home_fries_create_aliases_rg_options
-
-  home_fries_create_aliases_rg_tag_wrap
-  unset -f home_fries_create_aliases_rg_tag_wrap
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 # *** pushd/popd/cd wrappers.
 
 home_fries_create_aliases_chdir () {
@@ -646,8 +463,6 @@ unset_f_alias_util () {
   unset -f home_fries_create_aliases_general
 
   unset -f home_fries_create_aliases_ohmyrepos
-
-  unset -f home_fries_create_aliases_greppers
 
   unset -f home_fries_create_aliases_chdir
 
