@@ -13,14 +13,12 @@
 # Specifics
 # =========
 #
-# First loads:    /etc/bash.bashrc
-# Then sources:   ./bashrx.private.sh
-#                 ./bashrx.private.$HOSTNAME.sh
+# System first:    /etc/bash.bashrc
+# Then private:   ./bashrx.private.sh
+#  (optional)     ./bashrx.private.$HOSTNAME.sh
 #                 ./bashrx.private.$LOGNAME.sh
-#                 ./bashrc.core.sh
-#                    (which may source additional files)
-# And finally:    ./bashrc.*.base.sh
-#                    (so you can add project-specific profiles)
+# Lib is last:    ./bashrc.core.sh
+#                    (which sources ../lib/*.sh files)
 
 # Do Nothing Unless Interactive
 # =============================
@@ -210,13 +208,13 @@ source_system_rc () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# This Developer's Basic Bash Profile
-# ===================================
+# Bash Setup Included in This Repo (lib/)
+# =======================================
 
 source_fries () {
   local time_0="$(home_fries_nanos_now)"
 
-  # Load the basic script. Defines aliases, configures things,
+  # Common Bash standup. Defines aliases, configures things,
   # adjusts the terminal prompt, and adds a few functions.
   . "${HOMEFRIES_BASHRCBIN}/bashrc.core.sh"
 
@@ -225,8 +223,8 @@ source_fries () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Machine-specific Profiles
-# =========================
+# Bash Setup You Provide (Private and/or User-/Machine-Specific)
+# ==============================================================
 
 source_privately () {
   local srcfile="$1"
