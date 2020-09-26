@@ -139,8 +139,10 @@ source_utils_all () {
   #     on those previously loaded); so alphabetical.
 
   source_it "alias_util.sh"
-  source_it "crypt_util.sh"
+  source_it "crypt/add_user_mlocate_db.sh"
+  source_it "crypt/daemonize_gpg_agent.sh"
   source_it "crypt/is_mount_type_crypt.sh"
+  source_it "crypt/set_environ_gpg_tty.sh"
   source_it "date_util.sh"
   source_it "dir_util.sh"
   # Earlier: "distro_util.sh"
@@ -394,10 +396,10 @@ home_fries_up () {
 
   #########################
 
-  # - lib/crypt_util.sh
+  # - lib/crypt/set_environ_gpg_tty.sh
   run_and_unset "home_fries_configure_gpg_tty"
 
-  # - lib/crypt_util.sh
+  # - lib/crypt/add_user_mlocate_db.sh
   run_and_unset "home_fries_mlocate_wire_private_db"
 
   #########################
@@ -416,7 +418,7 @@ home_fries_up () {
 
   #########################
 
-  # - lib/crypt_util.sh
+  # - lib/crypt/daemonize_gpg_agent.sh
   run_and_unset "daemonize_gpg_agent"
 
   #########################
