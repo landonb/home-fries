@@ -71,12 +71,14 @@ home_fries_create_aliases_rg_tag_wrap () {
   "
 
   # rgt -- Open search result in Vim in current terminal.
-  alias rgt="\
-    TAG_CMD_FMT_STRING=' \
-      vim -c \"call cursor({{.LineNumber}}, {{.ColumnNumber}})\" \"{{.Filename}}\"
-    ' \
-    ${rg_wrap_with_options} \
-  "
+  #
+  # NOTE: So that other scripts can source this script and call `rgt`,
+  #       define as a function, and not as an alias. Note the eval,
+  #       which is necessary to expand ${rg_wrap_with_options}.
+  eval "rgt () {
+    TAG_CMD_FMT_STRING='vim -c \"call cursor({{.LineNumber}}, {{.ColumnNumber}})\" \"{{.Filename}}\"' \
+      ${rg_wrap_with_options} \"\${@}\"
+  }"
 
   # rgg -- Open search result in specific Gvim window, and switch to it.
   # FIXME/2018-03-26: The servername, SAMPI, is hardcoded: Make Home Fries $var.
