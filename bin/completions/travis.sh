@@ -1,1 +1,0 @@
-../../../.travis/travis.sh
