@@ -40,6 +40,10 @@ perl_set_path_and_environs () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+alias perl-repl='rlwrap perl -d -e 1'
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 main () {
   check_deps
   unset -f check_deps
