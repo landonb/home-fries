@@ -351,7 +351,7 @@ fries_hook_titlebar_update () {
   # title is restored. This makes for a nice titlebar title that shows the
   # basename of the directory when the prompt is active, but shows the name
   # of the actively running command if there is one, e.g., `man bash`.
-  trap 'printf "\033]0;${BASH_COMMAND}\007"' DEBUG
+  trap 'printf "\033]0;%s\007" "${BASH_COMMAND}"' DEBUG
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
