@@ -9,12 +9,12 @@ _sh_rm_safe_device_on_which_file_resides () {
   local file="$1"
   local owning_device=""
   # 2020-08-25: (lb): Changed `df -T` → `df` b/c macOS, and we're not using that field.
-  if [ -d "${file}" ] || [ -f "${file}" ]; then
-    owning_device=$(/usr/bin/env df -- "${file}" | awk 'NR == 2 {print $1}')
-  elif [ -h "${file}" ]; then
+  if [ -h "${file}" ]; then
     # A symbolic link, so don't use the linked-to file's location, and don't
     # die if the link is dangling (df says "No such file or directory").
     owning_device="$(/usr/bin/env df -- "$(dirname -- "${file}")" | awk 'NR == 2 {print $1}')"
+  elif [ -d "${file}" ] || [ -f "${file}" ]; then
+    owning_device=$(/usr/bin/env df -- "${file}" | awk 'NR == 2 {print $1}')
   else
     owning_device=""
     # 2017-06-03: For some reason, the caller checking $? for nonzero
