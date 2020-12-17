@@ -134,7 +134,7 @@ ensure_deps () {
 
 # *** Doobious Sources
 
-source_utils_all () {
+source_homefries_libs_all () {
 
   # *** Dependencies: Other Bash projects.
 
@@ -272,16 +272,16 @@ source_utils_sources () {
 
 # ***
 
-source_utils () {
+source_homefries_libs () {
   local time_outer_0="$(home_fries_nanos_now)"
   SOURCE_CNT=0
 
-  source_utils_all
-  unset -f source_utils_all
+  source_homefries_libs_all
+  unset -f source_homefries_libs_all
 
   print_elapsed_time \
     "${time_outer_0}" \
-    "Sourced ${SOURCE_CNT} files (source_utils)." \
+    "Sourced ${SOURCE_CNT} files (source_homefries_libs)." \
     "SOURCES: "
   unset SOURCE_CNT
 }
@@ -656,10 +656,10 @@ main () {
   export_homefries_envs
   unset -f export_homefries_envs
 
-  source_utils
+  source_homefries_libs
   unset -f source_it
   unset -f source_from_user_path_or_homefries_lib
-  unset -f source_utils
+  unset -f source_homefries_libs
   #
   unset -v _LOADED_HF_TERM_UTIL
 
