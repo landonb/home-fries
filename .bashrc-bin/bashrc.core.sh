@@ -239,7 +239,6 @@ source_alias_sources () {
   source_it "alias/alias_ruby.sh"
   source_it "alias/alias_sudo.sh"
   source_it "alias/alias_rm_rmtrash.sh"
-  source_it "alias/alias_tmux_reset.sh"
   source_it "alias/alias_vim_gvim.sh"
   source_it "alias/whowherewhatami.sh"
 }
@@ -412,10 +411,6 @@ home_fries_up () {
   # Silence a macOS-specific logon alert.
   # - lib/term_util.sh
   run_and_unset "dubs_macos_silence_bash_warning"
-
-  # Add a clear (reset) on macOS that clears (scrollback) buffer.
-  # - lib/term_util.sh
-  run_and_unset "dubs_macos_alias_clear_really_clear"
 
   #########################
 
@@ -627,9 +622,6 @@ run_and_unset_home_fries_create_aliases () {
 
   # - lib/alias/alias_sudo.sh
   run_and_unset "home_fries_aliases_wire_sudo"
-
-  # - lib/alias/alias_tmux_reset.sh
-  run_and_unset "home_fries_aliases_wire_tmux_reset"
 
   # - lib/alias/alias_vim_gvim.sh
   run_and_unset "home_fries_aliases_wire_vim_gvim"

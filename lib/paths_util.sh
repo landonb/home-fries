@@ -143,14 +143,19 @@ home_fries_set_path_environ () {
 
   # ++++++++++++++++++++++++++++++ #
 
+  home_fries_add_to_path_home_local_bin
+  unset -f home_fries_add_to_path_home_local_bin
+
   home_fries_add_to_path_home_fries_lib
   unset -f home_fries_add_to_path_home_fries_lib
 
+  # 2020-12-16: Until now, it did not matter that ~/.homefries/bin
+  # followed ~/.local/bin in PATH (first two entries), but now I've
+  # added a reset utility (promoted alias to function to file). So
+  # ~/.homefries/bin should be V. First. Also because it's closest
+  # to home (and ~/.local/bin is mostly third-party, second-class).
   home_fries_add_to_path_home_fries_bin
   unset -f home_fries_add_to_path_home_fries_bin
-
-  home_fries_add_to_path_home_local_bin
-  unset -f home_fries_add_to_path_home_local_bin
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

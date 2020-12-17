@@ -966,7 +966,24 @@ dubs_macos_silence_bash_warning () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-dubs_macos_alias_clear_really_clear () {
+# A clear (reset) that's macOS-friendly, and that clears the clipboard.
+
+# Note the usually-optional `function` prefix is required before `reset ()`
+# below, probably because there may be a `reset` file on PATH, e.g.,:
+#   $ ll ~/.local/bin/reset
+#   /home/user/.local/bin/reset -> tset*
+#   $ ll ~/.local/bin/tset
+#   91K /home/user/.local/bin/tset
+# Which is described by its man page as `tset, reset - terminal initialization`.
+#
+# There's also a `/home/user/.local/bin/clear`, which
+# clears the screen, sorta -- but it leaves one page of scrollback!
+#
+# On Linux, the reset/tset clears the terminal buffer -- no scrollback --
+# but it doesn't work on macOS. Which is what this trick is for.
+
+function reset () {
+
   # Clear the screen, and then clear the scrollback buffer.
   #
   # - "Terminal supports an extension of the ED (Erase in Display)
@@ -1027,10 +1044,38 @@ dubs_macos_alias_clear_really_clear () {
   #     also '\033' → '\e', so this could be shortened
   #            printf "\\e[2J\\e[3J\\e[;H"'
   #     but for some reason (compatibility?) I generally prefer \033 over \e.
-  alias clear='printf "\\033[2J\\033[3J\\033[1;1H"'
-  # Why not also do the same for `reset`, which you can type with one hand.
-  alias reset='printf "\\033[2J\\033[3J\\033[1;1H"'
+
+  # For posterity, here's an earlier tmux-friendly reset I used to use:
+  #
+  #   if [ -n "${TMUX}" ]; then
+  #     alias reset='clear; tmux clear-history; command reset'
+  #   fi
+
+  # And remember, too, that readline maps Ctrl-l to clear-screen,
+  # but that behaves like `clear` and leaves one page of scrollback,
+  # unlike `~/.local/bin/reset` or the magic escape sequence used here.
+  # (Though maybe you edited .inputrc and mapped Ctrl-l to this reset.
+  #  Such as: `printf '%s\n\n' "Control-l: 'reset\n'" >> ~/.inputrc`)
+
+  printf "\\033[2J\\033[3J\\033[1;1H"
+
+  if type xclip > /dev/null 2>&1; then
+    printf '' | xclip -selection clipboard
+  elif type pbcopy > /dev/null 2>&1; then
+    pbcopy < /dev/null
+  else
+    >&2 echo "ALERT: Clipboard not cleared (neither xclip nor pbcopy)."
+  fi
 }
+
+# MEH/2020-12-16 17:53: 'reset' is much quicker to type than 'clear',
+# which I never use... and there's also readline's Ctrl-l you can
+# wire to reset as well (`Control-l: 'reset\n'`) and so no point to
+# alias (nor any point not to alias, I suppose) `clear`. So commented.
+#
+#  dubs_term_alias_clear_to_reset () {
+#    alias clear='reset'
+#  }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
