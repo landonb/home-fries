@@ -30,11 +30,20 @@ unset_f_alias_rm_rmtrash () {
 
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 
+_homefries_warn_on_execute () {
+  >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
+}
+
 main () {
   check_deps
   unset -f check_deps
 }
 
-main "$@"
+if [ "$0" = "${BASH_SOURCE[0]}" ]; then
+  _homefries_warn_on_execute
+else
+  main "$@"
+fi
+unset -f _homefries_warn_on_execute
 unset -f main
 

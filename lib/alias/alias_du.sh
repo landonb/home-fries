@@ -31,10 +31,7 @@ unset_f_alias_du () {
 
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 
-main () {
-  :
-}
-
-main ""
-unset -f main
+if [ "$0" = "${BASH_SOURCE[0]}" ]; then
+  >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
+fi
 
