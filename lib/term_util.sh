@@ -682,17 +682,6 @@ first_char_capped () {
   printf "$1" | cut -c1-1 | tr '[:lower:]' '[:upper:]'
 }
 
-# 2017-06-06: Still refining Bash input experience.
-default_yes_question () {
-  printf %s "Tell me yes or no. [Y/n] "
-  read -e YES_OR_NO
-  if [ -z "${YES_OR_NO}" ] || [ "$(first_char_capped ${YES_OR_NO})" = 'Y' ]; then
-    echo "YESSSSSSSSSSSSS"
-  else
-    echo "Apparently not"
-  fi
-}
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 echoerr () (
