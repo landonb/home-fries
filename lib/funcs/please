@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# vim:tw=0:ts=2:sw=2:et:norl:ft=sh
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/landonb/home-fries#🍟
+# License: MIT
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Note that I tried first to make this an executable (~/.homefries/bin/please,
+# because I like the idea of making the bashrc less opaque, and more modular,
+# and having one file for every command or feature), but it failed. When run
+# from an executable, the `history -p !!` complains "history expansion failed".
+#
+# My usual m.o. at this point historically has been to make a please () {}
+# function in one of the existing home-fries files, maybe lib/hist_util.sh.
+#
+# But I've soured on the monobloc approach, as I mentioned above, so now I'm
+# trying a new home-fries subdirectory of one-function-per-file modules, and
+# funcs/please is my first addition to this new collection.
+#
+# (I also thought of using an alias approach, e.g., make a function
+#  _homefries_please(), and then `alias please='_homefries_please'`,
+#  which has the (only?) advantage of letting another home-fries end
+#  user choose a different alias name. But that doesn't smell likely
+#  (whom else home-frieses but me?).)
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# 2020-12-16 22:18: I haven't been tickled by a bash command in a long time.
+#
+# - Props to "Polite Bash Commands" Eric A. and Kathryn S. Meyer.
+#
+#   https://meyerweb.com/eric/thoughts/2020/09/29/polite-bash-commands/
+#
+#   - Which was half-inspired by a Kat Maddox 'protip':
+#
+#     https://twitter.com/ctrlshifti/status/1160812366293901314
+
+please () {
+  if [ "$1" ]; then
+    sudo $@
+  else
+    sudo "${BASH}" -c "$(history -p !!)"
+  fi
+}
+
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
+
+if [ "$0" = "${BASH_SOURCE[0]}" ]; then
+  >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
+fi
+

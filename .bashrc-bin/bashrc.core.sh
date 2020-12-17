@@ -184,6 +184,9 @@ source_homefries_libs_all () {
   source_crypt_sources
   unset -f source_crypt_sources
 
+  source_funcs_sources
+  unset -f source_funcs_sources
+
   source_utils_sources
   unset -f source_utils_sources
 }
@@ -231,6 +234,25 @@ source_crypt_sources () {
   source_it "crypt/daemonize_gpg_agent.sh"
   source_it "crypt/is_mount_type_crypt.sh"
   source_it "crypt/set_environ_gpg_tty.sh"
+}
+
+# ***
+
+# 2020-12-16: My latest M.O.: Prefer adding new features as executables
+# on PATH to ~/.homefries/bin, or maybe to a new standalone repo (that
+# installs (a symlink, usually) to ~/.local/bin). But not all features
+# can be run from an executable script (i.e., in a subshell), but need
+# to be called in the context of the user's environment instead. Which
+# is what funcs/ is for. Idea here is one Bash function per file that's
+# named the same as the file. Prefer this to tacking disparate features
+# to an existing *_util.sh file, at the expense perhaps of slowing down
+# Bashrc session startup (where more individual files seems to equate to
+# a longer load time), but at the benefit of modularity and SRP, as well
+# as self-documentation and transparency (of features without having to
+# view file contents).
+
+source_funcs_sources () {
+  source_it "funcs/please"
 }
 
 # ***
