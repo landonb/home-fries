@@ -40,14 +40,21 @@ source_from_user_path_or_homefries_lib () {
     . "${lib_path}"
     let 'SOURCE_CNT += 1'
   elif [ -f "${HOMEFRIES_DIR}/lib/${lib_file}" ]; then
-    # Rather than put ~/.homefries/lib on PATH, this.
+    # Explicit check for before paths_util.sh is sourced, which at
+    # some point during startup adds ~/.homefries/lib to PATH (and
+    # then the first condition of this if-block will start evaluating
+    # truthy instead of this elif condition).
     . "${HOMEFRIES_DIR}/lib/${lib_file}"
+    let 'SOURCE_CNT += 1'
+  elif [ -f "${HOMEFRIES_DIR}/lib/utils/${lib_file}" ]; then
+    # FIXME/2020-12-16: I'm entertaining idea of renaming-moving
+    # lib/util_*.sh to lib/utils/homefries_*.sh. Add pre-access.
+    . "${HOMEFRIES_DIR}/lib/utils/${lib_file}"
     let 'SOURCE_CNT += 1'
   elif true && \
     [ -n "${deps_path}" ] && \
     [ -f "${HOMEFRIES_DIR}/deps/${deps_path}/${lib_file}" ] \
   ; then
-    # Rather than put ~/.homefries/lib on PATH, this.
     . "${HOMEFRIES_DIR}/deps/${deps_path}/${lib_file}"
     let 'SOURCE_CNT += 1'
   else
@@ -177,34 +184,8 @@ source_utils_all () {
   source_crypt_sources
   unset -f source_crypt_sources
 
-  source_it "datetime_now_TTT.sh"
-  source_it "dir_util.sh"
-  # Earlier: "distro_util.sh"
-  source_it "docker_util.sh"
-  source_it "fffind_util.sh"
-  source_it "file_util.sh"
-  source_it "fries_util.sh"
-  source_it "git_util.sh"
-  source_it "hist_util.sh"
-  source_it "input_util.sh"
-  source_it "interact_util.sh"
-  source_it "keys_util.sh"
-  source_it "manpath_util.sh"
-  source_it "openshift_util.sh"
-  # Earlier: "path_util.sh"
-  # Earlier: "paths_util.sh"
-  source_it "perl_util.sh"
-  # Earlier: "process_util.sh"
-  source_it "python_util.sh"
-  source_it "ruby_util.sh"
-  source_it "session_util.sh"
-  source_it "ssh_util.sh"
-  # Loaded specially: "term-fzf.bash"
-  # Earlier: "term_util.sh"
-  source_it "time_util.sh"
-  source_it "virtualenvwrapperer.sh"
-  # Just some example Bash author might reference:
-  #  source_it "show-n-tell/array_iterations.sh"
+  source_utils_sources
+  unset -f source_utils_sources
 }
 
 # ***
@@ -250,6 +231,43 @@ source_crypt_sources () {
   source_it "crypt/daemonize_gpg_agent.sh"
   source_it "crypt/is_mount_type_crypt.sh"
   source_it "crypt/set_environ_gpg_tty.sh"
+}
+
+# ***
+
+source_utils_sources () {
+  # FIXME/2020-12-16: Relocate and Rename these files, like:
+  #
+  #   source_it "utils/homefries_*.sh"
+
+  source_it "datetime_now_TTT.sh"
+  source_it "dir_util.sh"
+  # Earlier: "distro_util.sh"
+  source_it "docker_util.sh"
+  source_it "fffind_util.sh"
+  source_it "file_util.sh"
+  source_it "fries_util.sh"
+  source_it "git_util.sh"
+  source_it "hist_util.sh"
+  source_it "input_util.sh"
+  source_it "interact_util.sh"
+  source_it "keys_util.sh"
+  source_it "manpath_util.sh"
+  source_it "openshift_util.sh"
+  # Earlier: "path_util.sh"
+  # Earlier: "paths_util.sh"
+  source_it "perl_util.sh"
+  # Earlier: "process_util.sh"
+  source_it "python_util.sh"
+  source_it "ruby_util.sh"
+  source_it "session_util.sh"
+  source_it "ssh_util.sh"
+  # Loaded specially: "term-fzf.bash"
+  # Earlier: "term_util.sh"
+  source_it "time_util.sh"
+  source_it "virtualenvwrapperer.sh"
+  # Just some example Bash author might reference:
+  #  source_it "snips/array_iterations.sh"
 }
 
 # ***
