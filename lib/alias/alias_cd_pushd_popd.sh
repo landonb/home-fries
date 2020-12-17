@@ -48,6 +48,10 @@ home_fries_aliases_wire_cd_pushd_popd () {
 
   # 2017-05-03: How is `cd -` doing a flip-between-last-dir news to me?!
   alias cddc='cd -'
+
+  # 2020-12-04: Clear remembered directories stack.
+  # 2020-12-16: Inbox zero, meet Bash directory history stack zero.
+  alias popdocd='popd && dirs -c'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
