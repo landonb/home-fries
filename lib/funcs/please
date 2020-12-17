@@ -40,7 +40,17 @@ please () {
   if [ "$1" ]; then
     sudo $@
   else
-    sudo "${BASH}" -c "$(history -p !!)"
+    local penultimate_command="$(history -p !!)"
+    if [ "${penultimate_command}" != "please" ]; then
+      sudo "${BASH}" -c "$(history -p !!)"
+    else
+      # echo "YOU'RE WELCOME!"
+      # Or, as inspired by dezalgo:
+      #  echo "T͖̮̕h͖a̛ͅt͖̣͉̀ W̶̥̣͖̦o̖̫͡u̼̦͔̥̮̕l̺̱͖̯͓͙͈͢d̷̲̦̖͓ ḭ̮̩n̶̳͙̫͎v͏͉ok̭̬̝ͅe̞͍̩̫͍̩͝ c̙͉h̝͔̩̙̕ͅa̲͖̻̗̹o̥̼̫s̝̖̜̝͚̫̟ a̛ͅn̪̯͈d͝ d̴̰͓̻̣̮͕ͅi̖͓͔̮̱̻͘ş͔̯̩òr̹̰̖͉͈͝d̷̲̦̖͓e̲͓̠r"
+      # #echo "         > SYSTEM ERROR <           "
+      #  echo "         > s͉͓̘Ỷs͉̩̩͟ͅT̯̪ͅe̘̺̰̙͘M̬̼ Ĕ̖̤͔͔̟̹̽̿̊ͥ̍ͫr̠̼̯̹̦̦͘ͅṛ̘̬͔̙͇̠Ó̶̭͓̚ŗ͚̜͓̰̭̭ <           "
+      echo "々s͉͓̘Ỷs͉̩̩͟ͅT̯̪ͅe̘̺̰̙͘M̬̼ Ĕ̖̤͔͔̟̹̽̿̊ͥ̍ͫr̠̼̯̹̦̦͘ͅṛ̘̬͔̙͇̠Ó̶̭͓̚ŗ͚̜͓̰̭̭ぅ T͖̮̕h͖a̛ͅt͖̣͉̀ W̶̥̣͖̦o̖̫͡u̼̦͔̥̮̕l̺̱͖̯͓͙͈͢d̷̲̦̖͓ ḭ̮̩n̶̳͙̫͎v͏͉ok̭̬̝ͅe̞͍̩̫͍̩͝ c̙͉h̝͔̩̙̕ͅa̲͖̻̗̹o̥̼̫s̝̖̜̝͚̫̟ a̛ͅn̪̯͈d͝ d̴̰͓̻̣̮͕ͅi̖͓͔̮̱̻͘ş͔̯̩òr̹̰̖͉͈͝d̷̲̦̖͓e̲͓̠r"
+    fi
   fi
 }
 
