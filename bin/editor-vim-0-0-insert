@@ -6,12 +6,23 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# EXPLAINED:
+#
+# - Calling cursor() then startinsert puts cursor at start of second row:
+#
+#     vim -c 'call cursor(0,0)' -c 'startinsert' "${@}"
+#
+#   Whereas swapping the two calls put it on the third row:
+#
+#     vim -c 'startinsert' -c 'call cursor(0,0)' "${@}"
+#
+#   But exiting Ex mode to run `gg` works great!
+#
+#   - So this starts with cursor at end of file in insert mode:
+#
+#       vim -c 'startinsert' -c 'norm! gg' "${@}"
+
 editor_vim_0_0_insert () {
-  # Calling cursor() then startinsert puts cursor at start of second row:
-  #   vim -c 'call cursor(0,0)' -c 'startinsert' "${@}"
-  # Swapping the two calls put it on the third row:
-  #   vim -c 'startinsert' -c 'call cursor(0,0)' "${@}"
-  # But exiting Ex mode to run `gg` works great!
   vim -c 'startinsert' -c 'norm! gg' "${@}"
 }
 
