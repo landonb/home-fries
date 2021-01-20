@@ -137,6 +137,15 @@ echo_dict () {
     echo "key  : $ix"
     echo "value: ${dict[$ix]}"
   done
+
+  # HINT: Use associate array to lookup.
+  declare -A dictBools
+  dictBools["/foo/bar"]=true
+  dictBools["/baz/bat"]=false
+  local match_me_okay="/baz/bat"
+  local match_me_fail="/bat/cat"
+  [ ${dictBools[${match_me_okay}]+x} ] && echo 'found!'
+  ! [ ${dictBools[${match_me_fail}]+x} ] && echo 'so not found'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
