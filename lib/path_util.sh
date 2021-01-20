@@ -395,8 +395,6 @@ symlink_local_dir () {
 #   call popd later when we didn't change directories in the first place; or
 #   we need to store the current working directory and use cd instead of popd.
 
-# FIXME/2018-03-23 13:13: Verify all pushd usage in git_util.sh and travel.sh.
-
 # FIXME/2020-03-19 02:10: Replace pushd usage with cd:
 #  local before_cd="$(pwd -L)"
 #  cd "${<>}"

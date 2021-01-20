@@ -269,7 +269,6 @@ source_utils_sources () {
   source_it "fffind_util.sh"
   source_it "file_util.sh"
   source_it "fries_util.sh"
-  source_it "git_util.sh"
   source_it "hist_util.sh"
   source_it "input_util.sh"
   source_it "interact_util.sh"
