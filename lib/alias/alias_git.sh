@@ -17,6 +17,9 @@ home_fries_aliases_wire_git () {
   #  alias dcc='git --no-pager diff --cached'
   alias dcd='git --no-pager diff --cached'
   alias dcc='git diff --cached'
+
+  # 2020-12-01: Why not.
+  alias gap='git add -p'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
