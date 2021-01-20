@@ -524,11 +524,6 @@ home_fries_up () {
   unset -f home_fries_load_sdkman
 
   # - lib/fries_util.sh
-  # 2020-03-19: Shave ~0.09 secs. from session standup and lazy-load `nvm`
-  #             et al when user first runs `nvm` in a session. #profiling
-  #  run_and_unset "home_fries_load_nvm_and_completion"
-
-  # - lib/fries_util.sh
   run_and_unset "home_fries_enable_fuzzy_finder_fzf"
 
   #########################
