@@ -19,16 +19,78 @@ check_deps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# *** Interrogate user on clobbery git command.
+# *** A Git command wrapper to provide a few enhancements.
 
-# 2017-06-06: Like the home-fries /bin/rm monkey patch (rm_safe), why not
-# preempt "unsafe" git commands with a similarly pesky are-you-sure? prompt.
-# - Specifically added because sometimes when I mean to type
-#     `git reset HEAD blurgh`  I type instead
-#     `git co -- blurgh`       -- oh no! --
-#   but I will note that since this command (comment) was added I've stopped.
-# NOTE: The name of this function appears in the terminal window title, e.g.,
-#       on `git log`, the tmux window title might be, `_git_safe log | abc`.
+# This wrapper started as a way to avoid clobbering unstaged and untracked
+# files on destructive commands, like `git co -- {}` and `git reset --hard {}`.
+# It's since been enhanced (complicated further =) to skip unnecessary checks.
+#
+# The wrapper provides three main features:
+#
+# - Prompts user to continue if any of these commands are called:
+#
+#       git co -- {}
+#       git co .
+#       git reset --hard {}
+#
+#   - In some cases, you can recover from `git reset` by looking in the
+#     reflog and just checking out the branch identified before the reset.
+#     But not if `--hard` is specified, in which case you might lose
+#     unstaged changes and/or untracked files.
+#
+# - Skips Husky pre-commit hook if this command is called:
+#
+#       git cherry-pick {}
+#
+#   - If `git cherry-pick` is called, sets HUSKY_SKIP_HOOKS=1 (unless
+#     HUSKY_SKIP_HOOKS already set) so that Husky does not call the
+#     pre-commit hook.
+#
+#     - This is because cherry-pick does not support the --no-verify
+#       option (like git-commit and git-rebase do), and I don't see
+#       the value in pre-commit checks in general, because I rebase
+#       often, and often I rebase dozens of commits at once.
+#
+#       - If you have pre-commit hooks but are not running Husky, and
+#         if you run the cherry-pick command often, you might just want
+#         to `/bin/rm .git/hooks/pre-commit` and not worry about it.
+#         (Or `cd .git/hooks && /bin/mv pre-commit post-commit` and
+#          run checks when it really counts, before publishing code.)
+#
+# - Skips Husky pre-push hook if any of these commands are called:
+#
+#       git push {remote} :{branch-to-delete}
+#       git push -d {remote} {branch-to-delete}
+#       git push --delete {remote} {branch-to-delete}
+#
+#   - Because there's no reason to run checks if you're just deleting.
+
+# HISTORY/2017-06-06: We all sometimes make mistakes, so I like to make
+# destructive commands less easily destructive.
+#
+# - E.g., I alias the `rm` command in my environment to `rm_safe`
+#  (from https://github.com/landonb/sh-rm_safe), which "removes"
+#  file objects to the ~/.trash directory (that you can remove
+#  for real later with the `rmtrash` command).
+#
+# - Likewise, Git has a few destructive commands that I wanted to
+#   make less easily destructive.
+#
+#   - For instance, when I first started using Git, I'd sometimes type
+#
+#       git co -- blurgh
+#
+#     when I meant to type instead
+#
+#       git reset HEAD blurgh
+#
+#     So I decided to add a prompt before running the actual checkout command.
+#
+# - Then later I found other uses for this wrapper, as documented above.
+
+# NOTE: The name of this function appears in the terminal window title, e.g., on
+#       `git log`, the tmux window title might be, `_git_safe log | {tmux-title}`.
+
 _git_safe () {
   local disallowed=false
   local skip_hooks=${HUSKY_SKIP_HOOKS}
