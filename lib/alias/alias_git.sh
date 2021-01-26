@@ -20,6 +20,8 @@ home_fries_aliases_wire_git () {
 
   # 2020-12-01: Why not.
   alias gap='git add -p'
+  # 2021-01-25: Weeds.
+  alias gcv='git ci -v'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
