@@ -311,7 +311,7 @@ suss_postgres () {
 #     fi
 
 os_is_macos () {
-  [ "$(uname)" == "Darwin" ]
+  [ "$(uname)" = "Darwin" ]
 }
 
 os_is_linux () {
