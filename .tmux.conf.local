@@ -773,6 +773,16 @@ is_fzf="ps -o state= -o comm= -t '#{pane_tty}' \
 bind -n M-PageUp run \
   "($is_vim && tmux send-keys M-PageUp) || \
    tmux select-pane -L"
+# NOTES/2021-02-01: Tmux does not support Ctrl-Cmd-Arrow pane jumpers.
+# - I added Ctrl-Cmd-Arrow pane jumpers to Vim, to complement the
+#   Alt-Up/-Down/-PageUp/-PageDown jumpers in both Vim and tmux.
+# - However, tmux does not support the Command key.
+#   - Though it might support the Super_L key, I don't think mate-terminal
+#     forwards that key to the running application or shell.
+#   - One possibility might be to setup a MATE binding to the Command
+#     key combo, and then to use `xdotool` to forward a key press to
+#     the application/shell that we'd wire here.
+# But it's just as easy to use the other pane jumpers, Ctrl-a + Arrow key.
 
 # Map select-pane-right to Alt-PageDown, rather than to the more popular C-l,
 # or the more chic M-Right, for reasons mentioned in the previous long comment.
