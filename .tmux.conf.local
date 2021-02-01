@@ -762,27 +762,53 @@ is_vim="ps -o state= -o comm= -t '#{pane_tty}' \
 is_fzf="ps -o state= -o comm= -t '#{pane_tty}' \
   | grep -iqE '^[^TXZ ]+ +(\\S+\\/)?fzf$'"
 
-# Alt-PageUp maps to select-left-pane, because Alt-Left has forever been a Dubs
-# Vim move-cursor-to-start-of-line. And not that I cannot rewire my brain, but
-# I like that mapping! It goes well with Alt-Shift-Left and Alt-Shift-Right to
-# select from the cursor to the edges of the line. Fortunately, PageUp and PageDown
-# are nestled together with the arrow keys (at least on my T480 laptop keyboard),
-# so this mapping is one key away from Alt-Left, which is the more conventional
-# select-pane navigation mapping (though not as conventional as Ctrl-H, as in
-# "H I J K", which a lot of Vimming tmuxers like to map).
+# Bind Alt/-Up/-Down/-PageUp/-PageDown to changing panes.
+#
+# - Note that Alt-PageUp is used to select-left-pane, and Alt-PageDown to
+#   select-right-pane, and not Alt-Left and Alt-Right because Alt-Left and
+#   Alt-Right have forever been used by a Vim plugin, dubs_edit_juicem, to
+#   move the cursor to the start or end of the line.
+#   - And not that I cannot rewire my brain and find new keys for the Vim
+#     plugin maps, but I like those mappings! It goes well with
+#     Alt-Shift-Left and Alt-Shift-Right, which selects from the cursor to
+#     the edges of the line. And it complements how lots of other applications
+#     respond to Alt-Left and Alt-Right.
+#   - (lb): On my T480 laptop, the PageUp and PageDown keys are nestled
+#     together with the arrow keys, so these two mappings are not too hard
+#     to find and press. But on my full Ergo K860 keyboard, the PageUp and
+#     PageDown keys are separated and further away from the arrow keys,
+#     which makes the the binding disparity much more noticeable, and
+#     more of an annoyance.
+#   - Lots of Vimmers like to use Ctrl-H/-J/-K/-L to select panes, or
+#     perhaps instead Ctrl-H/-I/-J/-K, to avoid touching Ctrl-L. But
+#     I've also tried to find combinations that use the arrow keys.
+#
+# - 2021-02-01: One alternative binding I tried recently in Vim is to map
+#   Ctrl-Cmd-Arrow, but unfortunately most terminal applications will not
+#   received the Super_L or Command key presses. So that option's out.
+#   - A work-around to this stopage might be to setup a MATE (or similar)
+#     keyboard shortcut to the Command key combos, and then to use `xdotool`
+#     to forward key presses to the application/shell (that would reach the
+#     bindings here). But that seems like a colossal "if" and sounds like
+#     it'd take a bit of time to even test that it'd work.
+#
+# - Yet another idea I had was to try four Alt-Numpad bindings.
+#   - I did find that Alt-Numpad2/4/8/6 is already mapped to select-pane,
+#     but only when numlock is disabled (and I always have mine on).
+#     (Though I'm not sure what defines these bindings; they don't
+#     even show up in the `Ctrl-a h` bindings list, as far I can see.)
+#   - I tried binding M-KP2/-KP4/-KP8/-KP6, but those did not work,
+#     and neither did binding simply M-2/-4/-8/-6.
+#   - Oh, well, at least good to know non-numlocked Alt-Numpad works.
+#
+# And always remember, it's just as easy to use the other pane jumpers,
+# using the tmux prefix and arrow keys:
+#
+#   Ctrl-a + Arrow key.
+
 bind -n M-PageUp run \
   "($is_vim && tmux send-keys M-PageUp) || \
    tmux select-pane -L"
-# NOTES/2021-02-01: Tmux does not support Ctrl-Cmd-Arrow pane jumpers.
-# - I added Ctrl-Cmd-Arrow pane jumpers to Vim, to complement the
-#   Alt-Up/-Down/-PageUp/-PageDown jumpers in both Vim and tmux.
-# - However, tmux does not support the Command key.
-#   - Though it might support the Super_L key, I don't think mate-terminal
-#     forwards that key to the running application or shell.
-#   - One possibility might be to setup a MATE binding to the Command
-#     key combo, and then to use `xdotool` to forward a key press to
-#     the application/shell that we'd wire here.
-# But it's just as easy to use the other pane jumpers, Ctrl-a + Arrow key.
 
 # Map select-pane-right to Alt-PageDown, rather than to the more popular C-l,
 # or the more chic M-Right, for reasons mentioned in the previous long comment.
