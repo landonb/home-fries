@@ -10,6 +10,7 @@ home_fries_aliases_wire_pwgen () {
   # 2016-09-24: Why didn't I think of this 'til now?
   # [Note also that pass can just do it, too.]
   alias pwgen16="pwgen -n 16 -s -N 1 -y"
+  alias pwgen21="pwgen -n 21 -s -N 1 -y"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
