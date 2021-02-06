@@ -100,6 +100,10 @@ home_fries_create_aliases_rg_tag_wrap () {
   # you see a <blip>, not sure if a bell is being rung or what, but Vim not alerts!
 
 # FIXME/2020-09-26 01:38: macOS: Probably does not support xdotool (search all Hfries)
+# FWR/2021-01-28 16:52: It works in macOS on just the --remote-silent and/or --remote-send
+#                       FIXME: Though I find on macOS I need to run it twice,
+#                              e.g., the first `e1` will open file in Vim, and
+#                                    the second `e1` will move the cursor.
   alias rgg="\
     TAG_CMD_FMT_STRING=' \
       true \
