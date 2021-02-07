@@ -37,11 +37,41 @@ home_fries_aliases_wire_gvim () {
   # 2020-09-26: (lb): I almost always open files to Gvim using `fs`,
   # it's easy to type, and it sends all files to the same instance.
 
-  alias fh='gvim --servername DIGAMMA --remote-silent' # For those special occassions
+  # 2021-02-07: I've probably never usedf `fh`, ha. (It's almost always `fs`, 
+  #             and historically sometimes but rarely `fd`, now `fa`, and
+  #             never the historical `fa`, now the new `fd`.)
+  #  alias fh='gvim --servername DIGAMMA --remote-silent' # For those special occassions
   # 2020-02-12: Let's not shadow the `fd` [f]in[d] tool.
-  # alias fd='gvim --servername DELTA --remote-silent' # when you want to get away
-  alias fs='gvim --servername   SAMPI --remote-silent' # because relaxation is key
-  alias fa='gvim --servername   ALPHA --remote-silent' # follow your spirit.
+  #  alias fd='gvim --servername   DELTA --remote-silent' # when you want to get away
+  # 2021-02-07: See new `fs` and `fa` commands.
+  #  alias fs='gvim --servername   SAMPI --remote-silent' # because relaxation is key
+  #  alias fa='gvim --servername   ALPHA --remote-silent' # follow your spirit.
+  :
+}
+
+# 2021-02-07: I've finally grown tired of the bare `fs` error:
+#
+#   $ fs
+#   VIM - Vi IMproved 8.2 (2019 Dec 12, compiled Mar 20 2020 04:00:36)
+#   Argument missing after: "--remote-silent"
+#   More info with: "vim -h"
+fs () {
+  _hf_gvim_servername "SAMPI" "$@"
+}
+
+fa () {
+  _hf_gvim_servername "ALPHA" "$@"
+}
+
+_hf_gvim_servername () {
+  local servername="$1"
+  shift
+
+  if [ -z "${1+x}" ]; then
+    gvim --servername ${servername} --remote-silent "~/README.rst"
+  else
+    gvim --servername ${servername} --remote-silent "$@"
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
