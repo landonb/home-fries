@@ -99,21 +99,31 @@ home_fries_create_aliases_rg_tag_wrap () {
   # WEIRD/2020-04-02 23:08: `rgt` works smoothly. `rgg` switches to Gvim and then
   # you see a <blip>, not sure if a bell is being rung or what, but Vim not alerts!
 
-# FIXME/2020-09-26 01:38: macOS: Probably does not support xdotool (search all Hfries)
-# FWR/2021-01-28 16:52: It works in macOS on just the --remote-silent and/or --remote-send
-#                       FIXME: Though I find on macOS I need to run it twice,
-#                              e.g., the first `e1` will open file in Vim, and
-#                                    the second `e1` will move the cursor.
-  alias rgg="\
-    TAG_CMD_FMT_STRING=' \
-      true \
-      && gvim --servername SAMPI --remote-silent \"{{.Filename}}\" \
-      && gvim --servername SAMPI --remote-send \
-        \"<ESC>:call cursor({{.LineNumber}}, {{.ColumnNumber}})<CR>\" \
-      && xdotool search --name SAMPI windowactivate &> /dev/null \
-    ' \
-    ${rg_wrap_with_options} \
-  "
+  if ! os_is_macos; then
+    alias rgg="\
+      TAG_CMD_FMT_STRING='true \
+        && gvim --servername SAMPI --remote-silent \"{{.Filename}}\" \
+        && gvim --servername SAMPI --remote-send \
+          \"<ESC>:call cursor({{.LineNumber}}, {{.ColumnNumber}})<CR>\" \
+        && xdotool search --name SAMPI windowactivate &> /dev/null \
+      ' \
+      ${rg_wrap_with_options} \
+    "
+  else
+    # macOS: No xdotool, and not necessary (GVim fronts itself, or someonething
+    # else does); and sleep necessary after loading file (without, if file was
+    # not already loaded, then call-cursor ignored, at least IME).
+    alias rgg="\
+      TAG_CMD_FMT_STRING='true \
+        && gvim --servername SAMPI --remote-silent \"{{.Filename}}\" \
+        && sleep 0.33 \
+        && gvim --servername SAMPI --remote-send \
+          \"<ESC>:call cursor({{.LineNumber}}, {{.ColumnNumber}})<CR>\" \
+      ' \
+      ${rg_wrap_with_options} \
+    "
+  fi
+
   alias rg="rgg"
 }
 
