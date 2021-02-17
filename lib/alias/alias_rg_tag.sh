@@ -99,32 +99,28 @@ home_fries_create_aliases_rg_tag_wrap () {
   # WEIRD/2020-04-02 23:08: `rgt` works smoothly. `rgg` switches to Gvim and then
   # you see a <blip>, not sure if a bell is being rung or what, but Vim not alerts!
 
+  local hacos=""
+  local xdotool=""
+
   if ! os_is_macos; then
-    alias rgg="\
-      TAG_CMD_FMT_STRING='true \
-        && gvim --servername SAMPI --remote-silent \"{{.Filename}}\" \
-        && gvim --servername SAMPI --remote-send \
-          \"<ESC>:call cursor({{.LineNumber}}, {{.ColumnNumber}})<CR>\" \
-        && xdotool search --name SAMPI windowactivate &> /dev/null \
-      ' \
-      ${rg_wrap_with_options} \
-    "
+    xdotool='&& xdotool search --name SAMPI windowactivate &> /dev/null'
   else
-    # macOS: No xdotool, and not necessary (GVim fronts itself, or someonething
-    # else does); and sleep necessary after loading file (without, if file was
-    # not already loaded, then call-cursor ignored, at least IME).
-    alias rgg="\
-      TAG_CMD_FMT_STRING='true \
-        && gvim --servername SAMPI --remote-silent \"{{.Filename}}\" \
-        && sleep 0.33 \
-        && gvim --servername SAMPI --remote-send \
-          \"<ESC>:call cursor({{.LineNumber}}, {{.ColumnNumber}})<CR>\" \
-      ' \
-      ${rg_wrap_with_options} \
-    "
+    # macOS: No xdotool, and not necessary (GVim fronts itself, or somethingone
+    # else does); but sleep necessary after loading the file (without sleep, if
+    # file was not already loaded, then the call-cursor ignored, at least IME).
+    hacos='&& sleep 0.5'
   fi
 
-  alias rg="rgg"
+  TAG_CMD_FMT_STRING="true \
+    && gvim --servername SAMPI --remote-silent \"{{.Filename}}\" \
+    ${hacos} \
+    && gvim --servername SAMPI --remote-send \
+      \"<ESC>:call cursor({{.LineNumber}}, {{.ColumnNumber}})<CR>\" \
+    ${xdotool} \
+  "
+  export TAG_CMD_FMT_STRING
+
+  alias rg="${rg_wrap_with_options}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
