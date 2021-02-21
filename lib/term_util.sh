@@ -27,38 +27,6 @@ DUBS_STICKY_PREFIX_RE="${DUBS_STICKY_PREFIX_RE:-\\(Dubs\\) }"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# FIXME/2020-03-12 02:41: Unused: Can probably delete this function.
-
-invoked_from_terminal () {
-  # E.g., Consider the fcn. and script,
-  #
-  #   echo 'test_f () { echo $0; }; test_f' > test.sh
-  #
-  # and the outputs,
-  #
-  #   $ ./test.sh
-  #   ./test.sh
-  #
-  #   $ source test.sh
-  #   /bin/bash
-  #
-  # Note: Sometimes the second command returns just 'bash', depending
-  #       on how the terminal was invoked.
-  #
-  # There might be a better way to do this, but it seems checking the
-  # name of file is sufficient to determine if calling `exit` will
-  # just kill a script or if it will exit the user's terminal.
-
-  local bashed=0
-  if [ $(printf "$0" | grep "bash$" -) ]; then
-    bashed=1
-  fi
-
-  return ${bashed}
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 # NOTE: In addition to [ -t 1 ], there are other ways to test if there is a tty
 #       attached or not. But the other methods I tried didn't work.
 #
