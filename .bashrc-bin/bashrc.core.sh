@@ -170,6 +170,7 @@ source_homefries_libs_all () {
   source_it "term_util.sh"
   # 2021-02-20: I split apart term_util.sh, so guessing some of these
   #             could now be sourced later.
+  source_it "term/disable-ctrl_s-stty-flow-controls.sh"
   source_it "term/equip-colorful-and-informative-ls.sh"
   source_it "term/set-shell-prompt-and-window-title.sh"
   source_it "term/show-command-name-in-window-title.sh"
@@ -476,6 +477,11 @@ home_fries_up () {
 
   # - lib/fries_util.sh
   run_and_unset "home_fries_punch_anacron"
+
+  #########################
+
+  # - lib/term/disable-ctrl_s-stty-flow-controls.sh
+  run_and_unset "unhook_stty_ixon_ctrl_s_xon_xoff_flow_control"
 
   #########################
 
