@@ -45,19 +45,23 @@ suss_window_manager () {
   _suss_window_manager () {
     suss_window_manager_reset
 
-    tweak_errexit
-    WIN_MGR_INFO=`wmctrl -m >/dev/null 2>&1`
-    local exitcode=$?
-    reset_errexit
-    if [ ${exitcode} -ne 0 ]; then
-      # E.g., ssh into a machine, and wmctrl -m returns 1, echoes "Cannot open display."
-      WM_DETACHED=true
-      # MAYBE/2020-05-11: Remove wmctrl greps below, and use command -v checks instead?
-      suss_window_manager_via_command_v
-    fi
+    if os_is_macos; then
+      WM_IS_QUARTZ=true
+    else
+      tweak_errexit
+      WIN_MGR_INFO=`wmctrl -m >/dev/null 2>&1`
+      local exitcode=$?
+      reset_errexit
+      if [ ${exitcode} -ne 0 ]; then
+        # E.g., ssh into a machine, and wmctrl -m returns 1, echoes "Cannot open display."
+        WM_DETACHED=true
+        # MAYBE/2020-05-11: Remove wmctrl greps below, and use command -v checks instead?
+        suss_window_manager_via_command_v
+      fi
 
-    if ! ${WM_IS_UNKNOWN}; then
-      suss_window_manager_via_wmctrl_m
+      if ! ${WM_IS_UNKNOWN}; then
+        suss_window_manager_via_wmctrl_m
+      fi
     fi
 
     suss_window_manager_report
@@ -71,6 +75,7 @@ suss_window_manager () {
     WM_IS_KDE=false
     WM_IS_MATE=false
     WM_IS_XFCE=false
+    WM_IS_QUARTZ=false
     WM_IS_UNKNOWN=false
     WM_DETACHED=false
     WM_TERMINAL_APP=''
@@ -83,6 +88,7 @@ suss_window_manager () {
     echo "WM_IS_KDE: $WM_IS_KDE"
     echo "WM_IS_MATE: $WM_IS_MATE"
     echo "WM_IS_XFCE: $WM_IS_XFCE"
+    echo "WM_IS_QUARTZ: $WM_IS_QUARTZ"
     echo "WM_IS_UNKNOWN: $WM_IS_UNKNOWN"
     echo "WM_DETACHED: $WM_DETACHED"
     echo "WM_TERMINAL_APP: $WM_TERMINAL_APP"
@@ -143,6 +149,7 @@ suss_window_manager () {
 
 screensaver_lockoff () {
   suss_window_manager
+
   if ${WM_IS_MATE}; then
     # Disable screen saver and lock-out.
     #  gsettings doesn't seem to stick 'til now.
@@ -162,11 +169,17 @@ screensaver_lockoff () {
     gsettings set org.cinnamon.desktop.screensaver lock-enabled false \
       &> /dev/null
     reset_errexit
+  else
+    >&2 echo "That command is not plumbed for this window manager!"
+    return 1
   fi
+
+  return 0
 }
 
 screensaver_lockon () {
   suss_window_manager
+
   if ${WM_IS_MATE}; then
     gsettings set org.mate.screensaver idle-activation-enabled true
     gsettings set org.mate.screensaver lock-enabled true
@@ -177,7 +190,12 @@ screensaver_lockon () {
     gsettings set org.cinnamon.desktop.screensaver lock-enabled true \
       &> /dev/null
     reset_errexit
+  else
+    >&2 echo "That command is not plumbed for this window manager!"
+    return 1
   fi
+
+  return 0
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -196,7 +214,7 @@ suss_apache () {
     httpd_etc_dir=/etc/httpd
   else
     echo "Error: Unknown OS."
-    exit 1
+    return 1
   fi
 }
 
@@ -257,7 +275,7 @@ suss_python () {
     echo
     echo "######################################################################"
     echo
-    exit 1
+    return 1
   fi
   PYVERS_RAW3=python${PYVERS_RAW3}
   PYVERS_RAW3_m=python${PYVERS_RAW3}m
