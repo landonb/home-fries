@@ -212,13 +212,6 @@ first_char_capped () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-echoerr () (
-  IFS=" "
-  printf '%s\n' "$*" 1>&2
-)
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 # 2018-05-28: Bounce around workspaces. (lb): Metacity is griefing when
 # I Alt-Tab between windows: It switches desktops to the window's owning
 # desktop. You don't notice if the window is pinned to the current
