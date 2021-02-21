@@ -180,15 +180,6 @@ termdo-sudo-reset () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# 2020-08-25: Replace ${VAR^^} with POSIX-compliant pipe chain (because macOS's
-# deprecated Bash is 3.x and does not support ${VAR^^} capitalization operator,
-# and the now-default zsh shell does not support ${VAR^^} capitalization).
-first_char_capped () {
-  printf "$1" | cut -c1-1 | tr '[:lower:]' '[:upper:]'
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 dubs_macos_silence_bash_warning () {
   os_is_macos || return
 
