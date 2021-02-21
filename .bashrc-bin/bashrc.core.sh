@@ -170,6 +170,7 @@ source_homefries_libs_all () {
   source_it "term_util.sh"
   # 2021-02-20: I split apart term_util.sh, so guessing some of these
   #             could now be sourced later.
+  source_it "term/equip-colorful-and-informative-ls.sh"
   source_it "term/set-shell-prompt-and-window-title.sh"
   source_it "term/show-command-name-in-window-title.sh"
 
@@ -441,7 +442,7 @@ home_fries_up () {
   run_and_unset "dubs_set_PS4"
 
   # Fix the colors used by `ls -C` to be less annoying.
-  # - lib/term_util.sh
+  # - lib/term/equip-colorful-and-informative-ls.sh
   run_and_unset "dubs_fix_terminal_colors"
 
   # Make the current window always-on-visible-desktop, maybe.
