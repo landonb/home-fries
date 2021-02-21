@@ -13,18 +13,27 @@ home_fries_aliases_wire_cd_pushd_popd () {
 
   # IDEA/MAYBE: Enhance completions on cdd (limit to directories).
   function cdd () {
+    local target="$1"
+
     if [ -n "$2" ]; then
       echo 'You wish!' $*
       return 1
     fi
-    if [ -n "$1" ]; then
-      pushd "$1" &> /dev/null
+
+    # Cleanse the argument: remove "file://" prefix.
+    # - Use case: If you open caja (file browser), click a file,
+    #   press Ctrl-c or copy, it copies the file path with said
+    #   prefix.
+    target="$(echo "${target}" | sed 's#^file://##')"
+
+    if [ -n "${target}" ]; then
+      pushd "${target}" &> /dev/null
       # Same as:
-      #  pushd -n "$1" &> /dev/null
-      #  cd "$1"
+      #  pushd -n "${target}" &> /dev/null
+      #  cd "${target}"
       if [ $? -ne 0 ]; then
         # Maybe the stupid user provided a path to a file.
-        local pdir="$(dirname -- "$1")"
+        local pdir="$(dirname -- "${target}")"
         if [ -n "${pdir}" ] && [ '.' != "${pdir}" ]; then
           pushd "${pdir}" &> /dev/null
           if [ $? -ne 0 ]; then
