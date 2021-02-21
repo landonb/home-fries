@@ -28,25 +28,6 @@ DUBS_STICKY_PREFIX_RE="${DUBS_STICKY_PREFIX_RE:-\\(Dubs\\) }"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# For debugging/tracing Bash scripts using
-#
-#   `set -x` and `set -v`.
-#
-# See:
-#   http://www.rodericksmith.plus.com/outlines/manuals/bashdbOutline.html
-#
-# Also:
-#   http://bashdb.sourceforge.net/
-#   http://www.linuxtopia.org/online_books/advanced_bash_scripting_guide/debugging.html
-#   http://www.cyberciti.biz/tips/debugging-shell-script.html
-dubs_set_PS4 () {
-  # Default is: PS4='+'
-  PS4='(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]} - [${SHLVL},${BASH_SUBSHELL}, $?]
-  '
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 # Fix ls -C
 ###########
 

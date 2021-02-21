@@ -437,7 +437,7 @@ home_fries_up () {
   run_and_unset "dubs_set_terminal_prompt"
 
   # Set PS4, for `set -x` and `set -v` debugging/tracing.
-  # - lib/term_util.sh
+  # - lib/term/set-shell-prompt-and-window-title.sh
   run_and_unset "dubs_set_PS4"
 
   # Fix the colors used by `ls -C` to be less annoying.
