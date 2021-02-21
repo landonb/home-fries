@@ -133,7 +133,7 @@ _sh_rm_safe_device_filepath_for_file () {
   #     Filesystem    1K-blocks  Used  Available  Use%      Mounted on
   #   Note that on macOS/BSD, df prints 9 columns/fields:
   #     Filesystem   512-blocks  Used  Available  Capacity  iused  ifree  %iused  Mounted on
-  #   But rather than test `is_os_macos` and/or `is_os_linux`,
+  #   But rather than test `os_is_macos` and/or `os_is_linux`,
   #   we could do some shell pipeline trickery. E.g., consider:
   #     $ echo 'maps.google.com' | rev | cut -d'.' -f 1 | rev
   #     com
