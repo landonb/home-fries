@@ -4,10 +4,12 @@
 # Project: https://github.com/landonb/home-fries#🍟
 # License: MIT
 
+# See related GNU commands: zcat, zless, zmore.
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 set_meta () {
-  ZVIEW_VERSION="zview (gzip) 0.0
+  ZVIEW_VERSION="zview (gzip) 0.1
 Copyright (C) 2019 XXX.
 This is free software.  You may redistribute copies of it under the terms of
 the GNU General Public License <http://www.gnu.org/licenses/gpl.html>.
@@ -18,9 +20,7 @@ Written by Landon Bouma."
   ZVIEW_USAGE="usage: $0 [option]... [file]
 like 'view', but operate on the uncompressed contents of any compressed files.
 
-options are the same as for 'view'.
-
-report bugs to <bug-zview@gnu.org>."
+options are the same as for 'view'."
 }
 
 zview () {
@@ -28,10 +28,6 @@ zview () {
   # gzip -d decompress
   # gzip -f force (de)compression
   # gzip -q quiet
-  # The example I saw is extra safe and provide path after options, using --:
-  #   gzip -cdfq -- /var/log/abc.log.1.gz
-  # But this is generally the same as without:
-  #   gzip -cdfq /var/log/abc.log.1.gz
   local mytemp=$(mktemp)
   gzip -cdfq -- "$1" > "$mytemp"
   shift
