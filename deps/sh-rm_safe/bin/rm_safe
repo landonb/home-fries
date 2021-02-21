@@ -272,6 +272,7 @@ rm_safe () {
   # You can make the trash with rmtrash or mkdir ~/.trash,
   #   or run the command and you'll be prompted.
   # EXPLAIN/2019-12-22: (lb): Would $@ instead of $* allow us to avoid IFS?
+  # MAYBE/2021-02-20: Rather than use old_IFS, would `local IFS=$'\n'` work?
   local old_IFS=$IFS
   IFS=$'\n'
   local fpath=""
