@@ -172,6 +172,7 @@ source_homefries_libs_all () {
   #             could now be sourced later.
   source_it "term/disable-ctrl_s-stty-flow-controls.sh"
   source_it "term/equip-colorful-and-informative-ls.sh"
+  source_it "term/macos-please-no-zsh-advertisement.sh"
   source_it "term/perhaps-always-on-visible-desktop.sh"
   source_it "term/readline-bind-ctrl-b-fname-rubout.sh"
   source_it "term/set-shell-prompt-and-window-title.sh"
@@ -457,7 +458,7 @@ home_fries_up () {
   run_and_unset "dubs_hook_filename_rubout"
 
   # Silence a macOS-specific logon alert.
-  # - lib/term_util.sh
+  # - lib/term/macos-please-no-zsh-advertisement.sh
   run_and_unset "dubs_macos_silence_bash_warning"
 
   #########################
