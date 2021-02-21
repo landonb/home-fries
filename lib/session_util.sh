@@ -96,9 +96,14 @@ _homefries_screensaver_command () {
 # Not sure where I found the dbus-send trick.
 lock_screensaver_and_power_suspend () {
 
-# FIXME: Gah.
-  . /etc/lsb-release
-  [[ ${DISTRIB_CODENAME} == 'rebecca' ]] && echo "Not on $(hostname)!" && return
+  # 2021-02-20: This function is stale; I haven't used in a while
+  # (not since I used to travel a lot with my laptop and wanted a
+  #  CLI vector to locking and sleeping; and to the security issue
+  #  with an attacker being able to see the screen briefly on wake,
+  #  so being sure to show-desktop before sleeping).
+
+  # Restrict from running on macOS or if /etc/lsb-release not found.
+  _hf_lock_screensaver_source_lsb_release || return $?
 
   # 2016-10-25: Heck, why not! At least show some semblance of not being
   # a complete idiot.
@@ -137,11 +142,35 @@ lock_screensaver_and_power_suspend () {
   xdotool key ctrl+alt+d
 } # end: lock_screensaver_and_power_suspend
 
+# ***
+
+_hf_lock_screensaver_source_lsb_release () {
+  # INERT/2021-02-20: We could support macOS, but I have no use case.
+  # - We'd need the macOS equivalent of termdo, which is
+  #   probably osascript, but I think we'd also need the
+  #   API to Quartz Compositor:
+  #     https://pypi.org/project/pyobjc-framework-Quartz/
+  if [ ! -f "/etc/lsb-release" ]; then
+    # E.g., os_is_macos.
+    >&2 echo "Not a recognized OS (/etc/lsb-release not found)"
+    return 1
+  fi
+
+  . /etc/lsb-release
+
+  if [ "${DISTRIB_CODENAME}" != "rebecca" ]; then
+    # Old Linux Mint... can't remember what it's missing; something.
+    >&2 echo "This command not available on Linux Mint 'rebecca'"
+    return 1
+  fi
+}
+
+# ***
+
 lock_screensaver_and_power_suspend_lite () {
 
-# FIXME: Gah.
-  . /etc/lsb-release
-  [[ ${DISTRIB_CODENAME} == 'rebecca' ]] && echo "Not on $(hostname)!" && return
+  # Restrict from running on macOS or if /etc/lsb-release not found.
+  _hf_lock_screensaver_source_lsb_release || return $?
 
   # Show desktop / Minimize all windows
   xdotool key ctrl+alt+d
@@ -168,6 +197,7 @@ lock_screensaver_and_do_nothing_else () {
   # I'm iffy about enabling locking screensaver on simple qq.
   # But also thinking maybe yeah.
   screensaver_lockon
+
 } # end: lock_screensaver_and_do_nothing_else
 
 # 2016-10-10: Seriously? `qq` isn't a command? Sweet!
