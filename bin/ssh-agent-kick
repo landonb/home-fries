@@ -62,7 +62,7 @@ gripe_secrets_absent () {
   return 0
 }
 
-verify_sanity () {
+verify_environment () {
   # Note that EUID is a Bash-ism, so using `id` instead.
   # - Check nonzero ID, i.e., insist that user is not root.
   if [ $(id -u) -eq 0 ]; then
@@ -257,7 +257,7 @@ is_socketed () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-verify_sanity () {
+verify_or_start_agent () {
   local max_agents=0
   if mate_session_agent_pid_verify; then
     if is_gnome_keyring_daemon_agent_running; then
@@ -319,9 +319,17 @@ ssh_agent_kick () {
   # USAGE: `ssh_agent_kick` or ssh_agent_kick -v`.
   local old_level=${LOG_LEVEL}
   [ "$1" = "-v" ] && LOG_LEVEL=0 || LOG_LEVEL=${LOG_LEVEL_NOTICE}
-  if verify_sanity; then
-    feed_agent
+
+  # 2021-02-20: Oops, for past 11 months, since 08205ac, I was
+  # shadowing first check. I repaired it now, so just be aware
+  # that when you run this command the next time, this call to
+  # `verify_environment` is newish.
+  if verify_environment; then
+    if verify_or_start_agent; then
+      feed_agent
+    fi
   fi
+
   LOG_LEVEL=${old_level}
 }
 
@@ -336,7 +344,7 @@ source_deps
 shell_sourced () {
   # 2020-03-27: Meh. I created an ssh-kick-agent alias, because I kept
   # typing ssh-k<TAB>, but then I realized I only need to call this
-  # function from another command I used to load cryted mounts. So I
+  # function from another command I used to load encrypted mounts. So I
   # removed the symlink.
   # - Nonetheless, this checks if $0 is either of these 2 filenames:
   for filename in "ssh-agent-kick" "ssh-kick-agent"; do
