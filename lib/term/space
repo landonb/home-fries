@@ -1,0 +1,191 @@
+#!/usr/bin/env bash
+# vim:tw=0:ts=2:sw=2:et:norl:ft=bash
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/landonb/home-fries#🍟
+# License: MIT
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+_hf_check_deps_space () {
+  # Verify sh-colors/bin/colors.sh loaded.
+  check_dep '_hofr_no_color' || return 1
+
+  # Verify distro_util.sh loaded.
+  check_dep 'os_is_macos' || return 1
+
+  # Verify not macOS.
+  if os_is_macos; then
+    echo 'Radio Mission Control for help' 1>&2
+    return 1
+  fi
+
+  # Verify xdotool.
+  if ! type xdotool > /dev/null 2>&1; then
+    echo 'Missing “xdotool”' 1>&2
+    return 1
+  fi
+
+  return 0
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# 2018-05-28: Bounce around workspaces. (lb): Metacity is griefing when
+# I Alt-Tab between windows: It switches desktops to the window's owning
+# desktop. You don't notice if the window is pinned to the current
+# desktop, but if the the window is set to "Always on Visible Workspace",
+# you might switch desktops! One option is to right-click on the window
+# in the window list, send it to the desktop within which you want to
+# work, switch to that desktop, and then enables always-on-visible. Or,
+# you could just run this command and bring your windows to the desired
+# desktop.
+# 2019-01-05: And... now it seems the issue for which space() was writ
+# to address is not longer an issue in 18.04. When I switch desktops
+# by clicking in the applet widget and then alt-tab between windows,
+# the desktop is not unexpectedly changing to another one. Thank you,
+# whomeever fixed this bug! (I think between 14.04 and 18.04; not sure
+# if it inflicted 16.04). / That said, space() is still useful to run
+# at least once to make certain browser tabs and other application
+# windows sticky.
+
+space () {
+  _hf_check_deps_space || return 1
+
+  local re_num='^[1-4]+$'
+  if ! [[ $1 =~ ${re_num} ]]; then
+    echo 'USAGE: space [1-4]' 1>&2
+    return 1
+  fi
+
+  local wspace=$(($1 - 1))
+
+  local active_window=$(xdotool getactivewindow)
+
+  echo "Reassigning sticky windows' parents..."
+  # Early solution: Move known windows according to business logic.
+  #  xdotool search --name '(Dubs)|SAMPI' | xargs -I % echo wmctrl -t ${wspace} -b add,sticky -i -r %
+  #  xdotool search --name '(Dubs)|SAMPI' | xargs -I % wmctrl -t ${wspace} -b add,sticky -i -r %
+  # Better solution: Move all windows known to be always-on-visible.
+  # wmctrl:
+  #   -t: desktop no.
+  #   -i: -r is an integer
+  #   -r: window str or id
+  #   -b: modify property
+  # NOTE: (lb): Apologies for the Business Logic, but the Gnome 2 Launcher
+  #       Panels should not be touched. These are identified by:
+  #
+  #           | /bin/grep -v 'Bottom Expanded Edge Panel$' \
+  #
+  #       I mean, they can be touched, and all will seem well, but sometime in
+  #       the future, when you double-click a window titlebar to maximize it,
+  #       you'll see it's bottom edge goes beneath the bottom panels. (And I'm
+  #       sure it should really just be 'Edge Panel$', to include cases where
+  #       the panel is elsewhere (Left, Top, or Right), or where the panel is
+  #       not expanded fully. But none of those cases apply to me, so ignoring.)
+  winids=($(wmctrl -l \
+    | /bin/grep -E '^0x[a-f0-9]{8} +-1 ' \
+    | /bin/grep -v 'Bottom Expanded Edge Panel$' \
+    | awk '{print $1}'))
+  #printf "%s\n" "${winids[@]}" | xargs -I % echo wmctrl -t ${wspace} -b add,sticky -i -r %
+  for winid in ${winids[@]}; do
+    # Just for enduser enjoyment.
+    echo_wmctrl_sticky_cmd_winid "${winid}"
+  done
+  # NOTE: Combining the 2 commands seems to work, but it doesn't:
+  #  | xargs -I % wmctrl -t ${wspace} -b add,sticky -i -r %
+  # So do the 2 operations separately.
+  printf "%s\n" "${winids[@]}" | xargs -I % wmctrl -t ${wspace} -i -r %
+  # Change active desktop. Can come before or after adding sticky.
+  echo "Switching to Desktop “${wspace}” aka Workspace “$1”."
+  wmctrl -s ${wspace}
+  printf "%s\n" "${winids[@]}" | xargs -I % wmctrl -b add,sticky -i -r %
+  # Restore previously active window.
+  wmctrl -i -a ${active_window}
+}
+
+echo_wmctrl_sticky_cmd_winid () {
+  local winid=$1
+  printf '%s%b\n' \
+    " wmctrl -b add,sticky -i -r ${winid}" \
+    " $(fg_mintgreen)$(wmctrl -l | grep "^${winid}" | cut -d ' ' -f 4-)$(attr_reset)"
+}
+
+echo_wmctrl_sticky_cmd_winname () {
+  local winname=$1
+  local winid=$(wmctrl -l | grep "${winname}$" | cut -d ' ' -f 1)
+  if [ -n "${winid}" ]; then
+    winid="$(fg_mintgreen)${winid}"
+  else
+    #winid='~NOTFOUND~'
+    #winid="$(fg_lightorange)${winid}"
+    # On second thought, don't pollute.
+    return
+  fi
+  printf '%b\n' " wmctrl -b add,sticky -i -r ${winid}$(attr_reset) ${winname}"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# TIPS: You can add your own, personal windows to the sticky list,
+#       so that running `space` will make all your favorite windows
+#       sticky. E.g.,
+if false; then
+  # —————— ✂ ——— ✁ —————— [ copy-paste ] —————— ✁ ——— ✂ ——————
+
+  private_space () {
+    declare -a winnames=()
+    # Dubs Vim, e.g., if you send files to the same GVim with:
+    #  gvim --servername SAMPI --remote-silent path/to/file
+    winnames+=("SAMPI")
+    # E.g., Gmail, etc.
+    winnames+=("[mM]ail - Chromium")
+    winnames+=("[mM]ail - Google Chrome")
+    # Music apps 'n tabs:
+    winnames+=("Live Stream | The Current from Minnesota Public Radio - Chromium")
+    winnames+=("Live Stream | The Current from Minnesota Public Radio - Google Chrome")
+    winnames+=("Spotify")
+    for (( i = 0; i < ${#winnames[@]}; i++ )); do
+      echo_wmctrl_sticky_cmd_winname "${winnames[$i]}"
+      # We could just use -r, e.g.,
+      #   wmctrl -b add,sticky -r "${winnames[$i]}"
+      # But Grep let's us be a little more precise (i.e., use $ for EOL).
+      local winid=$(wmctrl -l | grep "${winnames[$i]}$" | cut -d ' ' -f 1)
+      if [ -n "${winid}" ]; then
+        wmctrl -b add,sticky -i -r ${winid}
+      fi
+    done
+  }
+
+  monkey_patch_space () {
+    # Remove the first two lines and last line, e.g.,:
+    #   function()
+    #   {
+    #     ...
+    #   }
+    old_space=$(declare -f space | tail -n +3 | head -n -1)
+
+    space () {
+      # Meh. Don't validate the desktop number before making windows sticky.
+      # (We need to do this before running old_space, to ensure that our
+      #  favorite windows are sticky first, before reassigning sticky parents.
+      #  Also, if we do this after old_space, there's a little screen flicker
+      #  that makes that sequence look unnatural, ick.)
+
+      echo "Making ${LOGNAME}'s windows sticky..."
+      private_space
+
+      eval "${old_space}"
+    }
+  }
+
+  # —————— ✂ ——— ✁ —————— [ copy-paste ] —————— ✁ ——— ✂ ——————
+fi
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Run the function if being executed.
+# Otherwise being sourced, so do not.
+if ! $(printf %s "$0" | grep -q -E '(^-?|\/)(ba|da|z)?sh$' -); then
+  space "$@"
+fi
+
