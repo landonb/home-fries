@@ -163,21 +163,6 @@ source_homefries_libs_all () {
 
   source_it "distro_util.sh"
 
-  # Ensure term_util.sh does not short-circuit return, as it does
-  # to skip reloading if already loaded -- except here, on the first
-  # time through, we ensure that the latest term_util is always sourced.
-  export _LOADED_HF_TERM_UTIL=false
-  source_it "term_util.sh"
-  # 2021-02-20: I split apart term_util.sh, so guessing some of these
-  #             could now be sourced later.
-  source_it "term/disable-ctrl_s-stty-flow-controls.sh"
-  source_it "term/equip-colorful-and-informative-ls.sh"
-  source_it "term/macos-please-no-zsh-advertisement.sh"
-  source_it "term/perhaps-always-on-visible-desktop.sh"
-  source_it "term/readline-bind-ctrl-b-fname-rubout.sh"
-  source_it "term/set-shell-prompt-and-window-title.sh"
-  source_it "term/show-command-name-in-window-title.sh"
-
   # *** External projects (revisited).
 
   # So that each `rmrm` command is stored in Bash history as `#rmrm`,
@@ -195,6 +180,9 @@ source_homefries_libs_all () {
 
   source_funcs_sources
   unset -f source_funcs_sources
+
+  source_term_sources
+  unset -f source_term_sources
 
   source_utils_sources
   unset -f source_utils_sources
@@ -266,6 +254,19 @@ source_funcs_sources () {
 
 # ***
 
+source_term_sources () {
+  # 2021-02-20: Formerly "term_util.sh", now 7 scripts.
+  source_it "term/disable-ctrl_s-stty-flow-controls.sh"
+  source_it "term/equip-colorful-and-informative-ls.sh"
+  source_it "term/macos-please-no-zsh-advertisement.sh"
+  source_it "term/perhaps-always-on-visible-desktop.sh"
+  source_it "term/readline-bind-ctrl-b-fname-rubout.sh"
+  source_it "term/set-shell-prompt-and-window-title.sh"
+  source_it "term/show-command-name-in-window-title.sh"
+}
+
+# ***
+
 source_utils_sources () {
   # FIXME/2020-12-16: Relocate and Rename these files, like:
   #
@@ -293,7 +294,6 @@ source_utils_sources () {
   source_it "session_util.sh"
   source_it "ssh_util.sh"
   # Loaded specially: "term-fzf.bash"
-  # Earlier: "term_util.sh"
   # Earlier: "term/*.sh"
   source_it "time_util.sh"
   source_it "virtualenvwrapperer.sh"
@@ -685,8 +685,6 @@ main () {
   unset -f source_it
   unset -f source_from_user_path_or_homefries_lib
   unset -f source_homefries_libs
-  #
-  unset -v _LOADED_HF_TERM_UTIL
 
   home_fries_up
   unset -f home_fries_up

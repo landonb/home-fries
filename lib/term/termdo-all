@@ -4,31 +4,20 @@
 # Project: https://github.com/landonb/home-fries#🍟
 # License: MIT
 
-# YOU: Uncomment to re-source this file.
-#  unset -v _LOADED_HF_TERM_UTIL
-${_LOADED_HF_TERM_UTIL:-false} && return || _LOADED_HF_TERM_UTIL=true
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-check_deps () {
-  # Verify sh-colors/bin/colors.sh loaded.
-  check_dep '_hofr_no_color'
-  # Verify sh-logger/bin/logger.sh loaded.
-  check_dep '_sh_logger_log_msg'
+_hf_check_deps_termdo_all () {
   # Verify distro_util.sh loaded.
-  # - Including 'os_is_macos'.
-  check_dep 'suss_window_manager'
+  check_dep 'suss_window_manager' || return $?
+  _hf_check_deps_check_not_macos || return $?
+  return 0
 }
 
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-get_terminal_window_ids () {
-  # 2018-02-14: `xdotool search` is returning 1 more than the number of
-  # mate-terminals. I thought it was if I ran bash within bash within a
-  # terminal, but that wasn't the case. Not sure what it is. But there's
-  # another way we can get exactly what we want, with `wmctrl` instead.
-  #   xdotool search --class "${WM_TERMINAL_APP}"
-  wmctrl -l -x | grep "${WM_TERMINAL_APP}" | awk '{print $1}'
+_hf_check_deps_check_not_macos () {
+  check_dep 'os_is_macos' || return $?
+  os_is_macos || return 0
+  echo 'This command is not supported on Darwin' 1>&2
+  return 1
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -59,6 +48,7 @@ get_terminal_window_ids () {
 #   checking the desktop of the terminal window before sending it keystrokes.
 
 termdo-all () {
+  _hf_check_deps_termdo_all || return $?
   suss_window_manager
   local THIS_WINDOW_ID=$(xdotool getactivewindow)
   local WINDOW_IDS=$(get_terminal_window_ids)
@@ -103,13 +93,19 @@ termdo-all () {
   eval $*
 }
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # Test:
 if false; then
   termdo-all "echo Wake up get outta bed
 "
 fi
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# 2021-02-20: This function is unused.
 termdo-reset () {
+  _hf_check_deps_termdo_all || return $?
   suss_window_manager
   local THIS_WINDOW_ID=$(xdotool getactivewindow)
   local WINDOW_IDS=$(get_terminal_window_ids)
@@ -137,7 +133,11 @@ termdo-reset () {
   cd $1
 }
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# 2021-02-20: This function is unused.
 termdo-cmd () {
+  _hf_check_deps_termdo_all || return $?
   suss_window_manager
   local THIS_WINDOW_ID=$(xdotool getactivewindow)
   local WINDOW_IDS=$(get_terminal_window_ids)
@@ -161,7 +161,11 @@ termdo-cmd () {
   eval $1
 }
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# 2021-02-20: This function is unused.
 termdo-sudo-reset () {
+  _hf_check_deps_termdo_all || return $?
   # sudo security
   # -------------
   # Make all-terminal fcn. to revoke sudo on all terms,
@@ -180,11 +184,61 @@ termdo-sudo-reset () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
-  check_deps
-  unset -f check_deps
+get_terminal_window_ids () {
+  # 2018-02-14: `xdotool search` is returning 1 more than the number of
+  # mate-terminals. I thought it was if I ran bash within bash within a
+  # terminal, but that wasn't the case. Not sure what it is. But there's
+  # another way we can get exactly what we want, with `wmctrl` instead.
+  #   xdotool search --class "${WM_TERMINAL_APP}"
+  wmctrl -l -x | grep "${WM_TERMINAL_APP}" | awk '{print $1}'
 }
 
-main "$@"
-unset -f main
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# 2021-02-20: This function is unused.
+termdo-bash-reset () {
+  _hf_check_deps_termdo_all || return $?
+  # Verify session_util.sh loaded.
+  check_dep 'bash-exit-bash-hole' || return $?
+
+  # We could care or not whether we stacking subshells (i.e., calling
+  # `bash` multiple times from the same terminal) -- it doesn't affect
+  # performance.
+  #
+  # Nonetheless, if you like a mostly clean house, we can exit any
+  # subshells first to minimize the depth of the bash hole we make.
+  #
+  # One approach might be to use kill. But then how do you distinguish
+  # between a terminal that's in a subshell vs one that's not?
+  # If you look at `ps aux | grep bash`, you'll see that the top-level
+  # terminal processes are just 'bash', and subshells created are
+  # generally '/bin/bash' (because our "alias bash=" calls /bin/bash,
+  # and not just bash).
+  #
+  # So this could work, but it's blindly destructive:
+  #
+  #    kill -s 9 $(ps aux | grep "/bin/bash" | awk '{print $2}')
+  #
+  # We can be a bit more intelligent, and respect, say, a running
+  # process, by sending an exit-maybe signal ahead of the /bin/bash.
+  #
+  # Note also the backgrounded and the sleep. 2 termdo-all's in a row
+  # don't work from the same shell (the second is apparently ignored),
+  # so sub-shell the first call and sleep to make it work.
+  termdo-all bash-exit-bash-hole &
+
+  #  sleep 0.5
+  sleep 1.0
+
+  # FIXME/2020-09-01: Does this still work now that `/bin/bash` → `/usr/bin/env bash`?
+  termdo-all /bin/bash
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Run the function if being executed.
+# Otherwise being sourced, so do not.
+if ! $(printf %s "$0" | grep -q -E '(^-?|\/)(ba|da|z)?sh$' -); then
+  termdo-all "$@"
+fi
 

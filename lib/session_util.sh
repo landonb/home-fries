@@ -6,15 +6,6 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-check_deps () {
-  # Verify distro_util.sh loaded.
-  check_dep 'suss_window_manager'
-  # Verify term_util.sh loaded.
-  check_dep 'termdo-all'
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 bash-exit-bash-hole () {
   # If the parent process is also bash, we're bash-in-bash,
   # so we want to exit to the outer shell.
@@ -31,40 +22,6 @@ bash-exit-bash-hole () {
   else
     echo "stay"
   fi
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-termdo-bash-reset () {
-  # We could care or not whether we stacking subshells (i.e., calling
-  # `bash` multiple times from the same terminal) -- it doesn't affect
-  # performance.
-  #
-  # Nonetheless, if you like a mostly clean house, we can exit any
-  # subshells first to minimize the depth of the bash hole we make.
-  #
-  # One approach might be to use kill. But then how do you distinguish
-  # between a terminal that's in a subshell vs one that's not?
-  # If you look at `ps aux | grep bash`, you'll see that the top-level
-  # terminal processes are just 'bash', and subshells created are
-  # generally '/bin/bash' (because our "alias bash=" calls /bin/bash,
-  # and not just bash).
-  #
-  # So this could work, but it's blindly destructive:
-  #
-  #    kill -s 9 $(ps aux | grep "/bin/bash" | awk '{print $2}')
-  #
-  # We can be a bit more intelligent, and respect, say, a running
-  # process, by sending an exit-maybe signal ahead of the /bin/bash.
-  #
-  # Note also the backgrounded and the sleep. 2 termdo-all's in a row
-  # don't work from the same shell (the second is apparently ignored),
-  # so sub-shell the first call and sleep to make it work.
-  termdo-all bash-exit-bash-hole &
-  #  sleep 0.5
-  sleep 1.0
-  # FIXME/2020-09-01: Does this still work now that `/bin/bash` → `/usr/bin/env bash`?
-  termdo-all /bin/bash
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -95,6 +52,7 @@ _homefries_screensaver_command () {
 #
 # Not sure where I found the dbus-send trick.
 lock_screensaver_and_power_suspend () {
+  check_dep 'termdo-all' || return $?
 
   # 2021-02-20: This function is stale; I haven't used in a while
   # (not since I used to travel a lot with my laptop and wanted a
@@ -436,12 +394,4 @@ touched_since_up () {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-main () {
-  check_deps
-  unset -f check_deps
-}
-
-main "$@"
-unset -f main
 
