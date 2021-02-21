@@ -185,33 +185,12 @@ termdo-sudo-reset () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-enable_vi_style_editing () {
-  # Vi-style editing.
-
-  # MAYBE:
-  #  set -o vi
-
-  # Use ``bind -P`` to see the current bindings.
-
-  # See: http://www.catonmat.net/download/bash-vi-editing-mode-cheat-sheet.txt
-  # (from http://www.catonmat.net/blog/bash-vi-editing-mode-cheat-sheet/)
-  # (also http://www.catonmat.net/download/bash-vi-editing-mode-cheat-sheet.pdf)
-
-  # See: http://vim.wikia.com/wiki/Use_vi_shortcuts_in_terminal
-  :
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 # 2020-08-25: Replace ${VAR^^} with POSIX-compliant pipe chain (because macOS's
 # deprecated Bash is 3.x and does not support ${VAR^^} capitalization operator,
 # and the now-default zsh shell does not support ${VAR^^} capitalization).
 first_char_capped () {
   printf "$1" | cut -c1-1 | tr '[:lower:]' '[:upper:]'
 }
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 

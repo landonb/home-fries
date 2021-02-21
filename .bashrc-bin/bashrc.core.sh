@@ -479,12 +479,6 @@ home_fries_up () {
 
   #########################
 
-  # - lib/term_util.sh
-  #run_and_unset "enable_vi_style_editing"
-  unset -f enable_vi_style_editing
-
-  #########################
-
   # - lib/fries_util.sh
   run_and_unset "home_fries_load_completions"
 
