@@ -164,10 +164,14 @@ source_homefries_libs_all () {
   source_it "distro_util.sh"
 
   # Ensure term_util.sh does not short-circuit return, as it does
-  # to skip reloading if already loaded -- expect here, on the first
+  # to skip reloading if already loaded -- except here, on the first
   # time through, we ensure that the latest term_util is always sourced.
   export _LOADED_HF_TERM_UTIL=false
   source_it "term_util.sh"
+  # 2021-02-20: I split apart term_util.sh, so guessing some of these
+  #             could now be sourced later.
+  source_it "term/set-shell-prompt-and-window-title.sh"
+  source_it "term/show-command-name-in-window-title.sh"
 
   # *** External projects (revisited).
 
@@ -285,6 +289,7 @@ source_utils_sources () {
   source_it "ssh_util.sh"
   # Loaded specially: "term-fzf.bash"
   # Earlier: "term_util.sh"
+  # Earlier: "term/*.sh"
   source_it "time_util.sh"
   source_it "virtualenvwrapperer.sh"
   # Just some example Bash author might reference:
@@ -428,7 +433,7 @@ home_fries_up () {
   # Configure the terminal prompt and colors.
 
   # Set `PS1=` to customize the terminal prompt.
-  # - lib/term_util.sh
+  # - lib/term/set-shell-prompt-and-window-title.sh
   run_and_unset "dubs_set_terminal_prompt"
 
   # Set PS4, for `set -x` and `set -v` debugging/tracing.
@@ -550,7 +555,7 @@ home_fries_up () {
   # (lb): Note that all commands after this will appear/flicker
   # in the window title.
   run_and_unset "fries_hook_titlebar_update"
-  # - lib/term_util.sh
+  # - lib/term/show-command-name-in-window-title.sh
 
   #########################
 
