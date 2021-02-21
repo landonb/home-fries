@@ -172,6 +172,7 @@ source_homefries_libs_all () {
   #             could now be sourced later.
   source_it "term/disable-ctrl_s-stty-flow-controls.sh"
   source_it "term/equip-colorful-and-informative-ls.sh"
+  source_it "term/readline-bind-ctrl-b-fname-rubout.sh"
   source_it "term/set-shell-prompt-and-window-title.sh"
   source_it "term/show-command-name-in-window-title.sh"
 
@@ -451,7 +452,7 @@ home_fries_up () {
   run_and_unset "dubs_always_on_visible_desktop"
 
   # Re-bind Ctrl-B from same-as-left-arrow to delete-path-part.
-  # - lib/term_util.sh
+  # - lib/term/readline-bind-ctrl-b-fname-rubout.sh
   run_and_unset "dubs_hook_filename_rubout"
 
   # Silence a macOS-specific logon alert.
