@@ -1,0 +1,184 @@
+#!/usr/bin/env sh
+# vim:tw=0:ts=2:sw=2:et:norl:ft=bash
+# Author: Landon Bouma <https://tallybark.com/>
+# Project: https://github.com/landonb/waffle-batter#🥞
+# License: MIT
+
+# Copyright (c) © 2021 Landon Bouma. All Rights Reserved.
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# This usage is not actually displayed.
+gvim_open_kindness_print_usage () {
+  echo 'USAGE: gvim-open-kindness "{servername}" "[line]" "[column]" "[path]"...'
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# By default, this script uses the same servername when it's called,
+# so that files are opened in the same instance of GVim.
+# - On Linux (X11), the servername should be unique enough that
+#   xdotool can identify the GVim window by its name.
+# - On macOS, there's no xdotool, but also MacVim brings itself to
+#   front by default, so there's nothing lacking, either.
+#
+# YOU: The server name appears in the Vim title bar, so, please,
+#      personalize it!
+HOMEFRIES_GVIM_PRIMARY="${HOMEFRIES_GVIM_PRIMARY:-SAMPI}"
+# - Pro tip: You can even use emojis, e.g.,:
+#
+#   HOMEFRIES_GVIM_PRIMARY="${HOMEFRIES_GVIM_PRIMARY:-🖤}"
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+gvim_open_kindness () {
+  local servername="$1"
+  local row_num="$2"
+  local col_num="$3"
+  # Cannot `shift 3`, lest: "shift: can't shift that many"
+  shift $(( $# > 0 ? 1 : 0 ))
+  shift $(( $# > 0 ? 1 : 0 ))
+  shift $(( $# > 0 ? 1 : 0 ))
+
+  servername="$(gvim_ensure_servername_or_use_default "${servername}")"
+
+  # Fallback on a dummy file if the user doesn't specify a file to open,
+  # because a bare command, e.g., gvim --servername ${servername}, opens
+  # a new GVim with the name "${servername}1". Don't know why. (And does
+  # not have to be a reST file, I just have an empty README in my home.)
+  # MAYBE/2021-02-21: There's probably a way to open a new file to edit.
+  if [ -z "${1+x}" ]; then
+    set -- "${HOME}/README.rst"
+  fi
+
+  gvim_relocate_cursor_to_editing_window "${servername}"
+
+  gvim_open_files "${servername}" "$@"
+
+  gvim_sleep_briefly_macvim_needs_a_moment
+
+  gvim_move_cursor_to_line_and_column "${servername}" "${row_num}" "${col_num}"
+
+  gvim_bring_window_to_front "${servername}"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+gvim_ensure_servername_or_use_default () {
+  local servername="$1"
+
+  # Prefer using the same servername so that the same GVim instance is
+  # always targeted when this command is called. The name does not matter, but it should be unique
+  # among all windows so that xdotool can distinguish it.
+  if [ -z "${servername}" ]; then
+    servername="${HOMEFRIES_GVIM_PRIMARY:-SAMPI}"
+  fi
+
+  echo "${servername}"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# FIXME/2021-02-21: The SensibleOpenMoveCursorAvoidSpecial plugin
+# is not currently published... I'll get it there eventually....
+# Not to worry, gvim-open-kindness will run fine without it.
+
+# Adjust the Vim cursor before opening the file, if necessary, so
+# the new buffer does not replace the quickfix buffer, an open help
+# file, or the project tray, etc.
+#
+# Note that `man gvim` says --cmd is 'executed just before processing
+# any vimrc', but that doesn't mean it runs before the file is loaded.
+# Or even after, as far as I could tell (doesn't seem to run at all).
+# So sending keystrokes to invoke command via --remote-send.
+#
+# Also, --remote-send fails if the server is not started, e.g.,
+#   E247: no registered server named "SAMPI": Send failed.
+# or if the command is not available (plugin not installed).
+# In either case, this function absorbs the error and returns happy.
+
+gvim_relocate_cursor_to_editing_window () {
+  local servername="$1"
+
+  gvim \
+    --servername "${servername}" \
+    --remote-send "<ESC>:call SensibleOpenMoveCursorAvoidSpecial()<CR>" \
+    > /dev/null 2>&1
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+gvim_open_files () {
+  local servername="$1"
+  shift
+
+  gvim --servername "${servername}" --remote-silent "$@"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# On macOS, sleep briefly after loading the file. Otherwise, if the file
+# was not already loaded, the next command, which calls `:call cursor()`
+# (gvim_move_cursor_to_line_and_column), would be ignored, at least IME.
+#
+# (I tried sleep 0.33 for a bit and had limited success; and 0.5, so
+#  far, I haven't seen the line, cursor jump *not* work on my MBP.)
+
+gvim_sleep_briefly_macvim_needs_a_moment () {
+  ! os_is_macos && return
+
+  sleep 0.5
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+gvim_move_cursor_to_line_and_column () {
+  local servername="$1"
+  local row_num="$2"
+  local col_num="${3:-0}"
+
+  if [ -z "${row_num}" ] || [ -z "${col_num}" ]; then
+    return
+  fi
+
+  gvim \
+    --servername "${servername}" \
+    --remote-send "<ESC>:call cursor(${row_num}, ${col_num})<CR>"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Bring GVim to front. This happens automatically on macOS.
+
+# (lb): I didn't enable this for Linux until I saw the behavior in macOS.
+# Because it's more often than not that I want to use Vim after opening a
+# file in it, I enabled this behavior for X11.
+
+gvim_bring_window_to_front () {
+  local servername="$1"
+
+  # On macOS, there's no xdotool, but GVim fronts itself automatically.
+  os_is_macos && return
+
+  # On Linux, or at least Linux Mint MATE, GVim doesn't front on its
+  # own. So go grab it.
+  # - Note that xdotool (for me) spits out an error message:
+  #     XGetWindowProperty[_NET_WM_DESKTOP] failed (code=1)
+  #   but it works nonetheless, so chuck the error.
+  xdotool search --name "${servername}" windowactivate > /dev/null 2>&1
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+os_is_macos () {
+  [ "$(uname)" = "Darwin" ]
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Run the function if being executed.
+# Otherwise being sourced, so do not.
+if ! $(printf %s "$0" | grep -q -E '(^-?|\/)(ba|da|z)?sh$' -); then
+  gvim_open_kindness "$@"
+fi
+

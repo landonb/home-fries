@@ -70,7 +70,8 @@ home_fries_create_aliases_rg_tag_wrap () {
       --colors 'match:bg:white' \
   "
 
-  # rgt -- Open search result in Vim in current terminal.
+  # `rgt` will search and wire the `e*` commands to open
+  #       each search result in Vim in current *terminal*.
   #
   # NOTE: So that other scripts can source this script and call `rgt`,
   #       define as a function, and not as an alias. Note the eval,
@@ -80,65 +81,33 @@ home_fries_create_aliases_rg_tag_wrap () {
       ${rg_wrap_with_options} \"\${@}\"
   }"
 
+  # `rg` (yes, this replaces, but still uses, ripgrep's rg!)
+  #      will search and wire the `e*` result commands to open
+  #      each search result in a GVim window, and switch to it.
 
-  # Home Fries uses the same servername throughout so the same GVim is
-  # always targeted. The name doesn't matter, but it should be unique
-  # among all windows so that xdotool can distinguish it.
-  local servername="${HOMEFRIES_GVIM_PRIMARY:-SAMPI}"
+  # See the gvim-open-kindness script: It uses an environment
+  # variable, $HOMEFRIES_GVIM_PRIMARY, to indicate which GVim
+  # instance to use. If you do not set or change this value, each
+  # file will be opened in the same instance of GVim. Or, you
+  # could set HOMEFRIES_GVIM_PRIMARY to something different to
+  # specify different instances, e.g.,
+  #   $ rg `some term`
+  #   foo/bar.bat
+  #   [1] 1:1 some term
+  #   [2] 2:1 some term
+  #   $ HOMEFRIES_GVIM_PRIMARY=gvim1 e1
+  #   $ HOMEFRIES_GVIM_PRIMARY=gvim2 e2
 
-  # rgg -- Open search result in specific Gvim window, and switch to it.
-  # NOTE: (lb): I could not get "-c 'call cursor()" to work in same call as
-  #       --remote-silent, so split into two calls, latter using --remote-send.
-  #
-  # WEIRD/2020-04-02 22:58: Getting this warning on e* command:
-  #                           XGetWindowProperty[_NET_WM_DESKTOP] failed (code=1)
-  #                         It's the final call:
-  #                           xdotool search --name SAMPI windowactivate
-  #                         except without that, Gvim not foregrounded!
-  #                         Same happens with hex, e.g.,:
-  #                           xdotool windowactivate 0x03e00003
-  #                           # Switches to Vim but outputs:
-  #                           XGetWindowProperty[_NET_WM_DESKTOP] failed (code=1)
-  #                         Can we just ignore it?
-  #
-  # WEIRD/2020-04-02 23:08: `rgt` works smoothly. `rgg` switches to Gvim and then
-  # you see a <blip>, not sure if a bell is being rung or what, but Vim not alerts!
+  # TRICK: Add this as the first line to the environ
+  #        to view the command when tag is invoked:
+  #   echo \"TAG_CMD_FMT_STRING=\${TAG_CMD_FMT_STRING}\" && \
 
-  local hacos=""
-  local xdotool=""
-
-  if ! os_is_macos; then
-    xdotool='&& xdotool search --name ${servername} windowactivate &> /dev/null'
-  else
-    # macOS: No xdotool, and not necessary (GVim fronts itself, or somethingone
-    # else does); but sleep necessary after loading the file (without sleep, if
-    # file was not already loaded, then the call-cursor ignored, at least IME).
-    hacos='&& sleep 0.5'
-  fi
-
-  # TRICK: Add this to the environ to view the command when tag is invoked:
-  #   && echo \"TAG_CMD_FMT_STRING=\${TAG_CMD_FMT_STRING}\" \
-
-  # Note the first --remote-send is done silently, because it fails if
-  # there's no GVim server with the indicated name. The function called
-  # ensures the cursor is moved to a non-special so that, e.g., the file
-  # being opened does not clobber the quickfix, project tray, or help, etc.
-  #
-  # FIXME/2021-02-21: The SensibleOpenMoveCursorAvoidSpecial plugin
-  # is not currently published... I'll get it there eventually....
-
-  TAG_CMD_FMT_STRING="true \
-    && ( gvim \
-      --remote-send \"<ESC>:call SensibleOpenMoveCursorAvoidSpecial()<CR>\" \
-      --servername ${servername} > /dev/null 2>&1 || true ) \
-    && gvim \
-      --remote-silent \"{{.Filename}}\" \
-      --servername ${servername} \
-    ${hacos} \
-    && gvim \
-      --remote-send \"<ESC>:call cursor({{.LineNumber}}, {{.ColumnNumber}})<CR>\" \
-      --servername ${servername} \
-    ${xdotool} \
+  TAG_CMD_FMT_STRING=" \
+    gvim-open-kindness \
+      \"''\" \
+      \"{{.LineNumber}}\" \
+      \"{{.ColumnNumber}}\" \
+      \"{{.Filename}}\" \
   "
   export TAG_CMD_FMT_STRING
 

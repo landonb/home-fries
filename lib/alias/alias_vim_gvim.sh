@@ -8,7 +8,6 @@
 
 home_fries_aliases_wire_vim_gvim () {
   home_fries_aliases_wire_vi_vim
-  home_fries_aliases_wire_gvim
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -33,75 +32,30 @@ home_fries_aliases_wire_vi_vim () {
 
 # *** Gvim/gVim
 
-home_fries_aliases_wire_gvim () {
-  # 2020-09-26: (lb): I almost always open files to Gvim using `fs`,
-  # it's easy to type, and it sends all files to the same instance.
-
-  # 2021-02-07: I've probably never usedf `fh`, ha. (It's almost always `fs`, 
-  #             and historically sometimes but rarely `fd`, now `fa`, and
-  #             never the historical `fa`, now the new `fd`.)
-  #  alias fh='gvim --servername DIGAMMA --remote-silent' # For those special occassions
-  # 2020-02-12: Let's not shadow the `fd` [f]in[d] tool.
-  #  alias fd='gvim --servername   DELTA --remote-silent' # when you want to get away
-  # 2021-02-07: See new `fs` and `fa` commands.
-  #  alias fs='gvim --servername   SAMPI --remote-silent' # because relaxation is key
-  #  alias fa='gvim --servername   ALPHA --remote-silent' # follow your spirit.
-  :
-}
-
-# 2021-02-07: I've finally grown tired of the bare `fs` error:
+# A few different Home Fries commands that open Vim all use the same
+# servername, so that the same instance of GVim is targeted by those
+# commands. The name doesn't matter (too much; you'll see it in the
+# window title bar), but it should be unique among all windows for
+# xdotool to identify it (so on macOS you don't have to worry).
 #
-#   $ fs
-#   VIM - Vi IMproved 8.2 (2019 Dec 12, compiled Mar 20 2020 04:00:36)
-#   Argument missing after: "--remote-silent"
-#   More info with: "vim -h"
+# Note that `fs` and `fa` assume that `gvim-open-kindness` will be
+# found on PATH. Otherwise we could specify it more completely, e.g.,
+# ${HOMEFRIES_BIN:-${HOME}/.homefries/bin}, but I don't see a need.
+
+# The `fs` command is just easy to type, starts with 'f' (for 'file',
+# I suppose), and so far it doesn't conflict with anything popular of
+# which I know (unlike, say, `fd`). I type `fs` or `fs {file}` (or
+# `fs <Alt-.>`) a lot when I want to starting editing in GVim.
 fs () {
-  _hf_gvim_servername "${HOMEFRIES_GVIM_PRIMARY:-SAMPI}" "$@"
+  # NOTE: The servername appears in the window title bar, so you are
+  #       encouraged to personalize it accordingly!
+  gvim-open-kindness "${HOMEFRIES_GVIM_PRIMARY:-SAMPI}" "" "" "$@"
 }
 
+# The `fa` command exists should you want to open a second instance
+# of GVim. (I cannot remember the last time I used this command.)
 fa () {
-  _hf_gvim_servername "${HOMEFRIES_GVIM_ALTERNATE:-ALPHA}" "$@"
-}
-
-_hf_gvim_servername () {
-  local servername="$1"
-  shift
-
-  # Fallback on a dummy file if the user doesn't specify a file to open,
-  # because a bare command, e.g., gvim --servername ${servername}, opens
-  # a new GVim with the name "${servername}1". Don't know why. (And does
-  # not have to be a reST file, I just have an empty README in my home.)
-  if [ -z "${1+x}" ]; then
-    set -- "${HOME}/README.rst"
-  fi
-
-  # Adjust the Vim cursor before opening the file, if necessary, so that
-  # the opened file does not replace the quickfix buffer, an open help
-  # file, or the project tray, etc.
-  #
-  # FIXME/2021-02-21: The SensibleOpenMoveCursorAvoidSpecial plugin
-  # is not currently published... I'll get it there eventually....
-  #
-  # Note that `man gvim` says --cmd is 'executed just before processing
-  # any vimrc', but that doesn't mean it runs before the file is loaded.
-  # Or even after, as far as I could tell (doesn't seem to run at all).
-  # So sending keystrokes to invoke command via --remote-send.
-  #
-  # Finally, the --remote-send fails if the server is not started, e.g.,
-  #   E247: no registered server named "SAMPI": Send failed.
-  # or if the command is not available (plugin not installed). But that
-  # does not matter so long as we use --remote-silent from a separate
-  # command to open the file (otherwise we'd want to check $? on this).
-  gvim --remote-send "<ESC>:call SensibleOpenMoveCursorAvoidSpecial()<CR>" \
-    --servername ${servername} > /dev/null 2>&1
-
-  gvim --servername ${servername} --remote-silent "$@"
-
-  if ! os_is_macos; then
-    # Bring GVim to front. (Happens automatically on macOS, which I like.)
-    # FIXME/2021-02-21: Docs: Mention ${servername} uniqueness is important.
-    xdotool search --name ${servername} windowactivate &> /dev/null
-  fi
+  gvim-open-kindness "${HOMEFRIES_GVIM_ALTERNATE:-ALPHA}" "" "" "$@"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -109,7 +63,6 @@ _hf_gvim_servername () {
 unset_f_alias_vim_gvim () {
   unset -f home_fries_aliases_wire_vim_gvim
   unset -f home_fries_aliases_wire_vi_vim
-  unset -f home_fries_aliases_wire_gvim
   # So meta.
   unset -f unset_f_alias_vim_gvim
 }
