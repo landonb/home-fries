@@ -80,8 +80,13 @@ home_fries_create_aliases_rg_tag_wrap () {
       ${rg_wrap_with_options} \"\${@}\"
   }"
 
+
+  # Home Fries uses the same servername throughout so the same GVim is
+  # always targeted. The name doesn't matter, but it should be unique
+  # among all windows so that xdotool can distinguish it.
+  local servername="${HOMEFRIES_GVIM_PRIMARY:-SAMPI}"
+
   # rgg -- Open search result in specific Gvim window, and switch to it.
-  # FIXME/2018-03-26: The servername, SAMPI, is hardcoded: Make Home Fries $var.
   # NOTE: (lb): I could not get "-c 'call cursor()" to work in same call as
   #       --remote-silent, so split into two calls, latter using --remote-send.
   #
@@ -103,7 +108,7 @@ home_fries_create_aliases_rg_tag_wrap () {
   local xdotool=""
 
   if ! os_is_macos; then
-    xdotool='&& xdotool search --name SAMPI windowactivate &> /dev/null'
+    xdotool='&& xdotool search --name ${servername} windowactivate &> /dev/null'
   else
     # macOS: No xdotool, and not necessary (GVim fronts itself, or somethingone
     # else does); but sleep necessary after loading the file (without sleep, if
@@ -112,10 +117,13 @@ home_fries_create_aliases_rg_tag_wrap () {
   fi
 
   TAG_CMD_FMT_STRING="true \
-    && gvim --servername SAMPI --remote-silent \"{{.Filename}}\" \
+    && gvim \
+      --remote-silent \"{{.Filename}}\" \
+      --servername ${servername} \
     ${hacos} \
-    && gvim --servername SAMPI --remote-send \
-      \"<ESC>:call cursor({{.LineNumber}}, {{.ColumnNumber}})<CR>\" \
+    && gvim \
+      --remote-send \"<ESC>:call cursor({{.LineNumber}}, {{.ColumnNumber}})<CR>\" \
+      --servername ${servername} \
     ${xdotool} \
   "
   export TAG_CMD_FMT_STRING

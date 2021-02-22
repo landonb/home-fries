@@ -56,11 +56,11 @@ home_fries_aliases_wire_gvim () {
 #   Argument missing after: "--remote-silent"
 #   More info with: "vim -h"
 fs () {
-  _hf_gvim_servername "SAMPI" "$@"
+  _hf_gvim_servername "${HOMEFRIES_GVIM_PRIMARY:-SAMPI}" "$@"
 }
 
 fa () {
-  _hf_gvim_servername "ALPHA" "$@"
+  _hf_gvim_servername "${HOMEFRIES_GVIM_ALTERNATE:-ALPHA}" "$@"
 }
 
 _hf_gvim_servername () {
