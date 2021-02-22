@@ -72,6 +72,12 @@ _hf_gvim_servername () {
   else
     gvim --servername ${servername} --remote-silent "$@"
   fi
+
+  if ! os_is_macos; then
+    # Bring GVim to front. (Happens automatically on macOS, which I like.)
+    # FIXME/2021-02-21: Docs: Mention ${servername} uniqueness is important.
+    xdotool search --name ${servername} windowactivate &> /dev/null
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
