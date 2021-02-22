@@ -116,7 +116,21 @@ home_fries_create_aliases_rg_tag_wrap () {
     hacos='&& sleep 0.5'
   fi
 
+  # TRICK: Add this to the environ to view the command when tag is invoked:
+  #   && echo \"TAG_CMD_FMT_STRING=\${TAG_CMD_FMT_STRING}\" \
+
+  # Note the first --remote-send is done silently, because it fails if
+  # there's no GVim server with the indicated name. The function called
+  # ensures the cursor is moved to a non-special so that, e.g., the file
+  # being opened does not clobber the quickfix, project tray, or help, etc.
+  #
+  # FIXME/2021-02-21: The SensibleOpenMoveCursorAvoidSpecial plugin
+  # is not currently published... I'll get it there eventually....
+
   TAG_CMD_FMT_STRING="true \
+    && ( gvim \
+      --remote-send \"<ESC>:call SensibleOpenMoveCursorAvoidSpecial()<CR>\" \
+      --servername ${servername} > /dev/null 2>&1 || true ) \
     && gvim \
       --remote-silent \"{{.Filename}}\" \
       --servername ${servername} \
