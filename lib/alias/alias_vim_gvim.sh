@@ -67,11 +67,35 @@ _hf_gvim_servername () {
   local servername="$1"
   shift
 
+  # Fallback on a dummy file if the user doesn't specify a file to open,
+  # because a bare command, e.g., gvim --servername ${servername}, opens
+  # a new GVim with the name "${servername}1". Don't know why. (And does
+  # not have to be a reST file, I just have an empty README in my home.)
   if [ -z "${1+x}" ]; then
-    gvim --servername ${servername} --remote-silent "~/README.rst"
-  else
-    gvim --servername ${servername} --remote-silent "$@"
+    set -- "${HOME}/README.rst"
   fi
+
+  # Adjust the Vim cursor before opening the file, if necessary, so that
+  # the opened file does not replace the quickfix buffer, an open help
+  # file, or the project tray, etc.
+  #
+  # FIXME/2021-02-21: The SensibleOpenMoveCursorAvoidSpecial plugin
+  # is not currently published... I'll get it there eventually....
+  #
+  # Note that `man gvim` says --cmd is 'executed just before processing
+  # any vimrc', but that doesn't mean it runs before the file is loaded.
+  # Or even after, as far as I could tell (doesn't seem to run at all).
+  # So sending keystrokes to invoke command via --remote-send.
+  #
+  # Finally, the --remote-send fails if the server is not started, e.g.,
+  #   E247: no registered server named "SAMPI": Send failed.
+  # or if the command is not available (plugin not installed). But that
+  # does not matter so long as we use --remote-silent from a separate
+  # command to open the file (otherwise we'd want to check $? on this).
+  gvim --remote-send "<ESC>:call SensibleOpenMoveCursorAvoidSpecial()<CR>" \
+    --servername ${servername} > /dev/null 2>&1
+
+  gvim --servername ${servername} --remote-silent "$@"
 
   if ! os_is_macos; then
     # Bring GVim to front. (Happens automatically on macOS, which I like.)
