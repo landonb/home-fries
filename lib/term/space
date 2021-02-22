@@ -135,7 +135,8 @@ if false; then
   private_space () {
     declare -a winnames=()
     # Dubs Vim, e.g., if you send files to the same GVim with:
-    #  gvim --servername SAMPI --remote-silent path/to/file
+    #   gvim --servername SAMPI --remote-silent path/to/file
+    # Or using the `gvim-open-kindness` command.
     winnames+=("${HOMEFRIES_GVIM_PRIMARY:-SAMPI}")
     # E.g., Gmail, etc.
     winnames+=("[mM]ail - Chromium")
