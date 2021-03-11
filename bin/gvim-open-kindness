@@ -121,13 +121,14 @@ gvim_open_files () {
 # was not already loaded, the next command, which calls `:call cursor()`
 # (gvim_move_cursor_to_line_and_column), would be ignored, at least IME.
 #
-# (I tried sleep 0.33 for a bit and had limited success; and 0.5, so
-#  far, I haven't seen the line, cursor jump *not* work on my MBP.)
+# (I tried sleep 0.33 for a bit and had limited success; and 0.5 worked
+#  for a while, until it didn't; so latest attempt is to wait 2/3 of a
+#  second for file load to settle in GVim, then try jumping cursor.)
 
 gvim_sleep_briefly_macvim_needs_a_moment () {
   ! os_is_macos && return
 
-  sleep 0.5
+  sleep 0.667
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
