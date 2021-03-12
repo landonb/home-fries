@@ -147,7 +147,7 @@ _sh_logger_log_msg () {
     local prefix
     prefix="${FCN_COLOR}$(attr_underline)[${FCN_LABEL}]$(attr_reset) ${RIGHT_NOW} ${bold_maybe}${invert_maybe}"
     (
-      IFS=" "
+      local IFS=" "
       printf "${prefix}%b$(attr_reset)\n" "$*"
     )
   fi
