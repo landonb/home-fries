@@ -11,10 +11,6 @@ echo_boxy=false
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-first_char_capped () {
-  printf "$1" | cut -c1-1 | tr '[:lower:]' '[:upper:]'
-}
-
 # 2016-04-26: I added rm_rotate because, while trashes were being
 # created on different devices from rm_safe, rmtrash was only emptying
 # the trash in the user's home.
@@ -28,51 +24,94 @@ first_char_capped () {
 #   things.
 #   MAYBE: You could do an anacron check on the timestamp of the .trash-TBD
 #          and call rm_rotate after a certain amount of time has elapsed.
+
 rm_rotate () {
-  local device_path=''
-  for device_path in $( \
-    mount \
-      | grep \
-        -e " type fuse.encfs (" \
-        -e " type fuse.gocryptfs (" \
-        -e " type ext4 (" \
-      | awk '{print $3}' \
-  ); do
-    local trash_path=''
-    if [ "${device_path}" = "/" ]; then
-      trash_path="${RM_SAFE_TRASH_HOME}/.trash"
+  local trash_name='.trash'
+  os_is_macos && trash_name='.Trash'
+
+  _rm_rotate_enumerate_devices () {
+    if command -v findmnt >/dev/null 2>&1; then
+      local device_path=''
+      for device_path in $( \
+        findmnt -l -t fuse.gocryptfs,fuse.encfs,ext4 -o TARGET --noheadings \
+          | grep -v '^/boot' \
+          | sort \
+      ); do
+        _rm_rotate_rotate_device_trash "${device_path}"
+      done
     else
-      trash_path="${device_path}/.trash"
+      # @macOS, etc.
+      _rm_rotate_rotate_device_trash "/"
     fi
-    YES_OR_NO="N"
-    if [ -d "${trash_path}" ]; then
-      local yes_or_no=""
-      printf %s "Empty all items from trash at ‘${trash_path}’? [y/n] "
-      read -e yes_or_no
-      # Was Bash-only:
-      #   if [ "${yes_or_no^^}" = "Y" ]; then
-      # But now POSIX:
-      if [ "$(first_char_capped ${yes_or_no})" = 'Y' ]; then
-        if [ -d "${trash_path}-TBD" ]; then
-          /bin/rm -rf -- "${trash_path}-TBD"
-        fi
-        /bin/mv -- "${trash_path}" "${trash_path}-TBD"
-        touch -- "${trash_path}-TBD"
-        mkdir -- "${trash_path}"
-      else
-        echo "Skip! User said not to empty ‘${trash_path}’"
-      fi
-    else
+  }
+
+  _rm_rotate_rotate_device_trash () {
+    local device_path="$1"
+
+    local trash_path="${device_path}/${trash_name}"
+    [ "${device_path}" = "/" ] &&
+      trash_path="${RM_SAFE_TRASH_HOME}/${trash_name}"
+
+    if [ ! -d "${trash_path}" ]; then
       echo "Skip! No trash at ‘${trash_path}’"
+      return 0
     fi
-  done
+
+    local to_be_deleted="${trash_path}-TBD"
+
+    local yes_or_no=""
+    printf %s "Empty all items from trash at ‘${trash_path}’? [y/n] "
+    read -e yes_or_no
+
+    # Bash-specific: [ "${yes_or_no^^}" = "Y" ]. POSIX-compatible:
+    if [ "$(first_char_capped ${yes_or_no})" != 'Y' ]; then
+      [ -z "${yes_or_no}" ] && echo
+      echo "Skip! User said not to empty ‘${trash_path}’"
+      return 0
+    fi
+
+    # Remove the TBD directory from last time.
+    # - Note that rm_rotate is not time-based or anything: It rotates
+    #   only when user runs `rmtrash`. That is, it doesn't keep files
+    #   for some set amount of time or anything; it keeps files until
+    #   the user runs `rmtrash`, then it deletes the former directory
+    #   and moves the active trash to the TBD position. Thus, if user
+    #   wants to really permantently remove what's in the trash, they
+    #   run rm_trash twice in a row.
+    if [ -d "${to_be_deleted}" ]; then
+      /bin/rm -rf -- "${to_be_deleted}"
+    fi
+
+    # Avoid creating -TBD directory if trash already empty.
+    if [ -n "$(/bin/ls -- "${trash_path}")" ]; then
+      # Trash not empty. Move to TBD position (will be deleted on next
+      # rm_rotate), and then create a new trash directory.
+      /bin/mv -- "${trash_path}" "${to_be_deleted}"
+      touch -- "${to_be_deleted}"
+      mkdir -- "${trash_path}"
+    fi
+  }
+
+  _rm_rotate_enumerate_devices
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-if [ "${BASH_SOURCE[0]}" = "$0" ]; then
+first_char_capped () {
+  printf "$1" | cut -c1-1 | tr '[:lower:]' '[:upper:]'
+}
+
+os_is_macos () {
+  [ "$(uname)" = "Darwin" ]
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+if ! $(printf %s "$0" | grep -q -E '(^-?|\/)(ba|da|z)?sh$' -); then
+  # Being executed.
   rm_rotate "${@}"
 else
+  # Being sourced.
   export -f rm_rotate
 fi
 
