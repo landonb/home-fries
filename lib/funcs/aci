@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# vim:tw=0:ts=2:sw=2:et:norl:ft=sh
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/landonb/home-fries#🍟
+# License: MIT
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# An OMR autocommit wrapper that prompts if you're running this over SSH.
+#
+# My use case: Oftentimes when I run `aci`, I've been writing notes in Vim,
+# and I quickly alt-tab and then blindly type `aci<CR>` and alt-tab back
+# (so that I create a commit of my recent note edits). But sometimes that
+# alt-tab brings me to a terminal that's SSH'ed to the remote host that I
+# backup on -- and where I normally run `ff` to use OMR to pull changes
+# from my main development machine. But if I run `aci`, some operations,
+# like exporting Bookmarks, or writing a `tree`, will create commits on
+# the backup machine that don't exist on the main development machine,
+# and then the next time I try `ff`, I end up having to resolve conflicts.
+#
+# tl;dr: Use case: Sometimes I accidentally run ``aci`` when I mean to
+#        run ``ff`` on @backup machine, and then I have to undo, e.g.,
+#        the updates to the dconf dump in the Zoidy Pooh repo.
+
+# 2021-05-15: Until today, the `aci` was a simple alias:
+#
+#  # Auto commit. Things like notes files, Vim spell file, .vimprojects, etc.
+#  alias aci="mr -d / autocommit -y"
+
+# Note: I'm not aware if it matters if we use SSH_CLIENT or SSH_TTY,
+# e.g., from within a remote session, one might see:
+#
+#  $ echo ${SSH_CLIENT}
+#  192.168.11.113 60138 26922
+#
+#  $ echo ${SSH_TTY}
+#  /dev/pts/3
+#
+# whereas when run from a local terminal, neither of those environs are set.
+
+aci () {
+  if [ -n "${SSH_CLIENT}" ] || [ -n "${SSH_TTY}" ]; then
+    echo "This is an SSH connection. Really run autocommit on @$(hostname)?"
+    ask_yes_no_default 'n'
+  else
+    the_choice='Y'
+  fi
+
+  if [ $the_choice != 'Y' ]; then
+    return 1
+  fi
+
+  mr -d / autocommit -y
+}
+
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
+
+if [ "$0" = "${BASH_SOURCE[0]}" ]; then
+  >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
+fi
+

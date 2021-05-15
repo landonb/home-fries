@@ -9,9 +9,6 @@
 home_fries_aliases_wire_ohmyrepos () {
   # See also functions below: `sf`, `sff`, `st`, `stt`.
 
-  # Auto commit. Things like notes files, Vim spell file, .vimprojects, etc.
-  alias aci="mr -d / autocommit -y"
-
   # 2020-03-25: Is this completely insane?
   alias gb='git br'
   alias gr='git r'

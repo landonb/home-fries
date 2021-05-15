@@ -249,6 +249,7 @@ source_crypt_sources () {
 # view file contents).
 
 source_funcs_sources () {
+  source_it "funcs/aci"
   source_it "funcs/please"
 }
 
