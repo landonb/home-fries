@@ -84,7 +84,7 @@ ask_yes_no_default () {
     # FIXME/2017-10-03: for local elaps a thing?
     for elaps in `seq 0 $((timeo - 1))`; do
       printf '%s' \
-        "[Default in $((timeo - elaps)) seconds...] Please answer ${choices} "
+        "[Default in $((timeo - elaps)) seconds...] Please press ${choices} "
       read -n 1 -t 1 the_choice
       if [[ $? -eq 0 ]]; then
         # Thanks for the hint, stoverflove.
