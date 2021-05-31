@@ -292,6 +292,7 @@ source_utils_sources () {
   # Earlier: "process_util.sh"
   source_it "python_util.sh"
   source_it "ruby_util.sh"
+  source_it "rust_util.sh"
   source_it "session_util.sh"
   source_it "ssh_util.sh"
   # Loaded specially: "term-fzf.bash"
