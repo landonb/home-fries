@@ -74,6 +74,16 @@ home_fries_configure_manpath () {
     fi
   done
 
+  # 2021-05-30: I'm lazy, not sure why this path is missing.
+  # NOTE: Not checking first if path already exists, e.g., we
+  #       could do something like _sh_pather_path_part_remove.
+  # - I noticed this issue today after install git-extras help,
+  #   because, e.g., `git --help obliterate` was
+  #   working, but not `man git-obliterate`.
+  if [ -d "${HOME}/.local/share/man" ]; then
+    newpath="${newpath}:${HOME}/.local/share/man"
+  fi
+
   # NOTE: If you start MANPATH with a colon ':', or end it wth one ':',
   #       then `manpath` will combine with paths from /etc/manpath.config.
   #       So make sure MANPATH does not start or end with a colon, so that
