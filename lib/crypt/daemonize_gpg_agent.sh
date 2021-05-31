@@ -31,6 +31,17 @@
 #     gpg-agent --daemon > /home/landonb/.gnupg/gpg-agent-info-larry
 #     ssh-agent -k
 #     bash
+#
+# 2021-05-31: I tried killall today but it didn't work.
+# - Use either pkill or gpgconf --kill to kill gpg-agent:
+#     pkill gpg-agent
+#     gpgconf --kill gpg-agent
+# - Verify with `ps aux | grep gpg`.
+# - Note that when I restarted gpg-agent, I got a misleading error:
+#     $ gpg-agent --daemon
+#     gpg-agent: a gpg-agent is already running - not starting a new one
+#   though `ps` showed nothing running before, and one running after.
+#   So not sure what's up with the error. But I justed ignored it.
 
 _homefries_ps_check_if_running () {
   local process_name="$1"
