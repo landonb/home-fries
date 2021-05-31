@@ -83,18 +83,6 @@ home_fries_configure_manpath () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# `man` lazy-loader. Sneaky sneaky. Shaves tenth sec. or so off session start.
-man () {
-  unset -f man
-
-  home_fries_configure_manpath
-  unset -f home_fries_configure_manpath
-
-  man "$@"
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 # *** Colorful `man`.
 
 # Original inspiration, from 2016-08-29:
@@ -175,8 +163,9 @@ home_fries_colorman () {
     /usr/bin/man "$@"
 }
 
+# `man` lazy-loader. Sneaky sneaky. Shaves tenth sec. or so off session start.
 man () {
-  ${_LOADED_HF_MANPATH_UTIL_MAN:-false} &&
+  ! ${_LOADED_HF_MANPATH_UTIL_MAN:-false} &&
     home_fries_configure_manpath
   _LOADED_HF_MANPATH_UTIL_MAN=true
 
