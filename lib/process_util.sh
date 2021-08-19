@@ -89,7 +89,7 @@ reset_errexit_errtrace () {
 # MAYBE/2019-06-16: For backwards compatibility, since added errtrace
 # (read: I don't want to find-and-replace all current usages).
 reset_errexit () {
-  reset_errexit_errtrace "$@"
+  reset_errexit_errtrace
 }
 
 suss_errexit_errtrace () {
