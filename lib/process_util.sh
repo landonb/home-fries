@@ -95,18 +95,18 @@ reset_errexit () {
 suss_errexit_errtrace () {
   # Note that we cannot pipe ${SHELLOPTS} to grep, because Bash always unsets
   # errexit on pipeline commands (so test would always show errexit disabled).
-  local shell_opts=${SHELLOPTS}
+  local shell_opts="${SHELLOPTS}"
 
   set +eE
 
-  echo ${shell_opts} | grep errexit >/dev/null 2>&1
+  echo "${shell_opts}" | grep errexit >/dev/null 2>&1
   if [ $? -eq 0 ]; then
     USING_ERREXIT=true
   else
     USING_ERREXIT=false
   fi
 
-  echo ${shell_opts} | grep errtrace >/dev/null 2>&1
+  echo "${shell_opts}" | grep errtrace >/dev/null 2>&1
   if [ $? -eq 0 ]; then
     USING_ERRTRACE=true
   else
@@ -171,7 +171,7 @@ killsomething () {
     # Skip debug trace if called from another program.
     if $(printf %s "$0" | grep -q -E '(^-?|\/)(ba|da|z)?sh$' -); then
       # Running from shell.
-      ${HOMEFRIES_TRACE} && echo $(ps aux | grep "${something}" | grep -v "\<grep\>")
+      ${HOMEFRIES_TRACE} && echo "$(ps aux | grep "${something}" | grep -v "\<grep\>")"
       ${HOMEFRIES_TRACE} && echo "Killing: ${somethings}"
     fi
 
