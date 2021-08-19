@@ -281,10 +281,6 @@ killsomething () {
   #   apache 27635 0.0 0.1 238736 3168 ? S 12:51 0:00 /usr/sbin/httpd
   # and awk splits it on whitespace and sets $1..$11 to what was split.
   # You can even {print $99999} but it's just a newline for each match.
-  if [ "${somethings}" != "" ]; then
-    # FIXME: From command, line these two echos make sense; from another script, no.
-    ${HOMEFRIES_TRACE} && echo $(ps aux | grep "${something}" | grep -v "\<grep\>")
-    ${HOMEFRIES_TRACE} && echo "Killing: ${somethings}"
   # Here's the naive command:
   #   somethings=$(ps aux | grep "${something}" | awk '{print $2}')
   # But we want to exclude the pipeline grep process that also matches.
@@ -295,6 +291,13 @@ killsomething () {
       awk '{print $2}'
   )
 
+  if [ -n "${somethings}" ]; then
+    # Skip debug trace if called from another program.
+    if $(printf %s "$0" | grep -q -E '(^-?|\/)(ba|da|z)?sh$' -); then
+      # Running from shell.
+      ${HOMEFRIES_TRACE} && echo $(ps aux | grep "${something}" | grep -v "\<grep\>")
+      ${HOMEFRIES_TRACE} && echo "Killing: ${somethings}"
+    fi
 
     echo "${somethings}" | xargs sudo kill -s 9 >/dev/null 2>&1
   fi
