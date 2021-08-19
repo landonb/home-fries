@@ -10,8 +10,8 @@
 # *** Are we being run or sourced?
 
 must_sourced () {
-  [[ -z "$1" ]] && echo "must_sourced: missing param: \${BASH_SOURCE[0]}" && exit 1
-  if [[ "$0" == "$1" ]]; then
+  [ -z "$1" ] && echo "must_sourced: missing param: \${BASH_SOURCE[0]}" && exit 1
+  if [ "$0" = "$1" ]; then
     # Not being sourced, but being run.
     echo "Why are you running this file?"
     exit 1
@@ -125,8 +125,8 @@ tweak_errexit () {
 # *** Common script fcns.
 
 check_prev_cmd_for_error () {
-  if [[ -z "$1" || -z "$2" ]]; then
     echo "Usage: $0 last_status log_file [no_errexit] [ignr_case] [just_tail]"
+  if [ -z "$1" ] || [ -z "$2" ]; then
     exit 1;
   fi
   PREV_CMD_VALUE=$1
@@ -135,7 +135,7 @@ check_prev_cmd_for_error () {
   ERROR_IGNORE_CASE=$4
   JUST_TAIL_FILE=$5
   #
-  if [[ -z $JUST_TAIL_FILE ]]; then
+  if [ -z $JUST_TAIL_FILE ]; then
     JUST_TAIL_FILE=0
   fi
   #
@@ -145,12 +145,12 @@ check_prev_cmd_for_error () {
   # pyserver's logging2.py uses 4-char wide verbosity names, so ERROR is ERRR.
   # NOTE: We're usually case-sensitive. Real ERRORs should be capitalized.
   #       BUT: Sometimes you don't want to care.
-  if [[ -z ${ERROR_IGNORE_CASE} || ${ERROR_IGNORE_CASE} -eq 0 ]]; then
+  if [ -z ${ERROR_IGNORE_CASE} ] || [ ${ERROR_IGNORE_CASE} -eq 0 ]; then
     GREP_CMD="/bin/grep 'ERRO\?R'"
   else
     GREP_CMD="/bin/grep -i 'ERRO\?R'"
   fi
-  if [[ -z ${JUST_TAIL_FILE} || ${JUST_TAIL_FILE} -eq 0 ]]; then
+  if [ -z ${JUST_TAIL_FILE} ] || [ ${JUST_TAIL_FILE} -eq 0 ]; then
     FULL_CMD="${GREP_CMD} ${SAVED_LOG_FILE}"
   else
     FULL_CMD="tail -n ${JUST_TAIL_FILE} ${SAVED_LOG_FILE} | ${GREP_CMD}"
@@ -159,14 +159,14 @@ check_prev_cmd_for_error () {
   set +e
   GREP_RESP=`eval $FULL_CMD`
   #set -e
-  if [[ ${PREV_CMD_VALUE} -ne 0 || -n "${GREP_RESP}" ]]; then
+  if [ ${PREV_CMD_VALUE} -ne 0 ] || [ -n "${GREP_RESP}" ]; then
     echo "Some script failed. Please examine the output in"
     echo "   ${SAVED_LOG_FILE}"
     # Also append the log file (otherwise error just goes to, e.g., email).
     echo "" >> ${SAVED_LOG_FILE}
     echo "ERROR: check_prev_cmd_for_error says we failed" >> ${SAVED_LOG_FILE}
     # (Maybe) stop everything we're doing.
-    if [[ -z $DONT_EXIT_ON_ERROR || $DONT_EXIT_ON_ERROR -eq 0 ]]; then
+    if [ -z $DONT_EXIT_ON_ERROR ] || [ $DONT_EXIT_ON_ERROR -eq 0 ]; then
       exit 1
     fi
   fi
@@ -175,7 +175,7 @@ check_prev_cmd_for_error () {
 exit_on_last_error () {
   LAST_ERROR=$1
   LAST_CMD_HINT=$2
-  if [[ $LAST_ERROR -ne 0 ]]; then
+  if [ $LAST_ERROR -ne 0 ]; then
     echo "ERROR: The last command failed: '$LAST_CMD_HINT'"
     exit 1
   fi
@@ -193,7 +193,7 @@ wait_bg_tasks () {
   $DEBUG_TRACE && echo "                           ... WAITLOGS=${WAITLOGS[*]}"
   $DEBUG_TRACE && echo "                           ... WAITTAIL=${WAITTAIL[*]}"
 
-  if [[ -n ${WAITPIDS} ]]; then
+  if [ -n ${WAITPIDS} ]; then
     time_1=$(home_fries_nanos_now)
     $DEBUG_TRACE && printf "Waiting for background tasks after %.2F mins.\n" \
         $(echo "(${time_1} - ${script_time_0}) / 60.0" | bc -l)
@@ -224,13 +224,13 @@ wait_bg_tasks () {
   # We kept a list of log files that the background processes to done wrote, so
   # we can analyze them now for failures.
   no_errexit=1
-  if [[ -n ${WAITLOGS} ]]; then
+  if [ -n ${WAITLOGS} ]; then
     for logfile in ${WAITLOGS[*]}; do
       check_prev_cmd_for_error $? ${logfile} ${no_errexit}
     done
   fi
 
-  if [[ -n ${WAITTAIL} ]]; then
+  if [ -n ${WAITTAIL} ]; then
     # Check the log_jammin.py log file, which might contain free-form
     # text from the SVN log (which contains the word "error").
     no_errexit=1
