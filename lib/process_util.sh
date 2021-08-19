@@ -10,10 +10,10 @@
 # *** Are we being run or sourced?
 
 must_sourced () {
-  [ -z "$1" ] && echo "must_sourced: missing param: \${BASH_SOURCE[0]}" && exit 1
+  [ -z "$1" ] && >&2 echo "must_sourced: missing param: \${BASH_SOURCE[0]}" && exit 1
   if [ "$0" = "$1" ]; then
     # Not being sourced, but being run.
-    echo "Why are you running this file?"
+    >&2 echo "Why are you running this file?"
     exit 1
   fi
 }
@@ -125,8 +125,8 @@ tweak_errexit () {
 # *** Common script fcns.
 
 check_prev_cmd_for_error () {
-    echo "Usage: $0 last_status log_file [no_errexit] [ignr_case] [just_tail]"
   if [ -z "$1" ] || [ -z "$2" ]; then
+    >&2 echo "Usage: $0 last_status log_file [no_errexit] [ignr_case] [just_tail]"
     exit 1;
   fi
   PREV_CMD_VALUE=$1
@@ -176,7 +176,7 @@ exit_on_last_error () {
   LAST_ERROR=$1
   LAST_CMD_HINT=$2
   if [ $LAST_ERROR -ne 0 ]; then
-    echo "ERROR: The last command failed: '$LAST_CMD_HINT'"
+    >&2 echo "ERROR: The last command failed: '$LAST_CMD_HINT'"
     exit 1
   fi
 }
@@ -247,7 +247,7 @@ wait_bg_tasks () {
 # *** Llik gnihtemos.
 
 killsomething () {
-  [ -z "$1" ] && echo 'Not killing nothing!' && return 1
+  [ -z "$1" ] && >&2 echo 'Not killing nothing!' && return 1
   local something="$1"
   ${HOMEFRIES_TRACE} && echo "killsomething: ${something}"
   # The $2 is the awk way of saying, second column. I.e., ps aux shows
