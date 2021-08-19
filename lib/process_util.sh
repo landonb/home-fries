@@ -93,6 +93,8 @@ reset_errexit () {
 }
 
 suss_errexit_errtrace () {
+  # Note that we cannot pipe ${SHELLOPTS} to grep, because Bash always unsets
+  # errexit on pipeline commands (so test would always show errexit disabled).
   local shell_opts=${SHELLOPTS}
 
   set +eE
@@ -137,6 +139,9 @@ tweak_errexit () {
 # ============================================================================
 # *** Llik gnihtemos.
 
+# DUSTY/2021-08-18: I think `killsomething` is now useless,
+#                   given that `pkill` does same, and more.
+#
 killsomething () {
   local something="$1"
 
