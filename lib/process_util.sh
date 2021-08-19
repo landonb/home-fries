@@ -10,10 +10,16 @@
 # *** Are we being run or sourced?
 
 must_sourced () {
-  [ -z "$1" ] && >&2 echo "must_sourced: missing param: \${BASH_SOURCE[0]}" && exit 1
+  if [ -z "$1" ]; then
+    >&2 echo "must_sourced: missing param: \${BASH_SOURCE[0]}"
+
+    exit 1
+  fi
+
   if [ "$0" = "$1" ]; then
     # Not being sourced, but being run.
     >&2 echo "Why are you running this file?"
+
     exit 1
   fi
 }
@@ -25,15 +31,18 @@ must_sourced () {
 
 where () {
   local frame=0
+
   while caller $frame; do
     # NOTE: In some cases, this call with end the program...
     ((frame++));
   done
+
   echo "$*"
 }
 
 die () {
   where
+
   exit 1
 }
 
@@ -85,25 +94,27 @@ reset_errexit () {
 
 suss_errexit_errtrace () {
   local shell_opts=${SHELLOPTS}
+
   set +eE
-  #
+
   echo ${shell_opts} | grep errexit >/dev/null 2>&1
   if [ $? -eq 0 ]; then
     USING_ERREXIT=true
   else
     USING_ERREXIT=false
   fi
-  #
+
   echo ${shell_opts} | grep errtrace >/dev/null 2>&1
   if [ $? -eq 0 ]; then
     USING_ERRTRACE=true
   else
     USING_ERRTRACE=false
   fi
-  #
+
   if ${USING_ERREXIT}; then
 	  set -e
   fi
+
   if ${USING_ERRTRACE}; then
 	  set -E
   fi
@@ -111,7 +122,9 @@ suss_errexit_errtrace () {
 
 tweak_errexit_errtrace () {
   local flags="${1:-+eE}"
+
   suss_errexit_errtrace
+
   set ${flags}
 }
 
@@ -127,20 +140,22 @@ tweak_errexit () {
 check_prev_cmd_for_error () {
   if [ -z "$1" ] || [ -z "$2" ]; then
     >&2 echo "Usage: $0 last_status log_file [no_errexit] [ignr_case] [just_tail]"
+
     exit 1;
   fi
+
   PREV_CMD_VALUE=$1
   SAVED_LOG_FILE=$2
   DONT_EXIT_ON_ERROR=$3
   ERROR_IGNORE_CASE=$4
   JUST_TAIL_FILE=$5
-  #
+
   if [ -z "$JUST_TAIL_FILE" ]; then
     JUST_TAIL_FILE=0
   fi
-  #
-  #$DEBUG_TRACE && echo "check_prev: ext code: ${PREV_CMD_VALUE}"
-  #$DEBUG_TRACE && echo "check_prev: grep err: " `grep ERROR ${SAVED_LOG_FILE}`
+
+  #  $DEBUG_TRACE && echo "check_prev: ext code: ${PREV_CMD_VALUE}"
+  #  $DEBUG_TRACE && echo "check_prev: grep err: " `grep ERROR ${SAVED_LOG_FILE}`
   #
   # pyserver's logging2.py uses 4-char wide verbosity names, so ERROR is ERRR.
   # NOTE: We're usually case-sensitive. Real ERRORs should be capitalized.
@@ -150,6 +165,7 @@ check_prev_cmd_for_error () {
   else
     GREP_CMD="/bin/grep -i 'ERRO\?R'"
   fi
+
   if [ -z "${JUST_TAIL_FILE}" ] || [ ${JUST_TAIL_FILE} -eq 0 ]; then
     FULL_CMD="${GREP_CMD} ${SAVED_LOG_FILE}"
   else
@@ -162,9 +178,11 @@ check_prev_cmd_for_error () {
   if [ ${PREV_CMD_VALUE} -ne 0 ] || [ -n "${GREP_RESP}" ]; then
     echo "Some script failed. Please examine the output in"
     echo "   ${SAVED_LOG_FILE}"
+
     # Also append the log file (otherwise error just goes to, e.g., email).
     echo "" >> ${SAVED_LOG_FILE}
     echo "ERROR: check_prev_cmd_for_error says we failed" >> ${SAVED_LOG_FILE}
+
     # (Maybe) stop everything we're doing.
     if [ -z "$DONT_EXIT_ON_ERROR" ] || [ $DONT_EXIT_ON_ERROR -eq 0 ]; then
       exit 1
@@ -175,8 +193,10 @@ check_prev_cmd_for_error () {
 exit_on_last_error () {
   LAST_ERROR=$1
   LAST_CMD_HINT=$2
+
   if [ $LAST_ERROR -ne 0 ]; then
     >&2 echo "ERROR: The last command failed: '$LAST_CMD_HINT'"
+
     exit 1
   fi
 }
@@ -247,24 +267,38 @@ wait_bg_tasks () {
 # *** Llik gnihtemos.
 
 killsomething () {
-  [ -z "$1" ] && >&2 echo 'Not killing nothing!' && return 1
   local something="$1"
+
+  if [ -z "${something}" ]; then
+    >&2 echo 'Not killing nothing!'
+
+    return 1
+  fi
+
   ${HOMEFRIES_TRACE} && echo "killsomething: ${something}"
+
   # The $2 is the awk way of saying, second column. I.e., ps aux shows
   #   apache 27635 0.0 0.1 238736 3168 ? S 12:51 0:00 /usr/sbin/httpd
   # and awk splits it on whitespace and sets $1..$11 to what was split.
   # You can even {print $99999} but it's just a newline for each match.
-  #somethings=`ps aux | grep "${something}" | awk '{print $2}'`
-  # Let's exclude the grep process that our grep is what is.
-  local somethings=$(ps aux | grep "${something}" | grep -v "\<grep\>" | awk '{print $2}')
-  # NOTE: The quotes in awk are loosely placed:
-  #         similarly: `... | awk {'print $2'}`
   if [ "${somethings}" != "" ]; then
     # FIXME: From command, line these two echos make sense; from another script, no.
     ${HOMEFRIES_TRACE} && echo $(ps aux | grep "${something}" | grep -v "\<grep\>")
     ${HOMEFRIES_TRACE} && echo "Killing: ${somethings}"
+  # Here's the naive command:
+  #   somethings=$(ps aux | grep "${something}" | awk '{print $2}')
+  # But we want to exclude the pipeline grep process that also matches.
+  local somethings=$(
+    ps aux |
+      grep "${something}" |
+      grep -v "\<grep\>" |
+      awk '{print $2}'
+  )
+
+
     echo "${somethings}" | xargs sudo kill -s 9 >/dev/null 2>&1
   fi
+
   return 0
 }
 
