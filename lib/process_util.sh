@@ -135,7 +135,7 @@ check_prev_cmd_for_error () {
   ERROR_IGNORE_CASE=$4
   JUST_TAIL_FILE=$5
   #
-  if [ -z $JUST_TAIL_FILE ]; then
+  if [ -z "$JUST_TAIL_FILE" ]; then
     JUST_TAIL_FILE=0
   fi
   #
@@ -145,12 +145,12 @@ check_prev_cmd_for_error () {
   # pyserver's logging2.py uses 4-char wide verbosity names, so ERROR is ERRR.
   # NOTE: We're usually case-sensitive. Real ERRORs should be capitalized.
   #       BUT: Sometimes you don't want to care.
-  if [ -z ${ERROR_IGNORE_CASE} ] || [ ${ERROR_IGNORE_CASE} -eq 0 ]; then
+  if [ -z "${ERROR_IGNORE_CASE}" ] || [ ${ERROR_IGNORE_CASE} -eq 0 ]; then
     GREP_CMD="/bin/grep 'ERRO\?R'"
   else
     GREP_CMD="/bin/grep -i 'ERRO\?R'"
   fi
-  if [ -z ${JUST_TAIL_FILE} ] || [ ${JUST_TAIL_FILE} -eq 0 ]; then
+  if [ -z "${JUST_TAIL_FILE}" ] || [ ${JUST_TAIL_FILE} -eq 0 ]; then
     FULL_CMD="${GREP_CMD} ${SAVED_LOG_FILE}"
   else
     FULL_CMD="tail -n ${JUST_TAIL_FILE} ${SAVED_LOG_FILE} | ${GREP_CMD}"
@@ -166,7 +166,7 @@ check_prev_cmd_for_error () {
     echo "" >> ${SAVED_LOG_FILE}
     echo "ERROR: check_prev_cmd_for_error says we failed" >> ${SAVED_LOG_FILE}
     # (Maybe) stop everything we're doing.
-    if [ -z $DONT_EXIT_ON_ERROR ] || [ $DONT_EXIT_ON_ERROR -eq 0 ]; then
+    if [ -z "$DONT_EXIT_ON_ERROR" ] || [ $DONT_EXIT_ON_ERROR -eq 0 ]; then
       exit 1
     fi
   fi
@@ -193,7 +193,7 @@ wait_bg_tasks () {
   $DEBUG_TRACE && echo "                           ... WAITLOGS=${WAITLOGS[*]}"
   $DEBUG_TRACE && echo "                           ... WAITTAIL=${WAITTAIL[*]}"
 
-  if [ -n ${WAITPIDS} ]; then
+  if [ -n "${WAITPIDS}" ]; then
     time_1=$(home_fries_nanos_now)
     $DEBUG_TRACE && printf "Waiting for background tasks after %.2F mins.\n" \
         $(echo "(${time_1} - ${script_time_0}) / 60.0" | bc -l)
@@ -224,13 +224,13 @@ wait_bg_tasks () {
   # We kept a list of log files that the background processes to done wrote, so
   # we can analyze them now for failures.
   no_errexit=1
-  if [ -n ${WAITLOGS} ]; then
+  if [ -n "${WAITLOGS}" ]; then
     for logfile in ${WAITLOGS[*]}; do
       check_prev_cmd_for_error $? ${logfile} ${no_errexit}
     done
   fi
 
-  if [ -n ${WAITTAIL} ]; then
+  if [ -n "${WAITTAIL}" ]; then
     # Check the log_jammin.py log file, which might contain free-form
     # text from the SVN log (which contains the word "error").
     no_errexit=1
