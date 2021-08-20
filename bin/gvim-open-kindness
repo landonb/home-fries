@@ -173,16 +173,16 @@ gvim_sleep_briefly_macvim_needs_a_moment () {
 
 gvim_move_cursor_to_line_and_column () {
   local servername="$1"
-  local row_num="$2"
-  local col_num="${3:-0}"
+  local row_number="$2"
+  local col_number="${3:-0}"
 
-  if [ -z "${row_num}" ] || [ -z "${col_num}" ]; then
+  if [ -z "${row_number}" ] || [ -z "${col_number}" ]; then
     return
   fi
 
   gvim \
     --servername "${servername}" \
-    --remote-send "<ESC>:call cursor(${row_num}, ${col_num})<CR>"
+    --remote-send "<ESC>:call cursor(${row_number}, ${col_number})<CR>"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
