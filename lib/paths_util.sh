@@ -41,6 +41,16 @@ home_fries_add_to_path_usr_local_bins () {
   path_prefix "/usr/local/bin"
 }
 
+# For MacPorts. [2021-08-20: That I installed and then uninstalled.
+# Nonetheless, seems useful to at least check for /opt/local/s?bin.]
+home_fries_add_to_path_opt_local_bins () {
+  path_prefix "/opt/local/bin"
+  # 2021-08-04: Interesting. Just one sbin file. And not sure if
+  # they mean the prefix literally or not. It's an empty file.
+  #   /opt/local/sbin/.turd_MacPorts
+  path_prefix "/opt/local/sbin"
+}
+
 # ++++++++++++++++++++++++++++++ #
 
 home_fries_add_to_path_home_fries_lib () {
@@ -129,6 +139,9 @@ home_fries_set_path_environ () {
 
   home_fries_add_to_path_usr_local_bins
   unset -f home_fries_add_to_path_usr_local_bins
+
+  home_fries_add_to_path_opt_local_bins
+  unset -f home_fries_add_to_path_opt_local_bins
 
   # ++++++++++++++++++++++++++++++ #
 
