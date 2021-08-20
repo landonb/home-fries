@@ -20,13 +20,6 @@
 # Lib is last:    ./bashrc.core.sh
 #                    (which sources ../lib/*.sh files)
 
-# Do Nothing Unless Interactive
-# =============================
-
-# Ref: Copied from /etc/bash.bashrc [Ubuntu 18.04].
-#  "If not running interactively, don't do anything"
-[ -z "$PS1" ] && return
-
 # (One could also check [[ $- != *i* ]],
 # but not $(shopt login_shell), which is
 # false via mate-terminal.
@@ -51,6 +44,13 @@ home_fries_nanos_now () {
     python -c 'import time; print("{:.9f}".format(time.time()))'
   fi
 }
+
+# Do Nothing Unless Interactive
+# =============================
+
+# Ref: Copied from /etc/bash.bashrc [Ubuntu 18.04].
+#  "If not running interactively, don't do anything"
+[ -z "$PS1" ] && return
 
 HOMEFRIES_TIME0="$(home_fries_nanos_now)"
 
