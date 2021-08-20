@@ -548,6 +548,7 @@ home_fries_up () {
   #########################
 
   # 2018-03-28: Trying direnv (to eventually replace/enhance gogo, perhaps).
+  # 2021-08-04: I can't remember the last time I used direnv.
   if command -v direnv > /dev/null; then
     local time_0="$(home_fries_nanos_now)"
     # Sets, e.g., PROMPT_COMMAND=_direnv_hook;
