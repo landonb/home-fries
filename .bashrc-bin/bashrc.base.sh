@@ -386,8 +386,9 @@ home_fries_bashrc_cleanup () {
   local custom_bash=false
   if [ "$0" = 'bash' ] || [ "$0" = '-bash' ]; then
     if $(alias bash &> /dev/null); then
-      # if [ "$(readlink -f "$(alias bash | /usr/bin/env sed -E 's/^.* ([^ ]+\/bash\>).*/\1/')")" != '/bin/bash' ]; then
-      if [ "$(readlink_f "$(alias bash | /usr/bin/env sed -E 's/^.* ([^ ]+\/bash\>).*/\1/')")" != '/bin/bash' ]; then
+      local bash_path
+      bash_path="$(alias bash | /usr/bin/env sed -E 's/^.* ([^ ]+\/bash\>).*/\1/')"
+      if [ "$(readlink_f "${bash_path}")" != '/bin/bash' ]; then
         custom_bash=true
       fi
     # elif [ "$(readlink -f "$(command -v bash)")" != '/bin/bash' ]; then
