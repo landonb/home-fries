@@ -72,6 +72,36 @@ gvim_open_kindness () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# Prepare PATH so this script can call `gvim` without a full path.
+#
+# When this script is used by a Keyboard Shortcut, only a basic shell
+# is initialized, and `gvim` might not be found on the default PATH.
+#
+# - E.g., when Karabiner-Elements (macOS) calls this script, the PATH
+#   is very simple: /usr/bin:/bin:/usr/sbin:/sbin.
+#
+#   But Home Brew installs MacVim to /usr/local/bin, which is not on
+#   PATH by default.
+#
+# - On MATE (at least this is the PATH that I see; I'm not sure if it's
+#   common to include ~/.local/bin), a mate-panel launcher PATH reports:
+#     /home/user/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:
+#       /usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+
+must_locate_gvim_or_notify_and_exit () {
+  # Support Karabiner-Elements with MacVim at brew-installed location.
+  PATH="/usr/local/bin:${PATH}"
+
+  # Support Linux users with custom build at conventional location.
+  PATH="${HOME}/.local/bin:${PATH}"
+
+  if ! type gvim > /dev/null 2>&1; then
+    exit 1
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 gvim_ensure_servername_or_use_default () {
   local servername="$1"
 
