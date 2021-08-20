@@ -48,11 +48,11 @@ fries_tmux_session_entitle_unless_attach_existing () {
     # Check the TMUX environ and return now if this is not tmux starting.
     # NOTE: Return falsey indicating did not attach existing, so home-fries
     #       continues loading.
-    [[ -z "${TMUX}" ]] && return 1
+    [ -z "${TMUX}" ] && return 1
 
     # If this is not the first pane, don't bother renaming (otherwise every
     # pane, when it starts up, would be mucking around here, redundantly).
-    [[ $(tmux display-message -pt "${TMUX_PANE}" '#{pane_index}') -ne 1 ]] && return 1
+    [ $(tmux display-message -pt "${TMUX_PANE}" '#{pane_index}') -ne 1 ] && return 1
 
     # If the session is not a plain number (which indicates that the user
     # ran a plain `tmux`, and did not specify a session name), return 1 to
@@ -207,7 +207,7 @@ tmux_jump_ship () {
 
   # Check the TMUX environ and return now if this is not tmux starting.
   # (Return falsey, because name of function implies "jump ship" if true/0.)
-  [[ -z "${TMUX}" ]] && return ${retcode}
+  [ -z "${TMUX}" ] && return ${retcode}
 
   fries_tmux_session_entitle_unless_attach_existing
   retcode=$?
