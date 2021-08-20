@@ -464,6 +464,45 @@ bg_white () {
   printf "\033[107m"
 }
 
+### Colors inspired by Vim dubs_after_dark
+
+# DiffAdd
+# -------
+#
+# https://www.htmlcsscolor.com/hex/00CC00
+fg_free_speech_green () {
+  _hofr_no_color && return
+  printf "\033[38;2;0;204;0m"
+}
+#
+# https://www.htmlcsscolor.com/hex/002200
+bg_myrtle () {
+  _hofr_no_color && return
+  printf "\033[48;2;0;34;0m"
+}
+
+# DiffChange
+# ----------
+#
+# https://www.htmlcsscolor.com/hex/FF9955
+fg_sunshade () {
+  _hofr_no_color && return
+  printf "\033[38;2;255;153;85m"
+}
+#
+# https://www.htmlcsscolor.com/hex/220000
+bg_seal_brown () {
+  _hofr_no_color && return
+  printf "\033[48;2;34;0;0m"
+}
+
+# DiffDelete
+# ----------
+#
+# [See: fg_red]
+#
+# [See: bg_seal_brown]
+
 # ***
 
 # Note that you can also use tput to clear formatting, e.g.,
