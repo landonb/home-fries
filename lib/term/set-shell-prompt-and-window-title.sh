@@ -44,6 +44,16 @@ user_not_trapped_chroot () {
 }
 
 fries_format_titlebar () {
+  # 2021-07-16: Add window number to iTerm2 window title.
+  local win_num_prefix=''
+  # Bash startup occurs from the user's home directory.
+  local mod_path="${HOMEFRIES_LIB:-${HOME}/.homefries/lib}/term/show-command-name-in-window-title.sh"
+  if [ -f "${mod_path}" ]; then
+    . "${mod_path}"
+    win_num_prefix="$(fries_prepare_window_number_prefix)"
+    unset -f fries_prepare_window_number_prefix
+  fi
+
   # 2012.10.17: Also change the titlebar name for special terminal windows,
   #             like the log-tracing windows.
   # See: http://unix.stackexchange.com/questions/14113/
@@ -72,7 +82,7 @@ fries_format_titlebar () {
   #  titlebar='\[\033]2;\u@\h\007\]'
   # Gnome-terminal's default (though it doesn't specify it, it just is):
   #  titlebar='\[\e]0;\u@\h:\w\a\]'
-  local basename='\W'
+  local basename="${win_num_prefix}\W"
   local hellsbells='\a'
 
   local sticky_alert=''

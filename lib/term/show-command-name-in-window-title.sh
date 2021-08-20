@@ -34,8 +34,10 @@
 #     fi
 #   }
 
+# Show the currently running command name in the window titlebar.
 fries_hook_titlebar_update () {
-  # Show the command in the window titlebar.
+  # Also prefix window number in iTerm2, for systemwide foregrounder shortcuts.
+  ITERM2_WINDOW_NUMBER="$(fries_prepare_window_number_prefix)"
 
   # MEH: (lb): I'd rather the title not flicker for fast commands,
   # but it's nice to have for long-running commands, like `man foo`
@@ -47,7 +49,38 @@ fries_hook_titlebar_update () {
   # title is restored. This makes for a nice titlebar title that shows the
   # basename of the directory when the prompt is active, but shows the name
   # of the actively running command if there is one, e.g., `man bash`.
-  trap 'printf "\033]0;%s\007" "${BASH_COMMAND}"' DEBUG
+  trap 'printf "\033]0;%s\007" "${ITERM2_WINDOW_NUMBER}${BASH_COMMAND}"' DEBUG
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# 2021-07-16: Add window number to iTerm2 window title.
+# - This enables a collection of systemwide terminal foregrounder shortcuts.
+#   See KE mappings in Waffle Batter project:
+#     ~/.waffle/.batter/home/.config/karabiner/assets/complex_modifications/
+#       0335-application-iterm2-foregrounders.json
+# - Note that iTerm2 has its own *Shortcut to activate a window* shortcuts
+#   (that default to <Cmd-Alt-n>), but these only work when iTerm2 is already
+#   the active application. (lb): And I want shortcuts that work from anywhere!
+fries_prepare_window_number_prefix () {
+  local win_num_prefix=''
+
+  # iTerm2 defines a unique environment for each window that specifies
+  # the window number, tab number, pane number, and window ID (GUID), e.g.,
+  #   $ echo $ITERM_SESSION_ID
+  #   w3t0p0:B1CDC558-062B-4830-A5EB-8EF1BBFFAB13
+
+  if [ -n "${ITERM_SESSION_ID}" ]; then
+    # iTerm2 v3.2.x prefixed the window number to the window title, e.g.,
+    # "1. bash-command", but iTerm2 v3.3.x does not, which breaks the
+    # Karabiner-Elements foregrounder shortcuts. This replicates the
+    # functionality from iTerm2 v3.2.x.
+    window_number="$(echo "${ITERM_SESSION_ID}" | sed 's/^w\([0-9]\+\).*/\1/')"
+    let 'window_number += 1'
+    win_num_prefix="${window_number}. "
+  fi
+
+  printf "${win_num_prefix}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
