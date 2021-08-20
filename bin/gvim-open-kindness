@@ -32,13 +32,21 @@ HOMEFRIES_GVIM_PRIMARY="${HOMEFRIES_GVIM_PRIMARY:-SAMPI}"
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 gvim_open_kindness () {
-  local servername="$1"
-  local row_num="$2"
-  local col_num="$3"
-  # Cannot `shift 3`, lest: "shift: can't shift that many"
-  shift $(( $# > 0 ? 1 : 0 ))
-  shift $(( $# > 0 ? 1 : 0 ))
-  shift $(( $# > 0 ? 1 : 0 ))
+  local servername
+  local row_number
+  local col_number
+
+  # 2021-08-19: Be clever and assume if any argument is a valid file
+  # path, user chose not to bother specifing all non-file parameters.
+  # - (I don't think we'll find a compelling use case where
+  #    the user has a file with the same name as the chosen
+  #    servername, or a file with only numbers that matches
+  #    a row or column number argument, so this seems safe.)
+  if [ ! -f "$1" ]; then servername="$1"; shift; fi
+  if [ ! -f "$1" ]; then row_number="$1"; shift; fi
+  if [ ! -f "$1" ]; then col_number="$1"; shift; fi
+
+  must_locate_gvim_or_notify_and_exit
 
   servername="$(gvim_ensure_servername_or_use_default "${servername}")"
 
@@ -57,7 +65,7 @@ gvim_open_kindness () {
 
   gvim_sleep_briefly_macvim_needs_a_moment
 
-  gvim_move_cursor_to_line_and_column "${servername}" "${row_num}" "${col_num}"
+  gvim_move_cursor_to_line_and_column "${servername}" "${row_number}" "${col_number}"
 
   gvim_bring_window_to_front "${servername}"
 }
