@@ -34,6 +34,11 @@
 # Script Setup
 # ============
 
+# - For milliseconds, try instead:
+#     echo $(( $(date '+%s%N') / 1000000));
+#     echo $(( $(gdate '+%s%N') / 1000000));
+#   which also gives a whole number rather than a fraction.
+# https://unix.stackexchange.com/questions/69322/how-to-get-milliseconds-since-unix-epoch
 home_fries_nanos_now () {
   if command -v gdate > /dev/null 2>&1; then
     # macOS (brew install coreutils).
