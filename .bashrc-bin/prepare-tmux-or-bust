@@ -207,7 +207,12 @@ tmux_jump_ship () {
 
   # Check the TMUX environ and return now if this is not tmux starting.
   # (Return falsey, because name of function implies "jump ship" if true/0.)
-  [ -z "${TMUX}" ] && return ${retcode}
+  if [ -z "${TMUX}" ]; then
+    # Don't need this function anymore, and this script was source'd.
+    unset -f fries_tmux_session_entitle_unless_attach_existing
+
+    return ${retcode}
+  fi
 
   fries_tmux_session_entitle_unless_attach_existing
   retcode=$?
