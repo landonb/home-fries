@@ -448,7 +448,7 @@ main () {
   ensure_pathed
   unset -f ensure_pathed
   # Maybe don't startup and reuse existing tmux session, eh.
-  if source ${HOMEFRIES_BASHRCBIN}/prepare-tmux-or-bust; then
+  if . ${HOMEFRIES_BASHRCBIN}/prepare-tmux-or-bust; then
     return  # Will have run switch-client and user will be on another session.
   fi
 
