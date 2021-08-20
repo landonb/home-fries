@@ -13,6 +13,16 @@ gvim_open_kindness_print_usage () {
   echo 'USAGE: gvim-open-kindness "{servername}" "[line]" "[column]" "[path]"...'
 }
 
+# HINT: If calling from Karabiner-Elements on macOS, ensure errors
+#       can be reported easily via desktop notifications:
+#
+#         brew install terminal-notifier
+#
+#       Otherwise any error will be written to a temp file.
+#       You can find the most recent such file thusly:
+#
+#         ls -rt /tmp | grep 'gvim-open-kindness' | tail -1
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # By default, this script uses the same servername when it's called,
@@ -96,7 +106,63 @@ must_locate_gvim_or_notify_and_exit () {
   PATH="${HOME}/.local/bin:${PATH}"
 
   if ! type gvim > /dev/null 2>&1; then
+    desktop_notify "Where's gvim?"
+
     exit 1
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# In case of trouble, try notifying user via desktop notification.
+#
+# Because this script is used in contexts (OS Keyboard Shortcuts)
+# where we cannot communicate with the user how we normally might
+# (e.g., stdout or stderr), try using a desktop notification.
+#
+# - On Linux, we can look for notify-send, which is pretty standard.
+#
+# - On macOS, we can look for terminal-notifier, which is just a nice
+#   project I found that the user needs to (brew-)install themselves.
+#
+# - (And I dunno how useful this is, but at least it's something:)
+#   If neither desktop notifier found, dump the message to a temporary
+#   file. Not that non-developer users will know to look there (unless
+#   we document it), but at least if anyone asks, we'll have something
+#   to suggest which is easy to do.
+#
+#   - Note that on Linux, `mktemp` generally uses /tmp, but on macOS
+#     you'll see a different path, e.g.,
+#
+#       @macOS $ mktemp
+#       /var/folders/cs/h762zc8951zdm1ycc_2zqwb9l60wrb/T
+#
+#       @macOS $ echo $TMPDIR
+#       /var/folders/cs/h762zc8951zdm1ycc_2zqwb9l60wrb/T/      
+#
+#     But there's still a /tmp directory nonetheless:
+#
+#       @macOS $ ll /tmp
+#       /tmp -> private/tmp
+#
+#     And thankfully the `mktemp` command lets us use that path (which
+#     simplifies troubleshooting, otherwise we would need to tell the
+#     user to look under $TMPDIR; seems easier to just tell 'em /tmp):
+#
+#       @macOS $ mktemp /tmp/HELLO.XXXXXX
+#       /tmp/HELLO.3vkABm
+
+desktop_notify () {
+  if type notify-send > /dev/null 2>&1; then
+    notify-send "$@"
+  elif [ -x '/usr/local/bin/terminal-notifier' ]; then
+    /usr/local/bin/terminal-notifier -message "$@"
+  else
+    local tempfile
+
+    tempfile="$(mktemp /tmp/$(basename $0).XXXXXX)" || exit 1
+
+    echo "$@" >> "${tempfile}"
   fi
 }
 
