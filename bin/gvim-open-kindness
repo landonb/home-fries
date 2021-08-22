@@ -106,7 +106,7 @@ must_locate_gvim_or_notify_and_exit () {
   PATH="${HOME}/.local/bin:${PATH}"
 
   if ! type gvim > /dev/null 2>&1; then
-    desktop_notify "Where's gvim?"
+    stderr_or_desktop_notify "Where's gvim?"
 
     exit 1
   fi
@@ -151,6 +151,16 @@ must_locate_gvim_or_notify_and_exit () {
 #
 #       @macOS $ mktemp /tmp/HELLO.XXXXXX
 #       /tmp/HELLO.3vkABm
+
+stderr_or_desktop_notify () {
+  stdout_isatty () { [ -t 1 ]; }
+
+  if stdout_isatty; then
+    >&2 echo "$@"
+  else
+    desktop_notify "$@"
+  fi
+}
 
 desktop_notify () {
   if type notify-send > /dev/null 2>&1; then
