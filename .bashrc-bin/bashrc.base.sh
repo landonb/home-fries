@@ -455,8 +455,10 @@ main () {
   source_system_rc
   unset -f source_system_rc
 
-  # FIXME/2018-04-04: This is a hack until I figure out something better.
-  # - It exports an environment variable I need in source_fries.
+  # Load private Bashrc twice, once before sourcing all the Home-fries
+  # Bashrc, and then again after. Typically, the first pass is used to
+  # update PATH and set whatever environs might be needed in order for
+  # the Home-fries source to load correctly.
   export HOME_FRIES_PRELOAD=true
   source_private
 
