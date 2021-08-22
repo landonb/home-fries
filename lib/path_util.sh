@@ -335,6 +335,24 @@ popd_perhaps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# So that we don't step on toes of previously defined aliases.
+
+pushd_alias_or_warn () {
+  if ! pushd_alias "$@"; then
+    >&2 echo "ERROR: Cannot alias: “$1” already assigned"
+  fi
+}
+
+pushd_alias () {
+  if type $1 > /dev/null 2>&1; then
+    return 1
+  fi
+
+  eval "alias $1='pushd \"$2\" > /dev/null'"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # *** Main.
 
 main () {
