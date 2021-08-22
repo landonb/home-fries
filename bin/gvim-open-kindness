@@ -26,9 +26,9 @@ gvim_open_kindness_print_usage () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # By default, this script uses the same servername when it's called,
-# so that files are opened in the same instance of GVim.
+# so that files are opened in the same instance of gVim.
 # - On Linux (X11), the servername should be unique enough that
-#   xdotool can identify the GVim window by its name.
+#   xdotool can identify the gVim window by its name.
 # - On macOS, there's no xdotool, but also MacVim brings itself to
 #   front by default, so there's nothing lacking, either.
 #
@@ -62,7 +62,7 @@ gvim_open_kindness () {
 
   # Fallback on a dummy file if the user doesn't specify a file to open,
   # because a bare command, e.g., gvim --servername ${servername}, opens
-  # a new GVim with the name "${servername}1". Don't know why. (And does
+  # a new gVim with the name "${servername}1". Don't know why. (And does
   # not have to be a reST file, I just have an empty README in my home.)
   # MAYBE/2021-02-21: There's probably a way to open a new file to edit.
   if [ -z "${1+x}" ]; then
@@ -171,7 +171,7 @@ desktop_notify () {
 gvim_ensure_servername_or_use_default () {
   local servername="$1"
 
-  # Prefer using the same servername so that the same GVim instance is
+  # Prefer using the same servername so that the same gVim instance is
   # always targeted when this command is called. The name does not matter, but it should be unique
   # among all windows so that xdotool can distinguish it.
   if [ -z "${servername}" ]; then
@@ -227,7 +227,7 @@ gvim_open_files () {
 #
 # (I tried sleep 0.33 for a bit and had limited success; and 0.5 worked
 #  for a while, until it didn't; so latest attempt is to wait 2/3 of a
-#  second for file load to settle in GVim, then try jumping cursor.)
+#  second for file load to settle in gVim, then try jumping cursor.)
 
 gvim_sleep_briefly_macvim_needs_a_moment () {
   ! os_is_macos && return
@@ -253,7 +253,7 @@ gvim_move_cursor_to_line_and_column () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Bring GVim to front. This happens automatically on macOS.
+# Bring gVim to front. This happens automatically on macOS.
 
 # (lb): I didn't enable this for Linux until I saw the behavior in macOS.
 # Because it's more often than not that I want to use Vim after opening a
@@ -262,10 +262,10 @@ gvim_move_cursor_to_line_and_column () {
 gvim_bring_window_to_front () {
   local servername="$1"
 
-  # On macOS, there's no xdotool, but GVim fronts itself automatically.
+  # On macOS, there's no xdotool, but gVim fronts itself automatically.
   os_is_macos && return
 
-  # On Linux, or at least Linux Mint MATE, GVim doesn't front on its
+  # On Linux, or at least Linux Mint MATE, gVim doesn't front on its
   # own. So go grab it.
   # - Note that xdotool (for me) spits out an error message:
   #     XGetWindowProperty[_NET_WM_DESKTOP] failed (code=1)
