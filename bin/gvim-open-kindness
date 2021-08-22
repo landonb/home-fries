@@ -151,6 +151,15 @@ must_locate_gvim_or_notify_and_exit () {
 #
 #       @macOS $ mktemp /tmp/HELLO.XXXXXX
 #       /tmp/HELLO.3vkABm
+#
+# - CAVEAT: In my experience, notify-send does nothing when passed
+#   a long string, e.g., from my terminal, this does nothing:
+#
+#     notify-send "PATH=$PATH"
+#
+#   but it works if I trucate it:
+#
+#     notify-send "PATH=$(expr substr "${PATH}" 1 200)"
 
 stderr_or_desktop_notify () {
   stdout_isatty () { [ -t 1 ]; }
