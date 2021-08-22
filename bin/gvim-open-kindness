@@ -34,10 +34,10 @@ gvim_open_kindness_print_usage () {
 #
 # YOU: The server name appears in the Vim title bar, so, please,
 #      personalize it!
-HOMEFRIES_GVIM_PRIMARY="${HOMEFRIES_GVIM_PRIMARY:-SAMPI}"
+GVIM_OPEN_SERVERNAME="${GVIM_OPEN_SERVERNAME:-SAMPI}"
 # - Pro tip: You can even use emojis, e.g.,:
 #
-#   HOMEFRIES_GVIM_PRIMARY="${HOMEFRIES_GVIM_PRIMARY:-🖤}"
+#   GVIM_OPEN_SERVERNAME="${GVIM_OPEN_SERVERNAME:-🖤}"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -175,7 +175,7 @@ gvim_ensure_servername_or_use_default () {
   # always targeted when this command is called. The name does not matter, but it should be unique
   # among all windows so that xdotool can distinguish it.
   if [ -z "${servername}" ]; then
-    servername="${HOMEFRIES_GVIM_PRIMARY:-SAMPI}"
+    servername="${GVIM_OPEN_SERVERNAME:-SAMPI}"
   fi
 
   echo "${servername}"

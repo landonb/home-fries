@@ -137,7 +137,7 @@ if false; then
     # Dubs Vim, e.g., if you send files to the same GVim with:
     #   gvim --servername SAMPI --remote-silent path/to/file
     # Or using the `gvim-open-kindness` command.
-    winnames+=("${HOMEFRIES_GVIM_PRIMARY:-SAMPI}")
+    winnames+=("${GVIM_OPEN_SERVERNAME:-SAMPI}")
     # E.g., Gmail, etc.
     winnames+=("[mM]ail - Chromium")
     winnames+=("[mM]ail - Google Chrome")

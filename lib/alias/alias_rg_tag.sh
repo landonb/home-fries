@@ -85,17 +85,17 @@ home_fries_create_aliases_rg_tag_wrap () {
   #      each search result in a GVim window, and switch to it.
 
   # See the gvim-open-kindness script: It uses an environment
-  # variable, $HOMEFRIES_GVIM_PRIMARY, to indicate which GVim
+  # variable, $GVIM_OPEN_SERVERNAME, to indicate which GVim
   # instance to use. If you do not set or change this value, each
   # file will be opened in the same instance of GVim. Or, you
-  # could set HOMEFRIES_GVIM_PRIMARY to something different to
+  # could set GVIM_OPEN_SERVERNAME to something different to
   # specify different instances, e.g.,
   #   $ rg `some term`
   #   foo/bar.bat
   #   [1] 1:1 some term
   #   [2] 2:1 some term
-  #   $ HOMEFRIES_GVIM_PRIMARY=gvim1 e1
-  #   $ HOMEFRIES_GVIM_PRIMARY=gvim2 e2
+  #   $ GVIM_OPEN_SERVERNAME=gvim1 e1
+  #   $ GVIM_OPEN_SERVERNAME=gvim2 e2
 
   # TRICK: Add this as the first line to the environ
   #        to view the command when tag is invoked:

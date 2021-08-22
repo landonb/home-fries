@@ -49,7 +49,7 @@ home_fries_aliases_wire_vi_vim () {
 fs () {
   # NOTE: The servername appears in the window title bar, so you are
   #       encouraged to personalize it accordingly!
-  gvim-open-kindness "${HOMEFRIES_GVIM_PRIMARY:-SAMPI}" "" "" "$@"
+  gvim-open-kindness "${GVIM_OPEN_SERVERNAME:-SAMPI}" "" "" "$@"
 }
 
 # The `fa` command exists should you want to open a second instance
