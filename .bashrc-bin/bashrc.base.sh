@@ -271,7 +271,11 @@ source_privately () {
 }
 
 source_private_scripts () {
-  # If present, local a private (uncommitted; symlinked?) bash profile script.
+  # Private Bashrc, generally symlinked into Home-fries (and Git-ignored
+  # via .git/exclude/info, which is also generally symlinked to the same
+  # private repo that contains the private Bashrc being symlinked).
+
+  # If present, load a private bash profile script.
   local privsrc="${HOMEFRIES_BASHRCBIN}/bashrx.private.sh"
   source_privately "${privsrc}" "non-exclusive"
 
