@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# vim:tw=0:ts=2:sw=2:et:norl:ft=sh
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/landonb/home-fries#🍟
+# License: MIT
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# I don't really anticipate using this function, but I find it rather novel.
+# - Print list of file sizses,
+#     sort 'em,
+#     cull duplicates,
+#     use the file sizes to print the paths,
+#     determine the hashes,
+#     sort,
+#     and print pairs of lines with leading 32 characters duplicated.
+# https://www.linuxjournal.com/content/boost-productivity-bash-tips-and-tricks
+find-duplicates () {
+  find -not -empty -type f -printf "%s\n" |
+    sort -rn |
+    uniq -d |
+    xargs -I{} -n1 find -type f -size {}c -print0 |
+    xargs -0 md5sum |
+    sort |
+    uniq -w32 --all-repeated=separate
+}
+
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
+
+if [ "$0" = "${BASH_SOURCE[0]}" ]; then
+  >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
+fi
+
