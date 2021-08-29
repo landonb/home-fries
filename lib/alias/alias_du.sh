@@ -19,6 +19,9 @@ home_fries_aliases_wire_du () {
   # cd ~ && du -BG -d 1 . | sort -n
 
   # See also the `free` alias.
+
+  # List the top 20 files/folders sizes.
+  alias ddu='du -sh * | sort -hr | head -20'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
