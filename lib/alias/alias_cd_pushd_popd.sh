@@ -61,6 +61,9 @@ home_fries_aliases_wire_cd_pushd_popd () {
   # 2020-12-04: Clear remembered directories stack.
   # 2020-12-16: Inbox zero, meet Bash directory history stack zero.
   alias popdocd='popd && dirs -c'
+
+  # Move to the parent directory.
+  alias ..='cd ..'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
