@@ -194,6 +194,7 @@ source_alias_sources () {
   source_it "alias/alias_ag.sh"
   source_it "alias/alias_bash.sh"
   source_it "alias/alias_cd_pushd_popd.sh"
+  source_it "alias/alias_chmod.sh"
   source_it "alias/alias_completion.sh"
   source_it "alias/alias_cp.sh"
   source_it "alias/alias_df.sh"
@@ -586,6 +587,9 @@ run_and_unset_home_fries_create_aliases () {
   # Set: `cdd` => pushd wrapper; `cdc` => popd; `cddc` => toggle cd last
   # - lib/alias/alias_cd_pushd_popd.sh
   run_and_unset "home_fries_aliases_wire_cd_pushd_popd"
+
+  # - lib/alias/alias_chmod.sh
+  run_and_unset "home_fries_aliases_wire_chmod"
 
   # - lib/alias/alias_completion.sh
   run_and_unset "home_fries_aliases_wire_completion"
