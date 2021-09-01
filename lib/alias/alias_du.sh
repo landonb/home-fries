@@ -21,7 +21,7 @@ home_fries_aliases_wire_du () {
   # See also the `free` alias.
 
   # List the top 20 files/folders sizes.
-  alias ddu='du -sh * | sort -hr | head -20'
+  alias dutop='du -sh * | sort -hr | head -20'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
