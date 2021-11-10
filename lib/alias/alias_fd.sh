@@ -6,9 +6,11 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# 2020-09-26: -H/--hidden: Include hidden files and directories
+# 2021-11-10: -I/--no-ignore: Ignore .gitignore, .ignore or .fdignore rules.
 home_fries_aliases_wire_fd () {
   if command -v fd > /dev/null; then
-    alias fd="fd -H"
+    alias fd="fd -H -I"
   fi
 }
 
