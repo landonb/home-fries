@@ -27,6 +27,10 @@ home_fries_aliases_wire_ls () {
   alias llo="lo --time-style=long-iso"  # 2017-07-10: You get the ideaa.
   alias lS="/usr/bin/env ls ${color_opt} -lhFaS" # Sort by size, from largest (empties last).
   alias lS-="/usr/bin/env ls ${color_opt} -lFaS | sort -n -k5" # Sort by size, largest last.
+
+  # Do not list owner (replace -l with -g), and do not list group name (add -G).
+  alias LL="/usr/bin/env ls -gGhFa ${color_opt}" # Long listing; includes ./ and ../
+  alias LO="LL -rt"                     # Reverse sort by time.
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
