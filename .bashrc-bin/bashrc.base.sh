@@ -84,63 +84,14 @@ HOMEFRIES_LOADINGSEP='.'
 ${HOMEFRIES_TRACE} && echo "─ Welcome, User (EUID=${EUID})"
 
 # Get the path to this script's parent directory.
-# Note that macOS's readlink is wicked old.
-# INTEREST/2020-09-23: From `man readlink`:
-#   Note realpath(1) is the preferred command to use for canonicalization functionality.
-# but also realpath is from Homebrew... so question is, how much do we care
-# to support Bash 3.x (or to work on vanilla macOS). Though maybe Zsh is the
-# answer if we want to support vanilla macOS, and for our Bash scripts we
-# should just assume 4.x+ and use `realpath`.
-readlink_f () {
-  local resolve_path="$1"
-  local ret_code=0
-  if [ "$(readlink --version 2> /dev/null)" ]; then
-    # Linux: Modern readlink.
-    resolve_path="$(readlink -f -- "${resolve_path}")"
-  else
-    # macOHHHH-ESS/macOS: No `readlink -f`.
-    local before_cd="$(pwd -L)"
-    local just_once=true
-    while [ -n "${resolve_path}" ] && ( [ -h "${resolve_path}" ] || ${just_once} ); do
-      just_once=false
-      local basedir_link="$(dirname -- "${resolve_path}")"
-      # `readlink -f` checks all but final component exist.
-      # So if dir path leading to final componenet missing, return empty string.
-      if [ ! -e "${basedir_link}" ]; then
-        resolve_path=""
-        ret_code=1
-      else
-        local resolve_file="${resolve_path}"
-        local resolve_link="$(readlink -- "${resolve_path}")"
-        if [ -n "${resolve_link}" ]; then
-          case "${resolve_link}" in
-            /*)
-              # Absolute path.
-              resolve_file="${resolve_link}"
-              ;;
-            *)
-              # Relative path.
-              resolve_file="${basedir_link}/${resolve_link}"
-              ;;
-          esac
-        fi
-        local resolved_dir="$(dirname -- "${resolve_file}")"
-        if [ ! -d "${resolved_dir}" ]; then
-          resolve_path=""
-          ret_code=1
-        else
-          cd "${resolved_dir}" > /dev/null
-          resolve_path="$(pwd -P)/$(basename -- "${resolve_file}")"
-        fi
-      fi
-    done
-    cd "${before_cd}"
-  fi
-  [ -n "${resolve_path}" ] && echo "${resolve_path}"
-  return ${ret_code}
-}
+# - PREREQUISITE: On macOS, the `realpath` call requires Bash 4.x+,
+#                 which is supplied by Homebrew and `brew install bash`.
+#   - I.e., you cannot load Homefries on vanilla macOS.
+#   - We want to call `realpath` or `readlink -f` to resolve relative paths,
+#     but stock macOS (Bash 3.x) does not include `realpath`,
+#     and its `readlink` is outdated (no -f option).
 
-export HOMEFRIES_BASHRCBIN="$(dirname -- "$(readlink_f "${BASH_SOURCE[0]}")")"
+export HOMEFRIES_BASHRCBIN="$(dirname -- "$(realpath -- "${BASH_SOURCE[0]}")")"
 ${HOMEFRIES_TRACE} && echo "── HOMEFRIES_BASHRCBIN=${HOMEFRIES_BASHRCBIN}"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -397,15 +348,13 @@ home_fries_bashrc_cleanup () {
     if $(alias bash &> /dev/null); then
       local bash_path
       bash_path="$(alias bash | /usr/bin/env sed -E 's/^.* ([^ ]+\/bash\>).*/\1/')"
-      if [ "$(readlink_f "${bash_path}")" != '/bin/bash' ]; then
+      if [ "$(realpath -- "${bash_path}")" != '/bin/bash' ]; then
         custom_bash=true
       fi
-    # elif [ "$(readlink -f "$(command -v bash)")" != '/bin/bash' ]; then
-    elif [ "$(readlink_f "$(command -v bash)")" != '/bin/bash' ]; then
+    elif [ "$(realpath -- "$(command -v bash)")" != '/bin/bash' ]; then
       custom_bash=true
     fi
-  # elif [ "$(readlink -f "$0")" != '/bin/bash' ]; then
-  elif [ "$(readlink_f "$0")" != '/bin/bash' ]; then
+  elif [ "$(realpath -- "$0")" != '/bin/bash' ]; then
     custom_bash=true
   fi
   if ${custom_bash}; then

@@ -8,58 +8,9 @@
 # *** <beg boilerplate `source_deps`: ------------------------------|
 #                                                                   |
 
-readlink_f () {
-  local resolve_path="$1"
-  local ret_code=0
-  if [ "$(readlink --version 2> /dev/null)" ]; then
-    # Linux: Modern readlink.
-    resolve_path="$(readlink -f -- "${resolve_path}")"
-  else
-    # macOHHHH-ESS/macOS: No `readlink -f`.
-    local before_cd="$(pwd -L)"
-    local just_once=true
-    while [ -n "${resolve_path}" ] && ( [ -h "${resolve_path}" ] || ${just_once} ); do
-      just_once=false
-      local basedir_link="$(dirname -- "${resolve_path}")"
-      # `readlink -f` checks all but final component exist.
-      # So if dir path leading to final componenet missing, return empty string.
-      if [ ! -e "${basedir_link}" ]; then
-        resolve_path=""
-        ret_code=1
-      else
-        local resolve_file="${resolve_path}"
-        local resolve_link="$(readlink -- "${resolve_path}")"
-        if [ -n "${resolve_link}" ]; then
-          case "${resolve_link}" in
-            /*)
-              # Absolute path.
-              resolve_file="${resolve_link}"
-              ;;
-            *)
-              # Relative path.
-              resolve_file="${basedir_link}/${resolve_link}"
-              ;;
-          esac
-        fi
-        local resolved_dir="$(dirname -- "${resolve_file}")"
-        if [ ! -d "${resolved_dir}" ]; then
-          resolve_path=""
-          ret_code=1
-        else
-          cd "${resolved_dir}" > /dev/null
-          resolve_path="$(pwd -P)/$(basename -- "${resolve_file}")"
-        fi
-      fi
-    done
-    cd "${before_cd}"
-  fi
-  [ -n "${resolve_path}" ] && echo "${resolve_path}"
-  return ${ret_code}
-}
-
 source_deps () {
   local thispth="$1"
-  local prefix=""
+  local prefix="."
   local depsnok=false
 
   _source_it () {
@@ -85,7 +36,7 @@ source_deps () {
   # Allow user to symlink executables and not libraries.
   # E.g., `ln -s /path/to/bin/logger.sh /tmp/logger.sh ; /tmp/logger.sh`
   # knows that it can look relative to /path/to/bin/ for sourceable files.
-  prefix="$(dirname -- "$(readlink_f "${thispth}")")"
+  [ -n "${thispth}" ] && prefix="$(dirname -- "$(realpath -- "${thispth}")")"
 
   #                                                                 |
   # *** stop boilerplate> ------------------------------------------|

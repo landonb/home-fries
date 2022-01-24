@@ -24,59 +24,13 @@ check_deps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# macOS compatibility shim.
-
-# https://stackoverflow.com/questions/5756524/how-to-get-absolute-path-name-of-shell-script-on-macos
-# External (non-Bash) solutions:
-# - Homebrew coreutils:
-#     realpath {}
-# - Perl:
-#     BASHRC_F=$(perl -MCwd=realpath -e "print realpath '${BASH_SOURCE[0]}'")
-# - Linux:
-#     readlink -f {}
-#
-# - Pure-shell approach, using recursion, and knowing `readlink {}`
-#   returns empty string on non-symlink. So recurse until resolved.
-
-# readlink_f would be here, in path_util.sh, except that ~/.bashrc
-# (aka ~/.homefries/.bashrc-bin/bashrc.base.sh) uses the function
-# before sources any files. So it's defined there, and will be present
-# in the environment.
-#
-# See .bashrc-bin/bashrc.base.sh:
-#
-#   readlink_f () { ... }
-export -f readlink_f
-
-readlink_e () {
-  local resolve_path="$1"
-  local ret_code=0
-  if [ "$(readlink --version 2> /dev/null)" ]; then
-    # Linux: Modern readlink.
-    resolve_path="$(readlink -e -- "${resolve_path}")"
-  else
-    # macOHHHH-ESS/macOS: No `readlink -e`.
-    resolve_path="$(readlink_f "${resolve_path}")"
-    # The `readlink -e` ensures all path components exist.
-    if [ ! -e "${resolve_path}" ]; then
-      resolve_path=""
-      ret_code=1
-    fi
-  fi
-  printf %s "${resolve_path}"
-  [ -n "${resolve_path}" ] && printf '\n'
-  return ${ret_code}
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 # *** Path-related
 
 dir_resolve () {
   # Squash error messages but return error status, maybe.
   pushd "$1" &> /dev/null || return $?
   # -P returns the full, link-resolved path.
-  # EXPLAIN/2017-10-03: How is this different from $(readlink -f -- "$1") ??
+  # EXPLAIN/2017-10-03: How is this different from $(realpath -- "$1") ??
   local dir_resolved=$(pwd -P)
   popd &> /dev/null
   echo "${dir_resolved}"
@@ -86,7 +40,7 @@ dir_resolve () {
 # a filepath after following symlinks;
 # can be used in lieu of dir_resolve.
 symlink_dirname () {
-  echo "$(dirname -- "$(readlink_f "$1")")"
+  echo "$(dirname -- "$(realpath -- "$1")")"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

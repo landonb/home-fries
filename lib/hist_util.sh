@@ -23,10 +23,7 @@ _hist_util_hook () {
   #     `history -c`. (Note that `reset` won't do this.)
   history -a
 
-  # local resolved_p=$(readlink -f "${HOME}/.bash_history")
-  # 2020-08-24: Note that readlink_f inherently available because this
-  # script (hist_util.sh) only ever sourced via .bashrc-bin/bashrc.base.sh.
-  local resolved_p=$(readlink_f "${HOME}/.bash_history")
+  local resolved_p=$(realpath -- "${HOME}/.bash_history")
 
   # Remove any pass-insert commands, looking for a line to match:
   #   ' | pass insert -m
