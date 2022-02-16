@@ -8,6 +8,7 @@
 _sh_rm_safe_device_on_which_file_resides () {
   local file="$1"
   local owning_device=""
+
   # 2020-08-25: (lb): Changed `df -T` → `df` b/c macOS, and we're not using that field.
   if [ -h "${file}" ]; then
     # A symbolic link, so don't use the linked-to file's location, and don't
@@ -17,15 +18,15 @@ _sh_rm_safe_device_on_which_file_resides () {
     owning_device=$(/usr/bin/env df -- "${file}" | awk 'NR == 2 {print $1}')
   else
     owning_device=""
-    # 2017-06-03: For some reason, the caller checking $? for nonzero
-    # is not working, so echo empty string instead.
-    #  echo "ERROR: Not a directory, regular file, or symbolic link: $1."
-    echo ""
+    echo "${owning_device}"
+
     return 1
   fi
+
   if [ "${owning_device}" == "" ]; then
     echo "WARNING: ‘df’ returned empty string but file exists?: ${file}"
   fi
+
   echo "${owning_device}"
 }
 
