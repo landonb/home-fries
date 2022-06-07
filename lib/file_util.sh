@@ -199,13 +199,13 @@ mv_based_on_name () {
   local dst_subd
   dst_subd="$( \
     echo "$src_path" | \
-    /usr/bin/env sed -E 's#.*(^|/)(IMG_|VID_)?([0-9]{4})([0-9]{2})([0-9]{2})_(.*)$#'${dst_base}'/\3/\4/\3_\4_\5#' \
+    /usr/bin/env sed -E 's#.*(^|/)(IMG_|VID_|PXL_)?([0-9]{4})([0-9]{2})([0-9]{2})_(.*)$#'${dst_base}'/\3/\4/\3_\4_\5#' \
   )"
 
   if [ "$src_path" = "$dst_subd" ]; then
     dst_subd="$( \
       echo "$src_path" | \
-      /usr/bin/env sed -E 's#.*(^|/)([0-9]{4})_([0-9]{2})_([0-9]{2})/(IMG_|VID_)(.*)$#'${dst_base}'/\2/\3/\2_\3_\4#' \
+      /usr/bin/env sed -E 's#.*(^|/)([0-9]{4})_([0-9]{2})_([0-9]{2})/(IMG_|VID_|PXL_)(.*)$#'${dst_base}'/\2/\3/\2_\3_\4#' \
     )"
   fi
 
