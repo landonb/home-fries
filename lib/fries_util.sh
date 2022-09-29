@@ -77,28 +77,67 @@ home_fries_direxpand_completions () {
 
 # --- Generic completions
 
-# SECURITY_ALERT!: This sources any file it finds within
-#                    ~/.homefries/bin/completions/
-#                  you've been warned!
+# Bash command completion for some apps (docker, git, Jira, tig, tmux, Travis CI).
+#
+# Previously, this function sourced any completion file it'd find, e.g.,
+#   while IFS= read -r -d '' file; do ... done
+# But the completion files rarely change. So, for readability, and to
+# avoid a security hole (indiscriminately sourcing any file therein),
+# we'll just explicitly list them here.
+#
+# - Note that most of the completion files are setup and symlinked by
+#   OMR (Oh! My Repos) `mr infuse` commands. The author currently has
+#   these completion files installed:
+#
+#     docker-compose, and jira-completion (from this project, home-fries)
+#     git-completion.bash (from https://github.com/landonb/git-smart)
+#     git-extras-bash_completion.sh (from https://github.com/tj/git-extras)
+#     poetry-completion.bash (from https://github.com/python-poetry/poetry)
+#     tig-completion.bash (from https://github.com/jonas/tig)
+#     tmux (from https://github.com/imomaliev/tmux-bash-completion)
+#     travis.sh (from ~/.gem/ruby/2.6.0/gems/travis-1.9.1/assets/travis.sh)
+#
+# - You can still opt-into the load-all-completion-files behavior by
+#   setting the HOMEFRIES_LOAD_COMPLETIONS_ANY environment.
+# - Or you can declare your own HOMEFRIES_LOAD_COMPLETIONS array to
+#   set your own completion file list.
 
 home_fries_load_completions () {
   [ -d "${HOMEFRIES_DIR}/bin/completions" ] || return
-  # Bash command completion (for dub's apps).
-  # 2016-06-28: Currently just ./termdub_completion.
-  # 2016-10-30: Now with `exo` command completion.
-  # 2016-11-16: sourcing a glob doesn't work for symlinks.
-  #   . ${HOMEFRIES_DIR}/bin/completions/*
-  # I though a find -exec would work, but nope.
-  #   find ${HOMEFRIES_DIR}/bin/completions/ ! -type d -exec bash -c "source {}" \;
-  # So then just iterate, I suppose.
-  while IFS= read -r -d '' file; do
-    #echo "file = $file"
-    # Check that the file exists (could be broken symlink
-    # (e.g., symlink to unmounted encfs on fresh boot)).
-    if [ -e "${file}" ]; then
-      . ${file}
+
+  if ${HOMEFRIES_LOAD_COMPLETIONS_ANY:-false}; then
+    # BEWARE: This could be a security risk, if you're worried that an
+    # attacker could dump arbitrary files in your completions directory.
+    while IFS= read -r -d '' completion_file; do
+      # Check that the file exists (it could be a broken symlink
+      # (such as a symlink to an unmounted encfs on fresh boot)).
+      if [ -e "${completion_file}" ]; then
+        . ${completion_file}
+      fi
+    done < <(find ${HOMEFRIES_DIR}/bin/completions/* -maxdepth 1 ! -path . -print0)
+  else
+    # Selectively load completions (safer than if-branch).
+    if ! declare -p HOMEFRIES_LOAD_COMPLETIONS >/dev/null 2>&1; then
+      local -a HOMEFRIES_LOAD_COMPLETIONS
+
+      HOMEFRIES_LOAD_COMPLETIONS+=("docker-compose")
+      HOMEFRIES_LOAD_COMPLETIONS+=("git-completion.bash")
+      HOMEFRIES_LOAD_COMPLETIONS+=("git-extras-bash_completion.sh")
+      HOMEFRIES_LOAD_COMPLETIONS+=("jira-completion")
+      HOMEFRIES_LOAD_COMPLETIONS+=("poetry-completion.bash")
+      HOMEFRIES_LOAD_COMPLETIONS+=("tig-completion.bash")
+      HOMEFRIES_LOAD_COMPLETIONS+=("tmux")
+      HOMEFRIES_LOAD_COMPLETIONS+=("travis.sh")
     fi
-  done < <(find ${HOMEFRIES_DIR}/bin/completions/* -maxdepth 1 ! -path . -print0)
+
+    for completion_file in ${HOMEFRIES_LOAD_COMPLETIONS[@]}; do
+      local completion_path="${HOMEFRIES_DIR}/bin/completions/${completion_file}"
+      if [ -e "${completion_path}" ]; then
+        # echo "completion_file: ${completion_path}"
+        . "${completion_path}"
+      fi
+    done
+  fi
 }
 
 # --- SDKMAN
