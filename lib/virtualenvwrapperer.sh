@@ -6,6 +6,36 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# DATED/2022-09-29: The virtualenvwrapper is deprecated,
+# because virtualenv itself deprecated as of Python 3.8.
+#
+#  https://doughellmann.com/projects/virtualenvwrapper/
+#  https://bitbucket.org/virtualenvwrapper/virtualenvwrapper/src/master/
+#
+# Although... the virtualenv docs do not say anything about it being deprecated:
+#
+#   https://virtualenv.pypa.io/en/latest/
+#
+# The only place I see that information is these two articles:
+#
+#   https://www.activestate.com/resources/quick-reads/how-to-manage-python-dependencies-with-virtual-environments/
+#   https://cloudbytes.dev/snippets/create-a-python-virtual-environment-using-venv
+#
+# Nonetheless, virtualenvwrapper is at least very stale, and hasn't been
+# developed nor tested against versions greater than Python 3.6 (though
+# I've used it successfully with Python 3.8, but not Python 3.10).
+#
+# LATER/2022-09-29: Remove this file, and its `source_it` from bashrc.core.sh.
+# - Note that the author still uses virtualenv for legacy projects, so we won't
+#   remove this file for a while, at least not until I've moved my projects to
+#   Poetry (or Pipenv, or Conda, or Hatch, or PDM, or pyflow; too many options).
+#   Better yet, probably not until Python 3.8 is EOL. (Because virtualenvwrapper
+#   still works for me in Python 3.8, but not in Python 3.10; and I didn't test
+#   Python 3.9 so not sure about that. So we'll keep this code so long as it
+#   might be useful, i.e., so long as Python 3.8 is still supported.)
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # 2020-03-15: Deferred-load virtualenvwrapper.sh, 'cause it takes ~0.15 secs.
 # - That is, I just day retooling Bashrc, might as well make it zippy, too.
 # - Wow, the first time I ran this function, says it took ~1.04 secs. to
