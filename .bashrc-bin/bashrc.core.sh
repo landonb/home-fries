@@ -292,6 +292,7 @@ source_utils_sources () {
   # Earlier: "paths_util.sh"
   source_it "perl_util.sh"
   # Earlier: "process_util.sh"
+  source_it "python_util.sh"
   source_it "ruby_util.sh"
   source_it "rust_util.sh"
   source_it "session_util.sh"
@@ -463,6 +464,13 @@ home_fries_up () {
   # Silence a macOS-specific logon alert.
   # - lib/term/macos-please-no-zsh-advertisement.sh
   run_and_unset "dubs_macos_silence_bash_warning"
+
+  #########################
+
+  # Note this must be called after home_fries_set_path_environ,
+  # so that pyenv's PATH prefix doesn't itself get prefixed.
+  # - lib/python_util.sh
+  run_and_unset "home_fries_setup_pyenv"
 
   #########################
 
