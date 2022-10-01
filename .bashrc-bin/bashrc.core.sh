@@ -655,6 +655,7 @@ run_and_unset_home_fries_create_aliases () {
 
   # - lib/alias/alias_python.sh
   run_and_unset "home_fries_aliases_wire_python"
+  run_and_unset "home_fries_aliases_wire_poetry"
 
   # Set: `rm` => `rm_safe` [e.g., "remove" to ~/.trash]
   # - lib/alias/alias_rm_rmtrash.sh

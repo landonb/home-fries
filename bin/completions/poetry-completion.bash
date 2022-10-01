@@ -225,3 +225,7 @@ _poetry_00ca21d708b31f58_complete()
 
 complete -o default -F _poetry_00ca21d708b31f58_complete poetry
 complete -o default -F _poetry_00ca21d708b31f58_complete /home/landonb/.local/share/pypoetry/venv/bin/poetry
+
+# [lb]: Hacking in my `alias po`.
+complete -o default -F _poetry_00ca21d708b31f58_complete po
+

@@ -26,8 +26,22 @@ home_fries_aliases_wire_python () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+home_fries_aliases_wire_poetry () {
+  # [lb]: More Python aliases for my lazy fingers.
+
+  # Note that we edit Poetry completion to recognize `po`, too.
+  if ! command -v po &> /dev/null; then
+    alias po='/usr/bin/env poetry'
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 unset_f_alias_python () {
   unset -f home_fries_aliases_wire_python
+
+  unset -f home_fries_aliases_wire_poetry
+
   # So meta.
   unset -f unset_f_alias_python
 }
