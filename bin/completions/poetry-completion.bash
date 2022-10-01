@@ -37,12 +37,23 @@ _poetry_00ca21d708b31f58_complete()
             opts="${opts} --format"
             ;;
 
-            (cache clear)
+            # [lb] 2022-09-30: Bug in python-poetry/cleo produces invalid Bash,
+            # e.g.,:
+            #  (cache clear)
+            # This issue is fixed upstream but not released yet. Cleo is a
+            # Poetry dependency, and I'd rather not spend time wiring cleo
+            # installation, so patching herein in the meantime.
+            # - REFER: https://github.com/python-poetry/poetry/issues/6523
+            #
+            # (cache clear)
+            # opts="${opts} --all"
+            # ;;
+            #
+            # (cache list)
+            # opts="${opts} "
+            # ;;
+            (cache)
             opts="${opts} --all"
-            ;;
-
-            (cache list)
-            opts="${opts} "
             ;;
 
             (check)
@@ -53,11 +64,16 @@ _poetry_00ca21d708b31f58_complete()
             opts="${opts} --list --local --unset"
             ;;
 
-            (debug info)
-            opts="${opts} "
-            ;;
-
-            (debug resolve)
+            # [lb] 2022-09-30: See bug comment above re: cleo issues/6523.
+            #
+            # (debug info)
+            # opts="${opts} "
+            # ;;
+            #
+            # (debug resolve)
+            # opts="${opts} --extras --install --python --tree"
+            # ;;
+            (debug)
             opts="${opts} --extras --install --python --tree"
             ;;
 
@@ -65,20 +81,25 @@ _poetry_00ca21d708b31f58_complete()
             opts="${opts} "
             ;;
 
-            (env info)
-            opts="${opts} --path"
-            ;;
-
-            (env list)
-            opts="${opts} --full-path"
-            ;;
-
-            (env remove)
-            opts="${opts} --all"
-            ;;
-
-            (env use)
-            opts="${opts} "
+            # [lb] 2022-09-30: See bug comment above re: cleo issues/6523.
+            #
+            # (env info)
+            # opts="${opts} --path"
+            # ;;
+            #
+            # (env list)
+            # opts="${opts} --full-path"
+            # ;;
+            #
+            # (env remove)
+            # opts="${opts} --all"
+            # ;;
+            #
+            # (env use)
+            # opts="${opts} "
+            # ;;
+            (env)
+            opts="${opts} --path --full-path --all"
             ;;
 
             (export)
@@ -125,52 +146,54 @@ _poetry_00ca21d708b31f58_complete()
             opts="${opts} "
             ;;
 
-            (self add)
-            opts="${opts} --allow-prereleases --dry-run --editable --extras --source"
+            # [lb] 2022-09-30: See bug comment above re: cleo issues/6523.
+            #
+            # (self add)
+            # opts="${opts} --allow-prereleases --dry-run --editable --extras --source"
+            # ;;
+            #
+            # (self install)
+            # opts="${opts} --dry-run --sync"
+            # ;;
+            #
+            # (self lock)
+            # opts="${opts} --check --no-update"
+            # ;;
+            #
+            # (self remove)
+            # opts="${opts} --dry-run"
+            # ;;
+            #
+            # (self show)
+            # opts="${opts} --addons --latest --outdated --tree"
+            # ;;
+            #
+            # (self show plugins)
+            # opts="${opts} "
+            # ;;
+            #
+            # (self update)
+            # opts="${opts} --dry-run --preview"
+            # ;;
+            (self)
+            opts="${opts} --allow-prereleases --dry-run --editable --extras --source --sync --check --no-update --addons --latest --outdated --tree --preview --all --no-dev --only --why --with --without"
             ;;
 
-            (self install)
-            opts="${opts} --dry-run --sync"
-            ;;
-
-            (self lock)
-            opts="${opts} --check --no-update"
-            ;;
-
-            (self remove)
-            opts="${opts} --dry-run"
-            ;;
-
-            (self show)
-            opts="${opts} --addons --latest --outdated --tree"
-            ;;
-
-            (self show plugins)
-            opts="${opts} "
-            ;;
-
-            (self update)
-            opts="${opts} --dry-run --preview"
-            ;;
-
-            (shell)
-            opts="${opts} "
-            ;;
-
-            (show)
-            opts="${opts} --all --latest --no-dev --only --outdated --tree --why --with --without"
-            ;;
-
-            (source add)
+            # [lb] 2022-09-30: See bug comment above re: cleo issues/6523.
+            #
+            # (source add)
+            # opts="${opts} --default --secondary"
+            # ;;
+            #
+            # (source remove)
+            # opts="${opts} "
+            # ;;
+            #
+            # (source show)
+            # opts="${opts} "
+            # ;;
+            (source)
             opts="${opts} --default --secondary"
-            ;;
-
-            (source remove)
-            opts="${opts} "
-            ;;
-
-            (source show)
-            opts="${opts} "
             ;;
 
             (update)
