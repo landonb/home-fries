@@ -47,6 +47,22 @@ export HOMEFRIES_TRACE=${HOMEFRIES_TRACE:-false}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# Get the path to Homefries
+# =========================
+
+# Get the path to this script's parent directory.
+# - PREREQUISITE: On macOS, the `realpath` call requires Bash 4.x+,
+#                 which is supplied by Homebrew and `brew install bash`.
+#   - I.e., you cannot load Homefries on vanilla macOS.
+#   - We want to call `realpath` or `readlink -f` to resolve relative paths,
+#     but stock macOS (Bash 3.x) does not include `realpath`,
+#     and its `readlink` is outdated (no -f option).
+
+export HOMEFRIES_BASHRCBIN="$(dirname -- "$(realpath -- "${BASH_SOURCE[0]}")")"
+${HOMEFRIES_TRACE} && echo "── HOMEFRIES_BASHRCBIN=${HOMEFRIES_BASHRCBIN}"
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # Script Setup
 # ============
 
@@ -95,18 +111,9 @@ export HOMEFRIES_LOADINGDOTS=${HOMEFRIES_LOADINGDOTS:-false}
 HOMEFRIES_LOADEDDOTS=''
 HOMEFRIES_LOADINGSEP='.'
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 ${HOMEFRIES_TRACE} && echo "─ Welcome, User (EUID=${EUID})"
-
-# Get the path to this script's parent directory.
-# - PREREQUISITE: On macOS, the `realpath` call requires Bash 4.x+,
-#                 which is supplied by Homebrew and `brew install bash`.
-#   - I.e., you cannot load Homefries on vanilla macOS.
-#   - We want to call `realpath` or `readlink -f` to resolve relative paths,
-#     but stock macOS (Bash 3.x) does not include `realpath`,
-#     and its `readlink` is outdated (no -f option).
-
-export HOMEFRIES_BASHRCBIN="$(dirname -- "$(realpath -- "${BASH_SOURCE[0]}")")"
-${HOMEFRIES_TRACE} && echo "── HOMEFRIES_BASHRCBIN=${HOMEFRIES_BASHRCBIN}"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
