@@ -38,6 +38,15 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# Developer options
+# =================
+
+# YOU: Uncomment to enable logging to stdout:
+#  export HOMEFRIES_TRACE=${HOMEFRIES_TRACE:-true}
+export HOMEFRIES_TRACE=${HOMEFRIES_TRACE:-false}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # Script Setup
 # ============
 
@@ -62,10 +71,6 @@ home_fries_nanos_now () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 HOMEFRIES_TIME0="$(home_fries_nanos_now)"
-
-# YOU: Uncomment to enable logging to stdout:
-#  export HOMEFRIES_TRACE=${HOMEFRIES_TRACE:-true}
-export HOMEFRIES_TRACE=${HOMEFRIES_TRACE:-false}
 
 # YOU: Uncomment to show progress times.
 #  export HOMEFRIES_PROFILING=${HOMEFRIES_PROFILING:-true}
