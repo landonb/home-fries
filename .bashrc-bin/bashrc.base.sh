@@ -45,6 +45,16 @@
 #  export HOMEFRIES_TRACE=${HOMEFRIES_TRACE:-true}
 export HOMEFRIES_TRACE=${HOMEFRIES_TRACE:-false}
 
+# YOU: Uncomment to show progress times.
+#  export HOMEFRIES_PROFILING=${HOMEFRIES_PROFILING:-true}
+export HOMEFRIES_PROFILING=${HOMEFRIES_PROFILING:-false}
+# YOU: Uncomment to show all or more startup function timings, otherwise
+#      only tasks that take longer than it (e.g., 0.12 secs.) are traced.
+#      - Note also the `export`, because echo-elapsed is its own fcn.
+#  export HOMEFRIES_PROFILE_THRESHOLD=${HOMEFRIES_PROFILE_THRESHOLD:-0}
+#  # Or perhaps with a tiny bit of filtering:
+#  export HOMEFRIES_PROFILE_THRESHOLD=${HOMEFRIES_PROFILE_THRESHOLD:-0.01}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Get the path to Homefries
@@ -88,15 +98,7 @@ home_fries_nanos_now () {
 
 HOMEFRIES_TIME0="$(home_fries_nanos_now)"
 
-# YOU: Uncomment to show progress times.
-#  export HOMEFRIES_PROFILING=${HOMEFRIES_PROFILING:-true}
-export HOMEFRIES_PROFILING=${HOMEFRIES_PROFILING:-false}
-# YOU: Uncomment to show all or more startup function timings, otherwise
-#      only tasks that take longer than it (e.g., 0.12 secs.) are traced.
-#      - Note also the `export`, because echo-elapsed is its own fcn.
-#  export HOMEFRIES_PROFILE_THRESHOLD=${HOMEFRIES_PROFILE_THRESHOLD:-0}
-#  # Or perhaps with a tiny bit of filtering:
-#  export HOMEFRIES_PROFILE_THRESHOLD=${HOMEFRIES_PROFILE_THRESHOLD:-0.01}
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # 2020-03-19: (lb): For tmux, which already has bells and whistles
 # of its own, like a status bar, show a series of dots for each
