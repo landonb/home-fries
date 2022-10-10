@@ -10,6 +10,8 @@
 #
 # This script loads bashrc startup/profile scripts.
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # Specifics
 # =========
 #
@@ -20,9 +22,21 @@
 # Lib is last:    ./bashrc.core.sh
 #                    (which sources ../lib/*.sh files)
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Do nothing unless interactive
+# =============================
+
+# Ref: Copied from /etc/bash.bashrc [Ubuntu 18.04].
+#  "If not running interactively, don't do anything"
+
 # (One could also check [[ $- != *i* ]],
-# but not $(shopt login_shell), which is
-# false via mate-terminal.
+#  but not $(shopt login_shell),
+#  which is false via mate-terminal.)
+
+[ -z "$PS1" ] && return
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Script Setup
 # ============
@@ -45,12 +59,7 @@ home_fries_nanos_now () {
   fi
 }
 
-# Do Nothing Unless Interactive
-# =============================
-
-# Ref: Copied from /etc/bash.bashrc [Ubuntu 18.04].
-#  "If not running interactively, don't do anything"
-[ -z "$PS1" ] && return
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 HOMEFRIES_TIME0="$(home_fries_nanos_now)"
 
