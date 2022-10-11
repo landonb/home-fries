@@ -5,27 +5,24 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Overview
-# ========
+# *** Overview
 #
 # This script loads bashrc startup/profile scripts.
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Specifics
-# =========
+# *** Load order FYI
 #
-# System first:    /etc/bash.bashrc
+# First system:   /etc/bash.bashrc
 # Then private:   ./bashrx.private.sh
 #  (optional)     ./bashrx.private.$HOSTNAME.sh
 #                 ./bashrx.private.$LOGNAME.sh
-# Lib is last:    ./bashrc.core.sh
+# Lastly libs:    ./bashrc.core.sh
 #                    (which sources ../lib/*.sh files)
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Do nothing unless interactive
-# =============================
+# *** Do nothing unless interactive
 
 # Ref: Copied from /etc/bash.bashrc [Ubuntu 18.04].
 #  "If not running interactively, don't do anything"
@@ -38,8 +35,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Developer options
-# =================
+# *** Developer options to enable trace and profiling
 
 # YOU: Uncomment to enable logging to stdout:
 #  export HOMEFRIES_TRACE=${HOMEFRIES_TRACE:-true}
@@ -57,8 +53,7 @@ export HOMEFRIES_PROFILING=${HOMEFRIES_PROFILING:-false}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Get the path to Homefries
-# =========================
+# *** Get the path to Homefries, so we can use relative paths
 
 # Get the path to this script's parent directory.
 # - PREREQUISITE: On macOS, the `realpath` call requires Bash 4.x+,
@@ -96,9 +91,13 @@ home_fries_nanos_now () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# *** Begin profiling
+
 HOMEFRIES_TIME0="$(home_fries_nanos_now)"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# *** Prepare loading dots, if tmux
 
 # 2020-03-19: (lb): For tmux, which already has bells and whistles
 # of its own, like a status bar, show a series of dots for each
@@ -114,6 +113,8 @@ HOMEFRIES_LOADEDDOTS=''
 HOMEFRIES_LOADINGSEP='.'
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# *** First trace message means ready to load more scripts
 
 ${HOMEFRIES_TRACE} && echo "─ Welcome, User (EUID=${EUID})"
 
@@ -164,6 +165,8 @@ cleanup_loading_dots () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# *** Update PATH and LD_LIBRARY_PATH (e.g., wire ~/.local/bin)
+
 ensure_pathed () {
   # HACK!
   # - Unset BASH_VERSION so ~/.profile doesn't load *us*!
@@ -177,8 +180,7 @@ ensure_pathed () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# System-wide Profile
-# ===================
+# *** Load system profile
 
 source_system_rc () {
   local time_0="$(home_fries_nanos_now)"
@@ -204,8 +206,7 @@ source_system_rc () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Bash Setup Included in This Repo (lib/)
-# =======================================
+# *** Load Homefries scripts
 
 source_fries () {
   local time_0="$(home_fries_nanos_now)"
@@ -223,8 +224,7 @@ source_fries () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Bash Setup You Provide (Private and/or User-/Machine-Specific)
-# ==============================================================
+# *** Load private scripts (DEV's user- and machine-specific scripts)
 
 source_privately () {
   local srcfile="$1"
@@ -284,8 +284,7 @@ source_private () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Additional Fancy -- Starting Directory and Kickoff Command
-# ==========================================================
+# *** Optional final steps: Change to starting directory, and/or Run user command
 
 start_somewhere_something () {
   # Unless root, then boot. I.e., ${EUID} -eq 0.
@@ -331,8 +330,7 @@ start_somewhere_something () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Cleanup
-# =======
+# *** Bashrc cleanup
 
 home_fries_bashrc_cleanup () {
   local time_0="$(home_fries_nanos_now)"
@@ -391,6 +389,8 @@ home_fries_bashrc_cleanup () {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# *** Environment cleanup
 
 environ_cleanup () {
   # OCD cleanup to not pollute user's namespace (à la `env`, `set`, etc.).
