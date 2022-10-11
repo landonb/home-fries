@@ -30,7 +30,7 @@ export_homefries_envs () {
 source_from_user_path_or_homefries_lib () {
   local lib_file="$1"
   local deps_path="$2"
-  local time_0="$(home_fries_nanos_now)"
+  local time_0="$(print_nanos_now)"
   ${HOMEFRIES_TRACE} && echo "   . FRIES: ${lib_file}"
   print_loading_dot
 
@@ -308,7 +308,7 @@ source_utils_sources () {
 # ***
 
 source_homefries_libs () {
-  local time_outer_0="$(home_fries_nanos_now)"
+  local time_outer_0="$(print_nanos_now)"
   SOURCE_CNT=0
 
   source_homefries_libs_all
@@ -324,7 +324,7 @@ source_homefries_libs () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 eval_and_unset () {
-  local time_0="$(home_fries_nanos_now)"
+  local time_0="$(print_nanos_now)"
 
   # So that the func being sourced can use stdout
   # to have this shell set, e.g., array variables.
@@ -335,7 +335,7 @@ eval_and_unset () {
 }
 
 run_and_unset () {
-  local time_0="$(home_fries_nanos_now)"
+  local time_0="$(print_nanos_now)"
 
   print_loading_dot
 
@@ -348,7 +348,7 @@ run_and_unset () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 home_fries_up () {
-  local time_outer_0="$(home_fries_nanos_now)"
+  local time_outer_0="$(print_nanos_now)"
 
   #########################
 
@@ -539,7 +539,7 @@ home_fries_up () {
   #########################
 
   # - lib/input_util.sh
-  local time_0="$(home_fries_nanos_now)"
+  local time_0="$(print_nanos_now)"
   logitech-middle-mouse-click-disable
   unset -f logitech-middle-mouse-click-disable
   print_elapsed_time "${time_0}" "Action: middle-mouse-click-disable"
@@ -549,7 +549,7 @@ home_fries_up () {
   # 2018-03-28: Trying direnv (to eventually replace/enhance gogo, perhaps).
   # 2021-08-04: I can't remember the last time I used direnv.
   if command -v direnv > /dev/null; then
-    local time_0="$(home_fries_nanos_now)"
+    local time_0="$(print_nanos_now)"
     # Sets, e.g., PROMPT_COMMAND=_direnv_hook;
     eval "$(direnv hook bash)"
     print_elapsed_time "${time_0}" "hooking direnv"
@@ -682,7 +682,7 @@ run_and_unset_home_fries_create_aliases () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
-  local time_main_0="$(home_fries_nanos_now)"
+  local time_main_0="$(print_nanos_now)"
 
   export_homefries_envs
   unset -f export_homefries_envs

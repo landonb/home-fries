@@ -68,32 +68,29 @@ ${HOMEFRIES_TRACE} && echo "── HOMEFRIES_BASHRCBIN=${HOMEFRIES_BASHRCBIN}"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Script Setup
-# ============
+# *** Load profiling function
 
-# - For milliseconds, try instead:
-#     echo $(( $(date '+%s%N') / 1000000));
-#     echo $(( $(gdate '+%s%N') / 1000000));
-#   which also gives a whole number rather than a fraction.
-# https://unix.stackexchange.com/questions/69322/how-to-get-milliseconds-since-unix-epoch
-home_fries_nanos_now () {
-  if command -v gdate > /dev/null 2>&1; then
-    # macOS (brew install coreutils).
-    gdate +%s.%N
-  elif date --version > /dev/null 2>&1; then
-    # Linux/GNU.
-    date +%s.%N
+source_dep_print_nanos_now () {
+  local path="${HOMEFRIES_BASHRCBIN}/../deps/sh-print-nanos-now/bin/print-nanos-now.sh"
+
+  if [ -f "${path}" ]; then
+    . "${path}"
   else
-    # macOS pre-coreutils.
-    python -c 'import time; print("{:.9f}".format(time.time()))'
+    >&2 echo "ERROR: Where's the sh-print-nanos-now dependency?"
+    # This is unlikely, because the dependency is packaged with Homefries.
+    # But we might as well offer a shim, so the code can still load.
+    print_nanos_now () { printf '0'; }
+    export -f print_nanos_now
   fi
 }
+
+source_dep_print_nanos_now
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # *** Begin profiling
 
-HOMEFRIES_TIME0="$(home_fries_nanos_now)"
+HOMEFRIES_TIME0="$(print_nanos_now)"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -183,7 +180,7 @@ ensure_pathed () {
 # *** Load system profile
 
 source_system_rc () {
-  local time_0="$(home_fries_nanos_now)"
+  local time_0="$(print_nanos_now)"
 
   # Source global definitions.
   local sys_rc
@@ -209,7 +206,7 @@ source_system_rc () {
 # *** Load Homefries scripts
 
 source_fries () {
-  local time_0="$(home_fries_nanos_now)"
+  local time_0="$(print_nanos_now)"
 
   ${HOMEFRIES_TRACE} && echo "──┬ Loading Homefries scripts"
 
@@ -231,7 +228,7 @@ source_privately () {
   local srctype="$2"
   if [ -f "${srcfile}" ]; then
     ${HOMEFRIES_TRACE} && echo "  ├─ Loading from a ${srctype} resource: ✓ ${srcfile}"
-    local time_0="$(home_fries_nanos_now)"
+    local time_0="$(print_nanos_now)"
     . "${srcfile}"
     # To allow monkey-patching, private source can have us call its main.
     if declare -f _homefries_private_main > /dev/null; then
@@ -317,7 +314,7 @@ start_somewhere_something () {
     # Run the command.
     # FIXME: Does this hang the startup script? I.e., we're running the command
     #        from this script... so this better be the last command we run!
-    local time_0="$(home_fries_nanos_now)"
+    local time_0="$(print_nanos_now)"
     eval "${HOMEFRIES_EVAL}"
     print_elapsed_time "${time_0}" "eval: HOMEFRIES_EVAL"
   fi
@@ -333,7 +330,7 @@ start_somewhere_something () {
 # *** Bashrc cleanup
 
 home_fries_bashrc_cleanup () {
-  local time_0="$(home_fries_nanos_now)"
+  local time_0="$(print_nanos_now)"
 
   # Run the sourced-scripts' cleanup functions, to un-declare functions
   # (and remove cruft from user's environment).
@@ -345,7 +342,7 @@ home_fries_bashrc_cleanup () {
 
   # Show startup stats if user already tracing, or if profiling bashrc.
   if ${HOMEFRIES_TRACE:-false} || ${HOMEFRIES_PROFILING:-false}; then
-    local bashrc_time_n="$(home_fries_nanos_now)"
+    local bashrc_time_n="$(print_nanos_now)"
     local time_elapsed=$(\
       echo "${bashrc_time_n} - ${HOMEFRIES_TIME0}" | bc -l | xargs printf "%.2f" \
     )
@@ -417,7 +414,7 @@ environ_cleanup () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
-  local time_0="$(home_fries_nanos_now)"
+  local time_0="$(print_nanos_now)"
 
   # Add ~/.local/bin to PATH, and ~/.local/lib to LD_LIBRARY_PATH,
   # which we need because that's where my custom tmux et al is at.

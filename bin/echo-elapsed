@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # vim:tw=0:ts=2:sw=2:et:norl:ft=sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
 # Project: https://github.com/landonb/home-fries#🍟
@@ -28,7 +28,7 @@ echo_elapsed () {
   local time_0="$1"
   local detail="$2"
   local prefix="${3:-Elapsed: }"
-  local time_n="$(home_fries_nanos_now)"
+  local time_n="$(print_nanos_now)"
   local elapsed_fract_secs="$(echo "(${time_n} - ${time_0})" | bc -l)"
   if [ -z "${HOMEFRIES_PROFILING}" ] || \
      [ $(echo "${elapsed_fract_secs} >= ${threshold}" | bc -l) -eq 1 ] ; \

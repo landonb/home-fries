@@ -239,7 +239,7 @@ mv_based_on_name () {
     file_name="${dst_file%.*}"
     file_ext="${dst_file##*.}"
     # 2020-08-26: Note that `date +%N` is not an option on macOS, prints just 'N'.
-    # We could call home_fries_nanos_now for nanos, but we're adding the N to
+    # We could call print_nanos_now for nanos, but we're adding the N to
     # generate a unique name -- so might as well replace with UUID fragment.
     dst_path="${dst_subd}/${file_name}-$(date +%Y_%m_%d_%Hh%Mm%Ss)-$(uuidgen | head -c8).${file_ext}"
     echo "NOTICE: Renamed on copy: “${dst_path}”"

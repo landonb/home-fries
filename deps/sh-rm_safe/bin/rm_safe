@@ -618,7 +618,7 @@ _sh_rm_safe_process_items () {
        [ -h "${trash_fs_mount}/${RM_SAFE_TRASH_NAME}/${fname}" ]; \
     then
       # 2020-08-26: Note that `date +%N` is not an option on macOS, prints just 'N'.
-      # We could call home_fries_nanos_now for nanos, but we're adding the N to
+      # We could call print_nanos_now for nanos, but we're adding the N to
       # generate a unique name -- so might as well replace with UUID fragment.
       fname="${bname}.$(date +%Y_%m_%d_%Hh%Mm%Ss)-$(uuidgen | head -c8)"
     fi

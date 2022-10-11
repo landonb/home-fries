@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # vim:tw=0:ts=2:sw=2:et:norl:ft=sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
 # Project: https://github.com/landonb/home-fries#🍟
@@ -44,9 +44,9 @@ gripe_secrets_absent () {
   # called deliberately, so we'll tell user how to use it.
 
   local prev_notice=${SSH_SECRETS_NOTICE:-0}
-  SSH_SECRETS_NOTICE="$(home_fries_nanos_now)"
+  SSH_SECRETS_NOTICE="$(print_nanos_now)"
   if [ ${prev_notice} != "0" ]; then
-    local now="$(home_fries_nanos_now)"
+    local now="$(print_nanos_now)"
     if [ "$(echo "(${now} - ${prev_notice}) < 1.0" | bc -l)" -ne 0 ] ; then
       # It's been less than 1 second since previous notice; don't repeat yourself
       # so soon.
