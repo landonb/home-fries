@@ -26,7 +26,9 @@ _hf_python_util_pyenv_export_environs () {
 # - Calls `command pyenv rehash` (to "Rehash pyenv shims").
 # - Creates a lightweight pyenv() wrapper.
 _hf_python_util_pyenv_eval_init () {
-  eval "$(pyenv init -)"
+  if command -v pyenv > /dev/null; then
+    eval "$(pyenv init -)"
+  fi
 }
 
 # ***
