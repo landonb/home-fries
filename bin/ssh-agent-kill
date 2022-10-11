@@ -49,7 +49,7 @@ shell_sourced () { [ "$(basename -- "$0")" != "${this_file_name}" ]; }
 bash_sourced () { declare -p FUNCNAME > /dev/null 2>&1; }
 
 if ! shell_sourced; then
-  ssh_agent_kill "${@}"
+  ssh_agent_kill "$@"
 else
   bash_sourced && export -f ssh_agent_kill
   unset -v this_file_name

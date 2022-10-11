@@ -356,7 +356,7 @@ shell_sourced () {
 bash_sourced () { declare -p FUNCNAME > /dev/null 2>&1; }
 
 if ! shell_sourced; then
-  ssh_agent_kick "${@}"
+  ssh_agent_kick "$@"
 else
   bash_sourced && export -f ssh_agent_kick
   unset -v this_file_name
