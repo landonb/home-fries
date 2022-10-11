@@ -52,7 +52,7 @@ if ! shell_sourced; then
   ssh_agent_kill "${@}"
 else
   bash_sourced && export -f ssh_agent_kill
-  unset this_file_name
+  unset -v this_file_name
   unset -f shell_sourced
   unset -f bash_sourced
 fi

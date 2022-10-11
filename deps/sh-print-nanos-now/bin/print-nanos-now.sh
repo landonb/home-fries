@@ -37,9 +37,8 @@ if ! shell_sourced; then
   print_nanos_now "$@"
 else
   bash_sourced && export -f print_nanos_now
-  unset this_file_name
+  unset -v this_file_name
   unset -f shell_sourced
   unset -f bash_sourced
-  unset -v this_file_name
 fi
 

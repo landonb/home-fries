@@ -206,12 +206,12 @@ else
     # not set. Not our problem; user needs to configure PATH in the case.
     source_deps
   fi
+  unset -v this_file_name
+  unset -f shell_sourced
+  unset -f bash_sourced
+
   export_log_levels
   unset -f export_log_levels
   unset -f export_log_funcs
-
-  unset this_file_name
-  unset -f shell_sourced
-  unset -f bash_sourced
 fi
 
