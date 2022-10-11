@@ -29,10 +29,13 @@ check_deps () {
 }
 
 source_deps () {
-  # It's expected that the user sets up PATH accordingly.
+  # It's expected that Homefries setup PATH accordingly...
+  # FIXME/2022-10-11 01:26: This should load ~/.homefries/deps/...
   #   https://github.com/landonb/sh-colors
   #   https://github.com/landonb/sh-logger
   . "logger.sh"
+
+  # FIXME/2022-10-11: Also add sh-print-nanos-now deps/ dependency.
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
