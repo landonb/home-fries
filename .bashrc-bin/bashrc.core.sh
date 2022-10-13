@@ -107,7 +107,7 @@ ensure_deps () {
   #     ~/.homefries/.bashrc-bin/bashrx.private.user.sh
   #   to update PATH to includes these projects, which,
   #   is sourced before this script.
-  #   - FIXME/2020-09-26: Add link to the Waffle Batter project.
+  #   - FIXME/2020-09-26: Add link to the DepoXy Ambers project.
 
   # Ensure sh-colors/bin/colors.sh on PATH.
   # - Project includes: colors.sh

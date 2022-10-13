@@ -19,7 +19,7 @@ main () {
   # - The fzf/install uses /usr/local.
   # - We can also check first and honor $(brew prefix).
   # - And let's prefer source checkout, very first. Look for the path
-  #   used by the (my) Waffle Batter project (which models my DEV env.).
+  #   used by the (my) DepoXy Ambers project (which models my DEV env.).
   fzf_base_path () {
     local system_prefix="$(fzf_usr_local_path)"
 
