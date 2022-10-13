@@ -74,6 +74,16 @@ export_log_levels () {
   export LOG_LEVEL_VERBOSE=5
   export LOG_LEVEL_NOTSET=0
 
+  # BWARE/2022-10-13: Note that the first time a caller sources this
+  # library, none of the LOG_LEVEL_* values are defined in their
+  # environment, so it's not like the caller will have specified
+  # LOG_LEVEL yet. Meaning: when sourced for the first time, this
+  # library will always default to LOG_LEVEL_ERROR. It's only on
+  # a second or subsequent source that this if-block will be
+  # skipped (unless the caller unsets the LOG_LEVEL before source).
+  # The basic use case is: caller sources this library, then sets
+  # LOG_LEVEL, and then any commands they call after that also
+  # source this library won't cause the LOG_LEVEL to change.
   if [ -z ${LOG_LEVEL+x} ]; then
     export LOG_LEVEL=${LOG_LEVEL_ERROR}
   fi
@@ -87,7 +97,7 @@ _sh_logger_log_msg () {
   local FCN_COLOR="$2"
   local FCN_LABEL="$3"
   shift 3
-  if [ ${FCN_LEVEL} -ge ${LOG_LEVEL} ]; then
+  if [ ${FCN_LEVEL} -ge ${LOG_LEVEL:-${LOG_LEVEL_ERROR}} ]; then
     local RIGHT_NOW
     RIGHT_NOW=$(date "+%Y-%m-%d @ %T")
     local bold_maybe=''
