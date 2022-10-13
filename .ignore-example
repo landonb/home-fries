@@ -1,7 +1,4 @@
-.git/
-
-.bashrc
-
-# Dev's private .bashrc file(s).
-.bashrc-bin/bashrx.private*.sh
+/.git/
+/.bashrc
+/bin/completions/
 
