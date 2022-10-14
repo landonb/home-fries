@@ -45,7 +45,7 @@ home_fries_aliases_wire_vi_vim () {
 # The `fs` command is just easy to type, starts with 'f' (for 'file',
 # I suppose), and so far it doesn't conflict with anything popular of
 # which I know (unlike, say, `fd`). I type `fs` or `fs {file}` (or
-# `fs <Alt-.>`) a lot when I want to starting editing in GVim.
+# `fs <Alt-.>`) a lot when I want to start editing in GVim.
 fs () {
   # NOTE: The servername appears in the window title bar, so you are
   #       encouraged to personalize it accordingly!

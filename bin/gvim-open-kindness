@@ -60,11 +60,12 @@ gvim_open_kindness () {
 
   servername="$(gvim_ensure_servername_or_use_default "${servername}")"
 
-  # Fallback on a dummy file if the user doesn't specify a file to open,
+  # Fallback on a named file if the user doesn't specify a file to open,
   # because a bare command, e.g., gvim --servername ${servername}, opens
   # a new gVim with the name "${servername}1". Don't know why. (And does
   # not have to be a reST file, I just have an empty README in my home.)
   # MAYBE/2021-02-21: There's probably a way to open a new file to edit.
+  # TRYME/2022-10-13: What happens if the target file does not exist?
   if [ -z "${1+x}" ]; then
     set -- "${HOME}/README.rst"
   fi
