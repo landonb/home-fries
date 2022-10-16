@@ -97,15 +97,35 @@ export HOMEFRIES_PROFILING=${HOMEFRIES_PROFILING:-false}
 #         now if we cannot identify Bash 4 or better, or coreutils:
 
 fail_fast_fail_often () {
-  [ ${BASH_VERSINFO[0]} -ge 4 ] && command -v realpath > /dev/null && return
+  # Note that we call `bash` itself rather than check ${BASH_VERSINFO[0]},
+  # because macOS will load its own Bash 3, while Homebrew's Bash 5 might
+  # be what's on PATH.
+  # - I.e., the user called `eval $(/opt/homebrew/bin/brew shellenv)"
+  #   and then called `bash` to load Homefries.
+  # - Here's the naïve check, just FYÏ:
+  #     [ ${BASH_VERSINFO[0]} -ge 4 ] && command -v realpath > /dev/null && return
+  local bash_vers="$(bash --version | head -1 | sed -r 's/GNU bash, version ([0-9]+).*/\1/')"
 
   # If this `realpath --version` check passes, we'll assume that `coreutils`
   # is installed (because there's not an OS- and package-manager-agnostic
   # way to check that coreutils is installed otherwise, i.e., there's no
   # `coreutils` command, but rather all the commands that it installs).
-  realpath --version | head -1 | grep -q -e "(GNU coreutils)" && return
+  local assuming_corepath=false
+  command -v realpath > /dev/null &&
+    realpath --version | head -1 | grep -q -e "(GNU coreutils)" &&
+      assuming_corepath=true
 
-  >&2 echo "Oh No You Don't: Homefries requires Bash v4 or better, and coreutils."
+  [ ${bash_vers} -ge 4 ] && ${assuming_corepath} && return
+
+  >&2 echo "ERROR: Oh No, You Don't: Homefries requires Bash v4 or better, and coreutils."
+
+  BREW_PATH="/opt/homebrew/bin/brew"
+
+  if [ -e "${BREW_PATH}" ]; then
+    echo "HINT: Try sourcing Homebrew environs, then try again:"
+    echo "  eval \"\$(${BREW_PATH} shellenv)\""
+    echo "  bash"
+  fi
 
   exit 1
 }
