@@ -53,15 +53,72 @@ export HOMEFRIES_PROFILING=${HOMEFRIES_PROFILING:-false}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# *** Die early, Die often!
+
+# Require Bash 4+ and coreutils.
+#
+# - 2022-10-15: Two years ago, I had issues with stock macOS terminal
+#   because the old version of macOS's `readlink` did not support the
+#   `readlink -f` option to resolve relative paths.
+#   - This is since resolved: macOS 12.6 with Bash 3.2.57(1) supports
+#     the `readlink -f` option (manpage dated 2017-06-22).
+#   - Nonetheless, I do not want to assume -- nor test! -- that macOS's
+#     old Bash 3.x will work with Homefries. It's not like Homefries
+#     doesn't rely on coreutils and a myriad other modern conventions.
+#     - So let's *die here and now* if things don't pass muster.
+#   - Note the current state of macOS: Supports `readlink -f`, but Bash 3.
+#     - As I've said before: "you cannot load Homefries on vanilla macOS."
+#   - If you're wondering how best to setup your macOS to run Homefries,
+#     I refer you to my macOS onboarder:
+#       https://github.com/depoxy/macOS-onboarder#🏂
+#     Which will Homebrew-install everything you/I need, and even setup
+#     macOS `defaults` appropriately, so, e.g., you can run iTerm2 and
+#     it'll boot into a Bash 5 environment with coreutils at the ready.
+#     - You might also be interested in the dev machine onboarder that
+#       I use -- which uses macOS-onboarder -- that installs Homefries
+#       and all my favorite Git and Vim utilities, and much more:
+#         https://github.com/depoxy/depoxy#🍯
+#     - Although if you run Linux (which I do @home), I haven't quite
+#       squared the macOS installer with a comparable installer for
+#       Linux. Rather, I have instead a series of complicated Ansible
+#       playbooks, including but not limited to:
+#         https://github.com/landonb/zoidy_mintyfresh
+#         https://github.com/landonb/zoidy_home-fries
+#         https://github.com/landonb/zoidy_matecocido
+#         https://github.com/landonb/zoidy_panelsweet
+#         https://github.com/landonb/zoidy_troglodyte
+#       And unfortunately (for you, not me), I have not published
+#       the grand installer that downloads and runs all those plays.
+#       - Maybe someday I'll make an easier Linux installer, but I
+#         find myself standing up new macOS machines (for contract
+#         work) far more often than I standup new Linux machines
+#         (for @home personal use).
+#       - In any case, back to scheduled programming, die here and
+#         now if we cannot identify Bash 4 or better, or coreutils:
+
+fail_fast_fail_often () {
+  [ ${BASH_VERSINFO[0]} -ge 4 ] && command -v realpath > /dev/null && return
+
+  # If this `realpath --version` check passes, we'll assume that `coreutils`
+  # is installed (because there's not an OS- and package-manager-agnostic
+  # way to check that coreutils is installed otherwise, i.e., there's no
+  # `coreutils` command, but rather all the commands that it installs).
+  realpath --version | head -1 | grep -q -e "(GNU coreutils)" && return
+
+  >&2 echo "Oh No You Don't: Homefries requires Bash v4 or better, and coreutils."
+
+  exit 1
+}
+
+fail_fast_fail_often
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # *** Get the path to Homefries, so we can use relative paths
 
 # Get the path to this script's parent directory.
-# - PREREQUISITE: On macOS, the `realpath` call requires Bash 4.x+,
-#                 which is supplied by Homebrew and `brew install bash`.
-#   - I.e., you cannot load Homefries on vanilla macOS.
-#   - We want to call `realpath` or `readlink -f` to resolve relative paths,
-#     but stock macOS (Bash 3.x) does not include `realpath`,
-#     and its `readlink` is outdated (no -f option).
+# - Requires coreutils' `realpath`.
+#   See previous Bash version and coreutils check-and-die.
 
 export HOMEFRIES_BASHRCBIN="$(dirname -- "$(realpath -- "${BASH_SOURCE[0]}")")"
 ${HOMEFRIES_TRACE} && echo "── HOMEFRIES_BASHRCBIN=${HOMEFRIES_BASHRCBIN}"
