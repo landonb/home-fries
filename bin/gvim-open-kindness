@@ -226,7 +226,7 @@ gvim_relocate_cursor_to_editing_window () {
 
   gvim \
     --servername "${servername}" \
-    --remote-send "<ESC>:call SensibleOpenMoveCursorAvoidSpecial()<CR>" \
+    --remote-send "<ESC>:if exists('*SensibleOpenMoveCursorAvoidSpecial') | call SensibleOpenMoveCursorAvoidSpecial() | endif<CR>" \
     > /dev/null 2>&1
 }
 
