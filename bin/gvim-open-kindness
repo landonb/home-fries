@@ -41,6 +41,16 @@ GVIM_OPEN_SERVERNAME="${GVIM_OPEN_SERVERNAME:-SAMPI}"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+BREW_PATH="/opt/homebrew/bin/brew"
+
+source_deps () {
+  [ -x "${BREW_PATH}" ] || return 0
+
+  eval "$(${BREW_PATH} shellenv)"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 gvim_open_kindness () {
   local servername
   local row_number
@@ -304,6 +314,7 @@ os_is_macos () {
 # Run the function if being executed.
 # Otherwise being sourced, so do not.
 if ! $(printf %s "$0" | grep -q -E '(^-?|\/)(ba|da|z)?sh$' -); then
+  source_deps
   gvim_open_kindness "$@"
 fi
 
