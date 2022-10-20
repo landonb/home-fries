@@ -41,12 +41,16 @@ GVIM_OPEN_SERVERNAME="${GVIM_OPEN_SERVERNAME:-SAMPI}"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-BREW_PATH="/opt/homebrew/bin/brew"
-
 source_deps () {
-  [ -x "${BREW_PATH}" ] || return 0
+  # Apple Silicon (arm64) brew path is /opt/homebrew.
+  local brew_bin="/opt/homebrew/bin"
+  # Otherwise on Intel Macs it's under /usr/local.
+  [ -d "${brew_bin}" ] || brew_bin="/usr/local/bin"
+  local brew_path="${brew_bin}/brew"
 
-  eval "$(${BREW_PATH} shellenv)"
+  [ -x "${brew_path}" ] || return 0
+
+  eval "$(${brew_path} shellenv)"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -101,7 +105,8 @@ gvim_open_kindness () {
 # - E.g., when Karabiner-Elements (macOS) calls this script, the PATH
 #   is very simple: /usr/bin:/bin:/usr/sbin:/sbin.
 #
-#   But Home Brew installs MacVim to /usr/local/bin, which is not on
+#   But Home Brew installs MacVim to /usr/local/bin (older Intel Macs),
+#   or to /opt/homebrew/bin (newer arm64 Apple Silicon), which is not on
 #   PATH by default.
 #
 # - On MATE (at least this is the PATH that I see; I'm not sure if it's
@@ -111,7 +116,7 @@ gvim_open_kindness () {
 
 must_locate_gvim_or_notify_and_exit () {
   # Support Karabiner-Elements with MacVim at brew-installed location.
-  PATH="/usr/local/bin:${PATH}"
+  PATH="/opt/homebrew/bin:/usr/local/bin:${PATH}"
 
   # Support Linux users with custom build at conventional location.
   PATH="${HOME}/.local/bin:${PATH}"

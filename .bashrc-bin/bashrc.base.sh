@@ -119,11 +119,15 @@ fail_fast_fail_often () {
 
   >&2 echo "ERROR: Oh No, You Don't: Homefries requires Bash v4 or better, and coreutils."
 
-  BREW_PATH="/opt/homebrew/bin/brew"
+  # Apple Silicon (arm64) brew path is /opt/homebrew.
+  local brew_bin="/opt/homebrew/bin"
+  # Otherwise on Intel Macs it's under /usr/local.
+  [ -d "${brew_bin}" ] || brew_bin="/usr/local/bin"
+  local brew_path="${brew_bin}/brew"
 
-  if [ -e "${BREW_PATH}" ]; then
+  if [ -e "${brew_path}" ]; then
     echo "HINT: Try sourcing Homebrew environs, then try again:"
-    echo "  eval \"\$(${BREW_PATH} shellenv)\""
+    echo "  eval \"\$(${brew_path} shellenv)\""
     echo "  bash"
   fi
 
