@@ -293,7 +293,7 @@ popd_perhaps () {
 
 pushd_alias_or_warn () {
   if ! pushd_alias "$@"; then
-    >&2 echo "ERROR: Cannot alias: “$1” already assigned"
+    >&2 echo "WARNING: Cannot alias: “$1” already assigned"
 
     return 1
   fi
