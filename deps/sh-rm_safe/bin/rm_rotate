@@ -107,7 +107,7 @@ os_is_macos () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-if ! $(printf %s "$0" | grep -q -E '(^-?|\/)(ba|da|z)?sh$' -); then
+if ! $(printf %s "$0" | grep -q -E '(^-?|\/)(ba|da|fi|z)?sh$' -); then
   # Being executed.
   rm_rotate "${@}"
 else

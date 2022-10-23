@@ -169,7 +169,7 @@ killsomething () {
 
   if [ -n "${somethings}" ]; then
     # Skip debug trace if called from another program.
-    if $(printf %s "$0" | grep -q -E '(^-?|\/)(ba|da|z)?sh$' -); then
+    if $(printf %s "$0" | grep -q -E '(^-?|\/)(ba|da|fi|z)?sh$' -); then
       # Running from shell.
       ${HOMEFRIES_TRACE} && echo "$(ps aux | grep "${something}" | grep -v "\<grep\>")"
       ${HOMEFRIES_TRACE} && echo "Killing: ${somethings}"

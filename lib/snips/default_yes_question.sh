@@ -35,7 +35,7 @@ first_char_capped () {
 
 # Run the function if being executed.
 # Otherwise being sourced, so do not.
-if ! $(printf %s "$0" | grep -q -E '(^-?|\/)(ba|da|z)?sh$' -); then
+if ! $(printf %s "$0" | grep -q -E '(^-?|\/)(ba|da|fi|z)?sh$' -); then
   default_yes_question "$@"
 fi
 

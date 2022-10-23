@@ -318,7 +318,7 @@ os_is_macos () {
 
 # Run the function if being executed.
 # Otherwise being sourced, so do not.
-if ! $(printf %s "$0" | grep -q -E '(^-?|\/)(ba|da|z)?sh$' -); then
+if ! $(printf %s "$0" | grep -q -E '(^-?|\/)(ba|da|fi|z)?sh$' -); then
   source_deps
   gvim_open_kindness "$@"
 fi

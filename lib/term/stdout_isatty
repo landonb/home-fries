@@ -65,7 +65,7 @@ stdout_isatty () {
 
 # Run the function if being executed.
 # Otherwise being sourced, so do not.
-if ! $(printf %s "$0" | grep -q -E '(^-?|\/)(ba|da|z)?sh$' -); then
+if ! $(printf %s "$0" | grep -q -E '(^-?|\/)(ba|da|fi|z)?sh$' -); then
   stdout_isatty
 fi
 

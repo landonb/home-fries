@@ -38,7 +38,7 @@ unhook_stty_ixon_ctrl_s_xon_xoff_flow_control () {
 
 # Run the function if being executed.
 # Otherwise being sourced, so do not.
-if ! $(printf %s "$0" | grep -q -E '(^-?|\/)(ba|da|z)?sh$' -); then
+if ! $(printf %s "$0" | grep -q -E '(^-?|\/)(ba|da|fi|z)?sh$' -); then
   unhook_stty_ixon_ctrl_s_xon_xoff_flow_control
 fi
 
