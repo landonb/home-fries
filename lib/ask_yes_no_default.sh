@@ -14,10 +14,37 @@ check_deps () {
 # ============================================================================
 # *** Question Asker and Input Taker.
 
+# USAGE:
+#   # Source this file.
+#   . ask_yes_no_default.sh
+#
+#   # Ask user to "press [Y]/n".
+#   ask_yes_no_default "y"
+#
+#   # This is the same as:
+#   ask_yes_no_default "y" 15 "n"
+#
+#   # If user presses "y", "Y", or <ENTER>, an environment variable
+#   # named ${the_choice} is set to "Y". If user presses "n" or "N",
+#   # ${the_choice} is set to "N". If user does nothing for 15 seconds,
+#   # the timer expires, and ${the_choice} is set to "Y". Any other key
+#   # and the script complains, resets the countdown, and prompts user
+#   # again.
+#
+#   # To make the default be "N", not "Y", specify "N" first, e.g.,
+#   ask_yes_no_default "n"
+#
+#   # You can alternatively use other single-character keys, e.g.,
+#   ask_yes_no_default "a" 15 "b"
+
 # Ask a yes/no question and take just one key press as answer
 # (not waiting for user to press Enter), and complain if answer
 # is not y or n (or one of some other two characters).
 ask_yes_no_default () {
+  local default_choice="$1"
+  local choice_timeout="$2"
+  local other_choice="$3"
+
   # Don't exit on error, since `read` returns $? != 0 on timeout.
   tweak_errexit +eE
   # Also -x prints commands that are run, which taints the output.
@@ -25,10 +52,10 @@ ask_yes_no_default () {
 
   # Bash has nifty built-ins for capitalizing and lower-casing strings,
   # names ${x^^} and ${x,,}
-  local choice1_u=${1^^}
-  local choice1_l=${1,,}
-  local choice2_u=${3^^}
-  local choice2_l=${3,,}
+  local choice1_u=${default_choice^^}
+  local choice1_l=${default_choice,,}
+  local choice2_u=${other_choice^^}
+  local choice2_l=${other_choice,,}
   # Use default second choice if yes-or-no question.
   if [ -z "${choice2_u}" ]; then
     if [ "${choice1_u}" = 'Y' ]; then
@@ -61,12 +88,13 @@ ask_yes_no_default () {
     local choices="[${choice1_u}]/${choice2_l}"
   fi
 
-  if [ -z "$2" ]; then
+  if [ -z "${choice_timeout}" ]; then
     # Default timeout: 15 seconds.
     local timeo=15
   else
-    local timeo=$2
+    local timeo=${choice_timeout}
   fi
+  local timedout=true
 
   # https://stackoverflow.com/questions/2388090/
   #   how-to-delete-and-replace-last-line-in-the-terminal-using-bash
@@ -90,9 +118,18 @@ ask_yes_no_default () {
         # Thanks for the hint, stoverflove.
         # https://stackoverflow.com/questions/8063228/
         #   how-do-i-check-if-a-variable-exists-in-a-list-in-bash
+        # NOTE: This might be the only line preventing this script
+        #       from being POSIX-compliant.
+        #       - Could probably use `grep` instead if we wanted
+        #         to make this script not rely on Bash.
+        # NOTE: This test passes when user presses <ENTER>.
         if [[ ${valid_answers} =~ ${the_choice} ]]; then
           # The user answered the call correctly.
-          echo
+          # Unless user pressed <ENTER>, print a newline.
+          [ -z "${the_choice}" ] || echo
+          # So that we don't print another newline below,
+          # indicate not timed out.
+          timedout=false
           break
         else
           echo
@@ -111,13 +148,16 @@ ask_yes_no_default () {
     done
   done
 
+  # If `read` did not set ${the_choice}, means timeout, so choose default.
   if [ -z "${the_choice}" ]; then
-    the_choice=${choice1_u}
-    # echo $1'!'
+    the_choice="${choice1_u}"
+    # If user presses a key (including <ENTER>), there's a newline, so
+    # always print a newline if the countdown timer expired.
+    ${timedout} && echo
   fi
 
   # Uppercase the return character. Which we return in a variable.
-  the_choice=${the_choice^^}
+  the_choice="${the_choice^^}"
 
   reset_errexit
 
