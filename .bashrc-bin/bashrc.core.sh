@@ -275,6 +275,7 @@ source_utils_sources () {
   #
   #   source_it "utils/homefries_*.sh"
 
+  source_it "ask_yes_no_default.sh"
   source_it "datetime_now_TTT.sh"
   source_it "dir_util.sh"
   # Earlier: "distro_util.sh"
