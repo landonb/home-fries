@@ -30,11 +30,11 @@ ask_yes_no_default () {
   local choice2_u=${3^^}
   local choice2_l=${3,,}
   # Use default second choice if yes-or-no question.
-  if [[ -z $choice2_u ]]; then
-    if [[ $choice1_u == 'Y' ]]; then
+  if [ -z "${choice2_u}" ]; then
+    if [ "${choice1_u}" = 'Y' ]; then
       choice2_u='N'
       choice2_l='n'
-    elif [[ $choice1_u == 'N' ]]; then
+    elif [ "${choice1_u}" = 'N' ]; then
       choice2_u='Y'
       choice2_l='y'
     else
@@ -43,25 +43,25 @@ ask_yes_no_default () {
     fi
   fi
   # Make sure the choices are really just single-character strings.
-  if [[ ${#choice1_u} -ne 1 || ${#choice2_u} -ne 1 ]]; then
+  if [ ${#choice1_u} -ne 1 ] || [ ${#choice2_u} -ne 1 ]; then
     echo "ERROR: ask_yes_no_default: choices should be single letters."
     exit 1
   fi
   # Last check: uniqueness.
-  if [[ ${choice1_u} == ${choice2_u} ]]; then
+  if [ "${choice1_u}" = "${choice2_u}" ]; then
     echo "ERROR: ask_yes_no_default: choices should be unique."
     exit 1
   fi
 
-  if [[ ${choice1_u} == 'Y' && ${choice2_u} == 'N' ]]; then
+  if [ "${choice1_u}" = 'Y' ] && [ "${choice2_u}" = 'N' ]; then
     local choices='[Y]/n'
-  elif [[ ${choice1_u} == 'N' && ${choice2_u} == 'Y' ]]; then
+  elif [ "${choice1_u}" = 'N' ] && [ "${choice2_u}" = 'Y' ]; then
     local choices='y/[N]'
   else
     local choices="[${choice1_u}]/${choice2_l}"
   fi
 
-  if [[ -z $2 ]]; then
+  if [ -z "$2" ]; then
     # Default timeout: 15 seconds.
     local timeo=15
   else
@@ -81,16 +81,16 @@ ask_yes_no_default () {
   local not_done=true
   while $not_done; do
     not_done=false
-    # FIXME/2017-10-03: for local elaps a thing?
+    local elaps
     for elaps in `seq 0 $((timeo - 1))`; do
       printf '%s' \
         "[Default in $((timeo - elaps)) seconds...] Please press ${choices} "
       read -n 1 -t 1 the_choice
-      if [[ $? -eq 0 ]]; then
+      if [ $? -eq 0 ]; then
         # Thanks for the hint, stoverflove.
         # https://stackoverflow.com/questions/8063228/
         #   how-do-i-check-if-a-variable-exists-in-a-list-in-bash
-        if [[ $valid_answers =~ $the_choice ]]; then
+        if [ ${valid_answers} =~ ${the_choice} ]; then
           # The user answered the call correctly.
           echo
           break
@@ -104,14 +104,14 @@ ask_yes_no_default () {
           break
         fi
       fi
-      if [[ $elaps -lt $((timeo - 1)) ]]; then
+      if [ ${elaps} -lt $((timeo - 1)) ]; then
         # Return to the start of the line.
         printf '\r'
       fi
     done
   done
 
-  if [[ -z $the_choice ]]; then
+  if [ -z "${the_choice}" ]; then
     the_choice=${choice1_u}
     # echo $1'!'
   fi
