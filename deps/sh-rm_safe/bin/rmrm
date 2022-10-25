@@ -73,9 +73,14 @@ rmrm () {
   #       So parse the last history entry (which is the current
   #       command, which Bash will replace on the `history -s`).
   #
+  # NOTE: The `history` format is, e.g.,
+  #         $ history 1
+  #         10078  2022-10-24 16:00:23 history 1
+  #       Note the first number format is '%5d', so might be space-padded.
+  #
   # NOTE: This trick only works if `rmrm` sourced!
   history -s "#$(
-    history 1 | /usr/bin/env sed -E 's/^ +[0-9]+ +[-0-9]+ +[:0-9]+ //'
+    history 1 | /usr/bin/env sed -E 's/^ *[0-9]+ +[-0-9]+ +[:0-9]+ //'
   )"
 }
 
