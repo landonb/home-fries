@@ -163,10 +163,14 @@ _sh_rm_safe_ensure_trashdir () {
   elif [ -f "${trash_fs_mount}/${RM_SAFE_TRASH_NAME}" ]; then
     ensured=2  # So caller invokes `rm -i`.
 
-    if [ -z "${previously_printed_trash_disabled_notice[${fs_of_item}]}" ]; then
+    # Similar too Bash v4+ associate array:
+    #   if [ -z "${previously_printed_trash_disabled_notice[${fs_of_item}]}" ]; then
+    if [ -z "$(eval echo '$'previously_printed_trash_disabled_notice${fs_of_item})" ]; then
       >&2 echo "The trash is disabled on device ‘${fs_of_item}’"
 
-      previously_printed_trash_disabled_notice[${fs_of_item}]="1"
+      # Similar too Bash v4+ associate array:
+      #  previously_printed_trash_disabled_notice[${fs_of_item}]="1"
+      eval "previously_printed_trash_disabled_notice${fs_of_item}='1'"
     fi
   else
     if [ ! -e "${trash_fs_mount}/${RM_SAFE_TRASH_NAME}" ]; then
@@ -679,7 +683,8 @@ rm_safe () {
   local trash_fs_mount_locked=false
 
   local previously_printed_missing_trashdir_prompt=false
-  declare -A previously_printed_trash_disabled_notice
+  # TOO_BASHY: We'll use eval flattened variable tricks instead:
+  #  declare -A previously_printed_trash_disabled_notice
 
   # echo "RM_SAFE_TRASH_HOME: ${RM_SAFE_TRASH_HOME}"
   # The trash can way!
