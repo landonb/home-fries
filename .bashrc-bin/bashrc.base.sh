@@ -131,6 +131,7 @@ fail_fast_fail_often () {
     echo "  bash"
   fi
 
+  read -n 1 -e -p "Sorry! (Hit any key to continue) "
   exit 1
 }
 
