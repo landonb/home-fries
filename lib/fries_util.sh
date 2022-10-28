@@ -72,6 +72,13 @@ home_fries_direxpand_completions () {
   # which is completely useless. So revert to the old behavior.
   # And using &> since this option isn't available on older OSes
   # (which already default to the (subjectively) "better" behavior).
+
+  # 2022-10-28: My new M1 MacBook (Apple Silicon) exhibits slightly
+  # opposite behavior: It performs Bash variable expansion on <TAB>
+  # when `direxpand` is enabled, but it doesn't exhibit (thankfully)
+  # $-escaping when disabled.
+  os_is_macos && return
+
   shopt -s direxpand &> /dev/null
 }
 
