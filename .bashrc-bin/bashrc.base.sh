@@ -117,22 +117,22 @@ fail_fast_fail_often () {
 
   [ ${bash_vers} -ge 4 ] && ${assuming_corepath} && return
 
-  >&2 echo "ERROR: Oh No, You Don't: Homefries requires Bash v4 or better, and coreutils."
+  # 2022-10-28: I've been downcoding to Bash 3 for macOS, but not finished yet.
+  >&2 echo "BWARE: Some of Homefries requires Bash v4, and coreutils."
 
-  # Apple Silicon (arm64) brew path is /opt/homebrew.
-  local brew_bin="/opt/homebrew/bin"
-  # Otherwise on Intel Macs it's under /usr/local.
-  [ -d "${brew_bin}" ] || brew_bin="/usr/local/bin"
-  local brew_path="${brew_bin}/brew"
+  if [ -z "${HOMEBREW_PREFIX}" ]; then
+    # Apple Silicon (arm64) brew path is /opt/homebrew.
+    local brew_bin="/opt/homebrew/bin"
+    # Otherwise on Intel Macs it's under /usr/local.
+    [ -d "${brew_bin}" ] || brew_bin="/usr/local/bin"
+    local brew_path="${brew_bin}/brew"
 
-  if [ -e "${brew_path}" ]; then
-    echo "HINT: Try sourcing Homebrew environs, then try again:"
-    echo "  eval \"\$(${brew_path} shellenv)\""
-    echo "  bash"
+    if [ -e "${brew_path}" ]; then
+      echo "HINT: Try sourcing Homebrew environs, then try again."
+      echo "  eval \"\$(${brew_path} shellenv)\""
+      echo "  bash"
+    fi
   fi
-
-  read -n 1 -e -p "Sorry! (Hit any key to continue) "
-  exit 1
 }
 
 fail_fast_fail_often
