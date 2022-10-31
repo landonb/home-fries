@@ -31,7 +31,29 @@ _hf_python_util_pyenv_eval_init () {
   fi
 }
 
-# ***
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+_hf_python_util_pyenv_homebrew_load_completions () {
+  local brew_home="/opt/homebrew"
+  # Otherwise on Intel Macs it's under /usr/local.
+  [ -d "${brew_home}" ] || brew_home="/usr/local"
+
+  local cellar_path="${brew_home}/Cellar"
+
+  local pyenv_bash="${cellar_path}/pyenv/2.3.5/completions/pyenv.bash"
+
+  if [ -f "${pyenv_bash}" ]; then
+    . "${pyenv_bash}"
+  fi
+}
+
+_hf_python_util_pyenv_virtualenv_init () {
+  if which pyenv-virtualenv-init > /dev/null; then
+      eval "$(pyenv virtualenv-init -)"
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 home_fries_setup_pyenv () {
   _hf_python_util_pyenv_export_environs
@@ -39,6 +61,12 @@ home_fries_setup_pyenv () {
 
   _hf_python_util_pyenv_eval_init
   unset -f _hf_python_util_pyenv_eval_init
+
+  _hf_python_util_pyenv_homebrew_load_completions
+  unset -f _hf_python_util_pyenv_homebrew_load_completions
+
+  _hf_python_util_pyenv_virtualenv_init
+  unset -f _hf_python_util_pyenv_virtualenv_init
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
