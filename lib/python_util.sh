@@ -40,7 +40,8 @@ _hf_python_util_pyenv_homebrew_load_completions () {
 
   local cellar_path="${brew_home}/Cellar"
 
-  local pyenv_bash="${cellar_path}/pyenv/2.3.5/completions/pyenv.bash"
+  # E.g., "/opt/homebrew/Cellar/pyenv/2.3.5/completions/pyenv.bash"
+  local pyenv_bash="${cellar_path}/pyenv/"*"/completions/pyenv.bash"
 
   if [ -f "${pyenv_bash}" ]; then
     . "${pyenv_bash}"
