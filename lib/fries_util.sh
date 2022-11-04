@@ -4,7 +4,14 @@
 # Project: https://github.com/landonb/home-fries#🍟
 # License: MIT
 
-# NOTE/2017-10-03: This particular script has no useful fcns, just environs.
+# FIXME/2020-02-06: This file is the dumping ground for rando!
+# - Move these functions to more appropriately-named lib/<files>.sh
+#   - E.g., group completions fcns. and move to their own file;
+#           probably retire SDKMAK;
+#           check if LD_LIBRARY_PATH still needed, and maybe move to LD-specific file;
+#           move crontab and anacron to its own file;
+#           not sure where EDITOR setting goes...;
+#           move pdf180rot to, what, a PDF-named Bashrc?
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -312,6 +319,8 @@ home_fries_export_editor_vim () {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# FIXME/2022-11-04 15:30: Cleanup this comment:
 
 # 2020-01-03: More random crap!
 # - I had thought about making a poutine-level command, like fries-findup,
