@@ -14,7 +14,7 @@
 #
 # Or audit the script first and run it manually:
 #
-#   cd ~/.downloads
+#   cd "${HF_DOWNLOADS_DIR:-${HOME}/.downloads}"
 #   wget https://sh.rustup.rs -O install-rust.sh
 #   # Review the file. Then, if you trust it:
 #   chmod 775 install-rust.sh

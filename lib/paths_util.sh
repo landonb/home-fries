@@ -81,7 +81,7 @@ home_fries_add_to_path_home_local_bin () {
 # to new language-specific files, e.g., .homefries/lib/java_util.sh, golang_util.sh.
 
 home_fries_add_to_path_java_jdk_jre () {
-  local install_dir="${HOME}/.downloads"
+  local install_dir="${HF_DOWNLOADS_DIR:-${HOME}/.downloads}"
 
   local jdk_dir="${install_dir}/jdk"
   if [ -d "${jdk_dir}" ]; then
@@ -96,7 +96,7 @@ home_fries_add_to_path_java_jdk_jre () {
 }
 
 home_fries_add_to_path_android_studio () {
-  local install_dir="${HOME}/.downloads"
+  local install_dir="${HF_DOWNLOADS_DIR:-${HOME}/.downloads}"
 
   path_suffix "${install_dir}/android-studio/bin"
   path_suffix "${install_dir}/android-sdk/platform-tools"

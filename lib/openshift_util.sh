@@ -15,10 +15,12 @@ check_deps () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 home_fries_add_to_path_openshift_origin () {
-  # OpenShift Origin server.
-  [ ! -d "${HOME}/.downloads/openshift-origin-server" ] && return
+  local downloads_dir="${HF_DOWNLOADS_DIR:-${HOME}/.downloads}"
 
-  path_prefix "${HOME}/.downloads/openshift-origin-server"
+  # OpenShift Origin server.
+  [ ! -d "${downloads_dir}/openshift-origin-server" ] && return
+
+  path_prefix "${downloads_dir}/openshift-origin-server"
 
   # OpenShift development.
   #  https://github.com/openshift/origin/blob/master/CONTRIBUTING.adoc#develop-locally-on-your-host
