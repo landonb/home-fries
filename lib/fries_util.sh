@@ -343,16 +343,6 @@ pdf180rot () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# 2020-02-06: This file is the dumping ground for rando!
-# - Case in point, I'm adding the (sourcing of the) fzf conf herein!
-
-home_fries_enable_fuzzy_finder_fzf () {
-  local fzf_path="${HOMEFRIES_LIB:-${HOME}/.homefries/lib}/term-fzf.bash"
-  [ -f "${fzf_path}" ] && . "${fzf_path}"
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 main () {
   :
 }

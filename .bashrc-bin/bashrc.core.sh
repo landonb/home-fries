@@ -303,7 +303,6 @@ source_utils_sources () {
   source_it "rust_util.sh"
   source_it "session_util.sh"
   source_it "ssh_util.sh"
-  # Loaded specially: "term-fzf.bash"
   # Earlier: "term/*.sh"
   source_it "time_util.sh"
   source_it "user_util.sh"
@@ -542,9 +541,6 @@ home_fries_up () {
   # - lib/fries_util.sh
   #  run_and_unset "home_fries_load_sdkman"
   unset -f home_fries_load_sdkman
-
-  # - lib/fries_util.sh
-  run_and_unset "home_fries_enable_fuzzy_finder_fzf"
 
   #########################
 
