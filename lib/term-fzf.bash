@@ -58,7 +58,11 @@ main () {
   # Setup fzf
   # ---------
   fzf_update_path () {
-    if [[ ! "$PATH" == *${fzf_path}/bin* ]]; then
+    # 2022-11-05: Prefer ~/.local/bin/fzf, which is how DepoXy wires
+    # fzf using OMR `infuse` task. So setting PATH should not be
+    # necessary, well, if you're using DepoXy.
+    # - Also not sure why we're not using `path_prefix` here.
+    if [ ! -e "${HOME}/.local/bin/fzf" ] && [[ ! "$PATH" == *${fzf_path}/bin* ]]; then
       # (lb): FZF defaults to after PATH, but put before,
       # so that local source found before /usr/local/bin.
       #  export PATH="${PATH:+${PATH}:}${fzf_path}/bin"
