@@ -11,7 +11,14 @@ home_fries_aliases_wire_pwd () {
   claim_alias_or_warn "p" "pwd"
 
   # 2021-01-28: A real wisenheimer.
-  claim_alias_or_warn "P" 'pwd && pwd | tr -d "\n" | xclip -selection c'
+  #  claim_alias_or_warn "P" 'pwd && pwd | tr -d "\n" | xclip -selection c'
+  # 2022-11-04: Crank it up a notch?
+  # - Print current directory to stdout and copy to clipboard,
+  #   after replacing leading home path with tilde.
+  #   - Use case: Pasting somewhere, like notes, where you might
+  #     want to use a user-agnostic home path, or you just want
+  #     a shorter path.
+  claim_alias_or_warn "P" 'pwd | sed "s#^$HOME#~#" | tee >(tr -d "\n" | xclip -selection c)'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
