@@ -9,8 +9,9 @@
 claim_alias_or_warn () {
   local the_alias="$1"
   local the_command="$2"
+  local force=${3:-false}
 
-  if ! type "${the_alias}" > /dev/null 2>&1; then
+  if $force || ! type "${the_alias}" > /dev/null 2>&1; then
     eval "alias ${the_alias}=\"${the_command}\""
   else
     >&2 echo "WARNING: Refusing to alias existing command “${the_alias}”."
