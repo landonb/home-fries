@@ -7,8 +7,7 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 home_fries_aliases_wire_history () {
-  # Misc. directory aliases.
-  alias h='history'         # Nothing special, just convenient.
+  claim_alias_or_warn "h" "history"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

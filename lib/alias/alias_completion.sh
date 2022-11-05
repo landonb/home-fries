@@ -20,11 +20,11 @@ home_fries_create_aliases_tab_completion () {
   # from the script to the terminal, otherwise the autocomplete responses
   # are intertwined with the paste.
 
-  #alias tabsoff="bind 'set disable-completion on'"
-  #alias tabson="bind 'set disable-completion off'"
+  # claim_alias_or_warn "tabsoff" "bind 'set disable-completion on'"
+  # claim_alias_or_warn "tabson" "bind 'set disable-completion off'"
 
-  alias toff="bind 'set disable-completion on'"
-  alias ton="bind 'set disable-completion off'"
+  claim_alias_or_warn "toff" "bind 'set disable-completion on'"
+  claim_alias_or_warn "ton" "bind 'set disable-completion off'"
 
   # 2017-08-25: You need to disable tab completion to test copy-paste
   #             ``<<-`` here-documents.

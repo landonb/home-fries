@@ -12,19 +12,19 @@
 # Here are its lesser known sibling commands.
 #
 # 2018-03-28: There's a package for that!
-#   ## alias whereami=is an actual package you can install.
-#   # alias whereami="echo 'How should I know?' ; \
+#   ## claim_alias_or_warn "whereami" "is an actual package you can install."
+#   # claim_alias_or_warn "whereami" "echo 'How should I know?' ; \
 #   #   /usr/bin/python /usr/lib/command-not-found whereami"
 #   npm install -g @rafaelrinaldi/whereami
 
 home_fries_aliases_wire_amis () {
-  alias howami="echo 'Doing well. Thanks for asking.' ; \
+  claim_alias_or_warn "howami" "echo 'Doing well. Thanks for asking.' ; \
                 /usr/bin/python /usr/lib/command-not-found howami"
-  alias whatami="echo 'Neither plant nor animal.' ; \
+  claim_alias_or_warn "whatami" "echo 'Neither plant nor animal.' ; \
                 /usr/bin/python /usr/lib/command-not-found whatami"
-  alias whenami="echo 'You are in the here and now.' ; \
+  claim_alias_or_warn "whenami" "echo 'You are in the here and now.' ; \
                 /usr/bin/python /usr/lib/command-not-found whenami"
-  alias whyami="echo 'Because you gotta be somebody.' ; \
+  claim_alias_or_warn "whyami" "echo 'Because you gotta be somebody.' ; \
                 /usr/bin/python /usr/lib/command-not-found whyami"
 }
 

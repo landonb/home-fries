@@ -10,10 +10,10 @@ home_fries_aliases_wire_ohmyrepos () {
   # See also functions below: `sf`, `sff`, `st`, `stt`.
 
   # 2020-03-25: Is this completely insane?
-  alias gb='git br'
-  alias gr='git r'
-  # alias g='git r && git br && sf'
-  alias g='sf && git br && git r'
+  claim_alias_or_warn "gb" "git br"
+  claim_alias_or_warn "gr" "git r"
+  # claim_alias_or_warn "g" "git r && git br && sf"
+  claim_alias_or_warn "g" "sf && git br && git r"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

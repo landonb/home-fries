@@ -8,10 +8,10 @@
 
 home_fries_aliases_wire_pwd () {
   # [lb] uses p frequently, just like h and ll.
-  alias p='pwd'
+  claim_alias_or_warn "p" "pwd"
 
   # 2021-01-28: A real wisenheimer.
-  alias P='pwd && pwd | tr -d "\n" | xclip -selection c'
+  claim_alias_or_warn "P" 'pwd && pwd | tr -d "\n" | xclip -selection c'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

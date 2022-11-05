@@ -8,23 +8,24 @@
 
 home_fries_aliases_wire_ruby () {
   # 2016-12-06: Not sure I need this... probably not.
-  #if [[ ! -e "/usr/bin/ruby1" ]]; then
-  #  alias ruby1='/usr/bin/env ruby1.9.1'
-  #fi
-  #if [[ ! -e "/usr/bin/ruby2" ]]; then
-  #  #alias ruby2='/usr/bin/env ruby2.0'
-  #  #alias ruby2='/usr/bin/env ruby2.2'
-  #  alias ruby2='/usr/bin/env ruby2.3'
-  #fi
-  :
+  false && (
+    if [ ! -e "/usr/bin/ruby1" ]; then
+     claim_alias_or_warn "ruby1" "/usr/bin/env ruby1.9.1"
+    fi
+    if [ ! -e "/usr/bin/ruby2" ]; then
+      # claim_alias_or_warn "ruby2" "/usr/bin/env ruby2.0"
+      # claim_alias_or_warn "ruby2" "/usr/bin/env ruby2.2"
+      claim_alias_or_warn "ruby2" "/usr/bin/env ruby2.3"
+    fi
+  )
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_alias_ruby () {
+home_fries_unset_f_alias_ruby () {
   unset -f home_fries_aliases_wire_ruby
   # So meta.
-  unset -f unset_f_alias_ruby
+  unset -f home_fries_unset_f_alias_ruby
 }
 
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #

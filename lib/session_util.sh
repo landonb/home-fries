@@ -158,10 +158,11 @@ lock_screensaver_and_do_nothing_else () {
 
 } # end: lock_screensaver_and_do_nothing_else
 
-# 2016-10-10: Seriously? `qq` isn't a command? Sweet!
-alias qq="lock_screensaver_and_do_nothing_else"
-alias qqq="lock_screensaver_and_power_suspend"
-alias q4="lock_screensaver_and_power_suspend_lite"
+home_fries_session_util_configure_aliases_ps () {
+  claim_alias_or_warn "qq" "lock_screensaver_and_do_nothing_else"
+  claim_alias_or_warn "qqq" "lock_screensaver_and_power_suspend"
+  claim_alias_or_warn "q4" "lock_screensaver_and_power_suspend_lite"
+}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -339,10 +340,14 @@ pm-latest () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Test if Bash function exists.
+# - 2022-11-04: Nothing calls this.
 fn_exists () {
   type -t $1 > /dev/null
 }
-alias function_exists=fn_exists
+
+# home_fries_session_util_configure_aliases_fn () {
+#   claim_alias_or_warn "function_exists" "fn_exists"
+# }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 

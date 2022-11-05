@@ -154,7 +154,8 @@ source_homefries_libs_all () {
   unset -f ensure_deps
   unset -f ensure_pathed
 
-  # *** Load order matters, to limit number of `.` invocations.
+  # *** Load these files first, which are local dependencies for
+  #     scripts loaded later.
 
   source_it "process_util.sh"
   source_it "path_util.sh"
@@ -163,14 +164,16 @@ source_homefries_libs_all () {
 
   source_it "distro_util.sh"
 
+  source_it "alias/claim_alias_or_warn.sh"
+
   # *** External projects (revisited).
 
   # So that each `rmrm` command is stored in Bash history as `#rmrm`,
   # source the rmrm script (otherwise `history -s` has no effect).
   source_it "rmrm" "sh-rm_safe/bin"
 
-  # *** Load order does not matter (remaining files only depend
-  #     on those previously loaded); so alphabetical.
+  # *** Load order does not matter for the remaining files, which only
+  #     depend on files previously loaded. So ordering alphabetically.
 
   source_alias_sources
   unset -f source_alias_sources
@@ -272,8 +275,10 @@ source_term_sources () {
 
 source_utils_sources () {
   # FIXME/2020-12-16: Relocate and Rename these files, like:
-  #
   #   source_it "utils/homefries_*.sh"
+  # Or:
+  #   source_it "utils/hf_*.sh"
+  # Or, split each file apart into subdir., like term/*.sh
 
   source_it "ask_yes_no_default.sh"
   source_it "datetime_now_TTT.sh"
@@ -402,9 +407,12 @@ home_fries_up () {
 
   #########################
 
-  # Shell options
   # - lib/session_util.sh
   run_and_unset "home_fries_configure_shell_options"
+
+  # - lib/session_util.sh
+  run_and_unset "home_fries_session_util_configure_aliases_ps"
+  #run_and_unset "home_fries_session_util_configure_aliases_fn"
 
   #########################
 
@@ -669,7 +677,9 @@ run_and_unset_home_fries_create_aliases () {
   run_and_unset "home_fries_aliases_wire_rg_tag"
 
   # - lib/alias/alias_ruby.sh
+  # Deprecated:
   #  run_and_unset "home_fries_aliases_wire_ruby"
+  run_and_unset "home_fries_unset_f_alias_ruby"
 
   # - lib/alias/alias_sudo.sh
   run_and_unset "home_fries_aliases_wire_sudo"

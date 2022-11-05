@@ -25,7 +25,7 @@
 # 2021-05-15: Until today, the `aci` was a simple alias:
 #
 #  # Auto commit. Things like notes files, Vim spell file, .vimprojects, etc.
-#  alias aci="mr -d / autocommit -y"
+#  claim_alias_or_warn "aci" "mr -d / autocommit -y"
 
 # Note: I'm not aware if it matters if we use SSH_CLIENT or SSH_TTY,
 # e.g., from within a remote session, one might see:

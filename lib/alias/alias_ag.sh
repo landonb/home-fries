@@ -9,7 +9,7 @@
 home_fries_aliases_wire_ag () {
   # The Silver Search.
   # Always allow lowercase, and, more broadly, all smartcase.
-  alias ag='ag --smart-case --hidden'
+  alias ag="ag --smart-case --hidden"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

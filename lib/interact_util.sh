@@ -34,7 +34,7 @@ define_flicker () {
     #         xcalib -i -a -s 0 && xcalib -i -a -s 1
   }
 
-  alias invert='flicker'
+  claim_alias_or_warn "invert" 'flicker'
 }
 
 # ============================================================================

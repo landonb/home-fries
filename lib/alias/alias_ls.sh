@@ -9,28 +9,49 @@
 # *** Directory listings.
 
 home_fries_aliases_wire_ls () {
+  # 2015-01-20: Using --color=tty still works, but `man` says use --color=auto.
   local color_opt="--color=auto"
 
-  # 2015.01.20: Used to use --color=tty (which still works), but man says =auto.
-  alias ls="/usr/bin/env ls -hFA ${color_opt}"  # Human readable, classify files, shows
-                                        #   almost all (excludes ./ and ../),
-                                        #   and uses colour.
-  # See `l` function, below, so we can pipe to tail and get rid of "total" line.
-  # alias l="/usr/bin/env ls -lhFA ${color_opt} --group-directories-first"
-                                        # Compact listing (same as -hFA, really),
-                                        #   but list directories first which
-                                        #   seems to make the output cleaner.
-  alias ll="/usr/bin/env ls -lhFa ${color_opt}" # Long listing; includes ./ and ../
-                                        #   (so you can check permissions)
-  alias lll="ll --time-style=long-iso"  # 2017-07-10: Show timestamps always.
-  alias lo="ll -rt"                     # Reverse sort by time.
-  alias llo="lo --time-style=long-iso"  # 2017-07-10: You get the ideaa.
-  alias lS="/usr/bin/env ls ${color_opt} -lhFaS" # Sort by size, from largest (empties last).
-  alias lS-="/usr/bin/env ls ${color_opt} -lFaS | sort -n -k5" # Sort by size, largest last.
+  # Human readable /bin/ls that classify files, shows almost
+  # all entries (excludes ./ and ../), and uses colour.
+  alias ls="/usr/bin/env ls -hFA ${color_opt}"
 
-  # Do not list owner (replace -l with -g), and do not list group name (add -G).
-  alias LL="/usr/bin/env ls -gGhFa ${color_opt}" # Long listing; includes ./ and ../
-  alias LO="LL -rt"                     # Reverse sort by time.
+  # Compact /bin/ls listing (same as -hFA, really), but list
+  # directories first, which seems to make the output cleaner.
+  # - See `l` function, below, so we can pipe to tail and get rid of "total" line.
+  #  alias l="/usr/bin/env ls -lhFA ${color_opt} --group-directories-first"
+
+  # ***
+
+  # Long /bin/ls listing, which includes ./ and ../ (perhaps
+  # so you can check permissions).
+  claim_alias_or_warn "ll" "/usr/bin/env ls -lhFa ${color_opt}"
+
+  # 2017-07-10: Show timestamps always. [2022-11-04: I never use this.]
+  claim_alias_or_warn "lll" "ll --time-style=long-iso"
+
+  # Reverse sort by time. [2022-11-04: I use this very often.]
+  claim_alias_or_warn "lo" "ll -rt"
+
+  # 2017-07-10: You get the ideaa. [2022-11-04: I never use this.]
+  claim_alias_or_warn "llo" "lo --time-style=long-iso"
+
+  # Sort by size, from largest (empties last). [2022-11-04: I use this sometimes.]
+  claim_alias_or_warn "lS" "/usr/bin/env ls ${color_opt} -lhFaS"
+
+  # Sort by size, largest last. [2022-11-04: I'd forgotten about this one.]
+  claim_alias_or_warn "lS-" "/usr/bin/env ls ${color_opt} -lFaS | sort -n -k5"
+
+  # ***
+
+  # L* aliases do not list owner (replace -l with -g),
+  # and do not list group name (add -G).
+
+  # Long listing, which includes ./ and ../
+  claim_alias_or_warn "LL" "/usr/bin/env ls -gGhFa ${color_opt}"
+
+  # Reverse sort by time.
+  claim_alias_or_warn "LO" "LL -rt"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

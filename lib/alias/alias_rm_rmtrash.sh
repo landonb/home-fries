@@ -16,8 +16,8 @@ check_deps () {
 # Change `rm` into a respectable trashcan.
 home_fries_aliases_wire_rm_rmtrash () {
   RM_SAFE_TRASH_HOME="${RM_SAFE_TRASH_HOME:-${HOME}}"
-  alias rm='rm_safe'
-  alias rmtrash='rm_rotate'
+  alias rm="rm_safe"
+  claim_alias_or_warn "rmtrash" "rm_rotate"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

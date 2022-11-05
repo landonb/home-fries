@@ -8,7 +8,7 @@
 
 home_fries_aliases_wire_chmod () {
   # Grant executable rights.
-  alias chx='chmod +x'
+  claim_alias_or_warn "chx" "chmod +x"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

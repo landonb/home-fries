@@ -39,7 +39,7 @@ home_fries_aliases_wire_cd_pushd_popd () {
           if [ $? -ne 0 ]; then
             echo "You're dumb."
           else
-            # alias errcho='>&2 echo'
+            # claim_alias_or_warn "errcho" ">&2 echo"
             # echo blah >&2
             >&2 echo "FYI: We popped you to a file's homedir, home skillet."
           fi
@@ -53,17 +53,17 @@ home_fries_aliases_wire_cd_pushd_popd () {
   }
   export -f cdd
 
-  alias cdc='popd > /dev/null'
+  claim_alias_or_warn "cdc" "popd > /dev/null"
 
   # 2017-05-03: How is `cd -` doing a flip-between-last-dir news to me?!
-  alias cddc='cd -'
+  claim_alias_or_warn "cddc" "cd -"
 
   # 2020-12-04: Clear remembered directories stack.
   # 2020-12-16: Inbox zero, meet Bash directory history stack zero.
-  alias popdocd='popd && dirs -c'
+  claim_alias_or_warn "popdocd" "popd && dirs -c"
 
   # Move to the parent directory.
-  alias ..='cd ..'
+  claim_alias_or_warn ".." "cd .."
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

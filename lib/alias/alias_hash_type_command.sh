@@ -6,12 +6,13 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# Similar commands: `hash`, `type -a`, `command -v`.
 home_fries_aliases_wire_hash_type_command () {
-  # Similar commands: `hash`, `type -a`, `command -v`.
+  # Show executable path or alias definition.
+  claim_alias_or_warn "cmd" "command -v"
 
-  alias cmd='command -v $1' # Show executable path or alias definition.
-
-  alias whence='type -a'    # `where`, of a sort.
+  # `where`, of a sort.
+  claim_alias_or_warn "whence" "type -a"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

@@ -7,13 +7,13 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 home_fries_aliases_wire_du () {
-  alias du='du -h'
+  alias du="du -h"
 
-  alias dum="du -m -d 1 . | sort -n"
+  claim_alias_or_warn "dum" "du -m -d 1 . | sort -n"
 
-  alias dub="du -b -d 1 . | sort -n"
+  claim_alias_or_warn "dub" "du -b -d 1 . | sort -n"
 
-  # alias duhome='du -ah /home | sort -n'
+  # claim_alias_or_warn "duhome" "du -ah /home | sort -n"
 
   # Use same units, else sort mingles different sizes.
   # cd ~ && du -BG -d 1 . | sort -n
@@ -21,7 +21,7 @@ home_fries_aliases_wire_du () {
   # See also the `free` alias.
 
   # List the top 20 files/folders sizes.
-  alias dutop='du -sh * | sort -hr | head -20'
+  claim_alias_or_warn "dutop" 'du -sh * | sort -hr | head -20'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

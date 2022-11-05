@@ -10,7 +10,7 @@ home_fries_aliases_wire_netstat () {
   # See also: `ss`, fresher than netstat.
   #   "Netstat and ifconfig are part of net-tools, while ss and ip are part of iproute2."
   #   https://utcc.utoronto.ca/~cks/space/blog/linux/ReplacingNetstatNotBad
-  alias n='netstat -tulpn'  # --tcp --udp --listening --program (name) --numeric
+  claim_alias_or_warn "n" "netstat -tulpn"  # --tcp --udp --listening --program (name) --numeric
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

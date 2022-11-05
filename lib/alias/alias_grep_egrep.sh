@@ -8,7 +8,7 @@
 
 # Show grep differences in colour.
 home_fries_aliases_wire_grep () {
-  alias grep='grep --color'
+  alias grep="grep --color"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -19,8 +19,8 @@ home_fries_aliases_wire_grep () {
 #   -i, --ignore-case
 home_fries_aliases_wire_egrep () {
   if [ -e "$HOME/.grepignore" ]; then
-    alias eg='egrep -n -R -i --color --exclude-from="$HOME/.grepignore"'
-    alias egi='egrep -n -R --color --exclude-from="$HOME/.grepignore"'
+    claim_alias_or_warn "eg" 'egrep -n -R -i --color --exclude-from="$HOME/.grepignore"'
+    claim_alias_or_warn "egi" 'egrep -n -R --color --exclude-from="$HOME/.grepignore"'
   fi
 }
 

@@ -12,7 +12,7 @@ home_fries_aliases_wire_mv () {
   alias mv='mv -i'
 
   # Move a glob of files and include .dotted (hidden) files.
-  alias mv_all='mv_dotglob'
+  claim_alias_or_warn "mv_all" "mv_dotglob"
   # Problem illustration:
   #   $ ls project
   #   .agignore
@@ -43,7 +43,7 @@ home_fries_aliases_wire_mv () {
     #  set +f
   }
 
-  alias mv.='mv_dotglob'
+  claim_alias_or_warn "mv." "mv_dotglob"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

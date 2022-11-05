@@ -9,7 +9,7 @@
 # Colorful Diff
 home_fries_aliases_wire_diff () {
   # 2020-09-18: Surprised I never ran across this before!
-  alias diff='diff --color=auto'
+  alias diff="diff --color=auto"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

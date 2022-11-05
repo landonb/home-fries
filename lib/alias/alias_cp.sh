@@ -9,7 +9,7 @@
 home_fries_aliases_wire_cp () {
   # NOTE: Sometimes the -i doesn't get overriden by -f so it's best to call
   #       `/bin/cp` or `\cp` and not `cp -f` if you want to overwrite files.
-  alias cp='cp -i'
+  alias cp="cp -i"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

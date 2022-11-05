@@ -214,7 +214,7 @@ home_fries_alias_ld_library_path_cmds () {
 # Crontab shortcuts.
 
 home_fries_alias_crontab () {
-  alias ct='crontab -e -u ${LOGNAME}'
+  claim_alias_or_warn "ct" 'crontab -e -u ${LOGNAME}'
 
   local vim_editor=""
   if [ -e "/usr/bin/vim.basic" ]; then
@@ -225,7 +225,7 @@ home_fries_alias_crontab () {
   # 2015.01.25: FIXME: Not sure what best to use...
   vim_editor=/usr/bin/vim
   if [ -n "${vim_editor}" ]; then
-    alias ct-www='\
+    claim_alias_or_warn "ct-www" '\
       ${HOMEFRIES_TRACE} && echo "ct-www" ; \
       sudo -u ${httpd_user} \
         SELECTED_EDITOR=${vim_editor} \

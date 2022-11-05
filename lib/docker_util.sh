@@ -74,15 +74,13 @@ docker_kill_tails_jobs () {
 
 docker_kill_tails_ps () {
   # Kill all `docker logs` processes.
-  #proc_ids=$(ps aux | grep "docker logs -f" | awk '{print $2}')
+  #  proc_ids=$(ps aux | grep "docker logs -f" | awk '{print $2}')
   proc_ids=$(ps aux | grep "docker logs" | awk '{print $2}')
   echo -e "proc_ids: \n${proc_ids}"
   if [[ "$proc_ids" != "" ]]; then
     echo $proc_ids | xargs kill -s 9 >/dev/null 2>&1
   fi
 }
-
-alias docker_kill_tails_ps="docker_kill_tails"
 
 docker_logs_all () {
   # Docker default logging is to write application stdout to a file

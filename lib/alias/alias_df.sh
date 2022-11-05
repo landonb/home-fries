@@ -23,9 +23,9 @@ home_fries_aliases_wire_df () {
   #         Filesystem  Size  Used Avail Use% Mounted on
   #         /foo/bar    884G  600G  239G  72% /baz/bat
   if os_is_linux; then
-    alias df='df -h -T'
+    alias df="df -h -T"
   elif os_is_macos; then
-    alias df='df -h'
+    alias df="df -h"
   fi
 }
 

@@ -6,9 +6,14 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# Note that /usr/bin/ht runs tex4ht programs, "used to convert TeX source
+# files from numerous dialects of TeX into different hypertext variants."
+# - I'm not aware of anyway nowadays (at least not running around in my
+#   dev circles) that uses this program. So, yes, this is one of the rare
+#   times where Homefries shadows an existing command.
 home_fries_aliases_wire_htop () {
-  # alias t='top -c'        # Show full command.
-  alias ht='htop'
+  # claim_alias_or_warn "ht" "htop"
+  alias ht="htop"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

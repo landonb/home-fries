@@ -9,8 +9,8 @@
 home_fries_aliases_wire_pwgen () {
   # 2016-09-24: Why didn't I think of this 'til now?
   # [Note also that pass can just do it, too.]
-  alias pwgen16="pwgen -n 16 -s -N 1 -y"
-  alias pwgen21="pwgen -n 21 -s -N 1 -y"
+  claim_alias_or_warn "pwgen16" "pwgen -n 16 -s -N 1 -y"
+  claim_alias_or_warn "pwgen21" "pwgen -n 21 -s -N 1 -y"
 
   # 2022-09-25: To make double-clicking passwords in the terminal easier
   # to copy-paste, ensure first two and final two characters are alphanums.
@@ -18,7 +18,7 @@ home_fries_aliases_wire_pwgen () {
   # until quantum computing screws us over and we all need to move to
   # elliptic-curve cryptography.
   # - Note the surrounding () is necessary for redirection, e.g., `pwgen23 > foo`.
-  alias pwgen23="( pwgen 2 1 | tr -d '\n' ; pwgen -n 21 -s -N 1 -y | tr -d '\n' ; pwgen 2 1 )"
+  claim_alias_or_warn "pwgen23" "( pwgen 2 1 | tr -d '\n' ; pwgen -n 21 -s -N 1 -y | tr -d '\n' ; pwgen 2 1 )"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

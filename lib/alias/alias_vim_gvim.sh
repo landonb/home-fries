@@ -27,7 +27,7 @@ home_fries_aliases_wire_vi_vim () {
   alias vim.tiny="vim.tiny -u NONE"
 
   # 2018-03-28: From MarkM. Except it doesn't quite work for me....
-  #  alias v='${EDITOR} $(fc -s) ' # edit results of last command
+  #  claim_alias_or_warn "v" '${EDITOR} $(fc -s) ' # edit results of last command
 }
 
 # *** Gvim/gVim

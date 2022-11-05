@@ -143,7 +143,8 @@ perl-repl () {
 # Hint: "Use `p @<arrayOrList>` or `p %<hashTable>` to print
 #        arrays/lists/hashtables; e.g.: `p %ENV`"
 #
-#  alias iperl='rlwrap -A -S "iperl> " perl -MData::Printer -wnE '\'' BEGIN { say "HI"; } say eval()//$@'\'
+#  claim_alias_or_warn "iperl" \
+#   'rlwrap -A -S "iperl> " perl -MData::Printer -wnE '\'' BEGIN { say "HI"; } say eval()//$@'\'
 
 # Other Perl REPL projects:
 #
