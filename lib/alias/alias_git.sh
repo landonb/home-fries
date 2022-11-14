@@ -37,7 +37,12 @@ home_fries_aliases_wire_git () {
   claim_alias_or_warn "gcv" "git commit -v"
 
   # git-smart's `git upstream` aka git-nubs.sh's `git_tracking_branch`.
-  claim_alias_or_warn "gup" "git rev-parse --abbrev-ref --symbolic-full-name @{u}"
+  claim_alias_or_warn "gup" "_hf_git_tracking_branch"
+}
+
+_hf_git_tracking_branch () {
+  # 2> /dev/null
+  git rev-parse --abbrev-ref --symbolic-full-name @{u}
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

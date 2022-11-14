@@ -9,11 +9,40 @@
 home_fries_aliases_wire_ohmyrepos () {
   # See also functions below: `sf`, `sff`, `st`, `stt`.
 
-  # 2020-03-25: Is this completely insane?
+  # 2022-11-11: I use `g` occassionally (added 2020-03-25, but only
+  # recently rediscovering), but I'd forgot about `gb` and `gr`.
+  # MAYBE: Remove `gb` and `gr`.
   claim_alias_or_warn "gb" "git br"
   claim_alias_or_warn "gr" "git r"
-  # claim_alias_or_warn "g" "git r && git br && sf"
-  claim_alias_or_warn "g" "sf && git br && git r"
+
+  # 2022-11-14: Life used to be so simple back then:
+  #   claim_alias_or_warn "g" "git r && git br && sf"
+  alias g="_hf_git_print_summary_g"
+}
+
+_hf_git_print_summary_g () {
+  sf
+
+  # The '*' marking current branch is redundant: it's also a different color.
+  git_brs_no_star_and_indented () {
+    local new_indent="${1:-    }"
+
+    git branch --color=always | sed "s/^../${new_indent}/"
+  }
+
+  git_latest_commit_message () {
+    git --no-pager log --format=%s -1 HEAD
+  }
+
+  printf "🔀" &&
+    git_brs_no_star_and_indented " " | head -1
+  git_brs_no_star_and_indented "   " | tail +2
+
+  printf "📠 " && git r
+
+  printf "👆 " && _hf_git_tracking_branch
+
+  printf "🗣  " && git_latest_commit_message
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
