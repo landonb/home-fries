@@ -32,10 +32,12 @@ home_fries_aliases_wire_git () {
   # 2020-12-01: Why not.
   claim_alias_or_warn "gap" "git add -p"
 
-  # 2021-01-25: Weeds. (Aka, `git ci -v`.)
   # 2022-10-05: This shows diff at bottom of commit message template.
   # - But I don't think I've ever used it. (I def. don't remember it.)
-  #  claim_alias_or_warn "gcv" "git commit -v"
+  claim_alias_or_warn "gcv" "git commit -v"
+
+  # git-smart's `git upstream` aka git-nubs.sh's `git_tracking_branch`.
+  claim_alias_or_warn "gup" "git rev-parse --abbrev-ref --symbolic-full-name @{u}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
