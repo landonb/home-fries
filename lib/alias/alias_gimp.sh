@@ -36,7 +36,8 @@ home_fries_create_alias_gimp_macos () {
   # gimp is hashed (/usr/local/bin/gimp) by default, but
   # running `gimp` itself generates warnings and exits 255.
 
-  claim_alias_or_warn "gimp" "open /Applications/GIMP-2.10.app"
+  # claim_alias_or_warn "gimp" "open /Applications/GIMP-2.10.app"
+  alias gimp="open /Applications/GIMP-2.10.app"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

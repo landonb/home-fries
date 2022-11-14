@@ -37,7 +37,9 @@ home_fries_aliases_wire_ls () {
   claim_alias_or_warn "llo" "lo --time-style=long-iso"
 
   # Sort by size, from largest (empties last). [2022-11-04: I use this sometimes.]
-  claim_alias_or_warn "lS" "/usr/bin/env ls ${color_opt} -lhFaS"
+  # - Huh, this conflicts with /bin/lS on macOS, some alternative `ls`, not sure.
+  #  claim_alias_or_warn "lS" "/usr/bin/env ls ${color_opt} -lhFaS"
+  alias lS="/usr/bin/env ls ${color_opt} -lhFaS"
 
   # Sort by size, largest last. [2022-11-04: I'd forgotten about this one.]
   claim_alias_or_warn "lS-" "/usr/bin/env ls ${color_opt} -lFaS | sort -n -k5"
