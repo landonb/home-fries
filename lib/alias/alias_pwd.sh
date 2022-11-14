@@ -18,15 +18,11 @@ home_fries_aliases_wire_pwd () {
   #   - Use case: Pasting somewhere, like notes, where you might
   #     want to use a user-agnostic home path, or you just want
   #     a shorter path.
-  claim_alias_or_warn "P" 'pwd | sed \"s#^$HOME#~#\" | tee >(tr -d \"\n\" | xclip -selection c)'
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-unset_f_alias_pwd () {
-  unset -f home_fries_aliases_wire_pwd
-  # So meta.
-  unset -f unset_f_alias_pwd
+  type xclip > /dev/null 2>&1 \
+    && claim_alias_or_warn "P" \
+      'pwd | sed \"s#^$HOME#~#\" | tee >(tr -d \"\n\" | xclip -selection c)' \
+    || claim_alias_or_warn "P" \
+      'pwd | sed \"s#^$HOME#~#\" | tee >(tr -d \"\n\" | pbcopy)'
 }
 
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
