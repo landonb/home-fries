@@ -118,7 +118,17 @@ fail_fast_fail_often () {
   [ ${bash_vers} -ge 4 ] && ${assuming_corepath} && return
 
   # 2022-10-28: I've been downcoding to Bash 3 for macOS, but not finished yet.
-  >&2 echo "BWARE: Some of Homefries requires Bash v4, and coreutils."
+  >&2 echo "BWARE: A few pieces in Homefries may fail without Bash v4" \
+    "(but for the most part you likely won't notice)."
+  # 2022-11-16: Perform a hacky is-coreutils-available check. Though really,
+  # each individual Homefries functions should check deps when they run, if
+  # they have any. Each function could also check Bash v4, if that's a
+  # requirement. Because the majority of Homefries works fine on Bash v3 (I
+  # can't think of what fails on Bash v3, I just "know" there's something),
+  # it'd be better to gripe about running on Bash v3 or "missing" coreutils
+  # iff the user invokes a Bash v4 fcn or a fcn that expects a GNU app.
+  ( readlink --version || greadlink --version ) > /dev/null 2>&1 ||
+    >&2 echo "BWARE: Some of Homefries requires coreutils."
 
   if [ -z "${HOMEBREW_PREFIX}" ]; then
     # Apple Silicon (arm64) brew path is /opt/homebrew.
