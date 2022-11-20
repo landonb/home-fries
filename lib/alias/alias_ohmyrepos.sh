@@ -30,6 +30,13 @@ _hf_git_print_summary_g () {
     git branch --color=always | sed "s/^../${new_indent}/"
   }
 
+  # git-re aka `git r`.
+  git_remotes_indented () {
+    local new_indent="$1"
+
+    git-re | sed "s/^/${new_indent}/"
+  }
+
   git_latest_commit_message () {
     git --no-pager log --format=%s -1 HEAD
   }
@@ -38,7 +45,8 @@ _hf_git_print_summary_g () {
     git_brs_no_star_and_indented " " | head -1
   git_brs_no_star_and_indented "   " | tail +2
 
-  printf "📠 " && git r
+  printf "📠 " && git_remotes_indented "" | head -1
+  git_remotes_indented "   " | tail +2
 
   printf "👆 " && _hf_git_tracking_branch
 
