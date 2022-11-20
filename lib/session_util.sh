@@ -17,7 +17,7 @@ bash-exit-bash-hole () {
   #   ps aux | grep "bash" | grep $PPID &> /dev/null
   # FIXME/2018-05-29: Here and elsewhere: prefer `grep -E`...
   ps ax -o pid,command | grep -P "^ *$PPID \S+/bash(?:($| ))" &> /dev/null
-  if [[ $? -eq 0 ]]; then
+  if [ $? -eq 0 ]; then
     exit
   else
     echo "stay"
@@ -78,13 +78,17 @@ lock_screensaver_and_power_suspend () {
   done
 
   . /etc/lsb-release
-  if [[ ${DISTRIB_CODENAME} = 'xenial' \
-     || ${DISTRIB_CODENAME} = 'sarah' \
-     || ${DISTRIB_CODENAME} = 'sonya' \
-     ]]; then
+  if false \
+    || [ ${DISTRIB_CODENAME} = 'xenial' ] \
+    || [ ${DISTRIB_CODENAME} = 'sarah' ] \
+    || [ ${DISTRIB_CODENAME} = 'sonya' ] \
+  ; then
     _homefries_screensaver_command --lock && \
       systemctl suspend -i
-  elif [[ ${DISTRIB_CODENAME} = 'trusty' || ${DISTRIB_CODENAME} = 'rebecca' ]]; then
+  elif false \
+    || [ ${DISTRIB_CODENAME} = 'trusty' ] \
+    || [ ${DISTRIB_CODENAME} = 'rebecca' ] \
+  ; then
     _homefries_screensaver_command --lock && \
       dbus-send --system --print-reply --dest=org.freedesktop.UPower \
         /org/freedesktop/UPower org.freedesktop.UPower.Suspend
@@ -134,13 +138,17 @@ lock_screensaver_and_power_suspend_lite () {
   xdotool key ctrl+alt+d
 
   . /etc/lsb-release
-  if [[ ${DISTRIB_CODENAME} = 'xenial' \
-     || ${DISTRIB_CODENAME} = 'sarah' \
-     || ${DISTRIB_CODENAME} = 'sonya' \
-     ]]; then
+  if false \
+    || [ ${DISTRIB_CODENAME} = 'xenial' ] \
+    || [ ${DISTRIB_CODENAME} = 'sarah' ] \
+    || [ ${DISTRIB_CODENAME} = 'sonya' ] \
+  ; then
     _homefries_screensaver_command --lock && \
       systemctl suspend -i
-  elif [[ ${DISTRIB_CODENAME} = 'trusty' || ${DISTRIB_CODENAME} = 'rebecca' ]]; then
+  elif false \
+    || [ ${DISTRIB_CODENAME} = 'trusty'] \
+    || [ ${DISTRIB_CODENAME} = 'rebecca' ] \
+  ; then
     _homefries_screensaver_command --lock && \
       dbus-send --system --print-reply --dest=org.freedesktop.UPower \
         /org/freedesktop/UPower org.freedesktop.UPower.Suspend
@@ -208,9 +216,9 @@ user_window_session_logout () {
 
 disable_wakeup_on_lid () {
   cat /proc/acpi/wakeup | grep "^LID" &> /dev/null
-  if [[ $? -eq 0 ]]; then
+  if [ $? -eq 0 ]; then
     cat /proc/acpi/wakeup | grep "^LID" | grep disabled &> /dev/null
-    if [[ $? -ne 0 ]]; then
+    if [ $? -ne 0 ]; then
       #echo " LID" | sudo tee /proc/acpi/wakeup
       echo " LID" | tee /proc/acpi/wakeup
     fi
