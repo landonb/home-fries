@@ -8,6 +8,7 @@
 
 # If the parent process is also bash, we're bash-in-bash,
 # so we want to exit to the outer shell.
+
 # 2018-05-22: How have I not noticed this yet?! 'snot working!!
 #   The simple grep on "bash" is broken, as it matches, e.g.,
 #     mate-terminal --geometry 130x48+1486+65 -e /user/home/.local/bin/bash
@@ -15,13 +16,39 @@
 # This is too simple:
 #   ps aux | grep "bash" | grep $PPID &> /dev/null
 # FIXME/2018-05-29: Here and elsewhere: prefer `grep -E`...
+
+# 2022-11-20: `poetry shell`'s virtualenv uses `exit`, not `deactivate`.
+
 bash-exit-bash-hole () {
-  ps ax -o pid,command | grep -P "^ *$PPID \S+/bash(?:($| ))" &> /dev/null
-  if [ $? -eq 0 ]; then
-    exit
+  local parent_is_bash=false
+  local parent_is_poetry=false
+
+  # E.g.,
+  #   18305 /home/user/.local/bin/bash
+  ps ax -o pid,command | grep -P "^ *${PPID} \S+/bash($| )" &> /dev/null
+  [ $? -ne 0 ] || parent_is_bash=true
+
+  # E.g.,
+  #   23799 /home/user/.local/share/pypoetry/venv/bin/python /home/user/.local/bin/poetry shell
+  ps ax -o pid,command | grep -P "^ *${PPID} \S+/python3? \S+/poetry shell$" &> /dev/null
+  [ $? -ne 0 ] || parent_is_poetry=true
+
+  if ${parent_is_bash}; then
+    echo "exit, sh"
+
+    exit 2> /dev/null
+  elif ${parent_is_poetry}; then
+    echo "exit, po"
+
+    exit 2> /dev/null
   else
     echo "stay"
   fi
+}
+
+# `shexit` also comes to mind, but `be<TAB>` for the win.
+home_fries_session_util_configure_aliases_bexit () {
+  claim_alias_or_warn "bexit" "bash-exit-bash-hole"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
