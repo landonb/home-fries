@@ -56,6 +56,44 @@ _hf_python_util_pyenv_virtualenv_init () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+#  $ po env info
+#
+#  Virtualenv
+#  Python:         3.10.8
+#  ...
+#  Executable:     /home/user/.cache/pypoetry/virtualenvs/easy-as-pypi-appdirs-_M-chTHi-py3.10/bin/python
+#  Valid:          True
+#
+#  System
+#  Platform:   linux
+#  ...
+#  Executable: /usr/bin/python3.10
+_hf_poetry_env_bin () {
+  dirname "$(
+    poetry env info --no-ansi --no-interaction \
+      | grep -e "^Executable: " \
+      | head -1 \
+      | awk '{ print $2 }'
+  )"
+}
+
+# SPIKE/2022-11-20: How is sourcing activate different than `poetry shell`?
+# - Is it just because a subprocess cannot change the parent process, so
+#   `poetry shell` has to open a new terminal session and inject the source
+#   command therein?
+# - But here we can use an alias, which'll run in the session context, so
+#   we can avoid opening a new shell...
+#   - Albeit now you need to call `deactivate`, instead of `exit` (which
+#     I kinda liked about `poetry shell` usage)...
+#     - Though we can always wrap `exit`...
+_hf_python_util_poetry_alias_activate () {
+  # claim_alias_or_warn "poactivate" ". \$(_hf_poetry_env_bin)/activate"
+  claim_alias_or_warn "poactivate" \
+    ". \$(_hf_poetry_env_bin)/activate && exit () { echo deactivate; deactivate; unset -f exit; }"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 home_fries_setup_pyenv () {
   _hf_python_util_pyenv_export_environs
   unset -f _hf_python_util_pyenv_export_environs
@@ -68,6 +106,11 @@ home_fries_setup_pyenv () {
 
   _hf_python_util_pyenv_virtualenv_init
   unset -f _hf_python_util_pyenv_virtualenv_init
+}
+
+home_fries_setup_poetry () {
+  _hf_python_util_poetry_alias_activate
+  unset -f _hf_python_util_poetry_alias_activate
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

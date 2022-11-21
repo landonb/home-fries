@@ -481,6 +481,7 @@ home_fries_up () {
   # so that pyenv's PATH prefix doesn't itself get prefixed.
   # - lib/python_util.sh
   run_and_unset "home_fries_setup_pyenv"
+  run_and_unset "home_fries_setup_poetry"
 
   #########################
 
