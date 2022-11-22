@@ -68,13 +68,18 @@ _hf_python_util_pyenv_virtualenv_init () {
 #  Platform:   linux
 #  ...
 #  Executable: /usr/bin/python3.10
-_hf_poetry_env_bin () {
-  dirname "$(
-    poetry env info --no-ansi --no-interaction \
-      | grep -e "^Executable: " \
-      | head -1 \
-      | awk '{ print $2 }'
-  )"
+#
+#  $ poetry env info --path
+#  /home/user/.cache/pypoetry/virtualenvs/easy-as-pypi-appdirs-_M-chTHi-py3.10
+#
+_hf_python_util_poetry_activate_venv () {
+  . "$(poetry env info --path)/bin/activate"
+
+  exit () {
+    echo deactivate
+    deactivate
+    unset -f exit;
+  }
 }
 
 # SPIKE/2022-11-20: How is sourcing activate different than `poetry shell`?
@@ -86,10 +91,8 @@ _hf_poetry_env_bin () {
 #   - Albeit now you need to call `deactivate`, instead of `exit` (which
 #     I kinda liked about `poetry shell` usage)...
 #     - Though we can always wrap `exit`...
-_hf_python_util_poetry_alias_activate () {
-  # claim_alias_or_warn "poactivate" ". \$(_hf_poetry_env_bin)/activate"
-  claim_alias_or_warn "poactivate" \
-    ". \$(_hf_poetry_env_bin)/activate && exit () { echo deactivate; deactivate; unset -f exit; }"
+_hf_python_util_poetry_activate_venv_alias () {
+  claim_alias_or_warn "poactivate" "_hf_python_util_poetry_activate_venv"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -109,8 +112,8 @@ home_fries_setup_pyenv () {
 }
 
 home_fries_setup_poetry () {
-  _hf_python_util_poetry_alias_activate
-  unset -f _hf_python_util_poetry_alias_activate
+  _hf_python_util_poetry_activate_venv_alias
+  unset -f _hf_python_util_poetry_activate_venv_alias
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
