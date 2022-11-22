@@ -21,20 +21,24 @@
 
 bash-exit-bash-hole () {
   local parent_is_bash=false
+  local parent_is_ibash=false
   local parent_is_poetry=false
 
-  # E.g.,
-  #   18305 /home/user/.local/bin/bash
-  ps ax -o pid,command | grep -P "^ *${PPID} \S+/bash($| )" &> /dev/null
+  _hf_session_util_is_ppid_bash
   [ $? -ne 0 ] || parent_is_bash=true
 
-  # E.g.,
-  #   23799 /home/user/.local/share/pypoetry/venv/bin/python /home/user/.local/bin/poetry shell
-  ps ax -o pid,command | grep -P "^ *${PPID} \S+/python3? \S+/poetry shell$" &> /dev/null
+  _hf_session_util_is_ppid_ibash
+  [ $? -ne 0 ] || parent_is_ibash=true
+
+  _hf_session_util_is_ppid_poetry_shell
   [ $? -ne 0 ] || parent_is_poetry=true
 
   if ${parent_is_bash}; then
     echo "exit, sh"
+
+    exit 2> /dev/null
+  elif ${parent_is_ibash}; then
+    echo "exit, -b"
 
     exit 2> /dev/null
   elif ${parent_is_poetry}; then
@@ -46,9 +50,34 @@ bash-exit-bash-hole () {
   fi
 }
 
+# E.g.,
+#   18305 /home/user/.local/bin/bash
+_hf_session_util_is_ppid_bash () {
+  ps ax -o pid,command | grep -P "^ *${PPID} \S+/bash($| )" &> /dev/null
+}
+
+# E.g., login shell
+#    9483 -bash
+# Where the dash-bash means it was started as interactive session.
+# And is what happens when you `bash` from within a `tmux` shell.
+_hf_session_util_is_ppid_ibash () {
+  ps ax -o pid,command | grep -P "^ *${PPID} -bash$" &> /dev/null
+}
+
+# E.g.,
+#   23799 /home/user/.local/share/pypoetry/venv/bin/python /home/user/.local/bin/poetry shell
+_hf_session_util_is_ppid_poetry_shell () {
+  ps ax -o pid,command | grep -P "^ *${PPID} \S+/python3? \S+/poetry shell$" &> /dev/null
+}
+
 # `shexit` also comes to mind, but `be<TAB>` for the win.
 home_fries_session_util_configure_aliases_bexit () {
-  claim_alias_or_warn "bexit" "bash-exit-bash-hole"
+  ( false \
+    || _hf_session_util_is_ppid_bash \
+    || _hf_session_util_is_ppid_ibash \
+    || _hf_session_util_is_ppid_poetry_shell \
+  ) \
+    && claim_alias_or_warn "bexit" "bash-exit-bash-hole"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
