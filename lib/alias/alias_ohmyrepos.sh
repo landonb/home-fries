@@ -17,7 +17,7 @@ home_fries_aliases_wire_ohmyrepos () {
 
   # 2022-11-14: Life used to be so simple back then:
   #   claim_alias_or_warn "g" "git r && git br && sf"
-  alias g="_hf_git_print_summary_g"
+  claim_alias_or_warn "g" "_hf_git_print_summary_g"
 }
 
 _hf_git_print_summary_g () {
