@@ -9,23 +9,25 @@
 # *** Directory listings.
 
 home_fries_aliases_wire_ls () {
+  local ls_cmd="$(ls-or-gls)"
+
   # 2015-01-20: Using --color=tty still works, but `man` says use --color=auto.
   local color_opt="--color=auto"
 
   # Human readable /bin/ls that classify files, shows almost
   # all entries (excludes ./ and ../), and uses colour.
-  alias ls="/usr/bin/env ls -hFA ${color_opt}"
+  alias ls="${ls_cmd} -hFA ${color_opt}"
 
   # Compact /bin/ls listing (same as -hFA, really), but list
   # directories first, which seems to make the output cleaner.
   # - See `l` function, below, so we can pipe to tail and get rid of "total" line.
-  #  alias l="/usr/bin/env ls -lhFA ${color_opt} --group-directories-first"
+  #  alias l="${ls_cmd} -lhFA ${color_opt} --group-directories-first"
 
   # ***
 
   # Long /bin/ls listing, which includes ./ and ../ (perhaps
   # so you can check permissions).
-  claim_alias_or_warn "ll" "/usr/bin/env ls -lhFa ${color_opt}"
+  claim_alias_or_warn "ll" "${ls_cmd} -lhFa ${color_opt}"
 
   # 2017-07-10: Show timestamps always. [2022-11-04: I never use this.]
   claim_alias_or_warn "lll" "ll --time-style=long-iso"
@@ -38,11 +40,11 @@ home_fries_aliases_wire_ls () {
 
   # Sort by size, from largest (empties last). [2022-11-04: I use this sometimes.]
   # - Huh, this conflicts with /bin/lS on macOS, some alternative `ls`, not sure.
-  #  claim_alias_or_warn "lS" "/usr/bin/env ls ${color_opt} -lhFaS"
-  alias lS="/usr/bin/env ls ${color_opt} -lhFaS"
+  #  claim_alias_or_warn "lS" "${ls_cmd} ${color_opt} -lhFaS"
+  alias lS="${ls_cmd} ${color_opt} -lhFaS"
 
   # Sort by size, largest last. [2022-11-04: I'd forgotten about this one.]
-  claim_alias_or_warn "lS-" "/usr/bin/env ls ${color_opt} -lFaS | sort -n -k5"
+  claim_alias_or_warn "lS-" "${ls_cmd} ${color_opt} -lFaS | sort -n -k5"
 
   # ***
 
@@ -50,7 +52,7 @@ home_fries_aliases_wire_ls () {
   # and do not list group name (add -G).
 
   # Long listing, which includes ./ and ../
-  claim_alias_or_warn "LL" "/usr/bin/env ls -gGhFa ${color_opt}"
+  claim_alias_or_warn "LL" "${ls_cmd} -gGhFa ${color_opt}"
 
   # Reverse sort by time.
   claim_alias_or_warn "LO" "LL -rt"
@@ -68,13 +70,20 @@ function l () {
   # (the --almost-all/-A will omit the current and parent directories,
   #  and then pipe to tail to strip the "total", which ls includes with
   #  the -l[ong] listing format).
-  /usr/bin/env ls -lhFA \
+  $(ls-or-gls) -lhFA \
     --color=always \
     --hide-control-chars \
     --group-directories-first \
     "$@" \
     | tail +2
     # | tail --lines=+2
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+ls-or-gls () {
+  command -v gls
+  [ $? -eq 0 ] || echo "/usr/bin/env ls"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
