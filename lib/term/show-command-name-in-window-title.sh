@@ -57,8 +57,9 @@ fries_hook_titlebar_update () {
 # 2021-07-16: Add window number to iTerm2 window title.
 # - This enables a collection of systemwide terminal foregrounder shortcuts.
 #   See KE mappings in DepoXy project:
-#     ~/.depoxy/ambers/home/.config/karabiner/assets/complex_modifications/
-#       0335-application-iterm2-foregrounders.json
+#     https://github.com/depoxy/depoxy#🍯
+#   Possibly at:
+#     ~/.depoxy/ambers/home/.config/karabiner/assets/complex_modifications/0340-applcn-iterm2-fronter.json
 # - Note that iTerm2 has its own *Shortcut to activate a window* shortcuts
 #   (that default to <Cmd-Alt-n>), but these only work when iTerm2 is already
 #   the active application. (lb): And I want shortcuts that work from anywhere!
