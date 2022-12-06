@@ -247,6 +247,10 @@ source_crypt_sources () {
 
 source_date_sources () {
   source_it "date/date-or-gdate.sh"
+  # Order does sorta matter for uptime-s (it's used by at least (currently)
+  # fcns. in fries_util.sh and session_util.sh), but this sourcing happens
+  # before it's called.
+  source_it "date/uptime-s.sh"
 }
 
 # ***
