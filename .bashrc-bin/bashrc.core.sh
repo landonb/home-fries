@@ -181,6 +181,9 @@ source_homefries_libs_all () {
   source_crypt_sources
   unset -f source_crypt_sources
 
+  source_date_sources
+  unset -f source_date_sources
+
   source_device_sources
   unset -f source_device_sources
 
@@ -238,6 +241,12 @@ source_crypt_sources () {
   source_it "crypt/daemonize_gpg_agent.sh"
   source_it "crypt/is_mount_type_crypt.sh"
   source_it "crypt/set_environ_gpg_tty.sh"
+}
+
+# ***
+
+source_date_sources () {
+  source_it "date/date-or-gdate.sh"
 }
 
 # ***
