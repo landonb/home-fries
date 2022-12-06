@@ -187,6 +187,9 @@ source_homefries_libs_all () {
   source_device_sources
   unset -f source_device_sources
 
+  source_distro_sources
+  unset -f source_distro_sources
+
   source_funcs_sources
   unset -f source_funcs_sources
 
@@ -257,6 +260,12 @@ source_date_sources () {
 
 source_device_sources () {
   source_it "device/lsusb.sh"
+}
+
+# ***
+
+source_distro_sources () {
+  source_it "distro/default-browser.sh"
 }
 
 # ***
