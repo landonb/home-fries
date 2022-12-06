@@ -8,6 +8,8 @@
 
 home_fries_aliases_wire_history () {
   claim_alias_or_warn "h" "history"
+
+  claim_alias_or_warn "hless" "history | tac | less"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
