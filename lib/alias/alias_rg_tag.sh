@@ -63,6 +63,7 @@ home_fries_create_aliases_rg_tag_wrap () {
       --hidden \
       --follow \
       --no-ignore-vcs \
+      --no-ignore-parent \
       --colors 'path:fg:yellow' \
       --colors 'path:style:bold' \
       --colors 'line:fg:green' \
