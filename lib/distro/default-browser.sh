@@ -24,10 +24,26 @@ default-browser () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
-  :
+source_deps () {
+  # Load tweak_errexit.
+  . "${HOMEFRIES_LIB:-${HOME}/.homefries/lib}/process_util.sh"
+  # Load os_is_macos.
+  . "${HOMEFRIES_LIB:-${HOME}/.homefries/lib}/distro_util.sh"
 }
 
-main "$@"
+main () {
+  source_deps
+  default-browser "$@"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Run the function if being executed.
+# Otherwise being sourced, so do not.
+if ! $(printf %s "$0" | grep -q -E '(^-?|\/)(ba|da|fi|z)?sh$' -); then
+  main
+fi
+
 unset -f main
+unset -f source_deps
 
