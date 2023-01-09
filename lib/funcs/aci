@@ -4,6 +4,8 @@
 # Project: https://github.com/landonb/home-fries#🍟
 # License: MIT
 
+# FIXME/2023-01-09 00:38: Move this module to DXY, b/c OMR-related.
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # An OMR autocommit wrapper that prompts if you're running this over SSH.
@@ -55,6 +57,12 @@ aci () {
 
   mr -d / autocommit -y "$@"
 }
+
+# ***
+
+# 2023-01-09: Sneaking these in here.
+claim_alias_or_warn "aci." "mr -d . -n autocommit -y"
+claim_alias_or_warn "infuse." "mr -d . -n infuse"
 
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 
