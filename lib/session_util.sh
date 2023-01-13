@@ -81,8 +81,10 @@ _hf_session_util_is_ppid_bash () {
 #    9483 -bash
 # Where the dash-bash means it was started as interactive session.
 # And is what happens when you `bash` from within a `tmux` shell.
+# - Though on macOS/iTerm2, /opt/homebrew/bin/bash is first shell's
+#   parent process; and subshells are just `bash` (no dash).
 _hf_session_util_is_ppid_ibash () {
-  ps ax -o pid,command | ${_HF_GREP} -P "^ *${PPID} -bash$" &> /dev/null
+  ps ax -o pid,command | ${_HF_GREP} -P "^ *${PPID} -?bash$" &> /dev/null
 }
 
 # E.g.,
