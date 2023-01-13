@@ -225,7 +225,6 @@ source_alias_sources () {
   source_it "alias/alias_ls.sh"
   source_it "alias/alias_mv.sh"
   source_it "alias/alias_netstat.sh"
-  source_it "alias/alias_ohmyrepos.sh"
   source_it "alias/alias_pwd.sh"
   source_it "alias/alias_pwgen.sh"
   source_it "alias/alias_python.sh"
@@ -682,9 +681,6 @@ run_and_unset_home_fries_create_aliases () {
 
   # - lib/alias/alias_netstat.sh
   run_and_unset "home_fries_aliases_wire_netstat"
-
-  # - lib/alias/alias_ohmyrepos.sh
-  run_and_unset "home_fries_aliases_wire_ohmyrepos"
 
   # - lib/alias/alias_pwd.sh
   run_and_unset "home_fries_aliases_wire_pwd"
