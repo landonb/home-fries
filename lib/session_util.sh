@@ -50,10 +50,31 @@ bash-exit-bash-hole () {
   fi
 }
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# FIXME: Not DRY: Copied from ~/.kit/git/git-smart/bin/git-brs.
+#   grep-or-ggrep
+_hf_grep_or_ggrep () {
+  #   $ grep --version
+  #   grep (BSD grep, GNU compatible) 2.6.0-FreeBSD
+  #   # "GNU compatible" it's not.
+  #   $ ggrep --version
+  #   ggrep (GNU grep) 3.8
+  if grep -q -e "GNU grep" <(grep --version | head -1); then
+    echo "grep"
+  elif command -v ggrep > /dev/null; then
+    echo "ggrep"
+  else
+    >&2 echo "ERROR: GNU \`grep\` not found"
+  fi
+}
+
+_HF_GREP="$(_hf_grep_or_ggrep)"
+
 # E.g.,
 #   18305 /home/user/.local/bin/bash
 _hf_session_util_is_ppid_bash () {
-  ps ax -o pid,command | grep -P "^ *${PPID} \S+/bash($| )" &> /dev/null
+  ps ax -o pid,command | ${_HF_GREP} -P "^ *${PPID} \S+/bash($| )" &> /dev/null
 }
 
 # E.g., login shell
@@ -61,16 +82,19 @@ _hf_session_util_is_ppid_bash () {
 # Where the dash-bash means it was started as interactive session.
 # And is what happens when you `bash` from within a `tmux` shell.
 _hf_session_util_is_ppid_ibash () {
-  ps ax -o pid,command | grep -P "^ *${PPID} -bash$" &> /dev/null
+  ps ax -o pid,command | ${_HF_GREP} -P "^ *${PPID} -bash$" &> /dev/null
 }
 
 # E.g.,
 #   23799 /home/user/.local/share/pypoetry/venv/bin/python /home/user/.local/bin/poetry shell
 _hf_session_util_is_ppid_poetry_shell () {
-  ps ax -o pid,command | grep -P "^ *${PPID} \S+/python3? \S+/poetry shell$" &> /dev/null
+  ps ax -o pid,command | ${_HF_GREP} -P "^ *${PPID} \S+/python3? \S+/poetry shell$" &> /dev/null
 }
 
 # `shexit` also comes to mind, but `be<TAB>` for the win.
+# - Though beware macos Homebrew imagemagick `benchmark_xl`
+#   conflicts, but you probably don't need that command and
+#   can rename it.
 home_fries_session_util_configure_aliases_bexit () {
   ( false \
     || _hf_session_util_is_ppid_bash \
