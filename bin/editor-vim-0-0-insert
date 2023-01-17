@@ -23,7 +23,7 @@
 #       vim -c 'startinsert' -c 'norm! gg' "${@}"
 
 editor_vim_0_0_insert () {
-  vim -c 'startinsert' -c 'norm! gg' "${@}"
+  vim -c 'startinsert' -c 'norm! gg' "$@"
 }
 
 # ***
