@@ -20,9 +20,9 @@ home_fries_aliases_wire_pwd () {
   #     a shorter path.
   type xclip > /dev/null 2>&1 \
     && claim_alias_or_warn "P" \
-      'pwd | sed \"s#^$HOME#~#\" | tee >(tr -d \"\n\" | xclip -selection c)' \
+      'pwd | sed -E \"s#^${HOME}(/|$)#~\1#\" | tee >(tr -d \"\n\" | xclip -selection c)' \
     || claim_alias_or_warn "P" \
-      'pwd | sed \"s#^$HOME#~#\" | tee >(tr -d \"\n\" | pbcopy)'
+      'pwd | sed -E \"s#^${HOME}(/|$)#~\1#\" | tee >(tr -d \"\n\" | pbcopy)'
 }
 
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
