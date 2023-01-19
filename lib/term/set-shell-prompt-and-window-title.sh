@@ -174,6 +174,7 @@ dubs_apply_shell_prompts () {
   local mach_name='\h'
   # (lb): 2020-08-24: At least on Mac I use, hostname is 16-character MAC.
   os_is_macos && mach_name="$(scutil --get LocalHostName | sed -E 's/(.{8}).*/\1/')"
+  mach_name="${HOMEFRIES_TERM_UTIL_PS1_HOST:-${mach_name}}"
   #
   local basename='\W'
 
