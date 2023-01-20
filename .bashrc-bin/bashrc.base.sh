@@ -118,8 +118,8 @@ fail_fast_fail_often () {
   [ ${bash_vers} -ge 4 ] && ${assuming_corepath} && return
 
   # 2022-10-28: I've been downcoding to Bash 3 for macOS, but not finished yet.
-  >&2 echo "BWARE: A few pieces in Homefries may fail without Bash v4" \
-    "(but for the most part you likely won't notice)."
+  >&2 echo "ALERT: Running atop Bash v${bash_vers}" \
+    "(where a few rarely-used Homefries features won't work)"
   # 2022-11-16: Perform a hacky is-coreutils-available check. Though really,
   # each individual Homefries functions should check deps when they run, if
   # they have any. Each function could also check Bash v4, if that's a

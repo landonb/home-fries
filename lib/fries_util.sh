@@ -135,6 +135,8 @@ home_fries_load_completions () {
     if ! declare -p HOMEFRIES_LOAD_COMPLETIONS >/dev/null 2>&1; then
       local -a HOMEFRIES_LOAD_COMPLETIONS
 
+      # When sourced on Bash v3, docker-compose STDERRs but still exits 0:
+      #   "WARNING: Skipping: /user/home/.homefries/bin/completions/docker-compose (Bash version 3.x)"
       HOMEFRIES_LOAD_COMPLETIONS+=("docker-compose")
       HOMEFRIES_LOAD_COMPLETIONS+=("git-completion.bash")
       HOMEFRIES_LOAD_COMPLETIONS+=("git-extras-bash_completion.sh")
@@ -146,11 +148,26 @@ home_fries_load_completions () {
       HOMEFRIES_LOAD_COMPLETIONS+=("travis.sh")
     fi
 
+    local source_out
+    source_out="$(mktemp)"
+
     for completion_file in ${HOMEFRIES_LOAD_COMPLETIONS[@]}; do
       local completion_path="${HOMEFRIES_DIR}/bin/completions/${completion_file}"
       if [ -e "${completion_path}" ]; then
         # echo "completion_file: ${completion_path}"
-        . "${completion_path}"
+        . "${completion_path}" > "${source_out}" 2>&1
+        # All because docker-compose...
+        if [ -s "${source_out}" ]; then
+          if cat "${source_out}" | grep -q -e "(Bash version 3.x)$"; then
+            #     ALERT: Running atop Bash v3 (where a few rarely-used Homefries features won't work)
+            echo "ALERT: Docker completion is one of those rarely-used Homefries features that don't"
+          else
+            echo "ALERT: Unexpected \`. <completion-file>\` output:"
+            echo
+            cat "${source_out}"
+          fi
+        fi
+        /bin/rm -f "${source_out}"
       fi
     done
   fi
