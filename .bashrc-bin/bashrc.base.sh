@@ -136,8 +136,13 @@ maybe_alert_missing_coreutils () {
   # is installed (because there's not an OS- and package-manager-agnostic
   # way to check that coreutils is installed otherwise, i.e., there's no
   # `coreutils` command, but rather all the commands that it installs).
+  # - Note also that the --version command might fail:
+  #     macOS $ /bin/realpath --version
+  #     /bin/realpath: illegal option -- -
+  #     usage: realpath [-q] [path ...]
+  #
   ( command -v realpath > /dev/null &&
-    realpath --version | head -1 | grep -q -e "(GNU coreutils)" ) ||
+    realpath --version 2> /dev/null | head -1 | grep -q -e "(GNU coreutils)") ||
     >&2 echo "BWARE: No coreutils (at least not \`realpath\`)"
 
   # [2023-01-26: Dunno, why, but I coded a separate coreutils check
@@ -153,6 +158,9 @@ maybe_alert_missing_coreutils () {
 
 # Also alert if Homebrew around but not loaded, because without it,
 # user will see additional alerts during startup.
+# - IDEAL: Make sure none of the errors are unexpected. They should
+#   each be a deliberate "ERROR:"-type message from Homefries, and
+#   never an error messge from a command that Homefries calls.
 #
 # 2023-01-26: E.g., Open plain iTerm2 terminal and run `bash`:
 #
@@ -160,8 +168,6 @@ maybe_alert_missing_coreutils () {
 #   HINT: Try sourcing Homebrew environs, then try again.
 #     eval "$(/opt/homebrew/bin/brew shellenv)"
 #     bash
-#   realpath: illegal option -- -
-#   usage: realpath [-q] [path ...]
 #   BWARE: Some of Homefries requires coreutils.
 #   ERROR: Could not locate an appropriate command.
 #   - Hint: Trying installing `date`, `gdate`, or `python`.
@@ -178,9 +184,9 @@ maybe_alert_homebrew_not_loaded () {
 
     if [ -e "${brew_path}" ]; then
       >&2 echo "ALERT: Homebrew installed but not wired into your shell."
-      >&2 echo "HINT: Try sourcing Homebrew environs, then try again."
-      >&2 echo "  eval \"\$(${brew_path} shellenv)\""
-      >&2 echo "  bash"
+      >&2 echo "- Hint: Try sourcing Homebrew environs, then try again."
+      >&2 echo "    eval \"\$(${brew_path} shellenv)\""
+      >&2 echo "    bash"
     fi
   fi
 }
