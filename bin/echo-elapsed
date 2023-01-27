@@ -18,16 +18,18 @@
 #   - MAGIC: So raising the `threshold` from 0.05 to 0.12, to be less noisy.
 
 echo_elapsed () {
-  # MAGIC: Print Profiling info. if sourcing a file takes longer
-  #        than this many secs. See previous comment for details.
-  local threshold=${HOMEFRIES_PROFILE_THRESHOLD:-0.12}
+  local time_0="$1"
+  local detail="$2"
+  local prefix
+  [ -z ${3+x} ] && prefix="Elapsed: " || prefix=""
   # Optional out-opt. Useful on startup. But disabled by default
   # to make calling this command not have to worry about setting
   # a bool.
   ! ${HOMEFRIES_PROFILING:-true} && return
-  local time_0="$1"
-  local detail="$2"
-  local prefix="${3:-Elapsed: }"
+  # MAGIC: Print Profiling info. if sourcing a file takes longer
+  #        than this many secs. See previous comment for details.
+  local threshold=${HOMEFRIES_PROFILE_THRESHOLD:-0.12}
+
   local time_n="$(print_nanos_now)"
   local elapsed_fract_secs="$(echo "(${time_n} - ${time_0})" | bc -l)"
   if [ -z "${HOMEFRIES_PROFILING}" ] || \
