@@ -158,11 +158,17 @@ home_fries_load_completions () {
         . "${completion_path}" > "${source_out}" 2>&1
         # All because docker-compose...
         if [ -s "${source_out}" ]; then
-          if cat "${source_out}" | grep -q -e "(Bash version 3.x)$"; then
-            #     ALERT: Running atop Bash v3 (where a few rarely-used Homefries features won't work)
-            echo "ALERT: Docker completion is one of those rarely-used Homefries features that don't"
+          if [ "${completion_file}" = "docker-compose" ] && \
+            cat "${source_out}" | grep -q -e "(Bash version 3.x)$" \
+          ; then
+            if ${HOMEFRIES_ALERT_BASH3_OR_LESSER:-false}; then
+              echo "ALERT: Docker completion not supported in Bash v3"
+            fi
           else
-            echo "ALERT: Unexpected \`. <completion-file>\` output:"
+            # (lb): My Vim shell highlighter does }\` wrong and does not
+            # see the escaped backtick when it trails a right brace, so
+            # use less-sightly ''""'' syntax.
+            echo 'ALERT: Unexpected `. '"${completion_path}"'` output:'
             echo
             cat "${source_out}"
           fi

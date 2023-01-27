@@ -53,83 +53,99 @@ export HOMEFRIES_PROFILING=${HOMEFRIES_PROFILING:-false}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# *** Die early, Die often!
+# In lieu of typical check_deps, alert_deps, because we're forgiving.
+alert_deps () {
+  maybe_alert_ancient_bash
+  unset -f maybe_alert_ancient_bash
 
-# Require Bash 4+ and coreutils.
+  maybe_alert_missing_coreutils
+  unset -f maybe_alert_missing_coreutils
+
+  maybe_alert_homebrew_not_loaded
+  unset -f maybe_alert_homebrew_not_loaded
+}
+
+# *** Die → Warn → Echo → Do Nothing if Bash v3
 #
-# - 2022-10-15: Two years ago, I had issues with stock macOS terminal
-#   because the old version of macOS's `readlink` did not support the
-#   `readlink -f` option to resolve relative paths.
-#   - This is since resolved: macOS 12.6 with Bash 3.2.57(1) supports
-#     the `readlink -f` option (manpage dated 2017-06-22).
-#   - Nonetheless, I do not want to assume -- nor test! -- that macOS's
-#     old Bash 3.x will work with Homefries. It's not like Homefries
-#     doesn't rely on coreutils and a myriad other modern conventions.
-#     - So let's *die here and now* if things don't pass muster.
-#   - Note the current state of macOS: Supports `readlink -f`, but Bash 3.
-#     - As I've said before: "you cannot load Homefries on vanilla macOS."
-#   - If you're wondering how best to setup your macOS to run Homefries,
-#     I refer you to my macOS onboarder:
-#       https://github.com/depoxy/macOS-onboarder#🏂
-#     Which will Homebrew-install everything you/I need, and even setup
-#     macOS `defaults` appropriately, so, e.g., you can run iTerm2 and
-#     it'll boot into a Bash 5 environment with coreutils at the ready.
-#     - You might also be interested in the dev machine onboarder that
-#       I use -- which uses macOS-onboarder -- that installs Homefries
-#       and all my favorite Git and Vim utilities, and much more:
-#         https://github.com/depoxy/depoxy#🍯
-#     - Although if you run Linux (which I do @home), I haven't quite
-#       squared the macOS installer with a comparable installer for
-#       Linux. Rather, I have instead a series of complicated Ansible
-#       playbooks, including but not limited to:
-#         https://github.com/landonb/zoidy_mintyfresh
-#         https://github.com/landonb/zoidy_home-fries
-#         https://github.com/landonb/zoidy_matecocido
-#         https://github.com/landonb/zoidy_panelsweet
-#         https://github.com/landonb/zoidy_troglodyte
-#       And unfortunately (for you, not me), I have not published
-#       the grand installer that downloads and runs all those plays.
-#       - Maybe someday I'll make an easier Linux installer, but I
-#         find myself standing up new macOS machines (for contract
-#         work) far more often than I standup new Linux machines
-#         (for @home personal use).
-#       - In any case, back to scheduled programming, die here and
-#         now if we cannot identify Bash 4 or better, or coreutils:
+# Historically, Homefries would "Die early, Die often!", it said, if
+# started in Bash v3, because Homefries had been developed on Linux
+# (where Bash v4 had been standard for eons, before v5), and if run on
+# macOS (which ships with Bash v3), we could just demand Homefries Bash
+# (which is v5). Then the author got an Apple Silicon/M1 MacBook through
+# a contract gig [circa 2022] and found that Homebrew Bash v5 was con-
+# foundingly underperforming, but that Bash v3 ran fast. So I began to
+# backpatch Homefries to v3-compatibilty (and POSIX compliance!) as issues
+# were discovered. (This was a reactive effort, where I fixed things when
+# I tried to use them but they failed; it was not a proactive code audit.)
+# Fortunately, most of the Homefries features that were Bash v4+ were just
+# using associate arrays, which are easy to downcode using flat arrays,
+# and whatever v4+ code might remain is hiding in rarely-used features.
 
-fail_fast_fail_often () {
+# 2023-01-26: I'm confident we no longer should alert on Bash v3 -- and
+# maybe someday I'll shake my code-hoarding tendencies and we'll remove
+# the now-pointless `maybe_alert_ancient_bash` check.
+HOMEFRIES_ALERT_BASH3_OR_LESSER=${HOMEFRIES_ALERT_BASH3_OR_LESSER:-false}
+
+maybe_alert_ancient_bash () {
+  ${HOMEFRIES_ALERT_BASH3_OR_LESSER:-false} || return 0
+
   # Note that we call `bash` itself rather than check ${BASH_VERSINFO[0]},
   # because macOS will load its own Bash 3, while Homebrew's Bash 5 might
   # be what's on PATH.
-  # - I.e., the user called `eval $(/opt/homebrew/bin/brew shellenv)"
+  # - I.e., the user called `eval $(/opt/homebrew/bin/brew shellenv)`
   #   and then called `bash` to load Homefries.
   # - Here's the naïve check, just FYÏ:
   #     [ ${BASH_VERSINFO[0]} -ge 4 ] && command -v realpath > /dev/null && return
   local bash_vers="$(bash --version | head -1 | sed -r 's/GNU bash, version ([0-9]+).*/\1/')"
 
+  [ ${bash_vers} -lt 4 ] || return 0
+
+  >&2 echo "ALERT: Running atop Bash v${bash_vers}" \
+    "(where a few rarely-used Homefries features won't work)"
+}
+
+# ***
+
+# Always alert if coreutils absent, because we're nothing without it.
+
+maybe_alert_missing_coreutils () {
   # If this `realpath --version` check passes, we'll assume that `coreutils`
   # is installed (because there's not an OS- and package-manager-agnostic
   # way to check that coreutils is installed otherwise, i.e., there's no
   # `coreutils` command, but rather all the commands that it installs).
-  local assuming_corepath=false
-  command -v realpath > /dev/null &&
-    realpath --version | head -1 | grep -q -e "(GNU coreutils)" &&
-      assuming_corepath=true
+  ( command -v realpath > /dev/null &&
+    realpath --version | head -1 | grep -q -e "(GNU coreutils)" ) ||
+    >&2 echo "BWARE: No coreutils (at least not \`realpath\`)"
 
-  [ ${bash_vers} -ge 4 ] && ${assuming_corepath} && return
-
-  # 2022-10-28: I've been downcoding to Bash 3 for macOS, but not finished yet.
-  >&2 echo "ALERT: Running atop Bash v${bash_vers}" \
-    "(where a few rarely-used Homefries features won't work)"
-  # 2022-11-16: Perform a hacky is-coreutils-available check. Though really,
-  # each individual Homefries functions should check deps when they run, if
-  # they have any. Each function could also check Bash v4, if that's a
-  # requirement. Because the majority of Homefries works fine on Bash v3 (I
-  # can't think of what fails on Bash v3, I just "know" there's something),
-  # it'd be better to gripe about running on Bash v3 or "missing" coreutils
-  # iff the user invokes a Bash v4 fcn or a fcn that expects a GNU app.
+  # [2023-01-26: Dunno, why, but I coded a separate coreutils check
+  #  this past fall. But this code was more spread out back then, so
+  #  maybe I didn't see the `realpath` sniff. Now I'm just curious
+  #  if these two checks would ever be in disagreement.]
+  # 2022-11-16: Perform a hacky is-coreutils-available check.
   ( readlink --version || greadlink --version ) > /dev/null 2>&1 ||
-    >&2 echo "BWARE: Some of Homefries requires coreutils."
+    >&2 echo "BWARE: No coreutils (at least not \`readlink\`)"
+}
 
+# ***
+
+# Also alert if Homebrew around but not loaded, because without it,
+# user will see additional alerts during startup.
+#
+# 2023-01-26: E.g., Open plain iTerm2 terminal and run `bash`:
+#
+#   ALERT: Homebrew installed but not wired into your shell.
+#   HINT: Try sourcing Homebrew environs, then try again.
+#     eval "$(/opt/homebrew/bin/brew shellenv)"
+#     bash
+#   realpath: illegal option -- -
+#   usage: realpath [-q] [path ...]
+#   BWARE: Some of Homefries requires coreutils.
+#   ERROR: Could not locate an appropriate command.
+#   - Hint: Trying installing `date`, `gdate`, or `python`.
+#   ERROR: Could not locate an appropriate command.
+#   - Hint: Trying installing `date`, `gdate`, or `python`.
+
+maybe_alert_homebrew_not_loaded () {
   if [ -z "${HOMEBREW_PREFIX}" ]; then
     # Apple Silicon (arm64) brew path is /opt/homebrew.
     local brew_bin="/opt/homebrew/bin"
@@ -138,14 +154,13 @@ fail_fast_fail_often () {
     local brew_path="${brew_bin}/brew"
 
     if [ -e "${brew_path}" ]; then
-      echo "HINT: Try sourcing Homebrew environs, then try again."
-      echo "  eval \"\$(${brew_path} shellenv)\""
-      echo "  bash"
+      >&2 echo "ALERT: Homebrew installed but not wired into your shell."
+      >&2 echo "HINT: Try sourcing Homebrew environs, then try again."
+      >&2 echo "  eval \"\$(${brew_path} shellenv)\""
+      >&2 echo "  bash"
     fi
   fi
 }
-
-fail_fast_fail_often
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -176,11 +191,12 @@ source_dep_print_nanos_now () {
   fi
 }
 
-source_dep_print_nanos_now
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # *** Begin profiling
+
+source_dep_print_nanos_now
+unset -f source_dep_print_nanos_now
 
 HOMEFRIES_TIME0="$(print_nanos_now)"
 
@@ -456,9 +472,19 @@ home_fries_bashrc_cleanup () {
   local custom_bash=false
   if [ "$0" = 'bash' ] || [ "$0" = '-bash' ]; then
     if $(alias bash &> /dev/null); then
+      # Parse the alias, e.g.,
+      #   alias bash='HOMEFRIES_CD="$(pwd)" PROMPT_COMMAND= bash'
       local bash_path
-      bash_path="$(alias bash | /usr/bin/env sed -E 's/^.* ([^ ]+\/bash\>).*/\1/')"
-      if [ "$(realpath -- "${bash_path}")" != '/bin/bash' ]; then
+      bash_path="$(alias bash | /usr/bin/env sed -E 's/^.* ([^ ]*\/?bash\>).*$/\1/')"
+      # Note that if the alias uses a relative path, e.g., just `bash`,
+      # then `realpath bash` returns `$(pwd)/bash`.
+      if [ "${bash_path}" = 'bash' ]; then
+        local penult_path
+        penult_path="$(type -a "${bash_path}" | head -2 | tail -1 | awk '{ print $3 }')"
+        if [ "${penult_path}" != '/bin/bash' ]; then
+          custom_bash=true
+        fi
+      elif [ "$(realpath -- "${bash_path}")" != '/bin/bash' ]; then
         custom_bash=true
       fi
     elif [ "$(realpath -- "$(command -v bash)")" != '/bin/bash' ]; then
@@ -469,6 +495,7 @@ home_fries_bashrc_cleanup () {
   fi
   if ${custom_bash}; then
     if command -v 'logger.sh' > /dev/null 2>&1; then
+      # notice "This bash is a $(fg_lightgreen)$(attr_underline)special$(res_underline) bash!$(attr_reset)" \
       notice "This bash is a $(fg_lightgreen)$(attr_underline)special$(res_underline) bash!$(attr_reset)" \
         "Version: $(fg_lightyellow)$(attr_underline)$(attr_bold)${BASH_VERSION}$(attr_reset)"
     fi
@@ -484,19 +511,21 @@ home_fries_bashrc_cleanup () {
 environ_cleanup () {
   # OCD cleanup to not pollute user's namespace (à la `env`, `set`, etc.).
 
-  unset -v HOMEFRIES_TIME0
-
   unset -v HOMEFRIES_TRACE
 
   # Unset so calling echo-elapsed works without threshold being met.
   unset -v HOMEFRIES_PROFILING
 
+  unset -v HOMEFRIES_ALERT_BASH3_OR_LESSER
+
+  unset -v HOMEFRIES_BASHRCBIN
+
+  unset -v HOMEFRIES_TIME0
+
   unset -v HOMEFRIES_LOADINGDOTS
   unset -v HOMEFRIES_LOADINGSEP
   unset -v HOMEFRIES_LOADEDDOTS
   unset -f print_loading_dot
-
-  unset -v HOMEFRIES_BASHRCBIN
 
   # Self Disembowelment.
   unset -f main
@@ -506,6 +535,11 @@ environ_cleanup () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
+  alert_deps
+  unset -f alert_deps
+
+  # ***
+
   local time_0="$(print_nanos_now)"
 
   # Add ~/.local/bin to PATH, and ~/.local/lib to LD_LIBRARY_PATH,
@@ -534,6 +568,8 @@ main () {
   export HOME_FRIES_PRELOAD=false
   source_private
   unset -f source_private
+  unset -f source_private_scripts
+  unset -f source_privately
   unset -v HOME_FRIES_PRELOAD
 
   cleanup_loading_dots "${time_0}"
