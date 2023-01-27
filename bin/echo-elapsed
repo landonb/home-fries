@@ -34,9 +34,11 @@ echo_elapsed () {
 
   local time_n="$(print_nanos_now)"
   local elapsed_fract_secs="$(echo "(${time_n} - ${time_0})" | bc -l)"
-  if [ -z "${HOMEFRIES_PROFILING}" ] || \
-     [ $(echo "${elapsed_fract_secs} >= ${threshold}" | bc -l) -eq 1 ] ; \
-  then
+
+  local elapsed_ge_threshold
+  elapsed_ge_threshold=$(echo "${elapsed_fract_secs} >= ${threshold}" | bc -l)
+
+  if [ ${elapsed_ge_threshold} -eq 1 ]; then
     local elapsed_secs=$(echo ${elapsed_fract_secs} | xargs printf "%.2f")
 
     [ -n "${detail}" ] && detail=" / ${detail}"
