@@ -53,6 +53,29 @@ export HOMEFRIES_PROFILING=${HOMEFRIES_PROFILING:-false}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# *** Oh hi doggy
+
+${HOMEFRIES_TRACE} && echo "─ Welcome, User (EUID=${EUID})"
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# *** Prepare loading dots, if tmux
+
+# 2020-03-19: (lb): For tmux, which already has bells and whistles
+# of its own, like a status bar, show a series of dots for each
+# bashrc task performed, than reset the line before showing the
+# prompt (so if user looked away during logon they wouldn't see
+# any evidence or trace of the dots afterwards).
+# - Note that I tried non ASCII here, the `Sb` digraph, '∙',
+#   but the for unknown reasons I ended up with 2 newlines
+#   before prompt. So sticking with a simple dot, '.', here.
+[ -n "${TMUX}" ] && HOMEFRIES_LOADINGDOTS=${HOMEFRIES_LOADINGDOTS:-true}
+export HOMEFRIES_LOADINGDOTS=${HOMEFRIES_LOADINGDOTS:-false}
+HOMEFRIES_LOADEDDOTS=''
+HOMEFRIES_LOADINGSEP='.'
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # In lieu of typical check_deps, alert_deps, because we're forgiving.
 alert_deps () {
   maybe_alert_ancient_bash
@@ -173,7 +196,7 @@ maybe_alert_homebrew_not_loaded () {
 export HOMEFRIES_BASHRCBIN="$(dirname -- "$(realpath -- "${BASH_SOURCE[0]}")")"
 ${HOMEFRIES_TRACE} && echo "── HOMEFRIES_BASHRCBIN=${HOMEFRIES_BASHRCBIN}"
 
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# ***
 
 # *** Load profiling function
 
@@ -191,7 +214,7 @@ source_dep_print_nanos_now () {
   fi
 }
 
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# ***
 
 # *** Begin profiling
 
@@ -199,29 +222,6 @@ source_dep_print_nanos_now
 unset -f source_dep_print_nanos_now
 
 HOMEFRIES_TIME0="$(print_nanos_now)"
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-# *** Prepare loading dots, if tmux
-
-# 2020-03-19: (lb): For tmux, which already has bells and whistles
-# of its own, like a status bar, show a series of dots for each
-# bashrc task performed, than reset the line before showing the
-# prompt (so if user looked away during logon they wouldn't see
-# any evidence or trace of the dots afterwards).
-# - Note that I tried non ASCII here, the `Sb` digraph, '∙',
-#   but the for unknown reasons I ended up with 2 newlines
-#   before prompt. So sticking with a simple dot, '.', here.
-[ -n "${TMUX}" ] && HOMEFRIES_LOADINGDOTS=${HOMEFRIES_LOADINGDOTS:-true}
-export HOMEFRIES_LOADINGDOTS=${HOMEFRIES_LOADINGDOTS:-false}
-HOMEFRIES_LOADEDDOTS=''
-HOMEFRIES_LOADINGSEP='.'
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-# *** First trace message means ready to load more scripts
-
-${HOMEFRIES_TRACE} && echo "─ Welcome, User (EUID=${EUID})"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
