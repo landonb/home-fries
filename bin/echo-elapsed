@@ -22,6 +22,7 @@ echo_elapsed () {
   local detail="$2"
   local prefix
   [ -z ${3+x} ] && prefix="Elapsed: " || prefix=""
+  local units="${4:- secs.}"
 
   # Optional out-opt. Useful on startup. But disabled by default
   # to make calling this command not have to worry about setting
@@ -42,7 +43,8 @@ echo_elapsed () {
     local elapsed_secs=$(echo ${elapsed_fract_secs} | xargs printf "%.2f")
 
     [ -n "${detail}" ] && detail=" / ${detail}"
-    echo "${prefix}${elapsed_secs} secs.${detail}"
+
+    echo "${prefix}${elapsed_secs}${units}${detail}"
   fi
 }
 
