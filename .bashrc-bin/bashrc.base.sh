@@ -544,10 +544,14 @@ home_fries_bashrc_cleanup () {
     fi
 
     if ${print_msg_version}; then
+      local elapsed_time
+      elapsed_time=$(HOMEFRIES_PROFILING=true HOMEFRIES_PROFILE_THRESHOLD=0 \
+                     print_elapsed_time "${HOMEFRIES_TIME0}" "" "" "s")
+
       echo \
         "$(fg_lightgreen)Welcome to $(fg_yellow)Homefries on Bash" \
         "$(attr_underline)$(attr_bold)$(fg_blue)${bash_version}$(attr_reset)" \
-        "/ $(HOMEFRIES_PROFILING=true print_elapsed_time "${HOMEFRIES_TIME0}" "" "" "s")"
+        "$(fg_darkgray)${elapsed_time}$(attr_reset)"
     fi
   fi
 
