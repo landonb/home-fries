@@ -51,6 +51,12 @@ export HOMEFRIES_PROFILING=${HOMEFRIES_PROFILING:-false}
 #  # Or perhaps with a tiny bit of filtering:
 #  export HOMEFRIES_PROFILE_THRESHOLD=${HOMEFRIES_PROFILE_THRESHOLD:-0.01}
 
+# YOU: Adjust this as necessary according to taste.
+# - Homefries is quiet on startup (when nothing to alert), but
+#   sometimes it's nice to receive a hello once loaded (and to
+#   see the Bash version and how long Homefries took to load).
+export HOMEFRIES_HELLO=${HOMEFRIES_HELLO:-true}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # *** Oh hi doggy
@@ -475,35 +481,73 @@ home_fries_bashrc_cleanup () {
   #   $0 == '/user/home/.local/bin/bash'
   # and when on remote terminal over ssh,
   #   $0 == '-bash'
-  local custom_bash=false
+  local bash_path=""
   if [ "$0" = 'bash' ] || [ "$0" = '-bash' ]; then
     if $(alias bash &> /dev/null); then
       # Parse the alias, e.g.,
       #   alias bash='HOMEFRIES_CD="$(pwd)" PROMPT_COMMAND= bash'
-      local bash_path
       bash_path="$(alias bash | /usr/bin/env sed -E 's/^.* ([^ ]*\/?bash\>).*$/\1/')"
-      # Note that if the alias uses a relative path, e.g., just `bash`,
-      # then `realpath bash` returns `$(pwd)/bash`.
+      # Note that if the alias uses a relative path, e.g.,
+      # just `bash`, then `realpath bash` returns `$(pwd)/bash`.
       if [ "${bash_path}" = 'bash' ]; then
-        local penult_path
-        penult_path="$(type -a "${bash_path}" | head -2 | tail -1 | awk '{ print $3 }')"
-        if [ "${penult_path}" != '/bin/bash' ]; then
-          custom_bash=true
-        fi
-      elif [ "$(realpath -- "${bash_path}")" != '/bin/bash' ]; then
-        custom_bash=true
+        # The first `bash` that `type` reports is the alias, and
+        # the second `bash` reported is the one the alias calls.
+        bash_path="$(type -a "${bash_path}" | head -2 | tail -1 | awk '{ print $3 }')"
+      else
+        bash_path="$(realpath -- "${bash_path}")"
       fi
-    elif [ "$(realpath -- "$(command -v bash)")" != '/bin/bash' ]; then
-      custom_bash=true
+    else
+      bash_path="$(realpath -- "$(command -v bash)")"
     fi
-  elif [ "$(realpath -- "$0")" != '/bin/bash' ]; then
-    custom_bash=true
+  else
+    bash_path="$(realpath -- "$0")"
   fi
-  if ${custom_bash}; then
-    if command -v 'logger.sh' > /dev/null 2>&1; then
-      # notice "This bash is a $(fg_lightgreen)$(attr_underline)special$(res_underline) bash!$(attr_reset)" \
-      notice "This bash is a $(fg_lightgreen)$(attr_underline)special$(res_underline) bash!$(attr_reset)" \
-        "Version: $(fg_lightyellow)$(attr_underline)$(attr_bold)${BASH_VERSION}$(attr_reset)"
+
+  local print_msg_special=false
+  local print_msg_version=${HOMEFRIES_HELLO:-false}
+  local print_specially=echo
+
+  # Alert user if "special" (probably custom-built) Bash by checking not
+  # /bin/bash and not Homebrew Bash (which starts with /opt/homebrew, as
+  # in, e.g., /opt/homebrew/Cellar/bash/5.2.15/bin/bash).
+  if true \
+    && [ "${bash_path}" != '/bin/bash' ] \
+    && [ "${bash_path}" = "${bash_path#${HOMEBREW_PREFIX}}" ] \
+  ; then
+    print_msg_special=true
+
+    print_specially=notice
+    command -v 'logger.sh' > /dev/null 2>&1 || print_specially=echo
+  fi
+  
+  if ${print_msg_special} || ${print_msg_version}; then
+    # The BASH_VERSION includes an uninteresting prefix, e.g, consider
+    #   $ echo ${BASH_VERSION}
+    #   5.2.15(1)-release
+    # Where "(1)-release" is probably always the same for Homebrew and
+    # distro releases (I think the "(1)" is for the Homebrew/OS hotfix,
+    # which would be rare; and "-release" is, I dunno, something related
+    # to the release process).
+    # - Bash release history shows up to just the first path, e.g.,
+    #     Age         Commit message
+    #     2022-12-13  Bash-5.2 patch 15: fix ...
+    #   - CXREF: http://git.savannah.gnu.org/cgit/bash.git/log/
+    # - SPIKE: What's the version for a local build look like?
+    # - In any case, for brevity and noise-reduction, omit the postfix.
+    local bash_version
+    bash_version="$(echo "${BASH_VERSION}" | sed 's/(1)-release$//')"
+
+    if ${print_msg_special}; then
+      ${print_specially} \
+        "This ${bash_path} is a $(fg_lightgreen)$(attr_underline)special$(res_underline) bash!$(attr_reset)" \
+        "Version: $(fg_lightyellow)$(attr_underline)$(attr_bold)${bash_version}$(attr_reset)"
+    fi
+
+    if ${print_msg_version}; then
+      echo \
+        "$(fg_lightgreen)Welcome to $(fg_yellow)Homefries on Bash" \
+        "$(attr_underline)$(attr_bold)$(fg_blue)${bash_version}$(attr_reset)" \
+        "/ $(HOMEFRIES_PROFILING=true print_elapsed_time "${HOMEFRIES_TIME0}" "" "" "s")"
     fi
   fi
 
@@ -519,8 +563,10 @@ environ_cleanup () {
 
   unset -v HOMEFRIES_TRACE
 
-  # Unset so calling echo-elapsed works without threshold being met.
+  # This unset also allows echo-elapsed to work without threshold being met.
   unset -v HOMEFRIES_PROFILING
+
+  unset -v HOMEFRIES_HELLO
 
   unset -v HOMEFRIES_ALERT_BASH3_OR_LESSER
 
@@ -531,6 +577,7 @@ environ_cleanup () {
   unset -v HOMEFRIES_LOADINGDOTS
   unset -v HOMEFRIES_LOADINGSEP
   unset -v HOMEFRIES_LOADEDDOTS
+  unset -f print_elapsed_time
   unset -f print_loading_dot
 
   # Self Disembowelment.
@@ -587,8 +634,8 @@ main () {
   home_fries_bashrc_cleanup
   unset -f home_fries_bashrc_cleanup
 
+  # This calls echo-elapsed, which only reports over a certain threshold.
   print_elapsed_time "${time_0}" "bashrc.bash.sh" "==TOTAL: "
-  unset -f print_elapsed_time
 
   # Cover our tracks!
   environ_cleanup
