@@ -142,9 +142,14 @@ home_fries_load_completions () {
       HOMEFRIES_LOAD_COMPLETIONS+=("git-extras-bash_completion.sh")
       HOMEFRIES_LOAD_COMPLETIONS+=("jira-completion")
       HOMEFRIES_LOAD_COMPLETIONS+=("poetry-completion.bash")
+      # Two notes re: pyenv.bash -- you won't see this file unless pyenv
+      # installed from sources using DepoXy OMR 'install' task (if installed
+      # via Homebrew, no such file); secondly, this is redundant, because HF
+      # also calls `eval "$(pyenv init -)"` on startup.
       HOMEFRIES_LOAD_COMPLETIONS+=("pyenv.bash")
       HOMEFRIES_LOAD_COMPLETIONS+=("tig-completion.bash")
       HOMEFRIES_LOAD_COMPLETIONS+=("tmux")
+      # MAYBE/2023-01-30: Is travis.sh still in use @linux? Not present my @macOS
       HOMEFRIES_LOAD_COMPLETIONS+=("travis.sh")
     fi
 
