@@ -35,7 +35,7 @@
 #               (e.g., `/usr/bin/env fd -H -I --ignore-file <(echo .git/) <term>`
 home_fries_aliases_wire_fd () {
   if command -v fd > /dev/null; then
-    alias fd="fd -H -I -E .git/"
+    alias fd="fd -H -I -E .git/ -E __pycache__/ -E htmlcov/"
   fi
 }
 
