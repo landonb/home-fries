@@ -60,7 +60,13 @@ home_fries_init_completions () {
     #  issue, because I may have affected completion on other apps. I can at least
     #  list apps that I expect tab completion to work against: starting with pass.
     #  And then someday I can test them all and verify if everything WADs or not.
-    echo "source /etc/bash_completion"
+    echo ". /etc/bash_completion"
+  fi
+
+  # See: `brew install bash-completion@2`
+  # Verify loaded: [ "${BASH_COMPLETION_VERSINFO}" = "2" ] && echo LOADED
+  if [ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]; then
+     echo "source $(brew --prefix)/etc/profile.d/bash_completion.sh"
   fi
 }
 
