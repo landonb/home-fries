@@ -62,12 +62,6 @@ home_fries_init_completions () {
     #  And then someday I can test them all and verify if everything WADs or not.
     echo ". /etc/bash_completion"
   fi
-
-  # See: `brew install bash-completion@2`
-  # Verify loaded: [ "${BASH_COMPLETION_VERSINFO}" = "2" ] && echo LOADED
-  if [ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]; then
-     echo "source $(brew --prefix)/etc/profile.d/bash_completion.sh"
-  fi
 }
 
 # --- Re-enable better Bash tab auto-completion.
@@ -124,6 +118,14 @@ home_fries_direxpand_completions () {
 #   set your own completion file list.
 
 home_fries_load_completions () {
+  # See: `brew install bash-completion@2`
+  # Verify loaded: [ "${BASH_COMPLETION_VERSINFO}" = "2" ] && echo LOADED
+  if command -v brew > /dev/null; then
+    if [ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]; then
+       . "$(brew --prefix)/etc/profile.d/bash_completion.sh"
+    fi
+  fi
+
   [ -d "${HOMEFRIES_DIR}/bin/completions" ] || return
 
   if ${HOMEFRIES_LOAD_COMPLETIONS_ANY:-false}; then
