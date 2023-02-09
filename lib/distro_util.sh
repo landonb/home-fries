@@ -11,6 +11,16 @@ check_deps () {
   check_dep 'tweak_errexit'
 }
 
+check_dep () {
+  if ! command -v $1 > /dev/null 2>&1; then
+    >&2 printf '\r%s\n' "WARNING: Missing dependency: ‘$1’"
+
+    false
+  else
+    true
+  fi
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # *** Ubuntu-related
