@@ -54,6 +54,7 @@ rm_rotate () {
 
     if [ ! -d "${trash_path}" ]; then
       echo "Skip! No trash at ‘${trash_path}’"
+
       return 0
     fi
 
@@ -67,6 +68,7 @@ rm_rotate () {
     if [ "$(first_char_capped ${yes_or_no})" != 'Y' ]; then
       [ -z "${yes_or_no}" ] && echo
       echo "Skip! User said not to empty ‘${trash_path}’"
+
       return 0
     fi
 
