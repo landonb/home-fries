@@ -14,12 +14,17 @@
 #            ~/.vim/pack/landonb/start/dubs_web_hatch/bin/macOS-which-browser
 
 default-browser () {
-  os_is_macos || return 0
-
-  # E.g., "com.google.chrome".
-  plutil -p ~/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist \
-    | grep 'https' -b3 \
-    | awk 'NR==3 {split($4, arr, "\""); print arr[2]}'
+  if os_is_macos; then
+    # E.g., "com.google.chrome".
+    plutil -p ~/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist \
+      | grep 'https' -b3 \
+      | awk 'NR==3 {split($4, arr, "\""); print arr[2]}'
+  else
+    # E.g., "/usr/bin/google-chrome"
+    #  echo "${BROWSER}"
+    # E.g., "google-chrome.desktop"
+    xdg-settings get default-web-browser
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
