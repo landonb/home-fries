@@ -95,18 +95,22 @@ reset_errexit () {
 suss_errexit_errtrace () {
   # Note that we cannot pipe ${SHELLOPTS} to grep, because Bash always unsets
   # errexit on pipeline commands (so test would always show errexit disabled).
-  local shell_opts="${SHELLOPTS}"
+  #  local shell_opts="${SHELLOPTS}"
+  # 2023-02-10: Note that ${SHELLOPTS} unset for scripts; use $- instead.
+  local shell_opts="$-"
 
   set +eE
 
-  echo "${shell_opts}" | grep errexit >/dev/null 2>&1
+  # echo "${shell_opts}" | grep errexit >/dev/null 2>&1
+  echo "${shell_opts}" | grep "e" >/dev/null 2>&1
   if [ $? -eq 0 ]; then
     USING_ERREXIT=true
   else
     USING_ERREXIT=false
   fi
 
-  echo "${shell_opts}" | grep errtrace >/dev/null 2>&1
+  # echo "${shell_opts}" | grep errtrace >/dev/null 2>&1
+  echo "${shell_opts}" | grep "e" >/dev/null 2>&1
   if [ $? -eq 0 ]; then
     USING_ERRTRACE=true
   else
