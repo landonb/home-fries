@@ -80,7 +80,7 @@ home_fries_configure_manpath () {
   # with the man path. So skipping directory check:
   #   if [ -d "${local_man_path}" ] ...
   if [[ ! "${newpath}" == *${local_man_path}* ]]; then
-    newpath="${newpath}:${local_man_path}"
+    newpath="${local_man_path}:${newpath}"
   fi
 
   # NOTE: If you start MANPATH with a colon ':', or end it wth one ':',
