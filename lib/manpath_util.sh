@@ -79,7 +79,7 @@ home_fries_configure_manpath () {
   # user later `mr install`'ing man docs and not having to fiddle
   # with the man path. So skipping directory check:
   #   if [ -d "${local_man_path}" ] ...
-  if [[ ! "${MANPATH}" == *${local_man_path}* ]]; then
+  if [[ ! "${newpath}" == *${local_man_path}* ]]; then
     newpath="${newpath}:${local_man_path}"
   fi
 
