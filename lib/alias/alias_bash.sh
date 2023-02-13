@@ -22,7 +22,11 @@ home_fries_aliases_wire_bash () {
   # - We either need to symlink ~/.local/bin/bash -> $(brew --prefix)/bin/bash
   #   - Or we could call `$0` herein, instead of `bash`.
   # - Using $0 feels like the more proper solution.
-  alias bash='HOMEFRIES_CD="$(pwd)" PROMPT_COMMAND= $0'
+  # - Note that using $0 breaks ssh into a host, where it's "-bash".
+  #   - From `man bash`:
+  #     "A login shell is one whose first character of argument zero
+  #      is a -, or one started with the --login option."
+  alias bash='HOMEFRIES_CD="$(pwd)" PROMPT_COMMAND= ${0#-}'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
