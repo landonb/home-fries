@@ -125,7 +125,7 @@ feed_agent () {
   for pvt_key in ${rsa_keys}; do
     local sent_passphrase=false
     local secret_name="$(basename -- "${pvt_key}")"
-    local ssh_keyname="/home/${LOGNAME}/.ssh/${secret_name}"
+    local ssh_keyname="${HOME}/.ssh/${secret_name}"
     local secret_path="${SSH_SECRETS}/${secret_name}"
     verbose "secret_path=${secret_path}"
     if [ -e "${secret_path}" ]; then
