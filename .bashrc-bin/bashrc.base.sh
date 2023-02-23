@@ -147,17 +147,18 @@ maybe_alert_missing_coreutils () {
   #     /bin/realpath: illegal option -- -
   #     usage: realpath [-q] [path ...]
   #
-  ( command -v realpath > /dev/null &&
-    realpath --version 2> /dev/null | head -1 | grep -q -e "(GNU coreutils)") ||
-    >&2 echo "BWARE: No coreutils (at least not \`realpath\`)"
+  ( true \
+    && command -v realpath > /dev/null \
+    && realpath --version 2> /dev/null | head -1 | grep -q -e "(GNU coreutils)" \
+  ) || >&2 echo "BWARE: No coreutils (at least not \`realpath\`)"
 
   # [2023-01-26: Dunno, why, but I coded a separate coreutils check
   #  this past fall. But this code was more spread out back then, so
   #  maybe I didn't see the `realpath` sniff. Now I'm just curious
   #  if these two checks would ever be in disagreement.]
   # 2022-11-16: Perform a hacky is-coreutils-available check.
-  ( readlink --version || greadlink --version ) > /dev/null 2>&1 ||
-    >&2 echo "BWARE: No coreutils (at least not \`readlink\`)"
+  ( readlink --version || greadlink --version ) > /dev/null 2>&1 \
+    || >&2 echo "BWARE: No coreutils (at least not \`readlink\`)"
 }
 
 # ***
