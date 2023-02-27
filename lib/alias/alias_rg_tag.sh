@@ -34,15 +34,16 @@ home_fries_aliases_wire_rg_tag () {
 #                         '{{.Filename}}'
 
 home_fries_create_aliases_rg_tag_wrap () {
-  local engine='rg'
+  local rg_cmd='rg'
 
-  if ! hash ${engine} 2>/dev/null; then
-    warn "No Silver Searcher or Rip Grep found [${engine}]"
+  if ! hash ${rg_cmd} 2>/dev/null; then
+    warn "ERROR: Rip Grep not found"
+
     return 1
   fi
 
   # Choices: ag, rg
-  export TAG_SEARCH_PROG=${engine}
+  export TAG_SEARCH_PROG=${rg_cmd}
 
   tag () {
     local aliases="${TAG_ALIAS_FILE:-/tmp/tag_aliases}"
