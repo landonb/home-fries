@@ -88,6 +88,8 @@ home_fries_create_aliases_rg_tag_wrap () {
   #      will search and wire the `e*` result commands to open
   #      each search result in a GVim window, and switch to it.
 
+  # CXREF: https://github.com/DepoXy/gvim-open-kindness#🐬
+  # - If using DepoXy, it's at: ~/.kit/sh/gvim-open-kindness/bin/gvim-open-kindness
   # See the gvim-open-kindness script: It uses an environment
   # variable, $GVIM_OPEN_SERVERNAME, to indicate which GVim
   # instance to use. If you do not set or change this value, each
