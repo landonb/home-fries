@@ -30,34 +30,6 @@ home_fries_aliases_wire_vi_vim () {
   #  claim_alias_or_warn "v" '${EDITOR} $(fc -s) ' # edit results of last command
 }
 
-# *** Gvim/gVim
-
-# A few different Home Fries commands that open Vim all use the same
-# servername, so that the same instance of GVim is targeted by those
-# commands. The name doesn't matter (too much; you'll see it in the
-# window title bar), but it should be unique among all windows for
-# xdotool to identify it (so on macOS you don't have to worry).
-#
-# Note that `fs` and `fa` assume that `gvim-open-kindness` will be
-# found on PATH. Otherwise we could specify it more completely, e.g.,
-# ${HOMEFRIES_BIN:-${HOME}/.homefries/bin}, but I don't see a need.
-
-# The `fs` command is just easy to type, starts with 'f' (for 'file',
-# I suppose), and so far it doesn't conflict with anything popular of
-# which I know (unlike, say, `fd`). I type `fs` or `fs {file}` (or
-# `fs <Alt-.>`) a lot when I want to start editing in GVim.
-fs () {
-  # NOTE: The servername appears in the window title bar, so you are
-  #       encouraged to personalize it accordingly!
-  gvim-open-kindness "${GVIM_OPEN_SERVERNAME:-SAMPI}" "" "" "$@"
-}
-
-# The `fa` command exists should you want to open a second instance
-# of GVim. (I cannot remember the last time I used this command.)
-fa () {
-  gvim-open-kindness "${HOMEFRIES_GVIM_ALTERNATE:-ALPHA}" "" "" "$@"
-}
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 unset_f_alias_vim_gvim () {
