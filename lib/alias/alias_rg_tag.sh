@@ -48,8 +48,10 @@ home_fries_create_aliases_rg_tag_wrap () {
   tag () {
     local aliases="${TAG_ALIAS_FILE:-/tmp/tag_aliases}"
     /bin/rm -f "${aliases}"
+
     # See: ${HOME}/.gopath/bin/tag
     command tag "$@"
+
     # The tag command does not set $? on error, not sure why.
     [ -s "${aliases}" ] || return 1
     . "${aliases}" 2>/dev/null
