@@ -283,7 +283,6 @@ source_distro_sources () {
 # view file contents).
 
 source_funcs_sources () {
-  source_it "funcs/aci"
   source_it "funcs/find-duplicates"
   source_it "funcs/please"
 }
