@@ -7,7 +7,7 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # I don't really anticipate using this function, but I find it rather novel.
-# - Print list of file sizses,
+# - Print list of file sizes,
 #     sort 'em,
 #     cull duplicates,
 #     use the file sizes to print the paths,
