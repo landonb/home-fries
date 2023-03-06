@@ -412,7 +412,7 @@ tmux_conf_theme_status_left=' ❐ #S | ⏲ '
 #   intervals, but happens all too often (probably every 11th second when the status
 #   is updated, per status-interval).
 #
-#  tmux_conf_theme_status_right='#{prefix}#{pairing} |#(gitmux -cfg ~/.waffle/home/.gitmux.conf #{pane_current_path})#{?battery_status, #{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} | #{username}#{root}|@#{hostname} | %R %d %b '
+#  tmux_conf_theme_status_right='#{prefix}#{pairing} |#(gitmux -cfg ~/.homefries/.gitmux.conf #{pane_current_path})#{?battery_status, #{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} | #{username}#{root}|@#{hostname} | %R %d %b '
 #
 # - 2020-06-06: The following, simpler status bar alleviates the every-11-seconds
 #   interruption that I'd experience using the terminal.
@@ -437,7 +437,7 @@ tmux_conf_theme_status_right='#{prefix}#{pairing} | | #{username}#{root}|@#{host
 # #                   but the spike is V. noticeable with ten!
 #
 # # Without battery status:
-# tmux_conf_theme_status_right='#{prefix}#{pairing} |#(gitmux -cfg ~/.waffle/home/.gitmux.conf #{pane_current_path}) | #{username}#{root}|@#{hostname} | %R %d %b '
+# tmux_conf_theme_status_right='#{prefix}#{pairing} |#(gitmux -cfg ~/.homefries/.gitmux.conf #{pane_current_path}) | #{username}#{root}|@#{hostname} | %R %d %b '
 # # Yanked='#{?battery_status, #{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},}'
 
 # Insert this snippet for weather:
