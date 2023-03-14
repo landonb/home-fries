@@ -71,7 +71,9 @@ home_fries_create_aliases_rg_tag_wrap () {
       --colors 'path:style:bold' \
       --colors 'line:fg:green' \
       --colors 'line:style:bold' \
-      --colors 'match:bg:white'"
+      --colors 'match:bg:white' \
+      --glob '!/.git/' \
+      "
 
   # `rgt` will search and wire the `e*` commands to open
   #       each search result in Vim in current *terminal*.
