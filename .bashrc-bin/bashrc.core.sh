@@ -319,7 +319,6 @@ source_utils_sources () {
   source_it "fries_util.sh"
   source_it "hist_util.sh"
   source_it "input_util.sh"
-  source_it "interact_util.sh"
   source_it "keys_util.sh"
   source_it "manpath_util.sh"
   source_it "openshift_util.sh"
