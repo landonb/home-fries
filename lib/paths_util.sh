@@ -66,7 +66,7 @@ home_fries_add_to_path_home_fries_bin () {
 home_fries_add_to_path_home_local_bin () {
   # Make commands installed by Zoidy Pooh et al available.
   # E.g., ~/.local/bin is where `pip install --user blah` installs.
-  # And where zoidy_home-fries installs non-apt/-snap applications.
+  # And where zoidy_apps_et_al installs non-apt/-snap applications.
   path_prefix "${HOME}/.local/bin"
 }
 

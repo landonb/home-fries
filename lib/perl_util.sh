@@ -18,7 +18,7 @@ perl_set_path_and_environs () {
   # - See:
   #     tasks/app-gnucash.yml
   #   from
-  #     github.com:landonb/zoidy_home-fries
+  #     github.com:landonb/zoidy_apps_et_al
   # - Ref:
   #     http://finance-quote.sourceforge.net/
 
