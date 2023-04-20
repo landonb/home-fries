@@ -124,6 +124,12 @@ home_fries_add_to_path_golang () {
   fi
 }
 
+# 2023-04-20 16:32: Last Ubuntu 22.04/Linux Mint 21.1 installs
+# apt's `fd-find`'s `fd` to /usr/lib/cargo/bin/fd (was /usr/bin/fd).
+home_fries_add_to_path_rust_cargo_bin () {
+  path_suffix "/usr/lib/cargo/bin"
+}
+
 # ++++++++++++++++++++++++++++++ #
 
 home_fries_set_path_environ () {
@@ -151,8 +157,8 @@ home_fries_set_path_environ () {
   home_fries_add_to_path_android_studio
   unset -f home_fries_add_to_path_android_studio
 
-  home_fries_add_to_path_golang
-  unset -f home_fries_add_to_path_golang
+  home_fries_add_to_path_rust_cargo_bin
+  unset -f home_fries_add_to_path_rust_cargo_bin
 
   # ++++++++++++++++++++++++++++++ #
 
