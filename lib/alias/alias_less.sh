@@ -6,9 +6,13 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# less options:
+#   -r  Raw control characters.
+#   -R  Better Raw control characters (i.e., color).
+#   -f  "Forces non-regular files to be opened."
+#       "Also suppresses the warning message when a binary file is opened."
 home_fries_aliases_wire_less () {
-  # alias less='less -r'     # Raw control characters.
-  alias less='less -R'      # Better Raw control characters (aka color).
+  alias less='less -Rf'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
