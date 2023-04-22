@@ -113,6 +113,7 @@ home_fries_add_to_path_android_studio () {
 
 home_fries_add_to_path_golang () {
   local go_dir="${HOME}/.gopath"
+
   if [ -d "${go_dir}" ]; then
     # FIXME/2019-09-16: Seems like a weird side-effect of updating PATH
     #                   to also be exporting other variables.
@@ -156,6 +157,9 @@ home_fries_set_path_environ () {
 
   home_fries_add_to_path_android_studio
   unset -f home_fries_add_to_path_android_studio
+
+  home_fries_add_to_path_golang
+  unset -f home_fries_add_to_path_golang
 
   home_fries_add_to_path_rust_cargo_bin
   unset -f home_fries_add_to_path_rust_cargo_bin
