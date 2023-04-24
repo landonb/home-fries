@@ -14,7 +14,13 @@ home_fries_aliases_wire_gimp () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 home_fries_create_alias_gimp_flatpak () {
-  [ -d "${HOME}/.var/app/org.gimp.GIMP" ] || return
+  # SAVVY/2023-04-23: This directory created on first run, so unreliable.
+  #  [ -d "${HOME}/.var/app/org.gimp.GIMP" ] || return
+  [ -d "${HOME}/.local/share/flatpak/app/org.gimp.GIMP" ] || return
+  # See also:
+  #   if flatpak info org.gimp.GIMP > /dev/null 2>&1; then
+  #     ...
+  # but not as quick as dir-check.
 
   # Desktop entry is more complicated:
   #   /usr/bin/flatpak run \
