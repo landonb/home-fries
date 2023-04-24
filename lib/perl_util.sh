@@ -16,9 +16,10 @@ perl_set_path_and_environs () {
   # 2020-05-04: The optional GnuCash extension, Finance::Quote, installed
   # from CPAN (via gnc-fq-update), appends these environs to ~/.bashrc.
   # - See:
-  #     tasks/app-gnucash.yml
+  #     tasks/app-gnucash-build.yml
   #   from
   #     github.com:landonb/zoidy_apps_et_al
+  #   - CXREF: ~/.kit/ansible/roles/zoidy_apps_et_al/tasks/app-gnucash-build.yml
   # - Ref:
   #     http://finance-quote.sourceforge.net/
 
