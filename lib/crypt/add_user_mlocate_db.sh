@@ -78,8 +78,16 @@
 #         ...
 #
 home_fries_mlocate_wire_private_db () {
-  if [ -f "${HOME}/.mlocate/mlocate.db" ]; then
-    alias locate="cat ${HOME}/.mlocate/mlocate.db | /usr/bin/locate -d-"
+  if command -v plocate > /dev/null; then
+    if [ -f "${HOME}/.plocate/plocate.db" ]; then
+      alias locate="plocate --database ${HOME}/.plocate/plocate.db"
+    elif [ -f "${HOME}/.mlocate/mlocate.db" ]; then
+      echo "CHORE: Update ~/.mlocate → ~/.plocate"
+    fi
+  elif command -v mlocate > /dev/null; then
+    if [ -f "${HOME}/.mlocate/mlocate.db" ]; then
+      alias locate="cat ${HOME}/.mlocate/mlocate.db | /usr/bin/locate -d-"
+    fi
   fi
 }
 
