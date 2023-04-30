@@ -16,7 +16,9 @@ home_fries_aliases_wire_gimp () {
 home_fries_create_alias_gimp_flatpak () {
   # SAVVY/2023-04-23: This directory created on first run, so unreliable.
   #  [ -d "${HOME}/.var/app/org.gimp.GIMP" ] || return
-  [ -d "${HOME}/.local/share/flatpak/app/org.gimp.GIMP" ] || return
+  [ -d "${HOME}/.local/share/flatpak/app/org.gimp.GIMP" ] \
+    || [ -d "/var/lib/flatpak/app/org.gimp.GIMP" ] \
+    || return
   # See also:
   #   if flatpak info org.gimp.GIMP > /dev/null 2>&1; then
   #     ...
