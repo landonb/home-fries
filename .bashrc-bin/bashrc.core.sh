@@ -71,19 +71,12 @@ source_it () {
   source_from_user_path_or_homefries_lib "$@"
 }
 
-# For sourced files to ensure things setup as expected, too.
-check_dep () {
-  local cname="$1"
-  local ahint="$2"
-  if ! command -v "${cname}" > /dev/null 2>&1; then
-    >&2 printf '\r%s\n' "WARNING: Missing dependency: ‘${cname}’"
-    [ -n "${ahint}" ] && >&2 echo "${ahint}"
-    false
-  else
-    true
-  fi
+# CXREF: ~/.homefries/lib/snips/check_dep.sh
+export_homefries_check_dep () {
+  . "${HOMEFRIES_DIR}/lib/snips/check_dep.sh"
+
+  export -f check_dep
 }
-export -f check_dep
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -709,7 +702,9 @@ main () {
   local time_main_0="$(print_nanos_now)"
 
   export_homefries_envs
+  export_homefries_check_dep
   unset -f export_homefries_envs
+  unset -f export_homefries_check_dep
 
   source_homefries_libs
   unset -f source_it
