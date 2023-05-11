@@ -241,13 +241,13 @@ dubs_apply_shell_prompts () {
   #         and `printf` won't recognize the \Unicode syntax)
   #         will work.
   local u_anchor="⚓"             # ⚓  $(printf "\u2693")
-  local u_evergreen_tree="🌲"     # 🌲  $(printf "\U1F332")
-  local u_cactus="🌵"             # 🌵  $(printf "\U1F335")
+ #local u_evergreen_tree="🌲"     # 🌲  $(printf "\U1F332")
+ #local u_cactus="🌵"             # 🌵  $(printf "\U1F335")
   local u_mushroom="🍄"           # 🍄  $(printf "\U1F344")
   local u_skull="💀"              # 💀  $(printf "\U1F480")
-  local u_owl="🦉"                # 🦉  $(printf "\U1F989")
-  local u_herb="🌿"               # 🌿  $(printf "\U1F33F")
-  local u_pineapple="🍍"          # 🍍  $(printf "\U1F34D")
+ #local u_owl="🦉"                # 🦉  $(printf "\U1F989")
+ #local u_herb="🌿"               # 🌿  $(printf "\U1F33F")
+ #local u_pineapple="🍍"          # 🍍  $(printf "\U1F34D")
   # (Draws too light to see:)
   #  local u_skull_n_xbones="☠"   # ☠  $(printf "\u2620")
 
