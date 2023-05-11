@@ -93,17 +93,22 @@ _hf_session_util_is_ppid_poetry_shell () {
   ps ax -o pid,command | ${_HF_GREP} -P "^ *${PPID} \S+/python3? \S+/poetry shell$" &> /dev/null
 }
 
+_hf_session_is_subshell () {
+  false \
+    || _hf_session_util_is_ppid_bash \
+    || _hf_session_util_is_ppid_ibash \
+    || _hf_session_util_is_ppid_poetry_shell
+}
+
 # `shexit` also comes to mind, but `be<TAB>` for the win.
 # - Though beware macos Homebrew imagemagick `benchmark_xl`
 #   conflicts, but you probably don't need that command and
 #   can rename it.
 home_fries_session_util_configure_aliases_bexit () {
-  ( false \
-    || _hf_session_util_is_ppid_bash \
-    || _hf_session_util_is_ppid_ibash \
-    || _hf_session_util_is_ppid_poetry_shell \
-  ) \
-    && claim_alias_or_warn "bexit" "bash-exit-bash-hole"
+  _hf_session_is_subshell \
+    || return
+
+  claim_alias_or_warn "bexit" "bash-exit-bash-hole"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
