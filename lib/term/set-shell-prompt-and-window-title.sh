@@ -251,6 +251,9 @@ dubs_apply_shell_prompts () {
   # (Draws too light to see:)
   #  local u_skull_n_xbones="☠"   # ☠  $(printf "\u2620")
 
+  local local_shell_icon="${u_mushroom}"
+  local remote_shell_icon="${u_skull}"
+
   # NOTE: Using "" below instead of '' so that ${titlebar} is resolved by the
   #       shell first.
   # ${HOMEFRIES_TRACE} && echo "PS1: Preparing prompt"
@@ -279,7 +282,7 @@ dubs_apply_shell_prompts () {
       if $(dubs_logged_on_via_ssh); then
         # 2018-12-23: Killer.
 
-        PS1="${titlebar}${fg_gray}${cur_user}$(attr_italic)$(attr_underline)$(fg_lightorange)@${mach_name}${attr_reset}:${fg_cyan}${basename}${attr_reset} ${u_skull} \$ "
+        PS1="${titlebar}${fg_gray}${cur_user}$(attr_italic)$(attr_underline)$(fg_lightorange)@${mach_name}${attr_reset}:${fg_cyan}${basename}${attr_reset} ${remote_shell_icon} \$ "
       elif user_not_trapped_chroot; then
         #PS1="${titlebar}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]\$ "
         # 2015.03.04: The chroot is Ubuntu 12.04, and it's Bash v4.2 does not
@@ -287,12 +290,12 @@ dubs_apply_shell_prompts () {
         #             outer. (Follow the directory path with an anchor symbol
         #             so I know I'm *not* in the chroot.)
         # With a colon between hostname and working directory:
-        #   PS1="${titlebar}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_cyan}${basename}${attr_reset} ${u_mushroom} \$ "
+        #   PS1="${titlebar}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_cyan}${basename}${attr_reset} ${local_shell_icon} \$ "
         # With a space between hostname and working directory, so double-click works.
-        #   PS1="${titlebar}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset} ${fg_cyan}${basename}${attr_reset} ${u_mushroom} \$ "
+        #   PS1="${titlebar}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset} ${fg_cyan}${basename}${attr_reset} ${local_shell_icon} \$ "
         # With a Unicode colon between hostname and working directory, so double-click works.
 
-        PS1="${titlebar}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}∶${fg_cyan}${basename}${attr_reset} ${u_mushroom} \$ "
+        PS1="${titlebar}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}∶${fg_cyan}${basename}${attr_reset} ${local_shell_icon} \$ "
         # 2015.02.26: Add git branch.
         #             Maybe... not sure I like this...
         #             maybe change delimiter and make branch name colorful?
