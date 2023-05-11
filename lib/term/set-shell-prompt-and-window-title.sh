@@ -23,18 +23,22 @@ dubs_logged_on_via_ssh () {
   # "If one of the variables SSH_CLIENT or SSH_TTY is defined, it's an ssh session.
   #  If the login shell's parent process name is sshd, it's an ssh session."
   if [ -n "${SSH_CLIENT}" ] || [ -n "${SSH_TTY}" ]; then
+
     return 0
   else
     case $(ps -o comm= -p ${PPID}) in
       sshd|*/sshd)
+
         return 0
         ;;
       # mate-terminal) ...
       *)
+
         return 1
         ;;
     esac
   fi
+
   return 1
 }
 
@@ -46,11 +50,15 @@ user_not_trapped_chroot () {
 fries_format_titlebar () {
   # 2021-07-16: Add window number to iTerm2 window title.
   local win_num_prefix=''
+
   # Bash startup occurs from the user's home directory.
   local mod_path="${HOMEFRIES_LIB:-${HOME}/.homefries/lib}/term/show-command-name-in-window-title.sh"
+
   if [ -f "${mod_path}" ]; then
     . "${mod_path}"
+
     win_num_prefix="$(fries_prepare_window_number_prefix)"
+
     unset -f fries_prepare_window_number_prefix
   fi
 
@@ -86,6 +94,7 @@ fries_format_titlebar () {
   local hellsbells='\a'
 
   local sticky_alert=''
+
   if ${DUBS_ALWAYS_ON_VISIBLE:-false}; then
     # MEH/2018-05-28: (lb): Make this settable... if anyone else ever uses Home Fries...
     sticky_alert="${DUBS_STICKY_PREFIX}"
@@ -97,15 +106,18 @@ fries_format_titlebar () {
   # NOTE: To test gnome-terminal, run it from your home directory, otherwise it
   #       won't find your bash scripts.
   local titlebar
+
   if ! $(dubs_logged_on_via_ssh); then
     # echo "User not logged on via SSH"
     if [ "${HOMEFRIES_TITLE}" != '' ]; then
+
       titlebar="\[\e]0;${sticky_alert}${HOMEFRIES_TITLE}\a\]"
     elif user_not_trapped_chroot; then
       # Not in chroot jail.
       #  titlebar="\[\e]0;\u@\h:\w\a\]"
       #  titlebar="\[\e]0;\w:(\u@\h)\a\]"
       #  titlebar="\[\e]0;\w\a\]"
+
       titlebar="\[\e]0;${sticky_alert}${basename}\a\]"
     else
       # In chroot jail.
@@ -114,12 +126,14 @@ fries_format_titlebar () {
   else
     # echo "User *is* logged on via SSH!"
     local -a choices
+
     #  choices+=("\[\e]0;${sticky_alert}$(hostname) → ${basename}${hellsbells}\]")
     choices+=("\[\e]0;${sticky_alert}$(hostname) 🦉 ${basename}${hellsbells}\]")
     choices+=("\[\e]0;${sticky_alert}$(hostname) 👗 ${basename}${hellsbells}\]")
     choices+=("\[\e]0;${sticky_alert}$(hostname) 🌊 ${basename}${hellsbells}\]")
     choices+=("\[\e]0;${sticky_alert}$(hostname) 🌿 ${basename}${hellsbells}\]")
     choices+=("\[\e]0;${sticky_alert}$(hostname) 🍍 ${basename}${hellsbells}\]")
+
     # Using RANDOM builtin.
     titlebar="${choices[$RANDOM % 5]}"
   fi
@@ -245,9 +259,11 @@ dubs_apply_shell_prompts () {
       # ${HOMEFRIES_TRACE} && echo "PS1: Running as root!"
       if os_is_macos || [ "$(cat /proc/version | grep Ubuntu)" ]; then
         # ${HOMEFRIES_TRACE} && echo "PS1: On Ubuntu"
+
         PS1="${titlebar}${bg_magenta}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_cyan}${basename}${attr_reset}\$ "
       elif [ "$(cat /proc/version | grep Red\ Hat)" ]; then
         # ${HOMEFRIES_TRACE} && echo "PS1: On Red Hat"
+
         PS1="${titlebar}${bg_magenta}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_gray}${basename}${attr_reset}\$ "
       else
         echo "WARNING: Not enough info. to set PS1."
@@ -262,6 +278,7 @@ dubs_apply_shell_prompts () {
       # CAVEAT: This check works on Linux but probably not on Mac, BSD, Cygwin, etc.
       if $(dubs_logged_on_via_ssh); then
         # 2018-12-23: Killer.
+
         PS1="${titlebar}${fg_gray}${cur_user}$(attr_italic)$(attr_underline)$(fg_lightorange)@${mach_name}${attr_reset}:${fg_cyan}${basename}${attr_reset} ${u_skull} \$ "
       elif user_not_trapped_chroot; then
         #PS1="${titlebar}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]\$ "
@@ -274,6 +291,7 @@ dubs_apply_shell_prompts () {
         # With a space between hostname and working directory, so double-click works.
         #   PS1="${titlebar}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset} ${fg_cyan}${basename}${attr_reset} ${u_mushroom} \$ "
         # With a Unicode colon between hostname and working directory, so double-click works.
+
         PS1="${titlebar}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}∶${fg_cyan}${basename}${attr_reset} ${u_mushroom} \$ "
         # 2015.02.26: Add git branch.
         #             Maybe... not sure I like this...
@@ -287,13 +305,15 @@ dubs_apply_shell_prompts () {
         #PS1="${titlebar}\[\033[01;31m\]"$'\u2605'"\u@"$'\u2605'"\[\033[1;36m\]\h\[\033[00m\]:\[\033[01;33m\]\W\[\033[00m\]"$' \u2693 '
         # 2015.03.04: As mentioned above, the chroot may be running an old Bash,
         #             so use the Unicode \uXXXX escape in the outer only.
+
         PS1="${titlebar}${fg_red}**${cur_user}@**${fg_cyan}${mach_name}${attr_reset}:${fg_yellow}${basename}${attr_reset} "'! '
       fi
     elif [ "$(cat /proc/version | grep Red\ Hat)" ]; then
       # ${HOMEFRIES_TRACE} && echo "PS1: On Red Hat"
+
       PS1="${titlebar}${fg_cyan}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_gray}${basename}${attr_reset}\$ "
     else
-        echo "WARNING: dubs_apply_shell_prompts: Not enough info. to set PS1."
+      echo "WARNING: dubs_apply_shell_prompts: Not enough info. to set PS1."
     fi
   else
     # This is a chroot jail without a mounted /proc.
