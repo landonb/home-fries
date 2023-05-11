@@ -474,6 +474,7 @@ home_fries_up () {
 
   # Set `PS1=` to customize the terminal prompt.
   # - lib/term/set-shell-prompt-and-window-title.sh
+  # - Deps: lib/session_util.sh
   run_and_unset "dubs_set_terminal_prompt"
 
   # Set PS4, for `set -x` and `set -v` debugging/tracing.

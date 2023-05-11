@@ -245,6 +245,7 @@ _hf_prompt_customize_shell_prompts_and_window_title () {
  #local u_cactus="🌵"             # 🌵  $(printf "\U1F335")
   local u_mushroom="🍄"           # 🍄  $(printf "\U1F344")
   local u_skull="💀"              # 💀  $(printf "\U1F480")
+  local u_horny="😈"              # 💀  $(printf "\U1F480")
  #local u_owl="🦉"                # 🦉  $(printf "\U1F989")
  #local u_herb="🌿"               # 🌿  $(printf "\U1F33F")
  #local u_pineapple="🍍"          # 🍍  $(printf "\U1F34D")
@@ -253,6 +254,12 @@ _hf_prompt_customize_shell_prompts_and_window_title () {
 
   local local_shell_icon="${u_mushroom}"
   local remote_shell_icon="${u_skull}"
+
+  # CXREF: _hf_session_is_subshell: ~/.homefries/lib/session_util.sh:96
+  if _hf_session_is_subshell; then
+    local_shell_icon="${u_anchor}"
+    remote_shell_icon="${u_horny}"
+  fi
 
   # NOTE: Using "" below instead of '' so that ${titlebar} is resolved by the
   #       shell first.
