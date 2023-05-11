@@ -279,7 +279,7 @@ dubs_apply_shell_prompts () {
       #       to use sudo, and we know we're on Linux. And on Linux,
       #       the inode of the (outermost) root directory is always 2.
       # CAVEAT: This check works on Linux but probably not on Mac, BSD, Cygwin, etc.
-      if $(dubs_logged_on_via_ssh); then
+      if dubs_logged_on_via_ssh; then
         # 2018-12-23: Killer.
 
         PS1="${titlebar}${fg_gray}${cur_user}$(attr_italic)$(attr_underline)$(fg_lightorange)@${mach_name}${attr_reset}:${fg_cyan}${basename}${attr_reset} ${remote_shell_icon} \$ "
