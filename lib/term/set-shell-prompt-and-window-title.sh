@@ -18,7 +18,7 @@ DUBS_STICKY_PREFIX_RE="${DUBS_STICKY_PREFIX_RE:-\\(Dubs\\) }"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-dubs_logged_on_via_ssh () {
+_hf_prompt_is_user_logged_on_via_ssh () {
   # https://unix.stackexchange.com/questions/9605/how-can-i-detect-if-the-shell-is-controlled-from-ssh
   # "If one of the variables SSH_CLIENT or SSH_TTY is defined, it's an ssh session.
   #  If the login shell's parent process name is sshd, it's an ssh session."
@@ -42,12 +42,12 @@ dubs_logged_on_via_ssh () {
   return 1
 }
 
-user_not_trapped_chroot () {
+_hf_prompt_user_is_not_trapped_in_chroot () {
   ( os_is_linux && [ $(stat -c %i /) -eq 2 ] ) ||
   ( os_is_macos && [ $(stat -f %i /) -eq 2 ] )
 }
 
-fries_format_titlebar () {
+_hf_prompt_format_titlebar () {
   # 2021-07-16: Add window number to iTerm2 window title.
   local win_num_prefix=''
 
@@ -107,12 +107,12 @@ fries_format_titlebar () {
   #       won't find your bash scripts.
   local titlebar
 
-  if ! $(dubs_logged_on_via_ssh); then
+  if ! _hf_prompt_is_user_logged_on_via_ssh; then
     # echo "User not logged on via SSH"
     if [ "${HOMEFRIES_TITLE}" != '' ]; then
 
       titlebar="\[\e]0;${sticky_alert}${HOMEFRIES_TITLE}\a\]"
-    elif user_not_trapped_chroot; then
+    elif _hf_prompt_user_is_not_trapped_in_chroot; then
       # Not in chroot jail.
       #  titlebar="\[\e]0;\u@\h:\w\a\]"
       #  titlebar="\[\e]0;\w:(\u@\h)\a\]"
@@ -141,7 +141,7 @@ fries_format_titlebar () {
   printf "${titlebar}"
 }
 
-dubs_apply_shell_prompts () {
+_hf_prompt_customize_shell_prompts_and_window_title () {
   # If the user sets a custom PS1, e.g., for an `asciinema rec` demo
   # recording, honor it.
   # - (lb): Note that you can `export PS1` but I could not get around Bash
@@ -208,7 +208,7 @@ dubs_apply_shell_prompts () {
   # # From debian .bashrc:
   # PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 
-  local titlebar="$(fries_format_titlebar)"
+  local titlebar="$(_hf_prompt_format_titlebar)"
 
   # 2012.10.17: The default bash includes ${debian_chroot:+($debian_chroot)} in
   # the PS1 string, but it really shouldn't be set on any of our systems (it's
@@ -279,11 +279,11 @@ dubs_apply_shell_prompts () {
       #       to use sudo, and we know we're on Linux. And on Linux,
       #       the inode of the (outermost) root directory is always 2.
       # CAVEAT: This check works on Linux but probably not on Mac, BSD, Cygwin, etc.
-      if dubs_logged_on_via_ssh; then
+      if _hf_prompt_is_user_logged_on_via_ssh; then
         # 2018-12-23: Killer.
 
         PS1="${titlebar}${fg_gray}${cur_user}$(attr_italic)$(attr_underline)$(fg_lightorange)@${mach_name}${attr_reset}:${fg_cyan}${basename}${attr_reset} ${remote_shell_icon} \$ "
-      elif user_not_trapped_chroot; then
+      elif _hf_prompt_user_is_not_trapped_in_chroot; then
         #PS1="${titlebar}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]\$ "
         # 2015.03.04: The chroot is Ubuntu 12.04, and it's Bash v4.2 does not
         #             support Unicode \uXXXX escapes, so use the escape in the
@@ -316,7 +316,7 @@ dubs_apply_shell_prompts () {
 
       PS1="${titlebar}${fg_cyan}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_gray}${basename}${attr_reset}\$ "
     else
-      echo "WARNING: dubs_apply_shell_prompts: Not enough info. to set PS1."
+      echo "WARNING: _hf_prompt_customize_shell_prompts_and_window_title: Not enough info. to set PS1."
     fi
   else
     # This is a chroot jail without a mounted /proc.
@@ -369,13 +369,13 @@ dubs_set_terminal_prompt () {
   _hf_check_deps_set_shell_prompt || return $?
   unset -f _hf_check_deps_set_shell_prompt
 
-  dubs_apply_shell_prompts
+  _hf_prompt_customize_shell_prompts_and_window_title
 
-  unset -f dubs_logged_on_via_ssh
-  unset -f user_not_trapped_chroot
-  unset -f fries_format_titlebar
+  unset -f _hf_prompt_is_user_logged_on_via_ssh
+  unset -f _hf_prompt_user_is_not_trapped_in_chroot
+  unset -f _hf_prompt_format_titlebar
 
-  unset -f dubs_apply_shell_prompts
+  unset -f _hf_prompt_customize_shell_prompts_and_window_title
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
