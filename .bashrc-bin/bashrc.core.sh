@@ -327,7 +327,6 @@ source_utils_sources () {
   # Earlier: "term/*.sh"
   source_it "time_util.sh"
   source_it "user_util.sh"
-  source_it "virtualenvwrapperer.sh"
   # Just some example Bash author might reference:
   #  source_it "snips/array_iterations.sh"
 }
