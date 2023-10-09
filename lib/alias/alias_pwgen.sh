@@ -18,7 +18,27 @@ home_fries_aliases_wire_pwgen () {
   # until quantum computing screws us over and we all need to move to
   # elliptic-curve cryptography.
   # - Note the surrounding () is necessary for redirection, e.g., `pwgen23 > foo`.
-  claim_alias_or_warn "pwgen23" "( pwgen 2 1 | tr -d '\n' ; pwgen -n 21 -s -N 1 -y | tr -d '\n' ; pwgen 2 1 )"
+  claim_alias_or_warn "pwgen23" "_hf_aliases_wire_pwgen_clip_and_print"
+}
+
+_hf_aliases_wire_pwgen_pwgen23 () {
+  pwgen 2 1 \
+    | tr -d '\n'
+  pwgen -n 21 -s -N 1 -y \
+    | tr -d '\n'
+  pwgen 2 1
+}
+
+_hf_aliases_wire_pwgen_clip_and_print () {
+  local pwd="$(_hf_aliases_wire_pwgen_pwgen23)"
+
+  echo "${pwd}" | _hf_aliases_wire_pwgen_clip_and_print_os_aware
+}
+
+_hf_aliases_wire_pwgen_clip_and_print_os_aware () {
+  type xclip > /dev/null 2>&1 \
+    && cat | tee >(tr -d "\n" | xclip -selection c) \
+    || cat >(tr -d "\n" | pbcopy)
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
