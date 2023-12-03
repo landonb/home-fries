@@ -150,6 +150,35 @@ echo_dict () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# *** Not quite array iterator, but input iterator snips...
+
+while_process_substitution () {
+  local input_line
+  while IFS= read -r input_line; do
+    echo "${input_line}"
+  done < <(echo "foo bar 'baz bat'
+bingo bango")
+}
+
+while_process_substitution_null_sep () {
+  local input_line
+  while IFS= read -r -d $'\0' input_line; do
+    echo "${input_line}"
+  done < <(echo -e "foo bar 'baz bat'\0bingo bango\0")
+}
+
+while_heredoc () {
+  local input_lines="foo bar 'baz bat'
+bingo bango"
+
+  local input_line
+  while IFS= read -r input_line; do
+    echo "${input_line}"
+  done <<< "${input_lines}"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 main () {
   # alias elem_in_arr=array_in
   :
