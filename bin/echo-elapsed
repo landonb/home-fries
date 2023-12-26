@@ -34,6 +34,11 @@ echo_elapsed () {
   local threshold=${HOMEFRIES_PROFILE_THRESHOLD:-0.12}
 
   local time_n="$(print_nanos_now)"
+
+  if [ -z "${time_0}" ]; then
+    time_0="${time_n}"
+  fi
+
   local elapsed_fract_secs="$(echo "(${time_n} - ${time_0})" | bc -l)"
 
   local elapsed_ge_threshold
