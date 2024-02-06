@@ -513,6 +513,7 @@ home_fries_bashrc_cleanup () {
   # in, e.g., /opt/homebrew/Cellar/bash/5.2.15/bin/bash).
   if true \
     && [ "${bash_path}" != '/bin/bash' ] \
+    && [ "${bash_path}" != '/usr/bin/bash' ] \
     && [ "${bash_path}" = "${bash_path#${HOMEBREW_PREFIX}}" ] \
   ; then
     print_msg_special=true
