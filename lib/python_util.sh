@@ -16,6 +16,8 @@
 
 _hf_python_util_pyenv_export_environs () {
   export PYENV_ROOT="${HOME}/.pyenv"
+  [ -d "${PYENV_ROOT}/bin" ] &&
+    export PATH="${PYENV_ROOT}/bin:${PATH}"
 }
 
 # Note the `pyenv init -` does the following:
