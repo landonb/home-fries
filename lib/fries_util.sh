@@ -110,7 +110,6 @@ home_fries_direxpand_completions () {
 #     pyenv.bash (from https://github.com/pyenv/pyenv)
 #     tig-completion.bash (from https://github.com/jonas/tig)
 #     tmux (from https://github.com/imomaliev/tmux-bash-completion)
-#     travis.sh (from ~/.gem/ruby/2.6.0/gems/travis-1.9.1/assets/travis.sh)
 #
 # - You can still opt-into the load-all-completion-files behavior by
 #   setting the HOMEFRIES_LOAD_COMPLETIONS_ANY environment.
@@ -157,8 +156,6 @@ home_fries_load_completions () {
       HOMEFRIES_LOAD_COMPLETIONS+=("pyenv.bash")
       HOMEFRIES_LOAD_COMPLETIONS+=("tig-completion.bash")
       HOMEFRIES_LOAD_COMPLETIONS+=("tmux")
-      # MAYBE/2023-01-30: Is travis.sh still in use @linux? Not present my @macOS
-      HOMEFRIES_LOAD_COMPLETIONS+=("travis.sh")
     fi
 
     local source_out
