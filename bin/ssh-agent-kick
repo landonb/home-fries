@@ -129,7 +129,7 @@ feed_agent () {
     local secret_path="${SSH_SECRETS}/${secret_name}"
     verbose "secret_path=${secret_path}"
     if [ -e "${secret_path}" ]; then
-      local pphrase="$(cat ${SSH_SECRETS}/${secret_name})"
+      local pphrase="$(cat ${secret_path})"
       # CUTE! If $pphrase has a bracket in it, e.g., "1234[", expect complains:
       #        "missing close-bracket while executing send "1234["
       pphrase="$(echo "${pphrase}" | /usr/bin/env sed -E 's#\[#\\[#g')"
