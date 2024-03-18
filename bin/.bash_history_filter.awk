@@ -49,6 +49,12 @@ function print_last_histentry() {
   clear_histentry()
 }
 
+# DUNNO/2024-03-17: Why does my ~/.bash_history start with ~15,000 blank lines?
+# - Whatever. Here we exclude blank lines.
+/^$/ {
+  next
+}
+
 /^#[[:digit:]]{10}$/ {
   print_last_histentry()
   timestamp = $0
