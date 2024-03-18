@@ -276,8 +276,14 @@ verify_or_start_agent () {
     notice "Solo ssh-agent agent detected (not the mate-session agent)."
     max_agents=1
   elif [ -n "${SSH_AGENT_PID}" ]; then
-    error "SSH_AGENT_PID set but no such process (${SSH_AGENT_PID})"
-    exit 1
+    info "SSH_AGENT_PID set but no such process (${SSH_AGENT_PID})"
+    # SAVVY: This `unset` won't affect user's terminal if this script is
+    # called as an executable, as opposed to user sourcing this script and
+    # calling the function directly.
+    # - If you call this script as an executable, you'll want to source the
+    #   new SSH_* environs via `. ~/.ssh/environment`.
+    #   - Likewise for other terminals you may already have open.
+    unset -v SSH_AGENT_PID
   fi
 
   local cnt_agents=$(ps_ssh_agent_all_count)
