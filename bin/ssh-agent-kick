@@ -95,6 +95,7 @@ HOMEFRIES_SSH_ENV="${HOME}/.ssh/environment"
 
 start_agent () {
   notice "Initializing new SSH agent."
+  echo
   # Around web you'll also see:
   #   eval `ssh-agent -s`
   # but we save to a file instead, and source that.
@@ -139,6 +140,7 @@ feed_agent () {
         send \"${pphrase}\n\"; \
         interact ; \
       "
+      echo "ADDED: ${pvt_key}"
     else
       /usr/bin/ssh-add "${pvt_key}"
     fi
