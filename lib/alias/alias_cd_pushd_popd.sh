@@ -24,6 +24,7 @@ home_fries_aliases_wire_cd_pushd_popd () {
     # - Use case: If you open caja (file browser), click a file,
     #   press Ctrl-c or copy, it copies the file path with said
     #   prefix.
+    # - Use case: Copy-pasting browser location for local file.
     target="$(echo "${target}" | sed 's#^file://##')"
 
     if [ -n "${target}" ]; then

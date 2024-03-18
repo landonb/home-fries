@@ -31,6 +31,8 @@ _hist_util_hook () {
   #   echo 'XXXXXXXXXXXXXXXX
   #   ....
   #   ' | pass insert -m foo/bar
+  # CXREF/2024-03-17:
+  #   ~/.homefries/bin/.bash_history_filter.awk
   awk -f "${HOMEFRIES_BIN:-${HOME}/.homefries/bin}/.bash_history_filter.awk" \
     "${HOME}/.bash_history" > "${HOME}/.bash_history-AWKed"
   /bin/mv "${HOME}/.bash_history-AWKed" "${resolved_p}"
