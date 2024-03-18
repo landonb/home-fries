@@ -34,17 +34,23 @@ ssh_agent_kill () {
   # but sometimes you have more than one ssh-agent, or maybe the environ
   # no longer matches. So you want a more sure-fire solution. Just `ps`.
 
-  # NOTE: No quotes, so newlines excluded.
-  notice Killing: $(ps_ssh_agent_ids)
-  ps_ssh_agent_ids | xargs kill
+  if [ -n "$(ps_ssh_agent_all)" ]; then
+    # NOTE: Don't use quotes, so newlines excluded.
+    notice Killing: $(ps_ssh_agent_ids)
+    ps_ssh_agent_ids | xargs kill
+  fi
 
   local HOMEFRIES_SSH_ENV="${HOME}/.ssh/environment"
-  notice "Removing: ${HOMEFRIES_SSH_ENV}"
-  /bin/rm -f "${HOMEFRIES_SSH_ENV}"
+  if [ -f "${HOMEFRIES_SSH_ENV}" ]; then
+    notice "Removing: ${HOMEFRIES_SSH_ENV}"
+    /bin/rm -f "${HOMEFRIES_SSH_ENV}"
+  fi
 
-  notice "Unsetting: SSH_*"
-  unset -v SSH_AGENT_PID
-  unset -v SSH_AUTH_SOCK
+  if _sak_shell_sourced; then
+    notice "Unsetting: SSH_AGENT_PID and SSH_AUTH_SOCK"
+    unset -v SSH_AGENT_PID
+    unset -v SSH_AUTH_SOCK
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
