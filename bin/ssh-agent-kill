@@ -63,19 +63,19 @@ ssh_agent_kill () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-this_file_name="ssh-agent-kill"
-shell_sourced () { [ "$(basename -- "$0")" != "${this_file_name}" ]; }
-# Note that bash_sourced only meaningful if shell_sourced is true.
-bash_sourced () { declare -p FUNCNAME > /dev/null 2>&1; }
+_sak_this_file_name="ssh-agent-kill"
+_sak_shell_sourced () { [ "$(basename -- "$0")" != "${_sak_this_file_name}" ]; }
+# Note that _sak_bash_sourced only meaningful if _sak_shell_sourced is true.
+_sak_bash_sourced () { declare -p FUNCNAME > /dev/null 2>&1; }
 
-if ! shell_sourced; then
+if ! _sak_shell_sourced; then
   LOG_LEVEL=${LOG_LEVEL_DEBUG}
   source_deps
   ssh_agent_kill "$@"
 else
-  bash_sourced && export -f ssh_agent_kill
-  unset -v this_file_name
-  unset -f shell_sourced
-  unset -f bash_sourced
+  _sak_bash_sourced && export -f ssh_agent_kill
+  unset -v _sak_this_file_name
+  unset -f _sak_shell_sourced
+  unset -f _sak_bash_sourced
 fi
 
