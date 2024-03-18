@@ -75,7 +75,7 @@ if ! _sak_shell_sourced; then
 else
   _sak_bash_sourced && export -f ssh_agent_kill
   unset -v _sak_this_file_name
-  unset -f _sak_shell_sourced
+  # unset -f _sak_shell_sourced
   unset -f _sak_bash_sourced
 fi
 
