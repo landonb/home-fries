@@ -7,7 +7,7 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 ps_ssh_agent_all () {
-  ps -ef | grep -e '\bssh-agent[ $]' | grep -v 'grep'
+  ps -ef | grep -E -e '\bssh-agent( |$)' | grep -v 'grep'
 }
 
 ps_ssh_agent_ids () {
