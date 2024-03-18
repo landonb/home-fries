@@ -6,6 +6,12 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+source_deps () {
+  . "${SHOILERPLATE:-/kit/shoilerplate}/sh-logger/bin/logger.sh"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 ps_ssh_agent_all () {
   ps -ef | grep -E -e '\bssh-agent( |$)' | grep -v 'grep'
 }
@@ -49,6 +55,7 @@ shell_sourced () { [ "$(basename -- "$0")" != "${this_file_name}" ]; }
 bash_sourced () { declare -p FUNCNAME > /dev/null 2>&1; }
 
 if ! shell_sourced; then
+  source_deps
   ssh_agent_kill "$@"
 else
   bash_sourced && export -f ssh_agent_kill
