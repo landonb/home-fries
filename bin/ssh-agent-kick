@@ -151,6 +151,12 @@ ssh_add_key_with_passphrase () {
   local ssh_keyname="$1"
   local passphrase="$2"
 
+  if ! [ -s "${ssh_keyname}" ]; then
+    >&2 error "ERROR: Missing key: ${ssh_keyname}"
+
+    exit 1
+  fi
+
   # SAVVY: If passphrase contains a bracket, e.g., "1234[", expect complains:
   #   "missing close-bracket while executing send "1234["
   passphrase="$(echo "${passphrase}" | /usr/bin/env sed -E 's#\[#\\[#g')"
