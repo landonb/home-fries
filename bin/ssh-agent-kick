@@ -7,6 +7,7 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # USAGE: Call this script once after logging on to ssh-add your ~/.ssh keys.
+# - See next USAGE comment for how to deal with password-protected keys.
 #
 # If you're having issues, try to kill the existing agent(s).
 # - Try one of the following:
@@ -19,6 +20,34 @@
 #       kill -s 9 {PID}  # Repeat for each PID
 #   - Kill just the active agent wired to the current session:
 #       ssh-agent -k
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# USAGE: Normally this script lets ssh-add prompt you for a protected
+# SSH key's passphrase, unless the passphrase is supplied otherwise.
+# - If you want to skip password-protected keys without a specified
+#   passphrase (see next comment), set this option to true (or call
+#   this script with this environ set to true):
+
+SSH_AGENT_KICK_NONINTERACTIVE=${SSH_AGENT_KICK_NONINTERACTIVE:-false}
+
+# USAGE: You can also use a "cheat" directory to load protected keys.
+# - Set SSH_SECRETS to a directory path that contains files with the
+#   same name as the password-protected keys, and add each key's
+#   passphrase to the cheat file of the same name.
+# - This is obviously not super secure, but you could mount the cheat
+#   directory from an encfs, run this script, and then unmount it.
+#
+# ALTLY: Alternatively, you could store SSH key passphrases in a
+# Password Store (https://www.passwordstore.org/). Then, write a
+# script that fetches those values, sources this script, and calls
+# `ssh_add_key_with_passphrase` directly.
+# - The author uses this approach. I have a script I run on startup
+#   that asks for my Password Store passphrase which I use to mount
+#   an encfs containing the Password Store, and then I use entries
+#   from Password Store to mount other encfs drives and that uses
+#   this script to cache password-protected SSH keys with ssh-agent
+#   (specifically, I cache all my password-protected GitHub keys).
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -163,8 +192,7 @@ feed_agent () {
 
     if [ $? -eq 0 ]; then
       info "ssh-add: ${ssh_keyname}"
-    else
-      warn "ssh-add: Failed to add key: ${ssh_keyname}"
+    # else, warn or error already printed.
     fi
   done
 }
@@ -186,18 +214,72 @@ ssh_agent_has_key () {
 ssh_add_key_possibly_encrypted () {
   local ssh_keyname="$1"
 
-  local secret_name="$(basename -- "${ssh_keyname}")"
-  local secret_path="${SSH_SECRETS}/${secret_name}"
-
-  verbose "secret_path=${secret_path}"
-
-  if [ -e "${secret_path}" ]; then
-    local passphrase="$(cat ${secret_path})"
-    ssh_add_key_with_passphrase "${ssh_keyname}" "${passphrase}"
+  if ssh_key_is_encrypted "${ssh_keyname}"; then
+    ssh_add_key_protected "${ssh_keyname}"
   else
-    # Seems odd that ssh-add prints the success message, e.g.,
-    # "Identify added: /home/user/.ssh/id_acme", to stderr.
-    /usr/bin/ssh-add "${ssh_keyname}" 2> /dev/null
+    ssh_add_key_without_passphrase "${ssh_keyname}"
+  fi
+}
+
+# Use `ssh-keygen` to check if key is encrypted or not.
+# - Options: -P for the password (leave blank), and -y to print the key.
+# - OUTPUT (success):
+#   ssh-rsa XXXX...
+# - OUTPUT (failure):
+#   Load key "/home/user/.ssh/id_acme": incorrect passphrase supplied to decrypt private key
+ssh_key_is_encrypted () {
+  local ssh_keyname="$1"
+
+  ssh-keygen -y -P "" -f "${ssh_keyname}" > /dev/null 2>&1
+}
+
+ssh_add_key_protected () {
+  local ssh_keyname="$1"
+
+  if [ ! -d "${SSH_SECRETS}" ]; then
+    # Fallback on ssh-add prompt for the passphrase.
+    ssh_add_key_protected_without_passphrase_maybe "${ssh_keyname}"
+  else
+    local secret_name="$(basename -- "${ssh_keyname}")"
+    local secret_path="${SSH_SECRETS}/${secret_name}"
+
+    if [ -e "${secret_path}" ]; then
+      local passphrase="$(cat ${secret_path})"
+
+      debug "ssh-add: Cheat exists for ${ssh_keyname}"
+
+      ssh_add_key_with_passphrase "${ssh_keyname}" "${passphrase}"
+    else
+      debug "ssh-add: Cheat absent for ${ssh_keyname}"
+
+      ssh_add_key_protected_without_passphrase_maybe "${ssh_keyname}"
+    fi
+  fi
+}
+
+# The key might still be password-protected, in which case
+# ssh-add prompts the user.
+ssh_add_key_without_passphrase () {
+  local ssh_keyname="$1"
+
+  # Seems odd that ssh-add prints the success message, e.g.,
+  # "Identify added: /home/user/.ssh/id_acme", to stderr.
+  /usr/bin/ssh-add "${ssh_keyname}" 2> /dev/null
+
+  if [ $? -ne 0 ]; then
+    warn "BWARE: ssh-add failed (b/c you entered bad password?): ${ssh_keyname}"
+
+    return 1
+  fi
+}
+
+ssh_add_key_protected_without_passphrase_maybe () {
+  local ssh_keyname="$1"
+
+  if ! ${SSH_AGENT_KICK_NONINTERACTIVE:-false}; then
+    ssh_add_key_without_passphrase "${ssh_keyname}"
+  else
+    info "ssh-add: Skipping protected key: ${ssh_keyname}"
   fi
 }
 
