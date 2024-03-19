@@ -98,7 +98,9 @@ verify_environment () {
     return 1
   fi
 
-  gripe_secrets_absent && return 1
+  if gripe_secrets_absent; then
+    return 1
+  fi
 
   # Now we made it!
   return 0
