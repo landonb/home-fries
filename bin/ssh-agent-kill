@@ -7,7 +7,7 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 source_deps () {
-  . "${SHOILERPLATE:-/kit/shoilerplate}/sh-logger/bin/logger.sh"
+  . "${HOMEFRIES_DIR:-${HOME}/.homefries}/deps/sh-logger/bin/logger.sh"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
