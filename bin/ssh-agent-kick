@@ -328,7 +328,7 @@ verify_or_start_agent () {
 ssh_agent_kick () {
   # USAGE: `ssh_agent_kick` or ssh_agent_kick -v`.
   local old_level=${LOG_LEVEL}
-  [ "$1" = "-v" ] && LOG_LEVEL=0 || LOG_LEVEL=${LOG_LEVEL_NOTICE}
+  [ "$1" = "-v" ] && LOG_LEVEL=0 || LOG_LEVEL=${LOG_LEVEL_INFO}
 
   # 2021-02-20: Oops, for past 11 months, since 08205ac, I was
   # shadowing first check. I repaired it now, so just be aware
