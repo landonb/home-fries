@@ -125,7 +125,6 @@ feed_agent () {
   debug "rsa_keys=\n${rsa_keys}"
 
   for pvt_key in ${rsa_keys}; do
-    local sent_passphrase=false
     local secret_name="$(basename -- "${pvt_key}")"
     local ssh_keyname="${HOME}/.ssh/${secret_name}"
     local secret_path="${SSH_SECRETS}/${secret_name}"
