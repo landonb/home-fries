@@ -181,28 +181,28 @@ feed_agent () {
   )"
   debug "rsa_keys=\n${rsa_keys}"
 
-  for ssh_keyname in ${rsa_keys}; do
-    if ssh_agent_has_key "${ssh_keyname}"; then
-      info "ssh-add: ${ssh_keyname} (already present)"
+  for ssh_key_path in ${rsa_keys}; do
+    if ssh_agent_has_key "${ssh_key_path}"; then
+      info "ssh-add: ${ssh_key_path} (already present)"
 
       continue
     fi
 
-    ssh_add_key_possibly_encrypted "${ssh_keyname}"
+    ssh_add_key_possibly_encrypted "${ssh_key_path}"
 
     if [ $? -eq 0 ]; then
-      info "ssh-add: ${ssh_keyname}"
+      info "ssh-add: ${ssh_key_path}"
     # else, warn or error already printed.
     fi
   done
 }
 
 ssh_agent_has_key () {
-  local ssh_keyname="$1"
+  local ssh_key_path="$1"
 
   local pub_key_fingerprint
-  if ! pub_key_fingerprint="$(ssh-keygen -l -f ${ssh_keyname})"; then
-    >&2 error "ERROR: Cannot determine fingerprint: ${ssh_keyname}"
+  if ! pub_key_fingerprint="$(ssh-keygen -l -f ${ssh_key_path})"; then
+    >&2 error "ERROR: Cannot determine fingerprint: ${ssh_key_path}"
 
     # Caller already checked that the key exists, so this is unexpected.
     exit 1
@@ -212,12 +212,12 @@ ssh_agent_has_key () {
 }
 
 ssh_add_key_possibly_encrypted () {
-  local ssh_keyname="$1"
+  local ssh_key_path="$1"
 
-  if ssh_key_is_encrypted "${ssh_keyname}"; then
-    ssh_add_key_protected "${ssh_keyname}"
+  if ssh_key_is_encrypted "${ssh_key_path}"; then
+    ssh_add_key_protected "${ssh_key_path}"
   else
-    ssh_add_key_without_passphrase "${ssh_keyname}"
+    ssh_add_key_without_passphrase "${ssh_key_path}"
   fi
 }
 
@@ -228,31 +228,31 @@ ssh_add_key_possibly_encrypted () {
 # - OUTPUT (failure):
 #   Load key "/home/user/.ssh/id_acme": incorrect passphrase supplied to decrypt private key
 ssh_key_is_encrypted () {
-  local ssh_keyname="$1"
+  local ssh_key_path="$1"
 
-  ssh-keygen -y -P "" -f "${ssh_keyname}" > /dev/null 2>&1
+  ssh-keygen -y -P "" -f "${ssh_key_path}" > /dev/null 2>&1
 }
 
 ssh_add_key_protected () {
-  local ssh_keyname="$1"
+  local ssh_key_path="$1"
 
   if [ ! -d "${SSH_SECRETS}" ]; then
     # Fallback on ssh-add prompt for the passphrase.
-    ssh_add_key_protected_without_passphrase_maybe "${ssh_keyname}"
+    ssh_add_key_protected_without_passphrase_maybe "${ssh_key_path}"
   else
-    local secret_name="$(basename -- "${ssh_keyname}")"
+    local secret_name="$(basename -- "${ssh_key_path}")"
     local secret_path="${SSH_SECRETS}/${secret_name}"
 
     if [ -e "${secret_path}" ]; then
       local passphrase="$(cat ${secret_path})"
 
-      debug "ssh-add: Cheat exists for ${ssh_keyname}"
+      debug "ssh-add: Cheat exists for ${ssh_key_path}"
 
-      ssh_add_key_with_passphrase "${ssh_keyname}" "${passphrase}"
+      ssh_add_key_with_passphrase "${ssh_key_path}" "${passphrase}"
     else
-      debug "ssh-add: Cheat absent for ${ssh_keyname}"
+      debug "ssh-add: Cheat absent for ${ssh_key_path}"
 
-      ssh_add_key_protected_without_passphrase_maybe "${ssh_keyname}"
+      ssh_add_key_protected_without_passphrase_maybe "${ssh_key_path}"
     fi
   fi
 }
@@ -260,43 +260,43 @@ ssh_add_key_protected () {
 # The key might still be password-protected, in which case
 # ssh-add prompts the user.
 ssh_add_key_without_passphrase () {
-  local ssh_keyname="$1"
+  local ssh_key_path="$1"
 
   # Seems odd that ssh-add prints the success message, e.g.,
   # "Identify added: /home/user/.ssh/id_acme", to stderr.
-  /usr/bin/ssh-add "${ssh_keyname}" 2> /dev/null
+  /usr/bin/ssh-add "${ssh_key_path}" 2> /dev/null
 
   if [ $? -ne 0 ]; then
-    warn "BWARE: ssh-add failed (b/c you entered bad password?): ${ssh_keyname}"
+    warn "BWARE: ssh-add failed (b/c you entered bad password?): ${ssh_key_path}"
 
     return 1
   fi
 }
 
 ssh_add_key_protected_without_passphrase_maybe () {
-  local ssh_keyname="$1"
+  local ssh_key_path="$1"
 
   if ! ${SSH_AGENT_KICK_NONINTERACTIVE:-false}; then
-    ssh_add_key_without_passphrase "${ssh_keyname}"
+    ssh_add_key_without_passphrase "${ssh_key_path}"
   else
-    info "ssh-add: Skipping protected key: ${ssh_keyname}"
+    info "ssh-add: Skipping protected key: ${ssh_key_path}"
   fi
 }
 
 ssh_add_key_with_passphrase () {
-  local ssh_keyname="$1"
+  local ssh_key_path="$1"
   local passphrase="$2"
 
   # This script won't hit these conditions, but a caller that sources
   # this script and calls this function directly might.
-  if ! [ -s "${ssh_keyname}" ]; then
-    >&2 error "ERROR: ssh-add: Incorrect path for: ${ssh_keyname}"
+  if ! [ -s "${ssh_key_path}" ]; then
+    >&2 error "ERROR: ssh-add: Incorrect path for: ${ssh_key_path}"
 
     return 1
   fi
 
   if [ -z "${passphrase}" ]; then
-    >&2 error "ERROR: ssh-add: Missing passphrase for: ${ssh_keyname}"
+    >&2 error "ERROR: ssh-add: Missing passphrase for: ${ssh_key_path}"
 
     return 1
   fi
@@ -308,8 +308,8 @@ ssh_add_key_with_passphrase () {
   local response
   response="$( \
     /usr/bin/expect -c " \
-      spawn /usr/bin/ssh-add ${ssh_keyname}; \
-      expect \"Enter passphrase for ${ssh_keyname}:\"; \
+      spawn /usr/bin/ssh-add ${ssh_key_path}; \
+      expect \"Enter passphrase for ${ssh_key_path}:\"; \
       send \"${passphrase}\n\"; \
       interact ; \
     " 2>&1 1>/dev/null)"
@@ -323,7 +323,7 @@ ssh_add_key_with_passphrase () {
     #   send: spawn id exp4 not open
     #       while executing
     #   **PASSWORD**\n""
-    >&2 error "ERROR: ssh-add: Invalid passphrase for key: ${ssh_keyname}"
+    >&2 error "ERROR: ssh-add: Invalid passphrase for key: ${ssh_key_path}"
     # Avoid spewing password out.
     >&2 echo "$(echo "${response}" | sed 's/\"send \"\(.*\)\\n\"\"/\"send \"XXXX\\n\"\"/')"
 
