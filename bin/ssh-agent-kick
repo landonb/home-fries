@@ -133,9 +133,16 @@ feed_agent () {
     if [ -e "${secret_path}" ]; then
       local passphrase="$(cat ${secret_path})"
       ssh_add_key_with_passphrase "${ssh_keyname}" "${passphrase}"
-      echo "ADDED: ${ssh_keyname}"
     else
-      /usr/bin/ssh-add "${ssh_keyname}"
+      # Seems odd that ssh-add prints the success message, e.g.,
+      # "Identify added: /home/user/.ssh/id_acme", to stderr.
+      /usr/bin/ssh-add "${ssh_keyname}" 2> /dev/null
+    fi
+
+    if [ $? -eq 0 ]; then
+      info "ssh-add: ${ssh_keyname}"
+    else
+      warn "ssh-add: Failed to add key: ${ssh_keyname}"
     fi
   done
 }
@@ -148,12 +155,18 @@ ssh_add_key_with_passphrase () {
   #   "missing close-bracket while executing send "1234["
   passphrase="$(echo "${passphrase}" | /usr/bin/env sed -E 's#\[#\\[#g')"
 
-  /usr/bin/expect -c " \
-    spawn /usr/bin/ssh-add ${ssh_keyname}; \
-    expect \"Enter passphrase for ${ssh_keyname}:\"; \
-    send \"${passphrase}\n\"; \
-    interact ; \
-  "
+  local response
+  response="$( \
+    /usr/bin/expect -c " \
+      spawn /usr/bin/ssh-add ${ssh_keyname}; \
+      expect \"Enter passphrase for ${ssh_keyname}:\"; \
+      send \"${passphrase}\n\"; \
+      interact ; \
+    " 2>&1 1>/dev/null)"
+  # OUTPUT, e.g.:
+  # spawn /usr/bin/ssh-add /home/user/.ssh/id_acme_ed25519
+  # Enter passphrase for /home/user/.ssh/id_acme_ed25519: 
+  # Identity added: /home/user/.ssh/id_acme_ed25519 (Acme)
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
