@@ -92,15 +92,17 @@ verify_environment () {
 # See http://help.github.com/working-with-key-passphrases/
 HOMEFRIES_SSH_ENV="${HOME}/.ssh/environment"
 
+# Around web you'll also see:
+#   eval `ssh-agent -s`
+# but we save to a file instead, and source that.
 start_agent () {
   notice "Initializing new SSH agent"
   echo
-  # Around web you'll also see:
-  #   eval `ssh-agent -s`
-  # but we save to a file instead, and source that.
   /usr/bin/ssh-agent | /usr/bin/env sed 's/^echo/# echo/' > "${HOMEFRIES_SSH_ENV}"
+
   chmod 600 "${HOMEFRIES_SSH_ENV}"
-  # Source the SSH_* environs the new process spits out.
+
+  # Source the SSH_* environs that the new process emitted.
   . "${HOMEFRIES_SSH_ENV}" > /dev/null
 }
 
