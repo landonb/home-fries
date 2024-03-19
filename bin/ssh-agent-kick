@@ -173,6 +173,18 @@ ssh_add_key_with_passphrase () {
   # spawn /usr/bin/ssh-add /home/user/.ssh/id_acme_ed25519
   # Enter passphrase for /home/user/.ssh/id_acme_ed25519: 
   # Identity added: /home/user/.ssh/id_acme_ed25519 (Acme)
+
+  if [ $? -ne 0 ]; then
+    # On error, expect outputs, e.g.,
+    #   send: spawn id exp4 not open
+    #       while executing
+    #   **PASSWORD**\n""
+    >&2 error "ERROR: ssh-add failed:"
+    # Avoid spewing password out.
+    >&2 echo "$(echo "${response}" | sed 's/\"send \"\(.*\)\\n\"\"/\"send \"XXXX\\n\"\"/')"
+
+    return 1
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
