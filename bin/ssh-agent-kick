@@ -4,8 +4,6 @@
 # Project: https://github.com/landonb/home-fries#🍟
 # License: MIT
 
-# FIXME/2020-03-27 12:11: Convert to using pass store, not $SSH_SECRETS dir.
-
 # USAGE: Call once after logging on.
 #
 # If you're having issues, you might want to try
@@ -53,8 +51,7 @@ gripe_secrets_absent () {
   if [ ${prev_notice} != "0" ]; then
     local now="$(print_nanos_now)"
     if [ "$(echo "(${now} - ${prev_notice}) < 1.0" | bc -l)" -ne 0 ] ; then
-      # It's been less than 1 second since previous notice; don't repeat yourself
-      # so soon.
+      # It's been <1 second since previous notice; don't repeat message so soon.
 
       return 0
     fi
