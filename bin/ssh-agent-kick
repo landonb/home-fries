@@ -4,11 +4,21 @@
 # Project: https://github.com/landonb/home-fries#🍟
 # License: MIT
 
-# USAGE: Call once after logging on.
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# USAGE: Call this script once after logging on to ssh-add your ~/.ssh keys.
 #
-# If you're having issues, you might want to try
-# `ssh-agent -k` or use `ps -ef | grep ssh-agent`
-# to find and kill existing agents.
+# If you're having issues, try to kill the existing agent(s).
+# - Try one of the following:
+#   - Kill all agents using the Homefries script:
+#       "${HOMEFRIES_BIN:-${HOME}/.homefries/bin}/ssh-agent-kill
+#   - Kill all processes named 'ssh-agent':
+#       killall ssh-agent
+#   - Find all ssh-agent process IDs and kill each one manually:
+#       ps -ef | grep ssh-agent
+#       kill -s 9 {PID}  # Repeat for each PID
+#   - Kill just the active agent wired to the current session:
+#       ssh-agent -k
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
