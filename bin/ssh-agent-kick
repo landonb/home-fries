@@ -226,7 +226,7 @@ ssh_add_key_possibly_encrypted () {
 # - OUTPUT (success):
 #   ssh-rsa XXXX...
 # - OUTPUT (failure):
-#   Load key "/home/user/.ssh/id_acme": incorrect passphrase supplied to decrypt private key
+#   Load key "/home/user/.ssh/id_acme_rsa": incorrect passphrase supplied to decrypt private key
 ssh_key_is_encrypted () {
   local ssh_key_path="$1"
 
@@ -263,7 +263,7 @@ ssh_add_key_without_passphrase () {
   local ssh_key_path="$1"
 
   # Seems odd that ssh-add prints the success message, e.g.,
-  # "Identify added: /home/user/.ssh/id_acme", to stderr.
+  # "Identify added: /home/user/.ssh/id_acme_rsa", to stderr.
   /usr/bin/ssh-add "${ssh_key_path}" 2> /dev/null
 
   if [ $? -ne 0 ]; then
