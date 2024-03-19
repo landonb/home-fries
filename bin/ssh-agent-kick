@@ -51,7 +51,10 @@ source_deps () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 gripe_secrets_absent () {
-  [ -n "${SSH_SECRETS}" ] && [ -d "${SSH_SECRETS}" ] && return 1
+  if [ -d "${SSH_SECRETS}" ]; then
+    return 1
+  fi
+
   # We could return and not care if [ ! -z ${SSH_SECRETS+x} ], i.e.,
   # so called could set SSH_SECRETS= to disable. But this script is
   # called deliberately, so we'll tell user how to use it.
