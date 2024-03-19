@@ -50,9 +50,19 @@ source_deps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-gripe_secrets_absent () {
+verify_ssh_secrets_path_if_configured () {
+  # 2024-03-19: This script used to complain if SSH_SECRETS was unset,
+  # but it's now recommeneded that users avoid this mechanism. It's
+  # more secure to store SSH passphrases in a password database, and
+  # to call `ssh_add_key_with_passphrase` directly from your own script.
+  # - Afterwards, you can run this script, and it'll skip the keys you
+  #   already loaded.
+  if [ -z "${SSH_SECRETS}" ]; then
+    return 0
+  fi
+
   if [ -d "${SSH_SECRETS}" ]; then
-    return 1
+    return 0
   fi
 
   # We could return and not care if [ ! -z ${SSH_SECRETS+x} ], i.e.,
@@ -66,17 +76,13 @@ gripe_secrets_absent () {
     if [ "$(echo "(${now} - ${prev_notice}) < 1.0" | bc -l)" -ne 0 ] ; then
       # It's been <1 second since previous notice; don't repeat message so soon.
 
-      return 0
+      return 1
     fi
   fi
 
-  if [ -z "${SSH_SECRETS}" ]; then
-    warn 'Undefined: Please set SSH_SECRETS to the secrets path'
-  else
-    warn "Missing: No directory at SSH_SECRETS: ${SSH_SECRETS}"
-  fi
+  warn "Missing: No directory at SSH_SECRETS: ${SSH_SECRETS}"
 
-  return 0
+  return 1
 }
 
 verify_environment () {
@@ -101,7 +107,7 @@ verify_environment () {
     return 1
   fi
 
-  if gripe_secrets_absent; then
+  if ! verify_ssh_secrets_path_if_configured; then
     return 1
   fi
 
