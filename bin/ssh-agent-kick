@@ -149,6 +149,20 @@ feed_agent () {
   done
 }
 
+ssh_agent_has_key () {
+  local ssh_keyname="$1"
+
+  local pub_key_fingerprint
+  if ! pub_key_fingerprint="$(ssh-keygen -l -f ${ssh_keyname})"; then
+    >&2 error "ERROR: Cannot determine fingerprint: ${ssh_keyname}"
+
+    # Caller already checked that the key exists, so this is unexpected.
+    exit 1
+  fi
+
+  ssh-add -l | grep -q "^${pub_key_fingerprint}$"
+}
+
 ssh_add_key_possibly_encrypted () {
   local ssh_keyname="$1"
 
@@ -205,20 +219,6 @@ ssh_add_key_with_passphrase () {
 
     return 1
   fi
-}
-
-ssh_agent_has_key () {
-  local ssh_keyname="$1"
-
-  local pub_key_fingerprint
-  if ! pub_key_fingerprint="$(ssh-keygen -l -f ${ssh_keyname})"; then
-    >&2 error "ERROR: Cannot determine fingerprint: ${ssh_keyname}"
-
-    # Caller already checked that the key exists, so this is unexpected.
-    exit 1
-  fi
-
-  ssh-add -l | grep -q "^${pub_key_fingerprint}$"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
