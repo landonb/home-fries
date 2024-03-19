@@ -130,6 +130,12 @@ feed_agent () {
 
     verbose "secret_path=${secret_path}"
 
+    if ssh_agent_has_key "${ssh_keyname}"; then
+      info "ssh-add: ${ssh_keyname} (already present)"
+
+      continue
+    fi
+
     if [ -e "${secret_path}" ]; then
       local passphrase="$(cat ${secret_path})"
       ssh_add_key_with_passphrase "${ssh_keyname}" "${passphrase}"
@@ -185,6 +191,20 @@ ssh_add_key_with_passphrase () {
 
     return 1
   fi
+}
+
+ssh_agent_has_key () {
+  local ssh_keyname="$1"
+
+  local pub_key_fingerprint
+  if ! pub_key_fingerprint="$(ssh-keygen -l -f ${ssh_keyname})"; then
+    >&2 error "ERROR: Cannot determine fingerprint: ${ssh_keyname}"
+
+    # Caller already checked that the key exists, so this is unexpected.
+    exit 1
+  fi
+
+  ssh-add -l | grep -q "^${pub_key_fingerprint}$"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
