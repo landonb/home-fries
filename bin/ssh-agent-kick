@@ -57,7 +57,7 @@ gripe_secrets_absent () {
   fi
 
   if [ -z "${SSH_SECRETS}" ]; then
-    warn 'Undefined: Please set SSH_SECRETS to the secrets path.'
+    warn 'Undefined: Please set SSH_SECRETS to the secrets path'
   else
     warn "Missing: No directory at SSH_SECRETS: ${SSH_SECRETS}"
   fi
@@ -68,13 +68,13 @@ verify_environment () {
   # Note that EUID is a Bash-ism, so using `id` instead.
   # - Check nonzero ID, i.e., insist that user is not root.
   if [ $(id -u) -eq 0 ]; then
-    >&2 warn "ERROR: Please try again as not root."
+    >&2 warn "ERROR: Please try again as not root"
     return 1
   fi
   # 2020-03-18: (lb): I do not recall why checking TERM matters.
   # - Adding ERROR message, at least I'll know if/when it's called.
   if [ "${TERM}" = "dumb" ]; then
-    >&2 warn "ERROR: Not an appropriate context: TERM too dumb."
+    >&2 warn "ERROR: Not an appropriate context: TERM is ‘dumb’"
     return 1
   fi
   # Pretty obvious: Lacking .ssh/, do nothing.
@@ -93,7 +93,7 @@ verify_environment () {
 HOMEFRIES_SSH_ENV="${HOME}/.ssh/environment"
 
 start_agent () {
-  notice "Initializing new SSH agent."
+  notice "Initializing new SSH agent"
   echo
   # Around web you'll also see:
   #   eval `ssh-agent -s`
@@ -204,7 +204,7 @@ mate_session_agent_pid () {
 
 mate_session_agent_pid_verify () {
   ! is_mate_session_agent_running && return 1
-  notice "Detected ‘ssh-agent mate-session’."
+  notice "Detected ‘ssh-agent mate-session’"
   if [ ${SSH_AGENT_PID} -ne $(mate_session_agent_pid) ]; then
     local prefix="mismatch: \$SSH_AGENT_PID != \$(ps ...)"
     warn "${prefix}: ${SSH_AGENT_PID} != $(mate_session_agent_pid)"
@@ -265,14 +265,14 @@ verify_or_start_agent () {
   local max_agents=0
   if mate_session_agent_pid_verify; then
     if is_gnome_keyring_daemon_agent_running; then
-      notice "Both mate-session and gnome-keyring-daemon ssh-agent agents online."
+      notice "Both mate-session and gnome-keyring-daemon ssh-agent agents online"
       max_agents=2
     else
-      notice "Only the mate-session ssh-agent agent is online."
+      notice "Only the mate-session ssh-agent agent is online"
       max_agents=1
     fi
   elif is_running_pid; then
-    notice "Solo ssh-agent agent detected (not the mate-session agent)."
+    notice "User ssh-agent agent detected (not the mate-session agent)"
     max_agents=1
   elif [ -n "${SSH_AGENT_PID}" ]; then
     info "SSH_AGENT_PID set but no such process (${SSH_AGENT_PID})"
@@ -297,7 +297,7 @@ verify_or_start_agent () {
       error "ssh-agent running but environs file is outdated: try \`ssh-agent -k\`"
       exit 1
     fi
-    notice "Solo ssh-agent agent found via our ssh environs file."
+    notice "Solo ssh-agent agent found via our ssh environs file"
     max_agents=1
   fi
 
