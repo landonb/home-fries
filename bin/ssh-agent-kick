@@ -195,7 +195,7 @@ ssh_add_key_with_passphrase () {
   local passphrase="$2"
 
   if ! [ -s "${ssh_keyname}" ]; then
-    >&2 error "ERROR: Missing key: ${ssh_keyname}"
+    >&2 error "ERROR: ssh-add: Incorrect path for: ${ssh_keyname}"
 
     return 1
   fi
@@ -222,7 +222,7 @@ ssh_add_key_with_passphrase () {
     #   send: spawn id exp4 not open
     #       while executing
     #   **PASSWORD**\n""
-    >&2 error "ERROR: ssh-add failed:"
+    >&2 error "ERROR: ssh-add: Invalid passphrase for key: ${ssh_keyname}"
     # Avoid spewing password out.
     >&2 echo "$(echo "${response}" | sed 's/\"send \"\(.*\)\\n\"\"/\"send \"XXXX\\n\"\"/')"
 
