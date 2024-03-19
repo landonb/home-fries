@@ -201,7 +201,6 @@ source_alias_sources () {
   source_it "alias/alias_cd_pushd_popd.sh"
   source_it "alias/alias_chmod.sh"
   source_it "alias/alias_completion.sh"
-  source_it "alias/alias_cp.sh"
   source_it "alias/alias_df.sh"
   source_it "alias/alias_diff.sh"
   source_it "alias/alias_du.sh"
@@ -276,6 +275,7 @@ source_distro_sources () {
 # view file contents).
 
 source_funcs_sources () {
+  source_it "funcs/cp"
   source_it "funcs/find-duplicates"
   source_it "funcs/please"
 }
@@ -609,9 +609,6 @@ run_and_unset_home_fries_create_aliases () {
 
   # - lib/alias/alias_completion.sh
   run_and_unset "home_fries_aliases_wire_completion"
-
-  # - lib/alias/alias_cp.sh
-  run_and_unset "home_fries_aliases_wire_cp"
 
   # - lib/alias/alias_diff.sh
   run_and_unset "home_fries_aliases_wire_diff"
