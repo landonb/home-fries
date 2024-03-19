@@ -36,7 +36,7 @@ ssh_agent_kill () {
 
   if [ -n "$(ps_ssh_agent_all)" ]; then
     # NOTE: Don't use quotes, so newlines excluded.
-    notice Killing: $(ps_ssh_agent_ids)
+    notice "Killing ssh-agent(s):" $(ps_ssh_agent_ids)
     ps_ssh_agent_ids | xargs kill
   else
     notice "Skipping: No ssh-agent process(es) found (nothing to kill)"
