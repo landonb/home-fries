@@ -194,8 +194,16 @@ ssh_add_key_with_passphrase () {
   local ssh_keyname="$1"
   local passphrase="$2"
 
+  # This script won't hit these conditions, but a caller that sources
+  # this script and calls this function directly might.
   if ! [ -s "${ssh_keyname}" ]; then
     >&2 error "ERROR: ssh-add: Incorrect path for: ${ssh_keyname}"
+
+    return 1
+  fi
+
+  if [ -z "${passphrase}" ]; then
+    >&2 error "ERROR: ssh-add: Missing passphrase for: ${ssh_keyname}"
 
     return 1
   fi
