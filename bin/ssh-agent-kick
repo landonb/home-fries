@@ -131,8 +131,8 @@ feed_agent () {
     verbose "secret_path=${secret_path}"
 
     if [ -e "${secret_path}" ]; then
-      local pphrase="$(cat ${secret_path})"
-      ssh_add_key_with_passphrase "${ssh_keyname}" "${pphrase}"
+      local passphrase="$(cat ${secret_path})"
+      ssh_add_key_with_passphrase "${ssh_keyname}" "${passphrase}"
       echo "ADDED: ${ssh_keyname}"
     else
       /usr/bin/ssh-add "${ssh_keyname}"
@@ -142,16 +142,16 @@ feed_agent () {
 
 ssh_add_key_with_passphrase () {
   local ssh_keyname="$1"
-  local pphrase="$2"
+  local passphrase="$2"
 
   # SAVVY: If passphrase contains a bracket, e.g., "1234[", expect complains:
   #   "missing close-bracket while executing send "1234["
-  pphrase="$(echo "${pphrase}" | /usr/bin/env sed -E 's#\[#\\[#g')"
+  passphrase="$(echo "${passphrase}" | /usr/bin/env sed -E 's#\[#\\[#g')"
 
   /usr/bin/expect -c " \
     spawn /usr/bin/ssh-add ${ssh_keyname}; \
     expect \"Enter passphrase for ${ssh_keyname}:\"; \
-    send \"${pphrase}\n\"; \
+    send \"${passphrase}\n\"; \
     interact ; \
   "
 }
