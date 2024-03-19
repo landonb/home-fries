@@ -118,7 +118,7 @@ start_agent () {
 feed_agent () {
   # Look for keys to load. Use cheat PWDs as appropriate.
   local rsa_keys="$(
-    /usr/bin/env ls ${HOME}/.ssh/*_ed25519 ${HOME}/.ssh/*_rsa 2> /dev/null
+    command ls ${HOME}/.ssh/*_ed25519 ${HOME}/.ssh/*_rsa 2> /dev/null
   )"
   debug "rsa_keys=\n${rsa_keys}"
 
