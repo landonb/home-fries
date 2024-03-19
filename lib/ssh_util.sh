@@ -12,8 +12,9 @@ ssh-agent () {
     # Rather than call `ssh-agent -k`, which (AFAIK, or just what I assume)
     # only kills the agent with a matching SSH_AGENT_PID pid, use `ps` to
     # find and kill all agents.
-    # - I mean, you've come this far, might as well be complete about it.
-    # NOTE: Expects ${HOMEFRIES_BIN} to be on PATH.
+    # SAVVY: Expects ${HOMEFRIES_BIN} on PATH.
+    # ALTLY: Source the script first:
+    #   . "${HOMEFRIES_BIN:-${HOME}/.homefries/bin}/ssh-agent-kill"
     ssh-agent-kill
   else
     /usr/bin/ssh-agent "$@"
