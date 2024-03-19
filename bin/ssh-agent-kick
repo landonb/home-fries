@@ -127,7 +127,9 @@ feed_agent () {
   for ssh_keyname in ${rsa_keys}; do
     local secret_name="$(basename -- "${ssh_keyname}")"
     local secret_path="${SSH_SECRETS}/${secret_name}"
+
     verbose "secret_path=${secret_path}"
+
     if [ -e "${secret_path}" ]; then
       local pphrase="$(cat ${secret_path})"
       # CUTE! If $pphrase has a bracket in it, e.g., "1234[", expect complains:
