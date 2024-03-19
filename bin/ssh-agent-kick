@@ -190,7 +190,7 @@ ssh_add_key_with_passphrase () {
   if ! [ -s "${ssh_keyname}" ]; then
     >&2 error "ERROR: Missing key: ${ssh_keyname}"
 
-    exit 1
+    return 1
   fi
 
   # SAVVY: If passphrase contains a bracket, e.g., "1234[", expect complains:
