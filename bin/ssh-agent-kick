@@ -208,7 +208,16 @@ ssh_agent_has_key () {
     exit 1
   fi
 
-  ssh-add -l | grep -q "^${pub_key_fingerprint}$"
+  # DUNNO/2024-03-19: Usually, `ssh-add -l` uses the key name from the
+  # public key file, e.g.,
+  #   256 SHA256:XXXXX Wile.E.Coyote@acme.com (ED25519)
+  # but sometimes it uses the key path instead, e.g.,
+  #   4096 SHA256:XXXXX /home/user/.ssh/id_acme_rsa (RSA)
+  # So whittle off the name part.
+  local shortened_fingerprint
+  shortened_fingerprint="$(echo "${pub_key_fingerprint}" | cut -d " " -f 1-2)"
+
+  ssh-add -l | grep -q "^${shortened_fingerprint} "
 }
 
 ssh_add_key_possibly_encrypted () {
