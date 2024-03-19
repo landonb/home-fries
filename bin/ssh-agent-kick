@@ -304,9 +304,9 @@ verify_or_start_agent () {
   if [ ${max_agents} -ne ${cnt_agents} ]; then
     error "Unexpected ssh-agent count: expected (${max_agents}) != actual (${cnt_agents})"
 
-    echo "ps -ef | grep -e '\\\\bssh-agent\\\\b' | grep -v 'grep' | wc -l"
-    ps -ef | grep -e '\bssh-agent\b' | grep -v 'grep' | wc -l
-    ps -ef | grep -e '\bssh-agent\b' | grep -v 'grep'
+    echo $(declare -f ps_ssh_agent_all | head -3 | tail -1)" | wc -l"
+    ps_ssh_agent_all | wc -l
+    ps_ssh_agent_all
 
     exit 1
   fi
