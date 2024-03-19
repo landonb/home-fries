@@ -124,9 +124,8 @@ feed_agent () {
   )"
   debug "rsa_keys=\n${rsa_keys}"
 
-  for pvt_key in ${rsa_keys}; do
-    local secret_name="$(basename -- "${pvt_key}")"
-    local ssh_keyname="${HOME}/.ssh/${secret_name}"
+  for ssh_keyname in ${rsa_keys}; do
+    local secret_name="$(basename -- "${ssh_keyname}")"
     local secret_path="${SSH_SECRETS}/${secret_name}"
     verbose "secret_path=${secret_path}"
     if [ -e "${secret_path}" ]; then
@@ -135,14 +134,14 @@ feed_agent () {
       #        "missing close-bracket while executing send "1234["
       pphrase="$(echo "${pphrase}" | /usr/bin/env sed -E 's#\[#\\[#g')"
       /usr/bin/expect -c " \
-        spawn /usr/bin/ssh-add ${pvt_key}; \
-        expect \"Enter passphrase for ${ssh_keyname}:\"; \
+        spawn /usr/bin/ssh-add ${ssh_keyname}; \
+        expect \"Enter pphrase for ${ssh_keyname}:\"; \
         send \"${pphrase}\n\"; \
         interact ; \
       "
-      echo "ADDED: ${pvt_key}"
+      echo "ADDED: ${ssh_keyname}"
     else
-      /usr/bin/ssh-add "${pvt_key}"
+      /usr/bin/ssh-add "${ssh_keyname}"
     fi
   done
 }
