@@ -133,25 +133,13 @@ feed_agent () {
   debug "rsa_keys=\n${rsa_keys}"
 
   for ssh_keyname in ${rsa_keys}; do
-    local secret_name="$(basename -- "${ssh_keyname}")"
-    local secret_path="${SSH_SECRETS}/${secret_name}"
-
-    verbose "secret_path=${secret_path}"
-
     if ssh_agent_has_key "${ssh_keyname}"; then
       info "ssh-add: ${ssh_keyname} (already present)"
 
       continue
     fi
 
-    if [ -e "${secret_path}" ]; then
-      local passphrase="$(cat ${secret_path})"
-      ssh_add_key_with_passphrase "${ssh_keyname}" "${passphrase}"
-    else
-      # Seems odd that ssh-add prints the success message, e.g.,
-      # "Identify added: /home/user/.ssh/id_acme", to stderr.
-      /usr/bin/ssh-add "${ssh_keyname}" 2> /dev/null
-    fi
+    ssh_add_key_possibly_encrypted "${ssh_keyname}"
 
     if [ $? -eq 0 ]; then
       info "ssh-add: ${ssh_keyname}"
@@ -159,6 +147,24 @@ feed_agent () {
       warn "ssh-add: Failed to add key: ${ssh_keyname}"
     fi
   done
+}
+
+ssh_add_key_possibly_encrypted () {
+  local ssh_keyname="$1"
+
+  local secret_name="$(basename -- "${ssh_keyname}")"
+  local secret_path="${SSH_SECRETS}/${secret_name}"
+
+  verbose "secret_path=${secret_path}"
+
+  if [ -e "${secret_path}" ]; then
+    local passphrase="$(cat ${secret_path})"
+    ssh_add_key_with_passphrase "${ssh_keyname}" "${passphrase}"
+  else
+    # Seems odd that ssh-add prints the success message, e.g.,
+    # "Identify added: /home/user/.ssh/id_acme", to stderr.
+    /usr/bin/ssh-add "${ssh_keyname}" 2> /dev/null
+  fi
 }
 
 ssh_add_key_with_passphrase () {
