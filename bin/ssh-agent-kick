@@ -30,12 +30,14 @@ check_deps () {
 }
 
 source_deps () {
-  # CXREF:
+  # CXREF: Console log helpers, `info`, `warn`, `error`, etc.:
   #   https://github.com/landonb/sh-colors
   #   https://github.com/landonb/sh-logger
   . "${HOMEFRIES_DIR:-${HOME}/.homefries}/deps/sh-logger/bin/logger.sh"
 
-  # FIXME/2022-10-11: Also add sh-print-nanos-now deps/ dependency.
+  # CXREF: Timing helper, `print_nanos_now`:
+  #   https://github.com/landonb/sh-print-nanos-now
+  . "${HOMEFRIES_DIR:-${HOME}/.homefries}/deps/sh-print-nanos-now/bin/print-nanos-now.sh"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
