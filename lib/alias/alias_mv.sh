@@ -8,7 +8,13 @@
 
 home_fries_aliases_wire_mv () {
   # HINT: You can easily force-mv (omit the -i flag)
-  #       by calling `\mv` or `/bin/mv` or `env mv`.
+  #       by calling the builtin, e.g.,
+  #         \mv
+  #         /bin/mv
+  #         env mv
+  #         /usr/bin/env mv
+  #         "mv"
+  #         'mv'
   alias mv='mv -i'
 
   # Move a glob of files and include .dotted (hidden) files.
@@ -19,8 +25,9 @@ home_fries_aliases_wire_mv () {
   #   $ mv project/* .
   #   mv: cannot stat ‘project/*’: No such file or directory
   # This fcn. uses shopt to include dot files.
-  # Note: We've aliased `mv` to `/bin/mv -i`, so you'll be asked to
-  #       confirm any overwrites, unless you call `mv_all -f` instead.
+  # Note: We've aliased `mv` to `mv -i`, so you'll be asked to confirm
+  #       any overwrites, unless you call `mv_all -f` or `command mv`
+  #       (or `/usr/bin/env mv`, `env mv`, `\mv`, `"mv"`, or `'mv'`).
   #
   # NOTE: You have to escape wildcards so that are not expanded too soon, e.g.,
   #

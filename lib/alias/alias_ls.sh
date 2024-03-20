@@ -14,8 +14,8 @@ home_fries_aliases_wire_ls () {
   # 2015-01-20: Using --color=tty still works, but `man` says use --color=auto.
   local color_opt="--color=auto"
 
-  # Human readable /bin/ls that classify files, shows almost
-  # all entries (excludes ./ and ../), and uses colour.
+  # Human readable /bin/ls that classifies files, shows all-
+  # most all entries (excludes ./ and ../), and uses colour.
   alias ls="${ls_cmd} -hFA ${color_opt}"
 
   # Compact /bin/ls listing (same as -hFA, really), but list
