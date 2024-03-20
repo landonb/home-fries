@@ -71,7 +71,7 @@ flock_dir () {
 
   $DEBUG_TRACE && echo "Attempting grab on mutex: ${FLOCKING_DIR_PATH}"
 
-  local resp=$(/bin/mkdir "${FLOCKING_DIR_PATH}" 2>&1)
+  local resp=$(mkdir "${FLOCKING_DIR_PATH}" 2>&1)
   if [ $? -eq 0 ]; then
     # We made the directory, meaning we got the mutex.
     $DEBUG_TRACE && echo "Got mutex: yes, running script."
@@ -156,7 +156,7 @@ flock_dir () {
         local spoken_time_0=$(print_nanos_now)
         sleep ${RAND_0_to_10}
         # Try again.
-        local resp=`/bin/mkdir "${FLOCKING_DIR_PATH}" 2>&1`
+        local resp="$(mkdir "${FLOCKING_DIR_PATH}" 2>&1)"
         local success=$?
         # Get the latest time.
         local fcn_time_1=$(print_nanos_now)
@@ -199,7 +199,7 @@ flock_dir () {
     /bin/chmod 2777 "${FLOCKING_DIR_PATH}" &> /dev/null
     # Let the world know who's the boss
     local script_name=$(basename -- "$0")
-    /bin/mkdir -p "${FLOCKING_DIR_PATH}-${script_name}"
+    mkdir -p "${FLOCKING_DIR_PATH}-${script_name}"
   elif [ ${FLOCKING_REQUIRED} -ne 0 ]; then
     $DEBUG_TRACE && echo "Mutex in use: giving up!"
 

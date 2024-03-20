@@ -250,7 +250,7 @@ _sh_rm_safe_prompt_missing_trashdir_options_v1 () {
     fi
   else
     # Parent sets ensured=4 in a later [ -d ].
-    ${sudo_prefix} /bin/mkdir -p "${trash_fs_mount}/${RM_SAFE_TRASH_NAME}"
+    ${sudo_prefix} mkdir -p "${trash_fs_mount}/${RM_SAFE_TRASH_NAME}"
 
     if [ -n "${sudo_prefix}" ]; then
       sudo chgrp staff "/${RM_SAFE_TRASH_NAME}"
@@ -496,7 +496,7 @@ _sh_rm_safe_prompt_missing_trashdir_read_choice_and_react () {
 
   # For return values, see #ensured_legend
   if [ "${the_choice}" = "d" ]; then
-    /bin/mkdir -p "${device_trash}"
+    mkdir -p "${device_trash}"
 
     return 4  # All set! Tell caller to use ${trash_fs_mount}/.trash.
   fi
@@ -549,16 +549,16 @@ _sh_rm_safe_print_missing_trash_fs_mount_hint () {
 
 - 1.) To always use a local device trash, choose 'd' or run:
 
-        mkdir ${device_trash}
+        mkdir \"${device_trash}\"
 
 - 2.) To always ignore trash and call \`rm -i\`:
 
-        touch ${device_trash}
+        touch \"${device_trash}\"
 
 - 3.) To always use the main trash (in user home), run:
 
-        ln -s ${main_trash} \\
-          ${device_trash}
+        ln -s \"${main_trash}\" \\
+          \"${device_trash}\"
 "
 
   echo "${hint}"
@@ -626,11 +626,11 @@ _sh_rm_safe_process_items () {
     fi
 
     # If item_path is a symlink and includes a trailing slash, doing a raw mv:
-    #  /bin/mv "${item_path}" "${trash_fs_mount}/${RM_SAFE_TRASH_NAME}/${fname}"
-    # causes the response:
-    #  /bin/mv: cannot move ‘symlink/’ to
-    #   ‘/path/to/.trash/symlink.2015_12_03_14h26m51s_179228194’: Not a directory
-    /bin/mv "$(dirname -- "${item_path}")/${bname}" "${trash_fs_mount}/${RM_SAFE_TRASH_NAME}/${fname}"
+    #  command mv "${item_path}" "${trash_fs_mount}/${RM_SAFE_TRASH_NAME}/${fname}"
+    # causes a response like:
+    #   mv: cannot move ‘symlink/’ to
+    #    ‘/path/to/.trash/symlink.2015_12_03_14h26m51s_179228194’: Not a directory
+    command mv -- "$(dirname -- "${item_path}")/${bname}" "${trash_fs_mount}/${RM_SAFE_TRASH_NAME}/${fname}"
   fi
 
   [ ${ensured} -ne 1 ] || return ${ensured}
@@ -658,13 +658,13 @@ rm_safe () {
 
   if [ ${#} -eq 0 ]; then
     >&2 echo "rm_safe: Missing operand(s)"
-    >&2 echo "Try \`/bin/rm --help\` for more information"
+    >&2 echo "Try \`command rm --help\` for more information"
 
     return 1
   fi
 
   if ${rm_recursive_force}; then
-    /bin/rm -rf -- "$@"
+    command rm -rf -- "$@"
 
     return 0
   fi
@@ -689,7 +689,7 @@ rm_safe () {
   # echo "RM_SAFE_TRASH_HOME: ${RM_SAFE_TRASH_HOME}"
   # The trash can way!
   # You can disable the trash by running
-  #   /bin/rm -rf ~/.trash && touch ~/.trash
+  #   command rm -rf ~/.trash && touch ~/.trash
   # You can make the trash with rmtrash or mkdir ~/.trash,
   #   or run the command and you'll be prompted.
   # EXPLAIN/2019-12-22: (lb): Would $@ instead of $* allow us to avoid IFS?
@@ -713,7 +713,7 @@ rm_safe () {
     # ***
 
     if ${rm_recursive_force}; then
-      /bin/rm -rf -- "${item_path}"
+      command rm -rf -- "${item_path}"
 
       >&2 echo "rm_safe: Removed ‘${item_path}’"
 

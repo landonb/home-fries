@@ -245,8 +245,8 @@ mv_based_on_name () {
     echo "NOTICE: Renamed on copy: “${dst_path}”"
   fi
 
-  mkdir -p "${dst_subd}/"
-  /bin/mv -i "${src_path}" "${dst_path}"
+  mkdir -p -- "${dst_subd}/"
+  command mv -i -- "${src_path}" "${dst_path}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

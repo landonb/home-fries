@@ -471,7 +471,7 @@ touched_since_logged_on_desktop () {
   local logontouch=$(mktemp --suffix "-HOMEFRIES_TOUCHYLOGON")
   touch -d "${logontime}" -- "${logontouch}"
   [ "${logontouch}" -ot "${cmpfile}" ] && touched_since=true
-  /bin/rm "${logontouch}"
+  command rm -- "${logontouch}"
 
   ${touched_since}
 }
@@ -489,7 +489,7 @@ touched_since_up () {
     # Not a type: Use Homefries' `uptime-s`, not Linux-only `uptime -s`.
     touch -d "$(uptime-s)" -- "${boottouch}"
     [ "${boottouch}" -ot "${touchfile}" ] && touched_since=true
-    /bin/rm "${boottouch}"
+    command rm -- "${boottouch}"
   fi
   ${touched_since}
 }

@@ -34,7 +34,7 @@ home_fries_aliases_wire_mv () {
     # or,
     #  set -f
     if [ "$1" = '-f' ]; then
-      /bin/mv $*
+      command mv $*
     else
       mv $*
     fi

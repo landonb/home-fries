@@ -81,16 +81,16 @@ rm_rotate () {
     #   wants to really permantently remove what's in the trash, they
     #   run rm_trash twice in a row.
     if [ -d "${to_be_deleted}" ]; then
-      /bin/rm -rf -- "${to_be_deleted}"
+      command rm -rf -- "${to_be_deleted}"
     fi
 
     # Avoid creating -TBD directory if trash already empty.
-    if [ -n "$(/bin/ls -- "${trash_path}")" ]; then
+    if [ -n "$(command ls -- "${trash_path}")" ]; then
       # Trash not empty. Move to TBD position (will be deleted on next
       # rm_rotate), and then create a new trash directory.
-      /bin/mv -- "${trash_path}" "${to_be_deleted}"
-      touch -- "${to_be_deleted}"
-      mkdir -- "${trash_path}"
+      command mv -- "${trash_path}" "${to_be_deleted}"
+      command touch -- "${to_be_deleted}"
+      command mkdir -- "${trash_path}"
     fi
   }
 

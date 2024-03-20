@@ -215,10 +215,10 @@ notifications-toggle () {
   local force_state=$1
   local notifsf="/usr/share/dbus-1/services/org.freedesktop.mate.Notifications.service"
   if [[ ${force_state} -ne 1 && -e "${notifsf}" && ! -e "${notifsf}.disabled" ]]; then
-    sudo /bin/mv "${notifsf}" "${notifsf}.disabled"
+    sudo /usr/bin/env mv -- "${notifsf}" "${notifsf}.disabled"
     info "Disabled desktop notifications!"
   elif [[ ${force_state} -ne -1 && ! -e "${notifsf}" && -e "${notifsf}.disabled" ]]; then
-    sudo /bin/mv "${notifsf}.disabled" "${notifsf}"
+    sudo /usr/bin/env mv -- "${notifsf}.disabled" "${notifsf}"
     info "Enabled desktop notifications!"
   elif [[ -e "${notifsf}" && -e "${notifsf}.disabled" ]]; then
     error "ERROR: Found live file and .disabled file. Don't know what to do!"

@@ -35,7 +35,7 @@ _hist_util_hook () {
   #   ~/.homefries/bin/.bash_history_filter.awk
   awk -f "${HOMEFRIES_BIN:-${HOME}/.homefries/bin}/.bash_history_filter.awk" \
     "${HOME}/.bash_history" > "${HOME}/.bash_history-AWKed"
-  /bin/mv "${HOME}/.bash_history-AWKed" "${resolved_p}"
+  command mv -- "${HOME}/.bash_history-AWKed" "${resolved_p}"
 
   # Redact anything that looks like a (modern, strong) password.
   # Use Perl, because awk does not support look-around assertions,
