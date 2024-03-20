@@ -146,22 +146,22 @@ dirperms () {
   else
     one_dir=$1
   fi
-  chmod --silent u+rwX,g+rwX,o+rX $one_dir
+  chmod --silent u+rwX,g+rwX,o+rX ${one_dir}
 }
 
 # Reset file permissions on directory hierarchy.
 # Caveat: Removes executable bits from executable files.
 reperms () {
   # This doesn't work: it makes the current directory inaccesible:
-  #   chmod --silent -R 664 $one_dir
-  #   chmod --silent -R u+X,g+X,o+X $one_dir
+  #   chmod --silent -R 664 ${one_dir}
+  #   chmod --silent -R u+X,g+X,o+X ${one_dir}
   # Nor does this work: it doesn't un-executable-ify my files (weird):
   #   if [[ -z $1 ]]; then
   #     one_dir="."
   #   else
   #     one_dir=$1
   #   fi
-  #   chmod --silent -R u-x,u+rwX,g-x,g+rwX,o-wx,o+rX $one_dir
+  #   chmod --silent -R u-x,u+rwX,g-x,g+rwX,o-wx,o+rX ${one_dir}
   # Guess we'll stick with find:
   find $1 -type d -exec chmod 2775 {} +
   find $1 -type f -exec chmod 664 {} +
@@ -176,7 +176,7 @@ reperms () {
 if false; then
   iterate_files_with_spaces_example () {
     while IFS= read -d $'\0' -r file ; do
-      printf 'File found: %s\n' "$file"
+      printf 'File found: %s\n' "${file}"
     done < <(find . -iname 'foo*' -print0)
   }
 fi
@@ -186,11 +186,11 @@ fi
 mv_based_on_name () {
   local src_path=$1
   [ -z "${src_path}" ] && echo 'USAGE: mv_based_on_name FILE-PATH [TARGET-BASE]' && return 1
-  [ ! -f "${src_path}" ] && echo "ERROR: FILE is not: “$src_path”" && return 2
+  [ ! -f "${src_path}" ] && echo "ERROR: FILE is not: “${src_path}”" && return 2
 
   local dst_base
-  dst_base=${2:-${HOMEFRIES_MEDIA_BASE}}
-  dst_base=${dst_base:-.}
+  dst_base="${2:-${HOMEFRIES_MEDIA_BASE}}"
+  dst_base="${dst_base:-.}"
 
   local copy_safe_dont_skip
   copy_safe_dont_skip=${3:-false}
@@ -198,19 +198,19 @@ mv_based_on_name () {
   # NOTE: sed supports extended regex, which does not support (?:) non capturing groups.
   local dst_subd
   dst_subd="$( \
-    echo "$src_path" | \
+    echo "${src_path}" | \
     /usr/bin/env sed -E 's#.*(^|/)(IMG_|VID_|PXL_)?([0-9]{4})([0-9]{2})([0-9]{2})_(.*)$#'${dst_base}'/\3/\4/\3_\4_\5#' \
   )"
 
-  if [ "$src_path" = "$dst_subd" ]; then
+  if [ "${src_path}" = "${dst_subd}" ]; then
     dst_subd="$( \
-      echo "$src_path" | \
+      echo "${src_path}" | \
       /usr/bin/env sed -E 's#.*(^|/)([0-9]{4})_([0-9]{2})_([0-9]{2})/(IMG_|VID_|PXL_)(.*)$#'${dst_base}'/\2/\3/\2_\3_\4#' \
     )"
   fi
 
-  if [[ "$src_path" == "$dst_subd" ]]; then
-    echo "ERROR: Could not parse date from filename: “$src_path”"
+  if [ "${src_path}" = "${dst_subd}" ]; then
+    echo "ERROR: Could not parse date from filename: “${src_path}”"
     return 3
   fi
 
@@ -228,7 +228,7 @@ mv_based_on_name () {
     fi
 
     # Target either exists (or is a broken symlink); add date to avoid name clash.
-    if ! $copy_safe_dont_skip; then
+    if ! ${copy_safe_dont_skip}; then
       echo "WARNING: Already exists: “${dst_path}”"
       return 0
     fi
