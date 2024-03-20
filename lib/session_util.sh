@@ -469,7 +469,7 @@ touched_since_logged_on_desktop () {
 
   # See `man mktemp`: It defaults to TMPDIR or /tmp.
   local logontouch=$(mktemp --suffix "-HOMEFRIES_TOUCHYLOGON")
-  touch -d "${logontime}" "${logontouch}"
+  touch -d "${logontime}" -- "${logontouch}"
   [ "${logontouch}" -ot "${cmpfile}" ] && touched_since=true
   /bin/rm "${logontouch}"
 
@@ -487,7 +487,7 @@ touched_since_up () {
   if [ -n "${touchfile}" ]; then
     local boottouch=$(mktemp --suffix "-HOMEFRIES_TOUCHYBOOT")
     # Not a type: Use Homefries' `uptime-s`, not Linux-only `uptime -s`.
-    touch -d "$(uptime-s)" "${boottouch}"
+    touch -d "$(uptime-s)" -- "${boottouch}"
     [ "${boottouch}" -ot "${touchfile}" ] && touched_since=true
     /bin/rm "${boottouch}"
   fi

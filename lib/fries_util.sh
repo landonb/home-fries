@@ -323,14 +323,14 @@ home_fries_punch_anacron () {
   # NOTE: Need --tmpdir when specifying TEMPLATE-XXX so file goes to /tmp, not $(pwd).
   local boottouch=$(mktemp --tmpdir "BOOT-XXXXXXXXXX")
   # Not a type: Use Homefries' `uptime-s`, not Linux-only `uptime -s`.
-  touch -d "$(uptime-s)" "${boottouch}"
+  touch -d "$(uptime-s)" -- "${boottouch}"
 
   # Name the user anacron touchfile.
   local punchfile="${HOME}/.anacron/punched"
 
   # Run anacron if never punched, or if booted more recently than punched.
-  if [ ! -e "${punchfile}" ] || [ ${boottouch} -nt ${punchfile} ]; then
-    touch ${punchfile}
+  if [ ! -e "${punchfile}" ] || [ "${boottouch}" -nt "${punchfile}" ]; then
+    touch -- "${punchfile}"
     # -s | Serialize jobs execution.
     /usr/sbin/anacron \
       -s \

@@ -13,7 +13,7 @@ export_homefries_envs () {
 
   # Generally, FRIES_DIR=${HOME}/.homefries [a/k/a /home/${LOGNAME}/.homefries]
   if [ -z "${HOMEFRIES_DIR}" ]; then
-    HOMEFRIES_DIR="$(dirname $(dirname -- "${BASH_SOURCE[0]}"))"
+    HOMEFRIES_DIR="$(dirname -- "$(dirname -- "${BASH_SOURCE[0]}")")"
   fi
   if [ "${HOMEFRIES_DIR}" = '/' ] || [ ! -d "${HOMEFRIES_DIR}" ]; then
     >&2 echo 'WARNING: Where is .homefries installed? For real?'

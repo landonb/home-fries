@@ -107,7 +107,7 @@ flock_dir () {
       echo "=============================================="
       echo "ERROR: The directory could not be created."
       echo "Hey, you, DEV: This is probably _your_ fault."
-      echo "Try: chmod 2777 `dirname ${FLOCKING_DIR_PATH}`"
+      echo "Try: chmod 2777 $(dirname -- "${FLOCKING_DIR_PATH}")"
       echo "=============================================="
       echo
     #
