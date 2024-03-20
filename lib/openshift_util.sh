@@ -82,7 +82,7 @@ oc-rsh-mysql () {
   fi
 
   # FIXME/MAYBE: Connect to mysql database upon login?
-  # E.g., in the openshift deployment config, you'll see it has a exec command it runs...
+  # E.g., in the openshift deployment config, you'll see it has an exec command it runs...
   #      readinessProbe:
   #        exec:
   #          command:
