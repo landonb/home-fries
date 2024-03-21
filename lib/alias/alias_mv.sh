@@ -10,11 +10,13 @@ home_fries_aliases_wire_mv () {
   # HINT: You can easily force-mv (omit the -i flag)
   #       by calling the builtin, e.g.,
   #         \mv
+  #         command mv
   #         /bin/mv
   #         env mv
   #         /usr/bin/env mv
   #         "mv"
   #         'mv'
+  #         bash -c "mv ..."
   alias mv='mv -i'
 
   # Move a glob of files and include .dotted (hidden) files.
