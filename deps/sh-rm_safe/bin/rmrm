@@ -46,7 +46,7 @@ rmrm () {
     fi
   done
 
-  /bin/rm -rf -- "$@"
+  command rm -rf -- "$@"
 
   # Disable (by commenting) the `rmrm` command in the terminal's history.
   #

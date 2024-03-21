@@ -475,8 +475,8 @@ ${option_send_all_to_main_trash}
 │                                                                       │
 │ Alternatively, be destructive:                                        │
 │                                                                       │
-│ ► r   Choose [r] to call \`/bin/rm -i\` on the current item             │
-│ ► R   Choose [R] to remove without prompt (\`/bin/rm -rf\`)             │\
+│ ► r   Choose [r] to call \`command rm -i\` on the current item          │
+│ ► R   Choose [R] to remove without prompt (\`command rm -rf\`)          │\
 ${option_obliterate_all_items}
 │                                                                       │
 │ Or enter [h] for hints on how to avoid this prompt.                   │
@@ -603,9 +603,9 @@ _sh_rm_safe_process_items () {
 
   if [ ${ensured} -eq 2 ]; then
     # User specifically not using safety trash on this device; or for this file.
-    /bin/rm -i -- "${item_path}"
+    command rm -i -- "${item_path}"
   elif [ ${ensured} -eq 22 ] || [ ${ensured} -eq 32 ]; then
-    /bin/rm -rf -- "${item_path}"
+    command rm -rf -- "${item_path}"
 
     # We already printed a prompt. Might as well print a confirmation?
     echo
@@ -647,7 +647,7 @@ rm_safe () {
   # ***
 
   if [ "-rf" = "${1}" ]; then
-    >&2 echo "rm_safe: ‘/bin/rm -rf’, you got it!"
+    >&2 echo "rm_safe: ‘command rm -rf’, you got it!"
 
     shift
 

@@ -47,7 +47,7 @@ home_fries_create_aliases_rg_tag_wrap () {
 
   tag () {
     local aliases="${TAG_ALIAS_FILE:-/tmp/tag_aliases}"
-    /bin/rm -f "${aliases}"
+    command rm -f "${aliases}"
 
     # See: ${HOME}/.gopath/bin/tag
     command tag "$@"

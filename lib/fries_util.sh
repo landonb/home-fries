@@ -183,7 +183,7 @@ home_fries_load_completions () {
             cat "${source_out}"
           fi
         fi
-        /bin/rm -f "${source_out}"
+        command rm -f -- "${source_out}"
       fi
     done
   fi
@@ -339,7 +339,7 @@ home_fries_punch_anacron () {
   fi
 
   # Cleanup.
-  /bin/rm "${boottouch}"
+  command rm -- "${boottouch}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

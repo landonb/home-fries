@@ -45,7 +45,7 @@ ssh_agent_kill () {
   local HOMEFRIES_SSH_ENV="${HOME}/.ssh/environment"
   if [ -f "${HOMEFRIES_SSH_ENV}" ]; then
     notice "Removing: ${HOMEFRIES_SSH_ENV}"
-    /bin/rm -f "${HOMEFRIES_SSH_ENV}"
+    command rm -f -- "${HOMEFRIES_SSH_ENV}"
   else
     notice "Skipping: No ${HOMEFRIES_SSH_ENV} file found"
   fi

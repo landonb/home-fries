@@ -32,7 +32,7 @@ zview () {
   gzip -cdfq -- "$1" > "$mytemp"
   shift
   view "$@" -- "$mytemp"
-  /bin/rm "$mytemp"
+  command rm -- "$mytemp"
 }
 
 check_usage () {

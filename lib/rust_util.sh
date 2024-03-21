@@ -37,7 +37,7 @@
 #
 # Homefries is pure Bash, so remove the Zsh file:
 #
-#   /bin/rm ~/.zshenv
+#   command rm -- ~/.zshenv
 #
 # And we'll lazy-load the Rust toolchain on-demand (JIT!) [this file],
 # so revert the changes to ~/.profile and ~/.bashrc and take a look
