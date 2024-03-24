@@ -75,7 +75,7 @@ home_fries_wire_export_less () {
   #   like you see in your normal editor!
   # - Thanks to:
   #   https://danyspin97.org/blog/colorize-your-cli/#highlight
-  # - Uses `highlight` (already included in many distributions):
+  # - Uses `highlight` (`apt install highlight`):
   #   http://www.andre-simon.de/doku/highlight/highlight.php
   # - You can add line numbers, but they seem distracting, or at least
   #   line numbers only seem useful for an editor, not a viewer.
