@@ -10,6 +10,7 @@
 # - To use system cp, run: `/bin/cp`, `command cp`, `\cp` `"cp"`,
 #                          `'cp'`, `/usr/bin/env cp`, or `env cp`
 
+# CXREF: ~/.homefries/bin/cp_safe
 home_fries_aliases_wire_cp () {
   alias cp="${HOMEFRIES_BIN:-${HOME}/.homefries/bin}/cp_safe"
 }
