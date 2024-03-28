@@ -21,32 +21,65 @@ home_fries_aliases_wire_mv () {
   alias mv="${SHOILERPLATE:-${HOME}/.kit/sh}/sh-rm_safe/bin/mv_safe"
 
   # Move a glob of files and include .dotted (hidden) files.
-  claim_alias_or_warn "mv_all" "mv_dotglob"
-  # Problem illustration:
-  #   $ ls project
-  #   .agignore
-  #   $ mv project/* .
-  #   mv: cannot stat ‘project/*’: No such file or directory
-  # This fcn. uses shopt to include dot files.
-  # Note: We've aliased `mv` to `mv -i`, so you'll be asked to confirm
-  #       any overwrites, unless you call `mv_all -f` or `command mv`
-  #       (or `/usr/bin/env mv`, `env mv`, `\mv`, `"mv"`, or `'mv'`).
-  #
-  # NOTE: You have to escape wildcards so that are not expanded too soon, e.g.,
-  #
-  #         mv. '*' some/place
-  #
-  mv_dotglob () {
-    shopt -s dotglob
-    # or,
-    #  set -f
-    mv "$@"
-    shopt -u dotglob
-    # or,
-    #  set +f
-  }
+  # - The dotglob option performs parameters expansion, so it has to
+  #   happen before parameters are expanded, so it has to happen from
+  #   the alias. (Otherwise, if dotglob is not on, then `mv foo/*`
+  #   passes `foo/*` as the arg if it doesn't match any files, and if
+  #   dotglob is then enabled, you cannot use, e.g., `command mv "$@"`,
+  #   because quoted args are not expanded. But `command mv $*` won't
+  #   work either, because then an arg with spaces is split apart, e.g.,
+  #   `mv "foo bar"` becomes `command mv foo bar`, not the same thing.)
+  # - dotglob ($BASHOPTS) won't work unless noglob ($SHELLOPTS) is off,
+  #   but Homefries leaves noglob off. So we'll ensure noglob disabled
+  #   here, and we won't enable it after.
+  # - Note this odd alias hack: Adjust BASHOPTS first, then end
+  #   with the shim function call. The shim function will receive
+  #   the glob-expanded args, pass those to `mv_safe`, and then
+  #   reset dotglob.
+  # - INERT: We could add functions to cache options and restore
+  #   original values, e.g.,
+  #     claim_alias_or_warn "mv." "mv_prepare_opts ; mv_dotglob"
+  #     mv_prepare_opts { # Remember current settings; }
+  #     mv_dotglob { mv "$@"; mv_restore_opts; }
+  #     mv_restore_opts { # Restore previous settings; }
+  #   But Homefries runs without dotglob set (it only ever temporarily
+  #   enables it before disabling it), so there should be no reason to
+  #   worry that dotglob was originally set.
+  claim_alias_or_warn "mv." "set +f ; shopt -s dotglob ; mv_dotglob"
+  claim_alias_or_warn "mv_all" "set +f ; shopt -s dotglob ; mv_dotglob"
+}
 
-  claim_alias_or_warn "mv." "mv_dotglob"
+# Passes args to `mv_safe` and disables dotglob.
+#
+# Useful when called after setting dotglob from an alias,
+# so that expanded glob args include dotfiles, and so that
+# we can unset the dotglob setting that the alias set.
+#
+# UCASE: Problem illustration:
+#
+#   $ mkdir foo
+#   $ touch foo/.bar
+#   $ mv foo/* .
+#   mv: cannot stat ‘foo/*’: No such file or directory
+#
+# SAVVY: To compare dotglob behavior when enabled or not, try, e.g.,
+#   $ touch .foo
+#
+#   $ shopt -s dotglob
+#   $ ls -d -- *
+#   .foo
+#
+#   $ shopt -u dotglob
+#   $ ls -d -- *
+#   ls: cannot access '*': No such file or directory
+
+mv_dotglob () {
+  ${SHOILERPLATE:-${HOME}/.kit/sh}/sh-rm_safe/bin/mv_safe "$@"
+
+  # Leave noglob unset (set +f)
+  #  set -f
+
+  shopt -u dotglob
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
