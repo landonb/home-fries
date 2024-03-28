@@ -13,6 +13,24 @@
 # CXREF: ~/.homefries/bin/cp_safe
 home_fries_aliases_wire_cp () {
   alias cp="${SHOILERPLATE:-${HOME}/.kit/sh}/sh-rm_safe/bin/cp_safe"
+
+  # Copy a glob of files and include .dotted (hidden) files.
+  # - CXREF: See extensive comments re: `alias mv`:
+  #   ~/.homefries/lib/alias/alias_mv.sh
+  claim_alias_or_warn "cp." "set +f ; shopt -s dotglob ; cp_dotglob"
+  claim_alias_or_warn "cp_all" "set +f ; shopt -s dotglob ; cp_dotglob"
+}
+
+# - CXREF: See extensive comments re: `mv_dotglob`:
+#   ~/.homefries/lib/alias/alias_mv.sh
+
+cp_dotglob () {
+  ${SHOILERPLATE:-${HOME}/.kit/sh}/sh-rm_safe/bin/cp_safe "$@"
+
+  # Leave noglob unset (set +f)
+  #  set -f
+
+  shopt -u dotglob
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
