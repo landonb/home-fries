@@ -150,7 +150,7 @@ _sh_rm_safe_ensure_trashdir () {
 
   local ensured=0
 
-  if [ -z "${trash_fs_mount}" ]; then
+  if [ -z "${TRASH_FS_MOUNT}" ]; then
     ensured=1  # So caller stops processing and returns error.
 
     # This branch happens if _sh_rm_safe_device_filepath_for_path does not
@@ -159,8 +159,8 @@ _sh_rm_safe_ensure_trashdir () {
     #   happen? This smells like a DEV issue, not the user's.
     # - Note that RM_SAFE_TRASH_HOME must be nonempty, so not here for that
     #   reason.
-    >&2 echo 'rm_safe: (DEV) ERROR: No $trash_fs_mount (‘’) determined, what gives?'
-  elif [ -f "${trash_fs_mount}/${RM_SAFE_TRASH_NAME}" ]; then
+    >&2 echo 'rm_safe: (DEV) ERROR: No $TRASH_FS_MOUNT (‘’) determined, what gives?'
+  elif [ -f "${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}" ]; then
     ensured=2  # So caller invokes `rm -i`.
 
     # Similar too Bash v4+ associate array:
@@ -173,7 +173,7 @@ _sh_rm_safe_ensure_trashdir () {
       eval "previously_printed_trash_disabled_notice${fs_of_item}='1'"
     fi
   else
-    if [ ! -e "${trash_fs_mount}/${RM_SAFE_TRASH_NAME}" ]; then
+    if [ ! -e "${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}" ]; then
       # 2022-02-14: Choose your poison:
       #  _sh_rm_safe_prompt_missing_trashdir_options_v1 "${fs_of_item}"
       #  ensured=$?  # Will be ensured=0 or ensured=3
@@ -182,7 +182,7 @@ _sh_rm_safe_ensure_trashdir () {
       ensured=$?  # For return values, see #ensured_legend
     fi
 
-    if [ -d "${trash_fs_mount}/${RM_SAFE_TRASH_NAME}" ]; then
+    if [ -d "${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}" ]; then
       ensured=4  # So caller proceeds normally (and removes item to trash).
     fi
   fi
@@ -205,7 +205,7 @@ _sh_rm_safe_prompt_missing_trashdir_options_v1 () {
 
   local sudo_prefix=""
 
-  if [ "${trash_fs_mount}" = "/" ]; then
+  if [ "${TRASH_FS_MOUNT}" = "/" ]; then
     # The file being deleted lives on the root device but the default
     # trash directory is not on the same device. This could mean the
     # user has an encrypted home directory. Rather than moving files
@@ -223,20 +223,20 @@ _sh_rm_safe_prompt_missing_trashdir_options_v1 () {
 
     # <Sigh> Technically this works, because `local` variables from parent
     # are visible/settable from child functions. But it still feels weird.
-    trash_fs_mount=''
+    TRASH_FS_MOUNT=''
   fi
 
   if ${echo_boxy}; then
-    printf '%s\n' "┌──────────────────────${trash_fs_mount//?/─}─────────────┐"
-    printf '%s\n' "│ Create new trash at ‘${trash_fs_mount}/${RM_SAFE_TRASH_NAME}’ ?   │"
-    printf '%s'   "│ Create trash? [y/N]:              ${trash_fs_mount//?/ }│"
+    printf '%s\n' "┌──────────────────────${TRASH_FS_MOUNT//?/─}─────────────┐"
+    printf '%s\n' "│ Create new trash at ‘${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}’ ?   │"
+    printf '%s'   "│ Create trash? [y/N]:              ${TRASH_FS_MOUNT//?/ }│"
     printf '\r'
     printf '%s'   "│ Create trash? [y/N]: "
   else
     >&2 printf '%b\n' \
-      "- HINT: To skip this ask: $(fg_lavender)touch ${trash_fs_mount}/${RM_SAFE_TRASH_NAME}$(attr_reset)"
+      "- HINT: To skip this ask: $(fg_lavender)touch ${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}$(attr_reset)"
     printf '%b' \
-      "rm_safe: create a new trash at ‘$(fg_lavender)${trash_fs_mount}/${RM_SAFE_TRASH_NAME}$(attr_reset)’? [y/N] "
+      "rm_safe: create a new trash at ‘$(fg_lavender)${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}$(attr_reset)’? [y/N] "
   fi
 
   read the_choice
@@ -244,13 +244,13 @@ _sh_rm_safe_prompt_missing_trashdir_options_v1 () {
   if [ "${the_choice}" != "y" ] && [ "${the_choice}" != "Y" ]; then
     ensured=3  # So caller asks to move to home-trash; or invokes `rm -i`.
     if ${echo_boxy}; then
-      >&2 echo "│ HINT: To disable this ask:        ${trash_fs_mount//?/ }│"
-      >&2 echo "│          touch ${trash_fs_mount}/${RM_SAFE_TRASH_NAME}            │"
-      >&2 echo "└──────────────────────${trash_fs_mount//?/─}─────────────┘"
+      >&2 echo "│ HINT: To disable this ask:        ${TRASH_FS_MOUNT//?/ }│"
+      >&2 echo "│          touch ${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}            │"
+      >&2 echo "└──────────────────────${TRASH_FS_MOUNT//?/─}─────────────┘"
     fi
   else
     # Parent sets ensured=4 in a later [ -d ].
-    ${sudo_prefix} mkdir -p "${trash_fs_mount}/${RM_SAFE_TRASH_NAME}"
+    ${sudo_prefix} mkdir -p "${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}"
 
     if [ -n "${sudo_prefix}" ]; then
       sudo chgrp staff "/${RM_SAFE_TRASH_NAME}"
@@ -304,24 +304,24 @@ _sh_rm_safe_prompt_missing_trashdir_options_v2 () {
   # For return values, see #ensured_legend
   local ensured=0
 
-  _sh_rm_safe_verify_non_root_trash_fs_mount "${trash_fs_mount}" ${item_path} ||
+  _sh_rm_safe_verify_non_root_trash_fs_mount "${TRASH_FS_MOUNT}" ${item_path} ||
     return 1  # ensured=1 stops processing.
 
-  # At this point, "${trash_fs_mount}/.trash" does not exist, and is not `/.trash`.
+  # At this point, "${TRASH_FS_MOUNT}/.trash" does not exist, and is not `/.trash`.
   # - So ask user what they want to do.
 
-  ! ${previously_printed_missing_trashdir_prompt} || echo
+  ! ${PREVIOUSLY_PRINTED_MISSING_TRASHDIR_PROMPT} || echo
 
   _sh_rm_safe_prompt_missing_trashdir_print_notice "${fs_of_item}"
 
   _sh_rm_safe_prompt_missing_trashdir_print_header "${item_path}"
 
-  _sh_rm_safe_prompt_missing_trashdir_print_options "${trash_fs_mount}" "${nitems_to_go}"
+  _sh_rm_safe_prompt_missing_trashdir_print_options "${TRASH_FS_MOUNT}" "${nitems_to_go}"
 
   _sh_rm_safe_prompt_missing_trashdir_read_choice_and_react
   ensured=$?
 
-  previously_printed_missing_trashdir_prompt=true
+  PREVIOUSLY_PRINTED_MISSING_TRASHDIR_PROMPT=true
 
   return ${ensured}
 }
@@ -492,26 +492,26 @@ ${option_obliterate_all_items}
 _sh_rm_safe_prompt_missing_trashdir_read_choice_and_react () {
   read the_choice
 
-  local device_trash="${trash_fs_mount}/${RM_SAFE_TRASH_NAME}"
+  local device_trash="${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}"
 
   # For return values, see #ensured_legend
   if [ "${the_choice}" = "d" ]; then
     mkdir -p "${device_trash}"
 
-    return 4  # All set! Tell caller to use ${trash_fs_mount}/.trash.
+    return 4  # All set! Tell caller to use ${TRASH_FS_MOUNT}/.trash.
   fi
 
   if [ "${the_choice}" = "m" ] || [ "${the_choice}" = "" ]; then
     # <Sigh> Technically this works, because `local` variables from parent
     # are visible/settable from child functions. But it still feels weird.
-    trash_fs_mount="${RM_SAFE_TRASH_HOME}"
+    TRASH_FS_MOUNT="${RM_SAFE_TRASH_HOME}"
 
-    return 4  # All set! Tell caller to use ${trash_fs_mount}/.trash.
+    return 4  # All set! Tell caller to use ${TRASH_FS_MOUNT}/.trash.
   fi
 
   if [ "${the_choice}" = "a" ]; then
-    trash_fs_mount="${RM_SAFE_TRASH_HOME}"
-    trash_fs_mount_locked=true
+    TRASH_FS_MOUNT="${RM_SAFE_TRASH_HOME}"
+    TRASH_FS_MOUNT_LOCKED=true
 
     return 4  # All set!
   fi
@@ -570,6 +570,7 @@ _sh_rm_safe_process_items () {
   local fs_of_item="$1"
   local item_path="$2"
   local nitems_to_go="$3"
+  local arg_verbose="$4"
 
   # If user has to be prompted because no device-local trash,
   # a function return value is used to indicate their preference.
@@ -587,7 +588,7 @@ _sh_rm_safe_process_items () {
   #     -  2: Call safe `rm` [rm -i ] on curr item (b/c user chose <r>).
   #     - 22: Call mean `rm` [rm -rf] on curr item (b/c user chose <R>).
   #     - 32: Call mean `rm` [rm -rf] on all items (b/c user chose <Ra>).
-  #     -  4: All set! Remove curr item to path specified by ${trash_fs_mount}
+  #     -  4: All set! Remove curr item to path specified by ${TRASH_FS_MOUNT}
   #             (which is either device-local or user-home trash).
   local ensured=0
 
@@ -596,41 +597,43 @@ _sh_rm_safe_process_items () {
 
   if [ ${ensured} -eq 3 ]; then
     # Ask if user wants to move file to home-trash instead.
-    trash_fs_mount="${RM_SAFE_TRASH_HOME}"
+    TRASH_FS_MOUNT="${RM_SAFE_TRASH_HOME}"
 
-    _sh_rm_safe_prompt_missing_trashdir_options_v1_prompt_home_trash "${trash_fs_mount}"
+    _sh_rm_safe_prompt_missing_trashdir_options_v1_prompt_home_trash "${TRASH_FS_MOUNT}"
   fi
 
   if [ ${ensured} -eq 2 ]; then
     # User specifically not using safety trash on this device; or for this file.
-    command rm -i -- "${item_path}"
+    command rm -i ${arg_verbose} -- "${item_path}"
   elif [ ${ensured} -eq 22 ] || [ ${ensured} -eq 32 ]; then
-    command rm -rf -- "${item_path}"
+    command rm -rf ${arg_verbose} -- "${item_path}"
 
     # We already printed a prompt. Might as well print a confirmation?
     echo
     >&2 echo "rm_safe: Removed ‘${item_path}’"
 
     if [ ${ensured} -eq 32 ]; then
-      rm_recursive_force=true
+      ARG_RECURSIVE_FORCE=true
     fi
   elif [ ${ensured} -eq 4 ]; then
     # ensured=4 means the trash directory is prepared; move 'deleted' files there.
     local fname=${bname}
 
-    if [ -e "${trash_fs_mount}/${RM_SAFE_TRASH_NAME}/${fname}" ] || \
-       [ -h "${trash_fs_mount}/${RM_SAFE_TRASH_NAME}/${fname}" ]; \
+    if [ -e "${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}/${fname}" ] || \
+       [ -h "${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}/${fname}" ]; \
     then
       # Add a UUID fragment to generate a unique name.
       fname="${bname}.$(date +%Y_%m_%d_%Hh%Mm%Ss)-$(uuidgen | head -c8)"
     fi
 
     # If item_path is a symlink and includes a trailing slash, doing a raw mv:
-    #  command mv "${item_path}" "${trash_fs_mount}/${RM_SAFE_TRASH_NAME}/${fname}"
+    #  command mv ${arg_verbose} -- "${item_path}" "${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}/${fname}"
     # causes a response like:
     #   mv: cannot move ‘symlink/’ to
     #    ‘/path/to/.trash/symlink.2015_12_03_14h26m51s_179228194’: Not a directory
-    command mv -- "$(dirname -- "${item_path}")/${bname}" "${trash_fs_mount}/${RM_SAFE_TRASH_NAME}/${fname}"
+    command mv ${arg_verbose} -- \
+      "$(dirname -- "${item_path}")/${bname}" \
+      "${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}/${fname}"
   fi
 
   [ ${ensured} -ne 1 ] || return ${ensured}
@@ -638,33 +641,251 @@ _sh_rm_safe_process_items () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# FIXME/2019-12-22 23:06: Split this long fcn.
-# FIXME/2019-12-22 23:15: Honor `--` signalling end of options, to ignore -rf feature
-#                         (i.e., treat "-rf" as filename).
-rm_safe () {
-  local rm_recursive_force=false
+# Side-effect: Sets the following vars from the caller:
+#
+#   ARG_FORCE
+#   ARG_VERBOSE
+#   N_PATH_ARGS
 
-  # ***
+parse_args () {
+  ARG_FORCE=false
+  ARG_SAFE=false
+  ARG_VERBOSE=""
+  N_PATH_ARGS=0
 
-  if [ "-rf" = "${1}" ]; then
-    >&2 echo "rm_safe: ‘command rm -rf’, you got it!"
+  local end_of_options=false
 
-    shift
+  for arg in "$@"; do
+    if ${end_of_options}; then
+      let 'N_PATH_ARGS +=1 '
+    else
+      # Arg list and "help" snippets from 'rm (GNU coreutils) 8.32'.
+      case "${arg}" in
+        --)
+          end_of_options=true
+          ;;
+        -s|--safe)
+          # rm_safe option to not skip rm_safe when run as root
+          ARG_SAFE=true
+          ;;
+        -f|--force)
+          # "ignore nonexistent files and arguments, never prompt"
+          ARG_FORCE=true
+          ;;
+        -i)
+          # "prompt before every removal"
+          # rm_safe prompts when it's appropriate by default;
+          # use `-f` to skip prompt
+          ;;
+        -I)
+          # "prompt once before removing more than three files,
+          #  or when removing recursively; less intrusive than -i"
+          ;;
+        --interactive|--interactive=*)
+          # "prompt according to WHEN: never, once (-I),
+          #  or always (-i); without WHEN, prompt always"
+          ;;
+        --one-file-system)
+          # "when removing a hierarchy recursively, skip any
+          #  directory that is on a file system different from
+          #  that of the corresponding command line argument"
+          ;;
+        --no-preserve-root)
+          # "do not treat '/' specially"
+          ;;
+        --preserve-root|--preserve-root=*)
+          # "do not remove '/' (default); with 'all', reject any
+          #  command line argument on a separate device from its
+          #  parent"
+          ;;
+        -r|-R|--recursive)
+          # "remove directories and their contents recursively"
+          ;;
+        -d|--dir)
+          # "remove empty directories"
+          # rm_safe *moves* any directory to the ~/.trash
+          ;;
+        -v|--verbose)
+          # "explain what is being done"
+          # rm_safe doesn't currently have lots to say, except
+          # its wordy menu prompt when there's do device trash
+          ARG_VERBOSE="-v"
+          ;;
+        --help)
+          # "display this help and exit"
+          print_help
 
-    rm_recursive_force=true
-  fi
+          return 0
+          ;;
+        --version)
+          # "output version information and exit"
+          command rm --version
 
-  # ***
+          return 0
+          ;;
+        --*)
+          # Same as, e.g., `command rm --x`.
+          >&2 echo "rm_safe: unrecognized option '${arg}'"
+          >&2 echo "Try 'rm --help' for more information."
 
-  if [ ${#} -eq 0 ]; then
-    >&2 echo "rm_safe: Missing operand(s)"
-    >&2 echo "Try \`command rm --help\` for more information"
+          return 1
+          ;;
+        -*)
+          for char in $(echo "${arg#-}" | sed -E -e 's/(.)/\1\n/g'); do
+            case ${char} in
+              f)
+                ARG_FORCE=true
+                ;;
+              i)
+                ;;
+              I)
+                ;;
+              r|R)
+                ;;
+              d)
+                ;;
+              v)
+                ;;
+              *)
+                # Same as, e.g., `command rm -xz`.
+                >&2 echo "rm_safe: unrecognized option '${char}'"
+                >&2 echo "Try 'rm --help' for more information."
 
+                return 1
+                ;;
+            esac
+          done
+          ;;
+        *)
+          let 'N_PATH_ARGS +=1 '
+          ;;
+      esac
+    fi
+  done
+
+  _trace "rm_safe: $# total args / ${N_PATH_ARGS} file args"
+}
+
+# ***
+
+# Side-effect: Sets the following vars from the caller:
+#
+#   END_OF_OPTIONS
+
+is_a_rm_arg () {
+  local arg="$1"
+
+  if ${END_OF_OPTIONS:-false}; then
     return 1
+  else
+    case "${arg}" in
+      --)
+        END_OF_OPTIONS=true
+        ;&
+      -f|--force)
+        ;&
+      -i)
+        ;&
+      -I)
+        ;&
+      --interactive|--interactive=*)
+        ;&
+      --one-file-system)
+        ;&
+      --no-preserve-root)
+        ;&
+      --preserve-root|--preserve-root=*)
+        ;&
+      -r|-R|--recursive)
+        ;&
+      -d|--dir)
+        ;&
+      -v|--verbose)
+        ;&
+      --help)
+        # We would've printed --help and exited already.
+        ;&
+      --version)
+        # We would've printed --version and exited already.
+        ;&
+      -*)
+        # We would've exited already if any -* input was not a known arg.
+        return 0
+        ;;
+      *)
+        return 1
+        ;;
+    esac
+  fi
+}
+
+# ***
+
+print_help () {
+  echo "rm_safe is a wrapper around \`rm\`"
+  echo "--------------------------------"
+  command rm --help
+
+  cat <<'EOF'
+
+rm_safe modifies `rm` behavior
+------------------------------
+
+rm_safe prefers to move files to a trash dir, e.g., `~/.trash`
+
+It'll move directories automatically and otherwise prefers not
+to prompt you
+
+rm_safe recognizes the following `rm` options:
+  -f, --force, -v, --verbose, --help, --version
+
+rm_safe ignores the other options, unless -f|--force,
+in which case `rm_safe` passes all args to `command rm`
+and doesn't do any more processing
+
+rm_safe adds these additional option(s):
+  -s, --safe      By default, `sudo rm` is a pass-through and just
+                    calls `command rm`
+                    
+                  Use `rm -s|--safe` to use `rm_safe` as 'root'
+
+                  Note this only works if you define the two aliases:
+                    alias sudo='sudo '
+                    alias rm='/path/to/rm_safe'
+                  - The trailing space in the sudo alias causes
+                    `sudo` to use shell alias, if present;
+                    otherwise `sudo rm` just calls `/bin/rm`
+
+You can bypass rm_safe easily:
+  rm_safe -f ...
+Or:
+  command rm ...
+Will both behave like normal `rm`
+EOF
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+rm_safe () {
+  local ARG_FORCE=false
+  local ARG_SAFE=false
+  local ARG_VERBOSE=""
+  local N_PATH_ARGS=0
+
+  parse_args "$@" || return 1
+
+  # ***
+
+  # Defer to raw `rm` if `-f|--force`.
+  if ${ARG_FORCE:-false}; then
+    command rm "$@"
+
+    return 0
   fi
 
-  if ${rm_recursive_force}; then
-    command rm -rf -- "$@"
+  # Defer to `rm -i` if running as root and not `-s|--safe`.
+  if [ $(id -u) -eq 0 ] && ! ${ARG_SAFE:-false}; then
+    command rm -i "$@"
 
     return 0
   fi
@@ -679,31 +900,45 @@ rm_safe () {
 
   # ***
 
-  local trash_fs_mount=""
-  local trash_fs_mount_locked=false
+  rm_safe_run "$@"
+}
 
-  local previously_printed_missing_trashdir_prompt=false
-  # TOO_BASHY: We'll use eval flattened variable tricks instead:
-  #  declare -A previously_printed_trash_disabled_notice
+# ***
 
-  # echo "RM_SAFE_TRASH_HOME: ${RM_SAFE_TRASH_HOME}"
-  # The trash can way!
-  # You can disable the trash by running
-  #   command rm -rf ~/.trash && touch ~/.trash
-  # You can make the trash with rmtrash or mkdir ~/.trash,
-  #   or run the command and you'll be prompted.
-  # EXPLAIN/2019-12-22: (lb): Would $@ instead of $* allow us to avoid IFS?
-  # MAYBE/2021-02-20: Rather than use old_IFS, would `local IFS=$'\n'` work?
-  local old_IFS=$IFS
-  IFS=$'\n'
+# TOO_BASHY: We'll use eval flattened variable tricks instead:
+#  declare -A previously_printed_trash_disabled_notice
+
+# echo "RM_SAFE_TRASH_HOME: ${RM_SAFE_TRASH_HOME}"
+# The trash can way!
+# You can disable the trash by running
+#   command rm -rf ~/.trash && touch ~/.trash
+# You can make the trash with `rmtrash` or `mkdir ~/.trash`,
+# or run the `rm_safe` command and you'll be prompted.
+
+rm_safe_run () {
+  local TRASH_FS_MOUNT=""
+  local TRASH_FS_MOUNT_LOCKED=false
+
+  local PREVIOUSLY_PRINTED_MISSING_TRASHDIR_PROMPT=false
 
   local npath=0
-  local npaths=$#
+  local nitems_to_go=0
+  local END_OF_OPTIONS=false
+
+  local ARG_RECURSIVE_FORCE=false
 
   local item_path=""
-  for item_path in $*; do
+
+  for item_path in "$@"; do
+    # We already processed args, so skip if seen again.
+    if is_a_rm_arg "${item_path}"; then
+      continue
+    fi
+
     let "npath += 1"
-    let "nitems_to_go = npaths - npath"
+    # This is used by _sh_rm_safe_prompt_missing_trashdir_print_options
+    # if -gt 0 to add remove-all options to menu.
+    let "nitems_to_go = N_PATH_ARGS - npath"
 
     local bname=$(basename -- "${item_path}")
     if [ "${bname}" = '.' ] || [ "${bname}" = '..' ]; then
@@ -712,80 +947,114 @@ rm_safe () {
 
     # ***
 
-    if ${rm_recursive_force}; then
-      command rm -rf -- "${item_path}"
-
-      >&2 echo "rm_safe: Removed ‘${item_path}’"
+    # The user can opt-in -rf from _sh_rm_safe_process_items prompt
+    if ${ARG_RECURSIVE_FORCE}; then
+      command rm -rf ${ARG_VERBOSE} -- "${item_path}"
 
       continue
     fi
 
     # ***
 
-    # Resolve device for both the main trash and the file being remove, so we
-    # can use the trash path on the local device, to avoid copying files (to
-    # avoid `mv foo ~/.trash` when ~/.trash is a separate logical device,
-    # which would effectively become `cp foo ~/.trash && rm foo`).
-
-    # Note that `path_device` exits nonzero if path not symlink, file, or dir.
-
     local fs_of_main_trash
-    fs_of_main_trash=$(path_device "${RM_SAFE_TRASH_HOME}")
-    if [ $? -ne 0 ] || [ "${fs_of_main_trash}" = "" ]; then
-      >&2 echo "rm_safe: No device for supposed trash dir. ‘${RM_SAFE_TRASH_HOME}’"
-
-      return 1
-    fi
-    _trace "fs_of_main_trash=${fs_of_main_trash}"  # E.g., "/dev/sda2"
-
-    # ***
+    fs_of_main_trash="$(print_fs_of_main_trash)" || return 1
 
     local fs_of_item
-    fs_of_item="$(path_device "${item_path}")"
-    if [ $? -ne 0 ] || [ "${fs_of_item}" == "" ]; then
-      if [ ! -d "${item_path}" ] &&
-         [ ! -f "${item_path}" ] &&
-         [ ! -h "${item_path}" ]; then
-        >&2 echo "rm_safe: Cannot remove ‘${item_path}’: No such file or directory"
-      else
-        >&2 echo "rm_safe: ERROR: Could not detect device for item ‘${item_path}’"
-      fi
+    fs_of_item="$(print_fs_of_item "${item_path}")" || return 1
 
-      return 1
-    fi
-    _trace "fs_of_item=${fs_of_item}"  # E.g., "/dev/sdb1"
-
-    # ***
-
-    if ! ${trash_fs_mount_locked}; then
-      trash_fs_mount=""
-
-      if [ "${fs_of_main_trash}" = "${fs_of_item}" ]; then
-        # Indicates that file being remove resides on same device and user-home,
-        # so we can remove to the user-home trash.
-        #
-        # MAYBE: Update this fcn. to support specific trash
-        # directories on each device. For now you can specify
-        # one specific dir for one drive (generally /home/$LOGNAME/.trash)
-        # and then all other drives it's assumed to be at, e.g.,
-        # /media/XXX/.trash; logical mount root, e.g., /path/to/encfs/.trash.
-        trash_fs_mount="${RM_SAFE_TRASH_HOME}"
-      else
-        trash_fs_mount=$(_sh_rm_safe_device_filepath_for_path "${item_path}")
-      fi
-      _trace "trash_fs_mount=${trash_fs_mount}"  # E.g., "/dev/sdb1"
-    fi
+    set_trash_fs_mount "${fs_of_main_trash}" "${fs_of_item}" "${item_path}"
 
     # ***
 
     local keep_processing=0
 
-    _sh_rm_safe_process_items "${fs_of_item}" "${item_path}" "${nitems_to_go}"
+    # Might set ARG_RECURSIVE_FORCE=true
+    _sh_rm_safe_process_items "${fs_of_item}" "${item_path}" "${nitems_to_go}" "${ARG_VERBOSE}"
     keep_processing=$?
 
-    [ ${keep_processing} -ne 0 ] && return ${keep_processing}
+    if [ ${keep_processing} -ne 0 ]; then
+      return ${keep_processing}
+    fi
   done
-  IFS=$old_IFS
+}
+
+# ***
+
+# Resolve device for both the main trash and the file being remove, so we
+# can use the trash path on the local device, to avoid copying files (to
+# avoid `mv foo ~/.trash` when ~/.trash is a separate logical device,
+# which would effectively become `cp foo ~/.trash && rm foo`).
+
+# Note that `path_device` exits nonzero if path not symlink, file, or dir.
+
+print_fs_of_main_trash () {
+  local fs_of_main_trash
+
+  fs_of_main_trash="$(path_device "${RM_SAFE_TRASH_HOME}")"
+
+  if [ $? -ne 0 ] || [ "${fs_of_main_trash}" = "" ]; then
+    >&2 echo "rm_safe: No device for supposed trash dir. ‘${RM_SAFE_TRASH_HOME}’"
+
+    return 1
+  fi
+
+  _trace "fs_of_main_trash=${fs_of_main_trash}"  # E.g., "/dev/sda2"
+
+  printf "%s" "${fs_of_main_trash}"
+}
+
+# ***
+
+print_fs_of_item () {
+  local item_path="$1"
+
+  local fs_of_item
+
+  fs_of_item="$(path_device "${item_path}")"
+
+  if [ $? -ne 0 ] || [ "${fs_of_item}" == "" ]; then
+    if [ ! -d "${item_path}" ] &&
+       [ ! -f "${item_path}" ] &&
+       [ ! -h "${item_path}" ]; then
+      >&2 echo "rm_safe: Cannot remove ‘${item_path}’: No such file or directory"
+    else
+      >&2 echo "rm_safe: ERROR: Could not detect device for item ‘${item_path}’"
+    fi
+
+    return 1
+  fi
+
+  _trace "fs_of_item=${fs_of_item}"  # E.g., "/dev/sdb1"
+
+  printf "%s" "${fs_of_item}"
+}
+
+# ***
+
+set_trash_fs_mount () {
+  local fs_of_main_trash="$1"
+  local fs_of_item="$2"
+  local item_path="$3"
+
+  if ${TRASH_FS_MOUNT_LOCKED}; then
+    return
+  fi
+
+  if [ "${fs_of_main_trash}" = "${fs_of_item}" ]; then
+    # Indicates that file being remove resides on same device and user-home,
+    # so we can remove to the user-home trash.
+    #
+    # MAYBE: Update this fcn. to support specific trash
+    # directories on each device. For now you can specify
+    # one specific dir for one drive (generally /home/$LOGNAME/.trash)
+    # and then all other drives it's assumed to be at, e.g.,
+    # /media/XXX/.trash; logical mount root, e.g., /path/to/encfs/.trash.
+    TRASH_FS_MOUNT="${RM_SAFE_TRASH_HOME}"
+  else
+    TRASH_FS_MOUNT=$(_sh_rm_safe_device_filepath_for_path "${item_path}")
+  fi
+
+  _trace "TRASH_FS_MOUNT=${TRASH_FS_MOUNT}"  # E.g., "/dev/sdb1"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
