@@ -43,9 +43,9 @@ home_fries_aliases_wire_mv () {
     # or,
     #  set -f
     if [ "$1" = '-f' ]; then
-      command mv $*
+      command mv "$@"
     else
-      mv $*
+      mv "$@"
     fi
     shopt -u dotglob
     # or,
