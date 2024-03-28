@@ -12,7 +12,7 @@
 
 # CXREF: ~/.homefries/bin/cp_safe
 home_fries_aliases_wire_cp () {
-  alias cp="${HOMEFRIES_BIN:-${HOME}/.homefries/bin}/cp_safe"
+  alias cp="${SHOILERPLATE:-${HOME}/.kit/sh}/sh-rm_safe/bin/cp_safe"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
