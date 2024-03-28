@@ -17,7 +17,7 @@ home_fries_aliases_wire_mv () {
   #         "mv"
   #         'mv'
   #         bash -c "mv ..."
-  alias mv='mv -i'
+  alias mv="${SHOILERPLATE:-${HOME}/.kit/sh}/sh-rm_safe/bin/mv_safe"
 
   # Move a glob of files and include .dotted (hidden) files.
   claim_alias_or_warn "mv_all" "mv_dotglob"
@@ -36,17 +36,10 @@ home_fries_aliases_wire_mv () {
   #         mv. '*' some/place
   #
   mv_dotglob () {
-    if [ -z "$1" ] && [ -z "$2" ]; then
-      echo "mv_gotglob: missing args weirdo"
-    fi
     shopt -s dotglob
     # or,
     #  set -f
-    if [ "$1" = '-f' ]; then
-      command mv "$@"
-    else
-      mv "$@"
-    fi
+    mv "$@"
     shopt -u dotglob
     # or,
     #  set +f
