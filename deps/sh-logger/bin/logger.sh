@@ -111,7 +111,7 @@ _sh_logger_log_msg () {
     [ ${FCN_LEVEL} -ge ${LOG_LEVEL_WARNING} ] && bold_maybe=$(attr_bold)
     local invert_maybe=''
     [ ${FCN_LEVEL} -ge ${LOG_LEVEL_WARNING} ] && invert_maybe=$(bg_maroon)
-    [ ${FCN_LEVEL} -ge ${LOG_LEVEL_ERROR} ] && invert_maybe=$(bg_hotpink)
+    [ ${FCN_LEVEL} -ge ${LOG_LEVEL_ERROR} ] && invert_maybe=$(bg_red)
     local prefix
     prefix="${FCN_COLOR}$(attr_underline)[${FCN_LABEL}]$(attr_reset) ${RIGHT_NOW} ${bold_maybe}${invert_maybe}"
     (
@@ -144,7 +144,7 @@ critical () {
 # LOG_LEVEL_ERROR=40
 error () {
   # Same style as critical
-  _sh_logger_log_msg "${LOG_LEVEL_CRITICAL}" "$(bg_pink)$(fg_black)$(attr_bold)" ERRR "$@"
+  _sh_logger_log_msg "${LOG_LEVEL_CRITICAL}" "$(bg_red)$(fg_white)$(attr_bold)" ERRR "$@"
 }
 
 # ***
