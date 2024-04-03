@@ -100,9 +100,13 @@ _sh_logger_log_msg () {
 
   # Verify LOG_LEVEL is an integer. Note the -eq spews when it fails, e.g.:
   #   bash: [: <foo>: integer expression expected
-  ! [ "${LOG_LEVEL}" -eq "${LOG_LEVEL}" ] \
-    && >&2 echo "WARNING: Resetting LOG_LEVEL, not an integer" \
-    && export LOG_LEVEL=
+  if [ -n "${LOG_LEVEL}" ] \
+    && ! [ "${LOG_LEVEL}" -eq "${LOG_LEVEL}" ] 2>/dev/null \
+  ; then
+    >&2 echo "WARNING: Resetting LOG_LEVEL, not an integer"
+
+    export LOG_LEVEL=
+  fi
 
   if [ ${FCN_LEVEL} -ge ${LOG_LEVEL:-${LOG_LEVEL_ERROR}} ]; then
     local RIGHT_NOW
