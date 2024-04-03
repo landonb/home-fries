@@ -103,7 +103,7 @@ docker_logs_all () {
   # terminal window, or docker_kill_tails_ps from any
   # terminal window).
   # https://en.wikipedia.org/wiki/Unix_signal#SIGINT
-  trap docker_kill_tails_jobs SIGINT
+  trap -- docker_kill_tails_jobs SIGINT
 
   # Here's a nifty trick to background multiple `docker logs -f` commands
   # so that you can interleave messages from multiple containers inside 1
