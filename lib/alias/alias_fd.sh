@@ -36,6 +36,9 @@
 home_fries_aliases_wire_fd () {
   if command -v fd > /dev/null; then
     alias fd="fd -H -I -E .git/ -E __pycache__/ -E htmlcov/"
+
+    # Without the --no-ignore
+    claim_alias_or_warn "fdi" "fd -H -E .git/ -E __pycache__/ -E htmlcov/"
   fi
 }
 
