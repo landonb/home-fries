@@ -89,9 +89,6 @@ alert_deps () {
 
   maybe_alert_missing_realpath
   unset -f maybe_alert_missing_realpath
-
-  maybe_alert_homebrew_not_loaded
-  unset -f maybe_alert_homebrew_not_loaded
 }
 
 # *** Die → Warn → Echo → Do Nothing if Bash v3
@@ -149,43 +146,6 @@ maybe_alert_missing_realpath () {
 
   # Expect errors during startup, but keep trying anyway.
   >&2 echo "BWARE: Missing \`realpath\`"
-}
-
-# ***
-
-# Also alert if Homebrew around but not loaded, because without it,
-# user will see additional alerts during startup.
-# - IDEAL: Make sure none of the errors are unexpected. They should
-#   each be a deliberate "ERROR:"-type message from Homefries, and
-#   never an error messge from a command that Homefries calls.
-#
-# 2023-01-26: E.g., Open plain iTerm2 terminal and run `bash`:
-#
-#   ALERT: Homebrew installed but not wired into your shell.
-#   HINT: Try sourcing Homebrew environs, then try again.
-#     eval "$(/opt/homebrew/bin/brew shellenv)"
-#     bash
-#   BWARE: Some of Homefries requires coreutils.
-#   ERROR: Could not locate an appropriate command.
-#   - Hint: Trying installing `date`, `gdate`, or `python`.
-#   ERROR: Could not locate an appropriate command.
-#   - Hint: Trying installing `date`, `gdate`, or `python`.
-
-maybe_alert_homebrew_not_loaded () {
-  if [ -z "${HOMEBREW_PREFIX}" ]; then
-    # Apple Silicon (arm64) brew path is /opt/homebrew.
-    local brew_bin="/opt/homebrew/bin"
-    # Otherwise on Intel Macs it's under /usr/local.
-    [ -d "${brew_bin}" ] || brew_bin="/usr/local/bin"
-    local brew_path="${brew_bin}/brew"
-
-    if [ -e "${brew_path}" ]; then
-      >&2 echo "ALERT: Homebrew installed but not wired into your shell."
-      >&2 echo "- Hint: Try sourcing Homebrew environs, then try again."
-      >&2 echo "    eval \"\$(${brew_path} shellenv)\""
-      >&2 echo "    bash"
-    fi
-  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
