@@ -87,8 +87,8 @@ alert_deps () {
   maybe_alert_ancient_bash
   unset -f maybe_alert_ancient_bash
 
-  maybe_alert_missing_coreutils
-  unset -f maybe_alert_missing_coreutils
+  maybe_alert_missing_realpath
+  unset -f maybe_alert_missing_realpath
 
   maybe_alert_homebrew_not_loaded
   unset -f maybe_alert_homebrew_not_loaded
@@ -135,30 +135,20 @@ maybe_alert_ancient_bash () {
 
 # ***
 
-# Always alert if coreutils absent, because we're nothing without it.
+# Alert if realpath absent.
+# - Homefries used to use `readlink -f`, but (basic) `realpath` is
+#   more widely available now (just don't use `realpath -m` or
+#   `realpath -s`, which don't work with newish macOS built-in
+#   `realpath`, which was added to macOS 13 (Ventura)).
 
-maybe_alert_missing_coreutils () {
-  # If this `realpath --version` check passes, we'll assume that `coreutils`
-  # is installed (because there's not an OS- and package-manager-agnostic
-  # way to check that coreutils is installed otherwise, i.e., there's no
-  # `coreutils` command, but rather all the commands that it installs).
-  # - Note also that the --version command might fail:
-  #     macOS $ /bin/realpath --version
-  #     /bin/realpath: illegal option -- -
-  #     usage: realpath [-q] [path ...]
-  #
-  ( true \
-    && command -v realpath > /dev/null \
-    && realpath --version 2> /dev/null | head -1 | grep -q -e "(GNU coreutils)" \
-  ) || >&2 echo "BWARE: No coreutils (at least not \`realpath\`)"
+maybe_alert_missing_realpath () {
+  if command -v realpath > /dev/null; then
 
-  # [2023-01-26: Dunno, why, but I coded a separate coreutils check
-  #  this past fall. But this code was more spread out back then, so
-  #  maybe I didn't see the `realpath` sniff. Now I'm just curious
-  #  if these two checks would ever be in disagreement.]
-  # 2022-11-16: Perform a hacky is-coreutils-available check.
-  ( readlink --version || greadlink --version ) > /dev/null 2>&1 \
-    || >&2 echo "BWARE: No coreutils (at least not \`readlink\`)"
+    return 0
+  fi
+
+  # Expect errors during startup, but keep trying anyway.
+  >&2 echo "BWARE: Missing \`realpath\`"
 }
 
 # ***
