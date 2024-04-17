@@ -781,42 +781,44 @@ is_a_rm_arg () {
     case "${arg}" in
       --)
         END_OF_OPTIONS=true
-        ;&
+        ;;
       -f|--force)
-        ;&
+        ;;
       -i)
-        ;&
+        ;;
       -I)
-        ;&
+        ;;
       --interactive|--interactive=*)
-        ;&
+        ;;
       --one-file-system)
-        ;&
+        ;;
       --no-preserve-root)
-        ;&
+        ;;
       --preserve-root|--preserve-root=*)
-        ;&
+        ;;
       -r|-R|--recursive)
-        ;&
+        ;;
       -d|--dir)
-        ;&
+        ;;
       -v|--verbose)
-        ;&
+        ;;
       --help)
-        # We would've printed --help and exited already.
-        ;&
+        # Unreachable: We would've printed --help and exited already.
+        ;;
       --version)
-        # We would've printed --version and exited already.
-        ;&
+        # Unreachable: We would've printed --version and exited already.
+        ;;
       -*)
         # We would've exited already if any -* input was not a known arg.
-        return 0
+        # - So this is an -singlechars arg.
         ;;
       *)
         return 1
         ;;
     esac
   fi
+
+  return 0
 }
 
 # ***
