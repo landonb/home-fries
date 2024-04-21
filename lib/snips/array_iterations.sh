@@ -177,6 +177,20 @@ bingo bango"
   done <<< "${input_lines}"
 }
 
+# ***
+
+while_read_input_line_by_line_posix_friendly () {
+  local input="\
+foo
+'bar baz'
+bingo bango"
+
+  # Note that `done <<< "${changes}"` is not POSIX, so piping instead.
+  echo "${input}" | while IFS= read -r line; do
+    echo "LINE: ${line}"
+  done
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
