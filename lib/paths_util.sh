@@ -114,7 +114,11 @@ home_fries_add_to_path_android_studio () {
 home_fries_add_to_path_golang () {
   local go_dir="${HOME}/.gopath"
 
-  if [ -d "${go_dir}" ]; then
+  if [ ! -d "${go_dir}/bin" ]; then
+    go_dir="${HOME}/go"
+  fi
+
+  if [ -d "${go_dir}/bin" ]; then
     # FIXME/2019-09-16: Seems like a weird side-effect of updating PATH
     #                   to also be exporting other variables.
     export GOPATH="${go_dir}"
