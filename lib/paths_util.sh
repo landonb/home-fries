@@ -121,7 +121,6 @@ home_fries_add_to_path_golang () {
     # You can check GOPATH with: `go env`.
 
     path_prefix "${GOPATH}/bin"
-    path_prefix "${GOPATH}"
   fi
 }
 
