@@ -36,6 +36,7 @@ _hf_python_util_pyenv_eval_init () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 _hf_python_util_pyenv_homebrew_load_completions () {
+  # Aka ${HOMEBREW_PREFIX}
   local brew_home="/opt/homebrew"
   # Otherwise on Intel Macs it's under /usr/local.
   [ -d "${brew_home}" ] || brew_home="/usr/local"
