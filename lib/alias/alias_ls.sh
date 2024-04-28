@@ -60,23 +60,30 @@ home_fries_aliases_wire_ls () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# ls, but omit the . and .. directories, and chop the "total" line,
+# e.g., omit the first three lines from a basic listing:
+#   $ /usr/bin/env ls -la
+#   total 20K
+#   drwxrwxr-x  4 landonb landonb 4.0K Dec 17 02:32 ./
+#   drwxr-xr-x  3 landonb landonb 4.0K Apr  9 17:08 ../
+# (the --almost-all/-A will omit the current and parent directories,
+#  and then pipe to tail to strip the "total", which ls includes with
+#  the -l[ong] listing format).
 function l () {
-  # ls, but omit the . and .. directories, and chop the "total" line,
-  # e.g., omit the first three lines from a basic listing:
-  #   $ /usr/bin/env ls -la
-  #   total 20K
-  #   drwxrwxr-x  4 landonb landonb 4.0K Dec 17 02:32 ./
-  #   drwxr-xr-x  3 landonb landonb 4.0K Apr  9 17:08 ../
-  # (the --almost-all/-A will omit the current and parent directories,
-  #  and then pipe to tail to strip the "total", which ls includes with
-  #  the -l[ong] listing format).
+  function cattail () {
+    if [ $# -eq 0 ]; then
+      # E.g., `tail --lines=+2`
+      tail +2
+    else
+      cat
+    fi
+  }
   $(ls-or-gls) -lhFA \
     --color=always \
     --hide-control-chars \
     --group-directories-first \
     "$@" \
-    | tail +2
-    # | tail --lines=+2
+    | cattail "$@"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
