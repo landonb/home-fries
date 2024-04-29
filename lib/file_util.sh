@@ -100,7 +100,16 @@ home_fries_wire_export_less () {
   # FIXME/2020-09-19: Default color (when not a recognized file type) is
   #                   green. Is that better than default white foreground
   #                   color (i.e., `LESSOPEN='' less ...`).
-  export LESSOPEN="| /usr/bin/highlight %s --out-format xterm256 --force"
+  #
+  # Aka ${HOMEBREW_PREFIX}
+  local brew_home="/opt/homebrew"
+  # Otherwise on Intel Macs it's under /usr/local.
+  [ -d "${brew_home}" ] || brew_home="/usr/local"
+  [ -d "${brew_home}" ] || brew_home="/usr"
+  #
+  if [ -x "${brew_home}/bin/highlight" ]; then
+    export LESSOPEN="| ${brew_home}/bin/highlight %s --out-format xterm256 --force"
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
