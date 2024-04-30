@@ -50,12 +50,15 @@ ask_yes_no_default () {
   # Also -x prints commands that are run, which taints the output.
   set +x
 
-  # Bash has nifty built-ins for capitalizing and lower-casing strings,
-  # names ${x^^} and ${x,,}
-  local choice1_u=${default_choice^^}
-  local choice1_l=${default_choice,,}
-  local choice2_u=${other_choice^^}
-  local choice2_l=${other_choice,,}
+  # POSIX-friendly uppercase (cmp. Bash v4+ ${var^^})
+  #            and lowercase (cmp. Bash v4+ ${var,,}).
+  to_upper () { printf "$1" | tr '[:lower:]' '[:upper:]'; }
+  to_lower () { printf "$1" | tr '[:upper:]' '[:lower:]'; }
+
+  local choice1_u=$(to_upper ${default_choice})
+  local choice1_l=$(to_lower ${default_choice})
+  local choice2_u=$(to_upper ${other_choice})
+  local choice2_l=$(to_lower ${other_choice})
   # Use default second choice if yes-or-no question.
   if [ -z "${choice2_u}" ]; then
     if [ "${choice1_u}" = 'Y' ]; then
@@ -157,7 +160,7 @@ ask_yes_no_default () {
   fi
 
   # Uppercase the return character. Which we return in a variable.
-  the_choice="${the_choice^^}"
+  the_choice="$(to_upper ${the_choice})"
 
   reset_errexit
 
