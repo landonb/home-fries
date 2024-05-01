@@ -113,6 +113,61 @@ home_fries_session_util_configure_aliases_bexit () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# `dash` and `sh` shims to cleanup (and customize) PS1.
+
+# Common advice re: dash PS1: "But really, you shouldn't use dash interactively."
+#   https://unix.stackexchange.com/questions/158313/create-a-dash-prompt
+# - But what if you want to copy-paste shell code to test that it's POSIX-compatible?
+#   - So, yes, sometimes, though rarely, I run dash interactively.
+# - dash doesn't render PS1 escape sequences, which is ignorable unless it's not.
+#   - On Linux Mint, it's ignorable.
+#     - Author see a longer prompt than normal, with all the escape sequences, e.g.,
+#       \[\]\[\033[01;37m\]\u@\[\033[01;33m\]\h\[\033[00m\]∶\[\033[01;36m\]\W\[\033[00m\] 🍄 $ 
+#     and with no colors or styling.
+#     - But the prompt is still usable.
+#   - But on macOS, on the other hand, the prompt is more messed up.
+#     - Note that the hostname is substituted, so the line is slightly shorter, e.g.,
+#       \[\]\[\033[01;37m\]\u@myhost\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\] 🍄 $ 
+#     But more critically, starting at '@', the text is salmon-colored,
+#     italic, and underlined, and so is what you type at the prompt and
+#     all output and prompts thereafter.
+#     - So dash on macOS is a lot less usable, or at least more difficult
+#       to read what's going on.
+# - From `man dash`: PS1 defaults to “$ ”, except superuser to “# ”.
+# - Note that dash does variable expansion in PS1, but it doesn't
+#   support color or the special variables like \h or \W that Bash does.
+#   - CXREF: ~/.homefries/lib/term/set-shell-prompt-and-window-title.sh
+dash () {
+  local PS1_orig="$PS1"
+
+  # Note that HOSTNAME set in Bash, not in dash.
+  #  : "${_HF_PS1_USER=$(id -un)}" "${_HF_PS1_HOSTNAME=$(uname -n)}"
+  export _HF_PS1_USER="$(id -un)"
+  export _HF_PS1_HOSTNAME="$(uname -n)"
+
+  # Show fullpath:
+  #  export PS1='$_HF_PS1_USER@$_HF_PS1_HOSTNAME($0):$PWD 💨 \$ '
+  # Show shorter tilde'd path:
+  export PS1='$_HF_PS1_USER@$_HF_PS1_HOSTNAME($0):$(echo "$PWD" | sed -E "s@^${HOME}(/|$)@~\1@") 💨 \$ '
+
+  command dash "$@"
+
+  export PS1="${PS1_orig}"
+
+  unset -v _HF_PS1_USER
+  unset -v _HF_PS1_HOSTNAME
+}
+
+sh () {
+  # On Linux Mint, /bin/sh -> dash. On macOS, /bin/sh is Bash v3.
+  # - Here we only care when sh is dash.
+  test "$(realpath -- "$(type -P sh)")" = "$(realpath -- "$(type -P dash)")" \
+    && dash "$@" \
+    || command sh "$@"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 _homefries_screensaver_command () {
   # Could instead run:
   #   suss_window_manager
