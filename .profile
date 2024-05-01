@@ -46,7 +46,6 @@ my_profile () {
     # NOTE: (lb): This updates LD_LIBRARY_PATH, but it doesn't stick
     #             for the window manager environment.
     update_ldpath_user_home_local_lib
-    rvm_update_path_and_source
   }
 
   source_user_bashrc () {
@@ -103,22 +102,6 @@ my_profile () {
   update_ldpath_user_home_local_lib () {
     # And also.
     prepend_ldpath_part "${HOME}/.local/lib"
-  }
-
-  rvm_update_path_and_source () {
-    # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-    # FIXME/2020-02-06 17:42: Do we need this?
-    # - I think ~/.profile sourced just once per MATE session, on first logon!
-    # Because I see this in PATH, but cannot determine how being set, so now
-    # assuming this here is why!
-    if [ -d "$PATH:$HOME/.rvm/bin" ]; then
-      export PATH="$PATH:$HOME/.rvm/bin"
-    fi
-
-    if [ -s "$HOME/.rvm/scripts/rvm" ]; then
-      # Load RVM into a shell session *as a function*.
-      source "$HOME/.rvm/scripts/rvm"
-    fi
   }
 
   setup_my_profile
