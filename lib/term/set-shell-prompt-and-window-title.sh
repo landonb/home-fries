@@ -142,6 +142,10 @@ _hf_prompt_format_titlebar () {
 }
 
 _hf_prompt_customize_shell_prompts_and_window_title () {
+  if [ -z "${HOMEFRIES_PS1_ORIG+x}" ]; then
+    export HOMEFRIES_PS1_ORIG="$PS1"
+  fi
+
   # If the user sets a custom PS1, e.g., for an `asciinema rec` demo
   # recording, honor it.
   # - (lb): Note that you can `export PS1` but I could not get around Bash
