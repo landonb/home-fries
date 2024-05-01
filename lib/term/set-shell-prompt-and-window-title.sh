@@ -277,18 +277,22 @@ _hf_prompt_customize_shell_prompt_PS1 () {
   # ${HOMEFRIES_TRACE} && echo "PS1: Preparing prompt"
   if [ -e /proc/version ] || os_is_macos ; then
     if [ $EUID -eq 0 ]; then
+      local fg_path=""
       # ${HOMEFRIES_TRACE} && echo "PS1: Running as root!"
       if os_is_macos || [ "$(cat /proc/version | grep Ubuntu)" ]; then
         # ${HOMEFRIES_TRACE} && echo "PS1: On Ubuntu"
-
-        PS1="${titlebar}${bg_magenta}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_cyan}${basename}${attr_reset}\$ "
+        fg_path="${fg_cyan}"
       elif [ "$(cat /proc/version | grep Red\ Hat)" ]; then
         # ${HOMEFRIES_TRACE} && echo "PS1: On Red Hat"
-
-        PS1="${titlebar}${bg_magenta}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_gray}${basename}${attr_reset}\$ "
+        # - DUNNO/2024-05-01: I don't recall history of this path (and
+        #   it's been eons since I last used Fedora).
+        fg_path="${fg_gray}"
       else
         echo "WARNING: Not enough info. to set PS1."
+
+        return
       fi
+      PS1="${titlebar}${bg_magenta}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_path}${basename}${attr_reset}\$ "
     elif os_is_macos || [ "$(cat /proc/version | grep Ubuntu)" ]; then
       # ${HOMEFRIES_TRACE} && echo "PS1: On Ubuntu"
       # 2015.03.04: I need to know when I'm in chroot hell.
