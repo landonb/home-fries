@@ -142,10 +142,6 @@ _hf_prompt_format_titlebar () {
 }
 
 _hf_prompt_customize_shell_prompts_and_window_title () {
-  if [ -z "${HOMEFRIES_PS1_ORIG+x}" ]; then
-    export HOMEFRIES_PS1_ORIG="$PS1"
-  fi
-
   # (lb): Note that colors.sh defines similar colors, but without
   # the ``01;`` part. I cannot remember what that component means....
   local fg_red='\[\033[01;31m\]'
@@ -233,6 +229,17 @@ _hf_prompt_customize_shell_prompts_and_window_title () {
   if _hf_session_is_subshell; then
     local_shell_icon="${u_anchor}"
     remote_shell_icon="${u_horny}"
+  fi
+
+  _hf_prompt_customize_shell_prompt_PS1
+  _hf_prompt_customize_shell_prompt_PS2
+}
+
+# ***
+
+_hf_prompt_customize_shell_prompt_PS1 () {
+  if [ -z "${HOMEFRIES_PS1_ORIG+x}" ]; then
+    export HOMEFRIES_PS1_ORIG="$PS1"
   fi
 
   # If the user sets a custom PS1, e.g., for an `asciinema rec` demo
@@ -341,7 +348,11 @@ _hf_prompt_customize_shell_prompts_and_window_title () {
   #       But the escapes don't work the same. E.g., this looks really funny:
   #         titlebar="\[\e]0;THIS IS A TEST\a\]"
   #         PROMPT_COMMAND='printf '%b' "${titlebar}\[\033[01;36m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]\$ "'
+}
 
+# ***
+
+_hf_prompt_customize_shell_prompt_PS2 () {
   # 2018-05-28: How about a bold PS2 (continuation) prompt?
   #  PS2="$(tput bold)>${attr_reset} "
   #  PS2="$(tput bold)${attr_underlined}${fg_green}>${attr_reset} "
