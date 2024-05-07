@@ -295,7 +295,7 @@ home_fries_alias_crontab () {
 #
 # To mimic this behavior for a user, set their crontab to call
 # anacron in the morning, and then run this function anytime a
-# shell is opened, and if it hasn't been down since the latest
+# shell is opened, and if it hasn't been done since the latest
 # boot, call anacron. (This means that, if the machine is up
 # most of the time, the normal cron job will run the dailies
 # in the morning; but if the machine is booted any time after
@@ -322,7 +322,7 @@ home_fries_punch_anacron () {
   # Create the system boot touchfile.
   # NOTE: Need --tmpdir when specifying TEMPLATE-XXX so file goes to /tmp, not $(pwd).
   local boottouch=$(mktemp --tmpdir "BOOT-XXXXXXXXXX")
-  # Not a type: Use Homefries' `uptime-s`, not Linux-only `uptime -s`.
+  # Not a typo: Use Homefries' `uptime-s`, not Linux-only `uptime -s`.
   touch -d "$(uptime-s)" -- "${boottouch}"
 
   # Name the user anacron touchfile.
