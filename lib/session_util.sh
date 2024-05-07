@@ -542,6 +542,8 @@ touched_since_up () {
   if [ -n "${touchfile}" ]; then
     local boottouch=$(mktemp --suffix "-HOMEFRIES_TOUCHYBOOT")
     # Not a typo: Use Homefries' `uptime-s`, not Linux-only `uptime -s`.
+    # ALTLY:
+    #   touch -t "$(uptime-s +"%C%y%m%d%H%M.%S")" -- "${boottouch}"
     touch -d "$(uptime-s)" -- "${boottouch}"
     [ "${boottouch}" -ot "${touchfile}" ] && touched_since=true
     command rm -- "${boottouch}"

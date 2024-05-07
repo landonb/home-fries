@@ -323,6 +323,8 @@ home_fries_punch_anacron () {
   # NOTE: Need --tmpdir when specifying TEMPLATE-XXX so file goes to /tmp, not $(pwd).
   local boottouch=$(mktemp --tmpdir "BOOT-XXXXXXXXXX")
   # Not a typo: Use Homefries' `uptime-s`, not Linux-only `uptime -s`.
+  # ALTLY:
+  #   touch -t "$(uptime-s +"%C%y%m%d%H%M.%S")" -- "${boottouch}"
   touch -d "$(uptime-s)" -- "${boottouch}"
 
   # Name the user anacron touchfile.
