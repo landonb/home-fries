@@ -33,12 +33,15 @@
 #                also using -I so doesn't matter).
 #             --ignore-file path: Alternative approach
 #               (e.g., `/usr/bin/env fd -H -I --ignore-file <(echo .git/) <term>`
+# 2024-05-07: -L/--follow: Descend into symlinked directories.
+#                          - Override with --no-follow
+#                          - How was this not added sooner?
 home_fries_aliases_wire_fd () {
   if command -v fd > /dev/null; then
-    alias fd="fd -H -I -E .git/ -E __pycache__/ -E htmlcov/"
+    alias fd="fd -H -L -I -E .git/ -E __pycache__/ -E htmlcov/"
 
     # Without the --no-ignore
-    claim_alias_or_warn "fdi" "fd -H -E .git/ -E __pycache__/ -E htmlcov/"
+    claim_alias_or_warn "fdi" "fd -H -L -E .git/ -E __pycache__/ -E htmlcov/"
   fi
 }
 
