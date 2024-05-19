@@ -14,7 +14,6 @@ _hf_check_deps_set_shell_prompt () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 DUBS_STICKY_PREFIX="${DUBS_STICKY_PREFIX:-(Dubs) }"
-DUBS_STICKY_PREFIX_RE="${DUBS_STICKY_PREFIX_RE:-\\(Dubs\\) }"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
