@@ -13,7 +13,8 @@ _hf_check_deps_set_shell_prompt () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-DUBS_STICKY_PREFIX="${DUBS_STICKY_PREFIX:-(Dubs) }"
+# USAGE: Option terminal window title user prefix
+DUBS_STICKY_PREFIX="${DUBS_STICKY_PREFIX}"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
