@@ -103,7 +103,7 @@ _hf_prompt_format_titlebar () {
   #  titlebar='\[\e]0;\u@\h:\w\a\]'
 
   local basename="${win_num_prefix}\W"
-  local hellsbells='\a'
+  local endof_osc='\a'
 
   local sticky_alert=''
 
@@ -138,12 +138,12 @@ _hf_prompt_format_titlebar () {
     # echo "User *is* logged on via SSH!"
     local -a choices
 
-  # choices+=("\[\e]0;${sticky_alert}$(hostname) → ${basename}${hellsbells}\]")
-    choices+=("\[\e]0;${sticky_alert}$(hostname) 🦉 ${basename}${hellsbells}\]")
-    choices+=("\[\e]0;${sticky_alert}$(hostname) 👗 ${basename}${hellsbells}\]")
-    choices+=("\[\e]0;${sticky_alert}$(hostname) 🌊 ${basename}${hellsbells}\]")
-    choices+=("\[\e]0;${sticky_alert}$(hostname) 🌿 ${basename}${hellsbells}\]")
-    choices+=("\[\e]0;${sticky_alert}$(hostname) 🍍 ${basename}${hellsbells}\]")
+  # choices+=("\[\e]0;${sticky_alert}$(hostname) → ${basename}${endof_osc}\]")
+    choices+=("\[\e]0;${sticky_alert}$(hostname) 🦉 ${basename}${endof_osc}\]")
+    choices+=("\[\e]0;${sticky_alert}$(hostname) 👗 ${basename}${endof_osc}\]")
+    choices+=("\[\e]0;${sticky_alert}$(hostname) 🌊 ${basename}${endof_osc}\]")
+    choices+=("\[\e]0;${sticky_alert}$(hostname) 🌿 ${basename}${endof_osc}\]")
+    choices+=("\[\e]0;${sticky_alert}$(hostname) 🍍 ${basename}${endof_osc}\]")
 
     # Using RANDOM builtin.
     titlebar="${choices[$RANDOM % 5]}"
