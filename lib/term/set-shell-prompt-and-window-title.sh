@@ -102,7 +102,8 @@ _hf_prompt_format_titlebar () {
   # Gnome-terminal's default (though it doesn't specify it, it just is):
   #  titlebar='\[\e]0;\u@\h:\w\a\]'
 
-  local basename="${win_num_prefix}\W"
+  local winnum="${win_num_prefix}"
+  local basename="\W"
   local endof_osc='\a'
 
   local sticky_alert=''
@@ -122,28 +123,28 @@ _hf_prompt_format_titlebar () {
     # echo "User not logged on via SSH"
     if [ "${HOMEFRIES_TITLE}" != '' ]; then
 
-      titlebar="\[\e]0;${sticky_alert}${HOMEFRIES_TITLE}\a\]"
+      titlebar="\[\e]0;${winnum}${sticky_alert}${HOMEFRIES_TITLE}\a\]"
     elif _hf_prompt_user_is_not_trapped_in_chroot; then
       # Not in chroot jail.
       #  titlebar="\[\e]0;\u@\h:\w\a\]"
       #  titlebar="\[\e]0;\w:(\u@\h)\a\]"
       #  titlebar="\[\e]0;\w\a\]"
 
-      titlebar="\[\e]0;${sticky_alert}${basename}\a\]"
+      titlebar="\[\e]0;${winnum}${sticky_alert}${basename}\a\]"
     else
       # In chroot jail.
-      titlebar="\[\e]0;|-${sticky_alert}${basename}-|\a\]"
+      titlebar="\[\e]0;${winnum}|-${sticky_alert}${basename}-|\a\]"
     fi
   else
     # echo "User *is* logged on via SSH!"
     local -a choices
 
-  # choices+=("\[\e]0;${sticky_alert}$(hostname) → ${basename}${endof_osc}\]")
-    choices+=("\[\e]0;${sticky_alert}$(hostname) 🦉 ${basename}${endof_osc}\]")
-    choices+=("\[\e]0;${sticky_alert}$(hostname) 👗 ${basename}${endof_osc}\]")
-    choices+=("\[\e]0;${sticky_alert}$(hostname) 🌊 ${basename}${endof_osc}\]")
-    choices+=("\[\e]0;${sticky_alert}$(hostname) 🌿 ${basename}${endof_osc}\]")
-    choices+=("\[\e]0;${sticky_alert}$(hostname) 🍍 ${basename}${endof_osc}\]")
+  # choices+=("\[\e]0;${winnum}${sticky_alert}$(hostname) → ${basename}${endof_osc}\]")
+    choices+=("\[\e]0;${winnum}${sticky_alert}$(hostname) 🦉 ${basename}${endof_osc}\]")
+    choices+=("\[\e]0;${winnum}${sticky_alert}$(hostname) 👗 ${basename}${endof_osc}\]")
+    choices+=("\[\e]0;${winnum}${sticky_alert}$(hostname) 🌊 ${basename}${endof_osc}\]")
+    choices+=("\[\e]0;${winnum}${sticky_alert}$(hostname) 🌿 ${basename}${endof_osc}\]")
+    choices+=("\[\e]0;${winnum}${sticky_alert}$(hostname) 🍍 ${basename}${endof_osc}\]")
 
     # Using RANDOM builtin.
     titlebar="${choices[$RANDOM % 5]}"
