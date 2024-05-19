@@ -52,6 +52,7 @@ _hf_prompt_format_titlebar () {
   local win_num_prefix=''
 
   # Bash startup occurs from the user's home directory.
+  # - CXREF: ~/.homefries/lib/term/show-command-name-in-window-title.sh
   local mod_path="${HOMEFRIES_LIB:-${HOME}/.homefries/lib}/term/show-command-name-in-window-title.sh"
 
   if [ -f "${mod_path}" ]; then
@@ -67,36 +68,46 @@ _hf_prompt_format_titlebar () {
   # See: http://unix.stackexchange.com/questions/14113/
   # is-it-possible-to-set-gnome-terminals-title-to-userhost-for-whatever-host-i
   # Search: PROMPTING in `man bash`.
+  #
+  #   \[ ... \] delimit a non-printing sequence w/ control chars and can be
+  #               used to embed terminal control sequences into the prompt
+  #          \e (or \033, the ASCII escape (ESC) character) starts an escape sequence
+  #           ] after \e starts an operating system command (OSC)
+  #          0; means "set the title" (xterm)
+  #          \a (or \007, the bell (BEL) character) terminates the OSC
+  #
+  #       \e]0; is like ESC]0; and resets formatting (including color)
+  #             since this string is for the window titlebar
+  #
   #          \u is the username
   #          \h is the hostname up to the first '.'
   #          \W is the basename of the current working directory,
   #             with $HOME abbreviated with a tilde
-  #          \[ and \] delimit a non-printing sequence w/ control chars;
-  #             can be used to embed terminal control sequences into the prompt
-  #          \e is an ASCII escape character (0nn)
-  #          \e]0; is like ESC]0; and resets formatting (including color)
-  #             since this string is for the window titlebar
-  #          \a is the ASCII bell char (07)
-  #             EXPLAIN: What does \a do?
-  #                      Chime when you hit <BS> on an empty prompt?
-  #                      But this is the window titlebar title... hmmm.
-  # By default, the title bar is user@host:working-directory.
-  # "The escape sequence to use is ESC]2;new titleBEL":
-  #   https://wiki.archlinux.org/index.php/Bash/Prompt_customization#Customizing_the_terminal_window_title
-  # Note also using wmctrl, e.g.,: `wmctrl -r :ACTIVE: -T "On ${1}"`
-  #titlebar='\[\e]0;\u@\h:\W\a\]'
+  #
+  # By default, the title bar is user@host:working-directory
+  # REFER:
+  # - ANSI escape code
+  #    https://en.wikipedia.org/wiki/ANSI_escape_code#OSC_(Operating_System_Command)_sequences
+  # - "The escape sequence to use is ESC]2;new titleBEL":
+  #    https://wiki.archlinux.org/index.php/Bash/Prompt_customization#Customizing_the_terminal_window_title
+  #
+  # Note on MATE you can set the window title using wmctrl, too, e.g.,
+  #   wmctrl -r :ACTIVE: -T "The Window Title"
+  #
+  # Some formats to consider:
+  #  titlebar='\[\e]0;\u@\h:\W\a\]'
   # This does the same thing but uses octal ASCII escape chars instead of
   # bash's escape chars:
   #  titlebar='\[\033]2;\u@\h\007\]'
   # Gnome-terminal's default (though it doesn't specify it, it just is):
   #  titlebar='\[\e]0;\u@\h:\w\a\]'
+
   local basename="${win_num_prefix}\W"
   local hellsbells='\a'
 
   local sticky_alert=''
 
   if ${DUBS_ALWAYS_ON_VISIBLE:-false}; then
-    # MEH/2018-05-28: (lb): Make this settable... if anyone else ever uses Home Fries...
     sticky_alert="${DUBS_STICKY_PREFIX}"
   fi
 
@@ -127,7 +138,7 @@ _hf_prompt_format_titlebar () {
     # echo "User *is* logged on via SSH!"
     local -a choices
 
-    #  choices+=("\[\e]0;${sticky_alert}$(hostname) → ${basename}${hellsbells}\]")
+  # choices+=("\[\e]0;${sticky_alert}$(hostname) → ${basename}${hellsbells}\]")
     choices+=("\[\e]0;${sticky_alert}$(hostname) 🦉 ${basename}${hellsbells}\]")
     choices+=("\[\e]0;${sticky_alert}$(hostname) 👗 ${basename}${hellsbells}\]")
     choices+=("\[\e]0;${sticky_alert}$(hostname) 🌊 ${basename}${hellsbells}\]")
