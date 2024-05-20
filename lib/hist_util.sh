@@ -43,7 +43,7 @@ _hist_util_hook () {
   # words that contain at least one lowercase letter, an uppercase letter,
   # and a number (so we might match non-passwords, like AcronymsBooYeah1,
   # but we also match weaker passwords that do not use punctuation).
-  perl -pi -e 's/(^|\W)(?=[^\s]*[a-z][^\s]*)(?=[^\s]*[A-Z][^\s]*)(?=[^\s]*[0-9][^\s]*)[^\s]{15,24}(\s|\n|$)/\1XXXX_REDACT_XXXX\2/g' $resolved_p
+  perl -pi -e 's/(^|\W)(?=[^\s]*[a-z][^\s]*)(?=[^\s]*[A-Z][^\s]*)(?=[^\s]*[0-9][^\s]*)[^\s]{15,24}(\s|\n|$)/\1XXXX_REDACT_XXXX\2/g' -- "${resolved_p}"
 }
 
 home_fries_configure_history () {
