@@ -13,7 +13,7 @@ _hist_util_hook () {
   #  but then we're managing multiple histories, and I'm not sure
   #  the utility.)
   #
-  # BEWARE: We're not editing the session's in-memory history, so
+  # BWARE: We're not editing the session's in-memory history, so
   # one can still see unredacted passwords, etc., using either
   # `history -a <file>` or `history -w <file>` (the latter to dump
   # history since the last time it was dumped, or the latter to dump
@@ -21,6 +21,14 @@ _hist_util_hook () {
   # - We're just scrubbing the file that gets writ to user home.
   # - If you really want to clear session history (what's in memory), try:
   #     `history -c`. (Note that `reset` won't do this.)
+  # - REFER: `man bash` `history`:
+  #     -c     Clear the history list by deleting all the entries.
+  #     -a     Append the `new' history lines (history lines entered since
+  #            the beginning of the current bash session) to the history file.
+  #     -r     Read the contents of the history file and use
+  #            them as the current history.
+  #     -w     Write the current history to the history file,
+  #            overwriting the history file's contents.
   history -a
 
   local resolved_p=$(realpath -- "${HOME}/.bash_history")
