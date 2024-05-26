@@ -150,11 +150,10 @@ webperms () {
 #     find . -maxdepth 1 -type d -exec chmod 2775 {} +
 #     find . -maxdepth 1 -type f -exec chmod u+rw,g+rw,o+r {} +
 dirperms () {
-  local one_dir=""
-  if [[ -z $1 ]]; then
+  local one_dir="$1"
+
+  if [ -z "${one_dir}" ]; then
     one_dir=".* *"
-  else
-    one_dir=$1
   fi
   chmod --silent u+rwX,g+rwX,o+rX ${one_dir}
 }
