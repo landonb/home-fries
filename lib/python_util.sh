@@ -53,7 +53,7 @@ _hf_python_util_pyenv_homebrew_load_completions () {
 
 _hf_python_util_pyenv_virtualenv_init () {
   if which pyenv-virtualenv-init > /dev/null; then
-      eval "$(pyenv virtualenv-init -)"
+    eval "$(pyenv virtualenv-init -)"
   fi
 }
 
