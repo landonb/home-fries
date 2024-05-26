@@ -146,9 +146,10 @@ webperms () {
 }
 
 # Web-ify a single directory (does not recurse).
+# - REFER: How you might web-ify directory contents:
+#     find . -maxdepth 1 -type d -exec chmod 2775 {} +
+#     find . -maxdepth 1 -type f -exec chmod u+rw,g+rw,o+r {} +
 dirperms () {
-  # find . -maxdepth 1 -type d -exec chmod 2775 {} +
-  # find . -maxdepth 1 -type f -exec chmod u+rw,g+rw,o+r {} +
   local one_dir=""
   if [[ -z $1 ]]; then
     one_dir=".* *"
