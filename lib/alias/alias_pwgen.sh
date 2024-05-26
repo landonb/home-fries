@@ -51,7 +51,7 @@ _hf_aliases_wire_pwgen_clip_and_print () {
 _hf_aliases_wire_pwgen_clip_and_print_os_aware () {
   type xclip > /dev/null 2>&1 \
     && cat | tee >(tr -d "\n" | xclip -selection c) \
-    || cat >(tr -d "\n" | pbcopy)
+    || cat | tee >(tr -d "\n" | pbcopy)
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
