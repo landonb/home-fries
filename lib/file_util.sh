@@ -155,7 +155,13 @@ dirperms () {
   if [ -z "${one_dir}" ]; then
     one_dir=".* *"
   fi
-  chmod --silent u+rwX,g+rwX,o+rX ${one_dir}
+
+  # Because `chmod --silent`
+  chmod_kludge () {
+    command -v gchmod || command -v chmod
+  }
+
+  $(chmod_kludge) --silent u+rwX,g+rwX,o+rX ${one_dir}
 }
 
 # Reset file permissions on directory hierarchy.
