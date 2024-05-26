@@ -215,6 +215,29 @@ home_fries_configure_history () {
   # 2017-11-19: See also `set +ignoreeof` but that sets IGNOREEOF=10. #toofew
   # `set +o ignoreeof` clears IGNOREEOF; `set -o ignoreeof` sets IGNOREEOF=10.
   # 2018-05-28: See also: Ctrl-Shift-Q, to close mate-terminal window.
+
+  # ***
+
+  # macOS starts each shell with an empty history.
+  # CXREF: Related file: /etc/bashrc_Apple_Terminal
+  # - Author not quite sure what /etc/bashrc_Apple_Terminal does,
+  #   because when I start a new shell, it's history is empty.
+  #   - When I `. /etc/bashrc_Apple_Terminal`, it creates session dumps
+  #     when I exit a terminal, e.g.,
+  #       $ ll ~/.bash_sessions
+  #       w0t0p0:3E091BD9-899D-4B4F-A381-01942BE1F2FA.session
+  #       w0t0p0:88A674F3-B546-474D-A275-AEAB48B5CC42.session
+  #   - Note that TERM_SESSION_ID is unique on each shell, even if
+  #     it uses the same window number (e.g., `w0t0p0`).
+  #   - So maybe restore has something to do with System Resume?
+  #     - Or is there some other mechanism to use the same
+  #       TERM_SESSION_ID as before?
+  #   - In any case, you can probably ignore the macOS session history.
+  #     - Here we seed every new terminal with the global history
+  #       (that _hist_util_hook (via PROMPT_COMMAND) keeps updated).
+  if os_is_macos; then
+    history -r
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
