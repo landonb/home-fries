@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # vim:tw=0:ts=2:sw=2:et:norl:ft=sh
 # Project: https://github.com/landonb/sh-rm_safe#🗑
 # License: MIT
@@ -30,7 +30,7 @@ rm_rotate () {
   os_is_macos && trash_name='.Trash'
 
   _rm_rotate_enumerate_devices () {
-    if command -v findmnt >/dev/null 2>&1; then
+    if command -v findmnt > /dev/null; then
       local device_path=''
       for device_path in $( \
         findmnt -l -t fuse.gocryptfs,fuse.encfs,ext4 -o TARGET --noheadings \
@@ -88,9 +88,44 @@ rm_rotate () {
     if [ -n "$(command ls -- "${trash_path}")" ]; then
       # Trash not empty. Move to TBD position (will be deleted on next
       # rm_rotate), and then create a new trash directory.
-      command mv -- "${trash_path}" "${to_be_deleted}"
-      command touch -- "${to_be_deleted}"
-      command mkdir -- "${trash_path}"
+
+      # BWARE: macOS ~/.Trash is protected, so cannot rename it.
+      # - INERT: Ideally, this check would inspect ~/.Trash ACL; but
+      #          it's easier to just check if macOS or not, and assume.
+      if ! os_is_macos; then
+        command mv -- "${trash_path}" "${to_be_deleted}"
+        command touch -- "${to_be_deleted}"
+        command mkdir -- "${trash_path}"
+      else
+        # SAVVY: Because ACL, cannot delete (or rename) ~/.Trash
+        #   @macOS $ /bin/ls -led ~/.Trash
+        #   drwx------+ 2 user  staff  64 May 26 13:10 /Users/user/.Trash
+        #   0: group:everyone deny delete
+
+        command mkdir -- "${to_be_deleted}"
+        command chmod 700 "${to_be_deleted}"
+
+        # BWARE: Note the mv'ing ".*" includes "." and "..", which
+        # generates warnings, e.g., on Linux:
+        #   $ command mv -- foo/* foo/.* bar
+        #   mv: cannot move 'foo/.' to 'bar/.': Device or resource busy
+        #   mv: 'foo/..' and 'bar/..' are the same file
+        # Or on macOS:
+        #   $ command mv -- foo/* foo/.* bar
+        #   mv: rename foo/. to bar/.: Invalid argument
+        #   mv: foo/.. and bar/.. are identical
+        # - If we limit this script to Bash, we could use dotglob, e.g.,
+        #     #!/usr/bin/env bash
+        #     ...
+        #     local old_dot_glob
+        #     old_dot_glob="$(shopt -p dotglob)"
+        #     shopt -s dotglob
+        #     command mv -- "${trash_path}"/* "${to_be_deleted}"
+        #     eval "${old_dot_glob}"
+        # - Better yet, for POSIX compatibility, use `find`:
+        find "${trash_path}" -mindepth 1 -maxdepth 1 -name "*" \
+          -exec $(mv_kludge) -t "${to_be_deleted}" {} \+
+      fi
     fi
   }
 
@@ -103,15 +138,71 @@ first_char_capped () {
   printf "$1" | cut -c1-1 | tr '[:lower:]' '[:upper:]'
 }
 
+mv_kludge () {
+  command -v gmv || command -v mv
+}
+
 os_is_macos () {
   [ "$(uname)" = "Darwin" ]
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-if ! $(printf %s "$0" | grep -q -E '(^-?|\/)(ba|da|fi|z)?sh$' -); then
+PROG_NAME_FRIENDLY="${PROG_NAME_FRIENDLY:-rm_rotate}"
+
+clear_traps () {
+  trap - EXIT INT
+}
+
+set_traps () {
+  trap -- trap_exit EXIT
+  trap -- trap_int INT
+}
+
+exit_0 () {
+  clear_traps
+
+  exit 0
+}
+
+exit_1 () {
+  clear_traps
+
+  exit 1
+}
+
+trap_exit () {
+  # USAGE: Alert on unexpected error path, so you can add happy path.
+  >&2 echo "ALERT: "$(basename -- "$0")" exited abnormally!"
+  >&2 echo "- Hint: Enable \`set -x\` and run again..."
+
+  clear_traps
+
+  exit 2
+}
+
+trap_int () {
+  clear_traps
+
+  exit 3
+}
+
+# ***
+
+main () {
+  set -e
+
+  set_traps
+
+  rm_rotate "$@"
+
+  clear_traps
+}
+
+# Run the command unless being sourced.
+if [ "$(basename -- "$(realpath -- "$0")")" = "${PROG_NAME_FRIENDLY}" ]; then
   # Being executed.
-  rm_rotate "${@}"
+  main "$@"
 else
   # Being sourced.
   export -f rm_rotate
