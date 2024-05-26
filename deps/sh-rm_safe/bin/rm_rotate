@@ -1,5 +1,5 @@
 #!/bin/sh
-# vim:tw=0:ts=2:sw=2:et:norl:ft=sh
+# vim:tw=0:ts=2:sw=2:et:norl:ft=bash
 # Project: https://github.com/landonb/sh-rm_safe#🗑
 # License: MIT
 
@@ -148,7 +148,7 @@ os_is_macos () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-PROG_NAME_FRIENDLY="${PROG_NAME_FRIENDLY:-rm_rotate}"
+PROG_NAME="rm_rotate"
 
 clear_traps () {
   trap - EXIT INT
@@ -172,11 +172,11 @@ exit_1 () {
 }
 
 trap_exit () {
+  clear_traps
+
   # USAGE: Alert on unexpected error path, so you can add happy path.
   >&2 echo "ALERT: "$(basename -- "$0")" exited abnormally!"
   >&2 echo "- Hint: Enable \`set -x\` and run again..."
-
-  clear_traps
 
   exit 2
 }
@@ -200,11 +200,13 @@ main () {
 }
 
 # Run the command unless being sourced.
-if [ "$(basename -- "$(realpath -- "$0")")" = "${PROG_NAME_FRIENDLY}" ]; then
+if [ "$(basename -- "$(realpath -- "$0")")" = "${PROG_NAME}" ]; then
   # Being executed.
   main "$@"
 else
   # Being sourced.
   export -f rm_rotate
 fi
+
+unset -f main
 
