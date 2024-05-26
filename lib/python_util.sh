@@ -51,6 +51,7 @@ _hf_python_util_pyenv_homebrew_load_completions () {
   fi
 }
 
+# Sets: PROMPT_COMMAND="_pyenv_virtualenv_hook;${PROMPT_COMMAND-}"
 _hf_python_util_pyenv_virtualenv_init () {
   if which pyenv-virtualenv-init > /dev/null; then
     eval "$(pyenv virtualenv-init -)"
