@@ -29,7 +29,7 @@ keybinding-focus-spotify () {
 }
 
 main () {
-  if [[ ${BASH_SOURCE[0]} != "$0" ]]; then
+  if [ "${BASH_SOURCE[0]}" != "$0" ]; then
     export -f keybinding-focus-spotify
   else
     keybinding-focus-spotify "${@}"
