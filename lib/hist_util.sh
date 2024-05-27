@@ -44,7 +44,19 @@ _hist_util_hook () {
   # and a number (so we might match non-passwords, like AcronymsBooYeah1,
   # but we also match weaker passwords that do not use punctuation).
   # REFER: `perldoc perlrun`
-  perl -pi -e 's/(^|\W)(?=[^\s]*[a-z][^\s]*)(?=[^\s]*[A-Z][^\s]*)(?=[^\s]*[0-9][^\s]*)[^\s]{15,24}(\s|\n|$)/\1XXXX_REDACT_XXXX\2/g' -- "${resolved_p}"
+  # CXREF: Note the `pwgen` aliases specifically omit '-' and '/' chars.
+  #     ~/.homefries/lib/alias/alias_pwgen.sh
+  #   - Use case, e.g.,
+  #     $ echo this-file-is-NUMBER-01 \
+  #     | perl -p -e \
+  #       's/(^|\s)(?=[^\s]*[a-z][^\s]*)(?=[^\s]*[A-Z][^\s]*)(?=[^\s]*[0-9][^\s]*)[^\s-\/]{15,24}(\s|\n|$)/\1XXXX_REDACT_XXXX\2/g'
+  #     this-file-is-NUMBER-01
+  #     # And not, e.g., XXXX_REDACT_XXXX
+  #   - Note that 'thisfileisNUMBER01' -> 'XXXX_REDACT_XXXX' but at least
+  #     the substitution is not as aggressive as it previously was.
+  perl -p -i.hist_util_hook -e 's/(^|\s)(?=[^\s]*[a-z][^\s]*)(?=[^\s]*[A-Z][^\s]*)(?=[^\s]*[0-9][^\s]*)[^\s-\/]{15,24}(\s|\n|$)/\1XXXX_REDACT_XXXX\2/g' -- "${resolved_p}"
+
+  command rm -f -- "${HOME}/.bash_history.hist_util_hook"
 }
 
 home_fries_configure_history () {
