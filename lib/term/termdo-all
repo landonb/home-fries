@@ -44,7 +44,7 @@ _hf_check_deps_check_not_macos () {
 #     $ xdotool search --class mate-terminal -- windowactivate --sync %@ type "echo 'Hello buddy'\n"
 #     XGetWindowProperty[_NET_WM_DESKTOP] failed (code=1)
 #     [hangs...]
-#   Fortunately, like all problems, this one can be solved with bash, by
+#   Fortunately, like all problems, this one can be solved with Bash, by
 #   checking the desktop of the terminal window before sending it keystrokes.
 
 termdo-all () {
