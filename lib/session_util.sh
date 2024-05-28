@@ -502,7 +502,7 @@ fn_exists () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # 2020-03-27: I added this to help ssh-agent-kick check the env file,
-#               HOMEFRIES_SSH_ENV="${HOME}/.ssh/environment"
+#               _321OPEN_SSH_ENV="${HOME}/.ssh/environment"
 #             to see if it had been created since user logged on.
 #             - Then I realized I didn't need to.
 #               So I'm recording this function to have a copy of it,

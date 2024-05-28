@@ -323,7 +323,6 @@ source_utils_sources () {
   source_it "ruby_util.sh"
   source_it "rust_util.sh"
   source_it "session_util.sh"
-  source_it "ssh_util.sh"
   # Earlier: "term/*.sh"
   source_it "time_util.sh"
   source_it "user_util.sh"
