@@ -8,6 +8,7 @@
 
 source_deps () {
   . "${HOMEFRIES_DIR:-${HOME}/.homefries}/deps/sh-logger/bin/logger.sh"
+  LOG_LEVEL=${LOG_LEVEL_DEBUG}
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -69,7 +70,6 @@ _sak_shell_sourced () { [ "$(basename -- "$0")" != "${_sak_this_file_name}" ]; }
 _sak_bash_sourced () { declare -p FUNCNAME > /dev/null 2>&1; }
 
 if ! _sak_shell_sourced; then
-  LOG_LEVEL=${LOG_LEVEL_DEBUG}
   source_deps
   ssh_agent_kill "$@"
 else

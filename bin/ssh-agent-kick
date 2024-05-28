@@ -71,6 +71,8 @@ source_deps () {
   #   https://github.com/landonb/sh-colors
   #   https://github.com/landonb/sh-logger
   . "${HOMEFRIES_DIR:-${HOME}/.homefries}/deps/sh-logger/bin/logger.sh"
+  # LATER: See ssh_agent_kick below:
+  #   LOG_LEVEL=${LOG_LEVEL_DEBUG}
 
   # CXREF: Timing helper, `print_nanos_now`:
   #   https://github.com/landonb/sh-print-nanos-now
