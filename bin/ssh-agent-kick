@@ -439,8 +439,17 @@ is_gnome_keyring_daemon_agent_running () {
 
 # ***
 
+# SAVVY: `ps -p <PID>` returns nonzero if PID not found.
+# - ALTLY: We could instead test for output, e.g.,
+#     # @Linux-only:
+#     test -n "$(ps --no-headers -p ${SSH_AGENT_PID})"
+#   Or:
+#     # @macOS-compatible (where `-o <keyword>[=<header>]`,
+#     # and if no alt. headers specified, no header printed):
+#     test -n "$(ps -o pid= -p ${SSH_AGENT_PID})"
+
 ps_by_pid () {
-  ps --no-headers -p ${SSH_AGENT_PID}
+  ps -p ${SSH_AGENT_PID} 2> /dev/null
 }
 
 is_running_pid () {
