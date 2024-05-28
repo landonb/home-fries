@@ -37,22 +37,22 @@ ssh_agent_kill () {
 
   if [ -n "$(ps_ssh_agent_all)" ]; then
     # NOTE: Don't use quotes, so newlines excluded.
-    notice "Killing ssh-agent(s):" $(ps_ssh_agent_ids)
+    ${_LOG_NAME_SAK:-info} "Killing ssh-agent(s):" $(ps_ssh_agent_ids)
     ps_ssh_agent_ids | xargs kill
   else
-    notice "Skipping: No ssh-agent process(es) found (nothing to kill)"
+    ${_LOG_NAME_SAK:-info} "Skipping: No ssh-agent process(es) found (nothing to kill)"
   fi
 
   local HOMEFRIES_SSH_ENV="${HOME}/.ssh/environment"
   if [ -f "${HOMEFRIES_SSH_ENV}" ]; then
-    notice "Removing: ${HOMEFRIES_SSH_ENV}"
+    ${_LOG_NAME_SAK:-info} "Removing: ${HOMEFRIES_SSH_ENV}"
     command rm -f -- "${HOMEFRIES_SSH_ENV}"
   else
-    notice "Skipping: No ${HOMEFRIES_SSH_ENV} file found"
+    ${_LOG_NAME_SAK:-info} "Skipping: No ${HOMEFRIES_SSH_ENV} file found"
   fi
 
   if _sak_shell_sourced; then
-    notice "Unsetting: SSH_AGENT_PID and SSH_AUTH_SOCK"
+    ${_LOG_NAME_SAK:-info} "Unsetting: SSH_AGENT_PID and SSH_AUTH_SOCK"
     unset -v SSH_AGENT_PID
     unset -v SSH_AUTH_SOCK
   else
