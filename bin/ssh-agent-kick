@@ -384,6 +384,10 @@ ssh_add_key_with_passphrase () {
 
 # ***
 
+# CALSO:
+#   local cmd_and_args
+#   cmd_and_args="$(ps -o args= -p ${SSH_AGENT_PID})"
+#   ...
 ps_mate_session_agent () {
   ps -ef |
     grep -e ' /usr/bin/ssh-agent /usr/bin/im-launch mate-session$' |
@@ -445,6 +449,7 @@ is_running_pid () {
 
 # ***
 
+# DRY: USYNC: `ps_ssh_agent_all` in ssh-agent-kick, ssh-agent-kill.
 ps_ssh_agent_all () {
   ps -ef | grep -E -e '\bssh-agent( |$)' | grep -v 'grep'
 }

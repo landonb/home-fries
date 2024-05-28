@@ -13,6 +13,7 @@ source_deps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# DRY: USYNC: `ps_ssh_agent_all` in ssh-agent-kick, ssh-agent-kill.
 ps_ssh_agent_all () {
   ps -ef | grep -E -e '\bssh-agent( |$)' | grep -v 'grep'
 }
