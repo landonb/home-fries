@@ -62,7 +62,7 @@ _hist_util_hook () {
   #     # And not, e.g., XXXX_REDACT_XXXX
   #   - Note that 'thisfileisNUMBER01' -> 'XXXX_REDACT_XXXX' but at least
   #     the substitution is not as aggressive as it previously was.
-  perl -p -i.hist_util_hook -e 's/(^|\s)(?=[^\s]*[a-z][^\s]*)(?=[^\s]*[A-Z][^\s]*)(?=[^\s]*[0-9][^\s]*)[^\s-\/]{15,24}(\s|\n|$)/\1XXXX_REDACT_XXXX\2/g' -- "${resolved_p}"
+  perl -p -i.hist_util_hook -e 's/(^|\s|[^a-zA-Z0-9])(?=[^\s]*[a-z][^\s]*)(?=[^\s]*[A-Z][^\s]*)(?=[^\s]*[0-9][^\s]*)[^\s-\/]{15,24}(\s|\n|$)/\1XXXX_REDACT_XXXX\2/g' -- "${resolved_p}"
 
   command rm -f -- "${HOME}/.bash_history.hist_util_hook"
 }
