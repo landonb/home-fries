@@ -47,7 +47,7 @@ home_fries_aliases_wire_ls () {
   alias lS="${ls_cmd} ${color_opt} -lhFaS"
 
   # Sort by size, largest last. [2022-11-04: I'd forgotten about this one.]
-  claim_alias_or_warn "lS-" "${ls_cmd} ${color_opt} -lFaS | sort -n -k5"
+  claim_alias_or_warn "lS-" "${ls_cmd} -lFaS --color=always | sort -n -k5"
 
   # ***
 
