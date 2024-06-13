@@ -29,13 +29,16 @@ home_fries_aliases_wire_ls () {
   # so you can check permissions).
   claim_alias_or_warn "ll" "${ls_cmd} -lhFa ${color_opt}"
 
-  # 2017-07-10: Show timestamps always. [2022-11-04: I never use this.]
+  # 2017-07-10: Show ISO timestamps.
+  # - E.g., "2024-04-14 14:57" instead of "Jun 12 13:52".
   claim_alias_or_warn "lll" "ll --time-style=long-iso"
 
   # Reverse sort by time. [2022-11-04: I use this very often.]
   claim_alias_or_warn "lo" "ll -rt"
 
-  # 2017-07-10: You get the ideaa. [2022-11-04: I never use this.]
+  # Reverse sort by time; show ISO dates.
+  # - [2022-11-04: I (almost?) never use either ISO option.
+  #    2024-06-12: Which is odd, because I love ISO format.]
   claim_alias_or_warn "llo" "lo --time-style=long-iso"
 
   # Sort by size, from largest (empties last). [2022-11-04: I use this sometimes.]
@@ -51,10 +54,10 @@ home_fries_aliases_wire_ls () {
   # L* aliases do not list owner (replace -l with -g),
   # and do not list group name (add -G).
 
-  # Long listing, which includes ./ and ../
+  # Long listing, which includes ./ and ../, without owner.
   claim_alias_or_warn "LL" "${ls_cmd} -gGhFa ${color_opt}"
 
-  # Reverse sort by time.
+  # Reverse sort by time, without owner.
   claim_alias_or_warn "LO" "LL -rt"
 }
 
