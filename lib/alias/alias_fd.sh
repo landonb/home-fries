@@ -7,6 +7,9 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # 2020-09-26: -H/--hidden: Include hidden files and directories
+# 2024-05-07: -L/--follow: Descend into symlinked directories.
+#                          - Override with --no-follow
+#                          - How was this not added sooner?
 # 2021-11-10: -I/--no-ignore: Ignore .gitignore, .ignore or .fdignore rules.
 # 2023-01-25: - I want to use -H and -I because I use ignore rules to avoid
 #               duplicate grep results caused by symlinks, but I don't want
@@ -33,9 +36,6 @@
 #                also using -I so doesn't matter).
 #             --ignore-file path: Alternative approach
 #               (e.g., `/usr/bin/env fd -H -I --ignore-file <(echo .git/) <term>`
-# 2024-05-07: -L/--follow: Descend into symlinked directories.
-#                          - Override with --no-follow
-#                          - How was this not added sooner?
 home_fries_aliases_wire_fd () {
   if command -v fd > /dev/null; then
     alias fd="fd -H -L -I -E .git/ -E __pycache__/ -E htmlcov/"
