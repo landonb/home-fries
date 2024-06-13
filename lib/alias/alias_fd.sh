@@ -50,17 +50,31 @@ _home_fries_aliases_wire_fd () {
   local exclude="${HOMEFRIES_FD_EXCLUDE}"
 
   if [ -z "${HOMEFRIES_FD_EXCLUDE+x}" ]; then
+    # USYNC: Similar ignore lists (in different DepoXy projects):
+    #   ~/.depoxy/ambers/home/.kit/git/ohmyrepos/lib/infuse-personal-projlns.sh
+    #   ~/.depoxy/ambers/home/.projlns/infuse-projlns-omr.sh
+    #   ~/.homefries/lib/alias/alias_fd.sh
+    #   ~/.vim/pack/landonb/start/dubs_project_tray/plugin/dubs_project.vim
     for exclude_dir in \
       ".git/" \
       "htmlcov/" \
+      "node_modules/" \
+      ".nyc_output/" \
       "__pycache__/" \
+      ".pytest_cache/" \
+      "site-packages/" \
+      ".tox/" \
+      ".trash/" \
+      ".venv/" \
+      "'.venv-*/'" \
+      ".vscode/" \
     ; do
       exclude="${exclude} -E ${exclude_dir}"
     done
   fi
 
 
-  command fd -H -L ${exclude} ${ignore_file_arg} "$@"
+  command fd -H -L ${exclude} "$@"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
