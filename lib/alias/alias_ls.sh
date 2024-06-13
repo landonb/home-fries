@@ -94,8 +94,9 @@ function l () {
 # REFER: For macOS ACL features, use `/bin/ls`, e.g., `/bin/ls -led ~/.Trash`
 # - See `man ls` and `man chmod` for more on ACL.
 ls-or-gls () {
-  command -v gls
-  [ $? -eq 0 ] || echo "/usr/bin/env ls"
+  if ! command -v gls; then
+    echo "/usr/bin/env ls"
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
