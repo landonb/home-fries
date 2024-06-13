@@ -27,14 +27,20 @@ home_fries_aliases_wire_ls () {
 
   # Long /bin/ls listing, which includes ./ and ../ (perhaps
   # so you can check permissions).
-  claim_alias_or_warn "ll" "${ls_cmd} -lhFa ${color_opt}"
+  # - See `ll` function below, which ensures @macOS sorts like @Linux.
+  #   - This is the legacy alias which sorts differently on either OS,
+  #     which might annoy you if you use both and want both to behave
+  #     as similarly as possible, so author assumes you want the new
+  #     `ll` function.
+  # - But we'll keep this for posterity, suffixed with an 'X'.
+  claim_alias_or_warn "llX" "${ls_cmd} -lhFa ${color_opt}"
 
   # 2017-07-10: Show ISO timestamps.
   # - E.g., "2024-04-14 14:57" instead of "Jun 12 13:52".
-  claim_alias_or_warn "lll" "ll --time-style=long-iso"
+  claim_alias_or_warn "lllX" "llX --time-style=long-iso"
 
   # Reverse sort by time. [2022-11-04: I use this very often.]
-  claim_alias_or_warn "lo" "ll -rt"
+  claim_alias_or_warn "lo" "${ls_cmd} -lhFa -rt ${color_opt}"
 
   # Reverse sort by time; show ISO dates.
   # - [2022-11-04: I (almost?) never use either ISO option.
@@ -72,6 +78,12 @@ home_fries_aliases_wire_ls () {
 # (the --almost-all/-A will omit the current and parent directories,
 #  and then pipe to tail to strip the "total", which ls includes with
 #  the -l[ong] listing format).
+#
+# - SAVVY: The `l` command sorts differently on @Linux and @macOS:
+#   - @Linux ignores punctuation and case.
+#   - @macOS sorts dotfiles first, then UPPER, then lower.
+#   - I tested various language options (LC_ALL) to no avail.
+
 function l () {
   function cattail () {
     if [ $# -eq 0 ]; then
@@ -87,6 +99,119 @@ function l () {
     --group-directories-first \
     "$@" \
     | cattail "$@"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Long /bin/ls listing, which includes ./ and ../ (perhaps
+# so you can check permissions).
+
+# On Linux, you can just run ls:
+#
+#   ls -lhFa --color=auto
+#
+# But @macOS doesn't ignore leading punctuation — and I like my
+# dot (hidden) files intermingled with non-dots, and also upper-
+# and lowercase intermingled (case-insensitive).
+#
+# - I couldn't find a simple fix with LC_COLLATE/LC_ALL/LANG,
+#   so we'll do it the hard way, using a command pipeline and
+#   a complicated `sed` call.
+#
+# - Note that `ls -lhFa | sort -d -f -k 9,9` *almost* works,
+#   but it doesn't preserve color =(. (And using
+#   --color=always breaks the sort).
+
+# REFER: These are the sed options used below:
+#
+#   h                   Copy the line to the hold space: "(hold) Replace the
+#                       contents of the hold space with the contents of the
+#                       pattern space."
+#
+#   s/^\([^ ]\+\(...    Remove all but the 9th column (file path)
+#
+#   s/\x1b[[0-9;]*m//g  Remove all colour sequences
+#
+#   s/^$/\./;s/^\.\/$/\.\./;s/^\.\.\/$/\.\.\./
+#                       Ensure first 3 `ls -la` lines keep their position
+#
+#   G                   Append a newline and the contents of the hold space:
+#                       "Append a newline to the contents of the pattern space,
+#                        and then append the contents of the hold space to
+#                        that of the pattern space."
+#
+#                       - This works because the previous s/// commands
+#                         altered the pattern space, which is now the new
+#                         sort key, and we append the original output line.
+#                         (As opposed to 'H' command, which does it in the
+#                          reverse: H appends "a newline to the contents of
+#                          the hold space, and then append[s] the contents
+#                          of the pattern space to that of the hold space."
+#
+#   s/\n/\t/            Change the newline to a tab
+#
+# REFER
+#
+#   https://www.gnu.org/software/sed/manual/sed.html#sed-commands-list
+#
+# - And special thanks for the pro 'h' and 'G' tips from this question:
+#
+#   https://stackoverflow.com/questions/29399752/bash-sort-command-not-sorting-colored-output-correctly
+#
+# Also:
+#
+#   sort -d             --dictionary-order
+#   sort -f             --ignore-case
+#   sort -k1,1          Sort on the first column
+#
+#   cut -f2-            Remove the first column
+
+# Too slow: sed has an inline execute command option ('s//e'), but
+# there's too much subprocess overhead:
+#   s/.../e             e: "Executes the command that is found in pattern
+#                        space and replaces the pattern space with the
+#                        output; a trailing newline is suppressed."
+#
+#     function ll-slow () {
+#       # Too slow (but simpler 'sed' than the `ff` function below)
+#       $(ls-or-gls) -lhFa --color=always \
+#         | sed 'h;s/^\(.*\)$/echo "\1" | awk "{print \\$9}"/e;s/\x1b[[0-9;]*m//g;G;s/\n/\t/' \
+#         | sort -d -f \
+#         | cut -f2-
+#     }
+#
+# The faster solution (next) uses a tediously repetitive sed pattern
+# to remove the first optional 8 fields, split by whitespace(s).
+# - Optional because the first `ls` line has fewer, e.g., "total 488K".
+# - Also strip trailing '/' from './' and '../' or they sort in reverse.
+#   - And convert empty "total 488K" key to "." (and "." to "..", and
+#     ".." to "...") so that it's not sorted according to "total"
+#     (and so the first 3 lines keep their order).
+#
+# - BWARE: The fast approach doesn't work with path spaces.
+#           (*But neither should you*)
+#
+# - BWARE: You can pass-through `ls` options to `ll`, but it might
+#          affect the column count and bork the output.
+
+# TL_DR: Sort like @Linux `ls -la` on @macOS.
+
+function ll () {
+  $(ls-or-gls) -lhFa --color=always "$@" \
+    | sed 'h;s/^\([^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+ \+\)\?\)\?\)\?\)\?\)\?\)\?\)\?\)\?//;s/\x1b[[0-9;]*m//g;s/^$/\./;s/^\.\/$/\.\./;s/^\.\.\/$/\.\.\./;G;s/\n/\t/' \
+    | sort -d -f -k1,1 \
+    | cut -f2-
+}
+
+# Show ISO timestamps.
+# - E.g., "2024-04-14 14:57" instead of "Jun 12 13:52".
+# - USYNC: The `--time-style=long-iso` reduces columns by 1, so
+#   the command is same as `ll` minus the last \(...\)\? group.
+function lll () {
+  $(ls-or-gls) -lhFa --time-style=long-iso --color=always "$@" \
+    | sed 'h;s/^\([^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\)\?\)\?\)\?\)\?\)\?\)\?\)\?//;s/\x1b[[0-9;]*m//g;s/^$/\./;s/^\.\/$/\.\./;s/^\.\.\/$/\.\.\./;G;s/\n/\t/' \
+    | sort -d -f -k1,1 \
+    | cut -f2-
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
