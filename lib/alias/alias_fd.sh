@@ -6,6 +6,15 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+home_fries_aliases_wire_fd () {
+  if command -v fd > /dev/null; then
+    alias fd="_home_fries_aliases_wire_fd -I"
+
+    # Without the --no-ignore
+    claim_alias_or_warn "fdi" "_home_fries_aliases_wire_fd"
+  fi
+}
+
 # 2020-09-26: -H/--hidden: Include hidden files and directories
 # 2024-05-07: -L/--follow: Descend into symlinked directories.
 #                          - Override with --no-follow
@@ -36,13 +45,22 @@
 #                also using -I so doesn't matter).
 #             --ignore-file path: Alternative approach
 #               (e.g., `/usr/bin/env fd -H -I --ignore-file <(echo .git/) <term>`
-home_fries_aliases_wire_fd () {
-  if command -v fd > /dev/null; then
-    alias fd="fd -H -L -I -E .git/ -E __pycache__/ -E htmlcov/"
 
-    # Without the --no-ignore
-    claim_alias_or_warn "fdi" "fd -H -L -E .git/ -E __pycache__/ -E htmlcov/"
+_home_fries_aliases_wire_fd () {
+  local exclude="${HOMEFRIES_FD_EXCLUDE}"
+
+  if [ -z "${HOMEFRIES_FD_EXCLUDE+x}" ]; then
+    for exclude_dir in \
+      ".git/" \
+      "htmlcov/" \
+      "__pycache__/" \
+    ; do
+      exclude="${exclude} -E ${exclude_dir}"
+    done
   fi
+
+
+  command fd -H -L ${exclude} ${ignore_file_arg} "$@"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
