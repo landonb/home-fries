@@ -73,8 +73,14 @@ _home_fries_aliases_wire_fd () {
     done
   fi
 
+  local ignore_file_path="${HOMEFRIES_FD_IGNORE_FILE:-.fdignore}"
 
-  command fd -H -L ${exclude} "$@"
+  local ignore_file_arg=""
+  if [ -f "${ignore_file_path}" ]; then
+    ignore_file_arg="--ignore-file '${ignore_file_path}'"
+  fi
+
+  eval "command fd -H -L ${exclude} ${ignore_file_arg} $@"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
