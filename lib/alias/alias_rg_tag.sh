@@ -73,6 +73,7 @@ home_fries_create_aliases_rg_tag_wrap () {
       --colors 'line:style:bold' \
       --colors 'match:bg:white' \
       --glob '!/.git/' \
+      --glob '!/.tox/' \
       "
 
   # `rgt` will search and wire the `e*` commands to open
