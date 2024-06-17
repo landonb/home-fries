@@ -13,6 +13,9 @@ home_fries_aliases_wire_du () {
 
   claim_alias_or_warn "dub" "du -b -d 1 . | sort -n"
 
+  # 2024-06-13: Duh.
+  claim_alias_or_warn "duh" "du -h -d 1 ."
+
   # claim_alias_or_warn "duhome" "du -ah /home | sort -n"
 
   # Use same units, else sort mingles different sizes.
