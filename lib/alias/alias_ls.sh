@@ -163,6 +163,7 @@ function l () {
 #   sort -d             --dictionary-order
 #   sort -f             --ignore-case
 #   sort -k1,1          Sort on the first column
+#   LC_ALL=C            So the first column is recongized
 #
 #   cut -f2-            Remove the first column
 
@@ -202,7 +203,7 @@ function ll () {
   else
     $(ls-or-gls) -lhFa --color=always "$@" \
       | sed 'h;s/^\([^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+ \+\)\?\)\?\)\?\)\?\)\?\)\?\)\?\)\?//;s/\x1b[[0-9;]*m//g;s/^$/\./;s/^\.\/$/\.\./;s/^\.\.\/$/\.\.\./;G;s/\n/\t/' \
-      | sort -d -f -k1,1 \
+      | LC_ALL=C sort -d -f -k1,1 \
       | cut -f2-
   fi
 }
@@ -217,7 +218,7 @@ function lll () {
   else
     $(ls-or-gls) -lhFa --time-style=long-iso --color=always "$@" \
       | sed 'h;s/^\([^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\)\?\)\?\)\?\)\?\)\?\)\?\)\?//;s/\x1b[[0-9;]*m//g;s/^$/\./;s/^\.\/$/\.\./;s/^\.\.\/$/\.\.\./;G;s/\n/\t/' \
-      | sort -d -f -k1,1 \
+      | LC_ALL=C sort -d -f -k1,1 \
       | cut -f2-
   fi
 }
