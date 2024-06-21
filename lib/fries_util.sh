@@ -143,7 +143,7 @@ home_fries_load_completions () {
       local -a HOMEFRIES_LOAD_COMPLETIONS
 
       # When sourced on Bash v3, docker-compose STDERRs but still exits 0:
-      #   "WARNING: Skipping: /user/home/.homefries/bin/completions/docker-compose (Bash version 3.x)"
+      #   "WARNING: Skipping: /home/user/.homefries/bin/completions/docker-compose (Bash version 3.x)"
       HOMEFRIES_LOAD_COMPLETIONS+=("docker-compose")
       HOMEFRIES_LOAD_COMPLETIONS+=("git-completion.bash")
       HOMEFRIES_LOAD_COMPLETIONS+=("git-extras-bash_completion.sh")

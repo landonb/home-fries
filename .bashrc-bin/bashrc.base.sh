@@ -429,7 +429,7 @@ home_fries_bashrc_cleanup () {
 
   # Tell user when running non-standard Bash.
   # E.g., when on local terminal invoked by launcher and running mate-terminal,
-  #   $0 == '/user/home/.local/bin/bash'
+  #   $0 == '/home/user/.local/bin/bash'
   # and when on remote terminal over ssh,
   #   $0 == '-bash'
   local bash_path=""

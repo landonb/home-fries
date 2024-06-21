@@ -11,7 +11,7 @@
 
 # 2018-05-22: How have I not noticed this yet?! 'snot working!!
 #   The simple grep on "bash" is broken, as it matches, e.g.,
-#     mate-terminal --geometry 130x48+1486+65 -e /user/home/.local/bin/bash
+#     mate-terminal --geometry 130x48+1486+65 -e /home/user/.local/bin/bash
 #   so isolate the program name, excluding args and other.
 # This is too simple:
 #   ps aux | grep "bash" | grep $PPID &> /dev/null
