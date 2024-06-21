@@ -471,7 +471,7 @@ home_fries_bashrc_cleanup () {
     print_specially=notice
     command -v 'logger.sh' > /dev/null 2>&1 || print_specially=echo
   fi
-  
+
   if ${print_msg_special} || ${print_msg_version}; then
     # The BASH_VERSION includes an uninteresting prefix, e.g, consider
     #   $ echo ${BASH_VERSION}
