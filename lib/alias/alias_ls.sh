@@ -197,10 +197,14 @@ function l () {
 # TL_DR: Sort like @Linux `ls -la` on @macOS.
 
 function ll () {
-  $(ls-or-gls) -lhFa --color=always "$@" \
-    | sed 'h;s/^\([^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+ \+\)\?\)\?\)\?\)\?\)\?\)\?\)\?\)\?//;s/\x1b[[0-9;]*m//g;s/^$/\./;s/^\.\/$/\.\./;s/^\.\.\/$/\.\.\./;G;s/\n/\t/' \
-    | sort -d -f -k1,1 \
-    | cut -f2-
+  if [ $# -gt 1 ]; then
+    $(ls-or-gls) -lhFa --color=always "$@"
+  else
+    $(ls-or-gls) -lhFa --color=always "$@" \
+      | sed 'h;s/^\([^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+ \+\)\?\)\?\)\?\)\?\)\?\)\?\)\?\)\?//;s/\x1b[[0-9;]*m//g;s/^$/\./;s/^\.\/$/\.\./;s/^\.\.\/$/\.\.\./;G;s/\n/\t/' \
+      | sort -d -f -k1,1 \
+      | cut -f2-
+  fi
 }
 
 # Show ISO timestamps.
@@ -208,10 +212,14 @@ function ll () {
 # - USYNC: The `--time-style=long-iso` reduces columns by 1, so
 #   the command is same as `ll` minus the last \(...\)\? group.
 function lll () {
-  $(ls-or-gls) -lhFa --time-style=long-iso --color=always "$@" \
-    | sed 'h;s/^\([^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\)\?\)\?\)\?\)\?\)\?\)\?\)\?//;s/\x1b[[0-9;]*m//g;s/^$/\./;s/^\.\/$/\.\./;s/^\.\.\/$/\.\.\./;G;s/\n/\t/' \
-    | sort -d -f -k1,1 \
-    | cut -f2-
+  if [ $# -gt 1 ]; then
+    $(ls-or-gls) -lhFa --time-style=long-iso --color=always "$@"
+  else
+    $(ls-or-gls) -lhFa --time-style=long-iso --color=always "$@" \
+      | sed 'h;s/^\([^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\)\?\)\?\)\?\)\?\)\?\)\?\)\?//;s/\x1b[[0-9;]*m//g;s/^$/\./;s/^\.\/$/\.\./;s/^\.\.\/$/\.\.\./;G;s/\n/\t/' \
+      | sort -d -f -k1,1 \
+      | cut -f2-
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
