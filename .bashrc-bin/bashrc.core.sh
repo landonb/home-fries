@@ -11,7 +11,7 @@ export_homefries_envs () {
   #   HOMEFRIES_WARNINGS=true bash
   HOMEFRIES_WARNINGS=${HOMEFRIES_WARNINGS:-false}
 
-  # Generally, FRIES_DIR=${HOME}/.homefries [a/k/a /home/${LOGNAME}/.homefries]
+  # Generally, HOMEFRIES_DIR="${HOME}/.kit/sh/home-fries"
   if [ -z "${HOMEFRIES_DIR}" ]; then
     HOMEFRIES_DIR="$(dirname -- "$(dirname -- "${BASH_SOURCE[0]}")")"
   fi
@@ -134,6 +134,8 @@ source_homefries_libs_all () {
   # HINT: You can ensure these are on PATH before sourcing this
   #       file, or you can just not care and Homefries will load
   #       local copies of the dependencies.
+
+  source_it "logger.sh" "sh-logger/bin"
 
   # Note that 'path_prefix' and 'path_suffix' are executable files, but
   # we source them into the environment, because just running a script
