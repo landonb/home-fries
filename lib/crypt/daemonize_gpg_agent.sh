@@ -104,6 +104,10 @@ daemonize_gpg_agent () {
 
   # 2020-08-24: Skip if no gpg-agent (e.g., macOS Catalina).
   command -v gpg-agent > /dev/null || return
+
+  # 2024-06-21: Skip if no ~/.gnupg (i.e., before running `321open`).
+  [ -d "${HOME}/.gnupg" ] || return
+
   # Check if gpg-agent is running, and start if not.
   if ! _homefries_ps_check_if_running "gpg-agent"; then
     local eff_off_gkr
