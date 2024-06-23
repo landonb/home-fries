@@ -60,6 +60,10 @@ home_fries_create_aliases_rg_tag_wrap () {
   # [lb] 2019-01-06: BEWARE: --no-ignore-parent can be used to ignore .ignore's
   #   up the path. I mention it because the feature is easily forgotton when one
   #   is tracking down which .ignore file is resposible for a file being ignored.
+  # USYNC: Similar rg --glob's:
+  #   ~/.vim/pack/landonb/start/dubs_file_finder/plugin/dubs_file_finder.vim
+  #   ~/.vim/pack/landonb/start/dubs_grep_steady/bin/vim-grepprg-rg-sort
+  #   ~/.kit/sh/home-fries/lib/alias/alias_rg_tag.sh
   local rg_wrap_with_options=" \
     tag \
       --smart-case \
