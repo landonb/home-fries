@@ -55,12 +55,12 @@ home_fries_add_to_path_opt_local_bins () {
 
 home_fries_add_to_path_home_fries_lib () {
   # Make sourcing Home Fries files easy.
-  path_prefix "${HOMEFRIES_DIR}/lib"
+  path_prefix "${HOMEFRIES_LIB:-${HOME}/.kit/sh/home-fries/lib}"
 }
 
 home_fries_add_to_path_home_fries_bin () {
   # Make Home Fries commands available.
-  path_prefix "${HOMEFRIES_DIR}/bin"
+  path_prefix "${HOMEFRIES_BIN:-${HOME}/.kit/sh/home-fries/bin}"
 }
 
 home_fries_add_to_path_home_local_bin () {

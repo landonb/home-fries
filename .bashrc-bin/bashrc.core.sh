@@ -16,7 +16,8 @@ export_homefries_envs () {
     HOMEFRIES_DIR="$(dirname -- "$(dirname -- "${BASH_SOURCE[0]}")")"
   fi
   if [ "${HOMEFRIES_DIR}" = '/' ] || [ ! -d "${HOMEFRIES_DIR}" ]; then
-    >&2 echo 'WARNING: Where is .homefries installed? For real?'
+    >&2 echo 'WARNING: Where is home-fries installed? For real?'
+
     return 0
   fi
   export HOMEFRIES_DIR
@@ -41,7 +42,7 @@ source_from_user_path_or_homefries_lib () {
     let 'SOURCE_CNT += 1'
   elif [ -f "${HOMEFRIES_DIR}/lib/${lib_file}" ]; then
     # Explicit check for before paths_util.sh is sourced, which at
-    # some point during startup adds ~/.homefries/lib to PATH (and
+    # some point during startup adds ~/.kit/sh/home-fries/lib to PATH (and
     # then the first condition of this if-block will start evaluating
     # truthy instead of this elif condition).
     . "${HOMEFRIES_DIR}/lib/${lib_file}"
@@ -71,7 +72,7 @@ source_it () {
   source_from_user_path_or_homefries_lib "$@"
 }
 
-# CXREF: ~/.homefries/lib/snips/check_dep.sh
+# CXREF: ~/.kit/sh/home-fries/lib/snips/check_dep.sh
 export_homefries_check_dep () {
   . "${HOMEFRIES_DIR}/lib/snips/check_dep.sh"
 
@@ -97,7 +98,7 @@ ensure_deps () {
   # other projects, use hardlinks so you don't have to sync
   # files manually (though you may when Git committing).
   # - The author uses a private script at
-  #     ~/.homefries/.bashrc-bin/bashrx.private.user.sh
+  #     ~/.kit/sh/home-fries/.bashrc-bin/bashrx.private.user.sh
   #   to update PATH to includes these projects, which,
   #   is sourced before this script.
   #   - FIXME/2020-09-26: Add link to the DepoXy Ambers project.
@@ -265,10 +266,10 @@ source_distro_sources () {
 # ***
 
 # 2020-12-16: My latest M.O.: Prefer adding new features as executables
-# on PATH to ~/.homefries/bin, or maybe to a new standalone repo (that
-# installs (a symlink, usually) to ~/.local/bin). But not all features
-# can be run from an executable script (i.e., in a subshell), but need
-# to be called in the context of the user's environment instead. Which
+# on PATH to ~/.kit/sh/home-fries/bin, or maybe to a new standalone repo
+# (that installs (a symlink, usually) to ~/.local/bin). But not all
+# features can be run from an executable script (i.e., in a subshell), but
+# need to be called in the context of the user's environment instead. Which
 # is what funcs/ is for. Idea here is one Bash function per file that's
 # named the same as the file. Prefer this to tacking disparate features
 # to an existing *_util.sh file, at the expense perhaps of slowing down

@@ -125,7 +125,8 @@ home_fries_load_completions () {
     fi
   fi
 
-  [ -d "${HOMEFRIES_DIR}/bin/completions" ] || return
+  local completions_dir="${HOMEFRIES_BIN:-${HOME}/.kit/sh/home-fries/bin}/completions"
+  [ -d "${completions_dir}" ] || return
 
   if ${HOMEFRIES_LOAD_COMPLETIONS_ANY:-false}; then
     # BEWARE: This could be a security risk, if you're worried that an
@@ -136,7 +137,7 @@ home_fries_load_completions () {
       if [ -e "${completion_file}" ]; then
         . ${completion_file}
       fi
-    done < <(find ${HOMEFRIES_DIR}/bin/completions/* -maxdepth 1 ! -path . -print0)
+    done < <(find ${completions_dir}/* -maxdepth 1 ! -path . -print0)
   else
     # Selectively load completions (safer than if-branch).
     if ! declare -p HOMEFRIES_LOAD_COMPLETIONS >/dev/null 2>&1; then
@@ -162,7 +163,7 @@ home_fries_load_completions () {
     source_out="$(mktemp)"
 
     for completion_file in ${HOMEFRIES_LOAD_COMPLETIONS[@]}; do
-      local completion_path="${HOMEFRIES_DIR}/bin/completions/${completion_file}"
+      local completion_path="${completions_dir}/${completion_file}"
       if [ -e "${completion_path}" ]; then
         # echo "completion_file: ${completion_path}"
         . "${completion_path}" > "${source_out}" 2>&1
