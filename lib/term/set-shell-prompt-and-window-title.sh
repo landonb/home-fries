@@ -394,7 +394,7 @@ _hf_prompt_customize_shell_prompt_PS2 () {
 #   http://bashdb.sourceforge.net/
 #   http://www.linuxtopia.org/online_books/advanced_bash_scripting_guide/debugging.html
 #   http://www.cyberciti.biz/tips/debugging-shell-script.html
-dubs_set_PS4 () {
+home_fries_set_PS4 () {
   # Default is: PS4='+'
   PS4='(${BASH_SOURCE[0]}:${LINENO}): ${FUNCNAME[0]} - [${SHLVL},${BASH_SUBSHELL}, $?]
   '

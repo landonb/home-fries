@@ -502,7 +502,7 @@ home_fries_up () {
 
   # Set PS4, for `set -x` and `set -v` debugging/tracing.
   # - lib/term/set-shell-prompt-and-window-title.sh
-  run_and_unset "dubs_set_PS4"
+  run_and_unset "home_fries_set_PS4"
 
   # Fix the colors used by `ls -C` to be less annoying.
   # - lib/term/equip-colorful-and-informative-ls.sh
