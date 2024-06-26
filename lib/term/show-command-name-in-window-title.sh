@@ -17,14 +17,14 @@
 #   _fries_term_hook () {
 #     # Works: Shows up before PS4 prompt, e.g.,
 #     #       123user@host:/ $
-#     #echo -n "123"
+#     #  echo -n "123"
 #     # Fails: Shows before PS4, e.g.,
 #     #      ]0;echo -en ""user@host:/ $
-#     #echo -en "\033]0;${BASH_COMMAND}\007"
+#     #  echo -en "\033]0;${BASH_COMMAND}\007"
 #     # Fails: Prints line before every prompt, e.g.,
 #     #     echo "${BASH_COMMAND}" 1>&2
 #     #     user@host:/ $
-#     #>&2 echo "${BASH_COMMAND}"
+#     #  >&2 echo "${BASH_COMMAND}"
 #     :
 #   }
 #
