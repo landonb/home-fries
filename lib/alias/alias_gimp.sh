@@ -38,18 +38,26 @@ home_fries_create_alias_gimp_flatpak () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# This used to alias a specific Gimp version, e.g.:
+#
+#   alias gimp="open /Applications/GIMP-2.10.app"
+#
+# Fortunately that's no longer necessary.
+#
+# - These both work:
+#
+#     $ /opt/homebrew/bin/gimp
+#
+#     $ open /Applications/GIMP.app
+#
+# - However, calling `gimp` in your terminal shows console logging.
+#
+#   So we'll keep the alias, thankfully without a hardcoded version.
+
 home_fries_create_alias_gimp_macos () {
   [ "$(uname)" = "Darwin" ] || return
 
-  # gimp is hashed (/usr/local/bin/gimp) by default, but
-  # running `gimp` itself generates warnings and exits 255.
-
-  # FIXME/2023-04-30: Make this version-agnostic.
-  # - TRYME: Wouldn't this work?
-  #     alias gimp="open /Applications/GIMP-*.app"
-  #
-  # claim_alias_or_warn "gimp" "open /Applications/GIMP-2.10.app"
-  alias gimp="open /Applications/GIMP-2.10.app"
+  alias gimp="open /Applications/GIMP.app"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
