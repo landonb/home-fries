@@ -22,7 +22,7 @@ sleep_then_ensure_always_on_visible_desktop () {
   fi
 }
 
-dubs_always_on_visible_desktop () {
+home_fries_always_on_visible_desktop () {
   if ${DUBS_ALWAYS_ON_VISIBLE:-false}; then
     # (lb): Gah. If you open lots of windows at once (or just change
     # focus to another window as the terminal is loading [as Home Fries

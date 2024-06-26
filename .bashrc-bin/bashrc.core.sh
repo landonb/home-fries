@@ -510,7 +510,7 @@ home_fries_up () {
 
   # Make the current window always-on-visible-desktop, maybe.
   # - lib/perhaps-always-on-visible-desktop.sh
-  run_and_unset "dubs_always_on_visible_desktop"
+  run_and_unset "home_fries_always_on_visible_desktop"
 
   # Re-bind Ctrl-B from same-as-left-arrow to delete-path-part.
   # - lib/term/readline-bind-ctrl-b-fname-rubout.sh
