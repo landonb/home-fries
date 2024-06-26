@@ -299,19 +299,51 @@ source_privately () {
   local srctype="$2"
 
   if [ -f "${srcfile}" ]; then
-    ${HOMEFRIES_TRACE} && echo "  ├─ Loading from a ${srctype} resource: ✓ ${srcfile}"
+    ${HOMEFRIES_TRACE} && echo "  ├─ Loading private “${srctype}” file: ✓ ${srcfile}"
     local time_0="$(print_nanos_now)"
 
     . "${srcfile}"
 
     # To enable monkey-patching home-fries, private source can have us call it.
+    # - See below for alternative mechanism that allows private Bashrc
+    #   to monkey patch (override) other private Bashrc (not just HF).
     if declare -f _homefries_private_main > /dev/null; then
       _homefries_private_main
       unset -f _homefries_private_main
     fi
+
     print_elapsed_time "${time_0}" "Source: ${srcfile}"
   else
-    ${HOMEFRIES_TRACE} && echo "  ├─ Did not find a ${srctype} resource: ✗ ${srcfile}"
+    ${HOMEFRIES_TRACE} && echo "  ├─ Lacking private “${srctype}” file: ✗ ${srcfile}"
+  fi
+}
+
+# To give the client more control, here's another private function call hook.
+# - After sourcing each of the private files, we'll call a special "main"
+#   function for each file.
+#   - This lets a later private Bashrc override or monkey-patch an earlier
+#     one, e.g., the `bashrx.private.USER.sh` could redefine a function from
+#     the upstream (so to speak) `bashrx.private.sh` to customize it.
+#   - For a real-world example, see the DepoXy project, which uses the
+#     'bashrx.private.sh' file, and installs a 'bashrx.private.USER.sh'
+#     file for the user to customize.
+invoke_privately () {
+  local _srcfile="$1"  # ignored
+  local srctype="$2"
+
+  # E.g., _homefries_private_main_core
+  #       _homefries_private_main_host
+  #       _homefries_private_main_user
+  local main_fcn="_homefries_private_main_${srctype}"
+
+  if declare -f ${main_fcn} > /dev/null; then
+    ${HOMEFRIES_TRACE} && echo "  ├─ Calling private “${srctype}” callback: ✓ ${main_fcn}"
+    local time_0="$(print_nanos_now)"
+    ${main_fcn}
+    unset -f ${main_fcn}
+    print_elapsed_time "${time_0}" "Invoked: ${srcfile}"
+  else
+    ${HOMEFRIES_TRACE} && echo "  ├─ Lacking private “${srctype}” callback: ✗ ${main_fcn}"
   fi
 }
 
@@ -320,17 +352,16 @@ source_private_scripts () {
   # via .git/exclude/info, which is also generally symlinked to the same
   # private repo that contains the private Bashrc being symlinked).
 
-  # If present, load a private bash profile script.
-  local privsrc="${HOMEFRIES_BASHRCBIN}/bashrx.private.sh"
-  source_privately "${privsrc}" "non-exclusive"
-
-  # If present, load a machine-specific script.
+  # If present, load each of these private bash profile scripts.
+  local privcore="${HOMEFRIES_BASHRCBIN}/bashrx.private.sh"
   local privhost="${HOMEFRIES_BASHRCBIN}/bashrx.private.$(hostname).sh"
-  source_privately "${privhost}" "host-specific"
-
-  # If present, load a user-specific script.
   local privuser="${HOMEFRIES_BASHRCBIN}/bashrx.private.${LOGNAME}.sh"
-  source_privately "${privuser}" "user-specific"
+
+  for func in source_privately invoke_privately; do
+    ${func} "${privcore}" "core"
+    ${func} "${privhost}" "host"
+    ${func} "${privuser}" "user"
+  done
 }
 
 source_private () {
