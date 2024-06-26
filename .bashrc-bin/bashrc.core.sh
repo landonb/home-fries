@@ -785,6 +785,9 @@ _hf_cleanup_core () {
 
   # `run_and_report` calls
   unset -f _hf_set_terminal_prompt
+
+  # From: lib/term/show-command-name-in-window-title.sh
+  unset -f fries_prepare_window_number_prefix
 }
 
 _hf_bashrc_core () {
