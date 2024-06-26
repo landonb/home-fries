@@ -492,7 +492,7 @@ home_fries_up () {
   # TIMED/2024-06-25: 0.05 secs. (per HOMEFRIES_PROFILING=true)
   # - Uses: lib/term/set-shell-prompt-and-window-title.sh
   # - Deps: lib/session_util.sh
-  run_and_unset "dubs_set_terminal_prompt"
+  run_and_unset "_hf_set_terminal_prompt"
 
   # Set PS4, for `set -x` and `set -v` debugging/tracing.
   # - lib/term/set-shell-prompt-and-window-title.sh
