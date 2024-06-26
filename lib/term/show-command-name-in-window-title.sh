@@ -86,10 +86,30 @@ _hf_set_iterm2_window_number_environ () {
 #     (that default to <Cmd-Alt-n>), but these only work when iTerm2 is already
 #     the active application. (lb): And I want shortcuts that work from anywhere!
 #
+_hf_print_terminal_window_number () {
+  ! ${HOMFRIES_NO_WINDOW_NUMBER:-false} || return 0
+
+  local window_number=""
+
+  false \
+    || window_number="$(_hf_print_terminal_window_number_iterm)" \
+    || true;
+
+  printf "%s" "${window_number}"
+}
+
+# ***
+
 # SAVVY: iTerm2 defines a unique environment for each window that includes
 # the window number, tab number, pane number, and window ID (GUID), e.g.,
 #   $ echo $ITERM_SESSION_ID
 #   w3t0p0:B1CDC558-062B-4830-A5EB-8EF1BBFFAB13
+#
+# SAVVY: Various ways to suss if it's iTerm:
+#   [ "${ITERM_SESSION_ID}" = "w3t0p0:B1CDC558-062B-4830-A5EB-8EF1BBFFAB13" ]  # E.g.
+#   [ "${ITERM_PROFILE}" = "My Profile" ]  # User's iTerm2 Profile name, e.g.
+#   [ "${LC_TERMINAL}" = "iTerm2" ]
+#   [ "${TERM_PROGRAM}" = "iTerm.app" ]
 #
 # HSTRY: iTerm2 v3.2.x prefixed the window number to the window title,
 # e.g., "1. bash-command", but iTerm2 v3.3.x does not, which breaks the
@@ -98,15 +118,27 @@ _hf_set_iterm2_window_number_environ () {
 # recreates ITERM_SESSION_ID so that `ssh <host>` to another Homefries
 # shell keeps using the same window number, even on a remote host.)
 
-_hf_print_terminal_window_number () {
-  local window_number=""
+_hf_print_terminal_window_number_iterm () {
+  if [ -z "${ITERM_SESSION_ID}" ]; then
 
-  if [ -n "${ITERM_SESSION_ID}" ]; then
-    window_number="$(echo "${ITERM_SESSION_ID}" | sed 's/^w\([0-9]\+\).*/\1/')"
-    let 'window_number += 1'
+    return 1
   fi
 
+  local window_number=""
+
+  window_number="$(echo "${ITERM_SESSION_ID}" | sed 's/^w\([0-9]\+\).*/\1/')"
+  # The iTerm2 window numbers are 0-based.
+  let 'window_number += 1'
+
   printf "%s" "${window_number}"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+_hf_cleanup_lib_term_window_title_show_command_name () {
+  unset -f _hf_print_terminal_window_number
+  unset -f _hf_print_terminal_window_number_iterm
+  unset -f _hf_cleanup_lib_term_window_title_show_command_name
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
