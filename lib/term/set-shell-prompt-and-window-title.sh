@@ -52,8 +52,11 @@ _hf_prompt_format_titlebar () {
   local win_num_prefix=''
 
   # Bash startup occurs from the user's home directory.
-  # - CXREF: ~/.homefries/lib/term/show-command-name-in-window-title.sh
-  local mod_path="${HOMEFRIES_LIB:-${HOME}/.homefries/lib}/term/show-command-name-in-window-title.sh"
+  # - CXREF: ~/.kit/sh/home-fries/lib/term/show-command-name-in-window-title.sh
+  local lib_term_dir
+  lib_term_dir="$(dirname -- "${BASH_SOURCE[0]}")"
+  local mod_path
+  mod_path="${lib_term_dir}/show-command-name-in-window-title.sh"
 
   if [ -f "${mod_path}" ]; then
     . "${mod_path}"
