@@ -28,14 +28,14 @@
 #     :
 #   }
 #
-#   fries_hook_titlebar_update () {
+#   _hf_hook_titlebar_update () {
 #     if [[ ! ${PROMPT_COMMAND} =~ "_fries_term_hook" ]]; then
 #       PROMPT_COMMAND="_fries_term_hook;${PROMPT_COMMAND}"
 #     fi
 #   }
 
 # Show the currently running command name in the window titlebar.
-fries_hook_titlebar_update () {
+_hf_hook_titlebar_update () {
   # Also prefix window number in iTerm2, for systemwide foregrounder shortcuts.
   ITERM2_WINDOW_NUMBER="$(_hf_print_terminal_window_number)"
 

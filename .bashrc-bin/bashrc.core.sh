@@ -654,7 +654,7 @@ home_fries_up () {
   # Update mate-terminal titlebar on each command.
   # (lb): Note that all commands after this will appear/flicker
   # in the window title.
-  run_and_unset "fries_hook_titlebar_update"
+  run_and_unset "_hf_hook_titlebar_update"
   # - lib/term/show-command-name-in-window-title.sh
 
   #########################
