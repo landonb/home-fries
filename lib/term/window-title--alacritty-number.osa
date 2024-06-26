@@ -1,0 +1,62 @@
+# vim:tw=0:ts=2:sw=2:et:norl:ft=applescript
+# Author: Landon Bouma <https://tallybark.com/>
+# Project: https://github.com/landonb/home-fries#🍟
+# License: MIT
+
+# SAVVY: Alacritty is not scriptable.
+#
+# - E.g., this fails:
+#
+#     tell application "Alacritty"
+#       ...
+#         repeat with w in windows
+#
+#   Indicating:
+#
+#     .../lib/term/window-title--alacritty-number.osa:369:526:
+#       execution error: Alacritty got an error:
+#         every window doesn’t understand the “count” message. (-1708)
+#
+# - Fortunately there is an alternative solution:
+#
+#   "The only way to target a non-scriptable application's windows is via
+#    the properties of [application] process objects from the System Events
+#    context - not via its application object (only scriptable application
+#    objects have windows elements)"
+#
+#   - REFER:
+#     https://stackoverflow.com/questions/33420848/applescript-get-title-of-a-window
+
+tell application "Alacritty"
+  activate
+end tell
+
+tell application "System Events"
+  -- Get the frontmost app's *process* object.
+  set frontAppProcess to first application process whose frontmost is true
+end tell
+
+# Tell the *process* to iterate its windows.
+tell frontAppProcess
+  local numbersList
+  set numbersList to { 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+  repeat with idx from 1 to length of numbersList
+    set currNum to item idx of numbersList
+    -- MAYBE: Maintain list of windows and remove when matches
+    --        so we do n't iterate through full list every time
+    repeat with w in windows
+      tell w
+        if NAME of w starts with currNum & ". " then
+          set currNum to 0
+
+          exit repeat
+        end if
+      end tell
+    end repeat
+
+    if currNum is not 0
+      return currNum
+    end if
+  end repeat
+end tell
+

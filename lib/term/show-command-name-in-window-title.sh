@@ -67,7 +67,20 @@ _hf_set_iterm2_window_number_environ () {
 
   if [ -n "${window_number}" ]; then
     ITERM2_WINDOW_NUMBER="${window_number}. "
+
+    # For ssh, and if you run `bash` in an open terminal,
+    # keep using the same window number.
+    # - Note that ITERM_SESSION_ID is 0-based.
+    # - See comment below for fuller explanation.
+    if [ -z "${ITERM_SESSION_ID}" ]; then
+      # For mate-terminal and Alacritty (or anything not iTerm2).
+      ITERM_SESSION_ID="w$((${window_number}-1))t0p0:XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+    fi
   fi
+
+  # Necessary if you use `SendEnv ITERM_SESSION_ID` in ~/.ssh/config
+  # to have `ssh` connections also use window_number in their title.
+  export ITERM_SESSION_ID
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -86,6 +99,19 @@ _hf_set_iterm2_window_number_environ () {
 #     (that default to <Cmd-Alt-n>), but these only work when iTerm2 is already
 #     the active application. (lb): And I want shortcuts that work from anywhere!
 #
+# - For Alacritty macOS bindings, see the macOS-skhibidirc project:
+#     https://github.com/DepoXy/macOS-skhibidirc#👤
+#
+# - For mate-terminal MATE bindings, you could add bindings such as:
+#     - name: "'Window ‘1.’ mate-terminal focus'"
+#       binding: "'<Mod4>1'"
+#       action: "'/usr/bin/env bash -c \\\"wmctrl -a \\'1. \\'\\\"'"
+#   using the zoidy_matecocido keybindings manager Ansible role
+#   (which automates calling dcong/gsettings to wire the bindings):
+#     https://github.com/landonb/zoidy_matecocido
+#   but you probably don't want to mess with Ansible unless you're
+#   familiar with it. Best just to make custom bindings yourself.
+
 _hf_print_terminal_window_number () {
   ! ${HOMFRIES_NO_WINDOW_NUMBER:-false} || return 0
 
@@ -93,6 +119,8 @@ _hf_print_terminal_window_number () {
 
   false \
     || window_number="$(_hf_print_terminal_window_number_iterm)" \
+    || window_number="$(_hf_print_terminal_window_number_alacritty)" \
+    || window_number="$(_hf_print_terminal_window_number_mate_terminal)" \
     || true;
 
   printf "%s" "${window_number}"
@@ -133,6 +161,64 @@ _hf_print_terminal_window_number_iterm () {
   printf "%s" "${window_number}"
 }
 
+# ***
+
+# NOTED: Besides TERM, another Alacritty suss, at least on macOS:
+#   ps -p $PPID -o comm | tail -1 | grep "^/Applications/Alacritty.app"
+
+_hf_print_terminal_window_number_alacritty () {
+  if [ "${TERM}" != "alacritty" ] || ! os_is_macos; then
+
+    return 1
+  fi
+
+  local window_number=""
+
+  local lib_term_dir
+  lib_term_dir="$(dirname -- "${BASH_SOURCE[0]}")"
+
+  local osa_path
+  # CXREF: ~/.kit/sh/home-fries/lib/term/window-title--alacritty-number.osa
+  osa_path="${lib_term_dir}/window-title--alacritty-number.osa"
+
+  window_number="$(osascript "${osa_path}")"
+
+  printf "%s" "${window_number}"
+}
+
+# ***
+
+# SAVVY: For MATE, we'll check all window titles to see which window
+# number prefix is available. This is because the `wmctrl -a` command
+# used to raise a window is also systemwide. (Also because the author
+# didn't check if there's a way to limit `wmctrl -l` and `wmctrl -a`
+# to one application, or to find an alternative method that would.
+# It's unlikely another application is also prefixing numbers to
+# their window titles, though, we're just that special).
+
+_hf_print_terminal_window_number_mate_terminal () {
+  if [ -z "${DISPLAY}" ] || ! command -v wmctrl > /dev/null; then
+
+    return 1
+  fi
+  
+  local window_number=""
+
+  local assigned
+  assigned="$(wmctrl -l | awk '{print $4}' | grep -e '^[0-9]\.$' | sed 's/\.$//')"
+
+  local number
+  for number in $(seq 1 9); do
+    if ! echo "${assigned}" | grep -q "${number}"; then
+      window_number="${number}"
+
+      break
+    fi
+  done
+
+  printf "%s" "${window_number}"
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 _hf_cleanup_lib_term_window_title_show_command_name () {
@@ -141,6 +227,9 @@ _hf_cleanup_lib_term_window_title_show_command_name () {
 
   unset -f _hf_print_terminal_window_number
   unset -f _hf_print_terminal_window_number_iterm
+  unset -f _hf_print_terminal_window_number_alacritty
+  unset -f _hf_print_terminal_window_number_mate_terminal
+
   unset -f _hf_cleanup_lib_term_window_title_show_command_name
 }
 
