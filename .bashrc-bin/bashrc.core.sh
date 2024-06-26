@@ -31,15 +31,20 @@ export_homefries_envs () {
 source_from_user_path_or_homefries_lib () {
   local lib_file="$1"
   local deps_path="$2"
+  local log_name="${3:-HFRIES}"
   # So that sourced files don't see any args.
   shift $#
 
   local time_0="$(print_nanos_now)"
-  ${HOMEFRIES_TRACE} && echo "   . FRIES: ${lib_file}"
+  ${HOMEFRIES_TRACE} && echo "   . ${log_name}: ${lib_file}"
   print_loading_dot
 
   local lib_path="$(type -p "${lib_file}")"
-  if [ -f "${lib_path}" ]; then
+  if [ "${lib_file#/}" != "${lib_file}" ]; then
+    # Caller sent explicit (full) path, so no guesswork needed.
+    . "${lib_file}"
+    let 'SOURCE_CNT += 1'
+  elif [ -f "${lib_path}" ]; then
     # Prefer finding the script on PATH.
     . "${lib_path}"
     let 'SOURCE_CNT += 1'
