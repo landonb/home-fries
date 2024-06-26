@@ -49,13 +49,17 @@ my_profile () {
   }
 
   source_user_bashrc () {
-    # Return unless running Bash.
+    # Return unless interactive shell (and Bashrc is already loading).
+    ! ${HOMEFRIES_STARTUP:-false} || return 0
+
     # 2020-02-06: (lb): Note that some environs are set when you logon to
     # your window manager, like `BASH=/bin/bash`, but not `BASH_VERSION`.
-    [ -z "$BASH_VERSION" ] && return 0
+    [ -n "$BASH_VERSION" ] || return 0
+
     # Include .bashrc if it exists.
-    [ ! -f "$HOME/.bashrc" ] && return 0
-    source "$HOME/.bashrc"
+    [ -f "$HOME/.bashrc" ] || return 0
+
+    HOMEFRIES_STARTUP=true . "$HOME/.bashrc"
   }
 
   prepend_path_part () {

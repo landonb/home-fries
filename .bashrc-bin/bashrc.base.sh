@@ -237,14 +237,15 @@ cleanup_loading_dots () {
 # *** Update PATH and LD_LIBRARY_PATH (e.g., wire ~/.local/bin)
 
 ensure_pathed () {
-  # HACK!
-  # - Unset BASH_VERSION so ~/.profile doesn't load *us*!
-  #   The script will update PATH and LD_LIBRARY_PATH instead.
-  local was_version
-  was_version="${BASH_VERSION}"
-  BASH_VERSION=""
-  . "${HOME}/.profile"
-  BASH_VERSION="${was_version}"
+  # BWARE: Use HOMEFRIES_STARTUP so ~/.profile doesn't load *us*!
+  # - Likewise, check if ~/.profile is calling us:
+  #   - When opening new terminal, ~/.profile is not sourced,
+  #     except here.
+  #   - When `ssh <host>`, whether local or remote, ~/.profile
+  #     is sourced first, which sources us.
+  ! ${HOMEFRIES_STARTUP:-false} || return 0
+
+  HOMEFRIES_STARTUP=true . "${HOME}/.profile"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
