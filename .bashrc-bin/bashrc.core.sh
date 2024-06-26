@@ -375,15 +375,20 @@ eval_and_unset () {
   print_elapsed_time "${time_0}" "Action: $1"
 }
 
-run_and_unset () {
+run_and_report () {
   local time_0="$(print_nanos_now)"
 
   print_loading_dot
 
   eval "$@"
-  unset -f "$1"
 
   print_elapsed_time "${time_0}" "Action: $1"
+}
+
+run_and_unset () {
+  run_and_report "$@"
+
+  unset -f "$1"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -492,7 +497,8 @@ home_fries_up () {
   # TIMED/2024-06-25: 0.05 secs. (per HOMEFRIES_PROFILING=true)
   # - Uses: lib/term/set-shell-prompt-and-window-title.sh
   # - Deps: lib/session_util.sh
-  run_and_unset "_hf_set_terminal_prompt"
+  # - Don't run_and_unset: Let client reuse if they want.
+  run_and_report "_hf_set_terminal_prompt"
 
   # Set PS4, for `set -x` and `set -v` debugging/tracing.
   # - lib/term/set-shell-prompt-and-window-title.sh
@@ -726,7 +732,11 @@ _hf_cleanup_core () {
   unset -f source_it_log_trace
 
   unset -f eval_and_unset
+  unset -f run_and_report
   unset -f run_and_unset
+
+  # `run_and_report` calls
+  unset -f _hf_set_terminal_prompt
 }
 
 _hf_bashrc_core () {
