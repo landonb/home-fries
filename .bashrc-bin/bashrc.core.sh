@@ -31,6 +31,8 @@ export_homefries_envs () {
 source_from_user_path_or_homefries_lib () {
   local lib_file="$1"
   local deps_path="$2"
+  # So that sourced files don't see any args.
+  shift $#
 
   local time_0="$(print_nanos_now)"
   ${HOMEFRIES_TRACE} && echo "   . FRIES: ${lib_file}"
@@ -64,7 +66,9 @@ source_from_user_path_or_homefries_lib () {
     # - Nothing here is optional.
     >&2 printf '\r%s\n' "MISSING: ${lib_file}"
     # Just in case something else calls this function... ???
-    eval "${lib_file} () { >&2 printf '\r%s\n' \"TRAPPED: ${@}\"; }"
+    eval "${lib_file} () { \
+      >&2 printf '\r%s\n' \"TRAPPED: '${lib_file}' '${deps_path}' '${log_name}'\"; \
+    }"
   fi
 
   print_elapsed_time "${time_0}" "Source: ${lib_file}"
