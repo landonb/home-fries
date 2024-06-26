@@ -605,7 +605,7 @@ main () {
   source_system_rc
   unset -f source_system_rc
 
-  # Load source_it* fcns for client to use.
+  # Load fcns for client to use (source_it*, path_prefix, etc.).
   . "${HOMEFRIES_BASHRCBIN}/bashrc.core.sh"
 
   # Load private Bashrc twice, once before sourcing all the Home-fries

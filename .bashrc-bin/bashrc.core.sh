@@ -197,12 +197,6 @@ source_homefries_libs_all () {
   _SOURCE_IT_BEGIN=true \
   source_it "logger.sh" "sh-logger/bin"
 
-  # Note that 'path_prefix' and 'path_suffix' are executable files, but
-  # we source them into the environment, because just running a script
-  # (in a subprocess) has no impact on the current environment's PATH.
-  source_it "path_prefix" "sh-pather/bin"
-  source_it "path_suffix" "sh-pather/bin"
-
   # Ensure other dependencies are either on PATH, or update PATH to
   # include our local copies.
   ensure_deps
@@ -794,11 +788,6 @@ _hf_cleanup_core () {
 _hf_bashrc_core () {
   local time_main_0="$(print_nanos_now)"
 
-  export_homefries_envs
-  export_homefries_check_dep
-  unset -f export_homefries_envs
-  unset -f export_homefries_check_dep
-
   source_homefries_libs
   unset -f source_homefries_libs
 
@@ -809,4 +798,24 @@ _hf_bashrc_core () {
 
   unset -f _hf_bashrc_core
 }
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+_hf_source_pre_preload_libs () {
+  export_homefries_envs
+  export_homefries_check_dep
+  unset -f export_homefries_envs
+  unset -f export_homefries_check_dep
+
+  # Note that 'path_prefix' and 'path_suffix' are executable files, but
+  # we source them into the environment, because just running a script
+  # (in a subprocess) has no impact on the current environment's PATH.
+  source_it "path_prefix" "sh-pather/bin"
+  source_it "path_suffix" "sh-pather/bin"
+}
+
+# So that HOMEFRIES* environs, path_prefix, etc., available on
+# HOME_FRIES_PRELOAD=true.
+_hf_source_pre_preload_libs
+unset -f _hf_source_pre_preload_libs
 
