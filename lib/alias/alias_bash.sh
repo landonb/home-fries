@@ -26,7 +26,8 @@ home_fries_aliases_wire_bash () {
   #   - From `man bash`:
   #     "A login shell is one whose first character of argument zero
   #      is a -, or one started with the --login option."
-  alias bash='HOMEFRIES_CD="$(pwd)" PROMPT_COMMAND= ${0#-}'
+  # - Include ITERM_SESSION_ID so window number remains the same.
+  alias bash='HOMEFRIES_CD="$(pwd)" PROMPT_COMMAND= ITERM_SESSION_ID="${ITERM_SESSION_ID}" ${0#-}'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
