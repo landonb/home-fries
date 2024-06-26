@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# vim:tw=0:ts=2:sw=2:et:norl:ft=bash
+# Author: Landon Bouma <https://tallybark.com/>
+# Project: https://github.com/landonb/home-fries#🍟
+# License: MIT
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+print_basedir_with_tilde_if_top_level_home_dir () {
+  local cwd
+  cwd="$(pwd -L)"
+
+  local pdir
+  pdir="$(dirname -- "${cwd}")"
+
+  if [ "${pdir}" = "${HOME}" ] \
+    || [ "${pdir}" = "${DOPP_KIT:-${HOME}/.kit}" ] \
+  ; then
+    # For '~' and '~/.kit'
+    # - CXREF: See DepoXy for ~/.kit usage
+    pwd | sed -E "s@^${HOME}(/|$)@~\1@"
+  else
+    local gpdir
+    gpdir="$(dirname -- "${pdir}")"
+
+    if [ "${gpdir}" = "${DOPP_KIT:-${HOME}/.kit}" ]; then
+      # This is a conventional DepoXy path with a collection of short-
+      # named top-level directories, e.g., ~/.kit/git, ~/.kit/sh, etc.
+      # - We'll include the parent directory in the title, e.g.,
+      #   'sh/home-fries'.
+      pwd | sed -E "s@^${DOPP_KIT:-${HOME}/.kit}/@@"
+    else
+      basename -- "${cwd}"
+    fi
+  fi
+}
+
+print_basedir_with_tilde_if_top_level_home_dir
+
