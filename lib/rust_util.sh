@@ -55,17 +55,26 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_load_rust () {
+_hf_jit_load_rust () {
   if [ -d "${HOME}/.cargo" ]; then
     . "${HOME}/.cargo/env"
+
+    return 0
   fi
+
+  >&2 echo "ERROR: Missing dir: ~/.cargo"
+
+  return 1
 }
 
 cargo () {
-  unset -f cargo
+  if ! _hf_jit_load_rust; then
 
-  home_fries_load_rust
-  unset -f home_fries_load_rust
+    return 1
+  fi
+
+  unset -f cargo
+  unset -f _hf_jit_load_rust
 
   cargo "$@"
 }
