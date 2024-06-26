@@ -36,8 +36,8 @@ source_from_user_path_or_homefries_lib () {
   shift $#
 
   local time_0="$(print_nanos_now)"
-  ${HOMEFRIES_TRACE} && echo "   . ${log_name}: ${lib_file}"
-  print_loading_dot
+
+  source_it_log_trace "${log_name}" "${lib_file}"
 
   # Report path if found on PATH
   local lib_path="$(type -p "${lib_file}")"
@@ -79,6 +79,50 @@ source_from_user_path_or_homefries_lib () {
   fi
 
   print_elapsed_time "${time_0}" "Source: ${lib_file}"
+}
+
+# E.g., for output like:
+#   ──┬ Loading Homefries scripts
+#     └┬ . HFRIES: logger.sh
+#     ...
+#      └ . HFRIES: user_util.sh
+source_it_log_trace () {
+  local log_name="$1"
+  local lib_file="$2"
+
+  ${HOMEFRIES_TRACE:-false} || return
+
+  local piping
+  if ! ${_SOURCE_IT_FINIS_OUTER:-false}; then
+    if ${_SOURCE_IT_BEGIN:-false}; then
+      if ! ${_SOURCE_IT_FINIS:-false}; then
+        piping="├┬"
+      else
+        piping="├─"
+      fi
+    elif ! ${_SOURCE_IT_FINIS:-false}; then
+      piping="│├"
+    else
+      piping="│└"
+    fi
+  else
+    # The final outer group, so not leftside pipe.
+    if ${_SOURCE_IT_BEGIN:-false}; then
+      if ! ${_SOURCE_IT_FINIS:-false}; then
+        piping="└┬"
+      else
+        piping="└─"
+      fi
+    elif ! ${_SOURCE_IT_FINIS:-false}; then
+      piping=" ├"
+    else
+      piping=" └"
+    fi
+  fi
+
+  echo "  ${piping} . ${log_name}: ${lib_file}"
+
+  print_loading_dot
 }
 
 source_it () {
@@ -149,6 +193,8 @@ source_homefries_libs_all () {
   #       file, or you can just not care and Homefries will load
   #       local copies of the dependencies.
 
+  # USYNC: Set _SOURCE_IT_BEGIN for first source_homefries_libs_all source_it.
+  _SOURCE_IT_BEGIN=true \
   source_it "logger.sh" "sh-logger/bin"
 
   # Note that 'path_prefix' and 'path_suffix' are executable files, but
@@ -341,6 +387,8 @@ source_utils_sources () {
   source_it "session_util.sh"
   # Earlier: "term/*.sh"
   source_it "time_util.sh"
+  # USYNC: Set _SOURCE_IT_FINIS for final source_homefries_libs_all source_it.
+  _SOURCE_IT_FINIS=true \
   source_it "user_util.sh"
   # Just some example Bash author might reference:
   #  source_it "snips/array_iterations.sh"

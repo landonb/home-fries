@@ -267,10 +267,9 @@ source_system_rc () {
 
   if [ -n "${sys_rc}" ]; then
     ${HOMEFRIES_TRACE} && echo "──┬ Loading OS system scripts"
-    ${HOMEFRIES_TRACE} && echo "   . FRIES: ${sys_rc}"
+    ${HOMEFRIES_TRACE} && echo "  └ . HFRIES: ${sys_rc}"
     . "${sys_rc}"
     print_elapsed_time "${time_0}" "Source: ${sys_rc}"
-    ${HOMEFRIES_TRACE} && echo "  └─"
   fi
 }
 
@@ -286,11 +285,9 @@ source_fries () {
   # Common Bash standup. Defines aliases, configures things,
   # adjusts the terminal prompt, and adds a few functions.
   # - CXREF: ~/.kit/sh/home-fries/.bashrc-bin/bashrc.core.sh
-  _hf_bashrc_core
+  _SOURCE_IT_FINIS_OUTER=true _hf_bashrc_core
 
-  print_elapsed_time "${time_0}" "Source: bashrc.core.sh" "==FRIES: "
-
-  ${HOMEFRIES_TRACE} && echo "  └─"
+  print_elapsed_time "${time_0}" "Source: bashrc.core.sh (total)" "==HFRIES: "
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -339,14 +336,18 @@ invoke_privately () {
   #       _homefries_private_main_user
   local main_fcn="_homefries_private_main_${srctype}"
 
+  local piping=" ├"
+
   if declare -f ${main_fcn} > /dev/null; then
-    ${HOMEFRIES_TRACE} && echo "  ├─ Calling private “${srctype}” callback: ✓ ${main_fcn}"
+    ${HOMEFRIES_TRACE} && echo " ${piping}─ Calling private “${srctype}” callback: ✓ ${main_fcn}"
     local time_0="$(print_nanos_now)"
     ${main_fcn}
     unset -f ${main_fcn}
     print_elapsed_time "${time_0}" "Invoked: ${srcfile}"
   else
-    ${HOMEFRIES_TRACE} && echo "  ├─ Lacking private “${srctype}” callback: ✗ ${main_fcn}"
+    ! ${_SOURCE_IT_FINIS_OUTER:-false} || piping=" └"
+
+    ${HOMEFRIES_TRACE} && echo " ${piping}─ Lacking private “${srctype}” callback: ✗ ${main_fcn}"
   fi
 }
 
@@ -363,6 +364,7 @@ source_private_scripts () {
   for func in source_privately invoke_privately; do
     ${func} "${privcore}" "core"
     ${func} "${privhost}" "host"
+    _SOURCE_IT_FINIS_OUTER=$(test ${func} = "invoke_privately" && echo true || echo false) \
     ${func} "${privuser}" "user"
   done
 }
@@ -383,8 +385,6 @@ source_private () {
 
   # ${HOMEFRIES_TRACE} && echo "User is not root"
   source_private_scripts
-
-  ${HOMEFRIES_TRACE} && echo "  └─"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
