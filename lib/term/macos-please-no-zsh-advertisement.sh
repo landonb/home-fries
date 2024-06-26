@@ -13,7 +13,7 @@ check_deps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-dubs_macos_silence_bash_warning () {
+home_fries_macos_silence_bash_warning () {
   os_is_macos || return 0
 
   # 2020-08-25: Disable "The default interactive shell is now zsh" alert.

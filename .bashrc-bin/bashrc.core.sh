@@ -518,7 +518,7 @@ home_fries_up () {
 
   # Silence a macOS-specific logon alert.
   # - lib/term/macos-please-no-zsh-advertisement.sh
-  run_and_unset "dubs_macos_silence_bash_warning"
+  run_and_unset "home_fries_macos_silence_bash_warning"
 
   #########################
 
