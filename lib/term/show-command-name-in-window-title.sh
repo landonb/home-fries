@@ -64,7 +64,7 @@ fries_hook_titlebar_update () {
 #   (that default to <Cmd-Alt-n>), but these only work when iTerm2 is already
 #   the active application. (lb): And I want shortcuts that work from anywhere!
 fries_prepare_window_number_prefix () {
-  local win_num_prefix=''
+  local win_num_prefix=""
 
   # iTerm2 defines a unique environment for each window that specifies
   # the window number, tab number, pane number, and window ID (GUID), e.g.,
