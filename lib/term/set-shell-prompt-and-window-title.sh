@@ -50,7 +50,7 @@ _hf_prompt_user_is_not_trapped_in_chroot () {
 _hf_prompt_format_titlebar () {
   # 2021-07-16: Add window number to iTerm2 window title.
   local win_num_prefix=""
-  win_num_prefix="$(fries_prepare_window_number_prefix)"
+  win_num_prefix="$(_hf_print_terminal_window_number)"
 
   # 2012.10.17: Also change the titlebar name for special terminal windows,
   #             like the log-tracing windows.

@@ -37,7 +37,7 @@
 # Show the currently running command name in the window titlebar.
 fries_hook_titlebar_update () {
   # Also prefix window number in iTerm2, for systemwide foregrounder shortcuts.
-  ITERM2_WINDOW_NUMBER="$(fries_prepare_window_number_prefix)"
+  ITERM2_WINDOW_NUMBER="$(_hf_print_terminal_window_number)"
 
   # MEH: (lb): I'd rather the title not flicker for fast commands,
   # but it's nice to have for long-running commands, like `man foo`
@@ -63,7 +63,7 @@ fries_hook_titlebar_update () {
 # - Note that iTerm2 has its own *Shortcut to activate a window* shortcuts
 #   (that default to <Cmd-Alt-n>), but these only work when iTerm2 is already
 #   the active application. (lb): And I want shortcuts that work from anywhere!
-fries_prepare_window_number_prefix () {
+_hf_print_terminal_window_number () {
   local win_num_prefix=""
 
   # iTerm2 defines a unique environment for each window that specifies

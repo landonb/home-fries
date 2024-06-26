@@ -787,7 +787,7 @@ _hf_cleanup_core () {
   unset -f _hf_set_terminal_prompt
 
   # From: lib/term/show-command-name-in-window-title.sh
-  unset -f fries_prepare_window_number_prefix
+  unset -f _hf_print_terminal_window_number
 }
 
 _hf_bashrc_core () {
