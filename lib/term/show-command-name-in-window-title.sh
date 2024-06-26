@@ -54,9 +54,6 @@ _hf_hook_titlebar_update () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# 2021-07-16: Add window number to iTerm2 window title.
-# - This enables a collection of systemwide terminal foregrounder shortcuts.
-#   See KE mappings in DepoXy project:
 ITERM2_WINDOW_NUMBER=""
 
 _hf_set_iterm2_window_number_environ () {
@@ -70,25 +67,36 @@ _hf_set_iterm2_window_number_environ () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# Print the terminal "window number".
+#
+# - The caller adds this to the terminal window title, to enable a
+#   collection of systemwide terminal foregrounder shortcuts
+#   (e.g., use <Cmd-4> to front the window that starts with "4. ").
+#
+# - For iTerm2 keybindings, see the DepoXy project:
 #     https://github.com/DepoXy/depoxy#🍯
 #   Possibly at:
 #     ~/.depoxy/ambers/home/.config/karabiner/assets/complex_modifications/0340-applcn-iterm2-fronter.json
-# - Note that iTerm2 has its own *Shortcut to activate a window* shortcuts
-#   (that default to <Cmd-Alt-n>), but these only work when iTerm2 is already
-#   the active application. (lb): And I want shortcuts that work from anywhere!
+#   - Note that iTerm2 has its own *Shortcut to activate a window* shortcuts
+#     (that default to <Cmd-Alt-n>), but these only work when iTerm2 is already
+#     the active application. (lb): And I want shortcuts that work from anywhere!
+#
+# SAVVY: iTerm2 defines a unique environment for each window that includes
+# the window number, tab number, pane number, and window ID (GUID), e.g.,
+#   $ echo $ITERM_SESSION_ID
+#   w3t0p0:B1CDC558-062B-4830-A5EB-8EF1BBFFAB13
+#
+# HSTRY: iTerm2 v3.2.x prefixed the window number to the window title,
+# e.g., "1. bash-command", but iTerm2 v3.3.x does not, which breaks the
+# Karabiner-Elements foregrounder shortcuts. This helps fill in the
+# missing functionality from iTerm2 v3.2.x. (See also where Homefries
+# recreates ITERM_SESSION_ID so that `ssh <host>` to another Homefries
+# shell keeps using the same window number, even on a remote host.)
+
 _hf_print_terminal_window_number () {
   local window_number=""
 
-  # iTerm2 defines a unique environment for each window that specifies
-  # the window number, tab number, pane number, and window ID (GUID), e.g.,
-  #   $ echo $ITERM_SESSION_ID
-  #   w3t0p0:B1CDC558-062B-4830-A5EB-8EF1BBFFAB13
-
   if [ -n "${ITERM_SESSION_ID}" ]; then
-    # iTerm2 v3.2.x prefixed the window number to the window title, e.g.,
-    # "1. bash-command", but iTerm2 v3.3.x does not, which breaks the
-    # Karabiner-Elements foregrounder shortcuts. This replicates the
-    # functionality from iTerm2 v3.2.x.
     window_number="$(echo "${ITERM_SESSION_ID}" | sed 's/^w\([0-9]\+\).*/\1/')"
     let 'window_number += 1'
   fi
