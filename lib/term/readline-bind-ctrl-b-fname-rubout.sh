@@ -22,7 +22,7 @@
 #  $ bind \\C-b:unix-filename-rubout
 #  $ bind -P | grep unix-filename-rubout
 #  unix-filename-rubout can be found on "\C-b".
-dubs_hook_filename_rubout () {
+home_fries_hook_filename_rubout () {
   local expect_txt
 
   expect_txt='unix-filename-rubout is not bound to any keys'

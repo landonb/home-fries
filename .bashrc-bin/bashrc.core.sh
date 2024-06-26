@@ -514,7 +514,7 @@ home_fries_up () {
 
   # Re-bind Ctrl-B from same-as-left-arrow to delete-path-part.
   # - lib/term/readline-bind-ctrl-b-fname-rubout.sh
-  run_and_unset "dubs_hook_filename_rubout"
+  run_and_unset "home_fries_hook_filename_rubout"
 
   # Silence a macOS-specific logon alert.
   # - lib/term/macos-please-no-zsh-advertisement.sh
