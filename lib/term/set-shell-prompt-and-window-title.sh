@@ -90,6 +90,8 @@ _hf_prompt_format_titlebar () {
   #    https://en.wikipedia.org/wiki/ANSI_escape_code#OSC_(Operating_System_Command)_sequences
   # - "The escape sequence to use is ESC]2;new titleBEL":
   #    https://wiki.archlinux.org/index.php/Bash/Prompt_customization#Customizing_the_terminal_window_title
+  # - See section *... available codes for PS1 variable*:
+  #   https://courses.cs.washington.edu/courses/cse374/16wi/lectures/PS1-guide.html
   #
   # Note on MATE you can set the window title using wmctrl, too, e.g.,
   #   wmctrl -r :ACTIVE: -T "The Window Title"
@@ -103,6 +105,7 @@ _hf_prompt_format_titlebar () {
   #  titlebar='\[\e]0;\u@\h:\w\a\]'
 
   local winnum="${win_num_prefix}"
+
   local basename="\W"
   local endof_osc='\a'
 

@@ -191,6 +191,7 @@ HOMEFRIES_TIME0="$(print_nanos_now)"
 # *** Profiling.
 
 print_elapsed_time () {
+  # CXREF: ~/.kit/sh/home-fries/bin/echo-elapsed
   "${HOMEFRIES_BASHRCBIN}/../bin/echo-elapsed" "$@"
 }
 

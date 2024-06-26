@@ -31,6 +31,7 @@ export_homefries_envs () {
 source_from_user_path_or_homefries_lib () {
   local lib_file="$1"
   local deps_path="$2"
+
   local time_0="$(print_nanos_now)"
   ${HOMEFRIES_TRACE} && echo "   . FRIES: ${lib_file}"
   print_loading_dot
@@ -65,6 +66,7 @@ source_from_user_path_or_homefries_lib () {
     # Just in case something else calls this function... ???
     eval "${lib_file} () { >&2 printf '\r%s\n' \"TRAPPED: ${@}\"; }"
   fi
+
   print_elapsed_time "${time_0}" "Source: ${lib_file}"
 }
 
@@ -376,6 +378,8 @@ run_and_unset () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 home_fries_up () {
+  # TIMED/2024-06-25: This is taking a hot (literal) second to run.
+
   local time_outer_0="$(print_nanos_now)"
 
   #########################
@@ -474,7 +478,8 @@ home_fries_up () {
   # Configure the terminal prompt and colors.
 
   # Set `PS1=` to customize the terminal prompt.
-  # - lib/term/set-shell-prompt-and-window-title.sh
+  # TIMED/2024-06-25: 0.05 secs. (per HOMEFRIES_PROFILING=true)
+  # - Uses: lib/term/set-shell-prompt-and-window-title.sh
   # - Deps: lib/session_util.sh
   run_and_unset "dubs_set_terminal_prompt"
 
@@ -503,7 +508,10 @@ home_fries_up () {
   # Note this must be called after home_fries_set_path_environ,
   # so that pyenv's PATH prefix doesn't itself get prefixed.
   # - lib/python_util.sh
+
+  # TIMED/2024-06-25: 0.10 secs. (per HOMEFRIES_PROFILING=true)
   run_and_unset "home_fries_setup_pyenv"
+
   run_and_unset "home_fries_setup_poetry"
 
   #########################
@@ -523,6 +531,7 @@ home_fries_up () {
 
   #########################
 
+  # TIMED/2024-06-25: 0.08 secs. (per HOMEFRIES_PROFILING=true)
   # - lib/fries_util.sh
   run_and_unset "home_fries_load_completions"
 
