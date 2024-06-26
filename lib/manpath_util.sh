@@ -159,7 +159,7 @@ _hf_jit_configure_manpath () {
 #
 _LOADED_HF_MANPATH_UTIL_MAN=false
 
-home_fries_colorman () {
+_hf_man_colorman () {
   # This is used if a less/termcap or less_termcap.sh file not found.
   env \
     LESS_TERMCAP_mb="$(printf "\e[1;31m")" \
@@ -196,7 +196,7 @@ man () {
   if ${loaded_less_termcap}; then
     /usr/bin/man "$@"
   else
-    home_fries_colorman "$@"
+    _hf_man_colorman "$@"
   fi
 }
 
