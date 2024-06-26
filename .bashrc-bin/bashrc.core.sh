@@ -404,7 +404,7 @@ home_fries_up () {
   # - lib/paths_util.sh
   # 2020-03-19: Lazy-load MANPATH when user first runs `man` in a session. #profiling
   # - Takes ~0.14 secs otherwise!
-  #  run_and_unset "home_fries_configure_manpath"
+  #  run_and_unset "_hf_jit_configure_manpath"
 
   # Set umask to 0002
   # - lib/file_util.sh

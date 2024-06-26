@@ -36,7 +36,7 @@ check_deps () {
 #       But I cannot imagine `manpath` returning anything different
 #       later in the session; after we setup PATH, manpath should keep
 #       returning the same paths. So just take that output and edit it.
-home_fries_configure_manpath () {
+_hf_jit_configure_manpath () {
   # We could warn and not mangle manpath if already set, e.g.,
   #
   #   local warn_check=$(manpath 2>&1 > /dev/null)
@@ -175,7 +175,7 @@ home_fries_colorman () {
 # `man` lazy-loader. Sneaky sneaky. Shaves tenth sec. or so off session start.
 man () {
   ! ${_LOADED_HF_MANPATH_UTIL_MAN:-false} &&
-    home_fries_configure_manpath
+    _hf_jit_configure_manpath
   _LOADED_HF_MANPATH_UTIL_MAN=true
 
   local try_path_1="${HOME}/.config/less/termcap"
