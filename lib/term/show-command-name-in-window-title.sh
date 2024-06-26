@@ -35,6 +35,11 @@
 #   }
 
 # Show the currently running command name in the window titlebar.
+# - Even though this special title is often short-lived, just in
+#   case it's a long-running process, we'll show the window number
+#   like we normally do, so the systemwide foregrounder shortcuts
+#   still work.
+
 _hf_hook_titlebar_update () {
   # Sets ITERM2_WINDOW_NUMBER
   _hf_set_iterm2_window_number_environ
