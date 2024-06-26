@@ -8,10 +8,10 @@
 
 home_fries_aliases_wire_fd () {
   if command -v fd > /dev/null; then
-    alias fd="_home_fries_aliases_wire_fd -I"
+    alias fd="_home_fries_fd -I"
 
     # Without the --no-ignore
-    claim_alias_or_warn "fdi" "_home_fries_aliases_wire_fd"
+    claim_alias_or_warn "fdi" "_home_fries_fd"
   fi
 }
 
@@ -46,7 +46,7 @@ home_fries_aliases_wire_fd () {
 #             --ignore-file path: Alternative approach
 #               (e.g., `/usr/bin/env fd -H -I --ignore-file <(echo .git/) <term>`
 
-_home_fries_aliases_wire_fd () {
+_home_fries_fd () {
   local exclude="${HOMEFRIES_FD_EXCLUDE}"
 
   if [ -z "${HOMEFRIES_FD_EXCLUDE+x}" ]; then
