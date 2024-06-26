@@ -39,7 +39,9 @@ source_from_user_path_or_homefries_lib () {
   ${HOMEFRIES_TRACE} && echo "   . ${log_name}: ${lib_file}"
   print_loading_dot
 
+  # Report path if found on PATH
   local lib_path="$(type -p "${lib_file}")"
+
   if [ "${lib_file#/}" != "${lib_file}" ]; then
     # Caller sent explicit (full) path, so no guesswork needed.
     . "${lib_file}"
