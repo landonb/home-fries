@@ -55,11 +55,12 @@ _hf_prompt_format_titlebar () {
   # - CXREF: ~/.kit/sh/home-fries/lib/term/show-command-name-in-window-title.sh
   local lib_term_dir
   lib_term_dir="$(dirname -- "${BASH_SOURCE[0]}")"
-  local mod_path
-  mod_path="${lib_term_dir}/show-command-name-in-window-title.sh"
+  local src_path
+  src_path="${lib_term_dir}/show-command-name-in-window-title.sh"
 
-  if [ -f "${mod_path}" ]; then
-    . "${mod_path}"
+  if [ -f "${src_path}" ]; then
+    . "${src_path}"
+  fi
 
     win_num_prefix="$(fries_prepare_window_number_prefix)"
 
