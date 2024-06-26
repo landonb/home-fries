@@ -31,7 +31,7 @@ echo_elapsed () {
 
   # MAGIC: Print Profiling info. if sourcing a file takes longer
   #        than this many secs. See previous comment for details.
-  local threshold=${HOMEFRIES_PROFILE_THRESHOLD:-0.12}
+  local threshold=${HOMEFRIES_PROFILE_THRESHOLD:-0.04}
 
   local time_n="$(print_nanos_now)"
 
