@@ -46,6 +46,7 @@ my_profile () {
     # NOTE: (lb): This updates LD_LIBRARY_PATH, but it doesn't stick
     #             for the window manager environment.
     update_ldpath_user_home_local_lib
+    profile_unset_functions
   }
 
   source_user_bashrc () {
@@ -106,6 +107,17 @@ my_profile () {
   update_ldpath_user_home_local_lib () {
     # And also.
     prepend_ldpath_part "${HOME}/.local/lib"
+  }
+
+  profile_unset_functions () {
+    unset -f setup_my_profile
+    unset -f source_user_bashrc
+    unset -f prepend_path_part
+    unset -f prepend_ldpath_part
+    unset -f update_path_user_home_bin
+    unset -f update_path_user_home_local_bin
+    unset -f update_ldpath_user_home_local_lib
+    unset -f profile_unset_functions
   }
 
   setup_my_profile
