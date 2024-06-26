@@ -709,7 +709,16 @@ run_and_unset_home_fries_create_aliases () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+_hf_cleanup_core () {
+  unset -f source_it
+  unset -f source_from_user_path_or_homefries_lib
+  unset -f source_it_log_trace
+
+  unset -f eval_and_unset
+  unset -f run_and_unset
+}
+
+_hf_bashrc_core () {
   local time_main_0="$(print_nanos_now)"
 
   export_homefries_envs
@@ -718,18 +727,13 @@ main () {
   unset -f export_homefries_check_dep
 
   source_homefries_libs
-  unset -f source_it
-  unset -f source_from_user_path_or_homefries_lib
   unset -f source_homefries_libs
 
   home_fries_up
   unset -f home_fries_up
-  unset -f eval_and_unset
-  unset -f run_and_unset
 
   print_elapsed_time "${time_main_0}" "bashrc.core.sh" "+CORESH: "
-}
 
-main "$@"
-unset -f main
+  unset -f _hf_bashrc_core
+}
 

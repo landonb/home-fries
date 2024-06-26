@@ -284,7 +284,8 @@ source_fries () {
 
   # Common Bash standup. Defines aliases, configures things,
   # adjusts the terminal prompt, and adds a few functions.
-  . "${HOMEFRIES_BASHRCBIN}/bashrc.core.sh"
+  # - CXREF: ~/.kit/sh/home-fries/.bashrc-bin/bashrc.core.sh
+  _hf_bashrc_core
 
   print_elapsed_time "${time_0}" "Source: bashrc.core.sh" "==FRIES: "
 
@@ -552,6 +553,11 @@ home_fries_bashrc_cleanup () {
 environ_cleanup () {
   # OCD cleanup to not pollute user's namespace (à la `env`, `set`, etc.).
 
+  # From ~/.kit/sh/home-fries/.bashrc-bin/bashrc.core.sh
+  # - Waited until now so user can use in their private Bashrc.
+  _hf_cleanup_core
+  unset -f _hf_cleanup_core
+
   unset -v HOMEFRIES_TRACE
 
   # This unset also allows echo-elapsed to work without threshold being met.
@@ -597,6 +603,9 @@ main () {
 
   source_system_rc
   unset -f source_system_rc
+
+  # Load source_it* fcns for client to use.
+  . "${HOMEFRIES_BASHRCBIN}/bashrc.core.sh"
 
   # Load private Bashrc twice, once before sourcing all the Home-fries
   # Bashrc, and then again after. Typically, the first pass is used to
