@@ -506,7 +506,7 @@ home_fries_up () {
 
   # Fix the colors used by `ls -C` to be less annoying.
   # - lib/term/equip-colorful-and-informative-ls.sh
-  run_and_unset "dubs_fix_terminal_colors"
+  run_and_unset "home_fries_fix_terminal_colors"
 
   # Make the current window always-on-visible-desktop, maybe.
   # - lib/perhaps-always-on-visible-desktop.sh

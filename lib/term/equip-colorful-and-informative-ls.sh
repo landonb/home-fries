@@ -13,7 +13,7 @@
 #
 #   man dir_colors
 
-dubs_fix_terminal_colors () {
+home_fries_fix_terminal_colors () {
   # On directories with world-write (0002) privileges,
   # the directory name is blue on green, which is hard to read.
   # 42 is the green background, which we turn to white, 47.
