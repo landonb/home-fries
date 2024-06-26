@@ -225,7 +225,18 @@ _hf_prompt_customize_shell_prompts_and_window_title () {
   #         And then raw macOS (with system Bash 3.x, whose `echo`
   #         and `printf` won't recognize the \Unicode syntax)
   #         will work.
-  local u_anchor="⚓"             # ⚓  $(printf "\u2693")
+  # - NOTE: I was using ⚓ for _hf_session_is_subshell on Linux for
+  #         years until I discovered on @macOS it renders at the
+  #         lowly VS15 variant, ⚓︎.
+  #         - I tried the ring buoy instead but the terminal does
+  #           not read its width correctly. This messes up Bash
+  #           history, e.g., if you <Up> then <Home>, the cursor
+  #           is off by one. Same for a few other glyphs.
+  #         - Canoe works, but I'd like a fuller, smoother icon.
+  #           And I like the red color pop that leads my eye to
+  #           the start of the prompt.
+  #         - Works: 🛶 🍁 🎃 🍿 🫑 🍒 🍓 🍉 🍎 / Don't: ⚓ 🛟 🥭
+  local u_tomato="🍅"             # 🍅  $(printf "\U1F345")
  #local u_evergreen_tree="🌲"     # 🌲  $(printf "\U1F332")
  #local u_cactus="🌵"             # 🌵  $(printf "\U1F335")
   local u_mushroom="🍄"           # 🍄  $(printf "\U1F344")
@@ -242,7 +253,7 @@ _hf_prompt_customize_shell_prompts_and_window_title () {
 
   # CXREF: _hf_session_is_subshell: ~/.homefries/lib/session_util.sh:96
   if _hf_session_is_subshell; then
-    local_shell_icon="${u_anchor}"
+    local_shell_icon="${u_tomato}"
     remote_shell_icon="${u_horny}"
   fi
 
