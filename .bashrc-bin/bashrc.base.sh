@@ -297,11 +297,14 @@ source_fries () {
 source_privately () {
   local srcfile="$1"
   local srctype="$2"
+
   if [ -f "${srcfile}" ]; then
     ${HOMEFRIES_TRACE} && echo "  ├─ Loading from a ${srctype} resource: ✓ ${srcfile}"
     local time_0="$(print_nanos_now)"
+
     . "${srcfile}"
-    # To allow monkey-patching, private source can have us call its main.
+
+    # To enable monkey-patching home-fries, private source can have us call it.
     if declare -f _homefries_private_main > /dev/null; then
       _homefries_private_main
       unset -f _homefries_private_main
