@@ -136,6 +136,9 @@ _hf_print_terminal_window_number_iterm () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 _hf_cleanup_lib_term_window_title_show_command_name () {
+  unset -f _hf_set_iterm2_window_number_environ
+  # Leave set: ITERM2_WINDOW_NUMBER
+
   unset -f _hf_print_terminal_window_number
   unset -f _hf_print_terminal_window_number_iterm
   unset -f _hf_cleanup_lib_term_window_title_show_command_name
