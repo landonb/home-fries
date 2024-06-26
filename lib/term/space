@@ -163,7 +163,8 @@ if false; then
     #   {
     #     ...
     #   }
-    old_space=$(declare -f space | tail -n +3 | head -n -1)
+    # - SAVVY: `sed '$d'` omits last line (not `head -n -1` b/c macOS 🙅)
+    old_space=$(declare -f space | tail -n +3 | sed '$d')
 
     space () {
       # Meh. Don't validate the desktop number before making windows sticky.
