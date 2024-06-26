@@ -36,8 +36,8 @@
 
 # Show the currently running command name in the window titlebar.
 _hf_hook_titlebar_update () {
-  # Also prefix window number in iTerm2, for systemwide foregrounder shortcuts.
-  ITERM2_WINDOW_NUMBER="$(_hf_print_terminal_window_number)"
+  # Sets ITERM2_WINDOW_NUMBER
+  _hf_set_iterm2_window_number_environ
 
   # MEH: (lb): I'd rather the title not flicker for fast commands,
   # but it's nice to have for long-running commands, like `man foo`
@@ -57,6 +57,19 @@ _hf_hook_titlebar_update () {
 # 2021-07-16: Add window number to iTerm2 window title.
 # - This enables a collection of systemwide terminal foregrounder shortcuts.
 #   See KE mappings in DepoXy project:
+ITERM2_WINDOW_NUMBER=""
+
+_hf_set_iterm2_window_number_environ () {
+  local window_number
+  window_number="$(_hf_print_terminal_window_number)"
+
+  if [ -n "${window_number}" ]; then
+    ITERM2_WINDOW_NUMBER="${window_number}. "
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 #     https://github.com/DepoXy/depoxy#🍯
 #   Possibly at:
 #     ~/.depoxy/ambers/home/.config/karabiner/assets/complex_modifications/0340-applcn-iterm2-fronter.json
@@ -64,7 +77,7 @@ _hf_hook_titlebar_update () {
 #   (that default to <Cmd-Alt-n>), but these only work when iTerm2 is already
 #   the active application. (lb): And I want shortcuts that work from anywhere!
 _hf_print_terminal_window_number () {
-  local win_num_prefix=""
+  local window_number=""
 
   # iTerm2 defines a unique environment for each window that specifies
   # the window number, tab number, pane number, and window ID (GUID), e.g.,
@@ -78,10 +91,9 @@ _hf_print_terminal_window_number () {
     # functionality from iTerm2 v3.2.x.
     window_number="$(echo "${ITERM_SESSION_ID}" | sed 's/^w\([0-9]\+\).*/\1/')"
     let 'window_number += 1'
-    win_num_prefix="${window_number}. "
   fi
 
-  printf "${win_num_prefix}"
+  printf "%s" "${window_number}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
