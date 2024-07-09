@@ -10,30 +10,6 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# 2020-01-02: (lb): My first attempt using PROMPT_COMMAND failed,
-# but then I learned that trapping DEBUG is the proper way. In any
-# case, for posterity:
-#
-#   _fries_term_hook () {
-#     # Works: Shows up before PS4 prompt, e.g.,
-#     #       123user@host:/ $
-#     #  echo -n "123"
-#     # Fails: Shows before PS4, e.g.,
-#     #      ]0;echo -en ""user@host:/ $
-#     #  echo -en "\033]0;${BASH_COMMAND}\007"
-#     # Fails: Prints line before every prompt, e.g.,
-#     #     echo "${BASH_COMMAND}" 1>&2
-#     #     user@host:/ $
-#     #  >&2 echo "${BASH_COMMAND}"
-#     :
-#   }
-#
-#   _hf_hook_titlebar_update () {
-#     if [[ ! ${PROMPT_COMMAND} =~ "_fries_term_hook" ]]; then
-#       PROMPT_COMMAND="_fries_term_hook;${PROMPT_COMMAND}"
-#     fi
-#   }
-
 # Show the currently running command name in the window titlebar.
 # - Even though this special title is often short-lived, just in
 #   case it's a long-running process, we'll show the window number
