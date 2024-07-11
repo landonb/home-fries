@@ -147,6 +147,7 @@ _hf_print_terminal_window_number_iterm () {
 # - I.e., `[ "${TERM}" = "alacritty" ]` is not a robust suss in this fcn.
 
 _hf_print_terminal_window_number_alacritty () {
+  # FTREQ/2024-07-10: Try Alacritty on Linux and update this fcn.
   if ! os_is_macos; then
 
     return 1
