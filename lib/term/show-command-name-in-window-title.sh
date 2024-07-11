@@ -139,11 +139,20 @@ _hf_print_terminal_window_number_iterm () {
 
 # ***
 
-# NOTED: Besides TERM, another Alacritty suss, at least on macOS:
-#   ps -p $PPID -o comm | tail -1 | grep "^/Applications/Alacritty.app"
+# SAVVY: Alacritty defaults the TERM environ to 'alacritty', but that
+# can break (old) apps that use (old) ncurses to decide if they can
+# run properly.
+# - And the user might otherwise set a different TERM in Alacritty.toml.
+# - So don't rely on TERM, but suss the parent process.
+# - I.e., `[ "${TERM}" = "alacritty" ]` is not a robust suss in this fcn.
 
 _hf_print_terminal_window_number_alacritty () {
-  if [ "${TERM}" != "alacritty" ] || ! os_is_macos; then
+  if ! os_is_macos; then
+
+    return 1
+  fi
+
+  if ! ps -p $PPID -o comm | tail -1 | grep -q "^/Applications/Alacritty.app"; then
 
     return 1
   fi
