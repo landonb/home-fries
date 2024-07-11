@@ -146,6 +146,24 @@ _hf_print_terminal_window_number_iterm () {
 # - So don't rely on TERM, but suss the parent process.
 # - I.e., `[ "${TERM}" = "alacritty" ]` is not a robust suss in this fcn.
 
+# BUGGY/2024-07-10: Ha, the `borders` service hides the border when
+# you first open a new Alacritty window and this function runs.
+# - TRYME: Add a `return 1` atop this function, and (supposing you
+#   use `borders`, because Alacritty doesn't draw one on macOS),
+#   you'll see the border drawn around the new Alacritty window.
+#   - But remove the `return 1` and let this function suss the
+#     window number, and then the `borders` border disappears
+#     until you refocus the window (i.e., bring another window
+#     front, then return to the new Alacritty window).
+# - SAVVY: It's the .osa script, but I don't know why.
+#   - But it's not a bothersome issue, because I rarely need to
+#     restart Alacritty.
+#   - Interesting nonetheless tho.
+# - OHHHK: Weird, it's not the whole border that goes missing,
+#   just the Alacritty window border that overlaps other Alacritty
+#   windows. But parts of the border that overlap other apps or
+#   the Finder are still borderful (drawn).
+
 _hf_print_terminal_window_number_alacritty () {
   # FTREQ/2024-07-10: Try Alacritty on Linux and update this fcn.
   if ! os_is_macos; then
