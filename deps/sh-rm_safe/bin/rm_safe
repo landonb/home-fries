@@ -7,7 +7,19 @@ RM_SAFE_TRASH_HOME="${RM_SAFE_TRASH_HOME:-${HOME}}"
 
 # ***
 
-RM_SAFE_TRASH_NAME=".trash"
+# USYNC: In lieu of sourcing a common lib file, keep
+#        the RM_SAFE_FIRST_TRASH environ synced. See:
+#           ~/.kit/sh/sh-rm_safe/bin/rm_safe
+#           ~/.kit/sh/sh-rm_safe/bin/rm_rotate
+set_environs () {
+  if ! os_is_macos; then
+    RM_SAFE_FIRST_TRASH="${RM_SAFE_FIRST_TRASH:-.trash0}"
+    # RM_SAFE_FINAL_TRASH="${RM_SAFE_FINAL_TRASH:-.trash}"
+  else
+    RM_SAFE_FIRST_TRASH="${RM_SAFE_FIRST_TRASH:-.Trash0}"
+    # RM_SAFE_FINAL_TRASH="${RM_SAFE_FINAL_TRASH:-.Trash}"
+  fi
+}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -32,7 +44,7 @@ source_deps () {
       # NOTE: `dash` complains if missing './'.
       . "${path}"
     else
-      local depstxt=''
+      local depstxt=""
       [ "${prfx}" != "." ] && depstxt="in ‘${prfx}/${depd}’ or "
       >&2 echo "MISSING: ‘${file}’ not found ${depstxt}on PATH."
       depsnok=true
@@ -90,8 +102,8 @@ _sh_rm_safe_device_filepath_for_path () {
 _sh_rm_safe_device_filepath_for_path_file () {
   local file="$1"
 
-  local device_path=''
-  local usage_report=''
+  local device_path=""
+  local usage_report=""
 
   # NOTE: We could use awk to get the second line of output, e.g.,
   #   usage_report=$(/bin/df -T "$1")
@@ -113,7 +125,7 @@ _sh_rm_safe_device_filepath_for_path_file () {
     # Linux df (without -T):
     #   device_path="$(echo "${usage_report}" | tr -s ' ' | cut -d ' ' -f6)"
     # Linux- and macOS-compatible:
-    device_path="$(echo "${usage_report}" | tr -s ' ' | rev | cut -d' ' -f1 | rev)"
+    device_path="$(echo "${usage_report}" | tr -s " " | rev | cut -d" " -f1 | rev)"
     _trace "usage_report=${usage_report}"
   else
     # 2020-08-25: Does this happen only on ${file} not found? (lb): I think so.
@@ -159,8 +171,8 @@ _sh_rm_safe_ensure_trashdir () {
     #   happen? This smells like a DEV issue, not the user's.
     # - Note that RM_SAFE_TRASH_HOME must be nonempty, so not here for that
     #   reason.
-    >&2 echo 'rm_safe: (DEV) ERROR: No $TRASH_FS_MOUNT (‘’) determined, what gives?'
-  elif [ -f "${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}" ]; then
+    >&2 echo "rm_safe: (DEV) ERROR: No $TRASH_FS_MOUNT (‘’) determined, what gives?"
+  elif [ -f "${TRASH_FS_MOUNT}/${RM_SAFE_FIRST_TRASH}" ]; then
     ensured=2  # So caller invokes `rm -i`.
 
     # Similar too Bash v4+ associate array:
@@ -173,7 +185,7 @@ _sh_rm_safe_ensure_trashdir () {
       eval "previously_printed_trash_disabled_notice${fs_of_item}='1'"
     fi
   else
-    if [ ! -e "${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}" ]; then
+    if [ ! -e "${TRASH_FS_MOUNT}/${RM_SAFE_FIRST_TRASH}" ]; then
       ensured=0
       # 2022-02-14: Choose your poison:
       #  _sh_rm_safe_prompt_missing_trashdir_options_v1 "${fs_of_item}" \
@@ -183,7 +195,7 @@ _sh_rm_safe_ensure_trashdir () {
         || ensured=$?  # For return values, see #ensured_legend
     fi
 
-    if [ -d "${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}" ]; then
+    if [ -d "${TRASH_FS_MOUNT}/${RM_SAFE_FIRST_TRASH}" ]; then
       ensured=4  # So caller proceeds normally (and removes item to trash).
     fi
   fi
@@ -199,9 +211,9 @@ _sh_rm_safe_prompt_missing_trashdir_options_v1 () {
   local ensured=0
 
   # v1 preso option.
-  local echo_boxy=true
+  local echo_boxy=${RM_SAFE_ECHO_BOXY:-true}
 
-  >&2 printf '%b\n' \
+  >&2 printf "%b\n" \
     "No root-level trash found for device ‘$(fg_lavender)${fs_of_item}$(attr_reset)’"
 
   local sudo_prefix=""
@@ -215,7 +227,7 @@ _sh_rm_safe_prompt_missing_trashdir_options_v1 () {
     # - Note this is not the case that the user has encrypted the
     #   entire drive. Just their home directory.
     >&2 echo
-    >&2 echo "No root trash directory ‘/${RM_SAFE_TRASH_NAME}’ found on root device ‘/’"
+    >&2 echo "No root trash directory ‘/${RM_SAFE_FIRST_TRASH}’ found on root device ‘/’"
     >&2 echo
     >&2 echo "- Possibly because your home is encrypted, good job!"
     >&2 echo
@@ -224,20 +236,20 @@ _sh_rm_safe_prompt_missing_trashdir_options_v1 () {
 
     # <Sigh> Technically this works, because `local` variables from parent
     # are visible/settable from child functions. But it still feels weird.
-    TRASH_FS_MOUNT=''
+    TRASH_FS_MOUNT=""
   fi
 
   if ${echo_boxy}; then
-    printf '%s\n' "┌──────────────────────${TRASH_FS_MOUNT//?/─}─────────────┐"
-    printf '%s\n' "│ Create new trash at ‘${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}’ ?   │"
-    printf '%s'   "│ Create trash? [y/N]:              ${TRASH_FS_MOUNT//?/ }│"
-    printf '\r'
-    printf '%s'   "│ Create trash? [y/N]: "
+    printf "%s\n" "┌──────────────────────${TRASH_FS_MOUNT//?/─}─────────────┐"
+    printf "%s\n" "│ Create new trash at ‘${TRASH_FS_MOUNT}/${RM_SAFE_FIRST_TRASH}’ ?   │"
+    printf "%s"   "│ Create trash? [y/N]:              ${TRASH_FS_MOUNT//?/ }│"
+    printf "\r"
+    printf "%s"   "│ Create trash? [y/N]: "
   else
-    >&2 printf '%b\n' \
-      "- HINT: To skip this ask: $(fg_lavender)touch ${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}$(attr_reset)"
-    printf '%b' \
-      "rm_safe: create a new trash at ‘$(fg_lavender)${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}$(attr_reset)’? [y/N] "
+    >&2 printf "%b\n" \
+      "- HINT: To skip this ask: $(fg_lavender)touch ${TRASH_FS_MOUNT}/${RM_SAFE_FIRST_TRASH}$(attr_reset)"
+    printf "%b" \
+      "rm_safe: create a new trash at ‘$(fg_lavender)${TRASH_FS_MOUNT}/${RM_SAFE_FIRST_TRASH}$(attr_reset)’? [y/N] "
   fi
 
   read the_choice
@@ -246,16 +258,16 @@ _sh_rm_safe_prompt_missing_trashdir_options_v1 () {
     ensured=3  # So caller asks to move to home-trash; or invokes `rm -i`.
     if ${echo_boxy}; then
       >&2 echo "│ HINT: To disable this ask:        ${TRASH_FS_MOUNT//?/ }│"
-      >&2 echo "│          touch ${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}            │"
+      >&2 echo "│          touch ${TRASH_FS_MOUNT}/${RM_SAFE_FIRST_TRASH}            │"
       >&2 echo "└──────────────────────${TRASH_FS_MOUNT//?/─}─────────────┘"
     fi
   else
     # Parent sets ensured=4 in a later [ -d ].
-    ${sudo_prefix} mkdir -p "${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}"
+    ${sudo_prefix} mkdir -p -- "${TRASH_FS_MOUNT}/${RM_SAFE_FIRST_TRASH}"
 
     if [ -n "${sudo_prefix}" ]; then
-      sudo chgrp staff "/${RM_SAFE_TRASH_NAME}"
-      sudo chmod 2775 "/${RM_SAFE_TRASH_NAME}"
+      sudo chgrp staff "/${RM_SAFE_FIRST_TRASH}"
+      sudo chmod 2775 "/${RM_SAFE_FIRST_TRASH}"
     fi
   fi
 
@@ -267,17 +279,20 @@ _sh_rm_safe_prompt_missing_trashdir_options_v1 () {
 _sh_rm_safe_prompt_missing_trashdir_options_v1_prompt_home_trash () {
   local trash_fs_mount="$1"
 
+  # v1 preso option.
+  local echo_boxy=${RM_SAFE_ECHO_BOXY:-true}
+
   local ensured=3
 
   if ${echo_boxy}; then
-    printf '%s\n' "┌────────────────────────${trash_fs_mount//?/─}───────────┐"
-    printf '%s\n' "│ Move to main trash at ‘${trash_fs_mount}/${RM_SAFE_TRASH_NAME}’ ? │"
-    printf '%s'   "│ Move item? [y/N]:                 ${trash_fs_mount//?/ }│"
-    printf '\r'
-    printf '%s'   "│ Move item? [y/N]: "
+    printf "%s\n" "┌────────────────────────${trash_fs_mount//?/─}───────────┐"
+    printf "%s\n" "│ Move to main trash at ‘${trash_fs_mount}/${RM_SAFE_FIRST_TRASH}’ ? │"
+    printf "%s"   "│ Move item? [y/N]:                 ${trash_fs_mount//?/ }│"
+    printf "\r"
+    printf "%s"   "│ Move item? [y/N]: "
   else
-    printf '%b' \
-      "rm_safe: move item to trash at ‘$(fg_lavender)${trash_fs_mount}/${RM_SAFE_TRASH_NAME}$(attr_reset)’? [y/N] "
+    printf "%b" \
+      "rm_safe: move item to trash at ‘$(fg_lavender)${trash_fs_mount}/${RM_SAFE_FIRST_TRASH}$(attr_reset)’? [y/N] "
   fi
 
   read the_choice
@@ -318,7 +333,7 @@ _sh_rm_safe_prompt_missing_trashdir_options_v2 () {
 
   # For return values, see #ensured_legend
   local ensured=0
-  _sh_rm_safe_prompt_missing_trashdir_read_choice_and_react \
+  _sh_rm_safe_prompt_missing_trashdir_read_choice_and_react "${nitems_to_go}" \
     || ensured=$?
 
   PREVIOUSLY_PRINTED_MISSING_TRASHDIR_PROMPT=true
@@ -361,14 +376,14 @@ _sh_rm_safe_verify_non_root_trash_fs_mount () {
 _sh_rm_safe_prompt_missing_trashdir_print_notice () {
   local fs_of_item="$1"
 
-  >&2 printf '%b\n' \
+  >&2 printf "%b\n" \
     "NOTICE: There's no device trash for ‘$(fg_lavender)${fs_of_item}$(attr_reset)’"
 }
 
 _sh_rm_safe_prompt_missing_trashdir_print_header () {
   local item_path="$1"
 
-  # SYNC_ME: There are 66 spaces between "‘${item_path}’" and "│" if item_path=''.
+  # SYNC_ME: There are 66 spaces between "‘${item_path}’" and "│" if item_path="".
   let "ftype_nspaces = 66 - ${#item_path}"
   local ftype_postfix=""
   # Only print "│"  if we're padding, otherwise let path extend past right pipe boundary.
@@ -394,6 +409,10 @@ _sh_rm_safe_prompt_missing_trashdir_print_header () {
 _sh_rm_safe_prompt_missing_trashdir_print_options () {
   local trash_fs_mount="$1"
   local nitems_to_go="$2"
+
+  local device_trash="${trash_fs_mount}/${RM_SAFE_FIRST_TRASH}"
+
+  local main_trash="${RM_SAFE_TRASH_HOME}/${RM_SAFE_FIRST_TRASH}"
 
   # ***
 
@@ -422,11 +441,10 @@ _sh_rm_safe_prompt_missing_trashdir_print_options () {
 
   # ***
 
-  local device_trash="${trash_fs_mount}/${RM_SAFE_TRASH_NAME}"
-
-  # SYNC_ME: There are 59 spaces between "‘${device_trash}’" and "│" if device_trash=''.
+  # SYNC_ME: There are 59 spaces between "‘${device_trash}’" and "│" if device_trash="".
   # - E.g.,
   #     │          ‘’                                                           │
+  #                  12345678901234567890123456789012345678901234567890123456789
   let "device_trash_nspaces = 59 - ${#device_trash}"
   local device_trash_postfis=""
   # Only print "│"  if we're padding, otherwise let path extend past right pipe boundary.
@@ -439,8 +457,6 @@ _sh_rm_safe_prompt_missing_trashdir_print_options () {
 
   # ***
 
-  local main_trash="${RM_SAFE_TRASH_HOME}/${RM_SAFE_TRASH_NAME}"
-
   # SYNC_ME: There are 59 spaces between "‘${main_trash}’" and "│" if main_trash=''.
   # - E.g.,
   #     │          ‘’                                                           │
@@ -452,6 +468,15 @@ _sh_rm_safe_prompt_missing_trashdir_print_options () {
     # CRUMB: Same outcome as another repeat character trick:
     #  let "main_trash_nspaces = 66 - ${#main_trash} + 1"  # Add one for '│'
     #  main_trash_postfis="$(eval "printf '%*s' ${main_trash_nspaces} '│'")"
+  fi
+
+  # ***
+
+  local will_create_main_trash=""
+  if [ "$(realpath -- "${device_trash}")" = "$(realpath -- "${main_trash}")" ]; then
+    will_create_main_trash="\
+│                                                                       │
+│       ** Note this will create the trash directory                    │"
   fi
 
   # ***
@@ -470,6 +495,7 @@ ${text_move_all_items_to_new_trash}
 ${text_move_this_item_to_main_trash}
 │          ‘${main_trash}’${main_trash_postfis}\
 ${option_send_all_to_main_trash}
+${will_create_main_trash}
 │                                                                       │
 │ ► ↳   [<Enter>] is the same as [m]: use main trash for current item   │
 │                                                                       │
@@ -490,18 +516,24 @@ ${option_obliterate_all_items}
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 _sh_rm_safe_prompt_missing_trashdir_read_choice_and_react () {
+  local nitems_to_go="$1"
+
   read the_choice
 
-  local device_trash="${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}"
+  local device_trash="${TRASH_FS_MOUNT}/${RM_SAFE_FIRST_TRASH}"
+
+  local main_trash="${RM_SAFE_TRASH_HOME}/${RM_SAFE_FIRST_TRASH}"
 
   # For return values, see #ensured_legend
   if [ "${the_choice}" = "d" ]; then
-    mkdir -p "${device_trash}"
+    mkdir -p -- "${device_trash}"
 
     return 4  # All set! Tell caller to use ${TRASH_FS_MOUNT}/.trash.
   fi
 
   if [ "${the_choice}" = "m" ] || [ "${the_choice}" = "" ]; then
+    mkdir -p -- "${main_trash}"
+
     # <Sigh> Technically this works, because `local` variables from parent
     # are visible/settable from child functions. But it still feels weird.
     TRASH_FS_MOUNT="${RM_SAFE_TRASH_HOME}"
@@ -509,11 +541,13 @@ _sh_rm_safe_prompt_missing_trashdir_read_choice_and_react () {
     return 4  # All set! Tell caller to use ${TRASH_FS_MOUNT}/.trash.
   fi
 
-  if [ "${the_choice}" = "a" ]; then
-    TRASH_FS_MOUNT="${RM_SAFE_TRASH_HOME}"
-    TRASH_FS_MOUNT_LOCKED=true
+  if [ ${nitems_to_go} -gt 0 ]; then
+    if [ "${the_choice}" = "a" ]; then
+      TRASH_FS_MOUNT="${RM_SAFE_TRASH_HOME}"
+      TRASH_FS_MOUNT_LOCKED=true
 
-    return 4  # All set!
+      return 4  # All set!
+    fi
   fi
 
   if [ "${the_choice}" = "r" ]; then
@@ -524,14 +558,16 @@ _sh_rm_safe_prompt_missing_trashdir_read_choice_and_react () {
     return 22  # Call destructive `rm -rf` on current item.
   fi
 
-  if [ "${the_choice}" = "Ra" ]; then
-    return 32  # Call very destructive `rm -rf` on current and remaining items.
+  if [ ${nitems_to_go} -gt 0 ]; then
+    if [ "${the_choice}" = "Ra" ]; then
+      return 32  # Call very destructive `rm -rf` on current and remaining items.
+    fi
   fi
 
   if [ "${the_choice}" = "h" ]; then
     _sh_rm_safe_print_missing_trash_fs_mount_hint "${device_trash}"
 
-    return 1  # Printing hints when ask feels like a we're-done moment.
+    return 1
   fi
 }
 
@@ -540,7 +576,7 @@ _sh_rm_safe_prompt_missing_trashdir_read_choice_and_react () {
 _sh_rm_safe_print_missing_trash_fs_mount_hint () {
   local device_trash="$1"
 
-  local main_trash="${RM_SAFE_TRASH_HOME}/${RM_SAFE_TRASH_NAME}"
+  local main_trash="${RM_SAFE_TRASH_HOME}/${RM_SAFE_FIRST_TRASH}"
 
   local hint="
 ┌───────────────────────────────────────────────────────────────────────┐
@@ -549,7 +585,7 @@ _sh_rm_safe_print_missing_trash_fs_mount_hint () {
 
 - 1.) To always use a local device trash, choose 'd' or run:
 
-        mkdir \"${device_trash}\"
+        mkdir -- \"${device_trash}\"
 
 - 2.) To always ignore trash and call \`rm -i\`:
 
@@ -620,21 +656,25 @@ _sh_rm_safe_process_items () {
     # ensured=4 means the trash directory is prepared; move 'deleted' files there.
     local fname=${bname}
 
-    if [ -e "${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}/${fname}" ] || \
-       [ -h "${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}/${fname}" ]; \
+    if [ -e "${TRASH_FS_MOUNT}/${RM_SAFE_FIRST_TRASH}/${fname}" ] || \
+       [ -h "${TRASH_FS_MOUNT}/${RM_SAFE_FIRST_TRASH}/${fname}" ]; \
     then
       # Add a UUID fragment to generate a unique name.
       fname="${bname}.$(date +%Y_%m_%d_%Hh%Mm%Ss)-$(uuidgen | head -c8)"
     fi
 
+    _trace "command mv ${arg_verbose} -- \\
+      \"$(dirname -- "${item_path}")/${bname}\" \\
+      \"${TRASH_FS_MOUNT}/${RM_SAFE_FIRST_TRASH}/${fname}\""
+
     # If item_path is a symlink and includes a trailing slash, doing a raw mv:
-    #  command mv ${arg_verbose} -- "${item_path}" "${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}/${fname}"
+    #  command mv ${arg_verbose} -- "${item_path}" "${TRASH_FS_MOUNT}/${RM_SAFE_FIRST_TRASH}/${fname}"
     # causes a response like:
     #   mv: cannot move ‘symlink/’ to
     #    ‘/path/to/.trash/symlink.2015_12_03_14h26m51s_179228194’: Not a directory
     command mv ${arg_verbose} -- \
       "$(dirname -- "${item_path}")/${bname}" \
-      "${TRASH_FS_MOUNT}/${RM_SAFE_TRASH_NAME}/${fname}"
+      "${TRASH_FS_MOUNT}/${RM_SAFE_FIRST_TRASH}/${fname}"
   fi
 
   [ ${ensured} -ne 1 ] || return ${ensured}
@@ -896,7 +936,7 @@ rm_safe () {
   if [ -z "${RM_SAFE_TRASH_HOME}" ]; then
     # We set RM_SAFE_TRASH_HOME in this file, so if here, DEV's fault.
     # - Note we don't allow empty string, either.
-    >&2 echo 'rm_safe: No $RM_SAFE_TRASH_HOME (‘’), what gives?'
+    >&2 echo "rm_safe: No \$RM_SAFE_TRASH_HOME (‘’), what gives?"
 
     return 1
   fi
@@ -915,7 +955,7 @@ rm_safe () {
 # The trash can way!
 # You can disable the trash by running
 #   command rm -rf ~/.trash && touch ~/.trash
-# You can make the trash with `rmtrash` or `mkdir ~/.trash`,
+# You can make the trash with `mkdir ~/.trash`,
 # or run the `rm_safe` command and you'll be prompted.
 
 rm_safe_run () {
@@ -946,7 +986,7 @@ rm_safe_run () {
       || true
 
     local bname=$(basename -- "${item_path}")
-    if [ "${bname}" = '.' ] || [ "${bname}" = '..' ]; then
+    if [ "${bname}" = "." ] || [ "${bname}" = ".." ]; then
       continue
     fi
 
@@ -1063,6 +1103,12 @@ set_trash_fs_mount () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+os_is_macos () {
+  [ "$(uname)" = "Darwin" ]
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 clear_traps () {
   trap - EXIT INT
 }
@@ -1106,6 +1152,8 @@ main () {
   set -e
 
   set_traps
+
+  set_environs
 
   rm_safe "$@"
 

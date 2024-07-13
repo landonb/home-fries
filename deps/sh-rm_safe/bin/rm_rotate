@@ -3,38 +3,156 @@
 # Project: https://github.com/landonb/sh-rm_safe#🗑
 # License: MIT
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 RM_SAFE_TRASH_HOME="${RM_SAFE_TRASH_HOME:-${HOME}}"
 
+# USYNC: In lieu of sourcing a common lib file, keep
+#        the RM_SAFE_FIRST_TRASH environ synced. See:
+#           ~/.kit/sh/sh-rm_safe/bin/rm_safe
+#           ~/.kit/sh/sh-rm_safe/bin/rm_rotate
+set_environs () {
+  if ! os_is_macos; then
+    RM_SAFE_FIRST_TRASH="${RM_SAFE_FIRST_TRASH:-.trash0}"
+    RM_SAFE_FINAL_TRASH="${RM_SAFE_FINAL_TRASH:-.trash}"
+  else
+    RM_SAFE_FIRST_TRASH="${RM_SAFE_FIRST_TRASH:-.Trash0}"
+    RM_SAFE_FINAL_TRASH="${RM_SAFE_FINAL_TRASH:-.Trash}"
+  fi
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-echo_boxy=false
+# USAGE: Call rm_rotate to (finally) delete previoused trashed paths.
+# - rm_safe moves paths to an intermediate trash directory.
+# - rm_rotate then moves paths from the intermediate trash
+#   to a final trash directory.
+#   - rm_rotate empties the final trash directory first.
+# This is a just-in-case approach to removing files.
+# - E.g., suppose you remove a path, then later realize you didn't
+#   mean it. Because it was "safely" removed, you can dig it out
+#   of the trash.
+# - Adding an intermediate trash directory adds an additional
+#   just-in-case safety layer: Call rm_rotate occassionally to
+#   cleanup previously "deleted" files, but realize you have to
+#   call it *twice* to truly eradicate them.
+#   - I.e., call `rm_safe` to move a path to the intermediate
+#     trash. Then call `rm_rotate` to move intermediate trash
+#     paths to the final trash. Then call `rm_rotate` again to
+#     empty the final trash.
+# - In this manner, you can call rm_rotate periodically, e.g.,
+#   once a month or whatever, and you should't have to worry
+#   about accidentally deleting things.
+#
+# SAVVY: You could add a cron/anacron/launchd job to check the
+#        timestamp of the intermediate trash, and to call
+#        `rm_rotate` after a certain amount of time has elapsed.
+#        - E.g., call `rm_rotate` weekly, then you're assured
+#          that when you `rm_safe` something, it'll still be
+#          recoverable 1-2 weeks later. Probably enough time
+#          to realize if you removed something erroneously.
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# 2016-04-26: I added rm_rotate because, while trashes were being
-# created on different devices from rm_safe, rmtrash was only emptying
-# the trash in the user's home.
-#   Also: I find myself feeling more comfortable moving .trash to .trash-TBD
-#   for a while and then deleting the .trash-TBD, just in case I don't, say,
-#   in a week realize I deleted something. So here's a two-step trash:
-#   if you call rmtrash once, it'll temporarily backup the .trash dirs;
-#   when you call rmtrash again, it'll remove the last temporary backups.
-#   In this manner, you can call rmtrash periodically, like once a month
-#   or whatever, and you won't have to worry about accidentally deleting
-#   things.
-#   MAYBE: You could do an anacron check on the timestamp of the .trash-TBD
-#          and call rm_rotate after a certain amount of time has elapsed.
+# SAVVY/2024-07-12: Read on for why ~/.Trash0 is now the first trash
+#                   destination, because macOS:
+#
+# - This project, 10-yrs strong on Linux, has adapted itself for the
+#   macOS Trash.
+# - These rules now apply, because macOS:
+#   - The first "trash" location is a directory that other apps
+#     should not care about: ~/.Trash-TBD
+#   - The second "trash" location (once you rotate) is the normal
+#     macOS Trash: ~/.Trash
+#     - This is logically the same path this project has used on Linux
+#       for-ever, ~/.trash, because macOS uses a case-insensitive file
+#       system.
+#
+# DEETS: The author has used `rm_safe` for almost a decade on Linux, and
+#        only recently, moving to macOS, did I realize its preferred 
+#        ~/.trash location conflicts with the (honorable) macOS
+#        ~/.Trash directory (because macOS uses a case-insensitive
+#        file system for the main APFS Volume, these two paths are
+#        logically the same).
+# Furthermore:
+# - On @macOS, ~/.Trash has special permissions via ACL (Access Control
+#   Lists), and the directory cannot be renamed or moved.
+#   - Nor can apps (including terminal apps) read its contents without
+#     Full Disk Access permissions.
+#   - You can see the specific permissions with Apple's `ls` command
+#     (but not with Homebrew's (GNU) `ls`):
+#       $ /bin/ls -le -d ~/.Trash
+#       drwx------+ 207 user  staff  6624 Jul  8 21:58 /Users/user/.Trash
+#        0: group:everyone deny delete
+# - One option is to continue using the same trash name this command
+#   has used for years, albeit capitalized, e.g.,:
+#     os_is_macos && trash_name='.Trash'
+#   and to move individual paths out of it on rotation (e.g.,
+#   `mv ~/.Trash/* ~/.Trash-TDB`), rather than simply renaming the
+#   directory (`mv ~/.Trash ~/.Trash-TBD`) which macOS disallows.
+#   - But then rotated files are no longer protected like files in the
+#     honorable ~/.Trash.
+# - But does ACL on the ~/.Trash really matter?
+#   - If data being deleted is really that precious, won't the user
+#     `rm -rf` (or `rmrm`) the path instead of ~/.trash'ing it?
+#   - Also, why does a "deleted" file become *more* restricted when
+#     the user deletes it? (I.e., if Full Disk Access isn't needed to
+#     access a file in the user's home directory, why then when it's
+#     "deleted" (moved to ~/.Trash) does is suddenly gain extra-
+#     ordinary powers, er, access permissions?)
+# - In any case, from the author's time on Linux, I wouldn't expect
+#   my file trash to be as secure as Apple makes it.
+#   - Srsly, use `command rm -rf` if you're *that* worried.
+#     - (Which makes me ask: What is Apple worried about that's
+#       gonna access your trash? As a Dev, if you're already
+#       installing Brew apps and going to System Settings to
+#       tell macOS to not care that an app is unsigned... like,
+#       where are we here? Either I trust all that's running on my
+#       machine, or I'm a complete fool and some hacker or
+#       nation-state is spying on my right now as I type this, Gosh!)
+#   - Which also means I don't feel strongly one way or another which
+#     approach to take.
+#     - Also note what `rm_rotate` does: It maintains *two* trash
+#       directories. So if one is macOS's ~/.Trash, and one isn't,
+#       then one trash has enhanced ACL permissions, and one doesn't.
+#     - So it makes sense to use ~/.Trash as the final destination,
+#       and to use ~/.Trash0 (or whatever) as the first destination.
+#
+# Just remember:
+# - When you `rm_safe` a path, it goes to the preliminary ~/.Trash0
+# - When you `rm_rotate`, it empties ~/.Trash, and then ~/.Trash0
+#   files are moved to ~/.Trash
+# - Whatever terminal app you use on @macOS, it must have the
+#   Full Disk Access permission to view the ~/.Trash directory
+
+DRY_RUN=""
+# Uncomment for trace with rotate:
+#  DRY_RUN="echo"
 
 rm_rotate () {
-  local trash_name='.trash'
-  os_is_macos && trash_name='.Trash'
+  local first_trash="${RM_SAFE_FIRST_TRASH}"
+  local final_trash="${RM_SAFE_FINAL_TRASH}"
+
+  _rm_rotate_acl_can_delete_directory () {
+    local test_path="$1"
+
+    # Check @macOS ACL permissions using Apple ls's -e, e.g.,
+    #   $ /bin/ls -le -d ~/.Trash
+    #   drwx------+ 207 user  staff  6624 Jul  8 21:58 /Users/user/.Trash
+    #    0: group:everyone deny delete
+    # - Note also the '+' after flags to indicate ACL perms.
+    ! ( \
+      /bin/ls -le -d "${test_path}" 2> /dev/null \
+        | grep -q -e "group:everyone deny delete"
+      )
+  }
 
   _rm_rotate_enumerate_devices () {
     if command -v findmnt > /dev/null; then
-      local device_path=''
+      local device_path=""
       for device_path in $( \
         findmnt -l -t fuse.gocryptfs,fuse.encfs,ext4 -o TARGET --noheadings \
-          | grep -v '^/boot' \
+          | grep -v "^/boot" \
           | sort \
       ); do
         _rm_rotate_rotate_device_trash "${device_path}"
@@ -48,63 +166,79 @@ rm_rotate () {
   _rm_rotate_rotate_device_trash () {
     local device_path="$1"
 
-    local trash_path="${device_path}/${trash_name}"
-    [ "${device_path}" = "/" ] &&
-      trash_path="${RM_SAFE_TRASH_HOME}/${trash_name}"
+    local first_path
+    local final_path
 
-    if [ ! -d "${trash_path}" ]; then
-      echo "Skip! No trash at ‘${trash_path}’"
+    if [ "${device_path}" = "/" ]; then
+      first_path="${RM_SAFE_TRASH_HOME}/${first_trash}"
+      final_path="${RM_SAFE_TRASH_HOME}/${final_trash}"
+    else
+      first_path="${device_path}/${first_trash}"
+      final_path="${device_path}/${final_trash}"
+    fi
+
+    if [ ! -d "${final_path}" ]; then
+      echo "Skip! No trash at ‘${final_path}’"
 
       return 0
     fi
 
-    local to_be_deleted="${trash_path}-TBD"
-
     local yes_or_no=""
-    printf %s "Empty all items from trash at ‘${trash_path}’? [y/n] "
-    read -e yes_or_no
+    printf %s "Empty ‘${final_path}’, and replace with trash from ‘${first_path}’? [y/n] "
+    read yes_or_no
 
     # Bash-specific: [ "${yes_or_no^^}" = "Y" ]. POSIX-compatible:
-    if [ "$(first_char_capped ${yes_or_no})" != 'Y' ]; then
+    if [ "$(first_char_capped ${yes_or_no})" != "Y" ]; then
       [ -z "${yes_or_no}" ] && echo
-      echo "Skip! User said not to empty ‘${trash_path}’"
+      echo "Skip! User said not to empty ‘${first_path}’"
 
       return 0
+    fi
+
+    local trash_is_deletable=true
+    if ! _rm_rotate_acl_can_delete_directory "${first_path}"; then
+      trash_is_deletable=false
+    fi
+
+    local rotate_is_deletable=true
+    if ! _rm_rotate_acl_can_delete_directory "${final_path}"; then
+      rotate_is_deletable=false
     fi
 
     # Remove the TBD directory from last time.
     # - Note that rm_rotate is not time-based or anything: It rotates
-    #   only when user runs `rmtrash`. That is, it doesn't keep files
+    #   only when user runs `rm_rotate`. That is, it doesn't keep files
     #   for some set amount of time or anything; it keeps files until
-    #   the user runs `rmtrash`, then it deletes the former directory
+    #   the user runs `rm_rotate`, then it deletes the former directory
     #   and moves the active trash to the TBD position. Thus, if user
     #   wants to really permantently remove what's in the trash, they
     #   run rm_trash twice in a row.
-    if [ -d "${to_be_deleted}" ]; then
-      command rm -rf -- "${to_be_deleted}"
+    if [ -d "${final_path}" ]; then
+      # Check @macOS ACL permissions using Apple ls's -e, e.g.,
+      #   $ /bin/ls -le -d ~/.Trash
+      #   drwx------+ 207 user  staff  6624 Jul  8 21:58 /Users/user/.Trash
+      #    0: group:everyone deny delete
+      if ${rotate_is_deletable}; then
+        ${DRY_RUN} command rm -rf -- "${final_path}"
+      else
+        # I.e., ~/.Trash
+        ${DRY_RUN} command rm -rf -- "${final_path}"/*
+      fi
     fi
 
     # Avoid creating -TBD directory if trash already empty.
-    if [ -n "$(command ls -- "${trash_path}")" ]; then
-      # Trash not empty. Move to TBD position (will be deleted on next
-      # rm_rotate), and then create a new trash directory.
+    if [ -n "$(command ls -- "${first_path}")" ]; then
+      # First trash not empty. Move to final directory (which will be
+      # deleted on next rm_rotate), and then create a new first directory.
 
-      # BWARE: macOS ~/.Trash is protected, so cannot rename it.
-      # - INERT: Ideally, this check would inspect ~/.Trash ACL; but
-      #          it's easier to just check if macOS or not, and assume.
-      if ! os_is_macos; then
-        command mv -- "${trash_path}" "${to_be_deleted}"
-        command touch -- "${to_be_deleted}"
-        command mkdir -- "${trash_path}"
+      if ${trash_is_deletable} && ${rotate_is_deletable}; then
+        ${DRY_RUN} command mv -- "${first_path}" "${final_path}"
+        ${DRY_RUN} command touch -- "${final_path}"
+        ${DRY_RUN} command mkdir -p -- "${first_path}"
       else
         # SAVVY: Because ACL, cannot delete (or rename) ~/.Trash
-        #   @macOS $ /bin/ls -led ~/.Trash
-        #   drwx------+ 2 user  staff  64 May 26 13:10 /Users/user/.Trash
-        #   0: group:everyone deny delete
-
-        command mkdir -- "${to_be_deleted}"
-        command chmod 700 "${to_be_deleted}"
-
+        # This `mkdir` unnecessary but just to be clear.
+        ${DRY_RUN} command mkdir -p -- "${final_path}"
         # BWARE: Note the mv'ing ".*" includes "." and "..", which
         # generates warnings, e.g., on Linux:
         #   $ command mv -- foo/* foo/.* bar
@@ -120,12 +254,16 @@ rm_rotate () {
         #     local old_dot_glob
         #     old_dot_glob="$(shopt -p dotglob)"
         #     shopt -s dotglob
-        #     command mv -- "${trash_path}"/* "${to_be_deleted}"
+        #     command mv -- "${first_path}"/* "${final_path}"
         #     eval "${old_dot_glob}"
         # - Better yet, for POSIX compatibility, use `find`:
-        find "${trash_path}" -mindepth 1 -maxdepth 1 -name "*" \
-          -exec $(mv_kludge) -t "${to_be_deleted}" {} \+
+        ${DRY_RUN} \
+        find "${first_path}" -mindepth 1 -maxdepth 1 -name "*" \
+          -exec $(mv_kludge) -t "${final_path}" {} \+
       fi
+
+      command chmod 700 "${first_path}"
+      command chmod 700 "${final_path}"
     fi
   }
 
@@ -135,7 +273,7 @@ rm_rotate () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 first_char_capped () {
-  printf "$1" | cut -c1-1 | tr '[:lower:]' '[:upper:]'
+  printf "$1" | cut -c1-1 | tr "[:lower:]" "[:upper:]"
 }
 
 mv_kludge () {
@@ -193,6 +331,8 @@ main () {
   set -e
 
   set_traps
+
+  set_environs
 
   rm_rotate "$@"
 
