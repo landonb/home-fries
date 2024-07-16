@@ -606,7 +606,7 @@ home_fries_up () {
   run_and_unset "home_fries_configure_gpg_tty"
 
   # - lib/crypt/add_user_mlocate_db.sh
-  run_and_unset "home_fries_mlocate_wire_private_db"
+  run_and_unset "home_fries_locate_wire_private_db"
 
   #########################
 
