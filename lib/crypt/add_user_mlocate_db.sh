@@ -62,7 +62,7 @@
 #
 # 2.  Use stdin to feed database, as -d/--database cannot see all mounts.
 #
-#     Another reason to use the ``-`` database-on-stdin feature:
+#     Another reason to use the `-` database-on-stdin feature:
 #     `locate` apparently cannot access files on my fuse mount.
 #     E.g.,
 #
