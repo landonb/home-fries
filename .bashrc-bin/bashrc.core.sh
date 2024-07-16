@@ -289,7 +289,6 @@ source_alias_sources () {
 # ***
 
 source_crypt_sources () {
-  source_it "crypt/add_user_mlocate_db.sh"
   source_it "crypt/daemonize_gpg_agent.sh"
   source_it "crypt/is_mount_type_crypt.sh"
   source_it "crypt/set_environ_gpg_tty.sh"
@@ -604,9 +603,6 @@ home_fries_up () {
 
   # - lib/crypt/set_environ_gpg_tty.sh
   run_and_unset "home_fries_configure_gpg_tty"
-
-  # - lib/crypt/add_user_mlocate_db.sh
-  run_and_unset "home_fries_locate_wire_private_db"
 
   #########################
 
