@@ -262,12 +262,30 @@ rm_rotate () {
           -exec $(mv_kludge) -t "${final_path}" {} \+
       fi
 
-      command chmod 700 "${first_path}"
-      command chmod 700 "${final_path}"
+      _sh_rm_safe_ensure_trash_dir_with_proper_permissions "${first_path}"
+      _sh_rm_safe_ensure_trash_dir_with_proper_permissions "${final_path}"
     fi
   }
 
   _rm_rotate_enumerate_devices
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# COPYD: From rm_safe
+# - MAYBE: DRY: Add common lib file
+_sh_rm_safe_ensure_trash_dir_with_proper_permissions () {
+  local trash_dir="$1"
+
+  command mkdir -p -- "${trash_dir}"
+
+  command chmod 700 "${trash_dir}"
+
+  if os_is_macos; then
+    # Ensure ~/.Trash0 permissions like ~/.Trash
+    # - Though perhaps to 
+    command chmod +a "group:everyone deny delete" "${trash_dir}"
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
