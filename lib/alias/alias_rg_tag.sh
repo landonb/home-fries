@@ -79,6 +79,7 @@ home_fries_create_aliases_rg_tag_wrap () {
       --colors 'match:bg:white' \
       --glob '!.git/' \
       --glob '!.tox/' \
+      --glob '!node_modules/' \
       --glob '!*.svg' \
       --glob '!*.xpm' \
       "
