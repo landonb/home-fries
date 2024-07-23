@@ -3,6 +3,10 @@
 # Project: https://github.com/landonb/home-fries#🍟
 # License: MIT
 
+# INERT/2024-07-23: Replace (or Complement) this script with Hammerspoon
+# implementation (which could work on any terminal app; would be quicker;
+# and would be easier to maintain).
+
 # SAVVY: Alacritty is not scriptable.
 #
 # - E.g., this fails:
