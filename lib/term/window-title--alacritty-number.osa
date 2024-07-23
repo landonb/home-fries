@@ -27,36 +27,52 @@
 #   - REFER:
 #     https://stackoverflow.com/questions/33420848/applescript-get-title-of-a-window
 
-tell application "Alacritty"
-  activate
-end tell
+# DUNNO/2024-07-23: After testing Hammerspoon for a while tonight,
+# this AppleScript stopped detecting the window prefixed "1. "
+# (and then any time you opened a new terminal it was numbered 1).
+#
+# - It appears to do with this alternative tell-Alacritty approach:
+#
+#     tell application "Alacritty"
+#       activate
+#     end tell
+#
+#     tell application "System Events"
+#       -- Get the frontmost app's *process* object.
+#       set frontAppProcess to first application process whose frontmost is true
+#     end tell
+#
+#     # Tell the *process* to iterate its windows.
+#     tell frontAppProcess
+#       local numbersList
+#       set numbersList to { 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+#       ...
+#
+# - But using 'tell processes whose name is "Alacritty"'
+#   instead worked, and included the "missing" windows.
 
 tell application "System Events"
-  -- Get the frontmost app's *process* object.
-  set frontAppProcess to first application process whose frontmost is true
-end tell
+  tell processes whose name is "Alacritty"
+    local numbersList
+    set numbersList to { 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+    repeat with idx from 1 to length of numbersList
+      set currNum to item idx of numbersList
+      -- MAYBE: Maintain list of windows and remove when matches
+      --        so we don't iterate through full list every time
+      repeat with w in windows
+        tell w
+          if NAME of w starts with currNum & ". " then
+            set currNum to 0
 
-# Tell the *process* to iterate its windows.
-tell frontAppProcess
-  local numbersList
-  set numbersList to { 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-  repeat with idx from 1 to length of numbersList
-    set currNum to item idx of numbersList
-    -- MAYBE: Maintain list of windows and remove when matches
-    --        so we do n't iterate through full list every time
-    repeat with w in windows
-      tell w
-        if NAME of w starts with currNum & ". " then
-          set currNum to 0
+            exit repeat
+          end if
+        end tell
+      end repeat
 
-          exit repeat
-        end if
-      end tell
+      if currNum is not 0
+        return currNum
+      end if
     end repeat
-
-    if currNum is not 0
-      return currNum
-    end if
-  end repeat
+  end tell
 end tell
 
