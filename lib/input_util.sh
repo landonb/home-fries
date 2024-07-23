@@ -126,7 +126,8 @@ xinput_set_prop_touchpad_device_off () {
 
 logitech-middle-mouse-click-disable () {
   # 2020-08-24: Bail on no `lsusb` (e.g., macOS).
-  command -v lsusb > /dev/null || return
+  # - 2024-07-22: Though may be available from Homebrew; but not xinput.
+  ( command -v lsusb > /dev/null && command -v xinput > /dev/null ) || return
   # The function tail touches a skip-file after this function runs once.
   local suffix="-HOMEFRIES_SET_BUTTON_MAP"
   # See session_util.sh for touched_since_up.
