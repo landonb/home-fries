@@ -57,10 +57,16 @@ tell application "System Events"
     set numbersList to { 1, 2, 3, 4, 5, 6, 7, 8, 9 }
     repeat with idx from 1 to length of numbersList
       set currNum to item idx of numbersList
+      -- TRACE: Uncomment for trace:
+      --  log "Checking no. " & currNum
+
       -- MAYBE: Maintain list of windows and remove when matches
       --        so we don't iterate through full list every time
       repeat with w in windows
         tell w
+          -- TRACE: Uncomment for trace:
+          --  log "Title: " & NAME of w
+
           if NAME of w starts with currNum & ". " then
             set currNum to 0
 
