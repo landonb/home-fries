@@ -493,7 +493,8 @@ _sh_rm_safe_prompt_missing_trashdir_print_options () {
   if [ "$(realpath -- "${device_trash}")" = "$(realpath -- "${main_trash}")" ]; then
     will_create_main_trash="\
 │                                                                       │
-│       ** Note this will create the trash directory                    │"
+│       ** Note this will create the trash directory                    │
+"
   fi
 
   # ***
@@ -512,7 +513,7 @@ ${text_move_all_items_to_new_trash}
 ${text_move_this_item_to_main_trash}
 │          ‘${main_trash}’${main_trash_postfis}\
 ${option_send_all_to_main_trash}
-${will_create_main_trash}
+${will_create_main_trash}\
 │                                                                       │
 │ ► ↳   [<Enter>] is the same as [m]: use main trash for current item   │
 │                                                                       │
