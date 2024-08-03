@@ -45,7 +45,7 @@ main () {
 
 # Run the function if being executed.
 # Otherwise being sourced, so do not.
-if ! $(printf %s "$0" | grep -q -E '(^-?|\/)(ba|da|fi|z)?sh$' -); then
+if [ "$0" = "${BASH_SOURCE[0]}" ]; then
   main
 fi
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 # vim:tw=0:ts=2:sw=2:et:norl:ft=sh
 # Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
 # Project: https://github.com/landonb/home-fries#🍟
@@ -238,7 +238,8 @@ termdo-bash-reset () {
 
 # Run the function if being executed.
 # Otherwise being sourced, so do not.
-if ! $(printf %s "$0" | grep -q -E '(^-?|\/)(ba|da|fi|z)?sh$' -); then
+SCRIPT_NAME="termdo-all"
+if [ "$0" = "${BASH_SOURCE[0]}" ]; then
   termdo-all "$@"
 fi
 

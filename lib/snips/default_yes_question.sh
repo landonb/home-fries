@@ -35,7 +35,8 @@ first_char_capped () {
 
 # Run the function if being executed.
 # Otherwise being sourced, so do not.
-if ! $(printf %s "$0" | grep -q -E '(^-?|\/)(ba|da|fi|z)?sh$' -); then
+SCRIPT_NAME="default_yes_question.sh"
+if [ "$(basename -- "$(realpath -- "$0")")" = "${SCRIPT_NAME}" ]; then
   default_yes_question "$@"
 fi
 
