@@ -131,6 +131,7 @@ echo_dict () {
   #   fi
   # [lb] not sure there's a work around, other than, say, using Ruby or Perl
   # to write shell scripts.
+  # SAVVY: `declare -A` requires Bash v4 or better (fails on macOS Bash v3).
   declare -A dict
   local ix
   for ix in "${!dict[@]}"; do
