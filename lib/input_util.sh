@@ -212,40 +212,42 @@ middle-mouse-click-disable () {
 #   -u normal: Green stripe.
 #   -u critical: Red stripe.
 
-notifications-toggle () {
-  local force_state=$1
-  local notifsf="/usr/share/dbus-1/services/org.freedesktop.mate.Notifications.service"
-  if [[ ${force_state} -ne 1 && -e "${notifsf}" && ! -e "${notifsf}.disabled" ]]; then
-    sudo /usr/bin/env mv -- "${notifsf}" "${notifsf}.disabled"
-    info "Disabled desktop notifications!"
-  elif [[ ${force_state} -ne -1 && ! -e "${notifsf}" && -e "${notifsf}.disabled" ]]; then
-    sudo /usr/bin/env mv -- "${notifsf}.disabled" "${notifsf}"
-    info "Enabled desktop notifications!"
-  elif [[ -e "${notifsf}" && -e "${notifsf}.disabled" ]]; then
-    error "ERROR: Found live file and .disabled file. Don't know what to do!"
-  elif [[ ! -e "${notifsf}" && ! -e "${notifsf}.disabled" ]]; then
-    error "Did not find notifications file at: ${notifsf}"
-  # else ${force_state} -ne 0 and state already set.
-  fi
-}
+if ! os_is_macos; then
+  notifications-toggle () {
+    local force_state=$1
+    local notifsf="/usr/share/dbus-1/services/org.freedesktop.mate.Notifications.service"
+    if [[ ${force_state} -ne 1 && -e "${notifsf}" && ! -e "${notifsf}.disabled" ]]; then
+      sudo /usr/bin/env mv -- "${notifsf}" "${notifsf}.disabled"
+      info "Disabled desktop notifications!"
+    elif [[ ${force_state} -ne -1 && ! -e "${notifsf}" && -e "${notifsf}.disabled" ]]; then
+      sudo /usr/bin/env mv -- "${notifsf}.disabled" "${notifsf}"
+      info "Enabled desktop notifications!"
+    elif [[ -e "${notifsf}" && -e "${notifsf}.disabled" ]]; then
+      error "ERROR: Found live file and .disabled file. Don't know what to do!"
+    elif [[ ! -e "${notifsf}" && ! -e "${notifsf}.disabled" ]]; then
+      error "Did not find notifications file at: ${notifsf}"
+    # else ${force_state} -ne 0 and state already set.
+    fi
+  }
 
-nonotifs () {
-  eval "LOG_LEVEL=${LOG_LEVEL_INFO} notifications-toggle 0"
-}
+  nonotifs () {
+    eval "LOG_LEVEL=${LOG_LEVEL_INFO} notifications-toggle 0"
+  }
 
-desktop-notification-on () {
-  eval "LOG_LEVEL=${LOG_LEVEL_WARNING} notifications-toggle 1"
-}
+  desktop-notification-on () {
+    eval "LOG_LEVEL=${LOG_LEVEL_WARNING} notifications-toggle 1"
+  }
 
-desktop-notification-off () {
-  eval "LOG_LEVEL=${LOG_LEVEL_WARNING} notifications-toggle -1"
-}
+  desktop-notification-off () {
+    eval "LOG_LEVEL=${LOG_LEVEL_WARNING} notifications-toggle -1"
+  }
 
-# NOTE: notify-send still sometimes works after disabling notifications.
-#       It seems to eventually stick, though.
-desktop-notification-test () {
-  notify-send -i face-wink 'Wut Wut!' "Hello, Notified User!"
-}
+  # NOTE: notify-send still sometimes works after disabling notifications.
+  #       It seems to eventually stick, though.
+  desktop-notification-test () {
+    notify-send -i face-wink 'Wut Wut!' "Hello, Notified User!"
+  }
+fi
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
