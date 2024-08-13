@@ -83,6 +83,13 @@ _hf_jit_configure_manpath () {
     newpath="${local_man_path}:${newpath}"
   fi
 
+  # Homebrew man path already included, but it's after /usr/share/man.
+  # This results in, e.g., `man bash` showing Apple Bash v3 manual.
+  local brew_man_path="/opt/homebrew/share/man"
+  if [ -d "${brew_man_path}" ]; then
+    newpath="${brew_man_path}:${newpath}"
+  fi
+
   # NOTE: If you start MANPATH with a colon ':', or end it wth one ':',
   #       then `manpath` will combine with paths from /etc/manpath.config.
   #       So make sure MANPATH does not start or end with a colon, so that
@@ -161,7 +168,7 @@ _LOADED_HF_MANPATH_UTIL_MAN=false
 
 _hf_man_colorman () {
   # This is used if a less/termcap or less_termcap.sh file not found.
-  env \
+  command env \
     LESS_TERMCAP_mb="$(printf "\e[1;31m")" \
     LESS_TERMCAP_md="$(printf "\e[1;31m")" \
     LESS_TERMCAP_me="$(printf "\e[0m")" \
@@ -169,7 +176,7 @@ _hf_man_colorman () {
     LESS_TERMCAP_so="$(printf "\e[1;44;33m")" \
     LESS_TERMCAP_ue="$(printf "\e[0m")" \
     LESS_TERMCAP_us="$(printf "\e[1;32m")" \
-    /usr/bin/man "$@"
+    man "$@"
 }
 
 # `man` lazy-loader. Sneaky sneaky. Shaves tenth sec. or so off session start.
@@ -194,7 +201,7 @@ man () {
   fi
 
   if ${loaded_less_termcap}; then
-    /usr/bin/man "$@"
+    command man "$@"
   else
     _hf_man_colorman "$@"
   fi
