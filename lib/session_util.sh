@@ -109,6 +109,18 @@ home_fries_session_util_configure_aliases_bexit () {
     || return
 
   claim_alias_or_warn "bexit" "bash-exit-bash-hole"
+
+  _hf_bexit_deconflict_imagemagick_benchmark_xl
+}
+
+# Homefries defines a `bexit` command so you can easily exit subshells
+# but not the enclosing shell.
+# - So that you can `be<TAB>` to auto-complete `bexit` (and not have to
+#   type the longer `bex<TAB>`), remove the conflict from PATH search.
+# - REFER: /opt/homebrew/bin/benchmark_xl ->
+#     /opt/homebrew/Cellar/jpeg-xl/*/bin/benchmark_xl
+_hf_bexit_deconflict_imagemagick_benchmark_xl () {
+  EXECIGNORE="*/benchmark_xl:${EXECIGNORE}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
