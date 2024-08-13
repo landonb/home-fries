@@ -29,6 +29,7 @@ rmrm () {
   for path in "$@"; do
     if [ "/" = "${path}" ]; then
       >&2 echo "rmrm: refusing to remove ‘${path}’"
+
       return 1
     elif [ "." = "${path}" ] || [ ".." = "${path}" ]; then
       # 2020-04-07: MEH: We can continue, right?
@@ -43,6 +44,15 @@ rmrm () {
       # 2020-04-07: On second thought, I do not want to make this loop
       # more complicated. We'll just let /bin/rm print its message.
       :
+    else
+      local dirname
+      dirname="$(echo "${path}" | sed 's#/\+$##')"
+
+      if [ "${path}" != "${dirname}" ] && [ -h "${dirname}" ]; then
+        >&2 echo "rmrm: refusing to remove symlink target via ‘${path}’"
+
+        return 1
+      fi
     fi
   done
 
