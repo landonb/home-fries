@@ -185,6 +185,23 @@ killsomething () {
   return 0
 }
 
+# ***
+
+# On macOS, `pkill Chrome` leaves some windows open.
+# - The author did not investigate further.
+
+killall-chrome () {
+  if os_is_macos; then
+    ps aux \
+      | grep -e "/Applications/Google Chrome.app" \
+      | grep -v "grep .*\/Applications\/Google Chrome.app$" \
+      | awk '{ print $2; }' \
+      | xargs -n 1 kill -9
+  else
+    pkill chrome
+  fi
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
