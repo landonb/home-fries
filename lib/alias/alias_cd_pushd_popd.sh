@@ -27,6 +27,8 @@ home_fries_aliases_wire_cd_pushd_popd () {
     #   prefix.
     # - Use case: Copy-pasting browser location for local file.
     target="$(echo "${target}" | sed 's#^file://##')"
+    # Because pushd below use quotes, resolve the tilde.
+    target="$(echo "${target}" | sed "s*^\~*${HOME}*")"
 
     if [ -n "${target}" ]; then
       local retcode=0
