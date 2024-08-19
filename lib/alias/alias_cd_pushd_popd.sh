@@ -16,7 +16,8 @@ home_fries_aliases_wire_cd_pushd_popd () {
     local target="$1"
 
     if [ -n "$2" ]; then
-      echo 'You wish!' $*
+      >&2 echo 'Too many args'
+
       return 1
     fi
 
@@ -28,25 +29,29 @@ home_fries_aliases_wire_cd_pushd_popd () {
     target="$(echo "${target}" | sed 's#^file://##')"
 
     if [ -n "${target}" ]; then
+      local retcode=0
       pushd "${target}" &> /dev/null
+      retcode=$?
       # Same as:
       #  pushd -n "${target}" &> /dev/null
       #  cd "${target}"
-      if [ $? -ne 0 ]; then
+      if [ ${retcode} -ne 0 ]; then
         # Maybe the stupid user provided a path to a file.
         local pdir="$(dirname -- "${target}")"
         if [ -n "${pdir}" ] && [ '.' != "${pdir}" ]; then
           pushd "${pdir}" &> /dev/null
-          if [ $? -ne 0 ]; then
-            echo "You're dumb."
+          retcode=$?
+          if [ ${retcode} -ne 0 ]; then
+            >&2 echo "Not a directory: ${pdir}"
           else
-            # claim_alias_or_warn "errcho" ">&2 echo"
-            # echo blah >&2
-            >&2 echo "FYI: We popped you to a file's homedir, home skillet."
+            # >&2 echo "FYI: We popped you to a file's homedir, home skillet."
+            >&2 echo "FYI: You're in a parent directory of the requested path"
           fi
         else
-          echo "No such place."
+          >&2 echo "Not a path: ${target}"
         fi
+
+        return ${retcode}
       fi
     else
       pushd "${HOME}" &> /dev/null
