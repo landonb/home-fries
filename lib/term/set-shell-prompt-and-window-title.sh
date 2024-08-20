@@ -16,6 +16,12 @@ _hf_check_deps_set_shell_prompt () {
 # USAGE: Optional terminal window title user prefix
 DUBS_STICKY_PREFIX="${DUBS_STICKY_PREFIX}"
 
+# USAGE: Configure git-rebase indicator style
+# - 0: Off
+# - 1: Put parentheses around the host icon, e.g., (🍅)
+# - 2: Put parentheses around the prompt terminus, e.g., ($)
+HOMEFRIES_PS1_GIT_REBASE_STYLE=${HOMEFRIES_PS1_GIT_REBASE_STYLE:-2}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 _hf_prompt_is_user_logged_on_via_ssh () {
@@ -257,6 +263,14 @@ _hf_prompt_customize_shell_prompts_and_window_title () {
     remote_shell_icon="${u_horny}"
   fi
 
+  if [ ${HOMEFRIES_PS1_GIT_REBASE_STYLE:-0} -eq 1 ]; then
+    # 2024-08-19: Styles I demoed: (🍅) >🍅< ⟪🍅⟫ ⟬🍅⟭ ┃🍅┃
+    # - I also demoed other icons but none of these render
+    #   well in the macOS terminal good: ⏪ ☢️  ⚠️  🏁 
+    local_shell_icon='$([ -f "$(git root 2> /dev/null)/.git/rebase-merge/git-rebase-todo" ] && echo "('"${local_shell_icon}"')" || echo "'"${local_shell_icon}"'")'
+    remote_shell_icon='$([ -f "$(git root 2> /dev/null)/.git/rebase-merge/git-rebase-todo" ] && echo "('"${remote_shell_icon}"')" || echo "'"${remote_shell_icon}"'")'
+  fi
+
   _hf_prompt_customize_shell_prompt_PS1
   _hf_prompt_customize_shell_prompt_PS2
 }
@@ -298,6 +312,11 @@ _hf_prompt_customize_shell_prompt_PS1 () {
     return
   fi
 
+  local prompt_symbol="\$"
+  if [ ${HOMEFRIES_PS1_GIT_REBASE_STYLE:-0} -eq 2 ]; then
+    prompt_symbol='$([ -f "$(git root 2> /dev/null)/.git/rebase-merge/git-rebase-todo" ] && echo "(\$)" || echo "\$")'
+  fi
+
   # NOTE: Using "" below instead of '' so that ${titlebar} is resolved by the
   #       shell first.
   # ${HOMEFRIES_TRACE} && echo "PS1: Preparing prompt"
@@ -318,7 +337,7 @@ _hf_prompt_customize_shell_prompt_PS1 () {
 
         return
       fi
-      PS1="${titlebar}${bg_magenta}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_path}${basename}${attr_reset}\$ "
+      PS1="${titlebar}${bg_magenta}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_path}${basename}${attr_reset}${prompt_symbol} "
     elif os_is_macos || [ "$(cat /proc/version | grep Ubuntu)" ]; then
       # ${HOMEFRIES_TRACE} && echo "PS1: On Ubuntu"
       # 2015.03.04: I need to know when I'm in chroot hell.
@@ -330,24 +349,24 @@ _hf_prompt_customize_shell_prompt_PS1 () {
       if _hf_prompt_is_user_logged_on_via_ssh; then
         # 2018-12-23: Killer.
 
-        PS1="${titlebar}${fg_gray}${cur_user}$(attr_italic)$(attr_underline)$(fg_lightorange)@${mach_name}${attr_reset}:${fg_cyan}${basename}${attr_reset} ${remote_shell_icon} \$ "
+        PS1="${titlebar}${fg_gray}${cur_user}$(attr_italic)$(attr_underline)$(fg_lightorange)@${mach_name}${attr_reset}:${fg_cyan}${basename}${attr_reset} ${remote_shell_icon} ${prompt_symbol} "
       elif _hf_prompt_user_is_not_trapped_in_chroot; then
-        #PS1="${titlebar}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]\$ "
+        #PS1="${titlebar}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]${prompt_symbol} "
         # 2015.03.04: The chroot is Ubuntu 12.04, and it's Bash v4.2 does not
         #             support Unicode \uXXXX escapes, so use the escape in the
         #             outer. (Follow the directory path with an anchor symbol
         #             so I know I'm *not* in the chroot.)
         # With a colon between hostname and working directory:
-        #   PS1="${titlebar}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_cyan}${basename}${attr_reset} ${local_shell_icon} \$ "
+        #   PS1="${titlebar}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_cyan}${basename}${attr_reset} ${local_shell_icon} ${prompt_symbol} "
         # With a space between hostname and working directory, so double-click works.
-        #   PS1="${titlebar}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset} ${fg_cyan}${basename}${attr_reset} ${local_shell_icon} \$ "
+        #   PS1="${titlebar}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset} ${fg_cyan}${basename}${attr_reset} ${local_shell_icon} ${prompt_symbol} "
         # With a Unicode colon between hostname and working directory, so double-click works.
 
-        PS1="${titlebar}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}∶${fg_cyan}${basename}${attr_reset} ${local_shell_icon} \$ "
+        PS1="${titlebar}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}∶${fg_cyan}${basename}${attr_reset} ${local_shell_icon} ${prompt_symbol} "
         # 2015.02.26: Add git branch.
         #             Maybe... not sure I like this...
         #             maybe change delimiter and make branch name colorful?
-        #PS1="${titlebar}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]"'$(__git_ps1 "-%s" )\$ '
+        #PS1="${titlebar}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]"'$(__git_ps1 "-%s" )${prompt_symbol} '
       else
         # NOTE: Bash's $'...' sees \uXXXX unicode espace sequences, but not $"..."
         # See the Unicode character table: http://unicode-table.com/en/
@@ -362,7 +381,7 @@ _hf_prompt_customize_shell_prompt_PS1 () {
     elif [ "$(cat /proc/version | grep Red\ Hat)" ]; then
       # ${HOMEFRIES_TRACE} && echo "PS1: On Red Hat"
 
-      PS1="${titlebar}${fg_cyan}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_gray}${basename}${attr_reset}\$ "
+      PS1="${titlebar}${fg_cyan}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_gray}${basename}${attr_reset}${prompt_symbol} "
     else
       echo "WARNING: _hf_prompt_customize_shell_prompts_and_window_title: Not enough info. to set PS1."
     fi
@@ -377,7 +396,7 @@ _hf_prompt_customize_shell_prompt_PS1 () {
   #         PROMPT_COMMAND='echo -ne "\033]0;SOME TITLE HERE\007"'
   #       But the escapes don't work the same. E.g., this looks really funny:
   #         titlebar="\[\e]0;THIS IS A TEST\a\]"
-  #         PROMPT_COMMAND='printf '%b' "${titlebar}\[\033[01;36m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]\$ "'
+  #         PROMPT_COMMAND='printf '%b' "${titlebar}\[\033[01;36m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]${prompt_symbol} "'
 }
 
 # ***
