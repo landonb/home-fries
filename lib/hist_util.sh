@@ -150,9 +150,9 @@ home_fries_configure_history () {
   fi
 
   # Show timestamps in bash history.
-  #  See `strftime` in `man bash` for format.
-  #export HISTTIMEFORMAT="%d/%m/%y %T "
-  # 2017-11-19: How did I overlook this for so long? Should be like `TTT`.
+  # - REFER: See `strftime` in `man bash` for format.
+  # - E.g.,: export HISTTIMEFORMAT="%d/%m/%y %T "
+  # Format like Homefries' `TTT` alias.
   export HISTTIMEFORMAT="%Y-%m-%d %T "
 
   # Whenever displaying the prompt, write the previous line to disk.
