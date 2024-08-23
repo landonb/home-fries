@@ -136,7 +136,7 @@ home_fries_configure_history () {
   # "When a shell with history enabled exits, the last $HISTSIZE lines
   #  are copied from the history list to $HISTFILE."
   # "The shell sets the default value to 500 after reading any startup files."
-  if bash --version | grep "^GNU bash, version 3." > /dev/null; then
+  if "$0" --version | grep -q -e "^GNU bash, version 3\."; then
     # Ancient masOS Catalina Bash.
     # (lb): 2020-08-25: I tested, and HISTSIZE knows no limits, e.g.,
     #   $ export HISTSIZE="$(python3 -c "print(9'*99)")"
