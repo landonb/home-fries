@@ -97,9 +97,6 @@ home_fries_configure_history () {
     PROMPT_COMMAND="_hist_util_hook;${PROMPT_COMMAND}"
   fi
 
-  # 2017-02-20: HISTFILESIZE defaults to 500...
-  export HISTFILESIZE=-1
-
   # HISTIGNORE: A colon-separated list of patterns.
   # - Normal shell pattern matching characters.
   # - `&' matches the previous history line.
@@ -166,10 +163,15 @@ home_fries_configure_history () {
   #     HISTSIZE="$(python3 -c "print('9' * 99)")"  # Works!
   #   So we'll just stick w/ 10 million on v3.
   if "$0" --version 2>/dev/null | grep -q -e "^GNU bash, version 3\."; then
-    export HISTSIZE=1999999999
+    export HISTSIZE=10000000
+    # Bash v3 man: "If HISTFILESIZE is not set, no truncation is performed."
+    unset -v HISTFILESIZE
   else
     # Modern Bash.
     export HISTSIZE=-1
+    # Bash v5: "Non‐numeric values and numeric values less than zero inhibit
+    # truncation."
+    export HISTFILESIZE=-1
   fi
 
   # Show timestamps in bash history.
