@@ -138,13 +138,34 @@ home_fries_configure_history () {
   # "The shell sets the default value to 500 after reading any startup files."
   # -1: "Numeric values less than zero result in every command being saved on
   #      the history list (there is no limit)." (Bash v4+)
+  #
+  # BWARE/2024-08-22: Such BUGGN: There's a weird bug on macOS that'll
+  # spin your CPU and requires SIGKILL from a separate shell to recover,
+  # when you use certain HISTSIZE values.
+  # - E.g,. if you open a bare-bones Bash shell and export HISTSIZE=-1,
+  #   then run /bin/bash again (shell within a shell), the command hangs,
+  #   the CPU hits 100%, Ctrl-C fails, and you need the PID to kill it.
+  #   - TRYME: Run this to see for yourself:
+  #       # REFER: -i: The environment inherited by env is ignored completely.
+  #       env -i /bin/bash --norc --noprofile
+  #       export HISTSIZE=-1
+  #       /bin/bash
+  #       <HANGS!> <And runs hot>
+  # - KLUGE/2024-08-23: Avoid these HISTSIZE values that hang /bin/bash on macOS:
+  #     HISTSIZE=500           # Works
+  #     HISTSIZE=-1            # Fails
+  #     HISTSIZE=999999        # Works
+  #     HISTSIZE=9999999       # Works
+  #     HISTSIZE=99999999      # Works
+  #     HISTSIZE=999999999     # Works
+  #     HISTSIZE=1999999999    # Works
+  #     HISTSIZE=2147483648    # Hangs (2^31 32-bit unsigned int max)
+  #     HISTSIZE=9999999999    # Works (after earlier number hangs)
+  #     HISTSIZE=99999999999   # Works (after earlier number hangs)
+  #     HISTSIZE=999999999999  # Hangs
+  #     HISTSIZE="$(python3 -c "print('9' * 99)")"  # Works!
+  #   So we'll just stick w/ 10 million on v3.
   if "$0" --version 2>/dev/null | grep -q -e "^GNU bash, version 3\."; then
-    # Ancient masOS Catalina Bash.
-    # (lb): 2020-08-25: I tested, and HISTSIZE knows no limits, e.g.,
-    #   $ export HISTSIZE="$(python3 -c "print(9'*99)")"
-    #   $ echo $HISTSIZE
-    #   9999999999999999999999999999999... 999  # All 99 of them.
-    # We'll just keep it under 2^31 32-bit unsigned int max, to show my age.
     export HISTSIZE=1999999999
   else
     # Modern Bash.
