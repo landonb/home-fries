@@ -136,6 +136,8 @@ home_fries_configure_history () {
   # "When a shell with history enabled exits, the last $HISTSIZE lines
   #  are copied from the history list to $HISTFILE."
   # "The shell sets the default value to 500 after reading any startup files."
+  # -1: "Numeric values less than zero result in every command being saved on
+  #      the history list (there is no limit)." (Bash v4+)
   if "$0" --version 2>/dev/null | grep -q -e "^GNU bash, version 3\."; then
     # Ancient masOS Catalina Bash.
     # (lb): 2020-08-25: I tested, and HISTSIZE knows no limits, e.g.,
@@ -188,11 +190,9 @@ home_fries_configure_history () {
   # `history` "optional shell behavior ... settings"
   # ------------------------------------------------
 
-  # 2017-11-19: Bastards!
   # "If the histappend shell option is enabled..., the lines are appended to
   #  the history file, otherwise the history file is overwritten."
-  # So make bash append rather than overwrite the history on disk.
-  # 2017-11-19/MAYBE: The history file will only continue to grow! Watch it?
+  # - Here we enable the feature, to append, not overwrite, the history file.
   shopt -s histappend
 
   # histreedit: "If set, and readline is being used, a user is given
