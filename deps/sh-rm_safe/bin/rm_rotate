@@ -125,9 +125,9 @@ set_environs () {
 # - Whatever terminal app you use on @macOS, it must have the
 #   Full Disk Access permission to view the ~/.Trash directory
 
-DRY_RUN=""
+DRY_ECHO=""
 # Uncomment for trace with rotate:
-#  DRY_RUN="echo"
+#  DRY_ECHO="echo"
 
 rm_rotate () {
   local first_trash="${RM_SAFE_FIRST_TRASH}"
@@ -219,10 +219,10 @@ rm_rotate () {
       #   drwx------+ 207 user  staff  6624 Jul  8 21:58 /Users/user/.Trash
       #    0: group:everyone deny delete
       if ${rotate_is_deletable}; then
-        ${DRY_RUN} command rm -rf -- "${final_path}"
+        ${DRY_ECHO} command rm -rf -- "${final_path}"
       else
         # I.e., ~/.Trash
-        ${DRY_RUN} command rm -rf -- "${final_path}"/*
+        ${DRY_ECHO} command rm -rf -- "${final_path}"/*
       fi
     fi
 
@@ -232,13 +232,13 @@ rm_rotate () {
       # deleted on next rm_rotate), and then create a new first directory.
 
       if ${trash_is_deletable} && ${rotate_is_deletable}; then
-        ${DRY_RUN} command mv -- "${first_path}" "${final_path}"
-        ${DRY_RUN} command touch -- "${final_path}"
-        ${DRY_RUN} command mkdir -p -- "${first_path}"
+        ${DRY_ECHO} command mv -- "${first_path}" "${final_path}"
+        ${DRY_ECHO} command touch -- "${final_path}"
+        ${DRY_ECHO} command mkdir -p -- "${first_path}"
       else
         # SAVVY: Because ACL, cannot delete (or rename) ~/.Trash
         # This `mkdir` unnecessary but just to be clear.
-        ${DRY_RUN} command mkdir -p -- "${final_path}"
+        ${DRY_ECHO} command mkdir -p -- "${final_path}"
         # BWARE: Note the mv'ing ".*" includes "." and "..", which
         # generates warnings, e.g., on Linux:
         #   $ command mv -- foo/* foo/.* bar
@@ -257,7 +257,7 @@ rm_rotate () {
         #     command mv -- "${first_path}"/* "${final_path}"
         #     eval "${old_dot_glob}"
         # - Better yet, for POSIX compatibility, use `find`:
-        ${DRY_RUN} \
+        ${DRY_ECHO} \
         find "${first_path}" -mindepth 1 -maxdepth 1 -name "*" \
           -exec $(mv_kludge) -t "${final_path}" {} \+
       fi
