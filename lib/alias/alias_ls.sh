@@ -225,6 +225,22 @@ function lll () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# REFER: https://github.com/lsd-rs/lsd
+#   brew install lsd
+function lld () {
+  lsd -lhFa --color=always "$@"
+}
+
+# REFER: https://github.com/eza-community/eza
+#   brew install eza
+function llz () {
+  # 2024-09-16: I haven't read the `man`, this snip from:
+  #   https://stackoverflow.com/questions/78298133/
+  eza --icons --long --header
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # REFER: For macOS ACL features, use `/bin/ls`, e.g., `/bin/ls -led ~/.Trash`
 # - See `man ls` and `man chmod` for more on ACL.
 ls-or-gls () {
