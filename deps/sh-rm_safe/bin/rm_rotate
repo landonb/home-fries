@@ -283,7 +283,6 @@ _sh_rm_safe_ensure_trash_dir_with_proper_permissions () {
 
   if os_is_macos; then
     # Ensure ~/.Trash0 permissions like ~/.Trash
-    # - Though perhaps to 
     command chmod +a "group:everyone deny delete" "${trash_dir}"
   fi
 }
