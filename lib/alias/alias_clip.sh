@@ -6,6 +6,9 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# USAGE: echo "foo" | clip
+#
+# - Copies whatever is on stdin to the clipboard.
 home_fries_aliases_wire_clip () {
   claim_alias_or_warn "clip" "_hf_clip"
 }
