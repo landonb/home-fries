@@ -117,10 +117,19 @@ home_fries_direxpand_completions () {
 #   set your own completion file list.
 
 home_fries_load_completions () {
-  # See: `brew install bash-completion@2`
+  # Load all Homebrew completion files, both from bash-completion formula,
+  # also from individual formulas and casks.
+  #
+  # - See:
+  #
+  #     brew install bash-completion@2
+  #
+  #     command ls -1 /opt/homebrew/etc/bash_completion.d
+  # 
   # Verify loaded: [ "${BASH_COMPLETION_VERSINFO}" = "2" ] && echo LOADED
   if command -v brew > /dev/null; then
     if [ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]; then
+      # CXREF: /opt/homebrew/etc/profile.d/bash_completion.sh
       . "$(brew --prefix)/etc/profile.d/bash_completion.sh"
     fi
   fi
