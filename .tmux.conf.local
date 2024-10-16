@@ -443,6 +443,11 @@ tmux_conf_theme_status_right='#{prefix}#{pairing} | | #{username}#{root}|@#{host
 # Insert this snippet for weather:
 #
 #   #(curl "wttr.in/?format=1")
+#
+# - See also more reliable Open Weather Map (wttr.in ofter gets
+#   rate-limited by their upstream service):
+#
+#     https://openweathermap.org
 
 # ---------------------------------------------------------- #
 # -- display --- status left/right styles ------------------------------
