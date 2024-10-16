@@ -37,6 +37,9 @@
 
 # *** Developer options to enable trace and profiling
 
+# USAGE:
+# HOMEFRIES_TRACE=true HOMEFRIES_PROFILING=true HOMEFRIES_HELLO=true HOMEFRIES_LOADEDDOTS=true bash
+
 # YOU: Uncomment to enable logging to stdout:
 #  export HOMEFRIES_TRACE=${HOMEFRIES_TRACE:-true}
 export HOMEFRIES_TRACE=${HOMEFRIES_TRACE:-false}
