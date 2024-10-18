@@ -68,6 +68,7 @@ home_fries_create_aliases_rg_tag_wrap () {
   #   ~/.kit/sh/home-fries/lib/alias/alias_rg_tag.sh
   #   ~/.vim/pack/landonb/start/dubs_file_finder/plugin/dubs_file_finder.vim
   #   ~/.vim/pack/landonb/start/dubs_grep_steady/bin/vim-grepprg-rg-sort
+  # - Note ~/.[tT]rash0? per https://github.com/landonb/sh-rm_safe#🗑
   local rg_wrap_with_options=" \
     tag \
       --smart-case \
@@ -85,6 +86,10 @@ home_fries_create_aliases_rg_tag_wrap () {
       --glob '!node_modules/' \
       --glob '!*.svg' \
       --glob '!*.xpm' \
+      --glob '!.trash' \
+      --glob '!.trash0' \
+      --glob '!.Trash' \
+      --glob '!.Trash0' \
       "
 
   # `rgt` will search and wire the `e*` commands to open
