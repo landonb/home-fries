@@ -60,6 +60,8 @@ home_fries_create_aliases_rg_tag_wrap () {
   # [lb] 2019-01-06: BEWARE: --no-ignore-parent can be used to ignore .ignore's
   #   up the path. I mention it because the feature is easily forgotton when one
   #   is tracking down which .ignore file is resposible for a file being ignored.
+  # - ODDLY/2024-10-18: macOS `man rg` does not show '--no-ignore-parent'
+  #   or '--no-ignore-vcs', but `rg --help` does.
   # SAVVY: Testing shows `rg` skip graphics formats: *.jpg, *.png, *.xcf
   # USYNC: Similar rg --glob's:
   #   ~/.depoxy/ambers/home/.projlns/infuse-projlns-core.sh
