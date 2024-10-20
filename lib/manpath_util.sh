@@ -166,6 +166,24 @@ _hf_jit_configure_manpath () {
 #
 _LOADED_HF_MANPATH_UTIL_MAN=false
 
+# SAVVY/2024-10-19: On macOS, author used to alias man -> gman:
+#
+#   ~/.local/bin/man -> /opt/homebrew/bin/gman
+#
+# - But Homebrew's gman displays tilde (~) as accent tilde (˜).
+#
+# So we'll run Apple's `man`, but we'll redirect to stderr to
+# avoid an error message when viewing Homebrew man pages
+# that prints before the pager runs, e.g.:
+#
+#   $ /usr/bin/man /opt/homebrew/share/man/man1/bash.1
+#   This manpage is not compatible with mandoc(1) and might display incorrectly.
+#
+# - Which is funny, because it's `gman` that displays incorrectly!
+#
+# - In any case, we'll have to keep our eyes peeled to see if
+#   built-in man doesn't display Homebrew man pages correctly...
+
 _hf_man_colorman () {
   # This is used if a less/termcap or less_termcap.sh file not found.
   command env \
@@ -176,7 +194,7 @@ _hf_man_colorman () {
     LESS_TERMCAP_so="$(printf "\e[1;44;33m")" \
     LESS_TERMCAP_ue="$(printf "\e[0m")" \
     LESS_TERMCAP_us="$(printf "\e[1;32m")" \
-    man "$@"
+    man "$@" 2> /dev/null
 }
 
 # `man` lazy-loader. Sneaky sneaky. Shaves tenth sec. or so off session start.
@@ -201,7 +219,7 @@ man () {
   fi
 
   if ${loaded_less_termcap}; then
-    command man "$@"
+    command man "$@" 2> /dev/null
   else
     _hf_man_colorman "$@"
   fi
