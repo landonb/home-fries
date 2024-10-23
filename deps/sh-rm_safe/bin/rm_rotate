@@ -178,7 +178,13 @@ rm_rotate () {
     fi
 
     if [ ! -d "${final_path}" ]; then
-      echo "Skip! No trash at ‘${final_path}’"
+      echo "SKIPD: No trash found under ‘${device_path}’"
+      echo "- At least nothing found at ‘${final_path}’"
+
+      return 0
+    elif [ -h "${final_path}" ]; then
+      echo "SKIPD: Disregarding symlink ‘${final_path}’"
+      echo "- With final destination at ‘$(realpath -- "${final_path}")’"
 
       return 0
     fi
@@ -189,8 +195,11 @@ rm_rotate () {
 
     # Bash-specific: [ "${yes_or_no^^}" = "Y" ]. POSIX-compatible:
     if [ "$(first_char_capped ${yes_or_no})" != "Y" ]; then
-      [ -z "${yes_or_no}" ] && echo
-      echo "Skip! User said not to empty ‘${first_path}’"
+      if [ -z "${yes_or_no}" ]; then
+        echo
+      fi
+      # REFER: https://en.wikipedia.org/wiki/Sorry_Ma,_Forgot_to_Take_Out_the_Trash
+      echo "SKIPD: Sorry Ma, left trash ‘${first_path}’"
 
       return 0
     fi
@@ -212,7 +221,7 @@ rm_rotate () {
     #   the user runs `rm_rotate`, then it deletes the former directory
     #   and moves the active trash to the TBD position. Thus, if user
     #   wants to really permantently remove what's in the trash, they
-    #   run rm_trash twice in a row.
+    #   should run `rm_rotate` twice in a row.
     if [ -d "${final_path}" ]; then
       # Check @macOS ACL permissions using Apple ls's -e, e.g.,
       #   $ /bin/ls -le -d ~/.Trash
@@ -283,7 +292,12 @@ _sh_rm_safe_ensure_trash_dir_with_proper_permissions () {
 
   if os_is_macos; then
     # Ensure ~/.Trash0 permissions like ~/.Trash
-    command chmod +a "group:everyone deny delete" "${trash_dir}"
+    if ! command chmod +a "group:everyone deny delete" "${trash_dir}"; then
+      # E.g.,
+      #   chmod: Failed to set ACL on file '/Users/puck/.Trash': Operation not permitted
+
+      >&2 echo "ERROR: You may need to enable Full Disk Access on your terminal app"
+    fi
   fi
 }
 
