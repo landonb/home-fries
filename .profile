@@ -55,12 +55,12 @@ my_profile () {
 
     # 2020-02-06: (lb): Note that some environs are set when you logon to
     # your window manager, like `BASH=/bin/bash`, but not `BASH_VERSION`.
-    [ -n "$BASH_VERSION" ] || return 0
+    [ -n "${BASH_VERSION}" ] || return 0
 
     # Include .bashrc if it exists.
-    [ -f "$HOME/.bashrc" ] || return 0
+    [ -f "${HOME}/.bashrc" ] || return 0
 
-    HOMEFRIES_STARTUP=true . "$HOME/.bashrc"
+    HOMEFRIES_STARTUP=true . "${HOME}/.bashrc"
   }
 
   prepend_path_part () {
