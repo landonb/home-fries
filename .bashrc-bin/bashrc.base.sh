@@ -227,7 +227,9 @@ cleanup_loading_dots () {
   flash_elapsed () {
     [ -n "${time_0}" ] || return
     local elapsed
-    elapsed="$(HOMEFRIES_PROFILING= "${HOMEFRIES_BASHRCBIN}/../bin/echo-elapsed" "${time_0}")"
+    elapsed="$( \
+      HOMEFRIES_PROFILING= "${HOMEFRIES_BASHRCBIN}/../bin/echo-elapsed" "${time_0}"
+    )"
     printf "${elapsed} "
     sleep 0.666
     printf '\r'
@@ -370,7 +372,9 @@ source_private_scripts () {
   for func in source_privately invoke_privately; do
     ${func} "${privcore}" "core"
     ${func} "${privhost}" "host"
-    _SOURCE_IT_FINIS_OUTER=$(test ${func} = "invoke_privately" && echo true || echo false) \
+    _SOURCE_IT_FINIS_OUTER=$( \
+      test ${func} = "invoke_privately" && echo true || echo false
+    ) \
     ${func} "${privuser}" "user"
   done
 }
@@ -448,7 +452,9 @@ home_fries_bashrc_cleanup () {
 
   # Run the sourced-scripts' cleanup functions, to un-declare functions
   # (and remove cruft from user's environment).
-  for unset_f in $(declare -F | grep '^declare -f unset_f_' | /usr/bin/env sed 's/^declare -f //'); do
+  for unset_f in $( \
+    declare -F | grep '^declare -f unset_f_' | /usr/bin/env sed 's/^declare -f //'
+  ); do
     # Call all functions that begin with "unset_f_",
     # e.g., unset_f_alias_rg_tag, unset_f_alias_ohmyrepos, etc.
     eval "${unset_f}"
@@ -534,14 +540,21 @@ home_fries_bashrc_cleanup () {
 
     if ${print_msg_special}; then
       ${print_specially} \
-        "This ${bash_path} is a $(fg_lightgreen)$(attr_underline)special$(res_underline) bash!$(attr_reset)" \
-        "Version: $(fg_lightyellow)$(attr_underline)$(attr_bold)${bash_version}$(attr_reset)"
+        "This ${bash_path} is a $( \
+          fg_lightgreen)$(attr_underline \
+          )special$(res_underline) bash!$(attr_reset)" \
+        "Version: $( \
+          fg_lightyellow)$(attr_underline \
+          )$(attr_bold)${bash_version}$(attr_reset)"
     fi
 
     if ${print_msg_version}; then
       local elapsed_time
-      elapsed_time=$(HOMEFRIES_PROFILING=true HOMEFRIES_PROFILE_THRESHOLD=0 \
-                     print_elapsed_time "${HOMEFRIES_TIME0}" "" "" "s")
+      elapsed_time=$( \
+        HOMEFRIES_PROFILING=true \
+        HOMEFRIES_PROFILE_THRESHOLD=0 \
+        print_elapsed_time "${HOMEFRIES_TIME0}" "" "" "s"
+      )
 
       echo \
         "$(fg_lightgreen)Welcome to $(fg_yellow)Homefries on Bash" \
