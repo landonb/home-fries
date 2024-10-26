@@ -60,6 +60,15 @@ my_profile () {
     # Include .bashrc if it exists.
     [ -f "${HOME}/.bashrc" ] || return 0
 
+    # SAVVY/2024-10-25: Homefries is nonetheless fully loaded on Desktop login.
+    # - E.g.,, when logging on MATE, and:
+    #     [ "$0" = "/usr/sbin/lightdm-session" ]).
+    # - MAYBE: We could short circuit here, e.g.,
+    #     [ "$(realpath -- "$0")" = "bash" ] || return 0
+    #   though I (lb) only just noticed this,
+    #     I don't want to test if we don't,
+    #       and there's no harm if we do.
+
     HOMEFRIES_STARTUP=true . "${HOME}/.bashrc"
   }
 
