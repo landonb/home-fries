@@ -347,7 +347,9 @@ invoke_privately () {
   local piping=" ├"
 
   if declare -f ${main_fcn} > /dev/null; then
-    ${HOMEFRIES_TRACE} && echo " ${piping}─ Calling private “${srctype}” callback: ✓ ${main_fcn}"
+    if ${HOMEFRIES_TRACE}; then
+      echo " ${piping}─ Calling private “${srctype}” callback: ✓ ${main_fcn}"
+    fi
     local time_0="$(print_nanos_now)"
     ${main_fcn}
     unset -f ${main_fcn}
