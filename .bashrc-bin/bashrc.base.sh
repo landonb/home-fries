@@ -125,7 +125,10 @@ maybe_alert_ancient_bash () {
   #   and then called `bash` to load Homefries.
   # - Here's the naïve check, just FYÏ:
   #     [ ${BASH_VERSINFO[0]} -ge 4 ] && command -v realpath > /dev/null && return
-  local bash_vers="$(bash --version | head -1 | sed -r 's/GNU bash, version ([0-9]+).*/\1/')"
+  local bash_vers
+  bash_vers="$( \
+    bash --version | head -1 | sed -r 's/GNU bash, version ([0-9]+).*/\1/'
+  )"
 
   [ ${bash_vers} -lt 4 ] || return 0
 
