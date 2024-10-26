@@ -11,15 +11,14 @@ DUBS_STICKY_PREFIX_RE="${DUBS_STICKY_PREFIX_RE:-\\(Dubs\\) }"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# Called iff DUBS_ALWAYS_ON_VISIBLE=true.
 sleep_then_ensure_always_on_visible_desktop () {
-  if ${DUBS_ALWAYS_ON_VISIBLE:-false}; then
-    sleep 3  #  MAGIC_NUMBER: It takes a few seconds for Home Fries to load.
-    local winids
-    winids=($(wmctrl -l -p \
-      | /bin/grep -E "^0x[a-f0-9]{8} +-?[0-3] +[0-9]+ +$(hostname) +${DUBS_STICKY_PREFIX_RE}" \
-      | cut -d ' ' -f 1))
-    printf "%s\n" "${winids[@]}" | xargs -I % wmctrl -b add,sticky -i -r %
-  fi
+  sleep 3  #  MAGIC_NUMBER: It takes a few seconds for Home Fries to load.
+  local winids
+  winids=($(wmctrl -l -p \
+    | /bin/grep -E "^0x[a-f0-9]{8} +-?[0-3] +[0-9]+ +$(hostname) +${DUBS_STICKY_PREFIX_RE}" \
+    | cut -d ' ' -f 1))
+  printf "%s\n" "${winids[@]}" | xargs -I % wmctrl -b add,sticky -i -r %
 }
 
 home_fries_always_on_visible_desktop () {
