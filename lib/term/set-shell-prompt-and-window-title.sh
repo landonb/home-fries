@@ -32,12 +32,22 @@ _hf_prompt_is_user_logged_on_via_ssh () {
 
     return 0
   else
-    case $(ps -o comm= -p ${PPID}) in
-      sshd|*/sshd)
+    local command_name
+    # E.g., locally on LM MATE:
+    #   mate-terminal
+    # Or SSH to LM MATE:
+    #   sshd
+    # Or SSH to macoS:
+    #   sshd-session: user@ttys014
+    command_name="$(ps -o comm= -p ${PPID} | sed 's/:.*$//')"
+
+    case "${command_name}" in
+      sshd | sshd-session)
+        # DUNNO/2024-10-28: Not sure this branch ever followed, or
+        # if SSH_CLIENT/SSH_TTY checks always followed instead.
 
         return 0
         ;;
-      # mate-terminal) ...
       *)
 
         return 1
