@@ -4,7 +4,7 @@
 # License: MIT
 
 # INERT/2024-07-23: Replace (or Complement) this script with Hammerspoon
-# implementation (which could work on any terminal app; would be quicker;
+# implementation (which could work on any terminal app; might be quicker;
 # and would be easier to maintain).
 
 # SAVVY: Alacritty is not scriptable.
