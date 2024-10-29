@@ -50,7 +50,7 @@ _hf_set_iterm2_window_number_environ () {
       #   indistinguisable from the period that we'd otherwise use.
       ITERM2_WINDOW_NUMBER="${window_number}${DUBS_STICKY_INDICATOR:-․} "
     else
-      # This is just a normal period "." (and not the One Dot Leader).
+      # This is just a regular (Full Stop) period ".".
       ITERM2_WINDOW_NUMBER="${window_number}${DUBS_NORMAL_INDICATOR:-.} "
     fi
 
