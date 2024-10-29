@@ -3,6 +3,46 @@
 # Project: https://github.com/landonb/home-fries#🍟
 # License: MIT
 
+# USAGE/2024-10-29: If this script fails to run, permiss it.
+#
+# - Apple menu > System Settings...
+#     > Privacy & Security
+#       > Accessibility
+#         > ✓ [Your Favorite Term. App, e.g., Alacritty | iTerm | Terminal]
+# 
+# BWARE: If this script fails to run from Alacritty, and if Alacritty already
+# has Accessibility access, you might need to reset *all* Accessibility
+# permissions to recover.
+#
+# - E.g., if you see the following error:
+#
+#   $ osascript ~/.kit/sh/home-fries/lib/term/window-title--alacritty-number.osa
+#   /Users/user/.kit/sh/home-fries/lib/term/window-title--alacritty-number.osa:2389:2670:
+#     execution error: System Events got an error: osascript is not allowed assistive access. (-25211)
+#
+# and disable/enable Alacritty permissions and rebooting doesn't help, you
+# may need to reset all a11y permissions.
+#
+# - Run the following:
+#
+#     sudo tccutil reset Accessibility
+#
+# - And then cold reset, because that command will likely render
+#   all mouse and keyboard events nonresponsive.
+#
+# - Then reboot and reassign Accessibility permissions to all your apps
+#   (so maybe take a screenshot of Accessibility settings first, so you
+#   have a list of everything to restore).
+#
+# - REFER: See (Closed) Alacritty issue about this (because the resolution
+#   is to call `sudo tccutil reset Accessibility`, silly):
+#
+#     https://github.com/alacritty/alacritty/issues/7334
+#
+#   - See also DepoXy macOS ONBRD doc§:
+#
+#     https://github.com/DepoXy/depoxy/blob/release/docs/README-macOS-onboarding.rst#adhoc-reactivate-alacritty-assistive-access-if-osa-starts-failing
+
 # INERT/2024-07-23: Replace (or Complement) this script with Hammerspoon
 # implementation (which could work on any terminal app; might be quicker;
 # and would be easier to maintain).
