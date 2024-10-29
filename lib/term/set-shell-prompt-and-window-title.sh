@@ -13,9 +13,6 @@ _hf_check_deps_set_shell_prompt () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# USAGE: Optional terminal window title user prefix
-DUBS_STICKY_PREFIX="${DUBS_STICKY_PREFIX}"
-
 # USAGE: Configure git-rebase indicator style
 # - 0: Off
 # - 1: Put parentheses around the host icon, e.g., (🍅)
@@ -125,12 +122,6 @@ _hf_prompt_format_titlebar () {
 
   local endof_osc='\a'
 
-  local sticky_alert=''
-
-  if ${DUBS_ALWAYS_ON_VISIBLE:-false}; then
-    sticky_alert="${DUBS_STICKY_PREFIX}"
-  fi
-
   # Name this terminal window specially if special.
   # NOTE: This information comes from Gnome, where we've set the Gnome shortcut
   #       to pass this environment variable to us.
@@ -142,28 +133,28 @@ _hf_prompt_format_titlebar () {
     # echo "User not logged on via SSH"
     if [ "${HOMEFRIES_TITLE}" != '' ]; then
 
-      titlebar="\[\e]0;${winnum}${sticky_alert}${HOMEFRIES_TITLE}\a\]"
+      titlebar="\[\e]0;${winnum}${HOMEFRIES_TITLE}\a\]"
     elif _hf_prompt_user_is_not_trapped_in_chroot; then
       # Not in chroot jail.
       #  titlebar="\[\e]0;\u@\h:\w\a\]"
       #  titlebar="\[\e]0;\w:(\u@\h)\a\]"
       #  titlebar="\[\e]0;\w\a\]"
 
-      titlebar="\[\e]0;${winnum}${sticky_alert}${basename}\a\]"
+      titlebar="\[\e]0;${winnum}${basename}\a\]"
     else
       # In chroot jail.
-      titlebar="\[\e]0;${winnum}|-${sticky_alert}${basename}-|\a\]"
+      titlebar="\[\e]0;${winnum}|-${basename}-|\a\]"
     fi
   else
     # echo "User *is* logged on via SSH!"
     local -a choices
 
-  # choices+=("\[\e]0;${winnum}${sticky_alert}$(hostname) → ${basename}${endof_osc}\]")
-    choices+=("\[\e]0;${winnum}${sticky_alert}$(hostname) 🦉 ${basename}${endof_osc}\]")
-    choices+=("\[\e]0;${winnum}${sticky_alert}$(hostname) 👗 ${basename}${endof_osc}\]")
-    choices+=("\[\e]0;${winnum}${sticky_alert}$(hostname) 🌊 ${basename}${endof_osc}\]")
-    choices+=("\[\e]0;${winnum}${sticky_alert}$(hostname) 🌿 ${basename}${endof_osc}\]")
-    choices+=("\[\e]0;${winnum}${sticky_alert}$(hostname) 🍍 ${basename}${endof_osc}\]")
+  # choices+=("\[\e]0;${winnum}$(hostname) → ${basename}${endof_osc}\]")
+    choices+=("\[\e]0;${winnum}$(hostname) 🦉 ${basename}${endof_osc}\]")
+    choices+=("\[\e]0;${winnum}$(hostname) 👗 ${basename}${endof_osc}\]")
+    choices+=("\[\e]0;${winnum}$(hostname) 🌊 ${basename}${endof_osc}\]")
+    choices+=("\[\e]0;${winnum}$(hostname) 🌿 ${basename}${endof_osc}\]")
+    choices+=("\[\e]0;${winnum}$(hostname) 🍍 ${basename}${endof_osc}\]")
 
     # Using RANDOM builtin.
     titlebar="${choices[$RANDOM % 5]}"

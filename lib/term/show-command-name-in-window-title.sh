@@ -42,7 +42,17 @@ _hf_set_iterm2_window_number_environ () {
   window_number="$(_hf_print_terminal_window_number)"
 
   if [ -n "${window_number}" ]; then
-    ITERM2_WINDOW_NUMBER="${window_number}. "
+    if ${DUBS_ALWAYS_ON_VISIBLE:-false} && ! os_is_macos; then
+      # Use a special character so we can grep the title to determine if
+      # the mate-terminal window should be made sticky (aka it's kludgy).
+      # - CXREF: ~/.kit/sh/home-fries/lib/term/perhaps-always-on-visible-desktop.sh
+      # - Homefries uses a One Dot Leader (U+2024) that's visually
+      #   indistinguisable from the period that we'd otherwise use.
+      ITERM2_WINDOW_NUMBER="${window_number}${DUBS_STICKY_INDICATOR:-․} "
+    else
+      # This is just a normal period "." (and not the One Dot Leader).
+      ITERM2_WINDOW_NUMBER="${window_number}${DUBS_NORMAL_INDICATOR:-.} "
+    fi
 
     # For ssh, and if you run `bash` in an open terminal,
     # keep using the same window number.
@@ -208,12 +218,15 @@ _hf_print_terminal_window_number_mate_terminal () {
   
   local window_number=""
 
+  local dot_leader_group
+  dot_leader_group="\\(\\${DUBS_NORMAL_INDICATOR:-.}\\|${DUBS_STICKY_INDICATOR:-․}\\)"
+
   local assigned
   assigned="$( \
     wmctrl -l \
     | awk '{print $4}' \
-    | grep -e '^[0-9]\.$' \
-    | sed 's/\.$//' \
+    | grep -e "^[0-9]${dot_leader_group}\$" \
+    | sed "s/${dot_leader_group}\$//" \
     | sort \
     | uniq
   )"

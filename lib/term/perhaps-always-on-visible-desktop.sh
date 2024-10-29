@@ -6,8 +6,11 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-DUBS_STICKY_PREFIX="${DUBS_STICKY_PREFIX:-(Dubs) }"
-DUBS_STICKY_PREFIX_RE="${DUBS_STICKY_PREFIX_RE:-\\(Dubs\\) }"
+# Use a special character we can grep to determine if the mate-terminal
+# window is to be made sticky or not.
+# - Use a One Dot Leader - Unicode Character “․” (U+2024), i.e., looks
+#   like a normal period, but it's not.
+DUBS_STICKY_INDICATOR="․"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -17,7 +20,7 @@ sleep_then_ensure_always_on_visible_desktop () {
   sleep 3  #  MAGIC_NUMBER: It takes a few seconds for Home Fries to load.
   local winids
   winids=($(wmctrl -l -p \
-    | /bin/grep -E "^0x[a-f0-9]{8} +-?[0-3] +[0-9]+ +$(hostname) +[0-9]+. ${DUBS_STICKY_PREFIX_RE}" \
+    | /bin/grep -E "^0x[a-f0-9]{8} +-?[0-3] +[0-9]+ +$(hostname) +[0-9]+${DUBS_STICKY_INDICATOR}" \
     | cut -d ' ' -f 1))
   printf "%s\n" "${winids[@]}" | xargs -I % wmctrl -b add,sticky -i -r %
 }
@@ -43,7 +46,7 @@ home_fries_always_on_visible_desktop () {
     # Ug again. I thought the title would be set already, but it's not...
     #
     #  winids=($(wmctrl -l -p \
-    #    | /bin/grep -E "^0x[a-f0-9]{8} +-?[0-3] +[0-9]+ +$(hostname) +${DUBS_STICKY_PREFIX_RE}" \
+    #    | /bin/grep -E "^0x[a-f0-9]{8} +-?[0-3] +[0-9]+ +$(hostname) +[0-9]+${DUBS_STICKY_INDICATOR}" \
     #    | cut -d ' ' -f 1))
     #
     # So rely on special default title in use before ours applies... "Terminal".
