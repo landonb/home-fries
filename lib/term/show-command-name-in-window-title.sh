@@ -209,7 +209,12 @@ _hf_print_terminal_window_number_mate_terminal () {
   local window_number=""
 
   local assigned
-  assigned="$(wmctrl -l | awk '{print $4}' | grep -e '^[0-9]\.$' | sed 's/\.$//')"
+  assigned="$( \
+    wmctrl -l \
+    | awk '{print $4}' \
+    | grep -e '^[0-9]\.$' \
+    | sed 's/\.$//'
+  )"
 
   local number
   for number in $(seq 1 9); do
