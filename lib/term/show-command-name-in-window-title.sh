@@ -213,7 +213,9 @@ _hf_print_terminal_window_number_mate_terminal () {
     wmctrl -l \
     | awk '{print $4}' \
     | grep -e '^[0-9]\.$' \
-    | sed 's/\.$//'
+    | sed 's/\.$//' \
+    | sort \
+    | uniq
   )"
 
   local number
