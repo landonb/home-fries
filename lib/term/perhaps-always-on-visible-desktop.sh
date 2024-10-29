@@ -13,6 +13,7 @@ DUBS_STICKY_PREFIX_RE="${DUBS_STICKY_PREFIX_RE:-\\(Dubs\\) }"
 
 # Called iff DUBS_ALWAYS_ON_VISIBLE=true.
 sleep_then_ensure_always_on_visible_desktop () {
+  # Note this fcn called backgrounded (&), so the sleep doesn't delay shell startup.
   sleep 3  #  MAGIC_NUMBER: It takes a few seconds for Home Fries to load.
   local winids
   winids=($(wmctrl -l -p \
@@ -55,7 +56,7 @@ home_fries_always_on_visible_desktop () {
     # So, like, really? A total kludge is in order?! Deal with this "later!"
     #
     # NOTE: Use (subshell) to suppress output (e.g., job number and 'Done').
-    (sleep_then_ensure_always_on_visible_desktop &)
+    ( sleep_then_ensure_always_on_visible_desktop & )
     # Lest we apply same always-on to any new window opened as child of this one.
     export DUBS_ALWAYS_ON_VISIBLE=
   fi
