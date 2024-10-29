@@ -57,8 +57,10 @@ home_fries_always_on_visible_desktop () {
     #
     # NOTE: Use (subshell) to suppress output (e.g., job number and 'Done').
     ( sleep_then_ensure_always_on_visible_desktop & )
-    # Lest we apply same always-on to any new window opened as child of this one.
-    export DUBS_ALWAYS_ON_VISIBLE=
+    # We'll unset DUBS_ALWAYS_ON_VISIBLE later in bashrc.core.sh, after calling
+    # _hf_set_iterm2_window_number_environ and setting up _hf_hook_titlebar_update,
+    # so that new windows opened as child of this one are not similarly stickified.
+    #   export DUBS_ALWAYS_ON_VISIBLE=  # Happens later.
   fi
 
   unset -f sleep_then_ensure_always_on_visible_desktop

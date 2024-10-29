@@ -648,6 +648,9 @@ home_fries_up () {
   run_and_unset "_hf_hook_titlebar_update"
   # - lib/term/show-command-name-in-window-title.sh
 
+  # Lest we apply same always-on to any new window opened as child of this one.
+  export DUBS_ALWAYS_ON_VISIBLE=
+
   #########################
 
   print_elapsed_time \
