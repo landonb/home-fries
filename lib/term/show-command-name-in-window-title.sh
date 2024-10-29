@@ -218,7 +218,7 @@ _hf_print_terminal_window_number_mate_terminal () {
 
   local number
   for number in $(seq 1 9); do
-    if ! echo "${assigned}" | grep -q "${number}"; then
+    if ! echo "${assigned}" | grep -q "^${number}\$"; then
       window_number="${number}"
 
       break
