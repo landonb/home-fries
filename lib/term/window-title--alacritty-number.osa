@@ -9,7 +9,7 @@
 #     > Privacy & Security
 #       > Accessibility
 #         > ✓ [Your Favorite Term. App, e.g., Alacritty | iTerm | Terminal]
-# 
+#
 # BWARE: If this script fails to run from Alacritty, and if Alacritty already
 # has Accessibility access, you might need to reset *all* Accessibility
 # permissions to recover.
