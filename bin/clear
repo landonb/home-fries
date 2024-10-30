@@ -6,7 +6,15 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# A clear (reset) that's macOS-friendly, and that clears the clipboard.
+# OVIEW: A terminal `clear` command that *also* clears the clipboard.
+#
+# USAGE: Call directly, or put on PATH (e.g., under ~/.local/bin) and
+# wire from ~/.inputrc binding, e.g., so you can use <Ctrl-L> to clear:
+#
+#   # ~/.inputrc
+#   Control-l: 'clear\n'
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Note that tset/reset is described by its man page as `terminal initialization`.
 #
