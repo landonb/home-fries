@@ -16,18 +16,74 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Note that tset/reset is described by its man page as `terminal initialization`.
+# HSTRY: Circa 2020, author created this command because I had issues
+#        with the built-in macOS `clear` and `reset` commands.
 #
-# There's also a `/home/user/.local/bin/clear`, which clears the screen, sorta
-# -- but it leaves one page of scrollback!
+# - I had noted in 2020 that `reset` "doesn't work on macOS", but it works
+#   for me now (on Apple Silicon)
 #
-# On Linux, the reset/tset clears the terminal buffer -- no scrollback --
-# but it doesn't work on macOS. Which is what this trick is for.
+#   - I am unsure now if I similarly had issues with `clear` on macOS.
 #
-# - Also, I've added a clipboard clearance, everything must go.
+#   - I'm also unclear whether I had issues with Apple's commands (under
+#     /usr/bin), or if it was the `ncurses` files (under /opt/local/bin).
+#
+# - But now, circa 2024, I don't (they work as expected on Apple Silicon).
+#
+# CALSO: See also the 3 built-in commands: clear, reset, and tset.
+#
+# - The `clear` command is the most simple of the three — It only
+#   "clears your terminal's screen and its scrollback buffer".
+#
+#   - See also: `tset clear`.
+#
+# - Note that `reset` aliased to `tset`, but invoking as `reset` is
+#   slightly different.
+#
+#   - The tset/reset commands perform `terminal initialization`.
+#
+#   - The `reset` command does same as `tset` plus a little more.
+#
+#     It's useful if a program (often through abnormal exit) leaves
+#     the terminal in an abnormal state.
+#
+#   - You'll notice that `tset` (and `clear`) run basically
+#     instantaneously, whereas `reset` sleeps for 1 second to let
+#     the terminal "settle" (necessary for "real" hardware terminals).
+#
+#     - CXREF: https://github.com/mirror/ncurses/blob/v6.4/progs/tset.c#L883
+#
+#     However, I found a note that ncurses v6.5 (~2024) removes the one-second
+#     delay.
+#
+#     - CXREF: https://unix.stackexchange.com/a/782808/388857
+#
+# - In practice, `tset` leaves a page of scrollback on macOS, but not on
+#   Ubuntu, whereas neither `reset` nor `clear` leave any scrollback (on
+#   either OS).
+#
+# - On Ubuntu, you'll find `clear`, `reset` (-> `tset`), and `tset`
+#   under /usr/bin (and under /bin, but /bin -> usr/bin/).
+#
+# - On macOS, you may find `clear`, `reset` (-> `tset`), and `tset`
+#   under *both* /usr/bin and /opt/local/bin, and they're different.
+#
+#   - The /usr/bin executables are core macOS files from Apple.
+#
+#   - The /opt/local/bin executables are from Homebrew `ncurses`.
+#
+#     - Per, e.g., `brew which-formula reset`.
+#
+# - Most often, all you need is `clear`.
+#
+# - REFER: If the man pages are not super *clear* (groan), see also
+#   another user's summary of the differences between the commands:
+#
+#     https://unix.stackexchange.com/questions/670255/
+#       what-is-the-difference-between-the-commands-clear-and-reset
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 clear_terminal_screen_and_scrollback_buffer_and_clipboard_contents () {
-
   # Clear the screen, and then clear the scrollback buffer.
   #
   # - "Terminal supports an extension of the ED (Erase in Display)
