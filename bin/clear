@@ -156,7 +156,12 @@
 # (Though maybe you edited .inputrc and mapped Ctrl-l to this reset.
 #  Such as: `printf '%s\n\n' "Control-l: 'reset\n'" >> ~/.inputrc`)
 
+clear_terminal_screen_and_scrollback_buffer () {
   printf "\\033[2J\\033[3J\\033[1;1H"
+}
+
+clear_terminal_screen_and_scrollback_buffer_and_clipboard_contents () {
+  clear_terminal_screen_and_scrollback_buffer
 
   # Perform a clipboard clearance (sale), everything must go!
   if type xclip > /dev/null 2>&1; then
