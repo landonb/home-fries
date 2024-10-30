@@ -18,7 +18,7 @@
 #
 # - Also, I've added a clipboard clearance, everything must go.
 
-reset_screen_the_terminal_scrollback_and_clipboard () {
+clear_terminal_screen_and_scrollback_buffer_and_clipboard_contents () {
 
   # Clear the screen, and then clear the scrollback buffer.
   #
@@ -109,7 +109,7 @@ reset_screen_the_terminal_scrollback_and_clipboard () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
-  reset_screen_the_terminal_scrollback_and_clipboard
+  clear_terminal_screen_and_scrollback_buffer_and_clipboard_contents
 }
 
 main "$@"
