@@ -8,17 +8,6 @@
 
 # A clear (reset) that's macOS-friendly, and that clears the clipboard.
 
-# Unnecessary tibdit: the normally-optional `function` prefix is required
-# before a function named 'reset', e.g., `function reset ()` if the other
-# `reset` file is found on PATH, e.g.,:
-#   $ ll ~/.local/bin/reset
-#   /home/user/.local/bin/reset -> tset*
-#   $ ll ~/.local/bin/tset
-#   91K /home/user/.local/bin/tset
-# which mattered when this function was part of the ~/.bashrc and sourced
-# into the user's environment as a function. But now it's a file named
-# 'reset', so none of that matters anymore. Hence, unnecessary tidbit.
-#
 # Note that tset/reset is described by its man page as `terminal initialization`.
 #
 # There's also a `/home/user/.local/bin/clear`, which clears the screen, sorta
@@ -116,15 +105,6 @@ reset_screen_the_terminal_scrollback_and_clipboard () {
     >&2 echo "ALERT: Clipboard not cleared (neither xclip nor pbcopy)."
   fi
 }
-
-# MEH/2020-12-16 17:53: 'reset' is much quicker to type than 'clear',
-# which I never use... and there's also readline's Ctrl-l you can
-# wire to reset as well (`Control-l: 'reset\n'`) and so no point to
-# alias (nor any point not to alias, I suppose) `clear`. So commented.
-#
-#  dubs_term_alias_clear_to_reset () {
-#    alias clear='reset'
-#  }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
