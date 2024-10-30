@@ -107,7 +107,9 @@ reset_screen_the_terminal_scrollback_and_clipboard () {
   printf "\\033[2J\\033[3J\\033[1;1H"
 
   if type xclip > /dev/null 2>&1; then
-    printf '' | xclip -selection clipboard
+    if [ -n "${DISPLAY}" ]; then
+      printf '' | xclip -selection clipboard
+    fi
   elif type pbcopy > /dev/null 2>&1; then
     pbcopy < /dev/null
   else
