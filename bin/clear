@@ -160,10 +160,8 @@ clear_terminal_screen_and_scrollback_buffer () {
   printf "\\033[2J\\033[3J\\033[1;1H"
 }
 
-clear_terminal_screen_and_scrollback_buffer_and_clipboard_contents () {
-  clear_terminal_screen_and_scrollback_buffer
-
-  # Perform a clipboard clearance (sale), everything must go!
+# Perform a clipboard clearance (sale), everything must go!
+clear_clipboard_contents () {
   if type xclip > /dev/null 2>&1; then
     if [ -n "${DISPLAY}" ]; then
       printf '' | xclip -selection clipboard
@@ -173,6 +171,12 @@ clear_terminal_screen_and_scrollback_buffer_and_clipboard_contents () {
   else
     >&2 echo "ALERT: Clipboard not cleared (neither xclip nor pbcopy)."
   fi
+}
+
+clear_terminal_screen_and_scrollback_buffer_and_clipboard_contents () {
+  clear_terminal_screen_and_scrollback_buffer
+
+  clear_clipboard_contents
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
