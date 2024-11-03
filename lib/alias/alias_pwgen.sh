@@ -32,6 +32,10 @@ home_fries_aliases_wire_pwgen () {
   # elliptic-curve cryptography.
   # - Note the surrounding () is necessary for redirection, e.g., `pwgen23 > foo`.
   claim_alias_or_warn "pwgen23" "_hf_aliases_wire_pwgen_clip_and_print"
+
+  claim_alias_or_warn "pwgenpin" \
+    "pwgen -A -r abcdefghijklmnopqrstuvwxyz ${PWGEN_LENGTH:-4} \
+    | _hf_aliases_wire_pwgen_clip_and_print_os_aware"
 }
 
 _hf_aliases_wire_pwgen_pwgen23 () {
