@@ -57,7 +57,11 @@ home_fries_create_alias_gimp_flatpak () {
 home_fries_create_alias_gimp_macos () {
   [ "$(uname)" = "Darwin" ] || return
 
-  alias gimp="open /Applications/GIMP.app"
+  # The normal `open` command works but doesn't appear to accept
+  # a file arg, e.g.,
+  #   alias gimp="open /Applications/GIMP.app"
+  #   gimp path/to/image
+  alias gimp="/Applications/GIMP.app/Contents/MacOS/gimp"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
