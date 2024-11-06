@@ -195,7 +195,39 @@ function l () {
 # - BWARE: You can pass-through `ls` options to `ll`, but it might
 #          affect the column count and bork the output.
 
-# TL_DR: Sort like @Linux `ls -la` on @macOS.
+# MPROV: Exclude macOS system files you *shouldn't* care about (or at
+# least author cannot imagine a scenario where you would care):
+#
+# - .DS_Store —   Apple's Desktop Services Store, created and managed
+#                 by Finder when you view a particular directory.
+#
+#                   https://en.wikipedia.org/wiki/.DS_Store
+#
+#                 You can also manage .DS_Store files programmatically:
+#
+#                 - *Reading Writing ".DS_Store" Files*
+#                   https://www-old.cs.utah.edu/plt/popl16/doc/ds-store/index.html#
+#
+#                 - *DS_Store Format*
+#                   https://metacpan.org/dist/Mac-Finder-DSStore/view/DSStoreFormat.pod
+#
+# - .localized —  macOS uses empty .localized files to indicate to Finder to
+#                 show a localized name for a directory, e.g., ~/Documents
+#                 vs. ~/Dokumente, based on the user's language setting.
+#
+#                 - *What are .localized files?*
+#                   https://discussions.apple.com/thread/252040
+#
+#                 - *".localized" folders in MacOS*
+#                   https://discussions.apple.com/thread/254061065
+#
+#                 You can also manage your own .localized files, i.e.,
+#                 for an app that uses specific directory names.
+#
+#                 - *Localizing the Name of a Directory*
+#                   https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/FileSystemAdvancedPT/LocalizingtheNameofaDirectory/LocalizingtheNameofaDirectory.html
+
+# TL_DR: `ll` sorts like @Linux `ls -la` on @macOS, and excludes Finder files.
 
 function ll () {
   if [ $# -gt 1 ]; then
@@ -203,6 +235,7 @@ function ll () {
   else
     $(ls-or-gls) -lhFa --color=always "$@" \
       | sed 'h;s/^\([^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+ \+\)\?\)\?\)\?\)\?\)\?\)\?\)\?\)\?//;s/\x1b[[0-9;]*m//g;s/^$/\./;s/^\.\/$/\.\./;s/^\.\.\/$/\.\.\./;G;s/\n/\t/' \
+      | grep -v -e "^\.localized\t" -e "^\.DS_Store\t" \
       | LC_ALL=C sort -d -f -k1,1 \
       | cut -f2-
   fi
