@@ -172,7 +172,7 @@ _LOADED_HF_MANPATH_UTIL_MAN=false
 #
 # - But Homebrew's gman displays tilde (~) as accent tilde (˜).
 #
-# So we'll run Apple's `man`, but we'll redirect to stderr to
+# So we'll run Apple's `man`, but we'll filter stderr to
 # avoid an error message when viewing Homebrew man pages
 # that prints before the pager runs, e.g.:
 #
@@ -184,6 +184,8 @@ _LOADED_HF_MANPATH_UTIL_MAN=false
 # - In any case, we'll have to keep our eyes peeled to see if
 #   built-in man doesn't display Homebrew man pages correctly...
 
+_HF_MAN_FILTER_MSG="^This manpage is not compatible with mandoc(1) and might display incorrectly.\$"
+
 _hf_man_colorman () {
   # This is used if a less/termcap or less_termcap.sh file not found.
   command env \
@@ -194,7 +196,7 @@ _hf_man_colorman () {
     LESS_TERMCAP_so="$(printf "\e[1;44;33m")" \
     LESS_TERMCAP_ue="$(printf "\e[0m")" \
     LESS_TERMCAP_us="$(printf "\e[1;32m")" \
-    man "$@" 2> /dev/null
+    man "$@" 2> >(grep -v "${_HF_MAN_FILTER_MSG}" >&2)
 }
 
 # `man` lazy-loader. Sneaky sneaky. Shaves tenth sec. or so off session start.
@@ -219,7 +221,7 @@ man () {
   fi
 
   if ${loaded_less_termcap}; then
-    command man "$@" 2> /dev/null
+    command man "$@" 2> >(grep -v "${_HF_MAN_FILTER_MSG}" >&2)
   else
     _hf_man_colorman "$@"
   fi
