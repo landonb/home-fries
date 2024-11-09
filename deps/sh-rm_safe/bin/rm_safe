@@ -163,6 +163,8 @@ RMSAFE_ENSURED_CONFIRM=2
 RMSAFE_ENSURED_FORCE_ONE=22
 # 32: Call mean `rm` [rm -rf] on all items (b/c user chose <Ra>).
 RMSAFE_ENSURED_FORCE_ALL=32
+# 42: Exit 0 after echoing additional help (b/c user chose <h>).
+RMSAFE_ENSURED_PRINT_USAGE=42
 #  4: All set! Remove curr item to path specified by ${TRASH_FS_MOUNT}
 #     (which is either device-local or user-home trash).
 RMSAFE_ENSURED_TRASH_BIN=4
@@ -590,7 +592,7 @@ _sh_rm_safe_prompt_missing_trashdir_read_choice_and_react () {
   if [ "${the_choice}" = "h" ]; then
     _sh_rm_safe_print_missing_trash_fs_mount_hint "${device_trash}"
 
-    return ${RMSAFE_ENSURED_ERROR:-1}
+    return ${RMSAFE_ENSURED_PRINT_USAGE:-42}
   fi
 }
 
@@ -696,6 +698,9 @@ _sh_rm_safe_process_items () {
     if [ ${ensured} -eq ${RMSAFE_ENSURED_FORCE_ALL:-32} ]; then
       ARG_RECURSIVE_FORCE=true
     fi
+  elif [ ${ensured} -eq ${RMSAFE_ENSURED_PRINT_USAGE:-42} ]; then
+
+    exit_0
   elif [ ${ensured} -eq ${RMSAFE_ENSURED_TRASH_BIN:-4} ]; then
     # ensured=4 means the trash directory is prepared; move 'deleted' files there.
     local fname=${bname}
