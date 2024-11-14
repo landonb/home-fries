@@ -121,7 +121,7 @@ maybe_alert_ancient_bash () {
   # Note that we call `bash` itself rather than check ${BASH_VERSINFO[0]},
   # because macOS will load its own Bash 3, while Homebrew's Bash 5 might
   # be what's on PATH.
-  # - I.e., the user called `eval $(/opt/homebrew/bin/brew shellenv)`
+  # - I.e., the user called `eval "$(brew shellenv)"`
   #   and then called `bash` to load Homefries.
   # - Here's the naïve check, just FYÏ:
   #     [ ${BASH_VERSINFO[0]} -ge 4 ] && command -v realpath > /dev/null && return
