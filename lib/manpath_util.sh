@@ -50,7 +50,7 @@ _hf_jit_configure_manpath () {
   # but I think it makes more sense to clean MANPATH and recreate from scratch.
   export MANPATH=
 
-  local newpath=''
+  local newpath=""
   candidates=$(echo $(manpath) | tr ":" "\n")
   for prospect in ${candidates}; do
     # Check the directory's owning device, e.g.,
