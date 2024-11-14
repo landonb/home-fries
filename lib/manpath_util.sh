@@ -90,11 +90,26 @@ _hf_jit_configure_manpath () {
     newpath="${brew_man_path}:${newpath}"
   fi
 
-  # NOTE: If you start MANPATH with a colon ':', or end it wth one ':',
-  #       then `manpath` will combine with paths from /etc/manpath.config.
-  #       So make sure MANPATH does not start or end with a colon, so that
-  #       it overrides `manpath`.
-  export MANPATH="${newpath}"
+  # SAVVY: If MANPATH is prefixed or appended with a colon ':', it's magic:
+  # - "If MANPATH begins with a colon, it is appended to the default list;
+  #    if it ends with a colon, it is prepended to the default list; or if
+  #    it contains two adjacent colons, the standard search path is inserted
+  #    between the colons. If none of these conditions are met, it overrides
+  #    the standard search path."
+  #   - REFER: See `man man` @macOS, or `man 5 manpath` on @Linux.
+  #   - CXREF: Per `man 1 manpath`:
+  #     - On macOS, see:
+  #         /etc/man.conf
+  #       Also /usr/local/etc/man.d/*.conf (but that path is absent on macOS).
+  #     - On Linux, see:
+  #         /etc/manpath.config
+  # SAVVY: Note that Homebrew (via eval "$(brew shellenv)") prepends MANPATH
+  #   with a colon, so that the default list has precedence.
+  #   - HSTRY: Until 2024-11-13, home-fries did *non* prepend a colon, but
+  #     now it does (though author has not seen any difference in behavior).
+  if [ -n "${newpath-}" ]; then
+    export MANPATH=":${newpath#:}"
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
