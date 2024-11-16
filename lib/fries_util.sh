@@ -364,6 +364,13 @@ home_fries_export_editor_vim () {
   export EDITOR="editor-vim-0-0-insert"
 }
 
+# Default editor for k9s.
+# https://k9scli.io/topics/install/
+
+home_fries_export_editor_vim () {
+  export KUBE_EDITOR="editor-vim-0-0-insert"
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # FIXME/2022-11-04 15:30: Cleanup this comment:
