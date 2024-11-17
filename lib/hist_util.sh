@@ -10,6 +10,17 @@ _hist_util_hook () {
   local hist_file
   hist_file=$(realpath -- "${HOME}/.bash_history")
 
+  # If ~/.bash_history is a symlink, create intermediate files
+  # alongside the real history file in the same directory.
+  local hist_dir
+  hist_dir=$(dirname -- "${hist_file}")
+
+  # Use intermediate files during processing.
+  # - REFER: On ext4, `mv` is atomic.
+  #   https://unix.stackexchange.com/questions/322038/is-mv-atomic-on-my-fs
+  local temp_hist_1="${hist_dir}/.bash_history--TEMP-1"
+  local temp_hist_2="${hist_dir}/.bash_history--TEMP-2"
+
   # ***
 
   # HSTRY/2024-11-16: This hook could previously run concurrently,
@@ -32,6 +43,10 @@ _hist_util_hook () {
 
     return 0
   fi
+
+  # ***
+
+  command cp -f -- "${hist_file}" "${temp_hist_1}"
 
   # ***
 
@@ -62,8 +77,8 @@ _hist_util_hook () {
   # CXREF/2024-03-17:
   #   ~/.homefries/bin/.bash_history_filter.awk
   awk -f "${HOMEFRIES_BIN:-${HOME}/.homefries/bin}/.bash_history_filter.awk" \
-    "${HOME}/.bash_history" > "${HOME}/.bash_history-AWKed"
-  command mv -- "${HOME}/.bash_history-AWKed" "${hist_file}"
+    "${temp_hist_1}" > "${temp_hist_2}"
+  command mv -f -- "${temp_hist_2}" "${temp_hist_1}"
 
   # Redact anything that looks like a (modern, strong) password.
   # Use Perl, because awk does not support look-around assertions,
@@ -82,9 +97,8 @@ _hist_util_hook () {
   #     # And not, e.g., XXXX_REDACT_XXXX
   #   - Note that 'thisfileisNUMBER01' -> 'XXXX_REDACT_XXXX' but at least
   #     the substitution is not as aggressive as it previously was.
-  perl -p -i.hist_util_hook -e 's/(^|\s|[^a-zA-Z0-9])(?=[^\s]*[a-z][^\s]*)(?=[^\s]*[A-Z][^\s]*)(?=[^\s]*[0-9][^\s]*)[^\s-\/]{15,24}(\s|\n|$)/\1XXXX_REDACT_XXXX\2/g' -- "${hist_file}"
-
-  command rm -f -- "${HOME}/.bash_history.hist_util_hook"
+  perl -p -i -e 's/(^|\s|[^a-zA-Z0-9])(?=[^\s]*[a-z][^\s]*)(?=[^\s]*[A-Z][^\s]*)(?=[^\s]*[0-9][^\s]*)[^\s-\/]{15,24}(\s|\n|$)/\1XXXX_REDACT_XXXX\2/g' -- "${temp_hist_1}"
+  command mv -f -- "${temp_hist_1}" "${hist_file}"
 
   # ***
 
