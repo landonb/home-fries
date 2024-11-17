@@ -257,6 +257,14 @@ _hist_util_hook () {
   touch -- "${alert_file}"
 }
 
+# SAVVY: Calling via (subprocess) inhibits job chatter, e.g.,
+#   $ _hist_util_hook &
+#   [1] 13014
+#   $ [1]+  Done                    _hist_util_hook
+_hist_util_hook_bg () {
+  (_hist_util_hook &)
+}
+
 home_fries_configure_history () {
   # History Options
   #################
@@ -283,8 +291,8 @@ home_fries_configure_history () {
   # from all sessions just gets dumped and interleaved in one
   # file.
 
-  if [[ ! $PROMPT_COMMAND =~ "_hist_util_hook" ]]; then
-    PROMPT_COMMAND="_hist_util_hook;${PROMPT_COMMAND}"
+  if [[ ! $PROMPT_COMMAND =~ "_hist_util_hook_bg" ]]; then
+    PROMPT_COMMAND="_hist_util_hook_bg;${PROMPT_COMMAND}"
   fi
 
   # HISTIGNORE: A colon-separated list of patterns.
