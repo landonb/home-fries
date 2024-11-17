@@ -68,6 +68,13 @@ _hist_util_hook () {
   #            overwriting the history file's contents.
   history -a
 
+  # TRACK/2024-11-16: Here's another *DUNNO*: Where are the null bytes
+  # coming from? They're littering the start of ~/.bash_history file.
+  # - MAYBE: Could this be race condition resolved by new lock mechanism?
+  # SAVVY: Per `man tr`, 1-3 octal digits w/ \NNN — e.g., \0, \00, or \000.
+  tr -d '\000' < "${temp_hist_1}" > "${temp_hist_2}"
+  command mv -f -- "${temp_hist_2}" "${temp_hist_1}"
+
   # Remove any pass-insert commands, looking for a line to match:
   #   ' | pass insert -m
   # This follows a convention I use to insert passwords using the format:
