@@ -7,6 +7,8 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 _hist_util_hook () {
+  local resolved_p=$(realpath -- "${HOME}/.bash_history")
+
   # Write/append this session's history to the shared history file.
   # (I know, interleaving, deal with it! -Alternatively, we could
   #    export HISTFILE="$HOME/.bash_historys/$$"
@@ -30,8 +32,6 @@ _hist_util_hook () {
   #     -w     Write the current history to the history file,
   #            overwriting the history file's contents.
   history -a
-
-  local resolved_p=$(realpath -- "${HOME}/.bash_history")
 
   # Remove any pass-insert commands, looking for a line to match:
   #   ' | pass insert -m
