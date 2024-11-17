@@ -7,8 +7,8 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 _hist_util_hook () {
-  local resolved_p
-  resolved_p=$(realpath -- "${HOME}/.bash_history")
+  local hist_file
+  hist_file=$(realpath -- "${HOME}/.bash_history")
 
   # Write/append this session's history to the shared history file.
   # (I know, interleaving, deal with it! -Alternatively, we could
@@ -44,7 +44,7 @@ _hist_util_hook () {
   #   ~/.homefries/bin/.bash_history_filter.awk
   awk -f "${HOMEFRIES_BIN:-${HOME}/.homefries/bin}/.bash_history_filter.awk" \
     "${HOME}/.bash_history" > "${HOME}/.bash_history-AWKed"
-  command mv -- "${HOME}/.bash_history-AWKed" "${resolved_p}"
+  command mv -- "${HOME}/.bash_history-AWKed" "${hist_file}"
 
   # Redact anything that looks like a (modern, strong) password.
   # Use Perl, because awk does not support look-around assertions,
@@ -63,7 +63,7 @@ _hist_util_hook () {
   #     # And not, e.g., XXXX_REDACT_XXXX
   #   - Note that 'thisfileisNUMBER01' -> 'XXXX_REDACT_XXXX' but at least
   #     the substitution is not as aggressive as it previously was.
-  perl -p -i.hist_util_hook -e 's/(^|\s|[^a-zA-Z0-9])(?=[^\s]*[a-z][^\s]*)(?=[^\s]*[A-Z][^\s]*)(?=[^\s]*[0-9][^\s]*)[^\s-\/]{15,24}(\s|\n|$)/\1XXXX_REDACT_XXXX\2/g' -- "${resolved_p}"
+  perl -p -i.hist_util_hook -e 's/(^|\s|[^a-zA-Z0-9])(?=[^\s]*[a-z][^\s]*)(?=[^\s]*[A-Z][^\s]*)(?=[^\s]*[0-9][^\s]*)[^\s-\/]{15,24}(\s|\n|$)/\1XXXX_REDACT_XXXX\2/g' -- "${hist_file}"
 
   command rm -f -- "${HOME}/.bash_history.hist_util_hook"
 }
