@@ -7,7 +7,8 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 _hist_util_hook () {
-  local resolved_p=$(realpath -- "${HOME}/.bash_history")
+  local resolved_p
+  resolved_p=$(realpath -- "${HOME}/.bash_history")
 
   # Write/append this session's history to the shared history file.
   # (I know, interleaving, deal with it! -Alternatively, we could
