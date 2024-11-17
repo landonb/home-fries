@@ -10,8 +10,8 @@ _hist_util_hook () {
   local hist_file
   hist_file=$(realpath -- "${HOME}/.bash_history")
 
-  # If ~/.bash_history is a symlink, create intermediate files
-  # alongside the real history file in the same directory.
+  # If ~/.bash_history is a symlink, create intermediate files and
+  # alert file alongside the real history file in the same directory.
   # - Author moved ~/.bash_history to subdir and started using symlink
   #   for two reasons:
   #   - So I had option to keep history file in a Git repo and share
@@ -32,6 +32,123 @@ _hist_util_hook () {
 
   # ***
 
+  # TRACK/2024-11-16: Look for and report anomalies during the run:
+  # - In the past, author has witnessed some odd issues:
+  #   1.) "XX"-prefixed files alongside the .bash_history file, on both
+  #       macOS and Linux.
+  #     - Note the author uses a symlink:
+  #         ~/.bash_history -> ~/.noise/home/.bash_history
+  #       and I see dozens of such files, e.g.,
+  #         @macOS $ /opt/local/bin/gls -lhFa -rt
+  #         ... Jul 31 01:29 XXbCjb7T
+  #         ... Aug  2 18:02 XXFqsiNb
+  #         ... Aug  2 18:02 XXJ3bcfg
+  #         ... Aug  2 19:30 XX4msnTa
+  #         ... Aug  8 20:42 XXnskXuQ
+  #       - Also note I might see multiple from the same day, or
+  #         none at all for stretches.
+  #       - And I haven't sussed a pattern, or what causes this.
+  #         - So let's TRACK!
+  #   2.) A blank first line, followed by 65536 null bytes, then
+  #       normal-looking history, except the first line of history
+  #       is incomplete (its prefix is truncated).
+  #       - Note that 65536 is 2^16...
+  #       - I wonder if this issue was because overlapping runs?
+  #       CPYST: You can use these commands to inspect the file:
+  #         # These grep and awk commands output 0 for empty file,
+  #         # or number of null bytes plus one for nonempty files.
+  #         grep -cz '^' ~/.bash_history
+  #         awk -v RS='\0' 'END{print NR}' ~/.bash_history
+  #         # This sed command prints nothing for empty file,
+  #         # or number of null bytes plus one for nonempty files.
+  #         sed -nz '$=' ~/.bash_history
+  #   3.) Thousands of leading blank lines.
+  #       - A .bash_history_filter.awk comment says ~15,000 lines.
+  # We'll check at each significant step of the operation and
+  # report if we see anything strange.
+  local alert_file="${hist_dir}/.bash_history--ALERTS"
+
+  start_alert_msg () {
+    if [ -s "${alert_file}" ]; then
+      echo >> "${alert_file}"
+    fi
+
+    echo -e "$(date) | $@" >> "${alert_file}"
+  }
+
+  append_alert_msg () {
+    echo -e "$@" >> "${alert_file}"
+  }
+
+  local prev_num_nulls=0
+  local prev_num_blanks=0
+
+  local first_step="preflight"
+
+  # Count new XX* files / Look for nulls / Look for blanks
+  check_state () {
+    local step_name="$1"
+
+    local timestamp_ref="${lock_dir}"
+    if [ "${step_name}" = "${first_step}" ]; then
+      # On first check during cleanup operation, use alert file as the
+      # reference timestamp for finding new XX* files — which mostly works
+      # except if "ALERT: Lock acquire failed" was most recently writ and
+      # previous operation didn't fully run. Oh well, no biggie, this
+      # alerting mechanism isn't meant to be fullproof, just to mostly help.
+      timestamp_ref="${alert_file}"
+    fi
+
+    # TRACK: See "1.)", above.
+    local new_XX_files=""
+    new_XX_files="$(find "${hist_dir}" -name 'XX*' -newer "${timestamp_ref}")"
+    # Refresh the reference timestamp for the next check_state.
+    touch -- "${lock_dir}"
+
+    # TRACK: See "2.)", above.
+    local num_nulls=0
+    num_nulls=$(($(grep -cz '^' "${temp_hist_1}") - 1))
+
+    # TRACK: See "3.)", above.
+    # Note that `grep -c '^$' will count nulls as blank lines.
+    local num_blanks=0
+    num_blanks=$(grep -c '^$' "${temp_hist_1}")
+
+    # ***
+
+    local started_alert=false
+
+    start_alert () {
+      ! ${started_alert} || return 0
+
+      start_alert_msg "Anomalies detected!\n- State step: ${step_name}"
+
+      started_alert=true
+    }
+
+    if [ -n "${new_XX_files}" ]; then
+      start_alert
+      append_alert_msg "- New XX* files:\n$(
+        echo "${new_XX_files}" | xargs ls -lhFa -rt | sed 's/^/  /g'
+      )"
+    fi
+
+    if [ ${num_nulls} -gt 0 ] && [ ${num_nulls} -ne ${prev_num_nulls} ]; then
+      start_alert
+      append_alert_msg "- Nulls count: ${num_nulls}"
+      prev_num_nulls="${num_nulls}"
+    fi
+
+    if [ ${num_blanks} -gt 0 ] && [ ${num_blanks} -ne ${prev_num_blanks} ]; then
+      start_alert
+      append_alert_msg "- Blank count: ${num_blanks}"
+      prev_num_blanks="${num_blanks}"
+    fi
+
+  }
+
+  # ***
+
   # HSTRY/2024-11-16: This hook could previously run concurrently,
   # which could cause interleaved or dropped history (though author
   # had no definitive evidence in practice, just theory).
@@ -49,6 +166,7 @@ _hist_util_hook () {
   local lock_dir="${hist_dir}/.bash_history--LOCK"
 
   if ! mkdir -- "${lock_dir}" 2> /dev/null; then
+    start_alert_msg "ALERT: Lock acquire failed"
 
     return 0
   fi
@@ -58,6 +176,8 @@ _hist_util_hook () {
   command cp -f -- "${hist_file}" "${temp_hist_1}"
 
   # ***
+
+  check_state "${first_step}"
 
   # BWARE: We're not editing the session's in-memory history, so
   # one can still see unredacted passwords, etc., using either
@@ -77,12 +197,16 @@ _hist_util_hook () {
   #            overwriting the history file's contents.
   history -a
 
+  check_state "After history -a"
+
   # TRACK/2024-11-16: Here's another *DUNNO*: Where are the null bytes
   # coming from? They're littering the start of ~/.bash_history file.
   # - MAYBE: Could this be race condition resolved by new lock mechanism?
   # SAVVY: Per `man tr`, 1-3 octal digits w/ \NNN — e.g., \0, \00, or \000.
   tr -d '\000' < "${temp_hist_1}" > "${temp_hist_2}"
   command mv -f -- "${temp_hist_2}" "${temp_hist_1}"
+
+  check_state "After tr -d"
 
   # Remove any pass-insert commands, looking for a line to match:
   #   ' | pass insert -m
@@ -95,6 +219,8 @@ _hist_util_hook () {
   awk -f "${HOMEFRIES_BIN:-${HOME}/.homefries/bin}/.bash_history_filter.awk" \
     "${temp_hist_1}" > "${temp_hist_2}"
   command mv -f -- "${temp_hist_2}" "${temp_hist_1}"
+
+  check_state "After awk -f"
 
   # Redact anything that looks like a (modern, strong) password.
   # Use Perl, because awk does not support look-around assertions,
@@ -114,11 +240,21 @@ _hist_util_hook () {
   #   - Note that 'thisfileisNUMBER01' -> 'XXXX_REDACT_XXXX' but at least
   #     the substitution is not as aggressive as it previously was.
   perl -p -i -e 's/(^|\s|[^a-zA-Z0-9])(?=[^\s]*[a-z][^\s]*)(?=[^\s]*[A-Z][^\s]*)(?=[^\s]*[0-9][^\s]*)[^\s-\/]{15,24}(\s|\n|$)/\1XXXX_REDACT_XXXX\2/g' -- "${temp_hist_1}"
+
+  check_state "After perl -p"
+
   command mv -f -- "${temp_hist_1}" "${hist_file}"
 
   # ***
 
-  rmdir -- "${lock_dir}"
+  if ! rmdir -- "${lock_dir}" 2> /dev/null; then
+    # Should be an unreachable path (under normal circumstances).
+    start_alert_msg "GAFFE: Lock release failed"
+  fi
+
+  # Even if there are no alerts, we use the alert file as a timestamp
+  # ref. for identifying new XX* files.
+  touch -- "${alert_file}"
 }
 
 home_fries_configure_history () {
