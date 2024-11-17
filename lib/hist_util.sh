@@ -52,7 +52,7 @@ _hist_util_hook () {
   # words that contain at least one lowercase letter, an uppercase letter,
   # and a number (so we might match non-passwords, like AcronymsBooYeah1,
   # but we also match weaker passwords that do not use punctuation).
-  # REFER: `perldoc perlrun`
+  # REFER: `man perlrun` or `perldoc perlrun`
   # CXREF: Note the `pwgen` aliases specifically omit '-' and '/' chars.
   #     ~/.homefries/lib/alias/alias_pwgen.sh
   #   - Use case, e.g.,
