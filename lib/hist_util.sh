@@ -12,6 +12,15 @@ _hist_util_hook () {
 
   # If ~/.bash_history is a symlink, create intermediate files
   # alongside the real history file in the same directory.
+  # - Author moved ~/.bash_history to subdir and started using symlink
+  #   for two reasons:
+  #   - So I had option to keep history file in a Git repo and share
+  #     between hosts (I don't).
+  #   - Because XX-prefix files started appearing, e.g., "XXW4pWWr",
+  #     which were cluttering my home directory. (And I still don't
+  #     know where they come from. And that searching the web for a
+  #     hint doesn't help suggests they might actually be caused by
+  #     *my* (weird =) code.)
   local hist_dir
   hist_dir=$(dirname -- "${hist_file}")
 
