@@ -90,7 +90,7 @@ _hist_util_hook () {
     local step_name="$1"
 
     local timestamp_ref="${lock_dir}"
-    if [ "${step_name}" = "${first_step}" ]; then
+    if [ "${step_name}" = "${first_step}" ] && [ -e "${alert_file}" ]; then
       # On first check during cleanup operation, use alert file as the
       # reference timestamp for finding new XX* files — which mostly works
       # except if "ALERT: Lock acquire failed" was most recently writ and
