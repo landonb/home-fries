@@ -10,12 +10,31 @@ _hist_util_hook () {
   local hist_file
   hist_file=$(realpath -- "${HOME}/.bash_history")
 
-  # Write/append this session's history to the shared history file.
-  # (I know, interleaving, deal with it! -Alternatively, we could
-  #    export HISTFILE="$HOME/.bash_historys/$$"
-  #  but then we're managing multiple histories, and I'm not sure
-  #  the utility.)
-  #
+  # ***
+
+  # HSTRY/2024-11-16: This hook could previously run concurrently,
+  # which could cause interleaved or dropped history (though author
+  # had no definitive evidence in practice, just theory).
+  # - Here's the old comment:
+  #     Write/append this session's history to the shared history file.
+  #     (I know, possible interleaving, deal with it!
+  #      ALTLY: Alternatively, we could
+  #        export HISTFILE="$HOME/.bash_historys/$$"
+  #      but then we're managing multiple histories, and I'm not sure
+  #      the utility.)
+  # But we can use `mkdir` as a mutex to guard against this.
+  # - The only downside is *not* scrubbing history on a particular pass.
+  #   - But this should rarely happen, and the user will likely interact
+  #     with the terminal again and trigger a successful pass.
+  local lock_dir="${hist_dir}/.bash_history--LOCK"
+
+  if ! mkdir -- "${lock_dir}" 2> /dev/null; then
+
+    return 0
+  fi
+
+  # ***
+
   # BWARE: We're not editing the session's in-memory history, so
   # one can still see unredacted passwords, etc., using either
   # `history -a <file>` or `history -w <file>` (the latter to dump
@@ -66,6 +85,10 @@ _hist_util_hook () {
   perl -p -i.hist_util_hook -e 's/(^|\s|[^a-zA-Z0-9])(?=[^\s]*[a-z][^\s]*)(?=[^\s]*[A-Z][^\s]*)(?=[^\s]*[0-9][^\s]*)[^\s-\/]{15,24}(\s|\n|$)/\1XXXX_REDACT_XXXX\2/g' -- "${hist_file}"
 
   command rm -f -- "${HOME}/.bash_history.hist_util_hook"
+
+  # ***
+
+  rmdir -- "${lock_dir}"
 }
 
 home_fries_configure_history () {
