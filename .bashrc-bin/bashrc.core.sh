@@ -474,6 +474,10 @@ home_fries_up () {
   # - lib/fries_util.sh
   run_and_unset "home_fries_export_editor_vim"
 
+  # Set KUBE_EDITOR, used by `kubectl edit`.
+  # - lib/fries_util.sh
+  run_and_unset "home_fries_export_kube_editor_vim"
+
   #########################
 
   # - lib/fries_util.sh
