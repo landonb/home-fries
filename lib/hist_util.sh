@@ -174,6 +174,31 @@ _hist_util_hook () {
 
   # ***
 
+  # DUNNO/2024-11-18: The lock dir. was abandoned. Why?!
+  # - MAYBE: If it happens again and you can't determine why, add kludge:
+  #   - Check lock timestamp and remove dir. if older than X minutes.
+  #     - But try mkdir again after rmdir so not competing with newer hook.
+
+  clear_traps () {
+    trap - EXIT
+  }
+
+  set_traps () {
+    trap -- trap_exit EXIT
+  }
+
+  trap_exit () {
+    clear_traps
+
+    start_alert_msg "Trapped exit!"
+
+    exit 0
+  }
+
+  set_traps
+
+  # ***
+
   command cp -f -- "${hist_file}" "${temp_hist_1}"
 
   # ***
@@ -256,6 +281,10 @@ _hist_util_hook () {
   # Even if there are no alerts, we use the alert file as a timestamp
   # ref. for identifying new XX* files.
   touch -- "${alert_file}"
+
+  clear_traps
+}
+
 _hist_util_print_alert_file_path () {
   local hist_file
   hist_file=$(realpath -- "${HOME}/.bash_history")
