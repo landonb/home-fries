@@ -66,7 +66,8 @@ _hist_util_hook () {
   #       - A .bash_history_filter.awk comment says ~15,000 lines.
   # We'll check at each significant step of the operation and
   # report if we see anything strange.
-  local alert_file="${hist_dir}/.bash_history--ALERTS"
+  local alert_file
+  alert_file="$(_hist_util_print_alert_file_path)"
 
   start_alert_msg () {
     if [ -s "${alert_file}" ]; then
@@ -255,6 +256,14 @@ _hist_util_hook () {
   # Even if there are no alerts, we use the alert file as a timestamp
   # ref. for identifying new XX* files.
   touch -- "${alert_file}"
+_hist_util_print_alert_file_path () {
+  local hist_file
+  hist_file=$(realpath -- "${HOME}/.bash_history")
+
+  local hist_dir
+  hist_dir=$(dirname -- "${hist_file}")
+
+  printf "%s" "${hist_dir}/.bash_history--ALERTS"
 }
 
 # SAVVY: Calling via (subprocess) inhibits job chatter, e.g.,
@@ -262,7 +271,8 @@ _hist_util_hook () {
 #   [1] 13014
 #   $ [1]+  Done                    _hist_util_hook
 _hist_util_hook_bg () {
-  (_hist_util_hook &)
+  # Redir. output just in case the command fails.
+  (_hist_util_hook >> "$(_hist_util_print_alert_file_path)" 2>&1 &)
 }
 
 home_fries_configure_history () {
