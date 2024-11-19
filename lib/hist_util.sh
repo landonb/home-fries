@@ -221,9 +221,15 @@ _hist_util_hook () {
   #            them as the current history.
   #     -w     Write the current history to the history file,
   #            overwriting the history file's contents.
-  history -a
-
-  check_state "After history -a"
+  #
+  # DUNNO/2024-11-18: On macOS (possibly Linux, too), calling `history -a`
+  # has no effect here. I.e., history file is not updated with the latest
+  # command. But if we call from PROMPT_COMMAND before calling this hook,
+  # then it seems to work...
+  #
+  #  history -a
+  #
+  #  check_state "After history -a"
 
   # TRACK/2024-11-16: Here's another *DUNNO*: Where are the null bytes
   # coming from? They're littering the start of ~/.bash_history file.
@@ -330,8 +336,13 @@ home_fries_configure_history () {
   # from all sessions just gets dumped and interleaved in one
   # file.
 
+  # SAVVY/2024-11-18: See command above: Call `history -a` here, because
+  # calling from hook (whether or not the hook is backgrounded) has no
+  # effect. (Though you could still <Up> to go through history and the
+  # commands not appended to the history file are still accessible.)
+
   if [[ ! $PROMPT_COMMAND =~ "_hist_util_hook_bg" ]]; then
-    PROMPT_COMMAND="_hist_util_hook_bg;${PROMPT_COMMAND}"
+    PROMPT_COMMAND="history -a;_hist_util_hook_bg;${PROMPT_COMMAND}"
   fi
 
   # HISTIGNORE: A colon-separated list of patterns.
