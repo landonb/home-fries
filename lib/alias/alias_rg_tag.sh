@@ -64,6 +64,7 @@ home_fries_create_aliases_rg_tag_wrap () {
   #   or '--no-ignore-vcs', but `rg --help` does.
   # SAVVY: Testing shows `rg` skip graphics formats: *.jpg, *.png, *.xcf
   # USYNC: Similar rg --glob's:
+  #   ~/.depoxy/ambers/core/fzf-setup.sh
   #   ~/.depoxy/ambers/home/.projlns/infuse-projlns-core.sh
   #   ~/.kit/sh/home-fries/lib/alias/alias_rg_tag.sh
   #   ~/.vim/pack/landonb/start/dubs_file_finder/plugin/dubs_file_finder.vim
