@@ -123,21 +123,23 @@ home_fries_create_aliases_rg_tag_wrap () {
     file_globs="${file_globs}${fglob}"
   done
 
-  local rg_wrap_with_options=" \
-    tag \
-      --smart-case \
-      --hidden \
-      --follow \
-      --no-ignore-vcs \
-      --no-ignore-parent \
-      --colors 'path:fg:yellow' \
-      --colors 'path:style:bold' \
-      --colors 'line:fg:green' \
-      --colors 'line:style:bold' \
-      --colors 'match:bg:white' \
-      --glob '!**/{${dir_globs}}/**' \
-      --glob '!**/{${file_globs}}' \
-      "
+  local rg_wrap_with_options="$(\
+    echo "
+      tag
+        --smart-case
+        --hidden
+        --follow
+        --no-ignore-vcs
+        --no-ignore-parent
+        --colors 'path:fg:yellow'
+        --colors 'path:style:bold'
+        --colors 'line:fg:green'
+        --colors 'line:style:bold'
+        --colors 'match:bg:white'
+        --glob '!**/{${dir_globs}}/**'
+        --glob '!**/{${file_globs}}'
+    " | tr -d '$\n' | sed 's/  \+/ /g' | sed 's/^ \+//'
+  )"
 
   # `rgt` will search and wire the `e*` commands to open
   #       each search result in Vim in current *terminal*.
