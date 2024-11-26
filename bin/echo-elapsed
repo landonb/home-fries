@@ -18,6 +18,19 @@
 #   as we're gonna get. Unless I'm missing something obvious.
 #   - MAGIC: So raising the `threshold` from 0.05 to 0.12, to be less noisy.
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+source_deps () {
+  # Load `print_nanos_now`.
+  if command -v "print-nanos-now.sh" > /dev/null; then
+    . "print-nanos-now.sh"
+  else
+    . "$(dirname -- "${BASH_SOURCE[0]}")/../deps/sh-print-nanos-now/bin/print-nanos-now.sh"
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 echo_elapsed () {
   local time_0="$1"
   local detail="$2"
@@ -62,6 +75,7 @@ shell_sourced () { [ "$(basename -- "$0")" != "${this_file_name}" ]; }
 bash_sourced () { declare -p FUNCNAME > /dev/null 2>&1; }
 
 if ! shell_sourced; then
+  source_deps
   echo_elapsed "$@"
 else
   bash_sourced && export -f echo_elapsed
