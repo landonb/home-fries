@@ -77,14 +77,37 @@ home_fries_create_aliases_rg_tag_wrap () {
   dglobs+=(".git")
   dglobs+=(".tox")
   dglobs+=("node_modules")
+  # Home directories
+  # Vim's ~/.vim_backups/*.swp
+  fglobs+=("*.swp")
   # Graphics, Document, and other files (you probably won't open in text)
+  fglobs+=(".bash_history")
+  fglobs+=("*.bin")
+  fglobs+=("*.gif")
+  fglobs+=("*.gpg")
+  fglobs+=("*.jpg")
+  fglobs+=("*.Jpg")
+  fglobs+=("*.JPG")
+  fglobs+=("*.nib")
+  fglobs+=("*.odg")
+  fglobs+=("*.odt")
+  # SAVVY: `rg --ignore-case` doesn't seem to work on globs, so add permutations
+  fglobs+=("*.pdf")
+  fglobs+=("*.Pdf")
+  fglobs+=("*.PDF")
+  fglobs+=("*.png")
+  fglobs+=("*.pyc")
   fglobs+=("*.svg")
+  fglobs+=(".viminfo")
   fglobs+=("*.xpm")
+  fglobs+=("*.zip")
+  # DepoXy-specific directories
+  dglobs+=(".crypt")
   # Trash directories (that you'll probably ignore from ~/.ignore, anyway)
-  dglobs+=(".trash")
-  dglobs+=(".trash0")
-  dglobs+=(".Trash")
-  dglobs+=(".Trash0")
+  #   dglobs+=(".trash")
+  #   dglobs+=(".trash0")
+  #   dglobs+=(".Trash")
+  #   dglobs+=(".Trash0")
 
   local dir_globs=""
   local dglob
