@@ -70,6 +70,36 @@ home_fries_create_aliases_rg_tag_wrap () {
   #   ~/.vim/pack/landonb/start/dubs_file_finder/plugin/dubs_file_finder.vim
   #   ~/.vim/pack/landonb/start/dubs_grep_steady/bin/vim-grepprg-rg-sort
   # - Note ~/.[tT]rash0? per https://github.com/landonb/sh-rm_safe#🗑
+
+  local dglobs=()
+  local fglobs=()
+  # Common dev tool directories
+  dglobs+=(".git")
+  dglobs+=(".tox")
+  dglobs+=("node_modules")
+  # Graphics, Document, and other files (you probably won't open in text)
+  fglobs+=("*.svg")
+  fglobs+=("*.xpm")
+  # Trash directories (that you'll probably ignore from ~/.ignore, anyway)
+  dglobs+=(".trash")
+  dglobs+=(".trash0")
+  dglobs+=(".Trash")
+  dglobs+=(".Trash0")
+
+  local dir_globs=""
+  local dglob
+  for dglob in "${dglobs[@]}"; do
+    [ -z "${dir_globs}" ] || dir_globs="${dir_globs},"
+    dir_globs="${dir_globs}${dglob}"
+  done
+
+  local file_globs=""
+  local fglob
+  for fglob in "${fglobs[@]}"; do
+    [ -z "${file_globs}" ] || file_globs="${file_globs},"
+    file_globs="${file_globs}${fglob}"
+  done
+
   local rg_wrap_with_options=" \
     tag \
       --smart-case \
@@ -82,15 +112,8 @@ home_fries_create_aliases_rg_tag_wrap () {
       --colors 'line:fg:green' \
       --colors 'line:style:bold' \
       --colors 'match:bg:white' \
-      --glob '!.git/' \
-      --glob '!.tox/' \
-      --glob '!node_modules/' \
-      --glob '!*.svg' \
-      --glob '!*.xpm' \
-      --glob '!.trash' \
-      --glob '!.trash0' \
-      --glob '!.Trash' \
-      --glob '!.Trash0' \
+      --glob '!**/{${dir_globs}}/**' \
+      --glob '!**/{${file_globs}}' \
       "
 
   # `rgt` will search and wire the `e*` commands to open
