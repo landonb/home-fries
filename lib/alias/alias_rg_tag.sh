@@ -67,7 +67,7 @@ home_fries_create_aliases_rg_tag_wrap () {
   #   ~/.depoxy/ambers/core/fzf-setup.sh
   #   ~/.depoxy/ambers/home/.projlns/infuse-projlns-core.sh
   #   ~/.kit/sh/home-fries/lib/alias/alias_rg_tag.sh
-  #   ~/.vim/pack/landonb/start/dubs_file_finder/plugin/dubs_file_finder.vim
+  #   ~/.vim/pack/landonb/opt/dubs_file_finder/plugin/dubs_file_finder.vim
   #   ~/.vim/pack/landonb/start/dubs_grep_steady/bin/vim-grepprg-rg-sort
   # - Note ~/.[tT]rash0? per https://github.com/landonb/sh-rm_safe#🗑
 
