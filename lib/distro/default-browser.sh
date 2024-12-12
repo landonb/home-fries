@@ -10,8 +10,8 @@
 #          how-can-i-get-the-default-browser-name-in-bash-script-on-mac-os-x
 
 # CXREF: This VIM plugin has much more robust logic:
-#          https://github.com/landonb/dubs_web_hatch#🐣
-#            ~/.vim/pack/landonb/start/dubs_web_hatch/bin/macOS-which-browser
+#          https://github.com/embrace-vim/vim-web-hatch#🐣
+#            ~/.vim/pack/embrace-vim/start/vim-web-hatch/bin/macOS-which-browser
 
 default-browser () {
   if os_is_macos; then
