@@ -102,6 +102,8 @@ home_fries_create_aliases_rg_tag_wrap () {
   fglobs+=("*.zip")
   # DepoXy-specific directories
   dglobs+=(".crypt")
+  # Vim :Helptags tags files
+  fglobs+=("doc/tags")
   # Trash directories (that you'll probably ignore from ~/.ignore, anyway)
   #   dglobs+=(".trash")
   #   dglobs+=(".trash0")
