@@ -992,7 +992,8 @@ rm_safe () {
 
   # ***
 
-  rm_safe_run "$@"
+  rm_safe_run "$@" \
+    || return 1
 }
 
 # ***
@@ -1204,9 +1205,14 @@ main () {
 
   set_environs
 
-  rm_safe "$@"
+  local ret_code=0
+
+  rm_safe "$@" \
+    || ret_code=1
 
   clear_traps
+
+  return ${ret_code}
 }
 
 source_deps "${BASH_SOURCE[0]}"
