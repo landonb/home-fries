@@ -11,6 +11,17 @@
 home_fries_aliases_wire_cd_pushd_popd () {
   # HINT: `dirs -c` to clear pushd/popd directory stack.
 
+  function cd () {
+    if [ $# -gt 0 ]; then
+      command cd "$@"
+
+      return
+    fi
+
+    # Only on base `cd`.
+    pushd "${HOME}" &> /dev/null
+  }
+
   # IDEA/MAYBE: Enhance completions on cdd (limit to directories).
   function cdd () {
     local target="$1"
