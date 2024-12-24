@@ -59,7 +59,6 @@ home_fries_aliases_wire_cd_pushd_popd () {
       pushd "${HOME}" &> /dev/null
     fi
   }
-  export -f cdd
 
   claim_alias_or_warn "cdc" "popd > /dev/null"
 
