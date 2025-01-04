@@ -154,11 +154,14 @@ ensure_deps () {
   # HINT: If you want to make changes to Homefries and the
   # other projects, use hardlinks so you don't have to sync
   # files manually (though you may when Git committing).
-  # - The author uses a private script at
-  #     ~/.kit/sh/home-fries/.bashrc-bin/bashrx.private.user.sh
-  #   to update PATH to includes these projects, which,
-  #   is sourced before this script.
-  #   - FIXME/2020-09-26: Add link to the DepoXy Ambers project.
+  # - The author uses a script:
+  #     https://github.com/DepoXy/depoxy/blob/release/home/.kit/git/ohmyrepos/lib/my-deps-manage-shoilerplate.sh
+  #   Which you'll find locally in a DepoXy environment at:
+  #     ~/.depoxy/ambers/home/.kit/git/ohmyrepos/lib/my-deps-manage-shoilerplate.sh
+  #   that creates hard links under deps/ to include
+  #   and package these dependencies with Homefries.
+  #   - That script also runs after git-rebase to
+  #     recreate the hard links that rebase breaks.
 
   # Ensure sh-colors/bin/colors.sh on PATH.
   # - Project includes: colors.sh
