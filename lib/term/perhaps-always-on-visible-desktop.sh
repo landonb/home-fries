@@ -41,7 +41,7 @@ home_fries_always_on_visible_desktop () {
     # shows nothing (and `wmctrl -l -p` confirms that all terminal windows
     # share the same process ID (of the mate-terminal parent)), it looks like
     # our best bet is to use that special title prefix we set just prior to
-    # this code being called (in _hf_set_terminal_prompt).
+    # this code being called (in _hf_prompt_configure).
     #
     # Ug again. I thought the title would be set already, but it's not...
     #

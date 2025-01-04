@@ -184,7 +184,7 @@ ensure_deps () {
   check_dep 'rm_safe'
 
   # Ensure sh-humble-prompt/lib/* on PATH.
-  # - Project includes: _hf_set_terminal_prompt, _hf_hook_titlebar_update
+  # - Project includes: _hf_prompt_configure, _hf_hook_titlebar_update
   ensure_pathed 'set-shell-prompt-and-window-title.sh' 'sh-humble-prompt/lib'
   check_dep 'set-shell-prompt-and-window-title.sh'
   # FIXME/2025-01-03: Rename file. Also includes sequential terminal number.
@@ -554,7 +554,7 @@ home_fries_up () {
   # - Uses: lib/term/set-shell-prompt-and-window-title.sh
   # - Deps: lib/session_util.sh
   # - Don't run_and_unset: Let client reuse if they want.
-  run_and_report "_hf_set_terminal_prompt"
+  run_and_report "_hf_prompt_configure"
 
   # Set PS4, for `set -x` and `set -v` debugging/tracing.
   # - lib/term/set-shell-prompt-and-window-title.sh
@@ -660,7 +660,7 @@ home_fries_up () {
   # (lb): Note that all commands after this will appear/flicker
   # in the window title.
   run_and_unset "_hf_hook_titlebar_update"
-  # - lib/term/show-command-name-in-window-title.sh
+  # - deps/sh-humble-prompt/lib/show-command-name-in-window-title.sh
 
   # Lest we apply same always-on to any new window opened as child of this one.
   export DUBS_ALWAYS_ON_VISIBLE=
@@ -794,10 +794,7 @@ _hf_cleanup_core () {
   unset -f run_and_report
   unset -f run_and_unset
 
-  # `run_and_report` calls
-  unset -f _hf_set_terminal_prompt
-
-  # From: lib/term/show-command-name-in-window-title.sh
+  # From: deps/sh-humble-prompt/lib/show-command-name-in-window-title.sh
   _hf_cleanup_lib_term_window_title_show_command_name
   unset -f _hf_cleanup_lib_term_window_title_show_command_name
 }
