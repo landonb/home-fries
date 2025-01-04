@@ -106,7 +106,7 @@ source_it_log_trace () {
       piping="│└"
     fi
   else
-    # The final outer group, so not leftside pipe.
+    # The final outer group, so leftside pipe ends.
     if ${_SOURCE_IT_BEGIN:-false}; then
       if ! ${_SOURCE_IT_FINIS:-false}; then
         piping="└┬"
