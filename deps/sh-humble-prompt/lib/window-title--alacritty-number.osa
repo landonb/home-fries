@@ -1,6 +1,6 @@
 # vim:tw=0:ts=2:sw=2:et:norl:ft=applescript
 # Author: Landon Bouma <https://tallybark.com/>
-# Project: https://github.com/landonb/home-fries#🍟
+# Project: https://github.com/DepoXy/sh-humble-prompt#🙇
 # License: MIT
 
 # USAGE/2024-10-29: If this script fails to run, permiss it.
@@ -16,8 +16,8 @@
 #
 # - E.g., if you see the following error:
 #
-#   $ osascript ~/.kit/sh/home-fries/lib/term/window-title--alacritty-number.osa
-#   /Users/user/.kit/sh/home-fries/lib/term/window-title--alacritty-number.osa:2389:2670:
+#   $ osascript ~/.kit/sh/sh-humble-prompt/lib/window-title--alacritty-number.osa
+#   /Users/user/.kit/sh/sh-humble-prompt/lib/window-title--alacritty-number.osa:2389:2670:
 #     execution error: System Events got an error: osascript is not allowed assistive access. (-25211)
 #
 # and disable/enable Alacritty permissions and rebooting doesn't help, you
@@ -57,7 +57,7 @@
 #
 #   Indicating:
 #
-#     .../lib/term/window-title--alacritty-number.osa:369:526:
+#     .../lib/window-title--alacritty-number.osa:369:526:
 #       execution error: Alacritty got an error:
 #         every window doesn’t understand the “count” message. (-1708)
 #

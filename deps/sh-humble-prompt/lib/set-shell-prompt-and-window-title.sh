@@ -1,15 +1,8 @@
 #!/usr/bin/env bash
 # vim:tw=0:ts=2:sw=2:et:norl:ft=bash
-# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
-# Project: https://github.com/landonb/home-fries#🍟
+# Author: Landon Bouma <https://tallybark.com/>
+# Project: https://github.com/DepoXy/sh-humble-prompt#🙇
 # License: MIT
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-_hf_check_deps_set_shell_prompt () {
-  # Verify distro_util.sh loaded.
-  check_dep 'os_is_macos' || return $?
-}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -18,6 +11,11 @@ _hf_check_deps_set_shell_prompt () {
 # - 1: Put parentheses around the host icon, e.g., (🍅)
 # - 2: Put parentheses around the prompt terminus, e.g., ($)
 HOMEFRIES_PS1_GIT_REBASE_STYLE=${HOMEFRIES_PS1_GIT_REBASE_STYLE:-2}
+
+# USAGE: Configure last-command-failed indicator style
+# - 0: Off
+# - 1: Color prompt red if last command failed e.g., $ [but in red]
+HOMEFRIES_PS1_PREV_CMD_FAILED_STYLE=${HOMEFRIES_PS1_PREV_CMD_FAILED_STYLE:-1}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -56,8 +54,8 @@ _hf_prompt_is_user_logged_on_via_ssh () {
 }
 
 _hf_prompt_user_is_not_trapped_in_chroot () {
-  ( os_is_linux && [ $(stat -c %i /) -eq 2 ] ) ||
-  ( os_is_macos && [ $(stat -f %i /) -eq 2 ] )
+  ( _hf_prompt_os_is_linux && [ $(stat -c %i /) -eq 2 ] ) ||
+  ( _hf_prompt_os_is_macos && [ $(stat -f %i /) -eq 2 ] )
 }
 
 _hf_prompt_format_titlebar () {
@@ -109,16 +107,16 @@ _hf_prompt_format_titlebar () {
 
   local winnum="${ITERM2_WINDOW_NUMBER}"
 
-  # - CXREF: ~/.kit/sh/home-fries/lib/term/show-command-name-in-window-title.sh
-  local lib_term_dir
-  lib_term_dir="$(dirname -- "${BASH_SOURCE[0]}")"
+  # - CXREF: ~/.kit/sh/sh-humble-prompt/lib/show-command-name-in-window-title.sh
+  local sh_humble_prompt_lib_dir
+  sh_humble_prompt_lib_dir="$(dirname -- "${BASH_SOURCE[0]}")"
   #
   local basename
   # HSTRY/2024-06-25: Previously just showed working directory basename:
   #   basename="\W"
   # - But we can use a function callback to get crafty with the path text.
-  # CXREF: ~/.kit/sh/home-fries/lib/term/window-title--fancy-cwd-path
-  basename='$('"${lib_term_dir}"'/window-title--fancy-cwd-path)'
+  # CXREF: ~/.kit/sh/sh-humble-prompt/lib/window-title--fancy-cwd-path
+  basename='$('"${sh_humble_prompt_lib_dir}"'/window-title--fancy-cwd-path)'
 
   local endof_osc='\a'
 
@@ -176,12 +174,18 @@ _hf_prompt_customize_shell_prompts_and_window_title () {
   local attr_reset='\[\033[00m\]'
   local attr_underlined="\033[4m"
   # local attr_bold="\[\033[1m\]"  # See also: $(tput bold).
-  #
-  local mach_name='\h'
-  # (lb): 2020-08-24: At least on Mac I use, hostname is 16-character MAC.
-  os_is_macos && mach_name="$(scutil --get LocalHostName | sed -E 's/(.{8}).*/\1/')"
-  mach_name="${HOMEFRIES_TERM_UTIL_PS1_HOST:-${mach_name}}"
-  #
+
+  local mach_name
+  if [ -n "${HOMEFRIES_TERM_UTIL_PS1_HOST}" ]; then
+    mach_name="${HOMEFRIES_TERM_UTIL_PS1_HOST}"
+  elif _hf_prompt_os_is_macos; then
+    # (lb): 2020-08-24: On Vendor's Mac I use, hostname is 16-character MAC.
+    # - Short hostname to 8 characters, in case it's just the MAC.
+    mach_name="$(scutil --get LocalHostName | sed -E 's/(.{8}).*/\1/')"
+  else
+    mach_name='\h'
+  fi
+
   local basename='\W'
 
   # Configure a colorful prompt of the following format:
@@ -278,6 +282,28 @@ _hf_prompt_customize_shell_prompts_and_window_title () {
 
 # ***
 
+# REFER: You can use PROMPT_COMMAND instead to set PS1.
+# - It's called before every prompt.
+#   - (Homefries uses it to call `_hist_util_hook_bg`.)
+# - E.g., if you disable all the `unset -f` calls herein,
+#   you could set:
+#     PROMPT_COMMAND=_hf_prompt_customize_shell_prompts_and_window_title
+#   and it'll set PS1 before every prompt.
+#   - Though note this runs noticeably slower than the normal
+#     prompt. Obviously, we could fix the fcns. herein to improve
+#     performance (e.g., if you just press enter at an empty
+#     prompt, you'll see a slight lag before the next prompt is
+#     printed). But I don't see any benefit to using PROMPT_COMMAND,
+#     as you can already embed code to run before every prompt
+#     into PS1.
+# - You can also skip PS1 and echo from the PROMPT_COMMAND
+#   callback directly, e.g.:
+#     PS1=""
+#     PROMPT_COMMAND='echo -ne "\033]0;SOME TITLE HERE\007"'
+#   Also:
+#     titlebar="\[\e]0;THIS IS A TEST\a\]"
+#     PROMPT_COMMAND='printf '%b' "${titlebar}\[\033[01;36m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]${prompt_symbol} "'
+
 _hf_prompt_customize_shell_prompt_PS1 () {
   if [ -z "${HOMEFRIES_PS1_ORIG+x}" ]; then
     export HOMEFRIES_PS1_ORIG="$PS1"
@@ -318,14 +344,27 @@ _hf_prompt_customize_shell_prompt_PS1 () {
     prompt_symbol='$([ -f "$(git root 2> /dev/null)/.git/rebase-merge/git-rebase-todo" ] && echo "(\$)" || echo "\$")'
   fi
 
+  # Highlight final prompt character "$" in red if previous command failed.
+  # - THANX: Inspired by Julia Evans blog post re: Fish shell:
+  #     https://jvns.ca/blog/2024/09/12/reasons-i--still--love-fish/#5-nice-default-prompt-including-git-integration
+  #   See also these Bash-related links:
+  #     https://stackoverflow.com/questions/16715103/bash-prompt-with-the-last-exit-code
+  #     https://github.com/dimo414/prompt.gem
+  if [ ${HOMEFRIES_PS1_PREV_CMD_FAILED_STYLE:-0} -eq 1 ]; then
+    prompt_symbol="\$(test \${_hf_exitcode:-0} -ne 0 && echo \"${fg_red}\")${prompt_symbol}\$(test \${_hf_exitcode:-0} -ne 0 && echo \"${attr_reset}\")"
+    # ALTLY: Use one test, but then the final PS1 string is longer (because
+    # ${prompt_symbol} is duplicated):
+    #   prompt_symbol="\$(test \${_hf_exitcode:-0} -ne 0 && echo \"${fg_red}${prompt_symbol}${attr_reset}\" || echo \"${prompt_symbol}\")"
+  fi
+
   # NOTE: Using "" below instead of '' so that ${titlebar} is resolved by the
   #       shell first.
   # ${HOMEFRIES_TRACE} && echo "PS1: Preparing prompt"
-  if [ -e /proc/version ] || os_is_macos ; then
+  if [ -e /proc/version ] || _hf_prompt_os_is_macos ; then
     if [ $EUID -eq 0 ]; then
       local fg_path=""
       # ${HOMEFRIES_TRACE} && echo "PS1: Running as root!"
-      if os_is_macos || [ "$(cat /proc/version | grep Ubuntu)" ]; then
+      if _hf_prompt_os_is_macos || [ "$(cat /proc/version | grep Ubuntu)" ]; then
         # ${HOMEFRIES_TRACE} && echo "PS1: On Ubuntu"
         fg_path="${fg_cyan}"
       elif [ "$(cat /proc/version | grep Red\ Hat)" ]; then
@@ -334,12 +373,12 @@ _hf_prompt_customize_shell_prompt_PS1 () {
         #   it's been eons since I last used Fedora).
         fg_path="${fg_gray}"
       else
-        echo "WARNING: Not enough info. to set PS1."
+        >&2 echo "ERROR: Unsupported OS / Cannot (well, will not) set PS1"
 
-        return
+        return 1
       fi
       PS1="${titlebar}${bg_magenta}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_path}${basename}${attr_reset}${prompt_symbol} "
-    elif os_is_macos || [ "$(cat /proc/version | grep Ubuntu)" ]; then
+    elif _hf_prompt_os_is_macos || [ "$(cat /proc/version | grep Ubuntu)" ]; then
       # ${HOMEFRIES_TRACE} && echo "PS1: On Ubuntu"
       # 2015.03.04: I need to know when I'm in chroot hell.
       # NOTE: There's a better way using sudo to check if in chroot jail
@@ -384,20 +423,19 @@ _hf_prompt_customize_shell_prompt_PS1 () {
 
       PS1="${titlebar}${fg_cyan}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_gray}${basename}${attr_reset}${prompt_symbol} "
     else
-      echo "WARNING: _hf_prompt_customize_shell_prompts_and_window_title: Not enough info. to set PS1."
+      >&2 echo "ERROR: Unsupported OS / Cannot (well, will not) set PS1"
+
+      return 1
     fi
   else
-    # This is a chroot jail without a mounted /proc.
+    # This is a chroot jail without a mounted /proc, or some other
+    # flavor of Linux.
     : # Just use default prompt.
   fi
 
-  # NOTE: There's an alternative to PS1, PROMPT_COMMAND,
-  #       which works if PS1 is empty.
-  #         PS1=""
-  #         PROMPT_COMMAND='echo -ne "\033]0;SOME TITLE HERE\007"'
-  #       But the escapes don't work the same. E.g., this looks really funny:
-  #         titlebar="\[\e]0;THIS IS A TEST\a\]"
-  #         PROMPT_COMMAND='printf '%b' "${titlebar}\[\033[01;36m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]${prompt_symbol} "'
+  if [ ${HOMEFRIES_PS1_PREV_CMD_FAILED_STYLE:-0} -eq 1 ]; then
+    PS1="\$(_hf_exitcode=\$?; echo \"${PS1}\")"
+  fi
 }
 
 # ***
@@ -433,21 +471,36 @@ home_fries_set_PS4 () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+_hf_prompt_os_is_linux () {
+  [ "$(uname)" = "Linux" ]
+}
+
+_hf_prompt_os_is_macos () {
+  [ "$(uname)" = 'Darwin' ]
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # NOTE: This function is a one-off, as it wouldn't be necessary to
 #       call it more than once. So it cleans itself up rather than
 #       hang around the environment.
 
-_hf_set_terminal_prompt () {
-  _hf_check_deps_set_shell_prompt || return $?
-  unset -f _hf_check_deps_set_shell_prompt
-
+_hf_prompt_configure () {
   _hf_prompt_customize_shell_prompts_and_window_title
+
+  unset -f _hf_prompt_os_is_linux
+  unset -f _hf_prompt_os_is_macos
 
   unset -f _hf_prompt_is_user_logged_on_via_ssh
   unset -f _hf_prompt_user_is_not_trapped_in_chroot
   unset -f _hf_prompt_format_titlebar
 
+  unset -f _hf_prompt_customize_shell_prompt_PS1
+  unset -f _hf_prompt_customize_shell_prompt_PS2
+
   unset -f _hf_prompt_customize_shell_prompts_and_window_title
+
+  unset -f _hf_prompt_configure
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
