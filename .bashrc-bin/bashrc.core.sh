@@ -182,6 +182,13 @@ ensure_deps () {
   # - Project includes: path_device, rm_rotate, rm_safe, rmrm
   ensure_pathed 'rm_safe' 'sh-rm_safe/bin'
   check_dep 'rm_safe'
+
+  # Ensure sh-humble-prompt/lib/* on PATH.
+  # - Project includes: _hf_set_terminal_prompt, _hf_hook_titlebar_update
+  ensure_pathed 'set-shell-prompt-and-window-title.sh' 'sh-humble-prompt/lib'
+  check_dep 'set-shell-prompt-and-window-title.sh'
+  # FIXME/2025-01-03: Rename file. Also includes sequential terminal number.
+  check_dep 'show-command-name-in-window-title.sh'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -348,8 +355,8 @@ source_term_sources () {
   source_it "term/macos-please-no-zsh-advertisement.sh"
   source_it "term/perhaps-always-on-visible-desktop.sh"
   source_it "term/readline-bind-ctrl-b-fname-rubout.sh"
-  source_it "term/set-shell-prompt-and-window-title.sh"
-  source_it "term/show-command-name-in-window-title.sh"
+  source_it "set-shell-prompt-and-window-title.sh" "sh-humble-prompt/lib"
+  source_it "show-command-name-in-window-title.sh" "sh-humble-prompt/lib"
 }
 
 # ***

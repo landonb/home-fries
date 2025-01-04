@@ -148,7 +148,7 @@ _hf_bexit_deconflict_imagemagick_benchmark_xl () {
 # - From `man dash`: PS1 defaults to “$ ”, except superuser to “# ”.
 # - Note that dash does variable expansion in PS1, but it doesn't
 #   support color or the special variables like \h or \W that Bash does.
-#   - CXREF: ~/.homefries/lib/term/set-shell-prompt-and-window-title.sh
+#   - CXREF: ~/.kit/sh/sh-humble-prompt/lib/set-shell-prompt-and-window-title.sh
 dash () {
   local PS1_orig="$PS1"
 
