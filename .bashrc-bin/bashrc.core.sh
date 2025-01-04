@@ -793,10 +793,6 @@ _hf_cleanup_core () {
   unset -f eval_and_unset
   unset -f run_and_report
   unset -f run_and_unset
-
-  # From: deps/sh-humble-prompt/lib/show-command-name-in-window-title.sh
-  _hf_cleanup_lib_term_window_title_show_command_name
-  unset -f _hf_cleanup_lib_term_window_title_show_command_name
 }
 
 _hf_bashrc_core () {
