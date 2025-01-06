@@ -33,9 +33,12 @@ distro_complain_not_ubuntu_or_red_hat () {
     elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
       # echo Red Hat!
       : # noop
-    else
-      echo "WARNING: Unknown OS flavor ‘$(cat /proc/version)’"
-      echo "Please comment out this gripe or update the file ‘$(basename -- "$0")’"
+    elif ${HOMEFRIES_UNRECOGNIZED_OS_GRIPE:-true}; then
+      local this_file
+      this_file=$( (echo ${BASH_SOURCE[0]}) 2> /dev/null )
+      test -n "${this_file}" || this_file=$(basename -- "$0")
+      echo "ALERT: Unrecognized distro ‘$(cat /proc/version)’"
+      echo "- Please disable this gripe, or update: ${this_file}"
     fi
   else
     # /proc/version does not exist.
