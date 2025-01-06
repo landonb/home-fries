@@ -512,9 +512,15 @@ home_fries_bashrc_cleanup () {
   # Alert user if "special" (probably custom-built) Bash by checking not
   # /bin/bash and not Homebrew Bash (which starts with /opt/homebrew, as
   # in, e.g., /opt/homebrew/Cellar/bash/5.2.15/bin/bash).
+  # - Also exclude /opt/local/bin/bash, though author unsure its source.
+  #   - On author's macOS, /opt/local/bin/bash is 5.2.32, but
+  #     /opt/homebrew/bin/bash is 5.2.37. I assumed both from
+  #     Homebrew, but maybe /opt/local/bin/bash is from elsewhere.
+  #     - There's a chance it's from MacPorts install.
   if true \
     && [ "${bash_path}" != '/bin/bash' ] \
     && [ "${bash_path}" != '/usr/bin/bash' ] \
+    && [ "${bash_path}" != '/opt/local/bin/bash' ] \
     && [ "${bash_path}" = "${bash_path#${HOMEBREW_PREFIX}}" ] \
   ; then
     print_msg_special=true
