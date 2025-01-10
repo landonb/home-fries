@@ -469,8 +469,8 @@ home_fries_bashrc_cleanup () {
       echo "${bashrc_time_n} - ${HOMEFRIES_TIME0}" | bc -l | xargs printf "%.2f" \
     )
 
-    # NOTE: Startup scripts will have wired PATH so logger will be found.
-    if command -v 'logger.sh' > /dev/null 2>&1; then
+    # Startup scripts will have sourced deps/sh-logger/bin/logger.sh
+    if command -v '_sh_logger_log_msg' > /dev/null 2>&1; then
       local old_level=${LOG_LEVEL}
       export LOG_LEVEL=${LOG_LEVEL_NOTICE}
       notice "home-fries start-up: ${time_elapsed} secs."
@@ -526,7 +526,7 @@ home_fries_bashrc_cleanup () {
     print_msg_special=true
 
     print_specially=notice
-    command -v 'logger.sh' > /dev/null 2>&1 || print_specially=echo
+    command -v '_sh_logger_log_msg' > /dev/null 2>&1 || print_specially=echo
   fi
 
   if ${print_msg_special} || ${print_msg_version}; then
