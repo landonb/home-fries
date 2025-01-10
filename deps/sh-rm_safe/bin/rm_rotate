@@ -268,7 +268,7 @@ rm_rotate () {
         # - Better yet, for POSIX compatibility, use `find`:
         ${DRY_ECHO} \
         find "${first_path}" -mindepth 1 -maxdepth 1 -name "*" \
-          -exec $(mv_kludge) -t "${final_path}" {} \+
+          -exec $(gnu_mv) -t "${final_path}" {} \+
       fi
 
       _sh_rm_safe_ensure_trash_dir_with_proper_permissions "${first_path}"
@@ -307,8 +307,11 @@ first_char_capped () {
   printf "$1" | cut -c1-1 | tr "[:lower:]" "[:upper:]"
 }
 
-mv_kludge () {
-  command -v gmv || command -v mv
+gnu_mv () {
+  for cmd in "gmv" "mv"; do
+    ( unset -f ${cmd}; unalias ${cmd}; command -v ${cmd} ) 2> /dev/null \
+      && break
+  done
 }
 
 os_is_macos () {
