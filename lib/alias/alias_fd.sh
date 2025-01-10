@@ -7,7 +7,14 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 home_fries_aliases_wire_fd () {
-  if command -v fd > /dev/null; then
+  # `fd` is `fdfind` on Debian 12, Ubuntu 20.04, etc.
+  # REFER: https://github.com/sharkdp/fd/issues/1009
+  #   https://stackoverflow.com/questions/1583219/how-can-i-do-a-recursive-find-replace-of-a-string-with-awk-or-sed/71931037#71931037
+  if ! ( unset -f fdfind; unalias fdfind; command -v fdfind ) >/dev/null 2>&1; then
+    claim_alias_or_warn "fdfind" "fd"
+  fi
+
+  if _home_fries_fd__abs_path >/dev/null; then
     alias fd="_home_fries_fd -I"
 
     # Without the --no-ignore
@@ -80,7 +87,19 @@ _home_fries_fd () {
     ignore_file_arg="--ignore-file '${ignore_file_path}'"
   fi
 
-  eval "command fd -H -L ${exclude} ${ignore_file_arg} $@"
+  eval "$(_home_fries_fd__abs_path) -H -L ${exclude} ${ignore_file_arg} $@"
+}
+
+# ***
+
+# SAVVY: Don't `command -v fd` and return, e.g., `alias fd=...`, but
+# unset and unalias first to avoid that. Note this subprocess approach
+# works in Dash, too.
+_home_fries_fd__abs_path () {
+  for cmd in "fd" "fdfind"; do
+    ( unset -f ${cmd}; unalias ${cmd}; command -v ${cmd} ) 2> /dev/null \
+      && break
+  done
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
