@@ -42,12 +42,12 @@ check_dep () {
 # *** Ubuntu-related
 
 distro_complain_unless_supported_by_homefries () {
-  if [[ -e /proc/version ]]; then
-    if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
-      # echo Ubuntu!
+  if [ -e /etc/os-release ]; then
+    if [ "$(cat /etc/os-release | grep -q "^ID=linuxmint\$")" ]; then
+      # Linux Mint
       : # no-op
-    elif [[ "`cat /proc/version | grep Red\ Hat`" ]]; then
-      # echo Red Hat!
+    elif [ "$(cat /etc/os-release | grep -q "^ID=fedora\$")" ]; then
+      # Fedora
       : # noop
     elif ${HOMEFRIES_UNRECOGNIZED_OS_GRIPE:-true}; then
       local this_file
@@ -57,8 +57,8 @@ distro_complain_unless_supported_by_homefries () {
       echo "- Please disable this gripe, or update: ${this_file}"
     fi
   else
-    # /proc/version does not exist.
-    # echo Chroot!
+    # /etc/os-release does not exist.
+    # - Might be macOS, etc.
     : # nop
   fi
 }
