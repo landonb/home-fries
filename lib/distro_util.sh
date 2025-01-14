@@ -205,6 +205,7 @@ screensaver_lockon () {
     reset_errexit
   else
     >&2 echo "That command is not plumbed for this window manager!"
+
     return 1
   fi
 
@@ -227,6 +228,7 @@ suss_apache () {
     httpd_etc_dir=/etc/httpd
   else
     echo "Error: Unknown OS."
+
     return 1
   fi
 }
