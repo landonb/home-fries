@@ -238,18 +238,18 @@ screensaver_lockon () {
 # Determines the apache user name, and the /etc/ dir path.
 
 suss_apache () {
-  if ! [ -e /proc/version ]; then
+  if ! [ -e /etc/os-release ]; then
     >&2 echo "ERROR: Cannot suss Apache user or dir: Unsupported Homefries OS"
 
     return 1
   fi
 
-  if cat /proc/version | grep -q "Ubuntu"; then
-    # Ubuntu.
+  if cat /etc/os-release | grep -q -e "^ID=debian\$" -e "^ID=linuxmint\$"; then
+    # Debian, or Ubuntu.
     httpd_user=www-data
     httpd_etc_dir=/etc/apache2
-  elif cat /proc/version | grep -q "Red Hat"; then
-    # Red Hat.
+  elif cat /etc/os-release | grep -q -e "^ID=fedora\$" -e "^ID=rhel\$"; then
+    # Red Hat: Fedora, or RHEL.
     httpd_user=apache
     httpd_etc_dir=/etc/httpd
   fi
