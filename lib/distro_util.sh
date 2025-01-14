@@ -306,8 +306,13 @@ os_is_macos () {
   [ "$(uname)" = "Darwin" ]
 }
 
+# SAVVY: Built-in macOS `expr` is BSD, not GNU, and prints:
+#   expr: syntax error
+# - We could prefer the GNU command, e.g.,
+#     $(command -v gexpr || command -v expr)
+#   or we could just not bother if we know system is macOS.
 os_is_linux () {
-  [ "$(uname)" != "Darwin" ] && [ "$(expr substr $(uname -s) 1 5)" = "Linux" ]
+  ! os_is_macos && [ "$(expr substr $(uname -s) 1 5)" = "Linux" ]
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
