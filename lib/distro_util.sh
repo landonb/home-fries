@@ -115,6 +115,7 @@ suss_window_manager () {
 
   suss_window_manager_report () {
     return
+
     echo "WM_IS_CINNAMON: $WM_IS_CINNAMON"
     echo "WM_IS_GNOME: $WM_IS_GNOME"
     echo "WM_IS_KDE: $WM_IS_KDE"
@@ -166,9 +167,14 @@ suss_window_manager () {
   }
 
   suss_window_manager_response () {
-    ! ${WM_IS_UNKNOWN} && return 0
+    if ! ${WM_IS_UNKNOWN}; then
+
+      return 0
+    fi
+
     echo
     echo "ERROR: Unknown Window manager."
+
     return 1
   }
 
