@@ -23,6 +23,22 @@ check_dep () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# REFER: Ways to check OS, with example output:
+#
+#   $ cat /proc/version
+#   Linux version ... (gcc-12 (Debian 12.2.0-14) ...
+#
+#   $ cat /etc/os-release
+#   ...
+#   ID=debian
+#
+#   $ hostnamectl
+#   ...
+#   Operating System: Debian GNU/Linux 12 (bookworm)
+#
+#   $ uname -o
+#   GNU/Linux
+
 # *** Ubuntu-related
 
 distro_complain_not_ubuntu_or_red_hat () {

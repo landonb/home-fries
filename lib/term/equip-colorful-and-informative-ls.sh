@@ -21,6 +21,8 @@ home_fries_fix_terminal_colors () {
   #   dircolors --print-database
   #   dircolors --sh
   if [ -e /proc/version ]; then
+    # REFER: For ways to suss OS, see comments in distro lib:
+    #   ~/.kit/sh/home-fries/lib/distro_util.sh
     if [ "$(cat /proc/version | grep Ubuntu)" ]; then
       # echo Ubuntu!
       # EXPLAIN/2020-08-31 19:19: Why not just call `eval $(dircolors)` here?
