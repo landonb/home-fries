@@ -41,7 +41,7 @@ check_dep () {
 
 # *** Ubuntu-related
 
-distro_complain_not_ubuntu_or_red_hat () {
+distro_complain_unless_supported_by_homefries () {
   if [[ -e /proc/version ]]; then
     if [[ "`cat /proc/version | grep Ubuntu`" ]]; then
       # echo Ubuntu!

@@ -459,7 +459,7 @@ home_fries_up () {
   # flavor-specific options, like terminal colors and the prompt).
   # See also: `uname -a`, `cat /etc/issue`, `cat /etc/fedora-release`.
   # - lib/distro_util.sh
-  run_and_unset "distro_complain_not_ubuntu_or_red_hat"
+  run_and_unset "distro_complain_unless_supported_by_homefries"
 
   #########################
 
