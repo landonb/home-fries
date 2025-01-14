@@ -80,12 +80,9 @@ suss_window_manager () {
     if os_is_macos; then
       WM_IS_QUARTZ=true
     else
-      tweak_errexit
-      WIN_MGR_INFO="$(wmctrl -m >/dev/null 2>&1)"
-      local exitcode=$?
-      reset_errexit
-      if [ ${exitcode} -ne 0 ]; then
-        # E.g., ssh into a machine, and wmctrl -m returns 1, echoes "Cannot open display."
+      if ! wmctrl -m >/dev/null 2>&1; then
+        # Either `wmctrl` not installed, or might be connected via SSH.
+        # - E.g., over SSH, `wmctrl -m` echoes "Cannot open display."
         WM_DETACHED=true
         # MAYBE/2020-05-11: Remove wmctrl greps below, and use command -v checks instead?
         suss_window_manager_via_command_v
