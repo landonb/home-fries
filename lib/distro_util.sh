@@ -248,11 +248,11 @@ suss_apache () {
     return 1
   fi
 
-  if cat /etc/os-release | grep -q -e "^ID=debian\$" -e "^ID=linuxmint\$"; then
+  if cat /etc/os-release | grep -q "^ID=\(debian\|linuxmint\|ubuntu\)\$"; then
     # Debian, or Ubuntu.
     httpd_user=www-data
     httpd_etc_dir=/etc/apache2
-  elif cat /etc/os-release | grep -q -e "^ID=fedora\$" -e "^ID=rhel\$"; then
+  elif cat /etc/os-release | grep -q "^ID=\(fedora\|rhel\)\$"; then
     # Red Hat: Fedora, or RHEL.
     httpd_user=apache
     httpd_etc_dir=/etc/httpd
