@@ -244,7 +244,8 @@ suss_apache () {
 
 suss_postgres () {
   tweak_errexit
-  if [[ `command -v psql` ]]; then
+
+  if command -v psql >/dev/null; then
     POSTGRESABBR=$( \
       psql --version \
       | grep psql \
