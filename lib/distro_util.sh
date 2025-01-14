@@ -12,7 +12,7 @@ check_deps () {
 }
 
 check_dep () {
-  if ! command -v $1 > /dev/null 2>&1; then
+  if ! command -v "$1" > /dev/null 2>&1; then
     >&2 printf '\r%s\n' "WARNING: Missing dependency: ‘$1’"
 
     false
