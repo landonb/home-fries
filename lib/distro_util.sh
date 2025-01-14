@@ -142,21 +142,21 @@ suss_window_manager () {
   }
 
   suss_window_manager_via_wmctrl_m () {
-    if [[ `wmctrl -m | grep -e "^Name: Mutter (Muffin)$"` ]]; then
+    if wmctrl -m | grep -q -e "^Name: Mutter (Muffin)$"; then
       WM_IS_CINNAMON=true
       WM_TERMINAL_APP='gnome-terminal'
-    elif [[ `wmctrl -m | grep -e "^Name: Xfwm4$"` ]]; then
+    elif wmctrl -m | grep -e "^Name: Xfwm4$"; then
       WM_IS_XFCE=true
       WM_TERMINAL_APP='WHO_CARES'
-    elif [[ `wmctrl -m | grep -e "^Name: Metacity (Marco)$"` ]]; then
+    elif wmctrl -m | grep -e "^Name: Metacity (Marco)$"; then
       # Linux Mint 17.1.
       WM_IS_MATE=true
       WM_TERMINAL_APP='mate-terminal'
-    elif [[ `wmctrl -m | grep -e "^Name: Marco$"` ]]; then
+    elif wmctrl -m | grep -e "^Name: Marco$"; then
       # Linux Mint 17.
       WM_IS_MATE=true
       WM_TERMINAL_APP='mate-terminal'
-    elif [[ `wmctrl -m | grep -e "^Name: KWin$"` ]]; then
+    elif wmctrl -m | grep -e "^Name: KWin$"; then
       # openSUSE, etc.
       WM_IS_KDE=true
       WM_TERMINAL_APP='konsole'
