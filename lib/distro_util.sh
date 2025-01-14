@@ -235,10 +235,14 @@ suss_apache () {
 
 # *** Postgres-related
 
+# Sets POSTGRESABBR to, e.g., '8.4' or '9.1'.
+# - Also sets POSTGRES_MAJOR, POSTGRES_MINOR.
+#
+# DUNNO/2025-01-14: I don't remember how these environs are used
+# (and it's been a while since I've used postgres...).
+# - I don't see any usage across codebases other than these definitions.
+
 suss_postgres () {
-  # Set this to, e.g., '8.4' or '9.1'.
-  # Note this uses `/usr/bin/env sed` and not just `sed`, so that it
-  # ignores any aliasing (especially `sed -E`, when you don't want it).
   tweak_errexit
   if [[ `command -v psql` ]]; then
     POSTGRESABBR=$( \
@@ -253,7 +257,9 @@ suss_postgres () {
       psql --version \
       | grep psql \
       | /usr/bin/env sed -E 's/psql \(PostgreSQL\) [0-9]+\.([0-9]+)\.[0-9]+/\1/')
-  fi # else, psql not installed (yet).
+  fi
+  # else, psql not installed.
+
   reset_errexit
 }
 
