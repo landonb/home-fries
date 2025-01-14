@@ -235,6 +235,8 @@ screensaver_lockon () {
 
 # *** Apache-related
 
+# Determines the apache user name, and the /etc/ dir path.
+
 suss_apache () {
   if ! [ -e /proc/version ]; then
     >&2 echo "ERROR: Cannot suss Apache user or dir: Unsupported Homefries OS"
@@ -242,7 +244,6 @@ suss_apache () {
     return 1
   fi
 
-  # Determine the name of the apache user.
   if cat /proc/version | grep -q "Ubuntu"; then
     # Ubuntu.
     httpd_user=www-data
