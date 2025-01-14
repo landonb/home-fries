@@ -46,8 +46,9 @@ home_fries_fix_terminal_colors () {
     # `LS_COLORS='...'`, and then `export LS_COLORS`, so just eval its output.
     eval $(gdircolors)
   else
-    # In an unrigged chroot, so no /proc/version.
-    : # Nada.
+    # No /proc/version.
+    # - E.g., might be in an unrigged chroot.
+    :
   fi
 }
 
