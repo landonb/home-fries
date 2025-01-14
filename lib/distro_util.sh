@@ -81,7 +81,7 @@ suss_window_manager () {
       WM_IS_QUARTZ=true
     else
       tweak_errexit
-      WIN_MGR_INFO=`wmctrl -m >/dev/null 2>&1`
+      WIN_MGR_INFO="$(wmctrl -m >/dev/null 2>&1)"
       local exitcode=$?
       reset_errexit
       if [ ${exitcode} -ne 0 ]; then
