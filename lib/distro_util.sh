@@ -43,7 +43,10 @@ check_dep () {
 
 distro_complain_unless_supported_by_homefries () {
   if [ -e /etc/os-release ]; then
-    if [ "$(cat /etc/os-release | grep -q "^ID=linuxmint\$")" ]; then
+    if [ "$(cat /etc/os-release | grep -q "^ID=debian\$")" ]; then
+      # Debian
+      : # no-op
+    elif [ "$(cat /etc/os-release | grep -q "^ID=linuxmint\$")" ]; then
       # Linux Mint
       : # no-op
     elif [ "$(cat /etc/os-release | grep -q "^ID=fedora\$")" ]; then
