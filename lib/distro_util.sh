@@ -237,6 +237,7 @@ screensaver_lockon () {
 
 # Determines the apache user name, and the /etc/ dir path.
 
+# SAVVY/2025-01-14: Currently uncalled.
 suss_apache () {
   if ! [ -e /etc/os-release ]; then
     >&2 echo "ERROR: Cannot suss Apache user or dir: Unsupported Homefries OS"
