@@ -109,8 +109,8 @@ _hf_print_terminal_window_number () {
 
   false \
     || window_number="$(_hf_print_terminal_window_number_iterm)" \
-    || window_number="$(_hf_print_terminal_window_number_alacritty)" \
-    || window_number="$(_hf_print_terminal_window_number_mate_terminal)" \
+    || window_number="$(_hf_print_terminal_window_number_alacritty_macos)" \
+    || window_number="$(_hf_print_terminal_window_number_linux_terminal)" \
     || true;
 
   printf "%s" "${window_number}"
@@ -178,7 +178,7 @@ _hf_print_terminal_window_number_iterm () {
 #   windows. But parts of the border that overlap other apps or
 #   the Finder are still borderful (drawn).
 
-_hf_print_terminal_window_number_alacritty () {
+_hf_print_terminal_window_number_alacritty_macos () {
   # FTREQ/2024-07-10: Try Alacritty on Linux and update this fcn.
   if ! _hf_titler_os_is_macos; then
 
@@ -214,21 +214,24 @@ _hf_print_terminal_window_number_alacritty () {
 # It's unlikely another application is also prefixing numbers to
 # their window titles, though, we're just that special).
 
-_hf_print_terminal_window_number_mate_terminal () {
-  if [ -z "${DISPLAY}" ] || ! command -v wmctrl > /dev/null; then
-
-    return 1
-  fi
-  
+_hf_print_terminal_window_number_linux_terminal () {
   local window_number=""
 
   local dot_leader_group
   dot_leader_group="\\(\\${DUBS_NORMAL_INDICATOR:-.}\\|${DUBS_STICKY_INDICATOR:-․}\\)"
 
+  # Call prefixes separately (author tried this in a pipeline, e.g.,
+  #   assigned="$(_hf_print_terminal_window_title_prefixes | ...)"
+  # but checking `${PIPESTATUS[0]} -ne 0` was always false).
+  local prefixes
+  if ! prefixes="$(_hf_print_terminal_window_title_prefixes)"; then
+
+    return 1
+  fi
+
   local assigned
   assigned="$( \
-    wmctrl -l \
-    | awk '{print $4}' \
+    echo "${prefixes}" \
     | grep -e "^[0-9]${dot_leader_group}\$" \
     | sed "s/${dot_leader_group}\$//" \
     | sort \
@@ -247,6 +250,117 @@ _hf_print_terminal_window_number_mate_terminal () {
   printf "%s" "${window_number}"
 }
 
+# ***
+
+_hf_print_terminal_window_title_prefixes () {
+  if [ "$(_hf_probe_desktop_environment)" = "GNOME" ]; then
+    _hf_print_terminal_window_title_prefixes_Wayland
+  else
+    _hf_print_terminal_window_title_prefixes_XWindow
+  fi
+}
+
+# SAVVY: You can use wmctrl in Wayland to some extent, e.g.:
+#   $ sudo apt install wmctrl && wmctrl -m
+#   Name: GNOME Shell
+# But `wmctrl -l` shows a very limited subset of windows,
+# e.g., author only sees Chrome and GVim windows listed.
+
+_hf_probe_desktop_environment () {
+  # Colon-separated list, uppercased.
+  local currdes
+  currdes="$(echo "${XDG_CURRENT_DESKTOP}" | tr '[:lower:]' '[:upper:]')"
+
+  (
+    IFS=:; for denv in ${currdes}; do
+      if [ "${denv}" = "GNOME" ]; then
+        echo "GNOME"
+      elif [ "${denv}" = "MATE" ]; then
+        echo "MATE"
+      else
+
+        continue
+      fi
+
+      break
+    done
+  )
+}
+
+# USAGE: Requires GNOME Shell Extension:
+#   https://extensions.gnome.org/extension/4724/window-calls/
+#   https://github.com/ickyicky/window-calls
+# REFER:
+# ~/.local/share/gnome-shell/extensions/
+
+_hf_print_terminal_window_title_prefixes_Wayland () {
+  local windows_list
+  if ! windows_list="$( \
+    gdbus call --session --dest org.gnome.Shell \
+      --object-path /org/gnome/Shell/Extensions/Windows \
+      --method org.gnome.Shell.Extensions.Windows.List
+  )"; then
+    # E.g. — Error: GDBus.Error:org.freedesktop.DBus.Error.UnknownMethod:
+    #   Object does not exist at path “/org/gnome/Shell/Extensions/Foo”
+
+    return 1
+  fi
+
+  # SAVVY:
+  # - Use jq to pick gnome-terminal windows only,
+  #   and emit a list of IDs.
+  # - For each ID, send gdbus command to window-calls
+  #   Extension to get window details, including title.
+  # - Use gawk to remove the '(' ... ',)' around details.
+  # - Remove double quote delimiter, for jq.
+  # - Use jq to print each window title.
+  # - Use awk to print only the first column, e.g.,
+  #   '1.', '2.', etc.
+
+  # REFER: See comments in DepoXy re: How to deal with escapes:
+  #   https://github.com/DepoXy/depoxy#🍯
+  #     ~/.depoxy/ambers/bin/windows/toggle-visibility
+  # - Removing escape characters before quotes usually works:
+  #     | sed 's/\\"/"/g' \
+  #   But sometimes the response is doubly-delimited, which we
+  #   need to transform for `jq` not to fail on the first line
+  #   that's doubly-escaped (\\"):
+  #     | sed -e 's/\\"/"/g' -e 's/\\\\"/\\"/g' \
+
+  echo "${windows_list}" | head -c -4 | tail -c +3 \
+  | jq '.[] | select(
+      .wm_class == "gnome-terminal-server"
+      or .wm_class == "Alacritty"
+    ) | .id' \
+  | xargs -I{} \
+    gdbus call --session --dest org.gnome.Shell \
+      --object-path /org/gnome/Shell/Extensions/Windows \
+      --method org.gnome.Shell.Extensions.Windows.Details \
+        {} \
+  | gawk 'match($0, /\{.*\}/, a) {print a[0]}' \
+  | sed -e 's/\\"/"/g' -e 's/\\\\"/\\"/g' \
+  | jq -r '.title' \
+  | awk '{print $1}'
+}
+
+# CALSO:
+#   xdotool search --onlyvisible -class mate-terminal getwindowname %@
+# https://stackoverflow.com/questions/9407291/listing-of-all-gnome-terminal-windows
+#
+# CALSO:
+#   xwininfo -root -children
+
+_hf_print_terminal_window_title_prefixes_XWindow () {
+  if [ -z "${DISPLAY}" ] || ! command -v wmctrl > /dev/null; then
+
+    return 1
+  fi
+
+  # Print the fourth column, which is the start of the window title,
+  # e.g., '1.', and assumes the `[0-9].` is followed by whitespace.
+  wmctrl -l | awk '{print $4}'
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 _hf_titler_os_is_macos () {
@@ -263,8 +377,8 @@ _hf_cleanup_lib_term_window_title_show_command_name () {
 
   unset -f _hf_print_terminal_window_number
   unset -f _hf_print_terminal_window_number_iterm
-  unset -f _hf_print_terminal_window_number_alacritty
-  unset -f _hf_print_terminal_window_number_mate_terminal
+  unset -f _hf_print_terminal_window_number_alacritty_macos
+  unset -f _hf_print_terminal_window_number_linux_terminal
 
   unset -f _hf_hook_titlebar_update
 

@@ -53,10 +53,26 @@ _hf_prompt_is_user_logged_on_via_ssh () {
   return 1
 }
 
-_hf_prompt_user_is_not_trapped_in_chroot () {
-  ( _hf_prompt_os_is_linux && [ $(stat -c %i /) -eq 2 ] ) ||
-  ( _hf_prompt_os_is_macos && [ $(stat -f %i /) -eq 2 ] )
+# 2015.03.04: I need to know when I'm in chroot hell.
+# NOTE: There's a better way using sudo to check if in chroot jail
+#       (which is compatible with Mac, BSD, etc.) but we don't want
+#       to use sudo, and we know we're on Linux. And on Linux,
+#       the inode of the (outermost) root directory is always 2.
+
+_hf_prompt_user_is_trapped_in_chroot () {
+  ( _hf_prompt_os_is_linux && [ $(stat -c %i /) -ne 2 ] ) ||
+  ( _hf_prompt_os_is_macos && [ $(stat -f %i /) -ne 2 ] )
 }
+
+# DEVEL: If you need insight into the titlebar function, try logging
+# or even xtrace'ing to a tmp file, e.g.,
+#
+#   echo "BASH_XTRACEFD: ${BASH_XTRACEFD}" >> /tmp/xtrace
+#   exec 10> /tmp/xtrace
+#   export BASH_XTRACEFD=10
+#   set -x
+#   ...
+#   set +x
 
 _hf_prompt_format_titlebar () {
   # 2012.10.17: Also change the titlebar name for special terminal windows,
@@ -132,16 +148,16 @@ _hf_prompt_format_titlebar () {
     if [ "${HOMEFRIES_TITLE}" != '' ]; then
 
       titlebar="\[\e]0;${winnum}${HOMEFRIES_TITLE}\a\]"
-    elif _hf_prompt_user_is_not_trapped_in_chroot; then
+    elif _hf_prompt_user_is_trapped_in_chroot; then
+      # In chroot jail.
+      titlebar="\[\e]0;${winnum}|-${basename}-|\a\]"
+    else
       # Not in chroot jail.
       #  titlebar="\[\e]0;\u@\h:\w\a\]"
       #  titlebar="\[\e]0;\w:(\u@\h)\a\]"
       #  titlebar="\[\e]0;\w\a\]"
 
       titlebar="\[\e]0;${winnum}${basename}\a\]"
-    else
-      # In chroot jail.
-      titlebar="\[\e]0;${winnum}|-${basename}-|\a\]"
     fi
   else
     # echo "User *is* logged on via SSH!"
@@ -174,6 +190,17 @@ _hf_prompt_customize_shell_prompts_and_window_title () {
   local attr_reset='\[\033[00m\]'
   local attr_underlined="\033[4m"
   # local attr_bold="\[\033[1m\]"  # See also: $(tput bold).
+
+  # So that you can double-click the working directory to copy it, use
+  # non-path characters before and after the path.
+  # - The set of path characters is specific to the terminal emulator,
+  #   and it's not always adjustable (without building from sources, I
+  #   suppose).
+  # - Whitespace and Unicode should be universally accepted as not path
+  #   characters.
+  #   - E.g., rather than use an ASCII colon ":", use a Unicode colon "∶".
+  #     - REFER: "Ratio", Unicode Character “∶” (U+2236)
+  local unicolon="∶"
 
   local mach_name
   if [ -n "${HOMEFRIES_TERM_UTIL_PS1_HOST}" ]; then
@@ -231,6 +258,8 @@ _hf_prompt_customize_shell_prompts_and_window_title () {
   #         (though latest Bash `echo` and `printf` do not care).
   # - NOTE: If set in PS1 directly, need to $'interpolate', e.g.,
   #           PS1="${titlebar}${prompt_stuff}"$' \U1F480 '"\$ "
+  #         - SAVVY: Bash's $'...' sees \uXXXX unicode espace
+  #           sequences, but not $"..."
   # - NOTE: And now that I've noted all of this, It's actually
   #         easier to just embed the Unicode within this file.
   #         And then raw macOS (with system Bash 3.x, whose `echo`
@@ -275,6 +304,9 @@ _hf_prompt_customize_shell_prompts_and_window_title () {
     local_shell_icon='$([ -f "$(git root 2> /dev/null)/.git/rebase-merge/git-rebase-todo" ] && echo "('"${local_shell_icon}"')" || echo "'"${local_shell_icon}"'")'
     remote_shell_icon='$([ -f "$(git root 2> /dev/null)/.git/rebase-merge/git-rebase-todo" ] && echo "('"${remote_shell_icon}"')" || echo "'"${remote_shell_icon}"'")'
   fi
+
+  local_shell_icon="${local_shell_icon} "
+  remote_shell_icon="${remote_shell_icon} "
 
   _hf_prompt_customize_shell_prompt_PS1
   _hf_prompt_customize_shell_prompt_PS2
@@ -357,80 +389,28 @@ _hf_prompt_customize_shell_prompt_PS1 () {
     #   prompt_symbol="\$(test \${_hf_exitcode:-0} -ne 0 && echo \"${fg_red}${prompt_symbol}${attr_reset}\" || echo \"${prompt_symbol}\")"
   fi
 
-  # NOTE: Using "" below instead of '' so that ${titlebar} is resolved by the
-  #       shell first.
-  # ${HOMEFRIES_TRACE} && echo "PS1: Preparing prompt"
-  if [ -e /proc/version ] || _hf_prompt_os_is_macos ; then
-    if [ $EUID -eq 0 ]; then
-      local fg_path=""
-      # ${HOMEFRIES_TRACE} && echo "PS1: Running as root!"
-      if _hf_prompt_os_is_macos || [ "$(cat /proc/version | grep Ubuntu)" ]; then
-        # ${HOMEFRIES_TRACE} && echo "PS1: On Ubuntu"
-        fg_path="${fg_cyan}"
-      elif [ "$(cat /proc/version | grep Red\ Hat)" ]; then
-        # ${HOMEFRIES_TRACE} && echo "PS1: On Red Hat"
-        # - DUNNO/2024-05-01: I don't recall history of this path (and
-        #   it's been eons since I last used Fedora).
-        fg_path="${fg_gray}"
-      else
-        >&2 echo "ERROR: Unsupported OS / Cannot (well, will not) set PS1"
+  if ${HOMEFRIES_PS1_EMOJI_DISABLE:-false}; then
+    local_shell_icon=""
+    remote_shell_icon=""
+  fi
 
-        return 1
-      fi
-      PS1="${titlebar}${bg_magenta}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_path}${basename}${attr_reset}${prompt_symbol} "
-    elif _hf_prompt_os_is_macos || [ "$(cat /proc/version | grep Ubuntu)" ]; then
-      # ${HOMEFRIES_TRACE} && echo "PS1: On Ubuntu"
-      # 2015.03.04: I need to know when I'm in chroot hell.
-      # NOTE: There's a better way using sudo to check if in chroot jail
-      #       (which is compatible with Mac, BSD, etc.) but we don't want
-      #       to use sudo, and we know we're on Linux. And on Linux,
-      #       the inode of the (outermost) root directory is always 2.
-      # CAVEAT: This check works on Linux but probably not on Mac, BSD, Cygwin, etc.
-      if _hf_prompt_is_user_logged_on_via_ssh; then
-        # 2018-12-23: Killer.
-
-        PS1="${titlebar}${fg_gray}${cur_user}$(attr_italic)$(attr_underline)$(fg_lightorange)@${mach_name}${attr_reset}:${fg_cyan}${basename}${attr_reset} ${remote_shell_icon} ${prompt_symbol} "
-      elif _hf_prompt_user_is_not_trapped_in_chroot; then
-        #PS1="${titlebar}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]${prompt_symbol} "
-        # 2015.03.04: The chroot is Ubuntu 12.04, and it's Bash v4.2 does not
-        #             support Unicode \uXXXX escapes, so use the escape in the
-        #             outer. (Follow the directory path with an anchor symbol
-        #             so I know I'm *not* in the chroot.)
-        # With a colon between hostname and working directory:
-        #   PS1="${titlebar}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_cyan}${basename}${attr_reset} ${local_shell_icon} ${prompt_symbol} "
-        # With a space between hostname and working directory, so double-click works.
-        #   PS1="${titlebar}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset} ${fg_cyan}${basename}${attr_reset} ${local_shell_icon} ${prompt_symbol} "
-        # With a Unicode colon between hostname and working directory, so double-click works.
-
-        PS1="${titlebar}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}∶${fg_cyan}${basename}${attr_reset} ${local_shell_icon} ${prompt_symbol} "
-        # 2015.02.26: Add git branch.
-        #             Maybe... not sure I like this...
-        #             maybe change delimiter and make branch name colorful?
-        #PS1="${titlebar}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]"'$(__git_ps1 "-%s" )${prompt_symbol} '
-      else
-        # NOTE: Bash's $'...' sees \uXXXX unicode espace sequences, but not $"..."
-        # See the Unicode character table: http://unicode-table.com/en/
-        # Bash doesn't support all Unicode characters, so see also this list:
-        #   https://mkaz.com/2014/04/17/the-bash-prompt/
-        #PS1="${titlebar}\[\033[01;31m\]"$'\u2605'"\u@"$'\u2605'"\[\033[1;36m\]\h\[\033[00m\]:\[\033[01;33m\]\W\[\033[00m\]"$' \u2693 '
-        # 2015.03.04: As mentioned above, the chroot may be running an old Bash,
-        #             so use the Unicode \uXXXX escape in the outer only.
-
-        PS1="${titlebar}${fg_red}**${cur_user}@**${fg_cyan}${mach_name}${attr_reset}:${fg_yellow}${basename}${attr_reset} "'! '
-      fi
-    elif [ "$(cat /proc/version | grep Red\ Hat)" ]; then
-      # ${HOMEFRIES_TRACE} && echo "PS1: On Red Hat"
-
-      PS1="${titlebar}${fg_cyan}${cur_user}@${fg_yellow}${mach_name}${attr_reset}:${fg_gray}${basename}${attr_reset}${prompt_symbol} "
-    else
-      >&2 echo "ERROR: Unsupported OS / Cannot (well, will not) set PS1"
-
-      return 1
-    fi
+  if [ $EUID -eq 0 ]; then
+    # ${HOMEFRIES_TRACE} && echo "PS1: as root"
+    PS1="${titlebar}${bg_magenta}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}${unicolon}${fg_cyan}${basename}${attr_reset}${prompt_symbol} "
+  elif _hf_prompt_is_user_logged_on_via_ssh; then
+    # ${HOMEFRIES_TRACE} && echo "PS1: via SSH"
+    # 2018-12-23: Use remote_shell_icon when logged on over SSH.
+    PS1="${titlebar}${fg_gray}${cur_user}$(attr_italic)$(attr_underline)$(fg_lightorange)@${mach_name}${attr_reset}${unicolon}${fg_cyan}${basename}${attr_reset} ${remote_shell_icon}${prompt_symbol} "
+  elif _hf_prompt_user_is_trapped_in_chroot; then
+    # ${HOMEFRIES_TRACE} && echo "PS1: chroot jail"
+    PS1="${titlebar}${fg_red}**${cur_user}@**${fg_cyan}${mach_name}${attr_reset}${unicolon}${fg_yellow}${basename}${attr_reset} "'! '
   else
-    # This is a chroot jail without a mounted /proc, or some other
-    # flavor of Linux.
-    : # Just use default prompt.
+    # ${HOMEFRIES_TRACE} && echo "PS1: local shell"
+    PS1="${titlebar}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}${unicolon}${fg_cyan}${basename}${attr_reset} ${local_shell_icon}${prompt_symbol} "
+    # 2015.02.26: Add git branch.
+    #             Maybe... not sure I like this...
+    #             maybe change delimiter and make branch name colorful?
+    #  PS1="${titlebar}\[\033[01;37m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\]"'$(__git_ps1 "-%s" )${prompt_symbol} '
   fi
 
   if [ ${HOMEFRIES_PS1_PREV_CMD_FAILED_STYLE:-0} -eq 1 ]; then
@@ -492,7 +472,7 @@ _hf_prompt_configure () {
   unset -f _hf_prompt_os_is_macos
 
   unset -f _hf_prompt_is_user_logged_on_via_ssh
-  unset -f _hf_prompt_user_is_not_trapped_in_chroot
+  unset -f _hf_prompt_user_is_trapped_in_chroot
   unset -f _hf_prompt_format_titlebar
 
   unset -f _hf_prompt_customize_shell_prompt_PS1
