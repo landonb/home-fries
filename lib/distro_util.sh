@@ -301,18 +301,25 @@ suss_postgres () {
 #     elif [ "$(expr substr $(uname -s) 1 10)" = "MINGW64_NT" ]; then
 #       # Do something under 64 bits Windows NT platform
 #     fi
+#
+# SAVVY: Built-in macOS `expr` is BSD, not GNU, and prints:
+#   expr: syntax error
+# - If you used it, you'd want to prefer the GNU variant, e.g.:
+#     gnu_expr () {
+#       for cmd in "gexpr" "expr"; do
+#         ( unset -f ${cmd}; unalias ${cmd}; command -v ${cmd} ) 2> /dev/null \
+#           && break
+#       done
+#     }
 
 os_is_macos () {
   [ "$(uname)" = "Darwin" ]
 }
 
-# SAVVY: Built-in macOS `expr` is BSD, not GNU, and prints:
-#   expr: syntax error
-# - We could prefer the GNU command, e.g.,
-#     $(command -v gexpr || command -v expr)
-#   or we could just not bother if we know system is macOS.
+# On author's Linux Mint and Debian distros, `uname` and `uname -s`
+# each print "Linux"
 os_is_linux () {
-  ! os_is_macos && [ "$(expr substr $(uname -s) 1 5)" = "Linux" ]
+  [ "$(uname)" = "Linux" ]
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
