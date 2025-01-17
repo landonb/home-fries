@@ -157,11 +157,14 @@ dirperms () {
   fi
 
   # Because `chmod --silent`
-  chmod_kludge () {
-    command -v gchmod || command -v chmod
+  gnu_chmod () {
+    for cmd in "gchmod" "chmod"; do
+      ( unset -f ${cmd}; unalias ${cmd}; command -v ${cmd} ) 2> /dev/null \
+        && break
+    done
   }
 
-  $(chmod_kludge) --silent u+rwX,g+rwX,o+rX ${one_dir}
+  $(gnu_chmod) --silent u+rwX,g+rwX,o+rX ${one_dir}
 }
 
 # Reset file permissions on directory hierarchy.
