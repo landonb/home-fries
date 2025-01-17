@@ -138,58 +138,32 @@ export_homefries_check_dep () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-ensure_pathed () {
-  local lib_file="$1"
-  local deps_path="$2"
-  local lib_path="$(type -p "${lib_file}")"
-  if [ ! -f "${lib_path}" ]; then
-    path_suffix "${HOMEFRIES_DIR}/deps/${deps_path}"
-  fi
-}
-
-ensure_deps () {
-  # User is welcome to install the dependencies and ensure
-  # they're found on PATH. If not, we'll use copies we keep
-  # in this repo.
-  # HINT: If you want to make changes to Homefries and the
-  # other projects, use hardlinks so you don't have to sync
-  # files manually (though you may when Git committing).
-  # - The author uses a script:
-  #     https://github.com/DepoXy/depoxy/blob/release/home/.kit/git/ohmyrepos/lib/my-deps-manage-shoilerplate.sh
-  #   Which you'll find locally in a DepoXy environment at:
-  #     ~/.depoxy/ambers/home/.kit/git/ohmyrepos/lib/my-deps-manage-shoilerplate.sh
-  #   that creates hard links under deps/ to include
-  #   and package these dependencies with Homefries.
-  #   - That script also runs after git-rebase to
-  #     recreate the hard links that rebase breaks.
-
-  # Ensure sh-colors/bin/colors.sh on PATH.
-  # - Project includes: colors.sh
-  ensure_pathed 'colors.sh' 'sh-colors/bin'
-  check_dep 'colors.sh'
-
-  # Ensure sh-logger/bin/logger.sh on PATH.
-  # - Project includes: logger.sh
-  ensure_pathed 'logger.sh' 'sh-logger/bin'
-  check_dep 'logger.sh'
-
-  # Ensure sh-pather/bin/path* on PATH.
-  # - Project includes: pather.sh, path_prefix, path_suffix
-  ensure_pathed 'pather.sh' 'sh-pather/bin'
-  check_dep 'pather.sh'
-
-  # Ensure sh-rm_safe/bin/* on PATH.
-  # - Project includes: path_device, rm_rotate, rm_safe, rmrm
-  ensure_pathed 'rm_safe' 'sh-rm_safe/bin'
-  check_dep 'rm_safe'
-
-  # Ensure sh-humble-prompt/lib/* on PATH.
-  # - Project includes: _hf_prompt_configure, _hf_hook_titlebar_update
-  ensure_pathed 'set-shell-prompt-and-window-title.sh' 'sh-humble-prompt/lib'
-  check_dep 'set-shell-prompt-and-window-title.sh'
-  # FIXME/2025-01-03: Rename file. Also includes sequential terminal number.
-  check_dep 'show-command-name-in-window-title.sh'
-}
+# This project used to use a `command -v` hack that allowed user to put
+# non-executable dependencies on PATH, and we'd prefer to source those
+# dependencies. If not found, then we'd fallback our own copies.
+# - But this behavior was "fixed" in Dash in 2024, though it continues
+#   to work in Bash. However, because Bash *might* follow suit if it sees
+#   the same behavior as incorrect, we'll no longer use `command -v` to
+#   find non-executable files.
+# - E.g.:
+#     $ PATH=$PATH:~/.local/bin
+#     $ touch ~/.local/bin/foo
+#     $ chmod -x ~/.local/bin/foo
+#     $ command -v foo
+#     /home/user/.local/bin/foo
+#
+# HINT: If you want to realize changes in realtime as you modify
+# dependency files, you could use hardlinks on files within the
+# deps/ directory.
+#
+# - The author uses a script:
+#     https://github.com/DepoXy/depoxy/blob/release/home/.kit/git/ohmyrepos/lib/my-deps-manage-shoilerplate.sh
+#   Which you'll find locally in a DepoXy environment at:
+#     ~/.depoxy/ambers/home/.kit/git/ohmyrepos/lib/my-deps-manage-shoilerplate.sh
+#   that creates hard links under deps/ to include
+#   and package these dependencies with Homefries.
+#   - That script also runs after git-rebase to
+#     recreate the hard links that rebase breaks.
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -206,12 +180,6 @@ source_homefries_libs_all () {
   # USYNC: Set _SOURCE_IT_BEGIN for first source_homefries_libs_all source_it.
   _SOURCE_IT_BEGIN=true \
   source_it "logger.sh" "sh-logger/bin"
-
-  # Ensure other dependencies are either on PATH, or update PATH to
-  # include our local copies.
-  ensure_deps
-  unset -f ensure_deps
-  unset -f ensure_pathed
 
   # *** Load these files first, which are local dependencies for
   #     scripts loaded later.

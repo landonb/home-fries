@@ -53,11 +53,6 @@ home_fries_add_to_path_opt_local_bins () {
 
 # ++++++++++++++++++++++++++++++ #
 
-home_fries_add_to_path_home_fries_lib () {
-  # Make sourcing Home Fries files easy.
-  path_prefix "${HOMEFRIES_LIB:-${HOME}/.kit/sh/home-fries/lib}"
-}
-
 home_fries_add_to_path_home_fries_bin () {
   # Make Home Fries commands available.
   path_prefix "${HOMEFRIES_BIN:-${HOME}/.kit/sh/home-fries/bin}"
@@ -171,9 +166,6 @@ home_fries_set_path_environ () {
 
   home_fries_add_to_path_home_local_bin
   unset -f home_fries_add_to_path_home_local_bin
-
-  home_fries_add_to_path_home_fries_lib
-  unset -f home_fries_add_to_path_home_fries_lib
 
   # 2020-12-16: Until now, it did not matter that ~/.homefries/bin
   # followed ~/.local/bin in PATH (first two entries), but now I've
