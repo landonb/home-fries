@@ -23,7 +23,12 @@
 #       vim -c 'startinsert' -c 'norm! gg' "${@}"
 
 editor_vim_0_0_insert () {
-  vim -c 'startinsert' -c 'norm! gg' "$@"
+  local editor="vim"
+  if ${EDITOR_PREFER_NVIM:-false}; then
+    editor="nvim"
+  fi
+
+  ${editor} -c 'startinsert' -c 'norm! gg' "$@"
 }
 
 # ***
