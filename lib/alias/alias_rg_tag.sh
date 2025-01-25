@@ -158,19 +158,24 @@ home_fries_create_aliases_rg_tag_wrap () {
   #      each search result in a GVim window, and switch to it.
 
   # CXREF: https://github.com/DepoXy/gvim-open-kindness#🐬
-  # - If using DepoXy, it's at: ~/.kit/sh/gvim-open-kindness/bin/gvim-open-kindness
-  # See the gvim-open-kindness script: It uses an environment
-  # variable, $GVIM_OPEN_SERVERNAME, to indicate which GVim
-  # instance to use. If you do not set or change this value, each
-  # file will be opened in the same instance of GVim. Or, you
-  # could set GVIM_OPEN_SERVERNAME to something different to
-  # specify different instances, e.g.,
+  # - If using DepoXy, it's at:
+  #   ~/.kit/sh/gvim-open-kindness/bin/gvim-open-kindness
+  #   - You can choose nvim w/ GVIM_OPEN_PREFER_NVIM=true:
+  #     ~/.depoxy/running/home/.config/depoxy/depoxyrc
+  # 
+  # REFER: The gvim-open-kindness script uses $GVIM_OPEN_SERVERNAME
+  # to indicate which GVim instance to use, or NVIM_OPEN_SOCKETNAME
+  # for Neovim if GVIM_OPEN_PREFER_NVIM is true. If you do not
+  # set or change this value, each file will be opened in the same
+  # instance of GVim/nvim. Or, change the environ to use different
+  # instances, e.g.,
   #   $ rg `some term`
   #   foo/bar.bat
   #   [1] 1:1 some term
   #   [2] 2:1 some term
   #   $ GVIM_OPEN_SERVERNAME=gvim1 e1
   #   $ GVIM_OPEN_SERVERNAME=gvim2 e2
+  #   $ NVIM_OPEN_SOCKETNAME=nvim3 GVIM_OPEN_PREFER_NVIM=true e2
 
   # TRICK: Add this as the first line to the environ
   #        to view the command when tag is invoked:
