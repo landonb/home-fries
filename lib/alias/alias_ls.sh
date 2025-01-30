@@ -235,9 +235,19 @@ function ll () {
   else
     $(ls-or-gls) -lhFa --color=always "$@" \
       | sed 'h;s/^\([^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+ \+\)\?\)\?\)\?\)\?\)\?\)\?\)\?\)\?//;s/\x1b[[0-9;]*m//g;s/^$/\./;s/^\.\/$/\.\./;s/^\.\.\/$/\.\.\./;G;s/\n/\t/' \
-      | grep -v -e "^\.localized\t" -e "^\.DS_Store\t" \
+      | _hf_filter_ll "$@" \
       | LC_ALL=C sort -d -f -k1,1 \
       | cut -f2-
+  fi
+}
+
+function _hf_filter_ll () {
+  if test "$(command ls -A "$@")" = ".DS_Store" \
+    || test "$(command ls -A "$@")" = ".localized" \
+  ; then
+    cat
+  else
+    grep -v -e "^\.localized\t" -e "^\.DS_Store\t"
   fi
 }
 
