@@ -56,6 +56,7 @@ home_fries_wire_export_less () {
   # and when you're done, the output isn't left as crud in the window.
   # 2014.11.20: Add -R so ANSI "color" escape sequences work, otherwise
   # commands like `git log` will show escape characters as, e.g., ESC[33mc.
+  # SAVVY/2025-01-27: PAGER applies to `man`, etc., e.g., `PAGER=cat man foo`
   #
   #  export PAGER=less
   export PAGER=less\ -R
