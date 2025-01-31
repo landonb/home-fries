@@ -242,8 +242,8 @@ function ll () {
 }
 
 function _hf_filter_ll () {
-  if test "$(command ls -A "$@")" = ".DS_Store" \
-    || test "$(command ls -A "$@")" = ".localized" \
+  if test "$(command ls -A "$@" 2> /dev/null)" = ".DS_Store" \
+    || test "$(command ls -A "$@" 2> /dev/null)" = ".localized" \
   ; then
     cat
   else
