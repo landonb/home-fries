@@ -11,7 +11,7 @@
 
 # CXREF: This VIM plugin has much more robust logic:
 #          https://github.com/embrace-vim/vim-webopen#🐣
-#            ~/.vim/pack/embrace-vim/start/vim-webopen/bin/macOS-which-browser
+#            ~/.kit/nvim/embrace-vim/start/vim-webopen/bin/macOS-which-browser
 
 default-browser () {
   if os_is_macos; then
