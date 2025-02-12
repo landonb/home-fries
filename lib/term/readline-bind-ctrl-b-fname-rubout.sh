@@ -6,36 +6,45 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# MAYBE/2020-09-09 15:58: Consider moving to .inputrc, e.g.,:
-#   #bind \\C-b:unix-filename-rubout
-#   bind "\C-b": unix-filename-rubout
-# https://superuser.com/questions/606212/bash-readline-deleting-till-the-previous-slash
-
-# DOCS/2020-09-09 16:00: Use Ctrl-b in shell to delete backward to space or slash.
-
-#  $ bind -P | grep -e unix-filename-rubout -e C-b
-#  backward-char can be found on "\C-b", "\eOD", "\e[D".
-#  unix-filename-rubout is not bound to any keys
+# ABOUT: Wire a less greedy <Ctrl-w>, more akin to how Vim <C-w> behaves.
 #
-#  # Essentially, default <C-b> moves cursor back one, same as left arrow.
+# - But not as non-greedy as Vim; we'll use unix-filename-rubout which
+#   uses whitespace and slash characters as the word boundary.
 #
-#  $ bind \\C-b:unix-filename-rubout
-#  $ bind -P | grep unix-filename-rubout
-#  unix-filename-rubout can be found on "\C-b".
+# CXREF: Normally we'd put readline bindings in the readline config:
+# ~/.inputrc
+#
+# - But <Ctrl-W> is actually an stty setting, which overrules inputrc
+#   unless we disable it, which we do so here.
+#
+# REFER: See lots more comments at the bottom of the dot-inputrc inputrc:
+#
+#   https://github.com/DepoXy/dot-inputrc/blob/1.2.0/.inputrc#L874-L990
+#
+#     https://github.com/DepoXy/dot-inputrc#🎛️
+#
+# SAVVY: There's a less greedy backward-delete at <Alt-Backpsace>
+#           (aka Meta-Delete, Meta-DEL, "\e\C-?"),
+#        and at <Esc><Backspace>.
+#   $ bind -P | grep -e "\-kill-word" -e "\-rubout"
+#   backward-kill-word can be found on "\e\C-h", "\e\C-?".
+#   ...
+
 home_fries_hook_filename_rubout () {
-  local expect_txt
+  local expect_txt=""
 
-  expect_txt='unix-filename-rubout is not bound to any keys'
-  if [[ $expect_txt != $(bind -P | grep -e unix-filename-rubout) ]]; then
+  expect_txt="^unix-filename-rubout is not bound to any keys"
+  if ! bind -P | grep -q -e "${expect_txt}"; then
+    bind -P | grep filename
+    echo
+    bind -P | grep -e "${expect_txt}"
+
     return
   fi
 
-  expect_txt='backward-char can be found on '
-  if [[ "$(bind -P | grep C-b)" != "${expect_txt}"* ]]; then
-    return
-  fi
+  stty werase undef
 
-  bind \\C-b:unix-filename-rubout
+  bind \\C-w:unix-filename-rubout
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
