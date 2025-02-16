@@ -38,6 +38,8 @@ home_fries_aliases_wire_git () {
 
   # git-smart's `git upstream` aka git-nubs.sh's `git_tracking_branch`.
   claim_alias_or_warn "gup" "_hf_git_tracking_branch"
+
+  claim_alias_or_warn "gab" "git absorb"
 }
 
 _hf_git_tracking_branch () {
