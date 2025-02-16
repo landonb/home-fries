@@ -65,6 +65,11 @@ home_fries_aliases_wire_ls () {
 
   # Reverse sort by time, without owner.
   claim_alias_or_warn "LO" "LL -rt"
+
+  # ***
+
+  # THANX: https://github.com/lukas-reineke/dotfiles/blob/02064d6dccb2e/bash/aliases.sh
+  claim_alias_or_warn "tree-eza" "eza -alT --icons=always"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

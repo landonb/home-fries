@@ -47,6 +47,100 @@ _hf_git_tracking_branch () {
   git rev-parse --abbrev-ref --symbolic-full-name @{u}
 }
 
+# NOICE: A modified files picker:
+#   git ls-files --modified | fzf --height 20% --reverse -m --ansi
+# SAVVY: Use Tab/Shift-Tab to select multiple files (fzf -m).
+# THANX:
+# https://github.com/lukas-reineke/dotfiles/blob/02064d6dccb2e/bash/functions.sh
+function gaf () {
+  local files
+  files="$(git ls-files --modified | fzf --height 20% --reverse -m --ansi)"
+  if [ -n "$files" ]; then
+    local file
+    for file in $files; do
+      git add --verbose "$file"
+    done
+  fi
+}
+
+# Open single modified file using FZF picker.
+# FIXME/2025-02-16 10:38: Move to DXY, becuase gvim-open-kindness.
+function gof () {
+  git ls-files --modified \
+    | fzf --height 20% --reverse --ansi \
+    | xargs gvim-open-kindness "" "" ""
+}
+
+# THANX:
+# https://github.com/lukas-reineke/dotfiles/blob/02064d6dccb2e/bash/functions.sh
+
+# GIT_REF_FORMAT="%(refname:short)@[0;90m[[0;31m%(committername)[0;90m]@[0;37m%(contents:subject)[0m"
+# GIT_REF_FORMAT='%(refname:short)@\e[0;90m[\e[0;31m%(committername)\e[0;90m]@\e[0;37m%(contents:subject)\e[0m'
+# GIT_REF_FORMAT="%(refname:short)@${RED}%(committername)${DGR}@${LGR}%(contents:subject)${NC}"
+# DUNNO/2025-02-16: Color codes not working (printing literally).
+GIT_REF_FORMAT="%(refname:short)@%(committername)@%(contents:subject)"
+
+function b() {
+  # is_in_git_repo || return
+  git_insist_git_repo || return
+
+  local BRANCHES BRANCH
+
+  BRANCHES=$( \
+    git for-each-ref --sort=-committerdate refs/heads/ --format="$GIT_REF_FORMAT" \
+    | awk '! a[$0]++'
+  )
+
+  BRANCH=$( \
+    echo "$BRANCHES" \
+    | column -t -s '@' \
+    | fzf --no-hscroll --height 20% --reverse --ansi \
+    | awk '{print $1}'
+  )
+
+  if [[ -n $BRANCH ]]; then
+    git checkout "${BRANCH//.* //}"
+  fi
+}
+# bind '"\C-b":" b\n"'
+
+function ba() {
+  # is_in_git_repo || return
+  git_insist_git_repo || return
+
+  local BRANCHES BRANCH BRANCHES_REMOTE
+
+  BRANCHES=$(git for-each-ref --sort=-committerdate refs/heads/ --format="$GIT_REF_FORMAT" | awk '! a[$0]++')
+  BRANCHES_REMOTE=$(git for-each-ref --sort=-committerdate refs/remotes --format="$GIT_REF_FORMAT@[0;90m[[0;33m" | perl -pe 's|(^[^@]*?)/(.*)|\2\1[0;90m][0m|' | awk '! a[$0]++')
+
+  BRANCH=$(printf '%s\n%s' "$BRANCHES" "$BRANCHES_REMOTE" | column -t -s '@' | fzf --no-hscroll --height 40% --reverse --ansi | awk '{print $1}')
+
+  if [[ -n $BRANCH ]]; then
+    git checkout $(echo "$BRANCH" | sed "s/.* //")
+  fi
+}
+
+# THANX: This almost looks like tig!
+# https://github.com/lukas-reineke/dotfiles/blob/02064d6dccb2e/scripts/fzf-git-log.sh
+function git-log-fzf () {
+  git log --graph --color=always --abbrev-commit \
+    --format='%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' |
+  fzf --ansi --no-sort --reverse --tiebreak=index --bind=ctrl-s:toggle-sort \
+    --header $(basename `git rev-parse --show-toplevel`) \
+    --bind "ctrl-n:preview-down,ctrl-p:preview-up" \
+    --bind "ctrl-m:execute:
+      (grep -o '[a-f0-9]\{7\}' | head -1 |
+      xargs -I % bash -c 'git show --color=always % | diff-so-fancy | less -R') << 'FZF-EOF'
+      {}
+      FZF-EOF" \
+    --expect=ctrl-o \
+    --preview "
+      (grep -o '[a-f0-9]\{7\}' | head -1 |
+      xargs -I % bash -c 'git show --color=always % | diff-so-fancy') << 'FZF-EOF'
+      {}
+      FZF-EOF"
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 unset_f_alias_git () {
