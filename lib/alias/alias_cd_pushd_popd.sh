@@ -86,6 +86,39 @@ home_fries_aliases_wire_cd_pushd_popd () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# THANX:
+# https://github.com/lukas-reineke/dotfiles/blob/02064d6dccb2e/bash/functions.sh
+
+# "mkdir and enter"
+function mkcd {
+  local RED='\e[0;31m'
+  # local GRN='\e[0;32m'
+  # local YEL='\e[33m'
+  # local CYN='\e[36m'
+  # local BLU='\e[34m'
+  # local LGR='\e[37m'
+  # local DGR='\e[90m'
+  # local WHT='\e[97m'
+  # local MGT='\e[35m'
+  # local UNDERLINE='\e[4m'
+  # local BOLD='\e[1m'
+  local NC='\e[0m' # No Color
+
+  if [ -z "$1" ]; then
+    >&2 echo "USAGE: mkcd {path}"
+
+    return 1
+  elif [ -d "$1" ]; then
+    echo -e "${RED}$* already exists${NC}"
+
+    cd -- "$1" && git st
+  else
+    mkdir -p -- "$1" && cd -- "$1"
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 unset_f_alias_cd_pushd_popd () {
   unset -f home_fries_aliases_wire_cd_pushd_popd
   # So meta.
