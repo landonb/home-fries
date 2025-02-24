@@ -161,14 +161,14 @@ clear_terminal_screen_and_scrollback_buffer () {
 
 # Perform a clipboard clearance (sale), everything must go!
 clear_clipboard_contents () {
-  if type xclip > /dev/null 2>&1; then
+  if type pbcopy > /dev/null 2>&1; then
+    pbcopy < /dev/null
+  elif type xclip > /dev/null 2>&1; then
     if [ -n "${DISPLAY}" ]; then
       printf '' | xclip -selection clipboard
     fi
-  elif type pbcopy > /dev/null 2>&1; then
-    pbcopy < /dev/null
   else
-    >&2 echo "ALERT: Clipboard not cleared (neither xclip nor pbcopy)."
+    >&2 echo "ALERT: Clipboard not cleared (neither pbcopy nor xclip)."
   fi
 }
 

@@ -14,7 +14,7 @@ home_fries_aliases_wire_clip () {
 }
 
 _hf_clip () {
-  tee >(tr -d "\n" | $(command -v xclip > /dev/null && xclip-selection c || pbcopy))
+  tee >(tr -d "\n" | $(command -v pbcopy > /dev/null && pbcopy || xclip-selection c))
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
