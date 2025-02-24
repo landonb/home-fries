@@ -61,7 +61,7 @@ _home_fries_fd () {
     #   ~/.depoxy/ambers/home/.kit/git/ohmyrepos/lib/infuse-personal-projlns.sh
     #   ~/.depoxy/ambers/home/.projlns/infuse-projlns-omr.sh
     #   ~/.homefries/lib/alias/alias_fd.sh
-    #   ~/.kit/nvim/landonb/start/dubs_project_tray/plugin/dubs_project.vim
+    #   ~/.kit/nvim/landonb/dubs_project_tray/plugin/dubs_project.vim
     for exclude_dir in \
       ".git/" \
       "htmlcov/" \

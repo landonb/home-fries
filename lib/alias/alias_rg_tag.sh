@@ -66,8 +66,8 @@ home_fries_create_aliases_rg_tag_wrap () {
   # USYNC: Similar rg --glob's (found locally at these paths within DepoXy environ):
   #   ~/.depoxy/ambers/core/fzf-setup.sh
   #   ~/.kit/sh/home-fries/lib/alias/alias_rg_tag.sh
-  #   ~/.kit/nvim/landonb/start/dubs_grep_steady/bin/vim-grepprg-rg-sort
-  #   ~/.kit/nvim/landonb/opt/dubs_file_finder/plugin/dubs_file_finder.vim
+  #   ~/.kit/nvim/landonb/dubs_grep_steady/bin/vim-grepprg-rg-sort
+  #   ~/.kit/nvim/landonb/.whilom/dubs_file_finder/plugin/dubs_file_finder.vim
   # - Note ~/.[tT]rash0? per https://github.com/landonb/sh-rm_safe#🗑
 
   local dglobs=()
