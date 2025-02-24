@@ -81,6 +81,8 @@ function gof () {
 GIT_REF_FORMAT="%(refname:short)@%(committername)@%(contents:subject)"
 
 function b() {
+  . ${SHOILERPLATE:-${HOME}/.kit/sh}/sh-git-nubs/lib/git-nubs.sh
+
   # is_in_git_repo || return
   git_insist_git_repo || return
 
@@ -105,6 +107,8 @@ function b() {
 # bind '"\C-b":" b\n"'
 
 function ba() {
+  . ${SHOILERPLATE:-${HOME}/.kit/sh}/sh-git-nubs/lib/git-nubs.sh
+
   # is_in_git_repo || return
   git_insist_git_repo || return
 
