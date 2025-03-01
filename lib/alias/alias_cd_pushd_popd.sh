@@ -82,9 +82,11 @@ home_fries_aliases_wire_cd_pushd_popd () {
 
   # Move to the parent directory.
   claim_alias_or_warn ".." "cd .."
+}
 
-  # (Sorta related) `realpath` abbrev.
-  claim_alias_or_warn "rp" "realpath"
+# (Sorta related) `realpath` abbrev.
+rp () {
+  realpath "$@" | _hf_clip
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
