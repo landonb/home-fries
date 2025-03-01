@@ -225,6 +225,8 @@ home_fries_create_aliases_rg_options() {
   function rg_peek() {
     rg -A 0 -B 0 --hidden --follow --max-count 1 $* 2>/dev/null
   }
+
+  claim_alias_or_warn "rgg" "rg --ignore-parent"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
