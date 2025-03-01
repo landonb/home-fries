@@ -6,14 +6,14 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-check_deps () {
+check_deps() {
   # Verify sh-logger/bin/logger.sh loaded.
   check_dep '_sh_logger_log_msg'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_aliases_wire_rg_tag () {
+home_fries_aliases_wire_rg_tag() {
   home_fries_create_aliases_rg_tag_wrap
   home_fries_create_aliases_rg_options
 }
@@ -33,7 +33,7 @@ home_fries_aliases_wire_rg_tag () {
 #                         -c 'call cursor({{.LineNumber}}, {{.ColumnNumber}})' \
 #                         '{{.Filename}}'
 
-home_fries_create_aliases_rg_tag_wrap () {
+home_fries_create_aliases_rg_tag_wrap() {
   local rg_cmd='rg'
 
   if ! hash ${rg_cmd} 2>/dev/null; then
@@ -45,7 +45,7 @@ home_fries_create_aliases_rg_tag_wrap () {
   # Choices: ag, rg
   export TAG_SEARCH_PROG=${rg_cmd}
 
-  tag () {
+  tag() {
     local aliases="${TAG_ALIAS_FILE:-/tmp/tag_aliases}"
     command rm -f "${aliases}"
 
@@ -124,7 +124,7 @@ home_fries_create_aliases_rg_tag_wrap () {
     file_globs="${file_globs}${fglob}"
   done
 
-  local rg_wrap_with_options="$(\
+  local rg_wrap_with_options="$(
     echo "
       tag
         --smart-case
@@ -162,7 +162,7 @@ home_fries_create_aliases_rg_tag_wrap () {
   #   ~/.kit/sh/gvim-open-kindness/bin/gvim-open-kindness
   #   - You can choose nvim w/ GVIM_OPEN_PREFER_NVIM=true:
   #     ~/.depoxy/running/home/.config/depoxy/depoxyrc
-  # 
+  #
   # REFER: The gvim-open-kindness script uses $GVIM_OPEN_SERVERNAME
   # to indicate which GVim instance to use, or NVIM_OPEN_SOCKETNAME
   # for Neovim if GVIM_OPEN_PREFER_NVIM is true. If you do not
@@ -195,7 +195,7 @@ home_fries_create_aliases_rg_tag_wrap () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_create_aliases_rg_options () {
+home_fries_create_aliases_rg_options() {
   # 2017-09-13: ripgrep!
   # https://github.com/BurntSushi/ripgrep
   # I'm only doing this because The Silver Searcher is identifying
@@ -222,14 +222,14 @@ home_fries_create_aliases_rg_options () {
 
   # DELETE/2018-01-29: This fcn., rg_peek, is not called.
   # 2018-01-29: Obsolete. In Vim, idea to `set grepprg=rg_peek`, but didn't work.
-  function rg_peek () {
-    rg -A 0 -B 0 --hidden --follow --max-count 1 $* 2> /dev/null
+  function rg_peek() {
+    rg -A 0 -B 0 --hidden --follow --max-count 1 $* 2>/dev/null
   }
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_alias_rg_tag () {
+unset_f_alias_rg_tag() {
   unset -f check_deps
   unset -f home_fries_aliases_wire_rg_tag
   unset -f home_fries_create_aliases_rg_tag_wrap
@@ -240,11 +240,11 @@ unset_f_alias_rg_tag () {
 
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 
-_homefries_warn_on_execute () {
+_homefries_warn_on_execute() {
   >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
 }
 
-main () {
+main() {
   check_deps
   unset -f check_deps
 }
@@ -256,4 +256,3 @@ else
 fi
 unset -f _homefries_warn_on_execute
 unset -f main
-
