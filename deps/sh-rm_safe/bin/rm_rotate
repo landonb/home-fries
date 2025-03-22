@@ -11,7 +11,7 @@ RM_SAFE_TRASH_HOME="${RM_SAFE_TRASH_HOME:-${HOME}}"
 #        the RM_SAFE_FIRST_TRASH environ synced. See:
 #           ~/.kit/sh/sh-rm_safe/bin/rm_safe
 #           ~/.kit/sh/sh-rm_safe/bin/rm_rotate
-set_environs () {
+set_environs() {
   if ! os_is_macos; then
     RM_SAFE_FIRST_TRASH="${RM_SAFE_FIRST_TRASH:-.trash0}"
     RM_SAFE_FINAL_TRASH="${RM_SAFE_FINAL_TRASH:-.trash}"
@@ -69,7 +69,7 @@ set_environs () {
 #       system.
 #
 # DEETS: The author has used `rm_safe` for almost a decade on Linux, and
-#        only recently, moving to macOS, did I realize its preferred 
+#        only recently, moving to macOS, did I realize its preferred
 #        ~/.trash location conflicts with the (honorable) macOS
 #        ~/.Trash directory (because macOS uses a case-insensitive
 #        file system for the main APFS Volume, these two paths are
@@ -129,11 +129,11 @@ DRY_ECHO=""
 # Uncomment for trace with rotate:
 #  DRY_ECHO="echo"
 
-rm_rotate () {
+rm_rotate() {
   local first_trash="${RM_SAFE_FIRST_TRASH}"
   local final_trash="${RM_SAFE_FINAL_TRASH}"
 
-  _rm_rotate_acl_can_delete_directory () {
+  _rm_rotate_acl_can_delete_directory() {
     local test_path="$1"
 
     # Check @macOS ACL permissions using Apple ls's -e, e.g.,
@@ -141,19 +141,19 @@ rm_rotate () {
     #   drwx------+ 207 user  staff  6624 Jul  8 21:58 /Users/user/.Trash
     #    0: group:everyone deny delete
     # - Note also the '+' after flags to indicate ACL perms.
-    ! ( \
-      /bin/ls -le -d "${test_path}" 2> /dev/null \
-        | grep -q -e "group:everyone deny delete"
-      )
+    ! (
+      /bin/ls -le -d "${test_path}" 2>/dev/null |
+        grep -q -e "group:everyone deny delete"
+    )
   }
 
-  _rm_rotate_enumerate_devices () {
-    if command -v findmnt > /dev/null; then
+  _rm_rotate_enumerate_devices() {
+    if command -v findmnt >/dev/null; then
       local device_path=""
-      for device_path in $( \
-        findmnt -l -t fuse.gocryptfs,fuse.encfs,ext4 -o TARGET --noheadings \
-          | grep -v "^/boot" \
-          | sort \
+      for device_path in $(
+        findmnt -l -t fuse.gocryptfs,fuse.encfs,ext4 -o TARGET --noheadings |
+          grep -v "^/boot" |
+          sort
       ); do
         _rm_rotate_rotate_device_trash "${device_path}"
       done
@@ -163,7 +163,7 @@ rm_rotate () {
     fi
   }
 
-  _rm_rotate_rotate_device_trash () {
+  _rm_rotate_rotate_device_trash() {
     local device_path="$1"
 
     local first_path
@@ -267,7 +267,7 @@ rm_rotate () {
         #     eval "${old_dot_glob}"
         # - Better yet, for POSIX compatibility, use `find`:
         ${DRY_ECHO} \
-        find "${first_path}" -mindepth 1 -maxdepth 1 -name "*" \
+          find "${first_path}" -mindepth 1 -maxdepth 1 -name "*" \
           -exec $(gnu_mv) -t "${final_path}" {} \+
       fi
 
@@ -283,7 +283,7 @@ rm_rotate () {
 
 # COPYD: From rm_safe
 # - MAYBE: DRY: Add common lib file
-_sh_rm_safe_ensure_trash_dir_with_proper_permissions () {
+_sh_rm_safe_ensure_trash_dir_with_proper_permissions() {
   local trash_dir="$1"
 
   command mkdir -p -- "${trash_dir}"
@@ -303,18 +303,22 @@ _sh_rm_safe_ensure_trash_dir_with_proper_permissions () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-first_char_capped () {
+first_char_capped() {
   printf "$1" | cut -c1-1 | tr "[:lower:]" "[:upper:]"
 }
 
-gnu_mv () {
+gnu_mv() {
   for cmd in "gmv" "mv"; do
-    ( unset -f ${cmd}; unalias ${cmd}; command -v ${cmd} ) 2> /dev/null \
-      && break
+    (
+      unset -f ${cmd}
+      unalias ${cmd}
+      command -v ${cmd}
+    ) 2>/dev/null &&
+      break
   done
 }
 
-os_is_macos () {
+os_is_macos() {
   [ "$(uname)" = "Darwin" ]
 }
 
@@ -322,28 +326,28 @@ os_is_macos () {
 
 PROG_NAME="rm_rotate"
 
-clear_traps () {
+clear_traps() {
   trap - EXIT INT
 }
 
-set_traps () {
+set_traps() {
   trap -- trap_exit EXIT
   trap -- trap_int INT
 }
 
-exit_0 () {
+exit_0() {
   clear_traps
 
   exit 0
 }
 
-exit_1 () {
+exit_1() {
   clear_traps
 
   exit 1
 }
 
-trap_exit () {
+trap_exit() {
   clear_traps
 
   # USAGE: Alert on unexpected error path, so you can add happy path.
@@ -353,7 +357,7 @@ trap_exit () {
   exit 2
 }
 
-trap_int () {
+trap_int() {
   clear_traps
 
   exit 3
@@ -361,7 +365,7 @@ trap_int () {
 
 # ***
 
-main () {
+main() {
   set -e
 
   set_traps
@@ -383,4 +387,3 @@ else
 fi
 
 unset -f main
-

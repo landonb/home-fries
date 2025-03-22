@@ -11,7 +11,7 @@ RM_SAFE_TRASH_HOME="${RM_SAFE_TRASH_HOME:-${HOME}}"
 #        the RM_SAFE_FIRST_TRASH environ synced. See:
 #           ~/.kit/sh/sh-rm_safe/bin/rm_safe
 #           ~/.kit/sh/sh-rm_safe/bin/rm_rotate
-set_environs () {
+set_environs() {
   if ! os_is_macos; then
     RM_SAFE_FIRST_TRASH="${RM_SAFE_FIRST_TRASH:-.trash0}"
     # RM_SAFE_FINAL_TRASH="${RM_SAFE_FINAL_TRASH:-.trash}"
@@ -28,7 +28,7 @@ set_environs () {
 
 _rm_safe__this_filename="rm_safe"
 
-_rm_safe__source_deps () {
+_rm_safe__source_deps() {
   local sourced_all=true
 
   # On Bash, user can source this file from anywhere.
@@ -52,9 +52,9 @@ _rm_safe__source_deps () {
   ${sourced_all}
 }
 
-_rm_safe__smells_like_bash () { declare -p BASH_SOURCE > /dev/null 2>&1; }
+_rm_safe__smells_like_bash() { declare -p BASH_SOURCE >/dev/null 2>&1; }
 
-_rm_safe__print_this_fullpath () {
+_rm_safe__print_this_fullpath() {
   if _rm_safe__smells_like_bash; then
     echo "$(realpath -- "${BASH_SOURCE[0]}")"
   elif [ "$(basename -- "$0")" = "${_rm_safe__this_filename}" ]; then
@@ -68,11 +68,11 @@ _rm_safe__print_this_fullpath () {
 
 _rm_safe__this_fullpath="$(_rm_safe__print_this_fullpath)"
 
-_rm_safe__shell_sourced () {
+_rm_safe__shell_sourced() {
   [ "$(realpath -- "$0")" != "${_rm_safe__this_fullpath}" ]
 }
 
-_rm_safe__source_file () {
+_rm_safe__source_file() {
   local prfx="${1:-.}"
   local depd="${2:-.}"
   local file="${3:-.}"
@@ -113,10 +113,10 @@ _rm_safe__source_file () {
 
 # BONUS: You can use these aliases instead of the uniquely-named functions,
 # just be aware not to call any alias after calling _source_deps.
-_shell_sourced () { _rm_safe__shell_sourced; }
-_source_deps () { _rm_safe__source_deps; }
+_shell_sourced() { _rm_safe__shell_sourced; }
+_source_deps() { _rm_safe__source_deps; }
 
-_rm_safe__source_deps_unset_cleanup () {
+_rm_safe__source_deps_unset_cleanup() {
   unset -v _rm_safe__this_filename
   unset -f _rm_safe__print_this_fullpath
   unset -f _rm_safe__shell_sourced
@@ -141,11 +141,11 @@ _rm_safe__source_deps_unset_cleanup () {
 
 # ***
 
-_trace () { :; }
+_trace() { :; }
 # YOU: Uncomment if you want a few runtime details.
 #  _trace () { >&2 echo "$@"; }
 
-_sh_rm_safe_device_filepath_for_path () {
+_sh_rm_safe_device_filepath_for_path() {
   local file="$1"
 
   # If file is a symlink, use the device for the directory instead.
@@ -163,13 +163,13 @@ _sh_rm_safe_device_filepath_for_path () {
   _sh_rm_safe_device_filepath_for_path_file "${file}"
 }
 
-_sh_rm_safe_device_filepath_for_path_file () {
+_sh_rm_safe_device_filepath_for_path_file() {
   local file="$1"
 
   local device_path=""
   local usage_report=""
 
-  # NOTE: We could use awk to get the second line of output, e.g.,
+  # SAVVY: We could use awk to get the second line of output, e.g.,
   #   usage_report=$(/bin/df -T "$1")
   #   device_path=$(echo "${usage_report}" | awk 'NR == 2 {for(i=7;i<=NF;++i) print $i}')
   # but it seems easier to me (lb) -- or at least more intuitive -- to use tail-tr-cut.
@@ -206,9 +206,9 @@ _sh_rm_safe_device_filepath_for_path_file () {
     #       | awk 'NR == 2 {for(i=NF;i<=NF;++i) print $i}' \
     #     )"
     # but it occurs to me now this is much simpler:
-    device_path="$( \
-      /usr/bin/env df -- "$(dirname -- "${file}")" \
-      | awk 'NR == 2 {print $NF}' \
+    device_path="$(
+      /usr/bin/env df -- "$(dirname -- "${file}")" |
+        awk 'NR == 2 {print $NF}'
     )"
   fi
 
@@ -233,7 +233,7 @@ RMSAFE_ENSURED_PRINT_USAGE=42
 #     (which is either device-local or user-home trash).
 RMSAFE_ENSURED_TRASH_BIN=4
 
-_sh_rm_safe_ensure_trashdir () {
+_sh_rm_safe_ensure_trashdir() {
   local fs_of_item="$1"
   local item_path="$2"
   local nitems_to_go="$3"
@@ -271,8 +271,8 @@ _sh_rm_safe_ensure_trashdir () {
       #  _sh_rm_safe_prompt_missing_trashdir_options_v1 "${fs_of_item}" \
       #    || ensured=$?  # Will be ensured=0 or ensured=3
       _sh_rm_safe_prompt_missing_trashdir_options_v2 \
-        "${fs_of_item}" "${item_path}" "${nitems_to_go}" \
-        || ensured=$?  # For return values, see #ensured_legend
+        "${fs_of_item}" "${item_path}" "${nitems_to_go}" ||
+        ensured=$? # For return values, see #ensured_legend
     fi
 
     if [ -d "${TRASH_FS_MOUNT}/${RM_SAFE_FIRST_TRASH}" ]; then
@@ -359,7 +359,7 @@ _sh_rm_safe_ensure_trashdir () {
 
 # ***
 
-_sh_rm_safe_prompt_missing_trashdir_options_v1_prompt_home_trash () {
+_sh_rm_safe_prompt_missing_trashdir_options_v1_prompt_home_trash() {
   local trash_fs_mount="$1"
 
   # v1 preso option.
@@ -370,9 +370,9 @@ _sh_rm_safe_prompt_missing_trashdir_options_v1_prompt_home_trash () {
   if ${echo_boxy}; then
     printf "%s\n" "┌────────────────────────${trash_fs_mount//?/─}───────────┐"
     printf "%s\n" "│ Move to main trash at ‘${trash_fs_mount}/${RM_SAFE_FIRST_TRASH}’ ? │"
-    printf "%s"   "│ Move item? [y/N]:                 ${trash_fs_mount//?/ }│"
+    printf "%s" "│ Move item? [y/N]:                 ${trash_fs_mount//?/ }│"
     printf "\r"
-    printf "%s"   "│ Move item? [y/N]: "
+    printf "%s" "│ Move item? [y/N]: "
   else
     printf "%b" \
       "rm_safe: move item to trash at ‘$(fg_lavender)${trash_fs_mount}/${RM_SAFE_FIRST_TRASH}$(attr_reset)’? [y/N] "
@@ -381,7 +381,7 @@ _sh_rm_safe_prompt_missing_trashdir_options_v1_prompt_home_trash () {
   read the_choice
 
   if ${echo_boxy}; then
-    >&2 echo      "└──────────────────────${trash_fs_mount//?/─}─────────────┘"
+    >&2 echo "└──────────────────────${trash_fs_mount//?/─}─────────────┘"
   fi
 
   if [ "${the_choice}" != "y" ] && [ "${the_choice}" != "Y" ]; then
@@ -395,13 +395,13 @@ _sh_rm_safe_prompt_missing_trashdir_options_v1_prompt_home_trash () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_sh_rm_safe_prompt_missing_trashdir_options_v2 () {
+_sh_rm_safe_prompt_missing_trashdir_options_v2() {
   local fs_of_item="$1"
   local item_path="$2"
   local nitems_to_go="$3"
 
   _sh_rm_safe_verify_non_root_trash_fs_mount "${TRASH_FS_MOUNT}" ${item_path} ||
-    return 1  # ensured=1 stops processing.
+    return 1 # ensured=1 stops processing.
 
   # At this point, "${TRASH_FS_MOUNT}/.trash" does not exist, and is not `/.trash`.
   # - So ask user what they want to do.
@@ -416,8 +416,8 @@ _sh_rm_safe_prompt_missing_trashdir_options_v2 () {
 
   # For return values, see #ensured_legend
   local ensured=0
-  _sh_rm_safe_prompt_missing_trashdir_read_choice_and_react "${nitems_to_go}" \
-    || ensured=$?
+  _sh_rm_safe_prompt_missing_trashdir_read_choice_and_react "${nitems_to_go}" ||
+    ensured=$?
 
   PREVIOUSLY_PRINTED_MISSING_TRASHDIR_PROMPT=true
 
@@ -436,7 +436,7 @@ _sh_rm_safe_prompt_missing_trashdir_options_v2 () {
 #   resolve to the main, user-home trash (i.e., RM_SAFE_TRASH_HOME).
 #   - So this is indeed a very rare or at least special use case
 #     that we shouldn't bother handling.
-_sh_rm_safe_verify_non_root_trash_fs_mount () {
+_sh_rm_safe_verify_non_root_trash_fs_mount() {
   local trash_fs_mount="$1"
   local item_path="$2"
 
@@ -456,14 +456,14 @@ _sh_rm_safe_verify_non_root_trash_fs_mount () {
 
 # ***
 
-_sh_rm_safe_prompt_missing_trashdir_print_notice () {
+_sh_rm_safe_prompt_missing_trashdir_print_notice() {
   local fs_of_item="$1"
 
   >&2 printf "%b\n" \
     "NOTICE: There's no device trash for ‘$(fg_lavender)${fs_of_item}$(attr_reset)’"
 }
 
-_sh_rm_safe_prompt_missing_trashdir_print_header () {
+_sh_rm_safe_prompt_missing_trashdir_print_header() {
   local item_path="$1"
 
   # SYNC_ME: There are 66 spaces between "‘${item_path}’" and "│" if item_path="".
@@ -489,7 +489,7 @@ _sh_rm_safe_prompt_missing_trashdir_print_header () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_sh_rm_safe_prompt_missing_trashdir_print_options () {
+_sh_rm_safe_prompt_missing_trashdir_print_options() {
   local trash_fs_mount="$1"
   local nitems_to_go="$2"
 
@@ -599,7 +599,7 @@ ${option_obliterate_all_items}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_sh_rm_safe_prompt_missing_trashdir_read_choice_and_react () {
+_sh_rm_safe_prompt_missing_trashdir_read_choice_and_react() {
   local nitems_to_go="$1"
 
   read the_choice
@@ -612,7 +612,7 @@ _sh_rm_safe_prompt_missing_trashdir_read_choice_and_react () {
   if [ "${the_choice}" = "d" ]; then
     _sh_rm_safe_ensure_trash_dir_with_proper_permissions "${device_trash}"
 
-    return 4  # All set! Tell caller to use ${TRASH_FS_MOUNT}/.trash.
+    return 4 # All set! Tell caller to use ${TRASH_FS_MOUNT}/.trash.
   fi
 
   if [ "${the_choice}" = "m" ] || [ "${the_choice}" = "" ]; then
@@ -663,7 +663,7 @@ _sh_rm_safe_prompt_missing_trashdir_read_choice_and_react () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # USYNC: See same-named fcn. in rm_rotate
-_sh_rm_safe_ensure_trash_dir_with_proper_permissions () {
+_sh_rm_safe_ensure_trash_dir_with_proper_permissions() {
   local trash_dir="$1"
 
   command mkdir -p -- "${trash_dir}"
@@ -672,14 +672,13 @@ _sh_rm_safe_ensure_trash_dir_with_proper_permissions () {
 
   if os_is_macos; then
     # Ensure ~/.Trash0 permissions like ~/.Trash
-    # - Though perhaps to 
     command chmod +a "group:everyone deny delete" "${trash_dir}"
   fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_sh_rm_safe_print_missing_trash_fs_mount_hint () {
+_sh_rm_safe_print_missing_trash_fs_mount_hint() {
   local device_trash="$1"
 
   local main_trash="${RM_SAFE_TRASH_HOME}/${RM_SAFE_FIRST_TRASH}"
@@ -708,7 +707,7 @@ _sh_rm_safe_print_missing_trash_fs_mount_hint () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_sh_rm_safe_process_items () {
+_sh_rm_safe_process_items() {
   local fs_of_item="$1"
   local item_path="$2"
   local nitems_to_go="$3"
@@ -733,8 +732,8 @@ _sh_rm_safe_process_items () {
   #     -  4: All set! Remove curr item to path specified by ${TRASH_FS_MOUNT}
   #             (which is either device-local or user-home trash).
   local ensured=0
-  _sh_rm_safe_ensure_trashdir "${fs_of_item}" "${item_path}" "${nitems_to_go}" \
-    || ensured=$?
+  _sh_rm_safe_ensure_trashdir "${fs_of_item}" "${item_path}" "${nitems_to_go}" ||
+    ensured=$?
 
   # ISOFF/2024-07-14: Old v1 flow:
   #
@@ -750,9 +749,9 @@ _sh_rm_safe_process_items () {
   if [ ${ensured} -eq ${RMSAFE_ENSURED_CONFIRM:-2} ]; then
     # User specifically not using safety trash on this device; or for this file.
     command rm -i ${arg_verbose} -- "${item_path}"
-  elif [ ${ensured} -eq ${RMSAFE_ENSURED_FORCE_ONE:-22} ] \
-    || [ ${ensured} -eq ${RMSAFE_ENSURED_FORCE_ALL:-32} ] \
-  ; then
+  elif [ ${ensured} -eq ${RMSAFE_ENSURED_FORCE_ONE:-22} ] ||
+    [ ${ensured} -eq ${RMSAFE_ENSURED_FORCE_ALL:-32} ] \
+    ; then
     command rm -rf ${arg_verbose} -- "${item_path}"
 
     # We already printed a prompt. Might as well print a confirmation?
@@ -769,9 +768,8 @@ _sh_rm_safe_process_items () {
     # ensured=4 means the trash directory is prepared; move 'deleted' files there.
     local fname=${bname}
 
-    if [ -e "${TRASH_FS_MOUNT}/${RM_SAFE_FIRST_TRASH}/${fname}" ] || \
-       [ -h "${TRASH_FS_MOUNT}/${RM_SAFE_FIRST_TRASH}/${fname}" ]; \
-    then
+    if [ -e "${TRASH_FS_MOUNT}/${RM_SAFE_FIRST_TRASH}/${fname}" ] ||
+      [ -h "${TRASH_FS_MOUNT}/${RM_SAFE_FIRST_TRASH}/${fname}" ]; then
       # Add a UUID fragment to generate a unique name.
       fname="${bname}.$(date +%Y_%m_%d_%Hh%Mm%Ss)-$(uuidgen | head -c8)"
     fi
@@ -801,7 +799,7 @@ _sh_rm_safe_process_items () {
 #   ARG_VERBOSE
 #   N_PATH_ARGS
 
-parse_args () {
+parse_args() {
   ARG_FORCE=false
   ARG_SAFE=false
   ARG_VERBOSE=""
@@ -815,104 +813,99 @@ parse_args () {
     else
       # Arg list and "help" snippets from 'rm (GNU coreutils) 8.32'.
       case "${arg}" in
-        --)
-          end_of_options=true
-          ;;
-        -s|--safe)
-          # rm_safe option to not skip rm_safe when run as root
-          ARG_SAFE=true
-          ;;
-        -f|--force)
-          # "ignore nonexistent files and arguments, never prompt"
-          ARG_FORCE=true
-          ;;
-        -i)
-          # "prompt before every removal"
-          # rm_safe prompts when it's appropriate by default;
-          # use `-f` to skip prompt
-          ;;
-        -I)
-          # "prompt once before removing more than three files,
-          #  or when removing recursively; less intrusive than -i"
-          ;;
-        --interactive|--interactive=*)
-          # "prompt according to WHEN: never, once (-I),
-          #  or always (-i); without WHEN, prompt always"
-          ;;
-        --one-file-system)
-          # "when removing a hierarchy recursively, skip any
-          #  directory that is on a file system different from
-          #  that of the corresponding command line argument"
-          ;;
-        --no-preserve-root)
-          # "do not treat '/' specially"
-          ;;
-        --preserve-root|--preserve-root=*)
-          # "do not remove '/' (default); with 'all', reject any
-          #  command line argument on a separate device from its
-          #  parent"
-          ;;
-        -r|-R|--recursive)
-          # "remove directories and their contents recursively"
-          ;;
-        -d|--dir)
-          # "remove empty directories"
-          # rm_safe *moves* any directory to the ~/.trash
-          ;;
-        -v|--verbose)
-          # "explain what is being done"
-          # rm_safe doesn't currently have lots to say, except
-          # its wordy menu prompt when there's do device trash
-          ARG_VERBOSE="-v"
-          ;;
-        --help)
-          # "display this help and exit"
-          print_help
+      --)
+        end_of_options=true
+        ;;
+      -s | --safe)
+        # rm_safe option to not skip rm_safe when run as root
+        ARG_SAFE=true
+        ;;
+      -f | --force)
+        # "ignore nonexistent files and arguments, never prompt"
+        ARG_FORCE=true
+        ;;
+      -i)
+        # "prompt before every removal"
+        # rm_safe prompts when it's appropriate by default;
+        # use `-f` to skip prompt
+        ;;
+      -I)
+        # "prompt once before removing more than three files,
+        #  or when removing recursively; less intrusive than -i"
+        ;;
+      --interactive | --interactive=*)
+        # "prompt according to WHEN: never, once (-I),
+        #  or always (-i); without WHEN, prompt always"
+        ;;
+      --one-file-system)
+        # "when removing a hierarchy recursively, skip any
+        #  directory that is on a file system different from
+        #  that of the corresponding command line argument"
+        ;;
+      --no-preserve-root)
+        # "do not treat '/' specially"
+        ;;
+      --preserve-root | --preserve-root=*)
+        # "do not remove '/' (default); with 'all', reject any
+        #  command line argument on a separate device from its
+        #  parent"
+        ;;
+      -r | -R | --recursive)
+        # "remove directories and their contents recursively"
+        ;;
+      -d | --dir)
+        # "remove empty directories"
+        # rm_safe *moves* any directory to the ~/.trash
+        ;;
+      -v | --verbose)
+        # "explain what is being done"
+        # rm_safe doesn't currently have lots to say, except
+        # its wordy menu prompt when there's do device trash
+        ARG_VERBOSE="-v"
+        ;;
+      --help)
+        # "display this help and exit"
+        print_help
 
-          return 0
-          ;;
-        --version)
-          # "output version information and exit"
-          command rm --version
+        return 0
+        ;;
+      --version)
+        # "output version information and exit"
+        command rm --version
 
-          return 0
-          ;;
-        --*)
-          # Same as, e.g., `command rm --x`.
-          >&2 echo "rm_safe: unrecognized option '${arg}'"
-          >&2 echo "Try 'rm --help' for more information."
+        return 0
+        ;;
+      --*)
+        # Same as, e.g., `command rm --x`.
+        >&2 echo "rm_safe: unrecognized option '${arg}'"
+        >&2 echo "Try 'rm --help' for more information."
 
-          return 1
-          ;;
-        -*)
-          for char in $(echo "${arg#-}" | sed -E -e 's/(.)/\1\n/g'); do
-            case ${char} in
-              f)
-                ARG_FORCE=true
-                ;;
-              i)
-                ;;
-              I)
-                ;;
-              r|R)
-                ;;
-              d)
-                ;;
-              v)
-                ;;
-              *)
-                # Same as, e.g., `command rm -xz`.
-                >&2 echo "rm_safe: unrecognized option '${char}'"
-                >&2 echo "Try 'rm --help' for more information."
+        return 1
+        ;;
+      -*)
+        for char in $(echo "${arg#-}" | sed -E -e 's/(.)/\1\n/g'); do
+          case ${char} in
+          f)
+            ARG_FORCE=true
+            ;;
+          i) ;;
+          I) ;;
+          r | R) ;;
+          d) ;;
+          v) ;;
+          *)
+            # Same as, e.g., `command rm -xz`.
+            >&2 echo "rm_safe: unrecognized option '${char}'"
+            >&2 echo "Try 'rm --help' for more information."
 
-                return 1
-                ;;
-            esac
-          done
-          ;;
-        *)
-          let 'N_PATH_ARGS +=1 '
-          ;;
+            return 1
+            ;;
+          esac
+        done
+        ;;
+      *)
+        let 'N_PATH_ARGS +=1 '
+        ;;
       esac
     fi
   done
@@ -926,49 +919,39 @@ parse_args () {
 #
 #   END_OF_OPTIONS
 
-is_a_rm_arg () {
+is_a_rm_arg() {
   local arg="$1"
 
   if ${END_OF_OPTIONS:-false}; then
     return 1
   else
     case "${arg}" in
-      --)
-        END_OF_OPTIONS=true
-        ;;
-      -f|--force)
-        ;;
-      -i)
-        ;;
-      -I)
-        ;;
-      --interactive|--interactive=*)
-        ;;
-      --one-file-system)
-        ;;
-      --no-preserve-root)
-        ;;
-      --preserve-root|--preserve-root=*)
-        ;;
-      -r|-R|--recursive)
-        ;;
-      -d|--dir)
-        ;;
-      -v|--verbose)
-        ;;
-      --help)
-        # Unreachable: We would've printed --help and exited already.
-        ;;
-      --version)
-        # Unreachable: We would've printed --version and exited already.
-        ;;
-      -*)
-        # We would've exited already if any -* input was not a known arg.
-        # - So this is an -singlechars arg.
-        ;;
-      *)
-        return 1
-        ;;
+    --)
+      END_OF_OPTIONS=true
+      ;;
+    -f | --force) ;;
+    -i) ;;
+    -I) ;;
+    --interactive | --interactive=*) ;;
+    --one-file-system) ;;
+    --no-preserve-root) ;;
+    --preserve-root | --preserve-root=*) ;;
+    -r | -R | --recursive) ;;
+    -d | --dir) ;;
+    -v | --verbose) ;;
+    --help)
+      # Unreachable: We would've printed --help and exited already.
+      ;;
+    --version)
+      # Unreachable: We would've printed --version and exited already.
+      ;;
+    -*)
+      # We would've exited already if any -* input was not a known arg.
+      # - So this is an -singlechars arg.
+      ;;
+    *)
+      return 1
+      ;;
     esac
   fi
 
@@ -977,7 +960,7 @@ is_a_rm_arg () {
 
 # ***
 
-print_help () {
+print_help() {
   echo "rm_safe is a wrapper around \`rm\`"
   echo "--------------------------------"
   command rm --help
@@ -1022,7 +1005,7 @@ EOF
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-rm_safe () {
+rm_safe() {
   local ARG_FORCE=false
   local ARG_SAFE=false
   local ARG_VERBOSE=""
@@ -1056,8 +1039,8 @@ rm_safe () {
 
   # ***
 
-  rm_safe_run "$@" \
-    || return 1
+  rm_safe_run "$@" ||
+    return 1
 }
 
 # ***
@@ -1072,7 +1055,7 @@ rm_safe () {
 # You can make the trash with `mkdir ~/.trash`,
 # or run the `rm_safe` command and you'll be prompted.
 
-rm_safe_run () {
+rm_safe_run() {
   local TRASH_FS_MOUNT=""
   local TRASH_FS_MOUNT_LOCKED=false
 
@@ -1096,8 +1079,8 @@ rm_safe_run () {
     # This is used by _sh_rm_safe_prompt_missing_trashdir_print_options
     # if -gt 0 to add remove-all options to menu.
     # - Use || true because `let 'foo = 0'` sets $?=1
-    let "nitems_to_go = N_PATH_ARGS - npath" \
-      || true
+    let "nitems_to_go = N_PATH_ARGS - npath" ||
+      true
 
     local bname=$(basename -- "${item_path}")
     if [ "${bname}" = "." ] || [ "${bname}" = ".." ]; then
@@ -1127,8 +1110,8 @@ rm_safe_run () {
 
     local keep_processing=0
     # Might set ARG_RECURSIVE_FORCE=true
-    _sh_rm_safe_process_items "${fs_of_item}" "${item_path}" "${nitems_to_go}" "${ARG_VERBOSE}" \
-      || keep_processing=$?
+    _sh_rm_safe_process_items "${fs_of_item}" "${item_path}" "${nitems_to_go}" "${ARG_VERBOSE}" ||
+      keep_processing=$?
 
     if [ ${keep_processing} -ne 0 ]; then
       return ${keep_processing}
@@ -1145,7 +1128,7 @@ rm_safe_run () {
 
 # Note that `path_device` exits nonzero if path not symlink, file, or dir.
 
-print_fs_of_main_trash () {
+print_fs_of_main_trash() {
   local fs_of_main_trash
 
   fs_of_main_trash="$(path_device "${RM_SAFE_TRASH_HOME}")"
@@ -1156,14 +1139,14 @@ print_fs_of_main_trash () {
     return 1
   fi
 
-  _trace "fs_of_main_trash=${fs_of_main_trash}"  # E.g., "/dev/sda2"
+  _trace "fs_of_main_trash=${fs_of_main_trash}" # E.g., "/dev/sda2"
 
   printf "%s" "${fs_of_main_trash}"
 }
 
 # ***
 
-print_fs_of_item () {
+print_fs_of_item() {
   local item_path="$1"
 
   local fs_of_item
@@ -1172,8 +1155,8 @@ print_fs_of_item () {
 
   if [ $? -ne 0 ] || [ "${fs_of_item}" == "" ]; then
     if [ ! -d "${item_path}" ] &&
-       [ ! -f "${item_path}" ] &&
-       [ ! -h "${item_path}" ]; then
+      [ ! -f "${item_path}" ] &&
+      [ ! -h "${item_path}" ]; then
       >&2 echo "rm_safe: Cannot remove ‘${item_path}’: No such file or directory"
     else
       >&2 echo "rm_safe: ERROR: Could not detect device for item ‘${item_path}’"
@@ -1182,14 +1165,14 @@ print_fs_of_item () {
     return 1
   fi
 
-  _trace "fs_of_item=${fs_of_item}"  # E.g., "/dev/sdb1"
+  _trace "fs_of_item=${fs_of_item}" # E.g., "/dev/sdb1"
 
   printf "%s" "${fs_of_item}"
 }
 
 # ***
 
-set_trash_fs_mount () {
+set_trash_fs_mount() {
   local fs_of_main_trash="$1"
   local fs_of_item="$2"
   local item_path="$3"
@@ -1212,39 +1195,39 @@ set_trash_fs_mount () {
     TRASH_FS_MOUNT=$(_sh_rm_safe_device_filepath_for_path "${item_path}")
   fi
 
-  _trace "TRASH_FS_MOUNT=${TRASH_FS_MOUNT}"  # E.g., "/dev/sdb1"
+  _trace "TRASH_FS_MOUNT=${TRASH_FS_MOUNT}" # E.g., "/dev/sdb1"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-os_is_macos () {
+os_is_macos() {
   [ "$(uname)" = "Darwin" ]
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-clear_traps () {
+clear_traps() {
   trap - EXIT INT
 }
 
-set_traps () {
+set_traps() {
   trap -- trap_exit EXIT
   trap -- trap_int INT
 }
 
-exit_0 () {
+exit_0() {
   clear_traps
 
   exit 0
 }
 
-exit_1 () {
+exit_1() {
   clear_traps
 
   exit 1
 }
 
-trap_exit () {
+trap_exit() {
   clear_traps
 
   # USAGE: Alert on unexpected error path, so you can add happy path.
@@ -1254,7 +1237,7 @@ trap_exit () {
   exit 2
 }
 
-trap_int () {
+trap_int() {
   clear_traps
 
   exit 3
@@ -1262,7 +1245,7 @@ trap_int () {
 
 # ***
 
-main () {
+main() {
   set -e
 
   set_traps
@@ -1271,8 +1254,8 @@ main () {
 
   local ret_code=0
 
-  rm_safe "$@" \
-    || ret_code=1
+  rm_safe "$@" ||
+    ret_code=1
 
   clear_traps
 
@@ -1284,4 +1267,3 @@ _source_deps
 if ! _rm_safe__shell_sourced; then
   main "$@"
 fi
-
