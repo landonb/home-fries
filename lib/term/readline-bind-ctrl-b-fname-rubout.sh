@@ -30,10 +30,8 @@
 #   backward-kill-word can be found on "\e\C-h", "\e\C-?".
 #   ...
 
-home_fries_hook_filename_rubout () {
-  local expect_txt=""
-
-  expect_txt="^unix-filename-rubout is not bound to any keys"
+home_fries_hook_filename_rubout() {
+  local expect_txt="^unix-filename-rubout is not bound to any keys"
   if ! bind -P | grep -q -e "${expect_txt}"; then
     bind -P | grep filename
     echo
@@ -48,4 +46,3 @@ home_fries_hook_filename_rubout () {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
