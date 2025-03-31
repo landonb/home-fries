@@ -31,6 +31,19 @@
 #   ...
 
 home_fries_hook_filename_rubout() {
+  # DUNNO: The `stty werase undef` below hangs Terminal.app startup.
+  # - Though you can run manually and it works.
+  # - ODDLY: Adding `--norc` and/or `--noprofile` to Terminal.app
+  #   startup command doesn't inhibit this script from running!?
+  #   (Though other parts of Homefries setup *are* skipped.)
+  local gpid="$(ps -o ppid= -p ${PPID} | tr -d " ")"
+  if ps -p ${gpid} -o comm | tail -1 |
+    grep -q "^/System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal" \
+    ; then
+
+    return
+  fi
+
   local expect_txt="^unix-filename-rubout is not bound to any keys"
   if ! bind -P | grep -q -e "${expect_txt}"; then
     bind -P | grep filename
