@@ -6,7 +6,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_aliases_wire_pwd () {
+home_fries_aliases_wire_pwd() {
   # [lb] uses p frequently, just like h and ll.
   # - HSTRY: Previously just a simple alias with no side-effects:
   #     claim_alias_or_warn "p" "pwd"
@@ -37,10 +37,10 @@ home_fries_aliases_wire_pwd () {
   #   - Use case: Pasting somewhere, like notes, where you might
   #     want to use a user-agnostic home path, or you just want
   #     a shorter path.
-  command -v pbcopy > /dev/null \
-    && claim_alias_or_warn "P" \
-      'pwd | sed -E \"s#^${HOME}(/|$)#~\1#\" | tee >(tr -d \"\n\" | pbcopy)' \
-    || claim_alias_or_warn "P" \
+  command -v pbcopy >/dev/null &&
+    claim_alias_or_warn "P" \
+      'pwd | sed -E \"s#^${HOME}(/|$)#~\1#\" | tee >(tr -d \"\n\" | pbcopy)' ||
+    claim_alias_or_warn "P" \
       'pwd | sed -E \"s#^${HOME}(/|$)#~\1#\" | tee >(tr -d \"\n\" | xclip -selection c)'
 }
 
@@ -49,4 +49,3 @@ home_fries_aliases_wire_pwd () {
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
   >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
 fi
-
