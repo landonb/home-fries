@@ -8,7 +8,26 @@
 
 home_fries_aliases_wire_pwd () {
   # [lb] uses p frequently, just like h and ll.
-  claim_alias_or_warn "p" "pwd"
+  # - HSTRY: Previously just a simple alias with no side-effects:
+  #     claim_alias_or_warn "p" "pwd"
+  #   But now copies to clipboard.
+  #   - UCASE: In macOS Save dialog, if file list has focus, pressing
+  #     "/" key (and only that key, AFAIK; and pasting doesn't work)
+  #     lets you enter a path to the target directory. But you cannot
+  #     paste a ~/path without deleting the "/" that you typed (or else
+  #     the path looks like "/~/path", which obvi. won't work). You
+  #     can, however, paste a full path (such that the path starts
+  #     with a double-"/", e.g., "//path", which is acceptable).
+  #     - Otherwise I almost always use "P" when I want to copy a
+  #       file path, because usually I want the tilde path (which
+  #       is not only shorter, but works across hosts, regardless
+  #       of the home directory path or username (i.e., /home/user
+  #       vs. /User/home)).
+  command -v pbcopy >/dev/null &&
+    claim_alias_or_warn "p" \
+      'pwd | tee >(tr -d \"\n\" | pbcopy)' ||
+    claim_alias_or_warn "p" \
+      'pwd | tee >(tr -d \"\n\" | xclip -selection c)'
 
   # 2021-01-28: A real wisenheimer.
   #  claim_alias_or_warn "P" 'pwd && pwd | tr -d "\n" | xclip -selection c'
