@@ -5,7 +5,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-path_suffix () {
+path_suffix() {
   local path_part="$1"
   if [ -d "${path_part}" ]; then
     # Remove the path from PATH.
@@ -28,4 +28,3 @@ if [ "${BASH_SOURCE[0]}" = "$0" ]; then
 else
   export -f path_suffix
 fi
-

@@ -17,7 +17,7 @@
 #
 #   $ echo $PATH | tr : '\n'
 
-_sh_pather_path_part_remove () {
+_sh_pather_path_part_remove() {
   local path_part="$1"
   # Substitute: s/^prefix://
   PATH="${PATH#${path_part}:}"
@@ -36,4 +36,3 @@ _sh_pather_path_part_remove () {
 if [ "${BASH_SOURCE[0]}" != "$0" ]; then
   export -f _sh_pather_path_part_remove
 fi
-
