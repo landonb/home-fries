@@ -86,7 +86,7 @@ HOMEFRIES_LOADINGSEP='.'
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # In lieu of typical check_deps, alert_deps, because we're forgiving.
-alert_deps () {
+alert_deps() {
   maybe_alert_ancient_bash
   unset -f maybe_alert_ancient_bash
 
@@ -115,7 +115,7 @@ alert_deps () {
 # the now-pointless `maybe_alert_ancient_bash` check.
 HOMEFRIES_ALERT_BASH3_OR_LESSER=${HOMEFRIES_ALERT_BASH3_OR_LESSER:-false}
 
-maybe_alert_ancient_bash () {
+maybe_alert_ancient_bash() {
   ${HOMEFRIES_ALERT_BASH3_OR_LESSER:-false} || return 0
 
   # Note that we call `bash` itself rather than check ${BASH_VERSINFO[0]},
@@ -126,7 +126,7 @@ maybe_alert_ancient_bash () {
   # - Here's the naïve check, just FYÏ:
   #     [ ${BASH_VERSINFO[0]} -ge 4 ] && command -v realpath > /dev/null && return
   local bash_vers
-  bash_vers="$( \
+  bash_vers="$(
     bash --version | head -1 | sed -r 's/GNU bash, version ([0-9]+).*/\1/'
   )"
 
@@ -144,8 +144,8 @@ maybe_alert_ancient_bash () {
 #   `realpath -s`, which don't work with newish macOS built-in
 #   `realpath`, which was added to macOS 13 (Ventura)).
 
-maybe_alert_missing_realpath () {
-  if command -v realpath > /dev/null; then
+maybe_alert_missing_realpath() {
+  if command -v realpath >/dev/null; then
 
     return 0
   fi
@@ -169,7 +169,7 @@ ${HOMEFRIES_TRACE} && echo "── HOMEFRIES_BASHRCBIN=${HOMEFRIES_BASHRCBIN}"
 
 # *** Load profiling function
 
-source_dep_print_nanos_now () {
+source_dep_print_nanos_now() {
   local path="${HOMEFRIES_BASHRCBIN}/../deps/sh-print-nanos-now/bin/print-nanos-now.sh"
 
   if [ -f "${path}" ]; then
@@ -178,7 +178,7 @@ source_dep_print_nanos_now () {
     >&2 echo "ERROR: Where's the sh-print-nanos-now dependency?"
     # This is unlikely, because the dependency is packaged with Homefries.
     # But we might as well offer a shim, so the code can still load.
-    print_nanos_now () { printf '0'; }
+    print_nanos_now() { printf '0'; }
     export -f print_nanos_now
   fi
 }
@@ -196,12 +196,12 @@ HOMEFRIES_TIME0="$(print_nanos_now)"
 
 # *** Profiling.
 
-print_elapsed_time () {
+print_elapsed_time() {
   # CXREF: ~/.kit/sh/home-fries/bin/echo-elapsed
   "${HOMEFRIES_BASHRCBIN}/../bin/echo-elapsed" "$@"
 }
 
-print_loading_dot () {
+print_loading_dot() {
   ${HOMEFRIES_LOADINGDOTS:-false} || return
   ${HOMEFRIES_TRACE:-false} && return
   # 2020-09-26: Try to avoid wrapping to a new line, because
@@ -215,7 +215,7 @@ print_loading_dot () {
   HOMEFRIES_LOADEDDOTS="${HOMEFRIES_LOADEDDOTS}${HOMEFRIES_LOADINGSEP}"
 }
 
-cleanup_loading_dots () {
+cleanup_loading_dots() {
   local time_0="$1"
 
   ${HOMEFRIES_LOADINGDOTS:-false} || return
@@ -224,10 +224,10 @@ cleanup_loading_dots () {
   printf '\r'
   HOMEFRIES_LOADEDDOTS=''
 
-  flash_elapsed () {
+  flash_elapsed() {
     [ -n "${time_0}" ] || return
     local elapsed
-    elapsed="$( \
+    elapsed="$(
       HOMEFRIES_PROFILING= "${HOMEFRIES_BASHRCBIN}/../bin/echo-elapsed" "${time_0}"
     )"
     printf "${elapsed} "
@@ -244,7 +244,7 @@ cleanup_loading_dots () {
 
 # *** Update PATH and LD_LIBRARY_PATH (e.g., wire ~/.local/bin)
 
-ensure_pathed () {
+ensure_pathed() {
   # BWARE: Use HOMEFRIES_STARTUP so ~/.profile doesn't load *us*!
   # - Likewise, check if ~/.profile is calling us:
   #   - When opening new terminal, ~/.profile is not sourced,
@@ -260,7 +260,7 @@ ensure_pathed () {
 
 # *** Load system profile
 
-source_system_rc () {
+source_system_rc() {
   local time_0="$(print_nanos_now)"
 
   # Source global definitions.
@@ -285,7 +285,7 @@ source_system_rc () {
 
 # *** Load Homefries scripts
 
-source_fries () {
+source_fries() {
   local time_0="$(print_nanos_now)"
 
   ${HOMEFRIES_TRACE} && echo "──┬ Loading Homefries scripts"
@@ -302,7 +302,7 @@ source_fries () {
 
 # *** Load private scripts (DEV's user- and machine-specific scripts)
 
-source_privately () {
+source_privately() {
   local srcfile="$1"
   local srctype="$2"
 
@@ -315,7 +315,7 @@ source_privately () {
     # To enable monkey-patching home-fries, private source can have us call it.
     # - See below for alternative mechanism that allows private Bashrc
     #   to monkey patch (override) other private Bashrc (not just HF).
-    if declare -f _homefries_private_main > /dev/null; then
+    if declare -f _homefries_private_main >/dev/null; then
       _homefries_private_main
       unset -f _homefries_private_main
     fi
@@ -335,8 +335,8 @@ source_privately () {
 #   - For a real-world example, see the DepoXy project, which uses the
 #     'bashrx.private.sh' file, and installs a 'bashrx.private.USER.sh'
 #     file for the user to customize.
-invoke_privately () {
-  local _srcfile="$1"  # ignored
+invoke_privately() {
+  local _srcfile="$1" # ignored
   local srctype="$2"
 
   # E.g., _homefries_private_main_core
@@ -346,7 +346,7 @@ invoke_privately () {
 
   local piping=" ├"
 
-  if declare -f ${main_fcn} > /dev/null; then
+  if declare -f ${main_fcn} >/dev/null; then
     if ${HOMEFRIES_TRACE}; then
       echo " ${piping}─ Calling private “${srctype}” callback: ✓ ${main_fcn}"
     fi
@@ -361,7 +361,7 @@ invoke_privately () {
   fi
 }
 
-source_private_scripts () {
+source_private_scripts() {
   # Private Bashrc, generally symlinked into Home-fries (and Git-ignored
   # via .git/exclude/info, which is also generally symlinked to the same
   # private repo that contains the private Bashrc being symlinked).
@@ -374,14 +374,14 @@ source_private_scripts () {
   for func in source_privately invoke_privately; do
     ${func} "${privcore}" "core"
     ${func} "${privhost}" "host"
-    _SOURCE_IT_FINIS_OUTER=$( \
+    _SOURCE_IT_FINIS_OUTER=$(
       test ${func} = "invoke_privately" && echo true || echo false
     ) \
-    ${func} "${privuser}" "user"
+      ${func} "${privuser}" "user"
   done
 }
 
-source_private () {
+source_private() {
   # Load the machine-specific scripts first so their exports are visible.
   if [ ${EUID} -eq 0 ]; then
     # If the user is root, we'll just load the core script, and nothing fancy.
@@ -403,7 +403,7 @@ source_private () {
 
 # *** Optional final steps: Change to starting directory, and/or Run user command
 
-start_somewhere_something () {
+start_somewhere_something() {
   # Unless root, then boot. I.e., ${EUID} -eq 0.
   [ $(id -u) -eq 0 ] && return
 
@@ -449,12 +449,12 @@ start_somewhere_something () {
 
 # *** Bashrc cleanup
 
-home_fries_bashrc_cleanup () {
+home_fries_bashrc_cleanup() {
   local time_0="$(print_nanos_now)"
 
   # Run the sourced-scripts' cleanup functions, to un-declare functions
   # (and remove cruft from user's environment).
-  for unset_f in $( \
+  for unset_f in $(
     declare -F | grep '^declare -f unset_f_' | /usr/bin/env sed 's/^declare -f //'
   ); do
     # Call all functions that begin with "unset_f_",
@@ -465,12 +465,12 @@ home_fries_bashrc_cleanup () {
   # Show startup stats if user already tracing, or if profiling bashrc.
   if ${HOMEFRIES_TRACE:-false} || ${HOMEFRIES_PROFILING:-false}; then
     local bashrc_time_n="$(print_nanos_now)"
-    local time_elapsed=$(\
-      echo "${bashrc_time_n} - ${HOMEFRIES_TIME0}" | bc -l | xargs printf "%.2f" \
+    local time_elapsed=$(
+      echo "${bashrc_time_n} - ${HOMEFRIES_TIME0}" | bc -l | xargs printf "%.2f"
     )
 
     # Startup scripts will have sourced deps/sh-logger/bin/logger.sh
-    if command -v '_sh_logger_log_msg' > /dev/null 2>&1; then
+    if command -v '_sh_logger_log_msg' >/dev/null 2>&1; then
       local old_level=${LOG_LEVEL}
       export LOG_LEVEL=${LOG_LEVEL_NOTICE}
       notice "home-fries start-up: ${time_elapsed} secs."
@@ -485,7 +485,7 @@ home_fries_bashrc_cleanup () {
   #   $0 == '-bash'
   local bash_path=""
   if [ "$0" = 'bash' ] || [ "$0" = '-bash' ]; then
-    if $(alias bash &> /dev/null); then
+    if $(alias bash &>/dev/null); then
       # Parse the alias, e.g.,
       #   alias bash='HOMEFRIES_CD="$(pwd)" PROMPT_COMMAND= bash'
       bash_path="$(alias bash | /usr/bin/env sed -E 's/^.* ([^ ]*\/?bash\>).*$/\1/')"
@@ -517,16 +517,16 @@ home_fries_bashrc_cleanup () {
   #     /opt/homebrew/bin/bash is 5.2.37. I assumed both from
   #     Homebrew, but maybe /opt/local/bin/bash is from elsewhere.
   #     - There's a chance it's from MacPorts install.
-  if true \
-    && [ "${bash_path}" != '/bin/bash' ] \
-    && [ "${bash_path}" != '/usr/bin/bash' ] \
-    && [ "${bash_path}" != '/opt/local/bin/bash' ] \
-    && [ "${bash_path}" = "${bash_path#${HOMEBREW_PREFIX}}" ] \
-  ; then
+  if true &&
+    [ "${bash_path}" != '/bin/bash' ] &&
+    [ "${bash_path}" != '/usr/bin/bash' ] &&
+    [ "${bash_path}" != '/opt/local/bin/bash' ] &&
+    [ "${bash_path}" = "${bash_path#${HOMEBREW_PREFIX}}" ] \
+    ; then
     print_msg_special=true
 
     print_specially=notice
-    command -v '_sh_logger_log_msg' > /dev/null 2>&1 || print_specially=echo
+    command -v '_sh_logger_log_msg' >/dev/null 2>&1 || print_specially=echo
   fi
 
   if ${print_msg_special} || ${print_msg_version}; then
@@ -548,20 +548,24 @@ home_fries_bashrc_cleanup () {
 
     if ${print_msg_special}; then
       ${print_specially} \
-        "This ${bash_path} is a $( \
-          fg_lightgreen)$(attr_underline \
-          )special$(res_underline) bash!$(attr_reset)" \
-        "Version: $( \
-          fg_lightyellow)$(attr_underline \
-          )$(attr_bold)${bash_version}$(attr_reset)"
+        "This ${bash_path} is a $(
+          fg_lightgreen
+        )$(
+          attr_underline
+        )special$(res_underline) bash!$(attr_reset)" \
+        "Version: $(
+          fg_lightyellow
+        )$(
+          attr_underline
+        )$(attr_bold)${bash_version}$(attr_reset)"
     fi
 
     if ${print_msg_version}; then
       local elapsed_time
-      elapsed_time=$( \
+      elapsed_time=$(
         HOMEFRIES_PROFILING=true \
-        HOMEFRIES_PROFILE_THRESHOLD=0 \
-        print_elapsed_time "${HOMEFRIES_TIME0}" "" "" "s"
+          HOMEFRIES_PROFILE_THRESHOLD=0 \
+          print_elapsed_time "${HOMEFRIES_TIME0}" "" "" "s"
       )
 
       echo \
@@ -578,7 +582,7 @@ home_fries_bashrc_cleanup () {
 
 # *** Environment cleanup
 
-environ_cleanup () {
+environ_cleanup() {
   # OCD cleanup to not pollute user's namespace (à la `env`, `set`, etc.).
 
   # From ~/.kit/sh/home-fries/.bashrc-bin/bashrc.core.sh
@@ -612,7 +616,7 @@ environ_cleanup () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   alert_deps
   unset -f alert_deps
 
@@ -626,7 +630,7 @@ main () {
   unset -f ensure_pathed
   # Maybe don't startup and reuse existing tmux session, eh.
   if . ${HOMEFRIES_BASHRCBIN}/prepare-tmux-or-bust; then
-    return  # Will have run switch-client and user will be on another session.
+    return # Will have run switch-client and user will be on another session.
   fi
 
   source_system_rc
@@ -670,4 +674,3 @@ main () {
 }
 
 main "$@"
-
