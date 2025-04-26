@@ -6,17 +6,18 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-print_basedir_with_tilde_if_top_level_home_dir () {
+print_basedir_with_tilde_if_top_level_home_dir() {
   local cwd
   cwd="$(pwd -L)"
 
   local pdir
   pdir="$(dirname -- "${cwd}")"
 
-  if [ "${cwd}" = "${HOME}" ] \
-    || [ "${pdir}" = "${HOME}" ] \
-    || [ "${pdir}" = "${DOPP_KIT:-${HOME}/.kit}" ] \
-  ; then
+  if [ "${cwd}" = "${HOME}" ] ||
+    [ "${pdir}" = "${HOME}" ] ||
+    [ "${pdir}" = "${DOPP_KIT:-${HOME}/.kit}" ] \
+    ; then
+
     # For '~' and '~/.kit'
     # - CXREF: See DepoXy for ~/.kit usage
     pwd | sed -E "s@^${HOME}(/|$)@~\1@"
@@ -37,4 +38,3 @@ print_basedir_with_tilde_if_top_level_home_dir () {
 }
 
 print_basedir_with_tilde_if_top_level_home_dir
-

@@ -19,7 +19,7 @@ HOMEFRIES_PS1_PREV_CMD_FAILED_STYLE=${HOMEFRIES_PS1_PREV_CMD_FAILED_STYLE:-1}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_hf_prompt_is_user_logged_on_via_ssh () {
+_hf_prompt_is_user_logged_on_via_ssh() {
   # https://unix.stackexchange.com/questions/9605/how-can-i-detect-if-the-shell-is-controlled-from-ssh
   # "If one of the variables SSH_CLIENT or SSH_TTY is defined, it's an ssh session.
   #  If the login shell's parent process name is sshd, it's an ssh session."
@@ -37,16 +37,16 @@ _hf_prompt_is_user_logged_on_via_ssh () {
     command_name="$(ps -o comm= -p ${PPID} | sed 's/:.*$//')"
 
     case "${command_name}" in
-      sshd | sshd-session)
-        # DUNNO/2024-10-28: Not sure this branch ever followed, or
-        # if SSH_CLIENT/SSH_TTY checks always followed instead.
+    sshd | sshd-session)
+      # DUNNO/2024-10-28: Not sure this branch ever followed, or
+      # if SSH_CLIENT/SSH_TTY checks always followed instead.
 
-        return 0
-        ;;
-      *)
+      return 0
+      ;;
+    *)
 
-        return 1
-        ;;
+      return 1
+      ;;
     esac
   fi
 
@@ -59,9 +59,9 @@ _hf_prompt_is_user_logged_on_via_ssh () {
 #       to use sudo, and we know we're on Linux. And on Linux,
 #       the inode of the (outermost) root directory is always 2.
 
-_hf_prompt_user_is_trapped_in_chroot () {
-  ( _hf_prompt_os_is_linux && [ $(stat -c %i /) -ne 2 ] ) ||
-  ( _hf_prompt_os_is_macos && [ $(stat -f %i /) -ne 2 ] )
+_hf_prompt_user_is_trapped_in_chroot() {
+  (_hf_prompt_os_is_linux && [ $(stat -c %i /) -ne 2 ]) ||
+    (_hf_prompt_os_is_macos && [ $(stat -f %i /) -ne 2 ])
 }
 
 # DEVEL: If you need insight into the titlebar function, try logging
@@ -74,7 +74,7 @@ _hf_prompt_user_is_trapped_in_chroot () {
 #   ...
 #   set +x
 
-_hf_prompt_format_titlebar () {
+_hf_prompt_format_titlebar() {
   # 2012.10.17: Also change the titlebar name for special terminal windows,
   #             like the log-tracing windows.
   # See: http://unix.stackexchange.com/questions/14113/
@@ -163,7 +163,7 @@ _hf_prompt_format_titlebar () {
     # echo "User *is* logged on via SSH!"
     local -a choices
 
-  # choices+=("\[\e]0;${winnum}$(hostname) → ${basename}${endof_osc}\]")
+    # choices+=("\[\e]0;${winnum}$(hostname) → ${basename}${endof_osc}\]")
     choices+=("\[\e]0;${winnum}$(hostname) 🦉 ${basename}${endof_osc}\]")
     choices+=("\[\e]0;${winnum}$(hostname) 👗 ${basename}${endof_osc}\]")
     choices+=("\[\e]0;${winnum}$(hostname) 🌊 ${basename}${endof_osc}\]")
@@ -177,7 +177,7 @@ _hf_prompt_format_titlebar () {
   printf "${titlebar}"
 }
 
-_hf_prompt_customize_shell_prompts_and_window_title () {
+_hf_prompt_customize_shell_prompts_and_window_title() {
   # (lb): Note that colors.sh defines similar colors, but without
   # the ``01;`` part. I cannot remember what that component means....
   local fg_red='\[\033[01;31m\]'
@@ -276,17 +276,17 @@ _hf_prompt_customize_shell_prompts_and_window_title () {
   #           And I like the red color pop that leads my eye to
   #           the start of the prompt.
   #         - Works: 🛶 🍁 🎃 🍿 🫑 🍒 🍓 🍉 🍎 / Don't: ⚓ 🛟 🥭
-  local u_tomato="🍅"             # 🍅  $(printf "\U1F345")
- #local u_evergreen_tree="🌲"     # 🌲  $(printf "\U1F332")
- #local u_cactus="🌵"             # 🌵  $(printf "\U1F335")
-  local u_mushroom="🍄"           # 🍄  $(printf "\U1F344")
-  local u_skull="💀"              # 💀  $(printf "\U1F480")
-  local u_horny="😈"              # 💀  $(printf "\U1F480")
- #local u_owl="🦉"                # 🦉  $(printf "\U1F989")
- #local u_herb="🌿"               # 🌿  $(printf "\U1F33F")
- #local u_pineapple="🍍"          # 🍍  $(printf "\U1F34D")
-  # (Draws too light to see:)
-  #  local u_skull_n_xbones="☠"   # ☠  $(printf "\u2620")
+  local u_tomato="🍅" #             # 🍅  $(printf "\U1F345")
+  # local u_evergreen_tree="🌲"     # 🌲  $(printf "\U1F332")
+  # local u_cactus="🌵"             # 🌵  $(printf "\U1F335")
+  local u_mushroom="🍄" #           # 🍄  $(printf "\U1F344")
+  local u_skull="💀"    #           # 💀  $(printf "\U1F480")
+  local u_horny="😈"    #           # 💀  $(printf "\U1F480")
+  # local u_owl="🦉"                # 🦉  $(printf "\U1F989")
+  # local u_herb="🌿"               # 🌿  $(printf "\U1F33F")
+  # local u_pineapple="🍍"          # 🍍  $(printf "\U1F34D")
+  # # (Draws too light to see:)
+  # local u_skull_n_xbones="☠"      # ☠  $(printf "\u2620")
 
   local local_shell_icon="${u_mushroom}"
   local remote_shell_icon="${u_skull}"
@@ -300,7 +300,7 @@ _hf_prompt_customize_shell_prompts_and_window_title () {
   if [ ${HOMEFRIES_PS1_GIT_REBASE_STYLE:-0} -eq 1 ]; then
     # 2024-08-19: Styles I demoed: (🍅) >🍅< ⟪🍅⟫ ⟬🍅⟭ ┃🍅┃
     # - I also demoed other icons but none of these render
-    #   well in the macOS terminal good: ⏪ ☢️  ⚠️  🏁 
+    #   well in the macOS terminal good: ⏪ ☢️  ⚠️  🏁
     local_shell_icon='$([ -f "$(git root 2> /dev/null)/.git/rebase-merge/git-rebase-todo" ] && echo "('"${local_shell_icon}"')" || echo "'"${local_shell_icon}"'")'
     remote_shell_icon='$([ -f "$(git root 2> /dev/null)/.git/rebase-merge/git-rebase-todo" ] && echo "('"${remote_shell_icon}"')" || echo "'"${remote_shell_icon}"'")'
   fi
@@ -336,7 +336,7 @@ _hf_prompt_customize_shell_prompts_and_window_title () {
 #     titlebar="\[\e]0;THIS IS A TEST\a\]"
 #     PROMPT_COMMAND='printf '%b' "${titlebar}\[\033[01;36m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]${prompt_symbol} "'
 
-_hf_prompt_customize_shell_prompt_PS1 () {
+_hf_prompt_customize_shell_prompt_PS1() {
   if [ -z "${HOMEFRIES_PS1_ORIG+x}" ]; then
     export HOMEFRIES_PS1_ORIG="$PS1"
   fi
@@ -420,7 +420,7 @@ _hf_prompt_customize_shell_prompt_PS1 () {
 
 # ***
 
-_hf_prompt_customize_shell_prompt_PS2 () {
+_hf_prompt_customize_shell_prompt_PS2() {
   # 2018-05-28: How about a bold PS2 (continuation) prompt?
   #  PS2="$(tput bold)>${attr_reset} "
   #  PS2="$(tput bold)${attr_underlined}${fg_green}>${attr_reset} "
@@ -443,7 +443,7 @@ _hf_prompt_customize_shell_prompt_PS2 () {
 #   http://bashdb.sourceforge.net/
 #   http://www.linuxtopia.org/online_books/advanced_bash_scripting_guide/debugging.html
 #   http://www.cyberciti.biz/tips/debugging-shell-script.html
-home_fries_set_PS4 () {
+home_fries_set_PS4() {
   # Default is: PS4='+'
   PS4='(${BASH_SOURCE[0]}:${LINENO}): ${FUNCNAME[0]} - [${SHLVL},${BASH_SUBSHELL}, $?]
   '
@@ -451,11 +451,11 @@ home_fries_set_PS4 () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_hf_prompt_os_is_linux () {
+_hf_prompt_os_is_linux() {
   [ "$(uname)" = "Linux" ]
 }
 
-_hf_prompt_os_is_macos () {
+_hf_prompt_os_is_macos() {
   [ "$(uname)" = 'Darwin' ]
 }
 
@@ -465,7 +465,7 @@ _hf_prompt_os_is_macos () {
 #       call it more than once. So it cleans itself up rather than
 #       hang around the environment.
 
-_hf_prompt_configure () {
+_hf_prompt_configure() {
   _hf_prompt_customize_shell_prompts_and_window_title
 
   unset -f _hf_prompt_os_is_linux
@@ -484,4 +484,3 @@ _hf_prompt_configure () {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
