@@ -24,7 +24,7 @@
 # 2020-03-14: Moving to own repo, figure I might as well
 # check not trying to delete root filesystem or similar.
 
-rmrm () {
+rmrm() {
   local path
   for path in "$@"; do
     if [ "/" = "${path}" ]; then
@@ -102,4 +102,3 @@ else
   # This is the Happy Path that adds the #history trick.
   export -f rmrm
 fi
-

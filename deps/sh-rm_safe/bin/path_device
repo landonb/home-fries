@@ -5,7 +5,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_sh_rm_safe_device_on_which_file_resides () {
+_sh_rm_safe_device_on_which_file_resides() {
   local file="$1"
   local owning_device=""
 
@@ -30,7 +30,7 @@ _sh_rm_safe_device_on_which_file_resides () {
   echo "${owning_device}"
 }
 
-path_device () {
+path_device() {
   _sh_rm_safe_device_on_which_file_resides "$@"
 }
 
@@ -42,4 +42,3 @@ else
   export -f _sh_rm_safe_device_on_which_file_resides
   export -f path_device
 fi
-
