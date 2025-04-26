@@ -6,17 +6,17 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-print_nanos_now () {
-  if command -v gdate > /dev/null 2>&1; then
+print_nanos_now() {
+  if command -v gdate >/dev/null 2>&1; then
     # macOS (brew install coreutils).
     gdate +%s.%N
-  elif date --version > /dev/null 2>&1; then
+  elif date --version >/dev/null 2>&1; then
     # Linux/GNU.
     date +%s.%N
-  elif command -v python > /dev/null 2>&1; then
+  elif command -v python >/dev/null 2>&1; then
     # Base macOS without coreutils... but you'd still need Python.
     python -c 'import time; print("{:.9f}".format(time.time()))'
-  elif command -v perl > /dev/null 2>&1; then
+  elif command -v perl >/dev/null 2>&1; then
     # 2023-01-26: I thought Python was standard on macOS, but if I
     # open a `/bin/bash --noprofile --norc` iTerm2 terminal, there's
     # no Python. But at least there's (fallback) Perl.
@@ -24,7 +24,7 @@ print_nanos_now () {
     #   Via https://superuser.com/questions/599072/
     #         how-to-get-bash-execution-time-in-milliseconds-under-mac-os-x
     perl -MTime::HiRes -e 'printf("%.0f\n",Time::HiRes::time())'
-  elif ! date +%s 2> /dev/null; then
+  elif ! date +%s 2>/dev/null; then
     # 2023-01-26: `date +%s` works on stock (BSD) macOS for me.
 
     >&2 echo "ERROR: Could not locate an appropriate command."
@@ -39,9 +39,9 @@ print_nanos_now () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 this_file_name='print-nanos-now.sh'
-shell_sourced () { [ "$(basename -- "$0")" != "${this_file_name}" ]; }
+shell_sourced() { [ "$(basename -- "$0")" != "${this_file_name}" ]; }
 # Note that bash_sourced only meaningful if shell_sourced is true.
-bash_sourced () { declare -p FUNCNAME > /dev/null 2>&1; }
+bash_sourced() { declare -p FUNCNAME >/dev/null 2>&1; }
 
 if ! shell_sourced; then
   print_nanos_now "$@"
@@ -51,4 +51,3 @@ else
   unset -f shell_sourced
   unset -f bash_sourced
 fi
-
