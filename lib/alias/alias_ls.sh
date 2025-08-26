@@ -238,11 +238,11 @@ function ll() {
   if [ $# -gt 1 ]; then
     $(ls-or-gls) -lhFa --color=always "$@"
   else
-    $(ls-or-gls) -lhFa --color=always "$@" \
-      | sed 'h;s/^\([^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+ \+\)\?\)\?\)\?\)\?\)\?\)\?\)\?\)\?//;s/\x1b[[0-9;]*m//g;s/^$/\./;s/^\.\/$/\.\./;s/^\.\.\/$/\.\.\./;G;s/\n/\t/' \
-      | _hf_filter_ll "$@" \
-      | LC_ALL=C sort -d -f -k1,1 \
-      | cut -f2-
+    $(ls-or-gls) -lhFa --color=always "$@" |
+      $(gnu_sed) 'h;s/^\([^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+ \+\)\?\)\?\)\?\)\?\)\?\)\?\)\?\)\?//;s/\x1b[[0-9;]*m//g;s/^$/\./;s/^\.\/$/\.\./;s/^\.\.\/$/\.\.\./;G;s/\n/\t/' |
+      _hf_filter_ll "$@" |
+      LC_ALL=C sort -d -f -k1,1 |
+      cut -f2-
   fi
 }
 
@@ -265,10 +265,10 @@ function lll() {
   if [ $# -gt 1 ]; then
     $(ls-or-gls) -lhFa --time-style=long-iso --color=always "$@"
   else
-    $(ls-or-gls) -lhFa --time-style=long-iso --color=always "$@" \
-      | sed 'h;s/^\([^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\)\?\)\?\)\?\)\?\)\?\)\?\)\?//;s/\x1b[[0-9;]*m//g;s/^$/\./;s/^\.\/$/\.\./;s/^\.\.\/$/\.\.\./;G;s/\n/\t/' \
-      | LC_ALL=C sort -d -f -k1,1 \
-      | cut -f2-
+    $(ls-or-gls) -lhFa --time-style=long-iso --color=always "$@" |
+      $(gnu_sed) 'h;s/^\([^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\)\?\)\?\)\?\)\?\)\?\)\?\)\?//;s/\x1b[[0-9;]*m//g;s/^$/\./;s/^\.\/$/\.\./;s/^\.\.\/$/\.\.\./;G;s/\n/\t/' |
+      LC_ALL=C sort -d -f -k1,1 |
+      cut -f2-
   fi
 }
 
@@ -296,6 +296,17 @@ ls-or-gls() {
   if ! command -v gls; then
     echo "/usr/bin/env ls"
   fi
+}
+
+gnu_sed() {
+  for cmd in "gsed" "sed"; do
+    (
+      unset -f ${cmd}
+      unalias ${cmd}
+      command -v ${cmd}
+    ) 2>/dev/null &&
+      break
+  done
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
