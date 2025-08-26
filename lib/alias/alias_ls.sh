@@ -8,7 +8,7 @@
 
 # *** Directory listings.
 
-home_fries_aliases_wire_ls () {
+home_fries_aliases_wire_ls() {
   local ls_cmd="$(ls-or-gls)"
 
   # 2015-01-20: Using --color=tty still works, but `man` says use --color=auto.
@@ -89,8 +89,8 @@ home_fries_aliases_wire_ls () {
 #   - @macOS sorts dotfiles first, then UPPER, then lower.
 #   - I tested various language options (LC_ALL) to no avail.
 
-function l () {
-  function cattail () {
+function l() {
+  function cattail() {
     if [ $# -eq 0 ]; then
       # E.g., `tail --lines=+2`
       tail +2
@@ -102,8 +102,8 @@ function l () {
     --color=always \
     --hide-control-chars \
     --group-directories-first \
-    "$@" \
-    | cattail "$@"
+    "$@" |
+    cattail "$@"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -234,7 +234,7 @@ function l () {
 
 # TL_DR: `ll` sorts like @Linux `ls -la` on @macOS, and excludes Finder files.
 
-function ll () {
+function ll() {
   if [ $# -gt 1 ]; then
     $(ls-or-gls) -lhFa --color=always "$@"
   else
@@ -246,10 +246,11 @@ function ll () {
   fi
 }
 
-function _hf_filter_ll () {
-  if test "$(command ls -A "$@" 2> /dev/null)" = ".DS_Store" \
-    || test "$(command ls -A "$@" 2> /dev/null)" = ".localized" \
-  ; then
+function _hf_filter_ll() {
+  if test "$(command ls -A "$@" 2>/dev/null)" = ".DS_Store" ||
+    test "$(command ls -A "$@" 2>/dev/null)" = ".localized" \
+    ; then
+
     cat
   else
     grep -v -e "^\.localized\t" -e "^\.DS_Store\t"
@@ -260,7 +261,7 @@ function _hf_filter_ll () {
 # - E.g., "2024-04-14 14:57" instead of "Jun 12 13:52".
 # - USYNC: The `--time-style=long-iso` reduces columns by 1, so
 #   the command is same as `ll` minus the last \(...\)\? group.
-function lll () {
+function lll() {
   if [ $# -gt 1 ]; then
     $(ls-or-gls) -lhFa --time-style=long-iso --color=always "$@"
   else
@@ -275,13 +276,13 @@ function lll () {
 
 # REFER: https://github.com/lsd-rs/lsd
 #   brew install lsd
-function lld () {
+function lld() {
   lsd -lhFa --color=always "$@"
 }
 
 # REFER: https://github.com/eza-community/eza
 #   brew install eza
-function llz () {
+function llz() {
   # 2024-09-16: I haven't read the `man`, this snip from:
   #   https://stackoverflow.com/questions/78298133/
   eza --icons --long --header
@@ -291,7 +292,7 @@ function llz () {
 
 # REFER: For macOS ACL features, use `/bin/ls`, e.g., `/bin/ls -led ~/.Trash`
 # - See `man ls` and `man chmod` for more on ACL.
-ls-or-gls () {
+ls-or-gls() {
   if ! command -v gls; then
     echo "/usr/bin/env ls"
   fi
@@ -299,7 +300,7 @@ ls-or-gls () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_alias_ls () {
+unset_f_alias_ls() {
   unset -f home_fries_aliases_wire_ls
   # So meta.
   unset -f unset_f_alias_ls
@@ -310,4 +311,3 @@ unset_f_alias_ls () {
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
   >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
 fi
-
