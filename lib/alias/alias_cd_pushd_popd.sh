@@ -96,8 +96,8 @@ rp() {
 
 # "mkdir and enter"
 mkcd() {
-  local RED='\e[0;31m'
-  # local GRN='\e[0;32m'
+  # local RED='\e[0;31m'
+  local GRN='\e[0;32m'
   # local YEL='\e[33m'
   # local CYN='\e[36m'
   # local BLU='\e[34m'
@@ -114,7 +114,7 @@ mkcd() {
 
     return 1
   elif [ -d "$1" ]; then
-    echo -e "${RED}$* already exists${NC}"
+    echo -e "${GRN}$* already exists${NC}"
 
     cd -- "$1"
   else
