@@ -95,7 +95,7 @@ rp() {
 # https://github.com/lukas-reineke/dotfiles/blob/02064d6dccb2e/bash/functions.sh
 
 # "mkdir and enter"
-function mkcd {
+mkcd() {
   local RED='\e[0;31m'
   # local GRN='\e[0;32m'
   # local YEL='\e[33m'
