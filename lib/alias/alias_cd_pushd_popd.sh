@@ -116,7 +116,7 @@ mkcd() {
   elif [ -d "$1" ]; then
     echo -e "${RED}$* already exists${NC}"
 
-    cd -- "$1" && git st
+    cd -- "$1"
   else
     mkdir -p -- "$1" && cd -- "$1"
   fi
