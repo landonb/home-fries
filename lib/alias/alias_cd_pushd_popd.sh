@@ -8,10 +8,10 @@
 
 # *** pushd/popd/cd wrappers.
 
-home_fries_aliases_wire_cd_pushd_popd () {
+home_fries_aliases_wire_cd_pushd_popd() {
   # HINT: `dirs -c` to clear pushd/popd directory stack.
 
-  function cd () {
+  function cd() {
     if [ $# -gt 0 ]; then
       command cd "$@"
 
@@ -19,11 +19,11 @@ home_fries_aliases_wire_cd_pushd_popd () {
     fi
 
     # Only on base `cd`.
-    pushd "${HOME}" &> /dev/null
+    pushd "${HOME}" &>/dev/null
   }
 
   # IDEA/MAYBE: Enhance completions on cdd (limit to directories).
-  function cdd () {
+  function cdd() {
     local target="$1"
 
     if [ -n "$2" ]; then
@@ -43,7 +43,7 @@ home_fries_aliases_wire_cd_pushd_popd () {
 
     if [ -n "${target}" ]; then
       local retcode=0
-      pushd "${target}" &> /dev/null
+      pushd "${target}" &>/dev/null
       retcode=$?
       # Same as:
       #  pushd -n "${target}" &> /dev/null
@@ -52,7 +52,7 @@ home_fries_aliases_wire_cd_pushd_popd () {
         # Maybe the stupid user provided a path to a file.
         local pdir="$(dirname -- "${target}")"
         if [ -n "${pdir}" ] && [ '.' != "${pdir}" ]; then
-          pushd "${pdir}" &> /dev/null
+          pushd "${pdir}" &>/dev/null
           retcode=$?
           if [ ${retcode} -ne 0 ]; then
             >&2 echo "Not a directory: ${pdir}"
@@ -67,7 +67,7 @@ home_fries_aliases_wire_cd_pushd_popd () {
         return ${retcode}
       fi
     else
-      pushd "${HOME}" &> /dev/null
+      pushd "${HOME}" &>/dev/null
     fi
   }
 
@@ -85,7 +85,7 @@ home_fries_aliases_wire_cd_pushd_popd () {
 }
 
 # (Sorta related) `realpath` abbrev.
-rp () {
+rp() {
   realpath "$@" | _hf_clip
 }
 
@@ -124,7 +124,7 @@ function mkcd {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_alias_cd_pushd_popd () {
+unset_f_alias_cd_pushd_popd() {
   unset -f home_fries_aliases_wire_cd_pushd_popd
   # So meta.
   unset -f unset_f_alias_cd_pushd_popd
@@ -135,4 +135,3 @@ unset_f_alias_cd_pushd_popd () {
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
   >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
 fi
-
