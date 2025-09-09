@@ -6,11 +6,16 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_aliases_wire_fd () {
+home_fries_aliases_wire_fd() {
   # `fd` is `fdfind` on Debian 12, Ubuntu 20.04, etc.
   # REFER: https://github.com/sharkdp/fd/issues/1009
   #   https://stackoverflow.com/questions/1583219/how-can-i-do-a-recursive-find-replace-of-a-string-with-awk-or-sed/71931037#71931037
-  if ! ( unset -f fdfind; unalias fdfind; command -v fdfind ) >/dev/null 2>&1; then
+  if ! (
+    unset -f fdfind
+    unalias fdfind
+    command -v fdfind
+  ) >/dev/null 2>&1; then
+
     claim_alias_or_warn "fdfind" "fd"
   fi
 
@@ -53,7 +58,7 @@ home_fries_aliases_wire_fd () {
 #             --ignore-file path: Alternative approach
 #               (e.g., `/usr/bin/env fd -H -I --ignore-file <(echo .git/) <term>`
 
-_home_fries_fd () {
+_home_fries_fd() {
   local exclude="${HOMEFRIES_FD_EXCLUDE}"
 
   if [ -z "${HOMEFRIES_FD_EXCLUDE+x}" ]; then
@@ -74,8 +79,8 @@ _home_fries_fd () {
       ".trash/" \
       ".venv/" \
       "'.venv-*/'" \
-      ".vscode/" \
-    ; do
+      ".vscode/"; do
+
       exclude="${exclude} -E ${exclude_dir}"
     done
   fi
@@ -95,16 +100,20 @@ _home_fries_fd () {
 # SAVVY: Don't `command -v fd` and return, e.g., `alias fd=...`, but
 # unset and unalias first to avoid that. Note this subprocess approach
 # works in Dash, too.
-_home_fries_fd__abs_path () {
+_home_fries_fd__abs_path() {
   for cmd in "fd" "fdfind"; do
-    ( unset -f ${cmd}; unalias ${cmd}; command -v ${cmd} ) 2> /dev/null \
-      && break
+    (
+      unset -f ${cmd}
+      unalias ${cmd}
+      command -v ${cmd}
+    ) 2>/dev/null &&
+      break
   done
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_alias_fd () {
+unset_f_alias_fd() {
   unset -f home_fries_aliases_wire_fd
   # So meta.
   unset -f unset_f_alias_fd
@@ -115,4 +124,3 @@ unset_f_alias_fd () {
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
   >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
 fi
-
