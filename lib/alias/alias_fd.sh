@@ -57,6 +57,13 @@ home_fries_aliases_wire_fd() {
 #                also using -I so doesn't matter).
 #             --ignore-file path: Alternative approach
 #               (e.g., `/usr/bin/env fd -H -I --ignore-file <(echo .git/) <term>`
+#               2025-09-08: `man fd` (fdfind) v8.6.0 (from APT fd-find on Debian 12) says:
+#                 --ignore-file path: Add a custom ignore-file in '.gitignore' format.
+#                   These files have a low precedence.
+#               - So not *alternative* to --ignore behavior, but *in addition* to.
+#                 Per -I/--no-ignore help, fd will check --ignore files (.gitignore,
+#                 .git/info/exclude, ~/.config/git/ignore, .ignore, .fdignore, and
+#                 ~/.config/fd/ignore), and then check --ignore-file.
 
 _home_fries_fd() {
   local exclude="${HOMEFRIES_FD_EXCLUDE}"
