@@ -65,10 +65,54 @@ home_fries_aliases_wire_fd() {
 #                 .git/info/exclude, ~/.config/git/ignore, .ignore, .fdignore, and
 #                 ~/.config/fd/ignore), and then check --ignore-file.
 
+# SAVVY: `-E/--exclude` unaffected by later `-u`.
+# - For instance, the following does not work as expected
+#   (or at least how author originally expected):
+#     fd -E node_modules/ -u {term}
+#   - Despite --unrestricted following --exclude,
+#     `fd` will still not search node_modules/.
+# - Note that -u will override --no-hidden and --ignore.
+#   - E.g., this command is unrestricted:
+#       fd --no-hidden --ignore --unrestricted {term}
+#     But this command is restricted:
+#       fd --unrestricted --no-hidden --ignore {term}
+# - As such, when user specifies -u/--unrestricted,
+#   omit the -E/--exclude and --ignore-file args
+#   (which configure a set of default args most users
+#   should appreciate, such as skipping node_modeles/
+#   and site-packages/ dirs, and using '.fdignore'
+#   but ignoring '.gitignore'), and set no_hidden and
+#   no_ignore accordingly.
+
 _home_fries_fd() {
+  local no_follow=false
+  local no_hidden=false
+  local no_ignore=false
+  local unrestricted=false
+
+  local arg
+  for arg in "$@"; do
+    case "${arg}" in
+    -L | --follow) no_follow=false ;;
+    --no-follow) no_follow=true ;;
+    -H | --hidden) no_hidden=false ;;
+    --no-hidden) no_hidden=true ;;
+    --ignore) no_ignore=false ;;
+    -I | --no-ignore) no_ignore=true ;;
+    -u | --unrestricted)
+      unrestricted=true
+      no_hidden=false
+      no_ignore=true
+      ;;
+    esac
+  done
+
+  # ***
+
   local exclude="${HOMEFRIES_FD_EXCLUDE}"
 
-  if [ -z "${HOMEFRIES_FD_EXCLUDE+x}" ]; then
+  # Common ignore rules everyone should enjoy.
+  if ${no_ignore} && ! ${unrestricted} && test -z "${HOMEFRIES_FD_EXCLUDE+x}"; then
     # USYNC: Similar ignore lists (in different DepoXy projects):
     #   ~/.depoxy/ambers/home/.kit/git/ohmyrepos/lib/infuse-personal-projlns.sh
     #   ~/.depoxy/ambers/home/.projlns/infuse-projlns-omr.sh
@@ -107,13 +151,19 @@ _home_fries_fd() {
   local ignore_file_path="${HOMEFRIES_FD_IGNORE_FILE:-.fdignore}"
 
   local ignore_file_arg=""
-  if [ -f "${ignore_file_path}" ]; then
+  if ${no_ignore} && ! ${unrestricted} && test -f "${ignore_file_path}"; then
     ignore_file_arg="--ignore-file '${ignore_file_path}'"
   fi
 
   # ***
 
-  eval "$(_home_fries_fd__abs_path) -H -L ${exclude} ${ignore_file_arg} $@"
+  local fd_cmd="$(_home_fries_fd__abs_path) $(
+    ${no_hidden} || printf "%s" "-H"
+  ) $(
+    ${no_follow} || printf "%s" "-L"
+  ) ${exclude} ${ignore_file_arg} $@"
+
+  eval "${fd_cmd}"
 }
 
 # ***
