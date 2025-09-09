@@ -85,12 +85,16 @@ _home_fries_fd() {
     done
   fi
 
+  # ***
+
   local ignore_file_path="${HOMEFRIES_FD_IGNORE_FILE:-.fdignore}"
 
   local ignore_file_arg=""
   if [ -f "${ignore_file_path}" ]; then
     ignore_file_arg="--ignore-file '${ignore_file_path}'"
   fi
+
+  # ***
 
   eval "$(_home_fries_fd__abs_path) -H -L ${exclude} ${ignore_file_arg} $@"
 }
