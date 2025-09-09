@@ -163,6 +163,8 @@ _home_fries_fd() {
     ${no_follow} || printf "%s" "-L"
   ) ${exclude} ${ignore_file_arg} $@"
 
+  ! ${HOMEFRIES_FD_TRACE:-false} || echo "${fd_cmd}"
+
   eval "${fd_cmd}"
 }
 
