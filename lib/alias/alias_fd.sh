@@ -87,6 +87,16 @@ _home_fries_fd() {
 
   # ***
 
+  # When --ignore (and not -I/--no-ignore), this arg. redundant
+  # (unnecessary) when it's the default, '.fdignore', because
+  # `fd --ignore` also uses '.fdignore'.
+  # - We add this arg. because our `alias fd` (above) adds the
+  #   -I/--no-ignore arg, so that our search uses '.fgignore'
+  #   *but not '.gitignore'*.
+  #   - This is because '.gitignore' often ignores files you might
+  #     want to find (e.g., build files), so it's better (you have
+  #     more control) if you use '.gitignore' just for git commands,
+  #     and you use '.fdignore' for fd commands.
   local ignore_file_path="${HOMEFRIES_FD_IGNORE_FILE:-.fdignore}"
 
   local ignore_file_arg=""
