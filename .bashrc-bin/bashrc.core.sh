@@ -523,7 +523,7 @@ home_fries_up() {
   # - Uses: lib/term/set-shell-prompt-and-window-title.sh
   # - Deps: lib/session_util.sh
   # - Don't run_and_unset: Let client reuse if they want.
-  run_and_report "_hf_prompt_configure"
+  run_and_report "_humb_prompt_configure"
 
   # Set PS4, for `set -x` and `set -v` debugging/tracing.
   # - lib/term/set-shell-prompt-and-window-title.sh
