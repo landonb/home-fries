@@ -19,7 +19,7 @@
 
 # 2022-11-20: `poetry shell`'s virtualenv uses `exit`, not `deactivate`.
 
-bash-exit-bash-hole () {
+bash-exit-bash-hole() {
   local parent_is_bash=false
   local parent_is_ibash=false
   local parent_is_poetry=false
@@ -36,15 +36,15 @@ bash-exit-bash-hole () {
   if ${parent_is_bash}; then
     echo "exit, sh"
 
-    exit 2> /dev/null
+    exit 2>/dev/null
   elif ${parent_is_ibash}; then
     echo "exit, -b"
 
-    exit 2> /dev/null
+    exit 2>/dev/null
   elif ${parent_is_poetry}; then
     echo "exit, po"
 
-    exit 2> /dev/null
+    exit 2>/dev/null
   else
     echo "stay"
   fi
@@ -54,7 +54,7 @@ bash-exit-bash-hole () {
 
 # FIXME: Not DRY: Copied from ~/.kit/git/git-smart/bin/git-brs.
 #   grep-or-ggrep
-_hf_grep_or_ggrep () {
+_hf_grep_or_ggrep() {
   #   $ grep --version
   #   grep (BSD grep, GNU compatible) 2.6.0-FreeBSD
   #   # "GNU compatible" it's not.
@@ -62,7 +62,7 @@ _hf_grep_or_ggrep () {
   #   ggrep (GNU grep) 3.8
   if grep -q -e "GNU grep" <(grep --version | head -1); then
     echo "grep"
-  elif command -v ggrep > /dev/null; then
+  elif command -v ggrep >/dev/null; then
     echo "ggrep"
   else
     >&2 echo "ERROR: GNU \`grep\` not found"
@@ -73,8 +73,8 @@ _HF_GREP="$(_hf_grep_or_ggrep)"
 
 # E.g.,
 #   18305 /home/user/.local/bin/bash
-_hf_session_util_is_ppid_bash () {
-  ps ax -o pid,command | ${_HF_GREP} -P "^ *${PPID} \S+/bash($| )" &> /dev/null
+_hf_session_util_is_ppid_bash() {
+  ps ax -o pid,command | ${_HF_GREP} -P "^ *${PPID} \S+/bash($| )" &>/dev/null
 }
 
 # E.g., login shell
@@ -83,30 +83,30 @@ _hf_session_util_is_ppid_bash () {
 # And is what happens when you `bash` from within a `tmux` shell.
 # - Though on macOS/iTerm2, /opt/homebrew/bin/bash is first shell's
 #   parent process; and subshells are just `bash` (no dash).
-_hf_session_util_is_ppid_ibash () {
-  ps ax -o pid,command | ${_HF_GREP} -P "^ *${PPID} -?bash$" &> /dev/null
+_hf_session_util_is_ppid_ibash() {
+  ps ax -o pid,command | ${_HF_GREP} -P "^ *${PPID} -?bash$" &>/dev/null
 }
 
 # E.g.,
 #   23799 /home/user/.local/share/pypoetry/venv/bin/python /home/user/.local/bin/poetry shell
-_hf_session_util_is_ppid_poetry_shell () {
-  ps ax -o pid,command | ${_HF_GREP} -P "^ *${PPID} \S+/python3? \S+/poetry shell$" &> /dev/null
+_hf_session_util_is_ppid_poetry_shell() {
+  ps ax -o pid,command | ${_HF_GREP} -P "^ *${PPID} \S+/python3? \S+/poetry shell$" &>/dev/null
 }
 
-_hf_session_is_subshell () {
-  false \
-    || _hf_session_util_is_ppid_bash \
-    || _hf_session_util_is_ppid_ibash \
-    || _hf_session_util_is_ppid_poetry_shell
+_hf_session_is_subshell() {
+  false ||
+    _hf_session_util_is_ppid_bash ||
+    _hf_session_util_is_ppid_ibash ||
+    _hf_session_util_is_ppid_poetry_shell
 }
 
 # `shexit` also comes to mind, but `be<TAB>` for the win.
 # - Though beware macos Homebrew imagemagick `benchmark_xl`
 #   conflicts, but you probably don't need that command and
 #   can rename it.
-home_fries_session_util_configure_aliases_bexit () {
-  _hf_session_is_subshell \
-    || return
+home_fries_session_util_configure_aliases_bexit() {
+  _hf_session_is_subshell ||
+    return
 
   claim_alias_or_warn "bexit" "bash-exit-bash-hole"
 
@@ -119,7 +119,7 @@ home_fries_session_util_configure_aliases_bexit () {
 #   type the longer `bex<TAB>`), remove the conflict from PATH search.
 # - REFER: /opt/homebrew/bin/benchmark_xl ->
 #     /opt/homebrew/Cellar/jpeg-xl/*/bin/benchmark_xl
-_hf_bexit_deconflict_imagemagick_benchmark_xl () {
+_hf_bexit_deconflict_imagemagick_benchmark_xl() {
   EXECIGNORE="*/benchmark_xl:${EXECIGNORE}"
 }
 
@@ -134,12 +134,12 @@ _hf_bexit_deconflict_imagemagick_benchmark_xl () {
 # - dash doesn't render PS1 escape sequences, which is ignorable unless it's not.
 #   - On Linux Mint, it's ignorable.
 #     - Author see a longer prompt than normal, with all the escape sequences, e.g.,
-#       \[\]\[\033[01;37m\]\u@\[\033[01;33m\]\h\[\033[00m\]∶\[\033[01;36m\]\W\[\033[00m\] 🍄 $ 
+#       \[\]\[\033[01;37m\]\u@\[\033[01;33m\]\h\[\033[00m\]∶\[\033[01;36m\]\W\[\033[00m\] 🍄 $
 #     and with no colors or styling.
 #     - But the prompt is still usable.
 #   - But on macOS, on the other hand, the prompt is more messed up.
 #     - Note that the hostname is substituted, so the line is slightly shorter, e.g.,
-#       \[\]\[\033[01;37m\]\u@myhost\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\] 🍄 $ 
+#       \[\]\[\033[01;37m\]\u@myhost\[\033[00m\]:\[\033[01;36m\]\W\[\033[00m\] 🍄 $
 #     But more critically, starting at '@', the text is salmon-colored,
 #     italic, and underlined, and so is what you type at the prompt and
 #     all output and prompts thereafter.
@@ -149,7 +149,7 @@ _hf_bexit_deconflict_imagemagick_benchmark_xl () {
 # - Note that dash does variable expansion in PS1, but it doesn't
 #   support color or the special variables like \h or \W that Bash does.
 #   - CXREF: ~/.kit/sh/sh-humble-prompt/lib/set-shell-prompt-and-window-title.sh
-dash () {
+dash() {
   local PS1_orig="$PS1"
 
   # Note that HOSTNAME set in Bash, not in dash.
@@ -170,22 +170,22 @@ dash () {
   unset -v _HF_PS1_HOSTNAME
 }
 
-sh () {
+sh() {
   # On Linux Mint, /bin/sh -> dash. On macOS, /bin/sh is Bash v3.
   # - Here we only care when sh is dash.
-  test "$(realpath -- "$(type -P sh)")" = "$(realpath -- "$(type -P dash)")" \
-    && dash "$@" \
-    || command sh "$@"
+  test "$(realpath -- "$(type -P sh)")" = "$(realpath -- "$(type -P dash)")" &&
+    dash "$@" ||
+    command sh "$@"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_homefries_screensaver_command () {
+_homefries_screensaver_command() {
   # Could instead run:
   #   suss_window_manager
   #   if ${WM_IS_MATE}; then
   #     ...
-  if command -v mate-screensaver-command > /dev/null; then
+  if command -v mate-screensaver-command >/dev/null; then
     mate-screensaver-command "$@"
   else
     gnome-screensaver-command "$@"
@@ -205,7 +205,7 @@ _homefries_screensaver_command () {
 #     https://bugs.launchpad.net/linuxmint/+bug/1185681
 #
 # Not sure where I found the dbus-send trick.
-lock_screensaver_and_power_suspend () {
+lock_screensaver_and_power_suspend() {
   check_dep 'termdo-all' || return $?
 
   # 2021-02-20: This function is stale; I haven't used in a while
@@ -223,8 +223,11 @@ lock_screensaver_and_power_suspend () {
   termdo-all sudo -K
   # 2018-02-19: Tmux, Too!
   # NOTE: pane_id returns, e.g., %0, %1, %2; pane_index returns 1, 2, 3.
-  for _pane in $(tmux list-panes -a -F '#{pane_index}'); do \
+  for _pane in $(
+    tmux list-panes -a -F '#{pane_index}'
+  ); do
     # Test echoes:
+
     #   echo "pane: ${_pane}"
     #   tmux send-keys -t ${_pane} "echo 'pane: ${_pane}'" Enter
     tmux send-keys -t ${_pane} "echo 'pane: ${_pane}'" Enter
@@ -232,25 +235,28 @@ lock_screensaver_and_power_suspend () {
   done
 
   . /etc/lsb-release
-  if false \
-    || [ ${DISTRIB_CODENAME} = 'xenial' ] \
-    || [ ${DISTRIB_CODENAME} = 'sarah' ] \
-    || [ ${DISTRIB_CODENAME} = 'sonya' ] \
-  ; then
-    _homefries_screensaver_command --lock && \
+  if false ||
+    [ ${DISTRIB_CODENAME} = 'xenial' ] ||
+    [ ${DISTRIB_CODENAME} = 'sarah' ] ||
+    [ ${DISTRIB_CODENAME} = 'sonya' ] \
+    ; then
+
+    _homefries_screensaver_command --lock &&
       systemctl suspend -i
-  elif false \
-    || [ ${DISTRIB_CODENAME} = 'trusty' ] \
-    || [ ${DISTRIB_CODENAME} = 'rebecca' ] \
-  ; then
-    _homefries_screensaver_command --lock && \
+  elif false ||
+    [ ${DISTRIB_CODENAME} = 'trusty' ] ||
+    [ ${DISTRIB_CODENAME} = 'rebecca' ] \
+    ; then
+
+    _homefries_screensaver_command --lock &&
       dbus-send --system --print-reply --dest=org.freedesktop.UPower \
         /org/freedesktop/UPower org.freedesktop.UPower.Suspend
   else
     echo "ERROR: Unknown distro. I refuse to Lock Screensaver and Power Suspend."
+
     return 1
   fi
-# 2018-05-29: Do these even run after the suspend?
+  # 2018-05-29: Do these even run after the suspend?
   # Sneak in enabling locking screen saver.
   screensaver_lockon
 
@@ -260,7 +266,7 @@ lock_screensaver_and_power_suspend () {
 
 # ***
 
-_hf_lock_screensaver_source_lsb_release () {
+_hf_lock_screensaver_source_lsb_release() {
   # INERT/2021-02-20: We could support macOS, but I have no use case.
   # - We'd need the macOS equivalent of termdo, which is
   #   probably osascript, but I think we'd also need the
@@ -283,8 +289,7 @@ _hf_lock_screensaver_source_lsb_release () {
 
 # ***
 
-lock_screensaver_and_power_suspend_lite () {
-
+lock_screensaver_and_power_suspend_lite() {
   # Restrict from running on macOS or if /etc/lsb-release not found.
   _hf_lock_screensaver_source_lsb_release || return $?
 
@@ -292,27 +297,30 @@ lock_screensaver_and_power_suspend_lite () {
   xdotool key ctrl+alt+d
 
   . /etc/lsb-release
-  if false \
-    || [ ${DISTRIB_CODENAME} = 'xenial' ] \
-    || [ ${DISTRIB_CODENAME} = 'sarah' ] \
-    || [ ${DISTRIB_CODENAME} = 'sonya' ] \
-  ; then
-    _homefries_screensaver_command --lock && \
+  if false ||
+    [ ${DISTRIB_CODENAME} = 'xenial' ] ||
+    [ ${DISTRIB_CODENAME} = 'sarah' ] ||
+    [ ${DISTRIB_CODENAME} = 'sonya' ] \
+    ; then
+
+    _homefries_screensaver_command --lock &&
       systemctl suspend -i
-  elif false \
-    || [ ${DISTRIB_CODENAME} = 'trusty'] \
-    || [ ${DISTRIB_CODENAME} = 'rebecca' ] \
-  ; then
-    _homefries_screensaver_command --lock && \
+  elif false ||
+    [ ${DISTRIB_CODENAME} = 'trusty'] ||
+    [ ${DISTRIB_CODENAME} = 'rebecca' ] \
+    ; then
+
+    _homefries_screensaver_command --lock &&
       dbus-send --system --print-reply --dest=org.freedesktop.UPower \
         /org/freedesktop/UPower org.freedesktop.UPower.Suspend
   else
     echo "ERROR: Unknown distro. I refuse to Lock Screensaver and Power Suspend."
+
     return 1
   fi
 }
 
-lock_screensaver_and_do_nothing_else () {
+lock_screensaver_and_do_nothing_else() {
   _homefries_screensaver_command --lock
   # I'm iffy about enabling locking screensaver on simple qq.
   # But also thinking maybe yeah.
@@ -320,7 +328,7 @@ lock_screensaver_and_do_nothing_else () {
 
 } # end: lock_screensaver_and_do_nothing_else
 
-home_fries_session_util_configure_aliases_ps () {
+home_fries_session_util_configure_aliases_ps() {
   claim_alias_or_warn "qq" "lock_screensaver_and_do_nothing_else"
   claim_alias_or_warn "qqq" "lock_screensaver_and_power_suspend"
   claim_alias_or_warn "q4" "lock_screensaver_and_power_suspend_lite"
@@ -330,7 +338,7 @@ home_fries_session_util_configure_aliases_ps () {
 
 # 2016-11-12: I don't use this fcn. I moved it from
 #   .homefries/once/setup_ubuntu.sh rather than delete it.
-user_window_session_logout () {
+user_window_session_logout() {
   # The logout commands vary according to distro, so check what's there.
   # Bash has three built-its that'll tell is if a command exists on
   # $PATH. The simplest, ``command``, doesn't print anything but returns
@@ -342,9 +350,9 @@ user_window_session_logout () {
   #  $ hash foo       2>/dev/null     || { echo >&2 "Not found."; exit 1; }
   # Thanks to http://stackoverflow.com/questions/592620/
   #             how-to-check-if-a-program-exists-from-a-bash-script
-  if command -v mate-session-save > /dev/null; then
+  if command -v mate-session-save >/dev/null; then
     mate-session-save --logout
-  elif command -v gnome-session-save > /dev/null; then
+  elif command -v gnome-session-save >/dev/null; then
     gnome-session-save --logout
   else
     # This is the most destructive way to logout, so don't do it:
@@ -368,10 +376,10 @@ user_window_session_logout () {
 #
 #             so let's try this here in bashrc.
 
-disable_wakeup_on_lid () {
-  cat /proc/acpi/wakeup | grep "^LID" &> /dev/null
+disable_wakeup_on_lid() {
+  cat /proc/acpi/wakeup | grep "^LID" &>/dev/null
   if [ $? -eq 0 ]; then
-    cat /proc/acpi/wakeup | grep "^LID" | grep disabled &> /dev/null
+    cat /proc/acpi/wakeup | grep "^LID" | grep disabled &>/dev/null
     if [ $? -ne 0 ]; then
       #echo " LID" | sudo tee /proc/acpi/wakeup
       echo " LID" | tee /proc/acpi/wakeup
@@ -383,7 +391,7 @@ disable_wakeup_on_lid () {
 
 # Shell Options
 
-home_fries_configure_shell_options () {
+home_fries_configure_shell_options() {
   # See man bash for more options.
 
   # Don't wait for job termination notification.
@@ -401,7 +409,7 @@ home_fries_configure_shell_options () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-pm-latest () {
+pm-latest() {
   # See also:
   #   journalctl --list-boots
   # https://www.digitalocean.com/community/tutorials/how-to-use-journalctl-to-view-and-manipulate-systemd-logs
@@ -410,7 +418,7 @@ pm-latest () {
   #   journalctl --list-boots -r -n 1
   # For log from previous boot (not suspend/wake):
   #   journalctl -b -1
-  if command -v journalctl &> /dev/null; then    #
+  if command -v journalctl &>/dev/null; then #
     # NOTE: In lieu of a /var/log/pm-suspend.log, which you won't find
     #       on Ubuntu, use journalctl to see when system was last woke.
     #       (2018-01-29: (lb): I use this for back-filling hamster if
@@ -420,10 +428,10 @@ pm-latest () {
     # 'kernel' works for me, though.
     # - For posterity, the old code:
     if false; then
-      show_latest_suspend_resume () {
-        journalctl -b 0 -r -t systemd-sleep \
-          | grep -m 1 "$1" \
-          | awk '{print "$2 at "$1" "$2" "$3}'
+      show_latest_suspend_resume() {
+        journalctl -b 0 -r -t systemd-sleep |
+          grep -m 1 "$1" |
+          awk '{print "$2 at "$1" "$2" "$3}'
       }
       show_latest_suspend_resume "Suspending system...$" "Suspend"
       show_latest_suspend_resume "System resumed.$" "Resumed"
@@ -433,10 +441,10 @@ pm-latest () {
     #   Dec 12 16:29:59 lethe kernel: PM: suspend entry (deep)
     #   Dec 12 19:06:52 lethe kernel: PM: Syncing filesystems ... done.
     # except that's on a previous boot... I should just test this...
-    show_latest_suspend_resume () {
-      journalctl -b 0 -r -t kernel \
-        | grep -m 1 "$1" \
-        | awk '{print "$2 at "$1" "$2" "$3}'
+    show_latest_suspend_resume() {
+      journalctl -b 0 -r -t kernel |
+        grep -m 1 "$1" |
+        awk '{print "$2 at "$1" "$2" "$3}'
     }
     show_latest_suspend_resume "kernel: PM: suspend entry (deep)$" "Suspend"
     show_latest_suspend_resume "kernel: PM: Syncing filesystems ... done.$" "Resumed"
@@ -454,12 +462,12 @@ pm-latest () {
     #  Wed Jan  3 13:04:19 CST 2018: Finished.
     #  Thu Jan  4 22:55:36 CST 2018: Running hooks for suspend.
     #  Thu Jan  4 22:55:37 CST 2018: performing suspend
-    tac /var/log/pm-suspend.log \
-      | grep -m 1 ": Running hooks for suspend\.$" \
-      | awk '{print "Suspend at "$2" "$3" "$4}'
-    tac /var/log/pm-suspend.log \
-      | grep -m 1 ": Awake\.$" \
-      | awk '{print "Resumed at "$2" "$3" "$4}'
+    tac /var/log/pm-suspend.log |
+      grep -m 1 ": Running hooks for suspend\.$" |
+      awk '{print "Suspend at "$2" "$3" "$4}'
+    tac /var/log/pm-suspend.log |
+      grep -m 1 ": Awake\.$" |
+      awk '{print "Resumed at "$2" "$3" "$4}'
   fi
 
   # Ha. You can determine when the screen saver was unlocked by looking
@@ -479,7 +487,7 @@ pm-latest () {
   #
   #   Respek: https://askubuntu.com/questions/435069/
   #     how-can-i-know-when-my-screen-was-locked-last-time
-  auth_log_grep_latest () {
+  auth_log_grep_latest() {
     # Use `tac` ("cat" backwards) to "concatenate and print files in reverse".
     tac /var/log/auth.log | grep -m 1 "$2" | awk "{print \"$1 \"\$1\" \"\$2\" \"\$3\"\"}"
   }
@@ -503,8 +511,8 @@ pm-latest () {
 
 # Test if Bash function exists.
 # - 2022-11-04: Nothing calls this.
-fn_exists () {
-  type -t $1 > /dev/null
+fn_exists() {
+  type -t $1 >/dev/null
 }
 
 # home_fries_session_util_configure_aliases_fn () {
@@ -520,7 +528,7 @@ fn_exists () {
 #               So I'm recording this function to have a copy of it,
 #               but note that nothing calls it,
 #               and my feelings won't be hurt if you remove it.
-touched_since_logged_on_desktop () {
+touched_since_logged_on_desktop() {
   local cmpfile="$1"
   local touched_since=false
 
@@ -545,7 +553,7 @@ touched_since_logged_on_desktop () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-touched_since_up () {
+touched_since_up() {
   local suffix="$1"
   local touched_since=false
   local touchfile
@@ -564,4 +572,3 @@ touched_since_up () {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
