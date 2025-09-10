@@ -35,7 +35,7 @@ home_fries_aliases_wire_pwgen () {
 
   claim_alias_or_warn "pwgenpin" \
     "pwgen -A -r abcdefghijklmnopqrstuvwxyz ${PWGEN_LENGTH:-4} \
-    | _hf_aliases_wire_pwgen_clip_and_print_os_aware"
+    | _hf_clip_echo"
 }
 
 _hf_aliases_wire_pwgen_pwgen23 () {
@@ -49,13 +49,7 @@ _hf_aliases_wire_pwgen_pwgen23 () {
 _hf_aliases_wire_pwgen_clip_and_print () {
   local pwd="$(_hf_aliases_wire_pwgen_pwgen23)"
 
-  echo "${pwd}" | _hf_aliases_wire_pwgen_clip_and_print_os_aware
-}
-
-_hf_aliases_wire_pwgen_clip_and_print_os_aware () {
-  type pbcopy > /dev/null 2>&1 \
-    && cat | tee >(tr -d "\n" | pbcopy) \
-    || cat | tee >(tr -d "\n" | xclip -selection c)
+  echo "${pwd}" | _hf_clip_echo
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

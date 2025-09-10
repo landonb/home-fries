@@ -23,30 +23,15 @@ home_fries_aliases_wire_pwd() {
   #       is not only shorter, but works across hosts, regardless
   #       of the home directory path or username (i.e., /home/user
   #       vs. /User/home)).
-  if command -v pbcopy >/dev/null; then
-    claim_alias_or_warn "p" \
-      'pwd | tee >(tr -d \"\n\" | pbcopy)'
-  elif command -v wl-copy >/dev/null; then
-    claim_alias_or_warn "p" \
-      'pwd | tee >(wl-copy --trim-newline)'
-  else
-    claim_alias_or_warn "p" \
-      'pwd | tee >(tr -d \"\n\" | xclip -selection c)'
-  fi
+  claim_alias_or_warn "p" "pwd | _hf_clip_echo"
 
-  # 2021-01-28: A real wisenheimer.
-  #  claim_alias_or_warn "P" 'pwd && pwd | tr -d "\n" | xclip -selection c'
-  # 2022-11-04: Crank it up a notch?
+  # SAVVY/2022-11-04: Clip curr. dir. w/ tilde prefix.
   # - Print current directory to stdout and copy to clipboard,
   #   after replacing leading home path with tilde.
   #   - Use case: Pasting somewhere, like notes, where you might
   #     want to use a user-agnostic home path, or you just want
   #     a shorter path.
-  command -v pbcopy >/dev/null &&
-    claim_alias_or_warn "P" \
-      'pwd | sed -E \"s#^${HOME}(/|$)#~\1#\" | tee >(tr -d \"\n\" | pbcopy)' ||
-    claim_alias_or_warn "P" \
-      'pwd | sed -E \"s#^${HOME}(/|$)#~\1#\" | tee >(tr -d \"\n\" | xclip -selection c)'
+  claim_alias_or_warn "P" 'pwd | sed -E \"s#^${HOME}(/|$)#~\1#\" | _hf_clip_echo'
 }
 
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
