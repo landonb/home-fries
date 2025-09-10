@@ -161,14 +161,18 @@ clear_terminal_screen_and_scrollback_buffer() {
 
 # Perform a clipboard clearance (sale), everything must go!
 clear_clipboard_contents() {
-  if type pbcopy >/dev/null 2>&1; then
+  # USYNC: Same if-else as seen in
+  #   ~/.kit/sh/home-fries/lib/alias/alias_clip.sh
+  if os_is_macos && command -v pbcopy >/dev/null; then
     pbcopy </dev/null
-  elif type xclip >/dev/null 2>&1; then
-    if [ -n "${DISPLAY}" ]; then
-      printf '' | xclip -selection clipboard
-    fi
+  elif [ -n ${WAYLAND_DISPLAY} ] && command -v wl-copy >/dev/null; then
+    wl-copy --clear
+  elif [ -n ${DISPLAY} ] && command -v xclip >/dev/null; then
+    # If headless (DISPLAY unset) and you try this:
+    #   Error: Can't open display: (null)
+    printf '' | xclip -selection clipboard
   else
-    >&2 echo "ALERT: Clipboard not cleared (neither pbcopy nor xclip)."
+    >&2 echo "ERROR: Unknown clipboard type"
   fi
 }
 
@@ -176,6 +180,12 @@ clear_terminal_screen_and_scrollback_buffer_and_clipboard_contents() {
   clear_terminal_screen_and_scrollback_buffer
 
   clear_clipboard_contents
+}
+
+# ***
+
+os_is_macos() {
+  [ "$(uname)" = "Darwin" ]
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
