@@ -628,7 +628,7 @@ home_fries_up() {
   # Update mate-terminal titlebar on each command.
   # (lb): Note that all commands after this will appear/flicker
   # in the window title.
-  run_and_unset "_hf_hook_titlebar_update"
+  run_and_unset "_humb_hook_titlebar_update"
   # - deps/sh-humble-prompt/lib/show-command-name-in-window-title.sh
 
   # Lest we apply same always-on to any new window opened as child of this one.
