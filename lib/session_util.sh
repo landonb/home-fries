@@ -100,6 +100,8 @@ _hf_session_is_subshell() {
     _hf_session_util_is_ppid_poetry_shell
 }
 
+# ***
+
 # `shexit` also comes to mind, but `be<TAB>` for the win.
 # - Though beware macos Homebrew imagemagick `benchmark_xl`
 #   conflicts, but you probably don't need that command and
