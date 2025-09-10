@@ -19,7 +19,7 @@
 
 PWGEN_OMIT="${PWGEN_OMIT:--r -/}"
 
-home_fries_aliases_wire_pwgen () {
+home_fries_aliases_wire_pwgen() {
   # 2016-09-24: Why didn't I think of this 'til now?
   # [Note also that pass can just do it, too.]
   claim_alias_or_warn "pwgen16" "pwgen -n 16 -s -N 1 -y ${PWGEN_OMIT}"
@@ -38,15 +38,15 @@ home_fries_aliases_wire_pwgen () {
     | _hf_clip_echo"
 }
 
-_hf_aliases_wire_pwgen_pwgen23 () {
-  pwgen 2 1 ${PWGEN_OMIT} \
-    | tr -d '\n'
-  pwgen -n 21 -s -N 1 -y ${PWGEN_OMIT} \
-    | tr -d '\n'
+_hf_aliases_wire_pwgen_pwgen23() {
+  pwgen 2 1 ${PWGEN_OMIT} |
+    tr -d '\n'
+  pwgen -n 21 -s -N 1 -y ${PWGEN_OMIT} |
+    tr -d '\n'
   pwgen 2 1 ${PWGEN_OMIT}
 }
 
-_hf_aliases_wire_pwgen_clip_and_print () {
+_hf_aliases_wire_pwgen_clip_and_print() {
   local pwd="$(_hf_aliases_wire_pwgen_pwgen23)"
 
   echo "${pwd}" | _hf_clip_echo
@@ -54,7 +54,7 @@ _hf_aliases_wire_pwgen_clip_and_print () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_alias_pwgen () {
+unset_f_alias_pwgen() {
   unset -f home_fries_aliases_wire_pwgen
   # So meta.
   unset -f unset_f_alias_pwgen
@@ -65,4 +65,3 @@ unset_f_alias_pwgen () {
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
   >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
 fi
-
