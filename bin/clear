@@ -155,15 +155,15 @@
 # but that leaves one page of scrollback [verified most recently 2024-10-30
 # on macOS], unlike `/usr/bin/reset` or the following magic escape sequence.
 
-clear_terminal_screen_and_scrollback_buffer () {
+clear_terminal_screen_and_scrollback_buffer() {
   printf "\\033[2J\\033[3J\\033[1;1H"
 }
 
 # Perform a clipboard clearance (sale), everything must go!
-clear_clipboard_contents () {
-  if type pbcopy > /dev/null 2>&1; then
-    pbcopy < /dev/null
-  elif type xclip > /dev/null 2>&1; then
+clear_clipboard_contents() {
+  if type pbcopy >/dev/null 2>&1; then
+    pbcopy </dev/null
+  elif type xclip >/dev/null 2>&1; then
     if [ -n "${DISPLAY}" ]; then
       printf '' | xclip -selection clipboard
     fi
@@ -172,7 +172,7 @@ clear_clipboard_contents () {
   fi
 }
 
-clear_terminal_screen_and_scrollback_buffer_and_clipboard_contents () {
+clear_terminal_screen_and_scrollback_buffer_and_clipboard_contents() {
   clear_terminal_screen_and_scrollback_buffer
 
   clear_clipboard_contents
@@ -180,10 +180,9 @@ clear_terminal_screen_and_scrollback_buffer_and_clipboard_contents () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   clear_terminal_screen_and_scrollback_buffer_and_clipboard_contents
 }
 
 main "$@"
 unset -f main
-
