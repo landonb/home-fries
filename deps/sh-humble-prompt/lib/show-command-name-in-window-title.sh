@@ -18,7 +18,7 @@
 
 _humb_hook_titlebar_update() {
   # Sets ITERM2_WINDOW_NUMBER
-  _hf_set_iterm2_window_number_environ
+  _humb_set_iterm2_window_number_environ
 
   # MEH: (lb): I'd rather the title not flicker for fast commands,
   # but it's nice to have for long-running commands, like `man foo`
@@ -32,21 +32,21 @@ _humb_hook_titlebar_update() {
   # of the actively running command if there is one, e.g., `man bash`.
   trap 'printf "\033]0;%s\007" "${ITERM2_WINDOW_NUMBER}${BASH_COMMAND}"' DEBUG
 
-  # This is a one-off script: Source it, then call _hf_hook_titlebar_update,
+  # This is a one-off script: Source it, then call _humb_hook_titlebar_update,
   # and it'll unset the functions it no longer needs.
-  _hf_cleanup_lib_term_window_title_show_command_name
+  _humb_cleanup_lib_term_window_title_show_command_name
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 ITERM2_WINDOW_NUMBER=""
 
-_hf_set_iterm2_window_number_environ() {
+_humb_set_iterm2_window_number_environ() {
   local window_number
-  window_number="$(_hf_print_terminal_window_number)"
+  window_number="$(_humb_print_terminal_window_number)"
 
   if [ -n "${window_number}" ]; then
-    if ${DUBS_ALWAYS_ON_VISIBLE:-false} && ! _hf_titler_os_is_macos; then
+    if ${DUBS_ALWAYS_ON_VISIBLE:-false} && ! _humb_titler_os_is_macos; then
       # Use a special character so we can grep the title to determine if
       # the mate-terminal window should be made sticky (aka it's kludgy).
       # - CXREF: ~/.kit/sh/home-fries/lib/term/perhaps-always-on-visible-desktop.sh
@@ -102,15 +102,15 @@ _hf_set_iterm2_window_number_environ() {
 #   but you probably don't want to mess with Ansible unless you're
 #   familiar with it. Best just to make custom bindings yourself.
 
-_hf_print_terminal_window_number() {
+_humb_print_terminal_window_number() {
   ! ${HOMFRIES_NO_WINDOW_NUMBER:-false} || return 0
 
   local window_number=""
 
   false ||
-    window_number="$(_hf_print_terminal_window_number_iterm)" ||
-    window_number="$(_hf_print_terminal_window_number_alacritty_macos)" ||
-    window_number="$(_hf_print_terminal_window_number_linux_terminal)" ||
+    window_number="$(_humb_print_terminal_window_number_iterm)" ||
+    window_number="$(_humb_print_terminal_window_number_alacritty_macos)" ||
+    window_number="$(_humb_print_terminal_window_number_linux_terminal)" ||
     true
 
   printf "%s" "${window_number}"
@@ -136,7 +136,7 @@ _hf_print_terminal_window_number() {
 # recreates ITERM_SESSION_ID so that `ssh <host>` to another Homefries
 # shell keeps using the same window number, even on a remote host.)
 
-_hf_print_terminal_window_number_iterm() {
+_humb_print_terminal_window_number_iterm() {
   if [ -z "${ITERM_SESSION_ID}" ]; then
 
     return 1
@@ -178,9 +178,9 @@ _hf_print_terminal_window_number_iterm() {
 #   windows. But parts of the border that overlap other apps or
 #   the Finder are still borderful (drawn).
 
-_hf_print_terminal_window_number_alacritty_macos() {
+_humb_print_terminal_window_number_alacritty_macos() {
   # FTREQ/2024-07-10: Try Alacritty on Linux and update this fcn.
-  if ! _hf_titler_os_is_macos; then
+  if ! _humb_titler_os_is_macos; then
 
     return 1
   fi
@@ -214,17 +214,17 @@ _hf_print_terminal_window_number_alacritty_macos() {
 # It's unlikely another application is also prefixing numbers to
 # their window titles, though, we're just that special).
 
-_hf_print_terminal_window_number_linux_terminal() {
+_humb_print_terminal_window_number_linux_terminal() {
   local window_number=""
 
   local dot_leader_group
   dot_leader_group="\\(\\${DUBS_NORMAL_INDICATOR:-.}\\|${DUBS_STICKY_INDICATOR:-․}\\)"
 
   # Call prefixes separately (author tried this in a pipeline, e.g.,
-  #   assigned="$(_hf_print_terminal_window_title_prefixes | ...)"
+  #   assigned="$(_humb_print_terminal_window_title_prefixes | ...)"
   # but checking `${PIPESTATUS[0]} -ne 0` was always false).
   local prefixes
-  if ! prefixes="$(_hf_print_terminal_window_title_prefixes)"; then
+  if ! prefixes="$(_humb_print_terminal_window_title_prefixes)"; then
 
     return 1
   fi
@@ -252,11 +252,11 @@ _hf_print_terminal_window_number_linux_terminal() {
 
 # ***
 
-_hf_print_terminal_window_title_prefixes() {
-  if [ "$(_hf_probe_desktop_environment)" = "GNOME" ]; then
-    _hf_print_terminal_window_title_prefixes_Wayland
+_humb_print_terminal_window_title_prefixes() {
+  if [ "$(_humb_probe_desktop_environment)" = "GNOME" ]; then
+    _humb_print_terminal_window_title_prefixes_Wayland
   else
-    _hf_print_terminal_window_title_prefixes_XWindow
+    _humb_print_terminal_window_title_prefixes_XWindow
   fi
 }
 
@@ -266,7 +266,7 @@ _hf_print_terminal_window_title_prefixes() {
 # But `wmctrl -l` shows a very limited subset of windows,
 # e.g., author only sees Chrome and GVim windows listed.
 
-_hf_probe_desktop_environment() {
+_humb_probe_desktop_environment() {
   # Colon-separated list, uppercased.
   local currdes
   currdes="$(echo "${XDG_CURRENT_DESKTOP}" | tr '[:lower:]' '[:upper:]')"
@@ -294,7 +294,7 @@ _hf_probe_desktop_environment() {
 # REFER:
 # ~/.local/share/gnome-shell/extensions/
 
-_hf_print_terminal_window_title_prefixes_Wayland() {
+_humb_print_terminal_window_title_prefixes_Wayland() {
   local windows_list
   if ! windows_list="$(
     gdbus call --session --dest org.gnome.Shell \
@@ -351,7 +351,7 @@ _hf_print_terminal_window_title_prefixes_Wayland() {
 # CALSO:
 #   xwininfo -root -children
 
-_hf_print_terminal_window_title_prefixes_XWindow() {
+_humb_print_terminal_window_title_prefixes_XWindow() {
   if [ -z "${DISPLAY}" ] || ! command -v wmctrl >/dev/null; then
 
     return 1
@@ -364,26 +364,26 @@ _hf_print_terminal_window_title_prefixes_XWindow() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_hf_titler_os_is_macos() {
+_humb_titler_os_is_macos() {
   [ "$(uname)" = 'Darwin' ]
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_hf_cleanup_lib_term_window_title_show_command_name() {
-  unset -f _hf_set_iterm2_window_number_environ
+_humb_cleanup_lib_term_window_title_show_command_name() {
+  unset -f _humb_set_iterm2_window_number_environ
   # Leave set: ITERM2_WINDOW_NUMBER
 
-  unset -f _hf_titler_os_is_macos
+  unset -f _humb_titler_os_is_macos
 
-  unset -f _hf_print_terminal_window_number
-  unset -f _hf_print_terminal_window_number_iterm
-  unset -f _hf_print_terminal_window_number_alacritty_macos
-  unset -f _hf_print_terminal_window_number_linux_terminal
+  unset -f _humb_print_terminal_window_number
+  unset -f _humb_print_terminal_window_number_iterm
+  unset -f _humb_print_terminal_window_number_alacritty_macos
+  unset -f _humb_print_terminal_window_number_linux_terminal
 
-  unset -f _hf_hook_titlebar_update
+  unset -f _humb_hook_titlebar_update
 
-  unset -f _hf_cleanup_lib_term_window_title_show_command_name
+  unset -f _humb_cleanup_lib_term_window_title_show_command_name
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

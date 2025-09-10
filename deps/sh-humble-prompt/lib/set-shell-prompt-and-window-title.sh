@@ -19,7 +19,7 @@ HOMEFRIES_PS1_PREV_CMD_FAILED_STYLE=${HOMEFRIES_PS1_PREV_CMD_FAILED_STYLE:-1}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_hf_prompt_is_user_logged_on_via_ssh() {
+_humb_prompt_is_user_logged_on_via_ssh() {
   # https://unix.stackexchange.com/questions/9605/how-can-i-detect-if-the-shell-is-controlled-from-ssh
   # "If one of the variables SSH_CLIENT or SSH_TTY is defined, it's an ssh session.
   #  If the login shell's parent process name is sshd, it's an ssh session."
@@ -59,9 +59,9 @@ _hf_prompt_is_user_logged_on_via_ssh() {
 #       to use sudo, and we know we're on Linux. And on Linux,
 #       the inode of the (outermost) root directory is always 2.
 
-_hf_prompt_user_is_trapped_in_chroot() {
-  (_hf_prompt_os_is_linux && [ $(stat -c %i /) -ne 2 ]) ||
-    (_hf_prompt_os_is_macos && [ $(stat -f %i /) -ne 2 ])
+_humb_prompt_user_is_trapped_in_chroot() {
+  (_humb_prompt_os_is_linux && [ $(stat -c %i /) -ne 2 ]) ||
+    (_humb_prompt_os_is_macos && [ $(stat -f %i /) -ne 2 ])
 }
 
 # DEVEL: If you need insight into the titlebar function, try logging
@@ -74,7 +74,7 @@ _hf_prompt_user_is_trapped_in_chroot() {
 #   ...
 #   set +x
 
-_hf_prompt_format_titlebar() {
+_humb_prompt_format_titlebar() {
   # 2012.10.17: Also change the titlebar name for special terminal windows,
   #             like the log-tracing windows.
   # See: http://unix.stackexchange.com/questions/14113/
@@ -117,9 +117,9 @@ _hf_prompt_format_titlebar() {
   #  titlebar='\[\e]0;\u@\h:\w\a\]'
 
   # 2021-07-16: Add window number to window title.
-  # - CXREF: See _hf_print_terminal_window_number for deets.
+  # - CXREF: See _humb_print_terminal_window_number for deets.
   # Sets ITERM2_WINDOW_NUMBER
-  _hf_set_iterm2_window_number_environ
+  _humb_set_iterm2_window_number_environ
 
   local winnum="${ITERM2_WINDOW_NUMBER}"
 
@@ -143,12 +143,12 @@ _hf_prompt_format_titlebar() {
   #       won't find your bash scripts.
   local titlebar
 
-  if ! _hf_prompt_is_user_logged_on_via_ssh; then
+  if ! _humb_prompt_is_user_logged_on_via_ssh; then
     # echo "User not logged on via SSH"
     if [ "${HOMEFRIES_TITLE}" != '' ]; then
 
       titlebar="\[\e]0;${winnum}${HOMEFRIES_TITLE}\a\]"
-    elif _hf_prompt_user_is_trapped_in_chroot; then
+    elif _humb_prompt_user_is_trapped_in_chroot; then
       # In chroot jail.
       titlebar="\[\e]0;${winnum}|-${basename}-|\a\]"
     else
@@ -177,7 +177,7 @@ _hf_prompt_format_titlebar() {
   printf "${titlebar}"
 }
 
-_hf_prompt_customize_shell_prompts_and_window_title() {
+_humb_prompt_customize_shell_prompts_and_window_title() {
   # (lb): Note that colors.sh defines similar colors, but without
   # the ``01;`` part. I cannot remember what that component means....
   local fg_red='\[\033[01;31m\]'
@@ -205,7 +205,7 @@ _hf_prompt_customize_shell_prompts_and_window_title() {
   local mach_name
   if [ -n "${HOMEFRIES_TERM_UTIL_PS1_HOST}" ]; then
     mach_name="${HOMEFRIES_TERM_UTIL_PS1_HOST}"
-  elif _hf_prompt_os_is_macos; then
+  elif _humb_prompt_os_is_macos; then
     # (lb): 2020-08-24: On Vendor's Mac I use, hostname is 16-character MAC.
     # - Short hostname to 8 characters, in case it's just the MAC.
     mach_name="$(scutil --get LocalHostName | sed -E 's/(.{8}).*/\1/')"
@@ -231,7 +231,7 @@ _hf_prompt_customize_shell_prompts_and_window_title() {
   # # From debian .bashrc:
   # PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 
-  local titlebar="$(_hf_prompt_format_titlebar)"
+  local titlebar="$(_humb_prompt_format_titlebar)"
 
   # 2012.10.17: The default bash includes ${debian_chroot:+($debian_chroot)} in
   # the PS1 string, but it really shouldn't be set on any of our systems (it's
@@ -291,7 +291,6 @@ _hf_prompt_customize_shell_prompts_and_window_title() {
   local local_shell_icon="${u_mushroom}"
   local remote_shell_icon="${u_skull}"
 
-  # CXREF: _hf_session_is_subshell: ~/.homefries/lib/session_util.sh:96
   if _hf_session_is_subshell; then
     local_shell_icon="${u_tomato}"
     remote_shell_icon="${u_horny}"
@@ -308,8 +307,8 @@ _hf_prompt_customize_shell_prompts_and_window_title() {
   local_shell_icon="${local_shell_icon} "
   remote_shell_icon="${remote_shell_icon} "
 
-  _hf_prompt_customize_shell_prompt_PS1
-  _hf_prompt_customize_shell_prompt_PS2
+  _humb_prompt_customize_shell_prompt_PS1
+  _humb_prompt_customize_shell_prompt_PS2
 }
 
 # ***
@@ -319,7 +318,7 @@ _hf_prompt_customize_shell_prompts_and_window_title() {
 #   - (Homefries uses it to call `_hist_util_hook_bg`.)
 # - E.g., if you disable all the `unset -f` calls herein,
 #   you could set:
-#     PROMPT_COMMAND=_hf_prompt_customize_shell_prompts_and_window_title
+#     PROMPT_COMMAND=_humb_prompt_customize_shell_prompts_and_window_title
 #   and it'll set PS1 before every prompt.
 #   - Though note this runs noticeably slower than the normal
 #     prompt. Obviously, we could fix the fcns. herein to improve
@@ -336,7 +335,7 @@ _hf_prompt_customize_shell_prompts_and_window_title() {
 #     titlebar="\[\e]0;THIS IS A TEST\a\]"
 #     PROMPT_COMMAND='printf '%b' "${titlebar}\[\033[01;36m\]\u@\[\033[1;33m\]\h\[\033[00m\]:\[\033[01;37m\]\W\[\033[00m\]${prompt_symbol} "'
 
-_hf_prompt_customize_shell_prompt_PS1() {
+_humb_prompt_customize_shell_prompt_PS1() {
   if [ -z "${HOMEFRIES_PS1_ORIG+x}" ]; then
     export HOMEFRIES_PS1_ORIG="$PS1"
   fi
@@ -383,10 +382,10 @@ _hf_prompt_customize_shell_prompt_PS1() {
   #     https://stackoverflow.com/questions/16715103/bash-prompt-with-the-last-exit-code
   #     https://github.com/dimo414/prompt.gem
   if [ ${HOMEFRIES_PS1_PREV_CMD_FAILED_STYLE:-0} -eq 1 ]; then
-    prompt_symbol="\$(test \${_hf_exitcode:-0} -ne 0 && echo \"${fg_red}\")${prompt_symbol}\$(test \${_hf_exitcode:-0} -ne 0 && echo \"${attr_reset}\")"
+    prompt_symbol="\$(test \${_humb_exitcode:-0} -ne 0 && echo \"${fg_red}\")${prompt_symbol}\$(test \${_humb_exitcode:-0} -ne 0 && echo \"${attr_reset}\")"
     # ALTLY: Use one test, but then the final PS1 string is longer (because
     # ${prompt_symbol} is duplicated):
-    #   prompt_symbol="\$(test \${_hf_exitcode:-0} -ne 0 && echo \"${fg_red}${prompt_symbol}${attr_reset}\" || echo \"${prompt_symbol}\")"
+    #   prompt_symbol="\$(test \${_humb_exitcode:-0} -ne 0 && echo \"${fg_red}${prompt_symbol}${attr_reset}\" || echo \"${prompt_symbol}\")"
   fi
 
   if ${HOMEFRIES_PS1_EMOJI_DISABLE:-false}; then
@@ -397,11 +396,11 @@ _hf_prompt_customize_shell_prompt_PS1() {
   if [ $EUID -eq 0 ]; then
     # ${HOMEFRIES_TRACE} && echo "PS1: as root"
     PS1="${titlebar}${bg_magenta}${fg_gray}${cur_user}@${fg_yellow}${mach_name}${attr_reset}${unicolon}${fg_cyan}${basename}${attr_reset}${prompt_symbol} "
-  elif _hf_prompt_is_user_logged_on_via_ssh; then
+  elif _humb_prompt_is_user_logged_on_via_ssh; then
     # ${HOMEFRIES_TRACE} && echo "PS1: via SSH"
     # 2018-12-23: Use remote_shell_icon when logged on over SSH.
     PS1="${titlebar}${fg_gray}${cur_user}$(attr_italic)$(attr_underline)$(fg_lightorange)@${mach_name}${attr_reset}${unicolon}${fg_cyan}${basename}${attr_reset} ${remote_shell_icon}${prompt_symbol} "
-  elif _hf_prompt_user_is_trapped_in_chroot; then
+  elif _humb_prompt_user_is_trapped_in_chroot; then
     # ${HOMEFRIES_TRACE} && echo "PS1: chroot jail"
     PS1="${titlebar}${fg_red}**${cur_user}@**${fg_cyan}${mach_name}${attr_reset}${unicolon}${fg_yellow}${basename}${attr_reset} "'! '
   else
@@ -414,13 +413,13 @@ _hf_prompt_customize_shell_prompt_PS1() {
   fi
 
   if [ ${HOMEFRIES_PS1_PREV_CMD_FAILED_STYLE:-0} -eq 1 ]; then
-    PS1="\$(_hf_exitcode=\$?; echo \"${PS1}\")"
+    PS1="\$(_humb_exitcode=\$?; echo \"${PS1}\")"
   fi
 }
 
 # ***
 
-_hf_prompt_customize_shell_prompt_PS2() {
+_humb_prompt_customize_shell_prompt_PS2() {
   # 2018-05-28: How about a bold PS2 (continuation) prompt?
   #  PS2="$(tput bold)>${attr_reset} "
   #  PS2="$(tput bold)${attr_underlined}${fg_green}>${attr_reset} "
@@ -451,11 +450,66 @@ home_fries_set_PS4() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_hf_prompt_os_is_linux() {
+# COPYD: Duplicated from, and located in Depoxy shell at:
+#   _hf_session_is_subshell
+#     https://github.com/landonb/home-fries#🍟
+#       ~/.kit/sh/home-fries/lib/session_util.sh @ 55 - 101
+
+# NOTED: Not DRY: Copied from ~/.kit/git/git-smart/bin/git-brs.
+#   grep-or-ggrep
+_hf_grep_or_ggrep() {
+  #   $ grep --version
+  #   grep (BSD grep, GNU compatible) 2.6.0-FreeBSD
+  #   # "GNU compatible" it's not.
+  #   $ ggrep --version
+  #   ggrep (GNU grep) 3.8
+  if grep -q -e "GNU grep" <(grep --version | head -1); then
+    echo "grep"
+  elif command -v ggrep >/dev/null; then
+    echo "ggrep"
+  else
+    >&2 echo "ERROR: GNU \`grep\` not found"
+  fi
+}
+
+_HF_GREP="$(_hf_grep_or_ggrep)"
+
+# E.g.,
+#   18305 /home/user/.local/bin/bash
+_hf_session_util_is_ppid_bash() {
+  ps ax -o pid,command | ${_HF_GREP} -P "^ *${PPID} \S+/bash($| )" &>/dev/null
+}
+
+# E.g., login shell
+#    9483 -bash
+# Where the dash-bash means it was started as interactive session.
+# And is what happens when you `bash` from within a `tmux` shell.
+# - Though on macOS/iTerm2, /opt/homebrew/bin/bash is first shell's
+#   parent process; and subshells are just `bash` (no dash).
+_hf_session_util_is_ppid_ibash() {
+  ps ax -o pid,command | ${_HF_GREP} -P "^ *${PPID} -?bash$" &>/dev/null
+}
+
+# E.g.,
+#   23799 /home/user/.local/share/pypoetry/venv/bin/python /home/user/.local/bin/poetry shell
+_hf_session_util_is_ppid_poetry_shell() {
+  ps ax -o pid,command | ${_HF_GREP} -P "^ *${PPID} \S+/python3? \S+/poetry shell$" &>/dev/null
+}
+
+_hf_session_is_subshell() {
+  false ||
+    _hf_session_util_is_ppid_bash ||
+    _hf_session_util_is_ppid_ibash ||
+    _hf_session_util_is_ppid_poetry_shell
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+_humb_prompt_os_is_linux() {
   [ "$(uname)" = "Linux" ]
 }
 
-_hf_prompt_os_is_macos() {
+_humb_prompt_os_is_macos() {
   [ "$(uname)" = 'Darwin' ]
 }
 
@@ -465,22 +519,22 @@ _hf_prompt_os_is_macos() {
 #       call it more than once. So it cleans itself up rather than
 #       hang around the environment.
 
-_hf_prompt_configure() {
-  _hf_prompt_customize_shell_prompts_and_window_title
+_humb_prompt_configure() {
+  _humb_prompt_customize_shell_prompts_and_window_title
 
-  unset -f _hf_prompt_os_is_linux
-  unset -f _hf_prompt_os_is_macos
+  unset -f _humb_prompt_os_is_linux
+  unset -f _humb_prompt_os_is_macos
 
-  unset -f _hf_prompt_is_user_logged_on_via_ssh
-  unset -f _hf_prompt_user_is_trapped_in_chroot
-  unset -f _hf_prompt_format_titlebar
+  unset -f _humb_prompt_is_user_logged_on_via_ssh
+  unset -f _humb_prompt_user_is_trapped_in_chroot
+  unset -f _humb_prompt_format_titlebar
 
-  unset -f _hf_prompt_customize_shell_prompt_PS1
-  unset -f _hf_prompt_customize_shell_prompt_PS2
+  unset -f _humb_prompt_customize_shell_prompt_PS1
+  unset -f _humb_prompt_customize_shell_prompt_PS2
 
-  unset -f _hf_prompt_customize_shell_prompts_and_window_title
+  unset -f _humb_prompt_customize_shell_prompts_and_window_title
 
-  unset -f _hf_prompt_configure
+  unset -f _humb_prompt_configure
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
