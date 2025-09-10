@@ -86,7 +86,7 @@ home_fries_aliases_wire_cd_pushd_popd() {
 
 # (Sorta related) `realpath` abbrev.
 rp() {
-  realpath "$@" | _hf_clip
+  realpath "$@" | _hf_clip_echo
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
