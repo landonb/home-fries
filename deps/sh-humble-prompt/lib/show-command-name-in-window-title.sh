@@ -16,7 +16,7 @@
 #   like we normally do, so the systemwide foregrounder shortcuts
 #   still work.
 
-_hf_hook_titlebar_update() {
+_humb_hook_titlebar_update() {
   # Sets ITERM2_WINDOW_NUMBER
   _hf_set_iterm2_window_number_environ
 

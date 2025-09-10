@@ -5,7 +5,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-export_homefries_envs () {
+export_homefries_envs() {
   DEBUG_TRACE=${DEBUG_TRACE:-false}
   # Usage, e.g.:
   #   HOMEFRIES_WARNINGS=true bash
@@ -28,7 +28,7 @@ export_homefries_envs () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-source_from_user_path_or_homefries_lib () {
+source_from_user_path_or_homefries_lib() {
   local lib_file="$1"
   local deps_path="$2"
   local log_name="${3:-HFRIES}"
@@ -62,10 +62,11 @@ source_from_user_path_or_homefries_lib () {
     # lib/util_*.sh to lib/utils/homefries_*.sh. Add pre-access.
     . "${HOMEFRIES_DIR}/lib/utils/${lib_file}"
     let 'SOURCE_CNT += 1'
-  elif true && \
-    [ -n "${deps_path}" ] && \
+  elif true &&
+    [ -n "${deps_path}" ] &&
     [ -f "${HOMEFRIES_DIR}/deps/${deps_path}/${lib_file}" ] \
-  ; then
+    ; then
+
     . "${HOMEFRIES_DIR}/deps/${deps_path}/${lib_file}"
     let 'SOURCE_CNT += 1'
   else
@@ -86,7 +87,7 @@ source_from_user_path_or_homefries_lib () {
 #     └┬ . HFRIES: logger.sh
 #     ...
 #      └ . HFRIES: user_util.sh
-source_it_log_trace () {
+source_it_log_trace() {
   local log_name="$1"
   local lib_file="$2"
 
@@ -125,12 +126,12 @@ source_it_log_trace () {
   print_loading_dot
 }
 
-source_it () {
+source_it() {
   source_from_user_path_or_homefries_lib "$@"
 }
 
 # CXREF: ~/.kit/sh/home-fries/lib/snips/check_dep.sh
-export_homefries_check_dep () {
+export_homefries_check_dep() {
   . "${HOMEFRIES_DIR}/lib/snips/check_dep.sh"
 
   export -f check_dep
@@ -169,7 +170,7 @@ export_homefries_check_dep () {
 
 # *** Doobious Sources
 
-source_homefries_libs_all () {
+source_homefries_libs_all() {
 
   # *** Dependencies: Other Bash projects.
 
@@ -179,7 +180,7 @@ source_homefries_libs_all () {
 
   # USYNC: Set _SOURCE_IT_BEGIN for first source_homefries_libs_all source_it.
   _SOURCE_IT_BEGIN=true \
-  source_it "logger.sh" "sh-logger/bin"
+    source_it "logger.sh" "sh-logger/bin"
 
   # *** Load these files first, which are local dependencies for
   #     scripts loaded later.
@@ -229,7 +230,7 @@ source_homefries_libs_all () {
 
 # ***
 
-source_alias_sources () {
+source_alias_sources() {
   source_it "alias/alias_ag.sh"
   source_it "alias/alias_bash.sh"
   source_it "alias/alias_cd_pushd_popd.sh"
@@ -266,7 +267,7 @@ source_alias_sources () {
 
 # ***
 
-source_crypt_sources () {
+source_crypt_sources() {
   source_it "crypt/daemonize_gpg_agent.sh"
   source_it "crypt/is_mount_type_crypt.sh"
   source_it "crypt/set_environ_gpg_tty.sh"
@@ -274,7 +275,7 @@ source_crypt_sources () {
 
 # ***
 
-source_date_sources () {
+source_date_sources() {
   source_it "date/date-or-gdate.sh"
   # Order does sorta matter for uptime-s (it's used by at least (currently)
   # fcns. in fries_util.sh and session_util.sh), but this sourcing happens
@@ -284,13 +285,13 @@ source_date_sources () {
 
 # ***
 
-source_device_sources () {
+source_device_sources() {
   source_it "device/lsusb.sh"
 }
 
 # ***
 
-source_distro_sources () {
+source_distro_sources() {
   source_it "distro/default-browser.sh"
 }
 
@@ -309,14 +310,14 @@ source_distro_sources () {
 # as self-documentation and transparency (of features without having to
 # view file contents).
 
-source_funcs_sources () {
+source_funcs_sources() {
   source_it "funcs/find-duplicates"
   source_it "funcs/please"
 }
 
 # ***
 
-source_term_sources () {
+source_term_sources() {
   # 2021-02-20: Formerly "term_util.sh", now 7 scripts.
   source_it "term/disable-ctrl_s-stty-flow-controls.sh"
   source_it "term/equip-colorful-and-informative-ls.sh"
@@ -329,7 +330,7 @@ source_term_sources () {
 
 # ***
 
-source_utils_sources () {
+source_utils_sources() {
   # FIXME/2020-12-16: Relocate and Rename these files, like:
   #   source_it "utils/homefries_*.sh"
   # Or:
@@ -361,14 +362,14 @@ source_utils_sources () {
   source_it "time_util.sh"
   # USYNC: Set _SOURCE_IT_FINIS for final source_homefries_libs_all source_it.
   _SOURCE_IT_FINIS=true \
-  source_it "user_util.sh"
+    source_it "user_util.sh"
   # Just some example Bash author might reference:
   #  source_it "snips/array_iterations.sh"
 }
 
 # ***
 
-source_homefries_libs () {
+source_homefries_libs() {
   local time_outer_0="$(print_nanos_now)"
   SOURCE_CNT=0
 
@@ -384,7 +385,7 @@ source_homefries_libs () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-eval_and_unset () {
+eval_and_unset() {
   local time_0="$(print_nanos_now)"
 
   # So that the func being sourced can use stdout
@@ -395,7 +396,7 @@ eval_and_unset () {
   print_elapsed_time "${time_0}" "Action: $1"
 }
 
-run_and_report () {
+run_and_report() {
   local time_0="$(print_nanos_now)"
 
   print_loading_dot
@@ -405,7 +406,7 @@ run_and_report () {
   print_elapsed_time "${time_0}" "Action: $1"
 }
 
-run_and_unset () {
+run_and_unset() {
   run_and_report "$@"
 
   unset -f "$1"
@@ -413,7 +414,7 @@ run_and_unset () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_up () {
+home_fries_up() {
   # TIMED/2024-06-25: This is taking a hot (literal) second to run.
 
   local time_outer_0="$(print_nanos_now)"
@@ -643,7 +644,7 @@ home_fries_up () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-run_and_unset_home_fries_create_aliases () {
+run_and_unset_home_fries_create_aliases() {
 
   # Set: `ag` => `ag --smart-case --hidden`, etc.
   # - lib/alias/alias_ag.sh
@@ -753,7 +754,7 @@ run_and_unset_home_fries_create_aliases () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_hf_cleanup_core () {
+_hf_cleanup_core() {
   unset -f source_it
   unset -f source_from_user_path_or_homefries_lib
   unset -f source_it_log_trace
@@ -763,7 +764,7 @@ _hf_cleanup_core () {
   unset -f run_and_unset
 }
 
-_hf_bashrc_core () {
+_hf_bashrc_core() {
   local time_main_0="$(print_nanos_now)"
 
   source_homefries_libs
@@ -779,7 +780,7 @@ _hf_bashrc_core () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_hf_source_pre_preload_libs () {
+_hf_source_pre_preload_libs() {
   export_homefries_envs
   export_homefries_check_dep
   unset -f export_homefries_envs
@@ -796,4 +797,3 @@ _hf_source_pre_preload_libs () {
 # HOME_FRIES_PRELOAD=true.
 _hf_source_pre_preload_libs
 unset -f _hf_source_pre_preload_libs
-
