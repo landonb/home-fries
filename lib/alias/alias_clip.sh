@@ -32,6 +32,7 @@ _hf_clip_raw() {
 
 # Echo-clip.
 _hf_clip_echo() {
+  # SAVVY: >(Bashism)
   tee >(_hf_clip)
 }
 
