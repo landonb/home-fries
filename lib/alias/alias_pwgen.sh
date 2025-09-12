@@ -62,6 +62,7 @@ unset_f_alias_pwgen() {
 
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 
-if [ "$0" = "${BASH_SOURCE[0]}" ]; then
+# Technically BASH_SOURCE[0], but let's be POSIX-compliant.
+if [ "$0" = "${BASH_SOURCE}" ]; then
   >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
 fi
