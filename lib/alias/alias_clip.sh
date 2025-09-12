@@ -36,6 +36,14 @@ _hf_clip_echo() {
   tee >(_hf_clip)
 }
 
+# ***
+
+# UCASE: Not necessary for homebrew, but allows this script
+# to be reused by GNOME Keyshort Shortcuts accelerator.
+os_is_macos() {
+  [ "$(uname)" = "Darwin" ]
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Called by `home_fries_bashrc_cleanup`
