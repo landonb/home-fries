@@ -36,7 +36,7 @@ home_fries_aliases_wire_pwd() {
 
 # ***
 
-# (Sorta related) `realpath` abbrev.
+# `realpath` clipper.
 rp() {
   realpath "$@" | _hf_clip_echo
 }
