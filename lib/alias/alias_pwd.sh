@@ -41,8 +41,22 @@ _hf_realpath_clip_echo() {
   realpath "$@" | _hf_clip_echo
 }
 
+# tilde'd `realpath` clipper.
+_hf_realpath_tilded_clip_echo() {
+  realpath "$@" | sed -E "s#^${HOME}(/|\$)#~\1#" | _hf_clip_echo
+}
+
 home_fries_aliases_wire_rp() {
   claim_alias_or_warn "rp" "_hf_realpath_clip_echo"
+
+  # DUNNO/2025-09-13: What are good names for these func?
+  # - `rP` — Using same convention as the `pwd` aliases
+  #          (`p` and `P`, so `rp` and `rP`).
+  # - `rpp` — Because it's similar to `rp`, just 1 more 'p'.
+  # - `rr` — Because it's quick to type, starts with 'r'
+  #          (otherwise it's the least memorable/mnemonically
+  #          advantaged).
+  claim_alias_or_warn "rr" "_hf_realpath_tilded_clip_echo"
 }
 
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
