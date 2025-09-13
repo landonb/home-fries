@@ -84,11 +84,6 @@ home_fries_aliases_wire_cd_pushd_popd() {
   claim_alias_or_warn ".." "cd .."
 }
 
-# (Sorta related) `realpath` abbrev.
-rp() {
-  realpath "$@" | _hf_clip_echo
-}
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # THANX:
