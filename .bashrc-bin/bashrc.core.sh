@@ -720,6 +720,7 @@ run_and_unset_home_fries_create_aliases() {
 
   # - lib/alias/alias_pwd.sh
   run_and_unset "home_fries_aliases_wire_pwd"
+  run_and_unset "home_fries_aliases_wire_rp"
 
   # - lib/alias/alias_pwgen.sh
   run_and_unset "home_fries_aliases_wire_pwgen"

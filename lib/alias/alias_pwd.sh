@@ -37,8 +37,12 @@ home_fries_aliases_wire_pwd() {
 # ***
 
 # `realpath` clipper.
-rp() {
+_hf_realpath_clip_echo() {
   realpath "$@" | _hf_clip_echo
+}
+
+home_fries_aliases_wire_rp() {
+  claim_alias_or_warn "rp" "_hf_realpath_clip_echo"
 }
 
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
