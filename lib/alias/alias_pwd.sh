@@ -34,6 +34,8 @@ home_fries_aliases_wire_pwd() {
   claim_alias_or_warn "P" 'pwd | sed -E \"s#^${HOME}(/|$)#~\1#\" | _hf_clip_echo'
 }
 
+# ***
+
 # (Sorta related) `realpath` abbrev.
 rp() {
   realpath "$@" | _hf_clip_echo
