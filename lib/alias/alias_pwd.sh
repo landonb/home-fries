@@ -6,31 +6,35 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# [Author] uses `pwd` frequently: to see where I am;
+# or to copy the current path to paste somewhere (in
+# notes, in a Save dialog, etc.).
+# - HSTRY: I originally made a simple `alias p=pwd`.
+#   - But I found myself double-click-copying a lot,
+#     so eventually I had it update the clipboard.
+#   - I also found myself often shortening the path
+#     with "~", so ultimately I made an option to
+#     replace the user home prefix with "~".
+# - UCASE(tilde): The author usually wants the tilde
+#   path (it's shorter, and it works across hosts,
+#   regardless of the home directory path or username
+#   (i.e., /home/user vs. /User/home)).
+# - UCASE(full): At least for the macOS Save dialog,
+#   you'll want the full path (if you paste a tilde
+#   path, the macOS input shows "/~/path").
+#   - ASIDE: In the macOS Save dialog, if the file list
+#     has focus, pressing "/" key (and only that key,
+#     AFAIK; and pasting doesn't work) prompts you to
+#     enter a path to the target directory, to which
+#     you can paste a full path.
+
 home_fries_aliases_wire_pwd() {
-  # [lb] uses p frequently, just like h and ll.
-  # - HSTRY: Previously just a simple alias with no side-effects:
-  #     claim_alias_or_warn "p" "pwd"
-  #   But now copies to clipboard.
-  #   - UCASE: In macOS Save dialog, if file list has focus, pressing
-  #     "/" key (and only that key, AFAIK; and pasting doesn't work)
-  #     lets you enter a path to the target directory. But you cannot
-  #     paste a ~/path without deleting the "/" that you typed (or else
-  #     the path looks like "/~/path", which obvi. won't work). You
-  #     can, however, paste a full path (such that the path starts
-  #     with a double-"/", e.g., "//path", which is acceptable).
-  #     - Otherwise I almost always use "P" when I want to copy a
-  #       file path, because usually I want the tilde path (which
-  #       is not only shorter, but works across hosts, regardless
-  #       of the home directory path or username (i.e., /home/user
-  #       vs. /User/home)).
   claim_alias_or_warn "p" "pwd | _hf_clip_echo"
 
   # SAVVY/2022-11-04: Clip curr. dir. w/ tilde prefix.
-  # - Print current directory to stdout and copy to clipboard,
-  #   after replacing leading home path with tilde.
-  #   - Use case: Pasting somewhere, like notes, where you might
-  #     want to use a user-agnostic home path, or you just want
-  #     a shorter path.
+  # - Prints current directory to stdout and copies to
+  #   clipboard, after replacing leading home path with
+  #   tilde.
   claim_alias_or_warn "P" 'pwd | tilde_for_home | _hf_clip_echo'
 }
 
