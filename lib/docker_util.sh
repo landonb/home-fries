@@ -6,11 +6,11 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-docker_remove_exited () {
+docker_remove_exited() {
   # http://blog.yohanliyanage.com/2015/05/docker-clean-up-after-yourself/
   docker rm -v $(docker ps -a -q -f status=exited)
-# 2016-10-20: The remove-exited containers did not remove any project containers.
-#             I expected otherwise...
+  # 2016-10-20: The remove-exited containers did not remove any project containers.
+  #             I expected otherwise...
   # Stop and remove all docker containers
   # docker stop $(docker ps -a -q)
   # docker rm $(docker ps -a -q)
@@ -18,25 +18,25 @@ docker_remove_exited () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-docker_remove_dangling () {
+docker_remove_dangling() {
   # Remove dangling containers (cache images)
   docker rmi $(docker images -f "dangling=true" -q)
-# 2016-10-20: The remove-dangling removed a ton of project containers but not any others.
+  # 2016-10-20: The remove-dangling removed a ton of project containers but not any others.
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-docker_net_binding () {
+docker_net_binding() {
   # https://docs.docker.com/engine/userguide/networking/default_network/binding/
   sudo iptables -t nat -L -n
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-docker_list_ips () {
-  docker ps \
-    | tail -n +2 \
-    | while read cid b; do
+docker_list_ips() {
+  docker ps |
+    tail -n +2 |
+    while read cid b; do
       echo -n -e "$cid\t"
       docker inspect --format "{{ .Name }} @ {{ .NetworkSettings.IPAddress }}" $cid
     done
@@ -58,7 +58,7 @@ docker_list_ips () {
 #   .Label	Value of a specific label for this container. For example '{{.Label "com.docker.swarm.cpu"}}'
 #   .Mounts
 # https://docs.docker.com/engine/reference/commandline/ps/#formatting
-docker_ps () {
+docker_ps() {
   # docker ps --format "table {{.ID}}\t{{.Labels}}"
   # docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Command}}\t{{.CreatedAt}}\t{{.RunningFor}}\t{{.Ports}}\t{{.Status}}\t{{.Size}}\t{{.Names}}\t{{.Labels}}\t{{.Mounts}}"
   # docker ps --format "table {{.Image}}\t{{.Command}}\t{{.RunningFor}}\t{{.Ports}}\t{{.Status}}\t{{.Names}}"
@@ -68,7 +68,7 @@ docker_ps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-docker_kill_tails_jobs () {
+docker_kill_tails_jobs() {
   # Kill all background jobs. Works only from terminal/session/shell
   # in which the jobs were created, naturally.
   echo "Stopping tails: $(jobs -p | tr '\n' ' ')"
@@ -78,7 +78,7 @@ docker_kill_tails_jobs () {
   echo "Done"
 }
 
-docker_kill_tails_ps () {
+docker_kill_tails_ps() {
   # Kill all `docker logs` processes.
   #  proc_ids=$(ps aux | grep "docker logs -f" | awk '{print $2}')
   proc_ids=$(ps aux | grep "docker logs" | awk '{print $2}')
@@ -88,7 +88,7 @@ docker_kill_tails_ps () {
   fi
 }
 
-docker_logs_all () {
+docker_logs_all() {
   # Docker default logging is to write application stdout to a file
   # somewhere (in JSON format, apparently) that you can view using
   # `docker logs`. This fcn. tails all running containers' logs
@@ -127,7 +127,7 @@ docker_logs_all () {
     #echo eval "docker logs -f --tail=5 \"$name\" | /usr/bin/env sed -e \"s/^/[-- $name --] /\" &"
     #eval "docker logs -f --tail=5 \"$name\" | /usr/bin/env sed -e \"s/^/[-- $name --] /\" &"
     eval "docker logs -f --tail=100 \"$name\" | /usr/bin/env sed -e \"s/^/[-- $name --] /\" &"
-  done <<< "$names"
+  done <<<"$names"
 
   # Don't exit this script until a Ctrl+C or all tails exit.
   wait
@@ -145,10 +145,9 @@ docker_logs_all () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Murder Docker Kill, MDK, like from that one movie
-kill-docker-desktop () {
+kill-docker-desktop() {
   # Because `killall "Docker Desktop"` is not enough.
   ps aux | grep Docker.app | awk '{ print $2 }' | xargs kill -9
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
