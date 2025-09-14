@@ -31,7 +31,11 @@ home_fries_aliases_wire_pwd() {
   #   - Use case: Pasting somewhere, like notes, where you might
   #     want to use a user-agnostic home path, or you just want
   #     a shorter path.
-  claim_alias_or_warn "P" 'pwd | sed -E \"s#^${HOME}(/|$)#~\1#\" | _hf_clip_echo'
+  claim_alias_or_warn "P" 'pwd | tilde_for_home | _hf_clip_echo'
+}
+
+tilde_for_home() {
+  sed -E "s#^${HOME}(/|$)#~\1#"
 }
 
 # ***
@@ -43,7 +47,7 @@ _hf_realpath_clip_echo() {
 
 # tilde'd `realpath` clipper.
 _hf_realpath_tilded_clip_echo() {
-  realpath "$@" | sed -E "s#^${HOME}(/|\$)#~\1#" | _hf_clip_echo
+  realpath "$@" | tilde_for_home | _hf_clip_echo
 }
 
 home_fries_aliases_wire_rp() {
