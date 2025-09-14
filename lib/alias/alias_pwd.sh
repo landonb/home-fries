@@ -39,16 +39,26 @@ home_fries_aliases_wire_pwd() {
 }
 
 home_fries_aliases_wire_rp() {
-  claim_alias_or_warn "rp" "_hf_realpath_clip_echo"
+  # Copy realpath output, but don't sub. tilde for HOME.
+  # - Note the final capital "P" in `rpP`, which matches
+  #   the `P` alias above that copies pwd output without
+  #   sub'ing tilde for HOME.
+  claim_alias_or_warn "rpP" "_hf_realpath_clip_echo"
 
-  # DUNNO/2025-09-13: What are good names for these func?
-  # - `rP` — Using same convention as the `pwd` aliases
-  #          (`p` and `P`, so `rp` and `rP`).
-  # - `rpp` — Because it's similar to `rp`, just 1 more 'p'.
-  # - `rr` — Because it's quick to type, starts with 'r'
-  #          (otherwise it's the least memorable/mnemonically
-  #          advantaged).
-  claim_alias_or_warn "rr" "_hf_realpath_tilded_clip_echo"
+  # The main, most often-used realpath-related clipboard
+  # command, `rp` substitutes "~" for the user home path
+  # prefix, and copies and prints the result.
+  # - AHINT: If you can remember the `rp` command, you'll
+  #   be able to figure out `rpp` and `rpP`.
+  #   - E.g., in author's DepoXy on Debian 13 environment,
+  #     `rp<Tab>` shows 13 completions, but only two of
+  #     them are three characters, `rpp` and `rpP`. (So if
+  #     you've forgotten 'em, type `rp<Tab>` and you'll
+  #     figure it out).
+  claim_alias_or_warn "rp" "_hf_realpath_tilded_clip_echo"
+
+  # Special `rp --no-symlinks` variant.
+  claim_alias_or_warn "rpp" "_hf_realpath_strip_tilded_clip_echo"
 }
 
 # ***
