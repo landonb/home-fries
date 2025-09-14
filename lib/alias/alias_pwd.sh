@@ -38,8 +38,17 @@ home_fries_aliases_wire_pwd() {
   claim_alias_or_warn "p" 'pwd | tilde_for_home | _hf_clip_echo'
 }
 
-tilde_for_home() {
-  sed -E "s#^${HOME}(/|$)#~\1#"
+home_fries_aliases_wire_rp() {
+  claim_alias_or_warn "rp" "_hf_realpath_clip_echo"
+
+  # DUNNO/2025-09-13: What are good names for these func?
+  # - `rP` — Using same convention as the `pwd` aliases
+  #          (`p` and `P`, so `rp` and `rP`).
+  # - `rpp` — Because it's similar to `rp`, just 1 more 'p'.
+  # - `rr` — Because it's quick to type, starts with 'r'
+  #          (otherwise it's the least memorable/mnemonically
+  #          advantaged).
+  claim_alias_or_warn "rr" "_hf_realpath_tilded_clip_echo"
 }
 
 # ***
@@ -54,17 +63,15 @@ _hf_realpath_tilded_clip_echo() {
   realpath "$@" | tilde_for_home | _hf_clip_echo
 }
 
-home_fries_aliases_wire_rp() {
-  claim_alias_or_warn "rp" "_hf_realpath_clip_echo"
+# -s|--strip|--no-symlinks: don't expand symlinks
+_hf_realpath_strip_tilded_clip_echo() {
+  realpath --no-symlinks "$@" | tilde_for_home | _hf_clip_echo
+}
 
-  # DUNNO/2025-09-13: What are good names for these func?
-  # - `rP` — Using same convention as the `pwd` aliases
-  #          (`p` and `P`, so `rp` and `rP`).
-  # - `rpp` — Because it's similar to `rp`, just 1 more 'p'.
-  # - `rr` — Because it's quick to type, starts with 'r'
-  #          (otherwise it's the least memorable/mnemonically
-  #          advantaged).
-  claim_alias_or_warn "rr" "_hf_realpath_tilded_clip_echo"
+# ***
+
+tilde_for_home() {
+  sed -E "s#^${HOME}(/|$)#~\1#"
 }
 
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
