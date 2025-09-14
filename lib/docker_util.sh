@@ -145,9 +145,11 @@ docker_logs_all() {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Murder Docker Kill, MDK, like from that one movie
-kill-docker-desktop() {
-  # Because `killall "Docker Desktop"` is not enough.
-  ps aux | grep Docker.app | awk '{ print $2 }' | xargs kill -9
+killdocker-desktop() {
+  if os_is_macos; then
+    # Because `killall "Docker Desktop"` is not enough.
+    ps aux | grep Docker.app | awk '{ print $2 }' | xargs kill -9
+  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
