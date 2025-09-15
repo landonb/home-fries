@@ -15,7 +15,7 @@
 # and graciously c/x/p/d/ed from
 #   http://stackoverflow.com/questions/3685970/bash-check-if-an-array-contains-a-value
 # Usage: if `array_in "some key" "${some_array[@]}"`; then ... fi
-array_in () {
+array_in() {
   local elem
   for elem in "${@:2}"; do
     if [[ "$elem" == "$1" ]]; then
@@ -56,7 +56,7 @@ array_in () {
 # using the elements in each sub-array as arguments to the function on
 # which we're iterating.
 
-arr2_fcn_iter () {
+arr2_fcn_iter() {
   local the_fcn=$1
   local cols_per_row=$2
   # This is a sneaky way to pass an array in Bash -- pass it's name.
@@ -73,16 +73,17 @@ arr2_fcn_iter () {
     # WHATEVER: [lb] doesn't care anymore. Ignoring $cols_per_row
     #                                      and hard-coding))]}.
     if [[ ${cols_per_row} -lt 10 ]]; then
-      ${the_fcn} "${two_dim_arr[$((${beg_index} + 0))]}" \
-                 "${two_dim_arr[$((${beg_index} + 1))]}" \
-                 "${two_dim_arr[$((${beg_index} + 2))]}" \
-                 "${two_dim_arr[$((${beg_index} + 3))]}" \
-                 "${two_dim_arr[$((${beg_index} + 4))]}" \
-                 "${two_dim_arr[$((${beg_index} + 5))]}" \
-                 "${two_dim_arr[$((${beg_index} + 6))]}" \
-                 "${two_dim_arr[$((${beg_index} + 7))]}" \
-                 "${two_dim_arr[$((${beg_index} + 8))]}" \
-                 "${two_dim_arr[$((${beg_index} + 9))]}"
+      ${the_fcn} \
+        "${two_dim_arr[$((${beg_index} + 0))]}" \
+        "${two_dim_arr[$((${beg_index} + 1))]}" \
+        "${two_dim_arr[$((${beg_index} + 2))]}" \
+        "${two_dim_arr[$((${beg_index} + 3))]}" \
+        "${two_dim_arr[$((${beg_index} + 4))]}" \
+        "${two_dim_arr[$((${beg_index} + 5))]}" \
+        "${two_dim_arr[$((${beg_index} + 6))]}" \
+        "${two_dim_arr[$((${beg_index} + 7))]}" \
+        "${two_dim_arr[$((${beg_index} + 8))]}" \
+        "${two_dim_arr[$((${beg_index} + 9))]}"
     else
       echo "Too many arguments for arr2_fcn_iter, sorry!" 1>&2
       exit 1
@@ -93,7 +94,7 @@ arr2_fcn_iter () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Also remember: In Bash, to handle spaces when iterating over an array, iterate the indices.
-echo_list () {
+echo_list() {
   local list=$1
   if [[ -z ${list} ]]; then
     declare -a list
@@ -121,7 +122,7 @@ echo_list () {
 }
 
 # MEH: A dict is not an array, but I'm not making a dict_util.sh (yet?). [2018-01-29]
-echo_dict () {
+echo_dict() {
   # Per https://www.mail-archive.com/bug-bash@gnu.org/msg01774.html,
   #  and what [Bash's] Chet says: Cannot encode an array var into the env.
   # Meaning: You cannot pass an associate array in bash. E.g., this won't work:
@@ -153,7 +154,7 @@ echo_dict () {
 
 # *** Not quite array iterator, but input iterator snips...
 
-while_process_substitution () {
+while_process_substitution() {
   local input_line
   while IFS= read -r input_line; do
     echo "${input_line}"
@@ -161,26 +162,26 @@ while_process_substitution () {
 bingo bango")
 }
 
-while_process_substitution_null_sep () {
+while_process_substitution_null_sep() {
   local input_line
   while IFS= read -r -d $'\0' input_line; do
     echo "${input_line}"
   done < <(echo -e "foo bar 'baz bat'\0bingo bango\0")
 }
 
-while_heredoc () {
+while_heredoc() {
   local input_lines="foo bar 'baz bat'
 bingo bango"
 
   local input_line
   while IFS= read -r input_line; do
     echo "${input_line}"
-  done <<< "${input_lines}"
+  done <<<"${input_lines}"
 }
 
 # ***
 
-while_read_input_line_by_line_posix_friendly () {
+while_read_input_line_by_line_posix_friendly() {
   local input="\
 foo
 'bar baz'
@@ -194,11 +195,10 @@ bingo bango"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   # alias elem_in_arr=array_in
   :
 }
 
 main "$@"
 unset -f main
-
