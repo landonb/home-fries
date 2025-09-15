@@ -125,7 +125,7 @@ echo_list() {
 echo_dict() {
   # Per https://www.mail-archive.com/bug-bash@gnu.org/msg01774.html,
   #  and what [Bash's] Chet says: Cannot encode an array var into the env.
-  # Meaning: You cannot pass an associate array in bash. E.g., this won't work:
+  # Meaning: You cannot pass an associative array in bash. E.g., this won't work:
   #   dict=$1
   #   if [[ -z ${dict} ]]; then
   #     declare -A dict
@@ -140,7 +140,7 @@ echo_dict() {
     echo "value: ${dict[$ix]}"
   done
 
-  # HINT: Use associate array to lookup.
+  # HINT: Use associative array to lookup.
   declare -A dictBools
   dictBools["/foo/bar"]=true
   dictBools["/baz/bat"]=false
