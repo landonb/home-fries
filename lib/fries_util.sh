@@ -275,12 +275,12 @@ home_fries_alias_crontab() {
   fi
   # 2015.01.25: FIXME: Not sure what best to use...
   vim_editor=/usr/bin/vim
-  if [ -n "${vim_editor}" ]; then
+  if [ -n "${vim_editor}" ] && [ -n "${httpd_user}" ]; then
     claim_alias_or_warn "ct-www" '\
       ${HOMEFRIES_TRACE} && echo "ct-www" ; \
       sudo -u ${httpd_user} \
         SELECTED_EDITOR=${vim_editor} \
-        crontab -e -u $httpd_user'
+        crontab -e -u ${httpd_user}'
   fi
 }
 
