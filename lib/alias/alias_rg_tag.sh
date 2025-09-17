@@ -139,7 +139,7 @@ home_fries_create_aliases_rg_tag_wrap() {
         --colors 'match:bg:white'
         --glob '!**/{${dir_globs}}/**'
         --glob '!**/{${file_globs}}'
-    " | tr -d '$\n' | sed 's/  \+/ /g' | sed 's/^ \+//'
+    " | tr -d '$\n' | sed 's/  \+/ /g' | sed 's/^ \+//' | sed 's/ \+$//'
   )"
 
   # `rgt` will search and wire the `e*` commands to open
@@ -217,8 +217,7 @@ home_fries_create_aliases_rg_options() {
       --colors 'path:style:bold' \
       --colors 'line:fg:green' \
       --colors 'line:style:bold' \
-      --colors 'match:bg:white' \
-    "
+      --colors 'match:bg:white'"
 
   # DELETE/2018-01-29: This fcn., rg_peek, is not called.
   # 2018-01-29: Obsolete. In Vim, idea to `set grepprg=rg_peek`, but didn't work.
