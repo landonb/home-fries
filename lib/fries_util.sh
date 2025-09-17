@@ -267,13 +267,17 @@ home_fries_alias_ld_library_path_cmds() {
 home_fries_alias_crontab() {
   claim_alias_or_warn "ct" 'crontab -e -u ${LOGNAME}'
 
+  # INERT: Use EDITOR instead, eh.
   local vim_editor=""
   if [ -e "/usr/bin/vim.basic" ]; then
     vim_editor=/usr/bin/vim.basic
   elif [ -e "/usr/bin/vim.tiny" ]; then
     vim_editor=/usr/bin/vim.tiny
   fi
-  # 2015.01.25: FIXME: Not sure what best to use...
+
+  # REFER/2025-09-16: httpd_user set by `suss_apache`:
+  #   ~/.kit/sh/home-fries/lib/distro_util.sh
+  # - Which is currently uncalled.
   vim_editor=/usr/bin/vim
   if [ -n "${vim_editor}" ] && [ -n "${httpd_user}" ]; then
     claim_alias_or_warn "ct-www" '\
