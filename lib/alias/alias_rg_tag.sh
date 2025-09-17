@@ -139,7 +139,7 @@ home_fries_create_aliases_rg_tag_wrap() {
         --colors 'match:bg:white'
         --glob '!**/{${dir_globs}}/**'
         --glob '!**/{${file_globs}}'
-    " | tr -d '$\n' | sed 's/  \+/ /g' | sed 's/^ \+//' | sed 's/ \+$//'
+    " | tr -d $'\n' | sed 's/  \+/ /g' | sed 's/^ \+//' | sed 's/ \+$//'
   )"
 
   # `rgt` will search and wire the `e*` commands to open
