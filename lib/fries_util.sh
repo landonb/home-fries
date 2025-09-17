@@ -17,7 +17,7 @@
 
 # --- Completion options
 
-home_fries_init_completions () {
+home_fries_init_completions() {
   # These completion tuning parameters change the behavior of bash_completion.
 
   # Access remotely checked-out files over passwordless ssh for CVS.
@@ -66,7 +66,7 @@ home_fries_init_completions () {
 
 # --- Re-enable better Bash tab auto-completion.
 
-home_fries_direxpand_completions () {
+home_fries_direxpand_completions() {
   # With thanks to:
   #   http://askubuntu.com/questions/70750/
   #     how-to-get-bash-to-stop-escaping-during-tab-completion
@@ -86,7 +86,7 @@ home_fries_direxpand_completions () {
   # $-escaping when disabled.
   os_is_macos && return
 
-  shopt -s direxpand &> /dev/null
+  shopt -s direxpand &>/dev/null
 }
 
 # --- Generic completions
@@ -116,7 +116,7 @@ home_fries_direxpand_completions () {
 # - Or you can declare your own HOMEFRIES_LOAD_COMPLETIONS array to
 #   set your own completion file list.
 
-home_fries_load_completions () {
+home_fries_load_completions() {
   # Load all Homebrew completion files, both from bash-completion formula,
   # also from individual formulas and casks.
   #
@@ -125,9 +125,9 @@ home_fries_load_completions () {
   #     brew install bash-completion@2
   #
   #     command ls -1 /opt/homebrew/etc/bash_completion.d
-  # 
+  #
   # Verify loaded: [ "${BASH_COMPLETION_VERSINFO}" = "2" ] && echo LOADED
-  if command -v brew > /dev/null; then
+  if command -v brew >/dev/null; then
     if [ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]; then
       # CXREF: /opt/homebrew/etc/profile.d/bash_completion.sh
       . "$(brew --prefix)/etc/profile.d/bash_completion.sh"
@@ -175,12 +175,13 @@ home_fries_load_completions () {
       local completion_path="${completions_dir}/${completion_file}"
       if [ -e "${completion_path}" ]; then
         # echo "completion_file: ${completion_path}"
-        . "${completion_path}" > "${source_out}" 2>&1
+        . "${completion_path}" >"${source_out}" 2>&1
         # All because docker-compose...
         if [ -s "${source_out}" ]; then
-          if [ "${completion_file}" = "docker-compose" ] && \
+          if [ "${completion_file}" = "docker-compose" ] &&
             cat "${source_out}" | grep -q -e "(Bash version 3.x)$" \
-          ; then
+            ; then
+
             if ${HOMEFRIES_ALERT_BASH3_OR_LESSER:-false}; then
               echo "ALERT: Docker completion not supported in Bash v3"
             fi
@@ -201,7 +202,7 @@ home_fries_load_completions () {
 
 # --- SDKMAN
 
-home_fries_load_sdkman () {
+home_fries_load_sdkman() {
   # 2017-02-25: Such Yellers! The SDKMAN! installer appended this to .bashrc:
   #   #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
   if [ -d "${HOME}/.sdkman" ]; then
@@ -215,7 +216,7 @@ home_fries_load_sdkman () {
 
 # LD_LIBRARY_PATH
 
-home_fries_append_ld_library_path () {
+home_fries_append_ld_library_path() {
   # 2015.01.20: This seems really weird, having to set LD_LIBRARY_PATH.
   #             In Cyclopath, we set this for gdal and geos when
   #             we startup pyserver, but we don't set this for
@@ -235,7 +236,7 @@ home_fries_append_ld_library_path () {
 
 # SQLITE3 / LD_LIBRARY_PATH / SELECT load_extension()/.load
 
-home_fries_alias_ld_library_path_cmds () {
+home_fries_alias_ld_library_path_cmds() {
   # 2016-05-03: sqlite3 looks for extensions in the local dir and at
   #             LD_LIBRARY_PATH, but the latter isn't really set up,
   #             e.g., on one machine, it's "/usr/lib/expect5.45:" and
@@ -263,7 +264,7 @@ home_fries_alias_ld_library_path_cmds () {
 
 # Crontab shortcuts.
 
-home_fries_alias_crontab () {
+home_fries_alias_crontab() {
   claim_alias_or_warn "ct" 'crontab -e -u ${LOGNAME}'
 
   local vim_editor=""
@@ -321,7 +322,7 @@ home_fries_alias_crontab () {
 #   https://unix.stackexchange.com/questions/243976/
 #     how-do-i-find-files-that-are-created-modified-accessed-before-reboot
 
-home_fries_punch_anacron () {
+home_fries_punch_anacron() {
   if [ ! -e "${HOME}/.anacron/anacrontab" ]; then
     return
   fi
@@ -364,7 +365,7 @@ home_fries_punch_anacron () {
 #   ~/.kit/nvim/nvim-depoxy/bin/editor-vim-0-0-insert-minimal.vimrc
 #   ~/.depoxy/running/home/.config/depoxy/depoxyrc
 
-home_fries_export_editor_vim () {
+home_fries_export_editor_vim() {
   # Shim to a Vim wrapper that (1) starts insert mode, and (2) homes the cursor.
   # Under home-fries:bin/, which is wired to $PATH.
   export EDITOR="editor-vim-0-0-insert"
@@ -373,7 +374,7 @@ home_fries_export_editor_vim () {
 # Default editor for k9s.
 # https://k9scli.io/topics/install/
 
-home_fries_export_kube_editor_vim () {
+home_fries_export_kube_editor_vim() {
   export KUBE_EDITOR="editor-vim-0-0-insert"
 }
 
@@ -388,8 +389,8 @@ home_fries_export_kube_editor_vim () {
 #   again, all that overhead for just a few lines of code?
 # So here it is. Simply enough.
 
-pdf180rot () {
-  if ! command -v qpdf > /dev/null; then
+pdf180rot() {
+  if ! command -v qpdf >/dev/null; then
     >&2 echo "MISSING: Cannot locate executable: \`qpdf\`"
     return 1
   fi
@@ -411,10 +412,9 @@ pdf180rot () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   :
 }
 
 main "$@"
 unset -f main
-
