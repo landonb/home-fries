@@ -31,11 +31,13 @@
 home_fries_aliases_wire_pwd() {
   claim_alias_or_warn "P" "pwd | _hf_clip_echo"
 
+  claim_alias_or_warn "p" 'pwd | tilde_for_home'
+
   # SAVVY/2022-11-04: Clip curr. dir. w/ tilde prefix.
   # - Prints current directory to stdout and copies to
   #   clipboard, after replacing leading home path with
   #   tilde.
-  claim_alias_or_warn "p" 'pwd | tilde_for_home | _hf_clip_echo'
+  claim_alias_or_warn "pp" 'pwd | tilde_for_home | _hf_clip_echo'
 }
 
 home_fries_aliases_wire_rp() {
