@@ -37,7 +37,21 @@ home_fries_aliases_wire_pwd() {
   # - Prints current directory to stdout and copies to
   #   clipboard, after replacing leading home path with
   #   tilde.
-  claim_alias_or_warn "pp" 'pwd | tilde_for_home | _hf_clip_echo'
+
+  # REFER: On macOS, /usr/bin/pp is a Perl tool,
+  # pp - PAR Packager — sorry if you use this, but
+  # I don't so I'm gonna steal its coveted two-char
+  # command name.
+  #   @macOS $ fdp -V
+  #   fdp - graphviz version 9.0.0 (20230911.1827)
+  local force=false
+  if [ "$(type -t /usr/bin/pp)" = "file" ] &&
+    pp --version | head -1 | grep -q -e "^PAR Packager" \
+    ; then
+
+    force=true
+  fi
+  claim_alias_or_warn "pp" 'pwd | tilde_for_home | _hf_clip_echo' ${force}
 }
 
 home_fries_aliases_wire_rp() {
