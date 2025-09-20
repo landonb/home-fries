@@ -180,6 +180,21 @@ sh() {
     command sh "$@"
 }
 
+# ***
+
+# Noisy startup.
+home_fries_session_util_configure_aliases_sh() {
+  claim_alias_or_warn "bbash" "_hf_homefries_bash_verbose"
+}
+
+_hf_homefries_bash_verbose() {
+  HOMEFRIES_TRACE=${HOMEFRIES_TRACE:-true} \
+    HOMEFRIES_PROFILING=${HOMEFRIES_PROFILING:-true} \
+    HOMEFRIES_HELLO=${HOMEFRIES_HELLO:-true} \
+    HOMEFRIES_LOADEDDOTS=${HOMEFRIES_LOADEDDOTS:-true} \
+    bash
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 _homefries_screensaver_command() {

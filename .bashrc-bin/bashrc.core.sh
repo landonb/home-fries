@@ -480,6 +480,7 @@ home_fries_up() {
   run_and_unset "home_fries_session_util_configure_aliases_bexit"
   run_and_unset "home_fries_session_util_configure_aliases_ps"
   # run_and_unset "home_fries_session_util_configure_aliases_fn"
+  run_and_unset "home_fries_session_util_configure_aliases_sh"
 
   #########################
 
