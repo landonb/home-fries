@@ -168,9 +168,9 @@ clear_clipboard_contents() {
   elif [ -n ${WAYLAND_DISPLAY} ] && command -v wl-copy >/dev/null; then
     wl-copy --clear
   elif [ -n ${DISPLAY} ] && command -v xclip >/dev/null; then
-    # If headless (DISPLAY unset) and you try this:
+    # If headless (DISPLAY unset), stderr's:
     #   Error: Can't open display: (null)
-    printf '' | xclip -selection clipboard
+    printf '' | xclip -selection clipboard 2>/dev/null
   else
     >&2 echo "ERROR: Unknown clipboard type"
   fi
