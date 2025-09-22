@@ -160,6 +160,10 @@ clear_terminal_screen_and_scrollback_buffer() {
 }
 
 # Perform a clipboard clearance (sale), everything must go!
+# - SAVVY: When SSH'd to the same host as $DISPLAY, even
+#   though DISPLAY unset in the current terminal, these
+#   ops still clear the clipboard — so we don't ever skip
+#   this function, even when SSH'd (SSH_CLIENT, SSH_TTY).
 clear_clipboard_contents() {
   # USYNC: Same if-else as seen in
   #   ~/.kit/sh/home-fries/lib/alias/alias_clip.sh
