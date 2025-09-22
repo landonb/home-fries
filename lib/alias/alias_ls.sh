@@ -16,7 +16,7 @@ home_fries_aliases_wire_ls() {
 
   # Human readable /bin/ls that classifies files, shows all-
   # most all entries (excludes ./ and ../), and uses colour.
-  claim_alias_or_warn "ls" "${ls_cmd} -hFA ${color_opt}" ${_force:-true}
+  claim_alias_or_warn "ls" "$(print_file_url_friendly_ls_alias)" ${_force:-true}
 
   # Compact /bin/ls listing (same as -hFA, really), but list
   # directories first, which seems to make the output cleaner.
@@ -104,6 +104,65 @@ function l() {
     --group-directories-first \
     "$@" |
     cattail "$@"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# ls with file:// support.
+#
+# MAYBE: Add similar support to `ll`.
+# - I've added to `ls` because relatively trivial, and wanted to
+#   see how it'd be implemented.
+
+# DEVEL: Hrmm... ls in same line uses old alias, ha, so run *twice* <Up><CR><Up><CR>
+#
+#   unalias ls && . ~/.kit/sh/home-fries/lib/alias/alias_ls.sh && home_fries_aliases_wire_ls && echo && type -a ls && echo && ls file://.
+
+# Note we don't `if ! ls ...; then`, because don't want to have to handle errors.
+# - E.g., shouldn't just assume error is because this.
+#   ls: cannot access 'file://.': No such file or directory
+
+# Meh: Could we avoid using a string?
+# - Maybe not because quoting and expansion needs.
+# - E.g.,
+#   cmd=$(declare -f file_url_friendly_ls | tail -n +3 | sed '$d')
+
+# ALERT: This does not handle spaces in filenames.
+# - E.g., consider:
+#     $ command ls "README.rst file://README.rst"
+#     ls: cannot access 'README.rst README.rst': No such file or directory
+#
+#     $ ls "README.rst file://README.rst"
+#     README.rst  README.rst
+#
+# INERT: FTREQ: Support quotes.
+# - E.g.,
+#     $ ls -1 "file://foo bar"
+# - SPIKE: The `echo "$@"` loses the meaning...
+#   - Would we have to make the command using proper quote
+#     and then call `ls` using `eval`?
+#     - I'm not thinking of another way to do it....
+# - One option would be to "manually" support up to
+#   nine arguments, and then use `set --` or something...
+#   - Seems somewhat tedious, though, would you need
+#     nine different set calls? set -- "$1", set -- "$1" "$2",
+#     etc.?
+#
+# MAYBE: What about being more like `ll`, and checking arg count?
+#    if [ $# -gt 1 ]; then
+#      ... (just call ls without processing)
+
+print_file_url_friendly_ls_alias() {
+  printf "%s" "\
+  _ls() {
+    if echo \\\"\\\$@\\\" | command grep -q -v -e '\\bfile://'; then
+      ${ls_cmd} -hFA ${color_opt} \\\"\\\$@\\\";
+    else
+      echo \\\"\\\$@\\\" | command sed -e 's#\\bfile://##g' | xargs ${ls_cmd} -hFA --color=auto;
+    fi;
+  }; _ls" |
+    sed -e 's/^ \+//g' |
+    tr "\n" " "
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
