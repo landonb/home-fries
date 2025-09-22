@@ -16,7 +16,7 @@ home_fries_aliases_wire_ls() {
 
   # Human readable /bin/ls that classifies files, shows all-
   # most all entries (excludes ./ and ../), and uses colour.
-  alias ls="${ls_cmd} -hFA ${color_opt}"
+  claim_alias_or_warn "ls" "${ls_cmd} -hFA ${color_opt}" ${_force:-true}
 
   # Compact /bin/ls listing (same as -hFA, really), but list
   # directories first, which seems to make the output cleaner.
