@@ -130,16 +130,31 @@ _hf_realpath_logical_tilded() {
 
 # `realpath` clipper.
 _hf_realpath_clip_echo() {
+  if [ $# -eq 0 ]; then
+    # Don't see why not, vs.:
+    #   realpath: missing operand
+    #   Try 'realpath --help' for more information.
+    set -- "."
+  fi
+
   realpath "$@" | _hf_clip_echo
 }
 
 # tilde'd `realpath` clipper.
 _hf_realpath_tilded_clip_echo() {
+  if [ $# -eq 0 ]; then
+    set -- "."
+  fi
+
   realpath "$@" | tilde_for_home | _hf_clip_echo
 }
 
 # -s|--strip|--no-symlinks: don't expand symlinks
 _hf_realpath_strip_tilded_clip_echo() {
+  if [ $# -eq 0 ]; then
+    set -- "."
+  fi
+
   realpath --no-symlinks "$@" | tilde_for_home | _hf_clip_echo
 }
 
