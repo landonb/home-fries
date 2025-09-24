@@ -51,7 +51,7 @@ home_fries_aliases_wire_pwd() {
 
     force=true
   fi
-  claim_alias_or_warn "pp" 'pwd | tilde_for_home | _hf_clip_echo' ${force}
+  claim_alias_or_warn "pp" "_hf_realpath_logical_tilded_clip_echo" ${force}
 }
 
 home_fries_aliases_wire_rp() {
@@ -75,6 +75,55 @@ home_fries_aliases_wire_rp() {
 
   # Special `rp --no-symlinks` variant.
   claim_alias_or_warn "rpp" "_hf_realpath_strip_tilded_clip_echo"
+}
+
+# ***
+
+# Print fullpath to current directory or arg, but without
+# resolving symlinks.
+# - So work like `realpath -s` works on full paths,
+#   but do the same for relative paths.
+# - Akin to `pwd -L`.
+#
+# E.g., consider current directory entered via symlink:
+#
+#   $ pwd -L
+#   /symlink/path
+#   $ pwd -P
+#   /actual/path
+#   $ realpath -s .
+#   /actual/path
+#   $ realpath "$(pwd -L)"
+#   /actual/path
+#   $ realpath -s "$(pwd -L)"
+#   /symlink/path
+#
+# - Such that our `rp` alias resolves the symlinks,
+#   but our `pp` alias will not, e.g.,:
+#
+#   $ rp .
+#   /actual/path
+#   $ pp .
+#   /symlink/path
+
+_hf_realpath_logical_tilded_clip_echo() {
+  _hf_realpath_logical_tilded "$@" | _hf_clip_echo
+}
+
+_hf_realpath_logical_tilded() {
+  if [ $# -eq 0 ]; then
+    pwd
+  else
+    for path in "$@"; do
+      local basedir="${path}"
+      local filename=""
+      if [ ! -d "${path}" ]; then
+        basedir="$(dirname -- "${path}")"
+        filename="/$(basename -- "${path}")"
+      fi
+      echo "$(cd -- "${basedir}" && pwd -L)${filename}"
+    done
+  fi | tilde_for_home
 }
 
 # ***
