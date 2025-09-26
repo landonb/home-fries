@@ -33,7 +33,7 @@ home_fries_create_alias_gimp_flatpak() {
   #     @@u %U @@
 
   # Note that we shadow /usr/bin/gimp
-  alias gimp="flatpak run org.gimp.GIMP"
+  claim_alias_or_warn "gimp" "flatpak run org.gimp.GIMP"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -61,7 +61,7 @@ home_fries_create_alias_gimp_macos() {
   # a file arg, e.g.,
   #   alias gimp="open /Applications/GIMP.app"
   #   gimp path/to/image
-  alias gimp="/Applications/GIMP.app/Contents/MacOS/gimp"
+  claim_alias_or_warn "gimp" "/Applications/GIMP.app/Contents/MacOS/gimp"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
