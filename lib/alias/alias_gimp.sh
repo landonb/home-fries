@@ -33,7 +33,9 @@ home_fries_create_alias_gimp_flatpak() {
   #     @@u %U @@
 
   # Note that we shadow /usr/bin/gimp
-  claim_alias_or_warn "gimp" "flatpak run org.gimp.GIMP"
+  #  claim_alias_or_warn "gimp" "flatpak run org.gimp.GIMP"
+  # - As suggested by https://www.gimp.org/downloads/:
+  claim_alias_or_warn "gimp" "flatpak run org.gimp.GIMP//stable"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
