@@ -6,19 +6,19 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_aliases_wire_gimp () {
+home_fries_aliases_wire_gimp() {
   home_fries_create_alias_gimp_flatpak
   home_fries_create_alias_gimp_macos
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_create_alias_gimp_flatpak () {
+home_fries_create_alias_gimp_flatpak() {
   # SAVVY/2023-04-23: This directory created on first run, so unreliable.
   #  [ -d "${HOME}/.var/app/org.gimp.GIMP" ] || return
-  [ -d "${HOME}/.local/share/flatpak/app/org.gimp.GIMP" ] \
-    || [ -d "/var/lib/flatpak/app/org.gimp.GIMP" ] \
-    || return
+  [ -d "${HOME}/.local/share/flatpak/app/org.gimp.GIMP" ] ||
+    [ -d "/var/lib/flatpak/app/org.gimp.GIMP" ] ||
+    return
   # See also:
   #   if flatpak info org.gimp.GIMP > /dev/null 2>&1; then
   #     ...
@@ -54,7 +54,7 @@ home_fries_create_alias_gimp_flatpak () {
 #
 #   So we'll keep the alias, thankfully without a hardcoded version.
 
-home_fries_create_alias_gimp_macos () {
+home_fries_create_alias_gimp_macos() {
   [ "$(uname)" = "Darwin" ] || return
 
   # The normal `open` command works but doesn't appear to accept
@@ -66,7 +66,7 @@ home_fries_create_alias_gimp_macos () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_alias_gimp () {
+unset_f_alias_gimp() {
   unset -f home_fries_aliases_wire_gimp
   unset -f home_fries_create_alias_gimp_flatpak
   unset -f home_fries_create_alias_gimp_macos
@@ -79,4 +79,3 @@ unset_f_alias_gimp () {
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
   >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
 fi
-
