@@ -63,7 +63,11 @@ home_fries_create_alias_gimp_macos() {
   # a file arg, e.g.,
   #   alias gimp="open /Applications/GIMP.app"
   #   gimp path/to/image
-  claim_alias_or_warn "gimp" "/Applications/GIMP.app/Contents/MacOS/gimp"
+  local force=false
+  if [ "$(command -v gimp)" = "${HOMEBREW_PREFIX}/bin/gimp" ]; then
+    force=true
+  fi
+  claim_alias_or_warn "gimp" "/Applications/GIMP.app/Contents/MacOS/gimp" "${force}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
