@@ -335,9 +335,10 @@ os_is_linux() {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main() {
+  unset -f main
+
   check_deps
   unset -f check_deps
 }
 
 main "$@"
-unset -f main
