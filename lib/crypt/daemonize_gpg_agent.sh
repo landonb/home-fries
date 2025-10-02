@@ -83,7 +83,7 @@
 #   running, and another `ps` afterward shows one process running. So
 #   I am not sure what is up with the message. But I just ignored it.
 
-_homefries_ps_check_if_running () {
+_hf_ps_check_if_running () {
   local process_name="$1"
   # Check if GNU ps or not, which returns a version of, e.g.,
   #   ps from procps-ng 3.3.12
@@ -109,7 +109,7 @@ daemonize_gpg_agent () {
   [ -d "${HOME}/.gnupg" ] || return
 
   # Check if gpg-agent is running, and start if not.
-  if ! _homefries_ps_check_if_running "gpg-agent"; then
+  if ! _hf_ps_check_if_running "gpg-agent"; then
     local eff_off_gkr
     eff_off_gkr=$(gpg-agent --daemon 2> /dev/null)
     if [ $? -eq 0 ]; then
