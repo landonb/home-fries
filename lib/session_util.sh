@@ -292,6 +292,7 @@ _hf_lock_screensaver_source_lsb_release() {
   if [ ! -f "/etc/lsb-release" ]; then
     # E.g., os_is_macos.
     >&2 echo "Not a recognized OS (/etc/lsb-release not found)"
+
     return 1
   fi
 
@@ -300,6 +301,7 @@ _hf_lock_screensaver_source_lsb_release() {
   if [ "${DISTRIB_CODENAME}" != "rebecca" ]; then
     # Old Linux Mint... can't remember what it's missing; something.
     >&2 echo "This command not available on Linux Mint 'rebecca'"
+
     return 1
   fi
 }
