@@ -6,7 +6,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-check_deps () {
+check_deps() {
   # Verify sh-logger/bin/logger.sh loaded.
   check_dep '_sh_logger_log_msg'
 }
@@ -34,17 +34,17 @@ check_deps () {
 
 # *** Touchpad Controller Option #2: `xinput set-prop`
 
-_touchpad_twiddle () {
+_touchpad_twiddle() {
   local touchpad_state=$1
-  if [[ $(command -v xinput > /dev/null) || $? -eq 0 ]]; then
-    local device_num=$(xinput --list --id-only "SynPS/2 Synaptics TouchPad" 2> /dev/null)
+  if [[ $(command -v xinput >/dev/null) || $? -eq 0 ]]; then
+    local device_num=$(xinput --list --id-only "SynPS/2 Synaptics TouchPad" 2>/dev/null)
     if [[ -n ${device_num} ]]; then
       xinput set-prop ${device_num} "Device Enabled" ${touchpad_state}
     fi
   fi
 }
 
-touchpad-disable () {
+touchpad-disable() {
   _touchpad_twiddle 0
   # 2017-12-16 02:38: Something has been leaving 0~Bracketed1~ Paste enabled.
   #   This disables bracketed paste.
@@ -72,7 +72,7 @@ touchpad-disable () {
   bind 'set enable-bracketed-paste off'
 }
 
-touchpad-enable () {
+touchpad-enable() {
   _touchpad_twiddle 1
 }
 
@@ -80,7 +80,7 @@ touchpad-enable () {
 
 # 2018-01-29: This fcn., xinput_set_prop_touchpad_device_off, is never called!
 #   See instead: `touchpad_disable` and `touchpad_enable`.
-xinput_set_prop_touchpad_device_off () {
+xinput_set_prop_touchpad_device_off() {
   _touchpad_twiddle 0
 }
 # 2016-11-11: Let's not confuse first-time users by disabling their trackpad.
@@ -143,7 +143,7 @@ xinput_set_prop_touchpad_device_off () {
 #   -u critical: Red stripe.
 
 if ! os_is_macos; then
-  notifications-toggle () {
+  notifications-toggle() {
     local force_state=$1
     local notifsf="/usr/share/dbus-1/services/org.freedesktop.mate.Notifications.service"
     if [[ ${force_state} -ne 1 && -e "${notifsf}" && ! -e "${notifsf}.disabled" ]]; then
@@ -160,32 +160,31 @@ if ! os_is_macos; then
     fi
   }
 
-  nonotifs () {
+  nonotifs() {
     eval "LOG_LEVEL=${LOG_LEVEL_INFO} notifications-toggle 0"
   }
 
-  desktop-notification-on () {
+  desktop-notification-on() {
     eval "LOG_LEVEL=${LOG_LEVEL_WARNING} notifications-toggle 1"
   }
 
-  desktop-notification-off () {
+  desktop-notification-off() {
     eval "LOG_LEVEL=${LOG_LEVEL_WARNING} notifications-toggle -1"
   }
 
   # NOTE: notify-send still sometimes works after disabling notifications.
   #       It seems to eventually stick, though.
-  desktop-notification-test () {
+  desktop-notification-test() {
     notify-send -i face-wink 'Wut Wut!' "Hello, Notified User!"
   }
 fi
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   check_deps
   unset -f check_deps
 }
 
 main "$@"
 unset -f main
-
