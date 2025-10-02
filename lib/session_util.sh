@@ -353,20 +353,7 @@ home_fries_session_util_configure_aliases_ps() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# 2016-11-12: I don't use this fcn. I moved it from
-#   .homefries/once/setup_ubuntu.sh rather than delete it.
 user_window_session_logout() {
-  # The logout commands vary according to distro, so check what's there.
-  # Bash has three built-its that'll tell is if a command exists on
-  # $PATH. The simplest, ``command``, doesn't print anything but returns
-  # 1 if the command is not found, while the other three print a not-found
-  # message and return one. The other two commands are ``type`` and ``hash``.
-  # All commands return 0 is the command was found.
-  #  $ command -v foo >/dev/null 2>&1 || { echo >&2 "Not found."; exit 1; }
-  #  $ type foo       >/dev/null 2>&1 || { echo >&2 "Not found."; exit 1; }
-  #  $ hash foo       2>/dev/null     || { echo >&2 "Not found."; exit 1; }
-  # Thanks to http://stackoverflow.com/questions/592620/
-  #             how-to-check-if-a-program-exists-from-a-bash-script
   if command -v mate-session-save >/dev/null; then
     mate-session-save --logout
   elif command -v gnome-session-save >/dev/null; then
