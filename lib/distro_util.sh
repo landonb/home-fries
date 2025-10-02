@@ -21,7 +21,7 @@ check_dep() {
 # REFER: Ways to check OS, with example output:
 #
 #   $ cat /proc/version
-#   Linux version ... (gcc-12 (Debian 12.2.0-14) ...
+#   Linux version ... (x86_64-linux-gnu-gcc-14 (Debian 14.2.0-19) ...
 #
 #   $ cat /etc/os-release
 #   ...
@@ -29,7 +29,7 @@ check_dep() {
 #
 #   $ hostnamectl
 #   ...
-#   Operating System: Debian GNU/Linux 12 (bookworm)
+#   Operating System: Debian GNU/Linux 13 (trixie)
 #
 #   $ uname -o
 #   GNU/Linux
@@ -37,28 +37,34 @@ check_dep() {
 # *** Ubuntu-related
 
 distro_complain_unless_supported_by_homefries() {
-  if [ -e /etc/os-release ]; then
+  # I can't imagine that a distro (or even XDG_CURRENT_DESKTOP)
+  # check is necessary.
+  if true; then
+
+    return
+  fi
+
+  # ***
+
+  if os_is_macos; then
+    # macOS
+    return
+  elif [ -e /etc/os-release ]; then
+    # CALSO: ${XDG_CURRENT_DESKTOP} = "GNOME" | "MATE" | etc.
     if cat /etc/os-release | grep -q "^ID=debian\$"; then
       # Debian
-      : # no-op
+      return
     elif cat /etc/os-release | grep -q "^ID=linuxmint\$"; then
       # Linux Mint
-      : # no-op
+      return
     elif cat /etc/os-release | grep -q "^ID=fedora\$"; then
       # Fedora
-      : # noop
-    elif ! ${HOMEFRIES_INHIBIT_OS_GRIPE:-false}; then
-      local this_file
-      this_file=$( (echo ${BASH_SOURCE[0]}) 2>/dev/null)
-      test -n "${this_file}" || this_file=$(basename -- "$0")
-      echo "ALERT: Unrecognized distro ‘$(cat /proc/version)’"
-      echo "- Please disable this gripe, or update: ${this_file}"
+      return
     fi
-  else
-    # /etc/os-release does not exist.
-    # - Might be macOS, etc.
-    : # nop
   fi
+
+  >&2 echo "ALERT: Unrecognized distro: ‘$(cat /proc/version)’"
+  >&2 echo "- Disable this gripe: HOMEFRIES_INHIBIT_OS_GRIPE=true"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
