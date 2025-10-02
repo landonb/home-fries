@@ -6,8 +6,8 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-check_dep () {
-  if ! command -v $1 > /dev/null 2>&1; then
+check_dep() {
+  if ! command -v $1 >/dev/null 2>&1; then
     >&2 printf '\r%s\n' "WARNING: Missing dependency: ‘$1’"
     false
   else
@@ -15,7 +15,7 @@ check_dep () {
   fi
 }
 
-check_deps () {
+check_deps() {
   # Verify logger.sh loaded (die, reset_errexit, tweak_errexit).
   check_dep '_sh_logger_log_msg'
   # Verify process_util.sh loaded (die, reset_errexit, tweak_errexit).
@@ -26,20 +26,20 @@ check_deps () {
 
 # *** Path-related
 
-dir_resolve () {
+dir_resolve() {
   # Squash error messages but return error status, maybe.
-  pushd "$1" &> /dev/null || return $?
+  pushd "$1" &>/dev/null || return $?
   # -P returns the full, link-resolved path.
   # EXPLAIN/2017-10-03: How is this different from $(realpath -- "$1") ??
   local dir_resolved=$(pwd -P)
-  popd &> /dev/null
+  popd &>/dev/null
   echo "${dir_resolved}"
 }
 
 # symlink_dirname gets the dirname of
 # a filepath after following symlinks;
 # can be used in lieu of dir_resolve.
-symlink_dirname () {
+symlink_dirname() {
   echo "$(dirname -- "$(realpath -- "$1")")"
 }
 
@@ -49,7 +49,7 @@ symlink_dirname () {
 
 # Tries to mkdir a directory that's being used as a process lock.
 
-flock_dir () {
+flock_dir() {
   local not_got_lock=1
 
   local FLOCKING_DIR_PATH=$1
@@ -79,20 +79,18 @@ flock_dir () {
     not_got_lock=0
   elif [ ${DONT_FLOCKING_CARE} -eq 1 ]; then
     # We were unable to make the directory, but the dev. wants us to go on.
-    #
-    # E.g., mkdir: cannot create directory `tmp': File exists
     if [ $(printf "${resp}" | grep 'exists') ]; then
+      # E.g., mkdir: cannot create directory `tmp': File exists
       $DEBUG_TRACE && echo "Mutex exists and owned but: DONT_FLOCKING_CARE."
       $DEBUG_TRACE && echo
-    #
-    # E.g., mkdir: cannot create directory `tmp': Permission denied
-  elif [ $(printf "${resp}" | grep 'denied') ]; then
+    elif [ $(printf "${resp}" | grep 'denied') ]; then
+      # E.g., mkdir: cannot create directory `tmp': Permission denied
       $DEBUG_TRACE && echo "Mutex cannot be created but: DONT_FLOCKING_CARE."
       $DEBUG_TRACE && echo
-    #
     else
       $DEBUG_TRACE && echo "ERROR: Unexpected response from mkdir: $resp."
       $DEBUG_TRACE && echo
+
       exit 1
     fi
   else
@@ -184,7 +182,7 @@ flock_dir () {
             if [ $last_spoken -gt 600 ]; then
               local elapsed_mins=$(echo "($fcn_time_1 - $fcn_time_0) / 60.0" | bc -l)
               $DEBUG_TRACE && echo \
-                "Update: Mutex still in use after: "\
+                "Update: Mutex still in use after: " \
                 "${elapsed_mins} mins.; still trying..."
               spoken_time_0=$(print_nanos_now)
             fi
@@ -196,7 +194,7 @@ flock_dir () {
   fi
 
   if [ ${not_got_lock} -eq 0 ]; then
-    /bin/chmod 2777 "${FLOCKING_DIR_PATH}" &> /dev/null
+    /bin/chmod 2777 "${FLOCKING_DIR_PATH}" &>/dev/null
     # Let the world know who's the boss
     local script_name=$(basename -- "$0")
     mkdir -p "${FLOCKING_DIR_PATH}-${script_name}"
@@ -218,13 +216,13 @@ flock_dir () {
 # *** Make Directory Hierarchy, Possibly Using sudo.
 
 # Verify or create a directory, possibly sudo'ing to do so.
-ensure_directory_hierarchy_exists () {
+ensure_directory_hierarchy_exists() {
   local DIR_PATH=$1
   local cur_path=${DIR_PATH}
   local last_dir=''
   tweak_errexit +eEx
   while [[ -n ${cur_path} && ! -e ${cur_path} ]]; do
-    mkdir ${cur_path} &> /dev/null
+    mkdir ${cur_path} &>/dev/null
     if [[ $? -eq 0 ]]; then
       # Success. We were able to create the directory.
       last_dir=''
@@ -271,18 +269,18 @@ ensure_directory_hierarchy_exists () {
 #  ...
 #  cd "${before_cd}"
 
-pushd_or_die () {
+pushd_or_die() {
   [ -z "$1" ] && return
-  pushd "$1" &> /dev/null
+  pushd "$1" &>/dev/null
   [ $? -ne 0 ] && error "No such path: $1" && error " working dir: $(pwd -P)" && die
   # Be sure to return a zero success value: If we left the `$? -ne 0`
   # as the last line, it'll trigger errexit!
   return 0
 }
 
-popd_perhaps () {
+popd_perhaps() {
   [ -z "$1" ] && return
-  popd &> /dev/null
+  popd &>/dev/null
   [ $? -ne 0 ] && error "Unexpected popd failure in: $(pwd -P)" && die
   return 0
 }
@@ -291,7 +289,7 @@ popd_perhaps () {
 
 # So that we don't step on toes of previously defined aliases.
 
-pushd_alias_or_warn () {
+pushd_alias_or_warn() {
   if ! pushd_alias "$@"; then
     >&2 echo "WARNING: Cannot alias: “$1” already assigned"
 
@@ -299,8 +297,8 @@ pushd_alias_or_warn () {
   fi
 }
 
-pushd_alias () {
-  if type "$1" > /dev/null 2>&1; then
+pushd_alias() {
+  if type "$1" >/dev/null 2>&1; then
     return 1
   fi
 
@@ -311,7 +309,7 @@ pushd_alias () {
 
 # *** Main.
 
-main () {
+main() {
   unset -f main
 
   check_deps
@@ -319,4 +317,3 @@ main () {
 }
 
 main "$@"
-

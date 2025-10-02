@@ -10,14 +10,14 @@
 # I used to just change IFS, but this trick handles newlines and asterisks in paths,
 # in addition to spaces in file/directory/path names.
 #   http://unix.stackexchange.com/questions/9496/looping-through-files-with-spaces-in-the-names
-printdirsincur () {
+printdirsincur() {
   find . -maxdepth 1 -type d ! -path . -print0 | while IFS= read -r -d '' file; do
     echo "file = $file"
   done
 }
 unset -f printdirsincur
 
-printdirsincur_better () {
+printdirsincur_better() {
   # HA. HA. HA!
   # http://unix.stackexchange.com/questions/272698/why-is-the-array-empty-after-the-while-loop
   #
@@ -35,7 +35,7 @@ unset -f printdirsincur_better
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # The opposite of dir_empty, in a sense, is dir.any?.
-dir_any () {
+dir_any() {
   local test_dir="$1"
   if [ ! -e "${test_dir}" ]; then
     >&2 echo "ERROR: No such path: “${test_dir}”"
@@ -45,7 +45,7 @@ dir_any () {
     >&2 echo "ERROR: Not a directory: “${test_dir}”"
     return 3
   fi
-  if ! $(/usr/bin/env ls -A "${test_dir}" > /dev/null 2>&1); then
+  if ! $(/usr/bin/env ls -A "${test_dir}" >/dev/null 2>&1); then
     # Permissions error, etc.
     >&2 echo "ERROR: Unreadable directory: “${test_dir}”"
     return 2

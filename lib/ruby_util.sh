@@ -6,14 +6,14 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-check_deps () {
+check_deps() {
   check_dep 'path_prefix'
   check_dep 'path_suffix'
 
   HOMEFRIES_WARNINGS=${HOMEFRIES_WARNINGS:-false}
 }
 
-source_deps () {
+source_deps() {
   # See:
   #   https://github.com/postmodern/ruby-install
   #   https://github.com/postmodern/chruby
@@ -76,7 +76,7 @@ source_deps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_add_to_path_ruby_version_manager () {
+home_fries_add_to_path_ruby_version_manager() {
   # 2017-04-27: Note that if you run script at https://get.rvm.io
   #             it'll append code to set PATH to your .bashrc.
   path_suffix "${HOME}/.rvm/bin"
@@ -84,7 +84,7 @@ home_fries_add_to_path_ruby_version_manager () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-ruby_set_gem_path () {
+ruby_set_gem_path() {
   local GEM_PATHS=()
 
   local RUBY_MINOR_ZERO=$(ruby -e "puts RUBY_VERSION.split('.')[0..1].join('.') + '.0'")
@@ -140,7 +140,7 @@ ruby_set_gem_path () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-patch_export_chruby_use () {
+patch_export_chruby_use() {
   # Here we monkey patch the chruby function -- we replace
   # the chruby fcn. with our own wrapper function.
   # MAYBE: I should probably just submit a pull request.
@@ -155,11 +155,14 @@ patch_export_chruby_use () {
   #   under a new name. We use `tail -n +2` to remove the original function
   #   name but leave the function body, e.g., leave out ``chruby_use ()\n``.
 
-  orig_chruby_use () {
+  orig_chruby_use() {
     :
   }
-  if declare -f chruby_use &> /dev/null; then
-    eval "$(echo "orig_chruby_use()"; declare -f chruby_use | tail -n +2)"
+  if declare -f chruby_use &>/dev/null; then
+    eval "$(
+      echo "orig_chruby_use()"
+      declare -f chruby_use | tail -n +2
+    )"
   else
     $HOMEFRIES_WARNINGS && echo "WARNING: chruby_use() not found"
   fi
@@ -169,7 +172,7 @@ patch_export_chruby_use () {
   #   ${HOME}/.local/share/chruby/chruby.sh
 
   # Here's our *monkey patch!*
-  chruby_use () {
+  chruby_use() {
     orig_chruby_use $*
     # MAYBE: If you need to cleanup old paths, something like this:
     #          GEM_PATH="$(\
@@ -204,7 +207,7 @@ patch_export_chruby_use () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   unset -f main
 
   check_deps
@@ -229,4 +232,3 @@ main () {
 }
 
 main "$@"
-

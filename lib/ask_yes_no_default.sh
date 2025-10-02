@@ -6,7 +6,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-check_deps () {
+check_deps() {
   # Verify process_util.sh loaded.
   check_dep 'tweak_errexit'
 }
@@ -40,7 +40,7 @@ check_deps () {
 # Ask a yes/no question and take just one key press as answer
 # (not waiting for user to press Enter), and complain if answer
 # is not y or n (or one of some other two characters).
-ask_yes_no_default () {
+ask_yes_no_default() {
   local default_choice="$1"
   local choice_timeout="$2"
   local other_choice="$3"
@@ -52,8 +52,8 @@ ask_yes_no_default () {
 
   # POSIX-friendly uppercase (cmp. Bash v4+ ${var^^})
   #            and lowercase (cmp. Bash v4+ ${var,,}).
-  to_upper () { printf "$1" | tr '[:lower:]' '[:upper:]'; }
-  to_lower () { printf "$1" | tr '[:upper:]' '[:lower:]'; }
+  to_upper() { printf "$1" | tr '[:lower:]' '[:upper:]'; }
+  to_lower() { printf "$1" | tr '[:upper:]' '[:lower:]'; }
 
   local choice1_u=$(to_upper ${default_choice})
   local choice1_l=$(to_lower ${default_choice})
@@ -113,7 +113,7 @@ ask_yes_no_default () {
   while $not_done; do
     not_done=false
     local elaps
-    for elaps in `seq 0 $((timeo - 1))`; do
+    for elaps in $(seq 0 $((timeo - 1))); do
       printf '%s' \
         "[Default in $((timeo - elaps)) seconds...] Please press ${choices} "
       read -n 1 -t 1 the_choice
@@ -172,7 +172,7 @@ ask_yes_no_default () {
 
 # ============================================================================
 
-main () {
+main() {
   unset -f main
 
   check_deps
@@ -180,4 +180,3 @@ main () {
 }
 
 main "$@"
-

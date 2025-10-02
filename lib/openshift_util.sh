@@ -8,13 +8,13 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-check_deps () {
+check_deps() {
   check_dep 'path_prefix'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_add_to_path_openshift_origin () {
+home_fries_add_to_path_openshift_origin() {
   local downloads_dir="${HF_DOWNLOADS_DIR:-${HOME}/.downloads}"
 
   # OpenShift Origin server.
@@ -31,7 +31,7 @@ home_fries_add_to_path_openshift_origin () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-oc-rsh-mysql () {
+oc-rsh-mysql() {
   OC_PROJECT=""
   if [ -n "$1" ]; then
     OC_PROJECT=" -n $1"
@@ -120,13 +120,13 @@ oc-rsh-mysql () {
   fi
 }
 
-oc-rsh () {
+oc-rsh() {
   #POD_NAME=$(oc get pods | grep "^$1-" | grep Running | awk '{print $1}')
   # NOTE: Unlike with the mysql pod, here we use app=, not name=.
   #       Not sure why; I thought the configs all had app= annotations/labels.
-  POD_NAME=$( \
-    oc get pods -l app=$1 -o json \
-    | jq -r '.items[] | select(.status.phase | contains("Running")) | .metadata.name' \
+  POD_NAME=$(
+    oc get pods -l app=$1 -o json |
+      jq -r '.items[] | select(.status.phase | contains("Running")) | .metadata.name'
   )
 
   echo "Trying \$(oc rsh ${POD_NAME})"
@@ -138,7 +138,7 @@ oc-rsh () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   unset -f main
 
   check_deps
@@ -149,4 +149,3 @@ main () {
 }
 
 main "$@"
-

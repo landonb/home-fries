@@ -6,7 +6,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-touch_datefile () {
+touch_datefile() {
   touch -- "$(date +%Y%m%d%H%M%S)$1"
 }
 
@@ -42,7 +42,7 @@ touch_datefile () {
 
 # Prints today's date in ISO format, e.g., "2020-09-16".
 # - Optional argument specifies a different separator.
-TTT () {
+TTT() {
   local sep="${1:--}"
 
   echo "$(date "+%Y${sep:--}%m${sep:--}%d")"
@@ -50,7 +50,7 @@ TTT () {
 
 # Prints the date time, e.g., "2020-09-16 12:25".
 # Accepts two optional arguments, major and minor separators.
-TTTtt () {
+TTTtt() {
   local mjsep=" "
   local mnsep="-"
   local tmsep=":"
@@ -66,17 +66,17 @@ TTTtt () {
 # The current date (year, month, day).
 
 # Same as: $(TTT -)
-TTT- () {
+TTT-() {
   echo "$(date +%Y-%m-%d)"
 }
 
 # Same as: $(TTT .)
-TTT. () {
+TTT.() {
   echo "$(date +%Y.%m.%d)"
 }
 
 # Same as: $(TTT _)
-TTT_ () {
+TTT_() {
   echo "$(date +%Y_%m_%d)"
 }
 
@@ -84,7 +84,7 @@ TTT_ () {
 
 # The current time (hour and minute).
 
-tt () {
+tt() {
   local tmsep=":"
   [ -z ${1+x} ] || tmsep="$1"
 
@@ -96,26 +96,26 @@ tt () {
 # The current date and time.
 
 # Same as: $(TTTtt '' '' '')
-TTTtt0 () {
+TTTtt0() {
   echo "$(date '+%Y%m%d%H%M')"
 }
 
-TTTtt- () {
+TTTtt-() {
   echo "$(date '+%Y-%m-%d-%H-%M')"
 }
 
 # Same as: $(TTTtt '_')
-TTT_tt () {
+TTT_tt() {
   echo "$(date '+%Y-%m-%d_%H:%M')"
 }
 
 # Same as: $(TTTtt '+')
-TTT+tt () {
+TTT+tt() {
   echo "$(date '+%Y-%m-%d+%H:%M')"
 }
 
 # Same as: $(TTTtt ':')
-TTT:tt () {
+TTT:tt() {
   echo "$(date '+%Y-%m-%d:%H:%M')"
 }
 
@@ -124,7 +124,7 @@ TTT:tt () {
 # The current date and time (including seconds).
 
 # The only TTT* to include seconds.
-TTTttt () {
+TTTttt() {
   echo "$(date '+%Y%m%d%H%M%S')"
 }
 

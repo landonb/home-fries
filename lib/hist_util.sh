@@ -6,7 +6,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_hist_util_hook () {
+_hist_util_hook() {
   local hist_file
   hist_file=$(realpath -- "${HOME}/.bash_history")
 
@@ -69,16 +69,16 @@ _hist_util_hook () {
   local alert_file
   alert_file="$(_hist_util_print_alert_file_path)"
 
-  start_alert_msg () {
+  start_alert_msg() {
     if [ -s "${alert_file}" ]; then
-      echo >> "${alert_file}"
+      echo >>"${alert_file}"
     fi
 
-    echo -e "$(date) | $@" >> "${alert_file}"
+    echo -e "$(date) | $@" >>"${alert_file}"
   }
 
-  append_alert_msg () {
-    echo -e "$@" >> "${alert_file}"
+  append_alert_msg() {
+    echo -e "$@" >>"${alert_file}"
   }
 
   local prev_num_nulls=0
@@ -87,7 +87,7 @@ _hist_util_hook () {
   local first_step="preflight"
 
   # Count new XX* files / Look for nulls / Look for blanks
-  check_state () {
+  check_state() {
     local step_name="$1"
 
     local timestamp_ref="${lock_dir}"
@@ -119,7 +119,7 @@ _hist_util_hook () {
 
     local started_alert=false
 
-    start_alert () {
+    start_alert() {
       ! ${started_alert} || return 0
 
       start_alert_msg "Anomalies detected!\n- State step: ${step_name}"
@@ -166,7 +166,7 @@ _hist_util_hook () {
   #     with the terminal again and trigger a successful pass.
   local lock_dir="${hist_dir}/.bash_history--LOCK"
 
-  if ! mkdir -- "${lock_dir}" 2> /dev/null; then
+  if ! mkdir -- "${lock_dir}" 2>/dev/null; then
     start_alert_msg "ALERT: Lock acquire failed"
 
     return 0
@@ -179,15 +179,15 @@ _hist_util_hook () {
   #   - Check lock timestamp and remove dir. if older than X minutes.
   #     - But try mkdir again after rmdir so not competing with newer hook.
 
-  clear_traps () {
+  clear_traps() {
     trap - EXIT
   }
 
-  set_traps () {
+  set_traps() {
     trap -- trap_exit EXIT
   }
 
-  trap_exit () {
+  trap_exit() {
     clear_traps
 
     start_alert_msg "Trapped exit!"
@@ -235,7 +235,7 @@ _hist_util_hook () {
   # coming from? They're littering the start of ~/.bash_history file.
   # - MAYBE: Could this be race condition resolved by new lock mechanism?
   # SAVVY: Per `man tr`, 1-3 octal digits w/ \NNN — e.g., \0, \00, or \000.
-  tr -d '\000' < "${temp_hist_1}" > "${temp_hist_2}"
+  tr -d '\000' <"${temp_hist_1}" >"${temp_hist_2}"
   command mv -f -- "${temp_hist_2}" "${temp_hist_1}"
 
   check_state "After tr -d"
@@ -249,7 +249,7 @@ _hist_util_hook () {
   # CXREF/2024-03-17:
   #   ~/.homefries/bin/.bash_history_filter.awk
   awk -f "${HOMEFRIES_BIN:-${HOME}/.homefries/bin}/.bash_history_filter.awk" \
-    "${temp_hist_1}" > "${temp_hist_2}"
+    "${temp_hist_1}" >"${temp_hist_2}"
   command mv -f -- "${temp_hist_2}" "${temp_hist_1}"
 
   check_state "After awk -f"
@@ -279,7 +279,7 @@ _hist_util_hook () {
 
   # ***
 
-  if ! rmdir -- "${lock_dir}" 2> /dev/null; then
+  if ! rmdir -- "${lock_dir}" 2>/dev/null; then
     # Should be an unreachable path (under normal circumstances).
     start_alert_msg "GAFFE: Lock release failed"
   fi
@@ -291,7 +291,7 @@ _hist_util_hook () {
   clear_traps
 }
 
-_hist_util_print_alert_file_path () {
+_hist_util_print_alert_file_path() {
   local hist_file
   hist_file=$(realpath -- "${HOME}/.bash_history")
 
@@ -305,12 +305,12 @@ _hist_util_print_alert_file_path () {
 #   $ _hist_util_hook &
 #   [1] 13014
 #   $ [1]+  Done                    _hist_util_hook
-_hist_util_hook_bg () {
+_hist_util_hook_bg() {
   # Redir. output just in case the command fails.
-  (_hist_util_hook >> "$(_hist_util_print_alert_file_path)" 2>&1 &)
+  (_hist_util_hook >>"$(_hist_util_print_alert_file_path)" 2>&1 &)
 }
 
-home_fries_configure_history () {
+home_fries_configure_history() {
   # History Options
   #################
 
@@ -482,7 +482,7 @@ home_fries_configure_history () {
   #             So now force user to type `exit` to close Bash terminal.
   # 2016-09-23: Title better: Prevent Ctrl-D from exiting shell.
   # When you Ctrl-D, you'll see: `Use "exit" to leave the shell.`
-  export IGNOREEOF=9999999  # Capture and Kill Ctrl-D / ^-D / <C-d>
+  export IGNOREEOF=9999999 # Capture and Kill Ctrl-D / ^-D / <C-d>
   # 2017-11-19: See also `set +ignoreeof` but that sets IGNOREEOF=10. #toofew
   # `set +o ignoreeof` clears IGNOREEOF; `set -o ignoreeof` sets IGNOREEOF=10.
   # 2018-05-28: See also: Ctrl-Shift-Q, to close mate-terminal window.

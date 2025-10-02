@@ -6,13 +6,13 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-check_deps () {
+check_deps() {
   check_dep 'path_prefix'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-perl_set_path_and_environs () {
+perl_set_path_and_environs() {
   # 2020-05-04: The optional GnuCash extension, Finance::Quote, installed
   # from CPAN (via gnc-fq-update), appends these environs to ~/.bashrc.
   # - See:
@@ -130,7 +130,7 @@ perl_set_path_and_environs () {
 #           ];
 #
 # nothing's ever perfect, is't.
-perl-repl () {
+perl-repl() {
   # Ref: michau 2019-07-14: https://stackoverflow.com/questions/73667/
   #   how-can-i-start-an-interactive-console-for-perl#comment100588494_22840242
   rlwrap -A -pgreen -S'perl> ' perl -MData::Dumper -wnE'say Dumper[eval()]//$@'
@@ -171,7 +171,7 @@ perl-repl () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   unset -f main
 
   check_deps
@@ -182,4 +182,3 @@ main () {
 }
 
 main "$@"
-

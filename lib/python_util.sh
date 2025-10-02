@@ -14,7 +14,7 @@
 # to pyenv wired under ~/.local/bin (courtesy the DepoXy pyenv project OMR
 # infuse command).
 
-_hf_python_util_pyenv_export_environs () {
+_hf_python_util_pyenv_export_environs() {
   export PYENV_ROOT="${HOME}/.pyenv"
   [ -d "${PYENV_ROOT}/bin" ] &&
     export PATH="${PYENV_ROOT}/bin:${PATH}"
@@ -27,15 +27,15 @@ _hf_python_util_pyenv_export_environs () {
 #   (which is redunant: see ~/.homefries/bin/completions/pyenv.bash).
 # - Calls `command pyenv rehash` (to "Rehash pyenv shims").
 # - Creates a lightweight pyenv() wrapper.
-_hf_python_util_pyenv_eval_init () {
-  if command -v pyenv > /dev/null; then
+_hf_python_util_pyenv_eval_init() {
+  if command -v pyenv >/dev/null; then
     eval "$(pyenv init -)"
   fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_hf_python_util_pyenv_homebrew_load_completions () {
+_hf_python_util_pyenv_homebrew_load_completions() {
   # Aka ${HOMEBREW_PREFIX}
   local brew_home="/opt/homebrew"
   # Otherwise on Intel Macs it's under /usr/local.
@@ -52,8 +52,8 @@ _hf_python_util_pyenv_homebrew_load_completions () {
 }
 
 # Sets: PROMPT_COMMAND="_pyenv_virtualenv_hook;${PROMPT_COMMAND-}"
-_hf_python_util_pyenv_virtualenv_init () {
-  if which pyenv-virtualenv-init > /dev/null; then
+_hf_python_util_pyenv_virtualenv_init() {
+  if which pyenv-virtualenv-init >/dev/null; then
     eval "$(pyenv virtualenv-init -)"
   fi
 }
@@ -76,13 +76,13 @@ _hf_python_util_pyenv_virtualenv_init () {
 #  $ poetry env info --path
 #  /home/user/.cache/pypoetry/virtualenvs/easy-as-pypi-appdirs-_M-chTHi-py3.10
 #
-_hf_python_util_poetry_activate_venv () {
+_hf_python_util_poetry_activate_venv() {
   . "$(poetry env info --path)/bin/activate"
 
-  exit () {
+  exit() {
     echo deactivate
     deactivate
-    unset -f exit;
+    unset -f exit
   }
 }
 
@@ -95,13 +95,13 @@ _hf_python_util_poetry_activate_venv () {
 #   - Albeit now you need to call `deactivate`, instead of `exit` (which
 #     I kinda liked about `poetry shell` usage)...
 #     - Though we can always wrap `exit`...
-_hf_python_util_poetry_activate_venv_alias () {
+_hf_python_util_poetry_activate_venv_alias() {
   claim_alias_or_warn "poactivate" "_hf_python_util_poetry_activate_venv"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_setup_pyenv () {
+home_fries_setup_pyenv() {
   _hf_python_util_pyenv_export_environs
   unset -f _hf_python_util_pyenv_export_environs
 
@@ -115,7 +115,7 @@ home_fries_setup_pyenv () {
   unset -f _hf_python_util_pyenv_virtualenv_init
 }
 
-home_fries_setup_poetry () {
+home_fries_setup_poetry() {
   _hf_python_util_poetry_activate_venv_alias
   unset -f _hf_python_util_poetry_activate_venv_alias
 }

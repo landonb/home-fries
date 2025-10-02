@@ -23,7 +23,7 @@
 
 # OTHER: Super_L is the "Windows" key.
 
-home_fries_map_keys_lenovo () {
+home_fries_map_keys_lenovo() {
   # A sudo way:
   #   sudo dmidecode | \
   #     grep "Version: ThinkPad X201" > /dev/null \
@@ -31,9 +31,9 @@ home_fries_map_keys_lenovo () {
 
   # A non-sudo way.
   # Note: xprop -root just checks that X is running (and we're not sshing in).
-  if xprop -root &> /dev/null; then
+  if xprop -root &>/dev/null; then
     # Check that xmodmap is installed.
-    command -v xmodmap &> /dev/null
+    command -v xmodmap &>/dev/null
     if [[ $? -eq 0 ]]; then
       if [[ -e /sys/class/dmi/id/product_version ]]; then
         if [[ $(cat /sys/class/dmi/id/product_version) == "ThinkPad X201" ]]; then
@@ -79,7 +79,7 @@ home_fries_map_keys_lenovo () {
 #
 #   QUESTION: What (laptop?) keyboard was this for?
 #
-home_fries_map_keys_2x3 () {
+home_fries_map_keys_2x3() {
   # Not all keyboards arrange their six page keys the same way. Some use
   # two rows and three columns, and some use three rows and two columns.
   # And even when the rows and columns match, not all keyboards use the

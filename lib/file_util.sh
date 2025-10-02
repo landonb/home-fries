@@ -6,7 +6,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_default_umask () {
+home_fries_default_umask() {
   # Set umask to ensure group r-w-x permissions for new files and directories
   # (for collaborative development, e.g., so a co-worker can ssh to your machine
   # and poke around your files).
@@ -48,7 +48,7 @@ home_fries_default_umask () {
 
 # Tell psql to use less for large output
 
-home_fries_wire_export_less () {
+home_fries_wire_export_less() {
   # In Fedora (at least not in Ubuntu at work), if this isn't on, psql
   # paginates large output, but you can only hit space to go through it
   # (there's no going backwards) and the output is left in the command
@@ -119,7 +119,7 @@ home_fries_wire_export_less () {
 
 # Recursively web-ify a directory hierarchy.
 
-webperms () {
+webperms() {
   if [[ -z $1 || ! -d $1 ]]; then
     echo "ERROR: webperms: ‘$1’ is not a directory"
     return 1
@@ -135,13 +135,13 @@ webperms () {
   #chmod -R u+rwX,g+rwX,o+rX $1
   ${HOMEFRIES_TRACE} && echo "Web dir.: $1"
   #chmod -R o+rX $1 &> /dev/null || sudo chmod -R o+rX $1
-  chmod -R u+rwX,g+rwX,o+rX $1 &> /dev/null || sudo chmod -R u+rwX,g+rwX,o+rX $1
+  chmod -R u+rwX,g+rwX,o+rX $1 &>/dev/null || sudo chmod -R u+rwX,g+rwX,o+rX $1
   # Also fix the ancestor permissions.
   local cur_dir=$1
   while [[ -n ${cur_dir} && $(dirname -- "${cur_dir}") != '/' ]]; do
     ${HOMEFRIES_TRACE} && echo "Ancestor: ${cur_dir}"
     # NOTE: Not giving read access, just execute.
-      chmod -R o+X ${cur_dir} &> /dev/null || sudo chmod -R o+X ${cur_dir}
+    chmod -R o+X ${cur_dir} &>/dev/null || sudo chmod -R o+X ${cur_dir}
     local cur_dir=$(dirname -- "${cur_dir}")
   done
 }
@@ -150,7 +150,7 @@ webperms () {
 # - REFER: How you might web-ify directory contents:
 #     find . -maxdepth 1 -type d -exec chmod 2775 {} +
 #     find . -maxdepth 1 -type f -exec chmod u+rw,g+rw,o+r {} +
-dirperms () {
+dirperms() {
   local one_dir="$1"
 
   if [ -z "${one_dir}" ]; then
@@ -158,10 +158,14 @@ dirperms () {
   fi
 
   # Because `chmod --silent`
-  gnu_chmod () {
+  gnu_chmod() {
     for cmd in "gchmod" "chmod"; do
-      ( unset -f ${cmd}; unalias ${cmd}; command -v ${cmd} ) 2> /dev/null \
-        && break
+      (
+        unset -f ${cmd}
+        unalias ${cmd}
+        command -v ${cmd}
+      ) 2>/dev/null &&
+        break
     done
   }
 
@@ -170,7 +174,7 @@ dirperms () {
 
 # Reset file permissions on directory hierarchy.
 # Caveat: Removes executable bits from executable files.
-reperms () {
+reperms() {
   # This doesn't work: it makes the current directory inaccesible:
   #   chmod --silent -R 664 ${one_dir}
   #   chmod --silent -R u+X,g+X,o+X ${one_dir}
@@ -193,8 +197,8 @@ reperms () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 if false; then
-  iterate_files_with_spaces_example () {
-    while IFS= read -d $'\0' -r file ; do
+  iterate_files_with_spaces_example() {
+    while IFS= read -d $'\0' -r file; do
       printf 'File found: %s\n' "${file}"
     done < <(find . -iname 'foo*' -print0)
   }
@@ -202,7 +206,7 @@ fi
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-mv_based_on_name () {
+mv_based_on_name() {
   local src_path=$1
   [ -z "${src_path}" ] && echo 'USAGE: mv_based_on_name FILE-PATH [TARGET-BASE]' && return 1
   [ ! -f "${src_path}" ] && echo "ERROR: FILE is not: “${src_path}”" && return 2
@@ -216,15 +220,15 @@ mv_based_on_name () {
 
   # NOTE: sed supports extended regex, which does not support (?:) non capturing groups.
   local dst_subd
-  dst_subd="$( \
-    echo "${src_path}" | \
-    /usr/bin/env sed -E 's#.*(^|/)(IMG_|VID_|PXL_)?([0-9]{4})([0-9]{2})([0-9]{2})_(.*)$#'${dst_base}'/\3/\4/\3_\4_\5#' \
+  dst_subd="$(
+    echo "${src_path}" |
+      /usr/bin/env sed -E 's#.*(^|/)(IMG_|VID_|PXL_)?([0-9]{4})([0-9]{2})([0-9]{2})_(.*)$#'${dst_base}'/\3/\4/\3_\4_\5#'
   )"
 
   if [ "${src_path}" = "${dst_subd}" ]; then
-    dst_subd="$( \
-      echo "${src_path}" | \
-      /usr/bin/env sed -E 's#.*(^|/)([0-9]{4})_([0-9]{2})_([0-9]{2})/(IMG_|VID_|PXL_)(.*)$#'${dst_base}'/\2/\3/\2_\3_\4#' \
+    dst_subd="$(
+      echo "${src_path}" |
+        /usr/bin/env sed -E 's#.*(^|/)([0-9]{4})_([0-9]{2})_([0-9]{2})/(IMG_|VID_|PXL_)(.*)$#'${dst_base}'/\2/\3/\2_\3_\4#'
     )"
   fi
 

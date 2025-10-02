@@ -55,7 +55,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_hf_jit_load_rust () {
+_hf_jit_load_rust() {
   if [ -d "${HOME}/.cargo" ]; then
     . "${HOME}/.cargo/env"
 
@@ -67,7 +67,7 @@ _hf_jit_load_rust () {
   return 1
 }
 
-cargo () {
+cargo() {
   if ! _hf_jit_load_rust; then
 
     return 1

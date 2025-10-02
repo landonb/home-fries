@@ -6,7 +6,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-check_deps () {
+check_deps() {
   # Verify sh-rm_safe/bin/path_device loaded (on PATH).
   check_dep 'path_device'
 }
@@ -36,7 +36,7 @@ check_deps () {
 #       But I cannot imagine `manpath` returning anything different
 #       later in the session; after we setup PATH, manpath should keep
 #       returning the same paths. So just take that output and edit it.
-_hf_jit_configure_manpath () {
+_hf_jit_configure_manpath() {
   # We could warn and not mangle manpath if already set, e.g.,
   #
   #   local warn_check=$(manpath 2>&1 > /dev/null)
@@ -201,7 +201,7 @@ _LOADED_HF_MANPATH_UTIL_MAN=false
 
 _HF_MAN_FILTER_MSG="^This manpage is not compatible with mandoc(1) and might display incorrectly.\$"
 
-_hf_man_colorman () {
+_hf_man_colorman() {
   # This is used if a less/termcap or less_termcap.sh file not found.
   command env \
     LESS_TERMCAP_mb="$(printf "\e[1;31m")" \
@@ -215,7 +215,7 @@ _hf_man_colorman () {
 }
 
 # `man` lazy-loader. Sneaky sneaky. Shaves tenth sec. or so off session start.
-man () {
+man() {
   ! ${_LOADED_HF_MANPATH_UTIL_MAN:-false} &&
     _hf_jit_configure_manpath
   _LOADED_HF_MANPATH_UTIL_MAN=true
@@ -244,7 +244,7 @@ man () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   unset -f main
 
   check_deps
@@ -252,4 +252,3 @@ main () {
 }
 
 main "$@"
-

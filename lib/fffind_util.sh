@@ -6,7 +6,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-check_deps () {
+check_deps() {
   # Verify path_util.sh loaded.
   check_dep 'dir_resolve'
 }
@@ -31,7 +31,7 @@ check_deps () {
 #        making a big array of fuller paths of ignore rules, i.e.,
 #        if starting in some/dir then *.pyc in some/dir/this/that/.gitignore
 #        becomes some/dir/this/that/**/*.pyc... oy.
-fffind () {
+fffind() {
 
   local here_we_are=$(dir_resolve $(pwd -P))
 
@@ -50,7 +50,7 @@ fffind () {
             # Not a comment line.
             big_ignore_list+=("-path '${fline}' -prune -o")
           fi
-        done < "${here_we_are}/${ignore_f}"
+        done <"${here_we_are}/${ignore_f}"
       fi
     done
     # Keep looping:
@@ -59,7 +59,7 @@ fffind () {
 
   # Go down the hierarchies...
   # Find all .agignore, .gitignore, and .anythingignore.
-  for ignore_f in `find . -type f -name ".*ignore"`; do
+  for ignore_f in $(find . -type f -name ".*ignore"); do
     local ignore_p=$(dirname -- "${ignore_f}")
     while read fline; do
       # Bash regular expressions, eh.
@@ -67,20 +67,20 @@ fffind () {
         # Not a comment line.
         big_ignore_list+=("-path '${ignore_p}/${fline}' -prune -o")
       fi
-    done < "${ignore_f}"
+    done <"${ignore_f}"
   done
 
   # So, calling find on its own does not work, probably
   # because of the globbing. So eval the commmand.
   # Nope: find . ${big_ignore_list[@]} -name $*
   # eval "find . ${big_ignore_list[@]} -name $*"
-    eval "find . ${big_ignore_list[@]} -name $* | grep -E $*"
+  eval "find . ${big_ignore_list[@]} -name $* | grep -E $*"
 
 } # fffind
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   unset -f main
 
   check_deps
@@ -88,4 +88,3 @@ main () {
 }
 
 main "$@"
-

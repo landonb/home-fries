@@ -6,7 +6,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-simpletimeit () {
+simpletimeit() {
   # Python has a great timeit fcn. you could use on a command, or
   # you could just do it in Bash. Except msg is not as friendly here.
   local time_0
@@ -22,7 +22,7 @@ simpletimeit () {
     time_0=${simpletimeit_0}
   fi
   local time_1=$(print_nanos_now)
-  local elapsed=`printf "%.2F" $(echo "($time_1 - $time_0) / 60.0" | bc -l)`
+  local elapsed=$(printf "%.2F" $(echo "($time_1 - $time_0) / 60.0" | bc -l))
   echo
   echo "Your task took ${elapsed} mins."
 }

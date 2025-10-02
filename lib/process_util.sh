@@ -9,7 +9,7 @@
 # ============================================================================
 # *** Are we being run or sourced?
 
-must_sourced () {
+must_sourced() {
   if [ -z "$1" ]; then
     >&2 echo "must_sourced: missing param: \${BASH_SOURCE[0]}"
 
@@ -29,18 +29,18 @@ must_sourced () {
 
 # http://wiki.bash-hackers.org/commands/builtin/caller
 
-where () {
+where() {
   local frame=0
 
   while caller $frame; do
     # NOTE: In some cases, this call with end the program...
-    ((frame++));
+    ((frame++))
   done
 
   echo "$*"
 }
 
-die () {
+die() {
   where
 
   exit 1
@@ -63,7 +63,7 @@ die () {
 #       when we started the script -- and doesn't reflect any changes
 #       herein. So use a variable to remember the setting.
 #
-reset_errexit_ () {
+reset_errexit_() {
   if ${USING_ERREXIT}; then
     # set -ex
     set -e
@@ -73,7 +73,7 @@ reset_errexit_ () {
   fi
 }
 
-reset_errtrace_ () {
+reset_errtrace_() {
   if ${USING_ERRTRACE}; then
     set -E
   else
@@ -81,14 +81,14 @@ reset_errtrace_ () {
   fi
 }
 
-reset_errexit_errtrace () {
+reset_errexit_errtrace() {
   reset_errexit_
   reset_errtrace_
 }
 
 # MAYBE/2019-06-16: For backwards compatibility, since added errtrace
 # (read: I don't want to find-and-replace all current usages).
-reset_errexit () {
+reset_errexit() {
   reset_errexit_errtrace
 }
 
@@ -118,15 +118,15 @@ _hf_suss_errexit_errtrace() {
   fi
 
   if ${USING_ERREXIT}; then
-	  set -e
+    set -e
   fi
 
   if ${USING_ERRTRACE}; then
-	  set -E
+    set -E
   fi
 }
 
-tweak_errexit_errtrace () {
+tweak_errexit_errtrace() {
   local flags="${1:-+eE}"
 
   _hf_suss_errexit_errtrace
@@ -136,7 +136,7 @@ tweak_errexit_errtrace () {
 
 # MAYBE/2019-06-16: For backwards compatibility, since added errtrace
 # (read: I don't want to find-and-replace all current usages).
-tweak_errexit () {
+tweak_errexit() {
   tweak_errexit_errtrace "$@"
 }
 
@@ -146,7 +146,7 @@ tweak_errexit () {
 # DUSTY/2021-08-18: I think `killsomething` is now useless,
 #                   given that `pkill` does same, and more.
 #
-killsomething () {
+killsomething() {
   local something="$1"
 
   if [ -z "${something}" ]; then
@@ -190,13 +190,13 @@ killsomething () {
 # On macOS, `pkill Chrome` leaves some windows open.
 # - The author did not investigate further.
 
-killall_chrome () {
+killall_chrome() {
   if os_is_macos; then
-    ps aux \
-      | grep -e "/Applications/Google Chrome.app" \
-      | grep -v "grep .*\/Applications\/Google Chrome.app$" \
-      | awk '{ print $2; }' \
-      | xargs -n 1 kill -9
+    ps aux |
+      grep -e "/Applications/Google Chrome.app" |
+      grep -v "grep .*\/Applications\/Google Chrome.app$" |
+      awk '{ print $2; }' |
+      xargs -n 1 kill -9
   else
     pkill chrome
   fi
@@ -204,11 +204,10 @@ killall_chrome () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   unset -f main
 
   _hf_suss_errexit_errtrace
 }
 
 main "$@"
-
