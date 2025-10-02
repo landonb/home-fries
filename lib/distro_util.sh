@@ -6,13 +6,13 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-check_deps () {
+check_deps() {
   # Verify process_util.sh loaded.
   check_dep 'tweak_errexit'
 }
 
-check_dep () {
-  if ! command -v "$1" > /dev/null 2>&1; then
+check_dep() {
+  if ! command -v "$1" >/dev/null 2>&1; then
     >&2 printf '\r%s\n' "WARNING: Missing dependency: ‘$1’"
 
     false
@@ -41,7 +41,7 @@ check_dep () {
 
 # *** Ubuntu-related
 
-distro_complain_unless_supported_by_homefries () {
+distro_complain_unless_supported_by_homefries() {
   if [ -e /etc/os-release ]; then
     if cat /etc/os-release | grep -q "^ID=debian\$"; then
       # Debian
@@ -54,7 +54,7 @@ distro_complain_unless_supported_by_homefries () {
       : # noop
     elif ${HOMEFRIES_UNRECOGNIZED_OS_GRIPE:-true}; then
       local this_file
-      this_file=$( (echo ${BASH_SOURCE[0]}) 2> /dev/null )
+      this_file=$( (echo ${BASH_SOURCE[0]}) 2>/dev/null)
       test -n "${this_file}" || this_file=$(basename -- "$0")
       echo "ALERT: Unrecognized distro ‘$(cat /proc/version)’"
       echo "- Please disable this gripe, or update: ${this_file}"
@@ -73,8 +73,8 @@ distro_complain_unless_supported_by_homefries () {
 # NOTE: VirtualBox does not supply a graphics driver for Cinnamon 2.0,
 #       which runs DRI2 (Direct Rendering Interface2). But Xfce runs
 #       DRI1, which VirtualBox supports.
-suss_window_manager () {
-  _suss_window_manager () {
+suss_window_manager() {
+  _suss_window_manager() {
     suss_window_manager_reset
 
     if os_is_macos; then
@@ -98,7 +98,7 @@ suss_window_manager () {
     suss_window_manager_response
   }
 
-  suss_window_manager_reset () {
+  suss_window_manager_reset() {
     WM_IS_CINNAMON=false
     WM_IS_GNOME=false
     WM_IS_KDE=false
@@ -110,7 +110,7 @@ suss_window_manager () {
     WM_TERMINAL_APP=''
   }
 
-  suss_window_manager_report () {
+  suss_window_manager_report() {
     return
 
     echo "WM_IS_CINNAMON: $WM_IS_CINNAMON"
@@ -124,14 +124,14 @@ suss_window_manager () {
     echo "WM_TERMINAL_APP: $WM_TERMINAL_APP"
   }
 
-  suss_window_manager_via_command_v () {
-    if command -v mate-terminal > /dev/null 2>&1; then
+  suss_window_manager_via_command_v() {
+    if command -v mate-terminal >/dev/null 2>&1; then
       WM_IS_MATE=true
       WM_TERMINAL_APP='mate-terminal'
-    elif command -v gnome-terminal > /dev/null 2>&1; then
+    elif command -v gnome-terminal >/dev/null 2>&1; then
       WM_IS_GNOME=true
       WM_TERMINAL_APP='gnome-terminal'
-    elif command -v konsole > /dev/null 2>&1; then
+    elif command -v konsole >/dev/null 2>&1; then
       WM_IS_KDE=true
       WM_TERMINAL_APP='konsole'
     else
@@ -139,7 +139,7 @@ suss_window_manager () {
     fi
   }
 
-  suss_window_manager_via_wmctrl_m () {
+  suss_window_manager_via_wmctrl_m() {
     if wmctrl -m | grep -q -e "^Name: Mutter (Muffin)$"; then
       WM_IS_CINNAMON=true
       WM_TERMINAL_APP='gnome-terminal'
@@ -163,7 +163,7 @@ suss_window_manager () {
     fi
   }
 
-  suss_window_manager_response () {
+  suss_window_manager_response() {
     if ! ${WM_IS_UNKNOWN}; then
 
       return 0
@@ -182,7 +182,7 @@ suss_window_manager () {
 
 # *** Screen saver on/off
 
-screensaver_lockoff () {
+screensaver_lockoff() {
   suss_window_manager
 
   if ${WM_IS_MATE}; then
@@ -202,7 +202,7 @@ screensaver_lockoff () {
   elif ${WM_IS_CINNAMON}; then
     tweak_errexit +eEx
     gsettings set org.cinnamon.desktop.screensaver lock-enabled false \
-      &> /dev/null
+      &>/dev/null
     reset_errexit
   else
     >&2 echo "That command is not plumbed for this window manager!"
@@ -212,7 +212,7 @@ screensaver_lockoff () {
   return 0
 }
 
-screensaver_lockon () {
+screensaver_lockon() {
   suss_window_manager
 
   if ${WM_IS_MATE}; then
@@ -223,7 +223,7 @@ screensaver_lockon () {
   elif ${WM_IS_CINNAMON}; then
     tweak_errexit +eEx
     gsettings set org.cinnamon.desktop.screensaver lock-enabled true \
-      &> /dev/null
+      &>/dev/null
     reset_errexit
   else
     >&2 echo "That command is not plumbed for this window manager!"
@@ -241,7 +241,7 @@ screensaver_lockon () {
 # Determines the apache user name, and the /etc/ dir path.
 
 # SAVVY/2025-01-14: Currently uncalled.
-suss_apache () {
+suss_apache() {
   if ! [ -e /etc/os-release ]; then
     >&2 echo "ERROR: Cannot suss Apache user or dir: Unsupported Homefries OS"
 
@@ -270,22 +270,25 @@ suss_apache () {
 # (and it's been a while since I've used postgres...).
 # - I don't see any usage across codebases other than these definitions.
 
-suss_postgres () {
+suss_postgres() {
   tweak_errexit
 
   if command -v psql >/dev/null; then
-    POSTGRESABBR=$( \
-      psql --version \
-      | grep psql \
-      | /usr/bin/env sed -E 's/psql \(PostgreSQL\) ([0-9]+\.[0-9]+)\.[0-9]+/\1/')
-    POSTGRES_MAJOR=$( \
-      psql --version \
-      | grep psql \
-      | /usr/bin/env sed -E 's/psql \(PostgreSQL\) ([0-9]+)\.[0-9]+\.[0-9]+/\1/')
-    POSTGRES_MINOR=$( \
-      psql --version \
-      | grep psql \
-      | /usr/bin/env sed -E 's/psql \(PostgreSQL\) [0-9]+\.([0-9]+)\.[0-9]+/\1/')
+    POSTGRESABBR=$(
+      psql --version |
+        grep psql |
+        /usr/bin/env sed -E 's/psql \(PostgreSQL\) ([0-9]+\.[0-9]+)\.[0-9]+/\1/'
+    )
+    POSTGRES_MAJOR=$(
+      psql --version |
+        grep psql |
+        /usr/bin/env sed -E 's/psql \(PostgreSQL\) ([0-9]+)\.[0-9]+\.[0-9]+/\1/'
+    )
+    POSTGRES_MINOR=$(
+      psql --version |
+        grep psql |
+        /usr/bin/env sed -E 's/psql \(PostgreSQL\) [0-9]+\.([0-9]+)\.[0-9]+/\1/'
+    )
   fi
   # else, psql not installed.
 
@@ -319,23 +322,22 @@ suss_postgres () {
 #       done
 #     }
 
-os_is_macos () {
+os_is_macos() {
   [ "$(uname)" = "Darwin" ]
 }
 
 # On author's Linux Mint and Debian distros, `uname` and `uname -s`
 # each print "Linux"
-os_is_linux () {
+os_is_linux() {
   [ "$(uname)" = "Linux" ]
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   check_deps
   unset -f check_deps
 }
 
 main "$@"
 unset -f main
-
