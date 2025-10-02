@@ -19,7 +19,7 @@ home_fries_aliases_wire_fd() {
     claim_alias_or_warn "fdfind" "fd"
   fi
 
-  if _home_fries_fd__abs_path >/dev/null; then
+  if _hf_fd_abs_path >/dev/null; then
     alias fd="_home_fries_fd -I"
 
     # Without the --no-ignore
@@ -157,7 +157,7 @@ _home_fries_fd() {
 
   # ***
 
-  local fd_cmd="$(_home_fries_fd__abs_path) $(
+  local fd_cmd="$(_hf_fd_abs_path) $(
     ${no_hidden} || printf "%s" "-H"
   ) $(
     ${no_follow} || printf "%s" "-L"
@@ -173,7 +173,7 @@ _home_fries_fd() {
 # SAVVY: Don't `command -v fd` and return, e.g., `alias fd=...`, but
 # unset and unalias first to avoid that. Note this subprocess approach
 # works in Dash, too.
-_home_fries_fd__abs_path() {
+_hf_fd_abs_path() {
   for cmd in "fd" "fdfind"; do
     (
       unset -f ${cmd}
