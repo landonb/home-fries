@@ -206,26 +206,13 @@ home_fries_load_completions() {
 
 home_fries_alias_ld_library_path_cmds() {
   # 2016-05-03: sqlite3 looks for extensions in the local dir and at
-  #             LD_LIBRARY_PATH, but the latter isn't really set up,
-  #             e.g., on one machine, it's "/usr/lib/expect5.45:" and
-  #             doesn't include the standard system library directory,
-  #             /usr/local/lib.
-  #
-  # We could set LD_LIBRARY_PATH:
-  #
-  #   export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
-  #
-  # but some blogs I saw don't think you should eff with the ell-d path.
-  #
-  #   ftp://linuxmafia.com/kb/Admin/ld-lib-path.html
-  #
-  # We can alias sqlite3 instead, which is probably the solution with
-  # the least impact:
-  #
+  #             LD_LIBRARY_PATH....
+  # - SAVVY/2025-10-01: On both Debian and macOS,
+  #   my LD_LIBRARY_PATH is ${HOME}/.local/lib.
+  #   - And /usr/local/lib exists on both, too.
+  # - MAYBE: Relocate to DepoXy, as this is coupled to usage beyond
+  #   Homefries (e.g., whatever calls "SELECT load_extension()...").
   alias sqlite3='LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib sqlite3'
-  #
-  # however, scripts that call sqlite3 (like hamster-briefs) still have the
-  # issue. I guess we'll just let them deal...
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
