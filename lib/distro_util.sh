@@ -52,7 +52,7 @@ distro_complain_unless_supported_by_homefries() {
     elif cat /etc/os-release | grep -q "^ID=fedora\$"; then
       # Fedora
       : # noop
-    elif ${HOMEFRIES_UNRECOGNIZED_OS_GRIPE:-true}; then
+    elif ! ${HOMEFRIES_INHIBIT_OS_GRIPE:-false}; then
       local this_file
       this_file=$( (echo ${BASH_SOURCE[0]}) 2>/dev/null)
       test -n "${this_file}" || this_file=$(basename -- "$0")
