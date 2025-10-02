@@ -20,10 +20,10 @@ home_fries_aliases_wire_fd() {
   fi
 
   if _hf_fd_abs_path >/dev/null; then
-    alias fd="_home_fries_fd -I"
+    alias fd="_hf_fd -I"
 
     # Without the --no-ignore
-    claim_alias_or_warn "fdi" "_home_fries_fd"
+    claim_alias_or_warn "fdi" "_hf_fd"
   fi
 }
 
@@ -84,7 +84,7 @@ home_fries_aliases_wire_fd() {
 #   but ignoring '.gitignore'), and set no_hidden and
 #   no_ignore accordingly.
 
-_home_fries_fd() {
+_hf_fd() {
   local no_follow=false
   local no_hidden=false
   local no_ignore=false
