@@ -202,10 +202,25 @@ _homefries_screensaver_command() {
   #   suss_window_manager
   #   if ${WM_IS_MATE}; then
   #     ...
-  if command -v mate-screensaver-command >/dev/null; then
+  if command -v xdg-screensaver >/dev/null; then
+    # ALTLY: Call dbus directly instead:
+    #   dbus-send --type=method_call --dest=org.gnome.ScreenSaver \
+    #     /org/gnome/ScreenSaver org.gnome.ScreenSaver.Lock
+    # - THANX: https://askubuntu.com/questions/7776/
+    #     how-do-i-lock-the-desktop-screen-via-command-line
+    # CALSO: In DepoXy environment, <Ctrl-Cmd-Q> binding calls lock screen,
+    #   via "GNOME Settings > Keyboard Shortcuts > System > Lock screen"
+    # aka gsettings org.gnome.settings-daemon.plugins.media-keys screensaver.
+    xdg-screensaver lock
+  elif command -v mate-screensaver-command >/dev/null; then
+    # On Linux Mint MATE.
     mate-screensaver-command "$@"
-  else
+  elif command -v gnome-screensaver-command >/dev/null; then
+    # On <= GNOME 3.5.
     gnome-screensaver-command "$@"
+  else
+    echo
+    echo "ERROR: Missing screensaver command (not GNOME or MATE?)"
   fi
 }
 
@@ -356,9 +371,17 @@ home_fries_session_util_configure_aliases_ps() {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 user_window_session_logout() {
-  if command -v mate-session-save >/dev/null; then
+  if command -v gnome-session-quit >/dev/null; then
+    # Modern GNOME Shell.
+    # REFER:
+    #   --logout — Prompt the user to confirm logout (default).
+    #   --force — Ignore any inhibitors.
+    #   --power-off — Prompt the user to confirm system power off.
+    gnome-session-quit --logout --no-prompt
+  elif command -v mate-session-save >/dev/null; then
     mate-session-save --logout
   elif command -v gnome-session-save >/dev/null; then
+    # GNOME circa 2011.
     gnome-session-save --logout
   else
     # This is the most destructive way to logout, so don't do it:
