@@ -152,11 +152,3 @@ home_fries_map_keys_2x3 () {
 unset -f home_fries_map_keys_2x3
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-main () {
-  :
-}
-
-main "$@"
-unset -f main
-
