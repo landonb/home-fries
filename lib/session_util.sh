@@ -52,7 +52,7 @@ bash-exit-bash-hole() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# FIXME: Not DRY: Copied from ~/.kit/git/git-smart/bin/git-brs.
+# USYNC: Not DRY: Copied from ~/.kit/git/git-smart/bin/git-brs.
 #   grep-or-ggrep
 _hf_grep_or_ggrep() {
   #   $ grep --version
