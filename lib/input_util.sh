@@ -69,7 +69,18 @@ check_deps() {
 if ! os_is_macos; then
   notifications-toggle() {
     local force_state=$1
-    local notifsf="/usr/share/dbus-1/services/org.freedesktop.mate.Notifications.service"
+
+    local notifsf
+    if [ "${XDG_CURRENT_DESKTOP}" = "GNOME" ]; then
+      notifsf="/usr/share/dbus-1/services/org.gnome.Shell.Notifications.service"
+    elif [ "${XDG_CURRENT_DESKTOP}" = "MATE" ]; then
+      notifsf="/usr/share/dbus-1/services/org.freedesktop.mate.Notifications.service"
+    else
+      >&2 echo "ERROR: Unsupported Desktop Environment"
+
+      return 1
+    fi
+
     if [[ ${force_state} -ne 1 && -e "${notifsf}" && ! -e "${notifsf}.disabled" ]]; then
       sudo /usr/bin/env mv -- "${notifsf}" "${notifsf}.disabled"
       info "Disabled desktop notifications!"
