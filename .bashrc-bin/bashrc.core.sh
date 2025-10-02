@@ -597,14 +597,6 @@ home_fries_up() {
 
   #########################
 
-  # - lib/input_util.sh
-  local time_0="$(print_nanos_now)"
-  logitech-middle-mouse-click-disable
-  unset -f logitech-middle-mouse-click-disable
-  print_elapsed_time "${time_0}" "Action: middle-mouse-click-disable"
-
-  #########################
-
   # Update mate-terminal titlebar on each command.
   # (lb): Note that all commands after this will appear/flicker
   # in the window title.
