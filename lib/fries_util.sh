@@ -200,18 +200,6 @@ home_fries_load_completions() {
   fi
 }
 
-# --- SDKMAN
-
-home_fries_load_sdkman() {
-  # 2017-02-25: Such Yellers! The SDKMAN! installer appended this to .bashrc:
-  #   #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-  if [ -d "${HOME}/.sdkman" ]; then
-    export SDKMAN_DIR="${HOME}/.sdkman"
-    [ -s "${HOME}/.sdkman/bin/sdkman-init.sh" ] &&
-      . "/home/landonb/.sdkman/bin/sdkman-init.sh"
-  fi
-}
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # LD_LIBRARY_PATH
