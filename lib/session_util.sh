@@ -381,7 +381,7 @@ user_window_session_logout() {
     # Apparently also this, but less destructive
     #     sudo pkill -u $LOGNAME
     echo
-    echo "WARNING: Logout command not found; cannot logout."
+    echo "ERROR: Missing logout command (not GNOME or MATE?)"
   fi
 }
 
