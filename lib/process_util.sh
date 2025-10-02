@@ -92,7 +92,7 @@ reset_errexit () {
   reset_errexit_errtrace
 }
 
-suss_errexit_errtrace () {
+_hf_suss_errexit_errtrace() {
   # Note that we cannot pipe ${SHELLOPTS} to grep, because Bash always unsets
   # errexit on pipeline commands (so test would always show errexit disabled).
   #  local shell_opts="${SHELLOPTS}"
@@ -129,7 +129,7 @@ suss_errexit_errtrace () {
 tweak_errexit_errtrace () {
   local flags="${1:-+eE}"
 
-  suss_errexit_errtrace
+  _hf_suss_errexit_errtrace
 
   set ${flags}
 }
@@ -207,7 +207,7 @@ killall_chrome () {
 main () {
   unset -f main
 
-  suss_errexit_errtrace
+  _hf_suss_errexit_errtrace
 }
 
 main "$@"
