@@ -420,9 +420,9 @@ start_somewhere_something() {
 
   # Start out in the preferred development directory.
   if [ -n "${HOMEFRIES_CD}" ]; then
-    cd "${HOMEFRIES_CD}"
+    cd -- "${HOMEFRIES_CD}"
   elif [ -d "${HOMEFRIES_CD_DEFAULT}" ]; then
-    cd "${HOMEFRIES_CD_DEFAULT}"
+    cd -- "${HOMEFRIES_CD_DEFAULT}"
   fi
 
   # See: ${HOMEFRIES_BASHRCBIN}/.homefries/bin/openterms.sh for usage.
