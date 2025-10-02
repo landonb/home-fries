@@ -205,6 +205,8 @@ patch_export_chruby_use () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
+  unset -f main
+
   check_deps
   unset -f check_deps
 
@@ -227,5 +229,4 @@ main () {
 }
 
 main "$@"
-unset -f main
 

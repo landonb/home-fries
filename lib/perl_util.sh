@@ -172,6 +172,8 @@ perl-repl () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
+  unset -f main
+
   check_deps
   unset -f check_deps
 
@@ -180,5 +182,4 @@ main () {
 }
 
 main "$@"
-unset -f main
 

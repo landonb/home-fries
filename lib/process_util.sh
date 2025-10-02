@@ -205,9 +205,10 @@ killall_chrome () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
+  unset -f main
+
   suss_errexit_errtrace
 }
 
 main "$@"
-unset -f main
 

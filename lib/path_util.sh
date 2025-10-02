@@ -312,10 +312,11 @@ pushd_alias () {
 # *** Main.
 
 main () {
+  unset -f main
+
   check_deps
   unset -f check_deps
 }
 
 main "$@"
-unset -f main
 

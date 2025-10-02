@@ -179,10 +179,11 @@ home_fries_set_path_environ () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
+  unset -f main
+
   check_deps
   unset -f check_deps
 }
 
 main "$@"
-unset -f main
 

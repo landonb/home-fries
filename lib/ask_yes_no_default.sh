@@ -173,10 +173,11 @@ ask_yes_no_default () {
 # ============================================================================
 
 main () {
+  unset -f main
+
   check_deps
   unset -f check_deps
 }
 
 main "$@"
-unset -f main
 

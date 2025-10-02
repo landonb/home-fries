@@ -36,10 +36,11 @@ user_name_full_macos () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
+  unset -f main
+
   check_deps
   unset -f check_deps
 }
 
 main "$@"
-unset -f main
 
