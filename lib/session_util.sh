@@ -197,11 +197,16 @@ _hf_homefries_bash_verbose() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_homefries_screensaver_command() {
-  # Could instead run:
-  #   suss_window_manager
-  #   if ${WM_IS_MATE}; then
-  #     ...
+# CALSO: DepoXy wires accelerator that sets idle-delay to 1,
+# then resets it, which causes screen to fade out and sleep,
+# without locking. / CXREF: In a DepoXy environment, see:
+#   ~/.depoxy/ambers/bin/gnome/toggle-idle-delay
+# - This command locks the screen.
+
+# MAYBE/2025-10-01: Move these desktop-specific funcs to DepoXy.
+
+_hf_desktop_lock() {
+  # CALSO: if [ "${XDG_CURRENT_DESKTOP}" = "GNOME" ]; then ...
   if command -v xdg-screensaver >/dev/null; then
     # ALTLY: Call dbus directly instead:
     #   dbus-send --type=method_call --dest=org.gnome.ScreenSaver \
@@ -214,47 +219,46 @@ _homefries_screensaver_command() {
     xdg-screensaver lock
   elif command -v mate-screensaver-command >/dev/null; then
     # On Linux Mint MATE.
-    mate-screensaver-command "$@"
+    mate-screensaver-command --lock
   elif command -v gnome-screensaver-command >/dev/null; then
     # On <= GNOME 3.5.
-    gnome-screensaver-command "$@"
+    gnome-screensaver-command --lock
   else
     echo
-    echo "ERROR: Missing screensaver command (not GNOME or MATE?)"
+    echo "ERROR: Unknown screensaver command (not GNOME or MATE?)"
+
+    return false
   fi
 }
 
-# 2016-10-10: Starting last month, on both 14.04/rebecca/trusty and
-# 16.04/sarah/xenial, both laptop and desktop stopped asking for
-# password on resume from suspend.
-#
-# This is a hacky work-around -- use the screen saver lock command.
-# Note that the unlock screen is different than the Window Manager's,
-# i.e., if you had gone though Mint Menu > Lock Screen.
-#
-# Might possibly be this bug 1 other person in known universe is seeing:
-#   "no password prompt after suspend, settings ignored"
-#     https://bugs.launchpad.net/linuxmint/+bug/1185681
-#
-# Not sure where I found the dbus-send trick.
-lock_screensaver_and_power_suspend() {
-  check_dep 'termdo-all' || return $?
+# HSTRY: (Way back) Circa 2016-10-10, LM MATE (14.04/rebecca/trusty
+# and 16.04/sarah/xenial), did not request the user password on
+# resume from suspend. So I added a lock-and-suspend command that's
+# not as relevant on Debian GNOME.
 
-  # 2021-02-20: This function is stale; I haven't used in a while
-  # (not since I used to travel a lot with my laptop and wanted a
-  #  CLI vector to locking and sleeping; and to the security issue
-  #  with an attacker being able to see the screen briefly on wake,
-  #  so being sure to show-desktop before sleeping).
+# CALSO: `systemctl hibernate`
 
-  # Restrict from running on macOS or if /etc/lsb-release not found.
-  _hf_lock_screensaver_source_lsb_release || return $?
+_hf_desktop_suspend() {
+  tmux_expire_sudo
 
-  # 2016-10-25: Heck, why not! At least show some semblance of not being
-  # a complete idiot.
-  termdo-all "echo lock_screensaver_and_power_suspend says"
-  termdo-all sudo -K
-  # 2018-02-19: Tmux, Too!
-  # NOTE: pane_id returns, e.g., %0, %1, %2; pane_index returns 1, 2, 3.
+  if command -v systemctl >/dev/null; then
+    systemctl suspend
+  else
+    return false
+  fi
+}
+
+# HSTRY: On MATE, would be painfully "secure", and send each
+# open terminal a `sudo -K` command (via obsolete termdo-all).
+# - This tmux loop is a remnant of that paranoia.
+# - 2018-02-19: Tmux, Too!
+#   - REFER: pane_id returns, e.g., %0, %1, %2; pane_index returns 1, 2, 3.
+tmux_expire_sudo() {
+  if ! command -v tmux >/dev/null; then
+
+    return
+  fi
+
   for _pane in $(
     tmux list-panes -a -F '#{pane_index}'
   ); do
@@ -265,112 +269,19 @@ lock_screensaver_and_power_suspend() {
     tmux send-keys -t ${_pane} "echo 'pane: ${_pane}'" Enter
     tmux send-keys -t ${_pane} "sudo -K" Enter
   done
-
-  . /etc/lsb-release
-  if false ||
-    [ ${DISTRIB_CODENAME} = 'xenial' ] ||
-    [ ${DISTRIB_CODENAME} = 'sarah' ] ||
-    [ ${DISTRIB_CODENAME} = 'sonya' ] \
-    ; then
-
-    _homefries_screensaver_command --lock &&
-      systemctl suspend -i
-  elif false ||
-    [ ${DISTRIB_CODENAME} = 'trusty' ] ||
-    [ ${DISTRIB_CODENAME} = 'rebecca' ] \
-    ; then
-
-    _homefries_screensaver_command --lock &&
-      dbus-send --system --print-reply --dest=org.freedesktop.UPower \
-        /org/freedesktop/UPower org.freedesktop.UPower.Suspend
-  else
-    echo "ERROR: Unknown distro. I refuse to Lock Screensaver and Power Suspend."
-
-    return 1
-  fi
-  # 2018-05-29: Do these even run after the suspend?
-  # Sneak in enabling locking screen saver.
-  screensaver_lockon
-
-  # Show desktop / Minimize all windows
-  xdotool key ctrl+alt+d
-} # end: lock_screensaver_and_power_suspend
-
-# ***
-
-_hf_lock_screensaver_source_lsb_release() {
-  # INERT/2021-02-20: We could support macOS, but I have no use case.
-  # - We'd need the macOS equivalent of termdo, which is
-  #   probably osascript, but I think we'd also need the
-  #   API to Quartz Compositor:
-  #     https://pypi.org/project/pyobjc-framework-Quartz/
-  if [ ! -f "/etc/lsb-release" ]; then
-    # E.g., os_is_macos.
-    >&2 echo "Not a recognized OS (/etc/lsb-release not found)"
-
-    return 1
-  fi
-
-  . /etc/lsb-release
-
-  if [ "${DISTRIB_CODENAME}" != "rebecca" ]; then
-    # Old Linux Mint... can't remember what it's missing; something.
-    >&2 echo "This command not available on Linux Mint 'rebecca'"
-
-    return 1
-  fi
 }
 
 # ***
-
-lock_screensaver_and_power_suspend_lite() {
-  # Restrict from running on macOS or if /etc/lsb-release not found.
-  _hf_lock_screensaver_source_lsb_release || return $?
-
-  # Show desktop / Minimize all windows
-  xdotool key ctrl+alt+d
-
-  . /etc/lsb-release
-  if false ||
-    [ ${DISTRIB_CODENAME} = 'xenial' ] ||
-    [ ${DISTRIB_CODENAME} = 'sarah' ] ||
-    [ ${DISTRIB_CODENAME} = 'sonya' ] \
-    ; then
-
-    _homefries_screensaver_command --lock &&
-      systemctl suspend -i
-  elif false ||
-    [ ${DISTRIB_CODENAME} = 'trusty'] ||
-    [ ${DISTRIB_CODENAME} = 'rebecca' ] \
-    ; then
-
-    _homefries_screensaver_command --lock &&
-      dbus-send --system --print-reply --dest=org.freedesktop.UPower \
-        /org/freedesktop/UPower org.freedesktop.UPower.Suspend
-  else
-    echo "ERROR: Unknown distro. I refuse to Lock Screensaver and Power Suspend."
-
-    return 1
-  fi
-}
-
-lock_screensaver_and_do_nothing_else() {
-  _homefries_screensaver_command --lock
-  # I'm iffy about enabling locking screensaver on simple qq.
-  # But also thinking maybe yeah.
-  screensaver_lockon
-
-} # end: lock_screensaver_and_do_nothing_else
 
 home_fries_session_util_configure_aliases_ps() {
-  claim_alias_or_warn "qq" "lock_screensaver_and_do_nothing_else"
-  claim_alias_or_warn "qqq" "lock_screensaver_and_power_suspend"
-  claim_alias_or_warn "q4" "lock_screensaver_and_power_suspend_lite"
+  claim_alias_or_warn "qq" "_hf_desktop_lock"
+  claim_alias_or_warn "qqq" "_hf_desktop_suspend"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-user_window_session_logout() {
+# ISOFF/2025-10-01: Not wired (but manually callable).
+_hf_desktop_logout() {
   if command -v gnome-session-quit >/dev/null; then
     # Modern GNOME Shell.
     # REFER:
@@ -516,18 +427,6 @@ pm-latest() {
   #     gnome-screensaver-dialog: gkr-pam: unlocked login keyring
   auth_log_grep_latest "Unlockd at" "gkr-pam: unlocked login keyring"
 }
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-# Test if Bash function exists.
-# - 2022-11-04: Nothing calls this.
-fn_exists() {
-  type -t $1 >/dev/null
-}
-
-# home_fries_session_util_configure_aliases_fn () {
-#   claim_alias_or_warn "function_exists" "fn_exists"
-# }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
