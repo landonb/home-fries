@@ -460,9 +460,6 @@ home_fries_up() {
   #########################
 
   # - lib/fries_util.sh
-  run_and_unset "home_fries_append_ld_library_path"
-
-  # - lib/fries_util.sh
   run_and_unset "home_fries_alias_ld_library_path_cmds"
 
   #########################

@@ -202,26 +202,6 @@ home_fries_load_completions() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# LD_LIBRARY_PATH
-
-home_fries_append_ld_library_path() {
-  # 2015.01.20: This seems really weird, having to set LD_LIBRARY_PATH.
-  #             In Cyclopath, we set this for gdal and geos when
-  #             we startup pyserver, but we don't set this for
-  #             any user programs... is there something we could
-  #             do via `./configure` or `make` or `make install`
-  #             so we don't have to specify this?
-  # Set the library path, lest:
-  #   expect: error while loading shared libraries: libexpect5.45.so:
-  #     cannot open shared object file: No such file or directory
-  # Do this before the SSH function, which expects expect.
-  if [ -d /usr/lib/expect5.45 ]; then
-    if [[ ":${LD_LIBRARY_PATH}:" != *":/usr/lib/expect5.45:"* ]]; then
-      export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/lib/expect5.45"
-    fi
-  fi
-}
-
 # SQLITE3 / LD_LIBRARY_PATH / SELECT load_extension()/.load
 
 home_fries_alias_ld_library_path_cmds() {
