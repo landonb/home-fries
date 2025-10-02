@@ -387,25 +387,6 @@ user_window_session_logout() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# 2016-10-05: [lb] not seeing the disable-wake-on-lid action working, from:
-#
-#     .homefries/once/recipe/usr/lib/pm-utils/sleep.d/33disablewakeups
-#
-#             so let's try this here in bashrc.
-
-disable_wakeup_on_lid() {
-  cat /proc/acpi/wakeup | grep "^LID" &>/dev/null
-  if [ $? -eq 0 ]; then
-    cat /proc/acpi/wakeup | grep "^LID" | grep disabled &>/dev/null
-    if [ $? -ne 0 ]; then
-      #echo " LID" | sudo tee /proc/acpi/wakeup
-      echo " LID" | tee /proc/acpi/wakeup
-    fi
-  fi
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 # Shell Options
 
 home_fries_configure_shell_options() {

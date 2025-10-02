@@ -595,15 +595,6 @@ home_fries_up() {
 
   #########################
 
-  # MEH: The permissions on /proc/acpi/wakeup get reset every boot,
-  #      so we need a new strategy for this to work.
-  #      (NOTE/2018-01-29: Only affects Lenovo X201, I believe.)
-  # - lib/session_util.sh
-  #  run_and_unset "disable_wakeup_on_lid"
-  unset -f disable_wakeup_on_lid
-
-  #########################
-
   # - lib/crypt/daemonize_gpg_agent.sh
   run_and_unset "daemonize_gpg_agent"
 
