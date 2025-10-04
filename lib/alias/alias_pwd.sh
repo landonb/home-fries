@@ -121,7 +121,11 @@ _hf_realpath_logical_tilded() {
         basedir="$(dirname -- "${path}")"
         filename="/$(basename -- "${path}")"
       fi
-      echo "$(cd -- "${basedir}" && pwd -L)${filename}"
+      if [ -d "${basedir}" ]; then
+        echo "$(cd -- "${basedir}" && pwd -L)${filename}"
+      else
+        echo "$(pwd -L)/${basedir}${filename}"
+      fi
     done
   fi | tilde_for_home
 }
