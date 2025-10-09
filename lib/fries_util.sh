@@ -135,7 +135,7 @@ home_fries_load_completions() {
   fi
 
   local completions_dir="${HOMEFRIES_BIN:-${HOME}/.kit/sh/home-fries/bin}/completions"
-  [ -d "${completions_dir}" ] || return
+  [ -d "${completions_dir}" ] || return 0
 
   if ${HOMEFRIES_LOAD_COMPLETIONS_ANY:-false}; then
     # BEWARE: This could be a security risk, if you're worried that an

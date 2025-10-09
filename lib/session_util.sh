@@ -108,7 +108,7 @@ _hf_session_is_subshell() {
 #   can rename it.
 home_fries_session_util_configure_aliases_bexit() {
   _hf_session_is_subshell ||
-    return
+    return 0
 
   claim_alias_or_warn "bexit" "bash-exit-bash-hole"
 

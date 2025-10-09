@@ -202,8 +202,8 @@ print_elapsed_time() {
 }
 
 print_loading_dot() {
-  ${HOMEFRIES_LOADINGDOTS:-false} || return
-  ${HOMEFRIES_TRACE:-false} && return
+  ${HOMEFRIES_LOADINGDOTS:-false} || return 0
+  ${HOMEFRIES_TRACE:-false} && return 0
   # 2020-09-26: Try to avoid wrapping to a new line, because
   # then the '\r' later won't work as intended (it'll leave
   # previous lines of dots visible).
@@ -225,7 +225,7 @@ cleanup_loading_dots() {
   HOMEFRIES_LOADEDDOTS=''
 
   flash_elapsed() {
-    [ -n "${time_0}" ] || return
+    [ -n "${time_0}" ] || return 0
     local elapsed
     elapsed="$(
       HOMEFRIES_PROFILING= "${HOMEFRIES_BASHRCBIN}/../bin/echo-elapsed" "${time_0}"

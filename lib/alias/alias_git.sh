@@ -83,8 +83,8 @@ GIT_REF_FORMAT="%(refname:short)@%(committername)@%(contents:subject)"
 function b() {
   . ${SHOILERPLATE:-${HOME}/.kit/sh}/sh-git-nubs/lib/git-nubs.sh
 
-  # is_in_git_repo || return
-  git_insist_git_repo || return
+  # is_in_git_repo || return 0
+  git_insist_git_repo || return 0
 
   local BRANCHES BRANCH
 
@@ -109,8 +109,8 @@ function b() {
 function ba() {
   . ${SHOILERPLATE:-${HOME}/.kit/sh}/sh-git-nubs/lib/git-nubs.sh
 
-  # is_in_git_repo || return
-  git_insist_git_repo || return
+  # is_in_git_repo || return 0
+  git_insist_git_repo || return 0
 
   local BRANCHES BRANCH BRANCHES_REMOTE
 

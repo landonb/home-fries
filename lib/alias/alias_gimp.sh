@@ -15,10 +15,10 @@ home_fries_aliases_wire_gimp() {
 
 home_fries_create_alias_gimp_flatpak() {
   # SAVVY/2023-04-23: This directory created on first run, so unreliable.
-  #  [ -d "${HOME}/.var/app/org.gimp.GIMP" ] || return
+  #  [ -d "${HOME}/.var/app/org.gimp.GIMP" ] || return 0
   [ -d "${HOME}/.local/share/flatpak/app/org.gimp.GIMP" ] ||
     [ -d "/var/lib/flatpak/app/org.gimp.GIMP" ] ||
-    return
+    return 0
   # See also:
   #   if flatpak info org.gimp.GIMP > /dev/null 2>&1; then
   #     ...
@@ -57,7 +57,7 @@ home_fries_create_alias_gimp_flatpak() {
 #   So we'll keep the alias, thankfully without a hardcoded version.
 
 home_fries_create_alias_gimp_macos() {
-  [ "$(uname)" = "Darwin" ] || return
+  [ "$(uname)" = "Darwin" ] || return 0
 
   # The normal `open` command works but doesn't appear to accept
   # a file arg, e.g.,

@@ -91,7 +91,7 @@ source_it_log_trace() {
   local log_name="$1"
   local lib_file="$2"
 
-  ${HOMEFRIES_TRACE:-false} || return
+  ${HOMEFRIES_TRACE:-false} || return 0
 
   local piping
   if ! ${_SOURCE_IT_FINIS_OUTER:-false}; then
