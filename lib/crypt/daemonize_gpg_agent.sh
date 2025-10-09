@@ -83,23 +83,23 @@
 #   running, and another `ps` afterward shows one process running. So
 #   I am not sure what is up with the message. But I just ignored it.
 
-_hf_ps_check_if_running () {
+_hf_ps_check_if_running() {
   local process_name="$1"
   # Check if GNU ps or not, which returns a version of, e.g.,
   #   ps from procps-ng 3.3.12
   # And where non-GNU ps, specifically macOS, fails on:
   #   ps: illegal option -- -
-  if ps --version > /dev/null 2>&1; then
-    ps -C "${process_name}" &> /dev/null
+  if ps --version >/dev/null 2>&1; then
+    ps -C "${process_name}" &>/dev/null
   else
-    ps axc | grep "${process_name}" > /dev/null
+    ps axc | grep "${process_name}" >/dev/null
   fi
 }
 
-daemonize_gpg_agent () {
+daemonize_gpg_agent() {
   # 2018-06-26: (lb): Skip if in SSH session.
   if [ -n "${SSH_CLIENT}" ] || [ -n "${SSH_TTY}" ] || [ -n "${SSH_CONNECTION}" ]; then
-      return
+    return
   fi
 
   # 2020-08-24: Skip if no gpg-agent (e.g., macOS Catalina).
@@ -111,7 +111,7 @@ daemonize_gpg_agent () {
   # Check if gpg-agent is running, and start if not.
   if ! _hf_ps_check_if_running "gpg-agent"; then
     local eff_off_gkr
-    eff_off_gkr=$(gpg-agent --daemon 2> /dev/null)
+    eff_off_gkr=$(gpg-agent --daemon 2>/dev/null)
     if [ $? -eq 0 ]; then
       eval "${eff_off_gkr}"
     else
@@ -123,10 +123,9 @@ daemonize_gpg_agent () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   :
 }
 
 main "$@"
 unset -f main
-

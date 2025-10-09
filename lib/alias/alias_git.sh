@@ -18,7 +18,7 @@
 #   FIXME: Lint to DepoXy, after it's released... ;)
 # SYNC_ME: See also the same git-smart definitions:
 #   git-smart/.gitconfig
-home_fries_aliases_wire_git () {
+home_fries_aliases_wire_git() {
   # Aka `git dff`, if you use git-smart.
   claim_alias_or_warn "dff" "git diff"
   claim_alias_or_warn "dfd" "git --no-pager diff"
@@ -42,7 +42,7 @@ home_fries_aliases_wire_git () {
   claim_alias_or_warn "gab" "git absorb"
 }
 
-_hf_git_tracking_branch () {
+_hf_git_tracking_branch() {
   # 2> /dev/null
   git rev-parse --abbrev-ref --symbolic-full-name @{u}
 }
@@ -52,7 +52,7 @@ _hf_git_tracking_branch () {
 # SAVVY: Use Tab/Shift-Tab to select multiple files (fzf -m).
 # THANX:
 # https://github.com/lukas-reineke/dotfiles/blob/02064d6dccb2e/bash/functions.sh
-function gaf () {
+function gaf() {
   local files
   files="$(git ls-files --modified | fzf --height 20% --reverse -m --ansi)"
   if [ -n "$files" ]; then
@@ -65,10 +65,10 @@ function gaf () {
 
 # Open single modified file using FZF picker.
 # FIXME/2025-02-16 10:38: Move to DXY, becuase gvim-open-kindness.
-function gof () {
-  git ls-files --modified \
-    | fzf --height 20% --reverse --ansi \
-    | xargs gvim-open-kindness "" "" ""
+function gof() {
+  git ls-files --modified |
+    fzf --height 20% --reverse --ansi |
+    xargs gvim-open-kindness "" "" ""
 }
 
 # THANX:
@@ -88,16 +88,16 @@ function b() {
 
   local BRANCHES BRANCH
 
-  BRANCHES=$( \
-    git for-each-ref --sort=-committerdate refs/heads/ --format="$GIT_REF_FORMAT" \
-    | awk '! a[$0]++'
+  BRANCHES=$(
+    git for-each-ref --sort=-committerdate refs/heads/ --format="$GIT_REF_FORMAT" |
+      awk '! a[$0]++'
   )
 
-  BRANCH=$( \
-    echo "$BRANCHES" \
-    | column -t -s '@' \
-    | fzf --no-hscroll --height 20% --reverse --ansi \
-    | awk '{print $1}'
+  BRANCH=$(
+    echo "$BRANCHES" |
+      column -t -s '@' |
+      fzf --no-hscroll --height 20% --reverse --ansi |
+      awk '{print $1}'
   )
 
   if [[ -n $BRANCH ]]; then
@@ -126,19 +126,19 @@ function ba() {
 
 # THANX: This almost looks like tig!
 # https://github.com/lukas-reineke/dotfiles/blob/02064d6dccb2e/scripts/fzf-git-log.sh
-function git-log-fzf () {
+function git-log-fzf() {
   git log --graph --color=always --abbrev-commit \
     --format='%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' |
-  fzf --ansi --no-sort --reverse --tiebreak=index --bind=ctrl-s:toggle-sort \
-    --header $(basename `git rev-parse --show-toplevel`) \
-    --bind "ctrl-n:preview-down,ctrl-p:preview-up" \
-    --bind "ctrl-m:execute:
+    fzf --ansi --no-sort --reverse --tiebreak=index --bind=ctrl-s:toggle-sort \
+      --header $(basename $(git rev-parse --show-toplevel)) \
+      --bind "ctrl-n:preview-down,ctrl-p:preview-up" \
+      --bind "ctrl-m:execute:
       (grep -o '[a-f0-9]\{7\}' | head -1 |
       xargs -I % bash -c 'git show --color=always % | diff-so-fancy | less -R') << 'FZF-EOF'
       {}
       FZF-EOF" \
-    --expect=ctrl-o \
-    --preview "
+      --expect=ctrl-o \
+      --preview "
       (grep -o '[a-f0-9]\{7\}' | head -1 |
       xargs -I % bash -c 'git show --color=always % | diff-so-fancy') << 'FZF-EOF'
       {}
@@ -147,7 +147,7 @@ function git-log-fzf () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_alias_git () {
+unset_f_alias_git() {
   unset -f home_fries_aliases_wire_git
   # So meta.
   unset -f unset_f_alias_git
@@ -158,4 +158,3 @@ unset_f_alias_git () {
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
   >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
 fi
-
