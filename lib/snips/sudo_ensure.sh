@@ -6,16 +6,15 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-has_sudo () {
-  sudo -n true &> /dev/null && echo YES || echo NOPE
+has_sudo() {
+  sudo -n true &>/dev/null && echo YES || echo NOPE
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   :
 }
 
 main "$@"
 unset -f main
-
