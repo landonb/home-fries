@@ -7,6 +7,7 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 has_sudo() {
+  # ALTLY: Also works: sudo -n -v (without `true`).
   sudo -n true &>/dev/null && echo YES || echo NOPE
 }
 
