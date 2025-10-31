@@ -155,10 +155,10 @@ function l() {
 print_file_url_friendly_ls_alias() {
   printf "%s" "\
   _ls() {
-    if echo \\\"\\\$@\\\" | command grep -q -v -e '\\bfile://'; then
+    if [ \\\$# -gt 1 ]; then
       ${ls_cmd} -hFA ${color_opt} \\\"\\\$@\\\";
     else
-      echo \\\"\\\$@\\\" | command sed -e 's#\\bfile://##g' | xargs ${ls_cmd} -hFA --color=auto;
+      echo \\\"'\\\$1'\\\" | command sed -e \\\"s#^'file://#'#g\\\" | xargs ${ls_cmd} -hFA --color=auto;
     fi;
   }; _ls" |
     sed -e 's/^ \+//g' |
