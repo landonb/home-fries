@@ -259,6 +259,10 @@ print_file_url_friendly_ls_alias() {
 # - BWARE: You can pass-through `ls` options to `ll`, but it might
 #          affect the column count and bork the output.
 
+# FEATR: If only one `ll` argument specified, strip "file://" prefix.
+# - UCASE: Copy path from browser location and paste to terminal
+#          (at least for `ls` and `ll` commands).
+
 # MPROV: Exclude macOS system files you *shouldn't* care about (or at
 # least author cannot imagine a scenario where you would care):
 #
@@ -297,7 +301,7 @@ function ll() {
   if [ $# -gt 1 ]; then
     $(ls-or-gls) -lhFa --color=always "$@"
   else
-    $(ls-or-gls) -lhFa --color=always "$@" |
+    $(ls-or-gls) -lhFa --color=always "$(echo "${1:-.}" | command sed -e 's#^file://##g')" |
       $(gnu_sed) 'h;s/^\([^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+ \+\)\?\)\?\)\?\)\?\)\?\)\?\)\?\)\?//;s/\x1b[[0-9;]*m//g;s/^$/\./;s/^\.\/$/\.\./;s/^\.\.\/$/\.\.\./;G;s/\n/\t/' |
       _hf_filter_ll "$@" |
       LC_ALL=C sort -d -f -k1,1 |
