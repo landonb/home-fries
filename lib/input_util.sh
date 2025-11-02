@@ -95,7 +95,9 @@ if ! os_is_macos; then
     fi
   }
 
-  nonotifs() {
+  # HSTRY/2025-11-02: Née `nonotifs`, but renamed
+  # so `non<Tab>` completes noname commands.
+  notifs-toggle() {
     eval "LOG_LEVEL=${LOG_LEVEL_INFO} notifications-toggle 0"
   }
 
