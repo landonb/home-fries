@@ -28,17 +28,15 @@ home_fries_create_alias_gimp_flatpak() {
   #     ...
   # but not as quick as dir-check.
 
-  # Desktop entry is more complicated:
-  #   /usr/bin/flatpak run \
-  #     --branch=stable \
-  #     --arch=x86_64 \
-  #     --command=gimp-2.10 \
-  #     --file-forwarding org.gimp.GIMP \
-  #     @@u %U @@
+  # Note the Desktop entry is more complicated than we bother
+  # with here, e.g.:
+  #   Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 \
+  #     --command=gimp-3.0 --file-forwarding org.gimp.GIMP @@u %U @@
+  # CXREF:
+  # ~/.local/share/flatpak/app/org.gimp.GIMP/current/active/export/share/applications/org.gimp.GIMP.desktop
 
-  # Note that we shadow /usr/bin/gimp
-  #  claim_alias_or_warn "gimp" "flatpak run org.gimp.GIMP"
-  # - As suggested by https://www.gimp.org/downloads/:
+  # Note this might shadow /usr/bin/gimp if installed via APT.
+  # - REFER: Add "//stable" as suggested by https://www.gimp.org/downloads/.
   claim_alias_or_warn "gimp" "flatpak run org.gimp.GIMP//stable"
 }
 
