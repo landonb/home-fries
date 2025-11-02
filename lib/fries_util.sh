@@ -311,6 +311,8 @@ home_fries_punch_anacron() {
 #     EDITOR=editor-vim-0-0-insert-minimal
 #   found locally at:
 #     ~/.kit/nvim/nvim-depoxy/bin/editor-vim-0-0-insert-minimal
+#     ~/.kit/nvim/nvim-depoxy/bin/editor-vim-0-0-insert-minimal.lua
+#     ~/.kit/nvim/nvim-depoxy/bin/editor-vim-0-0-insert-minimal.vim
 #     ~/.kit/nvim/nvim-depoxy/bin/editor-vim-0-0-insert-minimal.vimrc
 #   And EDITOR_PREFER_NVIM set via depoxyrc:
 #     ~/.depoxy/running/home/.config/depoxy/depoxyrc
