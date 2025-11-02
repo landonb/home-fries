@@ -307,10 +307,13 @@ home_fries_punch_anacron() {
 # Default Editor for git, tig, cron, dob, pass, mredit, etc.
 
 # CXREF: Runs vim or nvim (latter if EDITOR_PREFER_NVIM=true).
-# - If running a DepoXy environ, found locally at:
-#   ~/.kit/nvim/nvim-depoxy/bin/editor-vim-0-0-insert-minimal
-#   ~/.kit/nvim/nvim-depoxy/bin/editor-vim-0-0-insert-minimal.vimrc
-#   ~/.depoxy/running/home/.config/depoxy/depoxyrc
+# - CALSO: If running a DepoXy environ, DepoXy overrides with
+#     EDITOR=editor-vim-0-0-insert-minimal
+#   found locally at:
+#     ~/.kit/nvim/nvim-depoxy/bin/editor-vim-0-0-insert-minimal
+#     ~/.kit/nvim/nvim-depoxy/bin/editor-vim-0-0-insert-minimal.vimrc
+#   And EDITOR_PREFER_NVIM set via depoxyrc:
+#     ~/.depoxy/running/home/.config/depoxy/depoxyrc
 
 home_fries_export_editor_vim() {
   # Shim to a Vim wrapper that (1) starts insert mode, and (2) homes the cursor.
