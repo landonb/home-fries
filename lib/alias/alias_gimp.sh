@@ -13,6 +13,10 @@ home_fries_aliases_wire_gimp() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# FTREQ/2025-11-02: Relocate to DepoXy, because depends on app having
+# been installed separate from Homefries (and Homefries should only
+# rely on mostly pure shell features).
+
 home_fries_create_alias_gimp_flatpak() {
   # SAVVY/2023-04-23: This directory created on first run, so unreliable.
   #  [ -d "${HOME}/.var/app/org.gimp.GIMP" ] || return 0
