@@ -52,6 +52,7 @@ home_fries_aliases_wire_pwd() {
     force=true
   fi
   claim_alias_or_warn "pp" "_hf_realpath_logical_tilded_clip_echo" ${force}
+  claim_alias_or_warn "pP" "_hf_realpath_logical_clip_echo" ${force}
 }
 
 home_fries_aliases_wire_rp() {
@@ -106,8 +107,12 @@ home_fries_aliases_wire_rp() {
 #   $ pp .
 #   /symlink/path
 
-_hf_realpath_logical_tilded_clip_echo() {
+_hf_realpath_logical_clip_echo() {
   _hf_realpath_logical_tilded "$@" | _hf_clip_echo
+}
+
+_hf_realpath_logical_tilded_clip_echo() {
+  _hf_realpath_logical_tilded "$@" | tilde_for_home | _hf_clip_echo
 }
 
 _hf_realpath_logical_tilded() {
@@ -127,7 +132,7 @@ _hf_realpath_logical_tilded() {
         echo "$(pwd -L)/${basedir}${filename}"
       fi
     done
-  fi | tilde_for_home
+  fi
 }
 
 # ***
