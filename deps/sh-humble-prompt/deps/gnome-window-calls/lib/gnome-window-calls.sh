@@ -25,6 +25,41 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+print_window_list() {
+  gdbus call --session --dest org.gnome.Shell \
+    --object-path /org/gnome/Shell/Extensions/Windows \
+    --method org.gnome.Shell.Extensions.Windows.List
+}
+
+print_window_details() {
+  local window_id="$1"
+
+  gdbus call --session --dest org.gnome.Shell \
+    --object-path /org/gnome/Shell/Extensions/Windows \
+    --method org.gnome.Shell.Extensions.Windows.Details \
+    "${window_id}"
+}
+
+window_activate() {
+  local window_id="$1"
+
+  gdbus call --session --dest org.gnome.Shell \
+    --object-path /org/gnome/Shell/Extensions/Windows \
+    --method org.gnome.Shell.Extensions.Windows.Activate \
+    -- "${window_id}"
+}
+
+window_minimize() {
+  local window_id="$1"
+
+  gdbus call --session --dest org.gnome.Shell \
+    --object-path /org/gnome/Shell/Extensions/Windows \
+    --method org.gnome.Shell.Extensions.Windows.Minimize \
+    -- "${window_id}"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 get_window_ids_Wayland() {
   get_window_ids_Wayland_filtered ""
 }
@@ -43,12 +78,7 @@ get_window_ids_Wayland_filtered() {
   # or like
   #   ("[{ESCAPED-JSON}]",)
   local windows_list_raw
-  if ! windows_list_raw="$(
-    gdbus call --session --dest org.gnome.Shell \
-      --object-path /org/gnome/Shell/Extensions/Windows \
-      --method org.gnome.Shell.Extensions.Windows.List \
-      2> /dev/null
-  )"; then
+  if ! windows_list_raw="$(print_window_list 2> /dev/null)"; then
     # E.g. — Error: GDBus.Error:org.freedesktop.DBus.Error.UnknownMethod:
     #   Object does not exist at path “/org/gnome/Shell/Extensions/Foo”
     #
@@ -123,40 +153,57 @@ get_window_ids_Wayland_filtered() {
   )"
 
   if [ -n "${RAISELOWER_TRACE_DIR}" ]; then
-    echo "${windows_list_blob}" \
-      > "${RAISELOWER_TRACE_DIR}/02--windows_list_blob--$(
-        ${is_double_quoted} && echo "double" || echo "single"
-      )"
+    local blobby
+    blobby="${RAISELOWER_TRACE_DIR}/02--windows_list_blob--$(
+      ${is_double_quoted} && echo "double" || echo "single"
+    )"
+
+    echo "${windows_list_blob}" > "${blobby}"
   fi
 
   # ***
 
-  local windows_list_json
-  if ${is_double_quoted}; then
-    windows_list_json="$(
-      echo "${windows_list_blob}" \
-        | sed -e 's/\\\(\\\)\+"//g' \
-        | sed -e 's/\\"/"/g'
-    )"
-  elif ${is_single_quoted}; then
-    windows_list_json="$(
-      echo "${windows_list_blob}" \
-        | sed -e 's/\(\\\)\+"//g'
-    )"
-  fi
-
-  if [ -n "${RAISELOWER_TRACE_DIR}" ]; then
-    echo "${windows_list_json}" > "${RAISELOWER_TRACE_DIR}/03--windows_list_json"
-  fi
-
-  # ***
+  # BWARE: Initially, this used an intermediate variable:
+  #   local windows_list_json
+  #   if ${is_double_quoted}; then
+  #     windows_list_json="$(
+  #       echo "${windows_list_blob}" \
+  #         | sed -e 's/\\\(\\\)\+"//g' \
+  #         | sed -e 's/\\"/"/g'
+  #     )"
+  #   elif ${is_single_quoted}; then
+  #     windows_list_json="$(
+  #       echo "${windows_list_blob}" \
+  #         | sed -e 's/\(\\\)\+"//g'
+  #     )"
+  #   fi
+  # but then properly-escaped values are themselves un-escaped
+  # (and then, e.g.,
+  #   ~/.depoxy/ambers/bin/windows/toggle-numbered 3
+  #   # Or, more explicitly:
+  #   ~/.depoxy/ambers/bin/windows/toggle-visibility "^3\." "^3․"
+  # fails).
+  # - I couldn't quite suss the issue (e.g., I'd see different output
+  #   if I added a trace `echo` and compared it to a trace `cat >` file).
+  #   - It seemed like either `echo "${windows_list_json}" | ...` or
+  #     `echo "${windows_list_blob}" | ...` was removing escape chars.
+  #   - Fortunately, single-shotting in a pipeline avoids the problem.
 
   local window_ids
   if ! window_ids="$(
-    echo "${windows_list_json}" \
-      | jq ".[] | ${jq_filter} ${jq_filter:+|} .id"
+    if ${is_double_quoted}; then
+      echo "${windows_list_blob}" \
+        | sed -e 's/\\\(\\\)\+"//g' \
+        | sed -e 's/\\"/"/g' \
+        | jq ".[] | ${jq_filter} ${jq_filter:+|} .id"
+    elif ${is_single_quoted}; then
+      echo "${windows_list_blob}" \
+        | sed -e 's/\(\\\)\+"//g' \
+        | jq ".[] | ${jq_filter} ${jq_filter:+|} .id"
+    fi
   )"; then
-    # DEVEL: Run again with RAISELOWER_TRACE_DIR=. to debug.
+
+    # DEVEL: Run with RAISELOWER_TRACE_DIR=. to debug.
     >&2 echo "ERROR: Cannot determine windows ID(s) (from window-calls)"
     if [ -n "${RAISELOWER_TRACE_DIR}" ]; then
       echo -e "\njq_filter: ${jq_filter}" >> "${RAISELOWER_TRACE_DIR}/03--windows_list_json"
@@ -199,12 +246,9 @@ raise_window_Wayland_titled() {
   # ANFYI: If you later learn you need to process separate lines
   # differently, perhaps you could pipe to a while loop, e.g.:
   #
+  #   export -f print_window_details
   #   echo "${window_ids}" \
-  #     | xargs -I{} \
-  #         gdbus call --session --dest org.gnome.Shell \
-  #         --object-path /org/gnome/Shell/Extensions/Windows \
-  #         --method org.gnome.Shell.Extensions.Windows.Details \
-  #         {} 2> /dev/null \
+  #     | xargs -I{} bash -c 'print_window_details "{}"' 2> /dev/null \
   #     | gawk 'match($0, /\{.*\}/, a) {print a[0]}' \
   #     | while IFS= read -r line; do
   #       printf "»%s«\n" "${line}"
@@ -217,14 +261,11 @@ raise_window_Wayland_titled() {
   #   window title); then convert escape-quotes to normal quotes.
   # - USYNC: See similar pipeline in downstream app:
   #   ~/.kit/sh/sh-humble-prompt/lib/show-command-name-in-window-title.sh
+  export -f print_window_details
   local window_details
   window_details="$(
     echo "${window_ids}" \
-      | xargs -I{} \
-        gdbus call --session --dest org.gnome.Shell \
-        --object-path /org/gnome/Shell/Extensions/Windows \
-        --method org.gnome.Shell.Extensions.Windows.Details \
-        {} 2> /dev/null \
+      | xargs -I{} bash -c 'print_window_details "{}" 2> /dev/null' \
       | gawk 'match($0, /\{.*\}/, a) {print a[0]}' \
       | sed -e 's/\\\(\\\)\+"//g' | sed -e 's/\\"/"/g'
   )"
@@ -277,10 +318,7 @@ raise_window_Wayland_titled() {
   done
 
   if [ -n "${window_id}" ]; then
-    gdbus call --session --dest org.gnome.Shell \
-      --object-path /org/gnome/Shell/Extensions/Windows \
-      --method org.gnome.Shell.Extensions.Windows.Activate \
-      -- "${window_id}" > /dev/null
+    window_activate "${window_id}" > /dev/null
 
     if [ -n "${RAISELOWER_TRACE_DIR}" ]; then
       echo -e "\nwindow_id: ${window_id}" >> "${RAISELOWER_TRACE_DIR}/05--title_and_ids"
@@ -298,10 +336,7 @@ minimize_window_Wayland() {
   local window_id="$1"
 
   # OUTPUTs: ()
-  gdbus call --session --dest org.gnome.Shell \
-    --object-path /org/gnome/Shell/Extensions/Windows \
-    --method org.gnome.Shell.Extensions.Windows.Minimize \
-    -- "${window_id}" > /dev/null
+  window_minimize "${window_id}" > /dev/null
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -336,4 +371,4 @@ alert_missing_gnome_extension_window_calls() {
   >&2 echo "  https://github.com/ickyicky/window-calls"
 }
 
-# ***
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
