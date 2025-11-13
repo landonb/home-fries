@@ -102,7 +102,7 @@ home_fries_aliases_wire_ls() {
 #     - (Author doesn't use `l` enough to care about its sort.)
 
 function l() {
-  function cattail() {
+  function _hf_cattail() {
     if [ $# -eq 0 ]; then
       # E.g., `tail --lines=+2`
       tail +2
@@ -110,12 +110,15 @@ function l() {
       cat
     fi
   }
+
   $(ls-or-gls) -lhFA \
     --color=always \
     --hide-control-chars \
     --group-directories-first \
     "$@" |
-    cattail "$@"
+    _hf_cattail "$@"
+
+  unset -f _hf_cattail
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
