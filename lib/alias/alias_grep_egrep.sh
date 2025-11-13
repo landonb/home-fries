@@ -7,7 +7,7 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Show grep differences in colour.
-home_fries_aliases_wire_grep () {
+home_fries_aliases_wire_grep() {
   claim_alias_or_warn "grep" "grep --color=auto" ${_force:-true}
   claim_alias_or_warn "fgrep" "fgrep --color=auto" ${_force:-true}
   claim_alias_or_warn "egrep" "egrep --color=auto" ${_force:-true}
@@ -19,7 +19,7 @@ home_fries_aliases_wire_grep () {
 #   -n, --line-number
 #   -R, --dereference-recursive
 #   -i, --ignore-case
-home_fries_aliases_wire_egrep () {
+home_fries_aliases_wire_egrep() {
   if [ -e "$HOME/.grepignore" ]; then
     claim_alias_or_warn "eg" 'egrep -n -R -i --color --exclude-from="$HOME/.grepignore"'
     claim_alias_or_warn "egi" 'egrep -n -R --color --exclude-from="$HOME/.grepignore"'
@@ -28,14 +28,14 @@ home_fries_aliases_wire_egrep () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_aliases_wire_grep_egrep () {
+home_fries_aliases_wire_grep_egrep() {
   home_fries_aliases_wire_grep
   home_fries_aliases_wire_egrep
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_alias_grep_egrep () {
+unset_f_alias_grep_egrep() {
   unset -f home_fries_aliases_wire_grep_egrep
   unset -f home_fries_aliases_wire_grep
   unset -f home_fries_aliases_wire_egrep
@@ -48,4 +48,3 @@ unset_f_alias_grep_egrep () {
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
   >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
 fi
-
