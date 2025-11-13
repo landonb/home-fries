@@ -173,7 +173,7 @@ print_file_url_friendly_ls_alias() {
     if [ \\\$# -gt 1 ]; then
       ${ls_cmd} -hFA ${color_opt} \\\"\\\$@\\\";
     else
-      echo \\\"'\\\$1'\\\" | command sed -e \\\"s#^'file://#'#g\\\" | xargs ${ls_cmd} -hFA --color=auto;
+      echo \\\"'\\\${1:-.}'\\\" | command sed -e \\\"s#^'file://#'#g\\\" | xargs ${ls_cmd} -hFA --color=auto;
     fi;
   }; _ls" |
     sed -e 's/^ \+//g' |
