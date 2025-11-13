@@ -6,7 +6,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-prep_vars () {
+prep_vars() {
   HOME_FRIES_TMUX_NAMES_FILE="${HOMEFRIES_VAR:-${HOME}/.homefries/var}/first-names-lengthX.txt"
 }
 
@@ -36,7 +36,7 @@ prep_vars () {
 # You might want to set the session name deliberately for different projects,
 # especially if you end up configuring panes and windows specially.
 
-fries_tmux_session_entitle_unless_attach_existing () {
+fries_tmux_session_entitle_unless_attach_existing() {
   local currsess
   local FRIES_TMUX_LIMIT=99
   # An unset bool in bash is same as true, e.g., $unsetvar && echo 'So true!',
@@ -44,7 +44,7 @@ fries_tmux_session_entitle_unless_attach_existing () {
   FRIES_TMUX_UNENTITLED=true
   FRIES_TMUX_UNATTACHED=true
 
-  _fries_tmux_session_entitle_unless_attach_existing () {
+  _fries_tmux_session_entitle_unless_attach_existing() {
     # Check the TMUX environ and return now if this is not tmux starting.
     # NOTE: Return falsey indicating did not attach existing, so home-fries
     #       continues loading.
@@ -63,18 +63,18 @@ fries_tmux_session_entitle_unless_attach_existing () {
     _fries_tmux_entitle_or_reattach_session
   }
 
-  _fries_tmux_is_unnamed_session () {
+  _fries_tmux_is_unnamed_session() {
     # NOTE: From non-tmux terminal, display-message shows name of
     #       session with most recent activity! I.e., switch to one
     #       session and ``ls``, display-message from another term.
     #       will show that session.
     currsess=$(tmux display-message -p '#S')
-    if $(tmux ls | grep "^${currsess}: .* (attached)$" > /dev/null); then
+    if $(tmux ls | grep "^${currsess}: .* (attached)$" >/dev/null); then
       FRIES_TMUX_UNATTACHED=false
     fi
     # tmux defaults to naming new sessions with a number (0, 1, 2, ...)
     # which is how we "know" if the 
-    if ! echo "$currsess" | grep '^[0-9]\+$' > /dev/null; then
+    if ! echo "$currsess" | grep '^[0-9]\+$' >/dev/null; then
       # Session name not an expected number, so bail (user might be doing
       # something else?). Return 1 to continue home-fries startup.
       return 1
@@ -87,28 +87,28 @@ fries_tmux_session_entitle_unless_attach_existing () {
     # NOTE: The tmux-ls count is still 0 on first tmux session startup.
 
     local nsessns
-    nsessns=$(tmux ls 2> /dev/null | wc -l)
+    nsessns=$(tmux ls 2>/dev/null | wc -l)
     # From: Moby Word Lists by Grady Ward
     #   https://www.gutenberg.org/ebooks/3201
-    if [[ ${nsessns} -gt ${FRIES_TMUX_LIMIT} ]] \
-      || [[ ! -f ${HOME_FRIES_TMUX_NAMES_FILE} ]] \
-    ; then
+    if [[ ${nsessns} -gt ${FRIES_TMUX_LIMIT} ]] ||
+      [[ ! -f ${HOME_FRIES_TMUX_NAMES_FILE} ]] \
+      ; then
       _fries_too_many_clients_tmux_switch_client
     else
       _fries_tmux_rename_session_10lettername
     fi
   }
 
-  _fries_too_many_clients_tmux_switch_client () {
+  _fries_too_many_clients_tmux_switch_client() {
     # Use a catch-all session named with the current date
     # to use when exceeding client maximum.
     local sname="$(date +%Y-%m-%d)"
     # First see if there's a session named with today's date;
     # if not, rename this session to today's date and done.
-    if ! tmux has -t "${sname}" &> /dev/null; then
+    if ! tmux has -t "${sname}" &>/dev/null; then
       tmux rename-session "${sname}"
       FRIES_TMUX_UNENTITLED=false
-      return 1  # Tell home-fries to continue loading.
+      return 1 # Tell home-fries to continue loading.
     fi
     # NOTE: Cannot *attach* to session from within client, lest warning:
     #   $ tmux attach-session -t "${sname}"
@@ -133,7 +133,7 @@ fries_tmux_session_entitle_unless_attach_existing () {
     return 0
   }
 
-  _fries_tmux_rename_session_10lettername () {
+  _fries_tmux_rename_session_10lettername() {
     # Get a random first name from the ten-character name list,
     # so the random name is as long as when we use a YYYY-MM-DD.
     local randname sname
@@ -154,7 +154,7 @@ fries_tmux_session_entitle_unless_attach_existing () {
       sname=$(echo ${randname} | tr '[:upper:]' '[:lower:]')
       # Alternatively, to lower with awk:
       #   sname=$(echo ${randname} | awk '{print tolower($0)}')
-      if ! tmux has -t "${sname}" &> /dev/null; then
+      if ! tmux has -t "${sname}" &>/dev/null; then
         tmux rename-session "${sname}"
         break
       fi
@@ -167,7 +167,7 @@ fries_tmux_session_entitle_unless_attach_existing () {
     return 1
   }
 
-  _fries_tmux_session_names_select () {
+  _fries_tmux_session_names_select() {
     # Get any random name:
     #   echo "${HOME_FRIES_TMUX_NAMES_FILE}"
     #   return 0
@@ -177,7 +177,7 @@ fries_tmux_session_entitle_unless_attach_existing () {
     echo "<(grep -i '^${letter}' ${HOME_FRIES_TMUX_NAMES_FILE})"
   }
 
-  _fries_tmux_10lettername_starting_alpha () {
+  _fries_tmux_10lettername_starting_alpha() {
     # Choose a starting letter.
     # - To start at 'a', choose 'z':
     #     local letter=${HOMEFRIES_TMUX_ALPHA:-z}
@@ -202,7 +202,7 @@ fries_tmux_session_entitle_unless_attach_existing () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-tmux_jump_ship () {
+tmux_jump_ship() {
   local retcode=1
 
   # Check the TMUX environ and return now if this is not tmux starting.
@@ -224,11 +224,10 @@ tmux_jump_ship () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   prep_vars
 
   tmux_jump_ship
 }
 
 main "$@"
-
