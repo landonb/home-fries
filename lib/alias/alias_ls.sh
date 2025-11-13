@@ -82,20 +82,24 @@ home_fries_aliases_wire_ls() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# ls, but omit the . and .. directories, and chop the "total" line,
-# e.g., omit the first three lines from a basic listing:
+# `l` is like `ls -la`, but:
+# - It omits the . and .. directories; and
+# - It chops the "total" line.
+# Basically, it omits the first three lines from a basic listing:
 #   $ /usr/bin/env ls -la
 #   total 20K
 #   drwxrwxr-x  4 landonb landonb 4.0K Dec 17 02:32 ./
 #   drwxr-xr-x  3 landonb landonb 4.0K Apr  9 17:08 ../
 # (the --almost-all/-A will omit the current and parent directories,
-#  and then pipe to tail to strip the "total", which ls includes with
-#  the -l[ong] listing format).
+#  and then pipe to tail to strip the "total", which `ls` includes
+#  with the -l[ong] listing format).
 #
 # - SAVVY: The `l` command sorts differently on @Linux and @macOS:
 #   - @Linux ignores punctuation and case.
 #   - @macOS sorts dotfiles first, then UPPER, then lower.
 #   - I tested various language options (LC_ALL) to no avail.
+#   - INERT: Add OS-agnostic sorting like `function ll()`.
+#     - (Author doesn't use `l` enough to care about its sort.)
 
 function l() {
   function cattail() {
