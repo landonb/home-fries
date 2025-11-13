@@ -35,33 +35,55 @@ home_fries_init_completions() {
   # enable completion, but I never followed up. I love completion!
   # But recently I noticed that tab-completing some scripts fails,
   # but I hadn't noticed this error before, oddly!
-  if [ -f /etc/bash_completion ]; then
-    # 2019-10-13: Took me long enough to notice!: _xspecs set here, but not
-    # outside function! Thus, default tab-completion can fail, because an
-    # associative array variable is not set. E.g., $associate_array[$filename]
-    # fails because Bash expects the index value to be a number unless the
-    # array was explicitly declared -A, and the array that was declared was
-    # lost outside of the scope of the function. So the caller should run this
-    # function using eval, sending this output to its shell, thereby capturing
-    # the lost variable.
-    # 2019-10-21: This is what I tried on 2019-10-13:
-    #             I changed bashrc.core.sh's
-    #               run_and_unset "home_fries_direxpand_completions"
-    #             to
-    #               eval_and_unset "home_fries_init_completions"
-    #             and then tried sourcing it here and exporting the missing array:
-    #               . /etc/bash_completion
-    #               # If eval_and_unset is called, you need to echo the _xspecs array:
-    #               echo $(declare -p _xspecs)
-    # 2019-10-21: But then I had issues with completion on `pass ...<TAB>`.
-    #  So now let's try sourcing everything, but using eval to do it in the
-    #  context of the caller. Or at least that what I think happens. At least
-    #  it fixes completion on \`pass\`. But I need to pay better attention to the
-    #  issue, because I may have affected completion on other apps. I can at least
-    #  list apps that I expect tab completion to work against: starting with pass.
-    #  And then someday I can test them all and verify if everything WADs or not.
-    echo ". /etc/bash_completion"
+  #
+  # REFER/2025-11-11: Update to Debian 13 stock ~/.bashrc approach.
+  # - Checks and sources /usr/share/bash-completion/bash_completion first,
+  #   then checks for /etc/bash_completion.
+  #   - Old approach only ever checked /etc/bash_completion.
+  # - The /etc/bash_completion file simply sources the /usr/share file.
+  # - Debian 13 adds (or something "recently" added) posix mode check.
+  # - Note because `eval_and_unset` calls this func., we don't
+  #   source directly but echo the call to be eval'ed instead.
+  #
+  # - "enable programmable completion features (you don't need to enable
+  #    this, if it's already enabled in /etc/bash.bashrc and /etc/profile
+  #    sources /etc/bash.bashrc)."
+  if ! shopt -oq posix; then
+    if [ -f /usr/share/bash-completion/bash_completion ]; then
+      echo ". /usr/share/bash-completion/bash_completion"
+    elif [ -f /etc/bash_completion ]; then
+      echo ". /etc/bash_completion"
+    fi
   fi
+  # HSTRY/2025-11-11: Old approach, and notes on why `echo ". {path}"`:
+  #
+  #   if [ -f /etc/bash_completion ]; then
+  #     # 2019-10-13: Took me long enough to notice!: _xspecs set here, but not
+  #     # outside function! Thus, default tab-completion can fail, because an
+  #     # associative array variable is not set. E.g., $associate_array[$filename]
+  #     # fails because Bash expects the index value to be a number unless the
+  #     # array was explicitly declared -A, and the array that was declared was
+  #     # lost outside of the scope of the function. So the caller should run this
+  #     # function using eval, sending this output to its shell, thereby capturing
+  #     # the lost variable.
+  #     # 2019-10-21: This is what I tried on 2019-10-13:
+  #     #             I changed bashrc.core.sh's
+  #     #               run_and_unset "home_fries_direxpand_completions"
+  #     #             to
+  #     #               eval_and_unset "home_fries_init_completions"
+  #     #             and then tried sourcing it here and exporting the missing array:
+  #     #               . /etc/bash_completion
+  #     #               # If eval_and_unset is called, you need to echo the _xspecs array:
+  #     #               echo $(declare -p _xspecs)
+  #     # 2019-10-21: But then I had issues with completion on `pass ...<TAB>`.
+  #     #  So now let's try sourcing everything, but using eval to do it in the
+  #     #  context of the caller. Or at least that what I think happens. At least
+  #     #  it fixes completion on \`pass\`. But I need to pay better attention to the
+  #     #  issue, because I may have affected completion on other apps. I can at least
+  #     #  list apps that I expect tab completion to work against: starting with pass.
+  #     #  And then someday I can test them all and verify if everything WADs or not.
+  #     echo ". /etc/bash_completion"
+  #   fi
 }
 
 # --- Re-enable better Bash tab auto-completion.
