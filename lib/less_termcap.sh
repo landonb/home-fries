@@ -1,4 +1,7 @@
 # vim:tw=0:ts=2:sw=2:et:norl:ft=bash
+# Author: Landon Bouma <https://tallybark.com/>
+# Project: https://github.com/landonb/home-fries#🍟
+# License: MIT
 
 # - Colors inspired by: "Want colored man pages?"
 #   http://boredzo.org/blog/archives/2016-08-15/colorized-man-pages-understood-and-customized

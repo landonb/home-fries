@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # vim:tw=0:ts=2:sw=2:et:norl:ft=sh
-# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Author: Landon Bouma <https://tallybark.com/>
 # Project: https://github.com/landonb/home-fries#🍟
 # License: MIT
 
