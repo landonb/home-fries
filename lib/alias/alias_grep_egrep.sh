@@ -9,6 +9,8 @@
 # Show grep differences in colour.
 home_fries_aliases_wire_grep () {
   claim_alias_or_warn "grep" "grep --color=auto" ${_force:-true}
+  claim_alias_or_warn "fgrep" "fgrep --color=auto" ${_force:-true}
+  claim_alias_or_warn "egrep" "egrep --color=auto" ${_force:-true}
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
