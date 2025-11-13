@@ -113,6 +113,13 @@ home_fries_wire_export_less() {
   fi
 }
 
+# HSTRY/2025-11-11: As inspired by stock Debian 13 ~/.bashrc
+# - "make less more friendly for non-text input files, see lesspipe(1)"
+# - Adds support for .gzip. zip, .pdf, .tar, .git, .jpg, etc.
+home_fries_enable_lesspipe() {
+  [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Helpers for fixing permissions (mostly for web-accessible files).

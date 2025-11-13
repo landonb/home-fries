@@ -468,6 +468,9 @@ home_fries_up() {
   # - lib/file_util.sh
   run_and_unset "home_fries_wire_export_less"
 
+  # - lib/file_util.sh
+  run_and_unset "home_fries_enable_lesspipe"
+
   #########################
 
   # - lib/session_util.sh
