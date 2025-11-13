@@ -22,16 +22,30 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# REFER/2025-11-11: From Debian 13 ~/.bashrc:
+#
+#   # ~/.bashrc: executed by bash(1) for non-login shells.
+#   # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
+#   # for examples
+
 # *** Do nothing unless interactive
 
-# Ref: Copied from /etc/bash.bashrc [Ubuntu 18.04].
-#  "If not running interactively, don't do anything"
-
-# (One could also check [[ $- != *i* ]],
-#  but not $(shopt login_shell),
-#  which is false via mate-terminal.)
-
-[ -z "$PS1" ] && return
+# PREVY/2025-11-11: Old approach, from Ubuntu 18.04 /etc/bash.bashrc:
+#
+#  [ -z "$PS1" ] && return
+#
+# - Old comment re: Linux Mint MATE mate-terminal:
+#
+#   - (One could also check [[ $- != *i* ]],
+#      but not $(shopt login_shell),
+#      which is false via mate-terminal.)
+#
+# REFER/2025-11-11: From Debian 13 stock ~/.bashrc:
+# - "If not running interactively, don't do anything"
+case $- in
+*i*) ;;
+*) return ;;
+esac
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
