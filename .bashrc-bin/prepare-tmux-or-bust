@@ -73,7 +73,7 @@ fries_tmux_session_entitle_unless_attach_existing() {
       FRIES_TMUX_UNATTACHED=false
     fi
     # tmux defaults to naming new sessions with a number (0, 1, 2, ...)
-    # which is how we "know" if the 
+    # which is how we "know" if the session is named or not.
     if ! echo "$currsess" | grep '^[0-9]\+$' >/dev/null; then
       # Session name not an expected number, so bail (user might be doing
       # something else?). Return 1 to continue home-fries startup.
