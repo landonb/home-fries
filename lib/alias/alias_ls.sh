@@ -70,6 +70,14 @@ home_fries_aliases_wire_ls() {
 
   # THANX: https://github.com/lukas-reineke/dotfiles/blob/02064d6dccb2e/bash/aliases.sh
   claim_alias_or_warn "tree-eza" "eza -alT --icons=always"
+
+  # ***
+
+  # REFER/2025-11-11: From Debian 13 stock ~/.bashrc:
+
+  claim_alias_or_warn "dir" "dir --color=auto" ${_force:-true}
+  claim_alias_or_warn "vdir" "vdir --color=auto" ${_force:-true}
+
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
