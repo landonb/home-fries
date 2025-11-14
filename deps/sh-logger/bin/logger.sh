@@ -69,7 +69,7 @@ _sh_logger_sh__this_fullpath="$(_sh_logger_sh__print_this_fullpath)"
 _sh_logger_sh__shell_sourced() {
   [ "$0" = "-bash" ] ||
     [ "$0" = "bash" ] ||
-    [ "$(realpath -- "$0")" != "${_sh_logger_sh__this_fullpath}" ]
+    [ "$(realpath -- "$0" 2>/dev/null)" != "${_sh_logger_sh__this_fullpath}" ]
 }
 
 _sh_logger_sh__source_file() {
