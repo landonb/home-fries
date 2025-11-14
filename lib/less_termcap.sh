@@ -58,3 +58,8 @@ export LESS_TERMCAP_ZO=$(tput ssupm)
 export LESS_TERMCAP_ZW=$(tput rsupm)
 export GROFF_NO_SGR=1 # For Konsole and Gnome-terminal
 
+# REFER/2025-11-11: From Debian 13 stock ~/.bashrc:
+#   # colored GCC warnings and errors
+#   #export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+# - I don't build gcc projects often, but keeping for posterity
+#   (albeit there's not really a good file for this).
