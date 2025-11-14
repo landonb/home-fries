@@ -20,13 +20,33 @@ export LESS_TERMCAP_us="$(printf "\e[1;32m")"
 # but they're also a little too light, perhaps (especially
 # the cyan). So disabled (for now).
 if false; then
-  export LESS_TERMCAP_mb=$(tput bold; tput setaf 2) # green
-  export LESS_TERMCAP_md=$(tput bold; tput setaf 6) # cyan
+  export LESS_TERMCAP_mb=$(
+    tput bold
+    tput setaf 2
+  ) # green
+  export LESS_TERMCAP_md=$(
+    tput bold
+    tput setaf 6
+  ) # cyan
   export LESS_TERMCAP_me=$(tput sgr0)
-  export LESS_TERMCAP_so=$(tput bold; tput setaf 3; tput setab 4) # yellow on blue
-  export LESS_TERMCAP_se=$(tput rmso; tput sgr0)
-  export LESS_TERMCAP_us=$(tput smul; tput bold; tput setaf 7) # white
-  export LESS_TERMCAP_ue=$(tput rmul; tput sgr0)
+  export LESS_TERMCAP_so=$(
+    tput bold
+    tput setaf 3
+    tput setab 4
+  ) # yellow on blue
+  export LESS_TERMCAP_se=$(
+    tput rmso
+    tput sgr0
+  )
+  export LESS_TERMCAP_us=$(
+    tput smul
+    tput bold
+    tput setaf 7
+  ) # white
+  export LESS_TERMCAP_ue=$(
+    tput rmul
+    tput sgr0
+  )
 fi
 # - Other settings from *Colorize Your CLI*.
 #   - Albeit I don't see any different with or without these.
