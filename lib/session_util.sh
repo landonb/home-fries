@@ -334,6 +334,23 @@ home_fries_configure_shell_options() {
   # for example, cd /vr/lgo/apaache would find /var/log/apache.
   # 2017-11-19: Let's give this a try!
   shopt -s cdspell
+
+  # REFER/2025-11-11: From Debian 13 ~/.bashrc.
+  # - Is this what fixes output over SSH? In distros past, when
+  #   recalling history or working with multi-line command, the
+  #   prompt output breaks, e.g., cursor is not shown where it's
+  #   really located, and some of the prompt text is missing.
+  # - CALSO: Also set by /etc/bash.bashrc, which is sourced
+  #   by home-fries/.bashrc-bin/bashrc.base.sh.
+  #
+  # "check the window size after each command and, if necessary,
+  #  update the values of LINES and COLUMNS."
+  shopt -s checkwinsize
+
+  # HSTRY/2025-11-11: From Debian 13 ~/.bashrc.
+  # # "If set, the pattern "**" used in a pathname expansion context will
+  # #  match all files and zero or more directories and subdirectories."
+  # #shopt -s globstar
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
