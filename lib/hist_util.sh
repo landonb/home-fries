@@ -322,6 +322,10 @@ home_fries_configure_history() {
   #  ignorespace, ignoredups, or ignoreboth; erasedups.
   # 2017-11-19: Disabling. Point is to retain all!
   #   export HISTCONTROL="ignoredups"
+  # REFER/2025-11-11: Debian 13 stock ~/.bashrc:
+  # - "don't put duplicate lines or lines starting with space in the history.
+  #    See bash(1) for more options"
+  #   HISTCONTROL=ignoreboth
 
   # $HISTFILE: ~/.bash_history
   # 2019-03-15: (lb): We could use separate files, e.g.,
