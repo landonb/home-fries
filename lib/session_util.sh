@@ -19,19 +19,27 @@
 
 # 2022-11-20: `poetry shell`'s virtualenv uses `exit`, not `deactivate`.
 
+# REFER/2025-11-11: Bash now (since when?) maintains $SHLVL,
+# which is 1 for a root shell, and incremented for every Bash
+# started within Bash.
+# - So we can more simply check $SHLVL and avoid ppid checking.
+#   (Not that performance matters here; mostly just a curiosity,
+#    the author having just learned about SHLVL).
+
 bash-exit-bash-hole() {
   local parent_is_bash=false
   local parent_is_ibash=false
   local parent_is_poetry=false
 
-  _hf_session_util_is_ppid_bash
-  [ $? -ne 0 ] || parent_is_bash=true
-
-  _hf_session_util_is_ppid_ibash
-  [ $? -ne 0 ] || parent_is_ibash=true
-
-  _hf_session_util_is_ppid_poetry_shell
-  [ $? -ne 0 ] || parent_is_poetry=true
+  if [ ${SHLVL:-1} -gt 1 ]; then
+    parent_is_bash=true
+  elif _hf_session_util_is_ppid_bash; then
+    parent_is_bash=true
+  elif _hf_session_util_is_ppid_ibash; then
+    parent_is_ibash=true
+  elif _hf_session_util_is_ppid_poetry_shell; then
+    parent_is_poetry=true
+  fi
 
   if ${parent_is_bash}; then
     echo "exit, sh"
