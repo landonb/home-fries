@@ -50,11 +50,11 @@
 #   reboot time                                Sun Apr 14 23:49
 #   shutdown time                              Sun Apr 14 23:49
 #   reboot time                                Wed Apr 10 17:58
-#   
+#
 #   wtmp begins Wed Apr 10 17:58:55 CDT 2024
 #
 #   $ who -b
-#                    system boot  Apr 14 23:49 
+#                    system boot  Apr 14 23:49
 
 # The simplest, Linux-only solution (and not supported by Brew `guptime`):
 #
@@ -89,17 +89,17 @@
 # - Then, to clear all but date fields:
 #     awk '{$1=$2=$3=$4=$9=$10=""'; print $0}'
 
-uptime-s () {
+uptime-s() {
   local format="$1"
 
   local gdate
   gdate="$(date-or-gdate)" || return 0
 
-  who_b_time () {
+  who_b_time() {
     local date_system_boot_raw="$(
-      who -b | \
-      awk '{$1=$2=""; print $0}' | \
-      sed -r 's/(^ +| +$)//' \
+      who -b |
+        awk '{$1=$2=""; print $0}' |
+        sed -r 's/(^ +| +$)//'
     )"
     # local date_system_boot_nrm="$(date -j -f "%b %e %H:%M:%S" "${date_system_boot_raw}:00")"
     local date_system_boot_nrm="$(${gdate} -d "${date_system_boot_raw}" ${format})"
@@ -112,10 +112,9 @@ uptime-s () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main () {
+main() {
   :
 }
 
 main "$@"
 unset -f main
-
