@@ -3,6 +3,9 @@
 # Project: https://github.com/landonb/home-fries#🍟
 # License: MIT
 
+# REFER: See list of tput cap-codes:
+# man 5 terminfo
+
 # - Colors inspired by: "Want colored man pages?"
 #   http://boredzo.org/blog/archives/2016-08-15/colorized-man-pages-understood-and-customized
 #   https://superuser.com/questions/452034/bash-colorized-man-page
