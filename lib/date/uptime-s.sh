@@ -112,6 +112,20 @@ uptime-s() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# SAVVY/2025-11-14: Just a reminder what it's called.
+uptime-uprecords() {
+  if ! command -v uprecords >/dev/null; then
+    >&2 echo "ERROR: Please install 'uptimed' to run \`uprecords\`, e.g.:"
+    >&2 echo "  [apt|brew] install uptimed"
+
+    return 1
+  fi
+
+  uprecords "$@"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 main() {
   :
 }
