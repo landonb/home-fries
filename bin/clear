@@ -194,9 +194,9 @@ os_is_macos() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-main() {
-  clear_terminal_screen_and_scrollback_buffer_and_clipboard_contents
-}
+this_file_name='clear'
+shell_sourced() { [ "$(basename -- "$0")" != "${this_file_name}" ]; }
 
-main "$@"
-unset -f main
+if ! shell_sourced; then
+  clear_terminal_screen_and_scrollback_buffer_and_clipboard_contents "$@"
+fi
