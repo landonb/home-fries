@@ -73,7 +73,7 @@ home_fries_aliases_wire_ls() {
 
   # ***
 
-  # REFER/2025-11-11: From Debian 13 stock ~/.bashrc:
+  # REFER/2025-11-11: Colorful aliases inspired by Debian 13 stock ~/.bashrc.
 
   claim_alias_or_warn "dir" "dir --color=auto" ${_force:-true}
   claim_alias_or_warn "vdir" "vdir --color=auto" ${_force:-true}
