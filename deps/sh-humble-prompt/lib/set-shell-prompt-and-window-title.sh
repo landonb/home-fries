@@ -178,18 +178,25 @@ _humb_prompt_format_titlebar() {
 }
 
 _humb_prompt_customize_shell_prompts_and_window_title() {
-  # (lb): Note that colors.sh defines similar colors, but without
-  # the ``01;`` part. I cannot remember what that component means....
+  # - SAVVY: Note that colors.sh defines similar colors, but without
+  #   the `01;` (though author fails to recall what that does).
+  # - BWARE: Wrap escape sequences with \001..\002 or \[...\],
+  #   otherwise SSH terminal will have issues detecting prompt
+  #   width (and then, e.g., using <Up> to cycle through shell
+  #   history will mess up the prompt when a long command is
+  #   recalled).
   local fg_red='\[\033[01;31m\]'
   local fg_green='\[\033[01;32m\]'
   local fg_yellow='\[\033[01;33m\]'
   local fg_cyan='\[\033[01;36m\]'
   local fg_gray='\[\033[01;37m\]'
+  local fg_lightorange='\[\033[38;2;255;175;95m\]'
   local bg_magenta='\[\033[01;45m\]'
   local cur_user='\u'
   local attr_reset='\[\033[00m\]'
-  local attr_underlined="\033[4m"
-  # local attr_bold="\[\033[1m\]"  # See also: $(tput bold).
+  local attr_underlined='\[\033[4m\]'
+  local attr_italic='\[\033[3m\]'
+  # local attr_bold='\[\033[1m\]'
 
   # So that you can double-click the working directory to copy it, use
   # non-path characters before and after the path.
@@ -435,7 +442,7 @@ _humb_prompt_customize_shell_prompt_PS1() {
   elif _humb_prompt_is_user_logged_on_via_ssh; then
     # ${HOMEFRIES_TRACE} && echo "PS1: via SSH"
     # 2018-12-23: Use remote_shell_icon when logged on over SSH.
-    PS1="${titlebar}${fg_gray}${cur_user}$(attr_italic)$(attr_underline)$(fg_lightorange)@${mach_name}${attr_reset}${unicolon}${fg_cyan}${basename}${attr_reset} ${remote_shell_icon}${prompt_symbol} "
+    PS1="${titlebar}${fg_gray}${cur_user}${attr_italic}${attr_underlined}${fg_lightorange}@${mach_name}${attr_reset}${unicolon}${fg_cyan}${basename}${attr_reset} ${remote_shell_icon}${prompt_symbol} "
   elif _humb_prompt_user_is_trapped_in_chroot; then
     # ${HOMEFRIES_TRACE} && echo "PS1: chroot jail"
     PS1="${titlebar}${fg_red}**${cur_user}@**${fg_cyan}${mach_name}${attr_reset}${unicolon}${fg_yellow}${basename}${attr_reset} "'! '
