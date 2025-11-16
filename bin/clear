@@ -175,7 +175,8 @@ clear_clipboard_contents() {
   elif [ -n ${DISPLAY} ] && command -v xclip >/dev/null; then
     # If headless (DISPLAY unset), stderr's:
     #   Error: Can't open display: (null)
-    printf '' | xclip -selection clipboard 2>/dev/null
+    # - Aka: xclip -selection clipboard
+    printf "" | xclip -selection c 2>/dev/null
   else
     >&2 echo "ERROR: Unknown clipboard type"
   fi
