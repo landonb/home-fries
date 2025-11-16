@@ -18,6 +18,8 @@ _hf_clip() {
   tr -d "\n" | _hf_clip_raw
 }
 
+# USYNC: Similar clipboard if-else branching:
+# ~/.kit/sh/home-fries/bin/clear
 _hf_clip_raw() {
   if os_is_macos && command -v pbcopy >/dev/null; then
     pbcopy
