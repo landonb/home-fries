@@ -332,13 +332,48 @@ function ll() {
 }
 
 function _hf_filter_ll() {
-  if test "$(command ls -A "$@" 2>/dev/null)" = ".DS_Store" ||
-    test "$(command ls -A "$@" 2>/dev/null)" = ".localized" \
-    ; then
+  # REFER: Use false || ... || false so shfmt lets us use normalized test lines.
+  # - Similarly with the semi-colon to end the grep, it's akin to allowing trailing
+  #   commas.
+  # - (This is my only gripe with shfmt: not honoring trailing-comma-type formatting.)
+  if false ||
+    test "$(command ls -A "$@" 2>/dev/null)" = ".DS_Store" ||
+    test "$(command ls -A "$@" 2>/dev/null)" = ".localized" ||
+    test "$(command ls -A "$@" 2>/dev/null)" = ".trash" ||
+    test "$(command ls -A "$@" 2>/dev/null)" = ".trash0" ||
+    false; then
 
     cat
   else
-    grep -v -e "^\.localized\t" -e "^\.DS_Store\t"
+    # DUNNO: Cannot preceded ansi color escape regex, though not sure.
+    # - These work:
+    #     ll | grep  -e '\[..;..m\.trash0' | cat | hd
+    #     ll | grep  -e '\[01;34m\.trash0' | cat | hd
+    #     ll | grep  -e '.\[..;..m\.trash0' | cat | hd
+    #   But not these:
+    #     ll | grep  -e ' \[..;..m\.trash0' | cat | hd
+    #     ll | grep  -e '\e\[..;..m\.trash0' | cat | hd
+    #     ll | grep  -e '\x1b\[..;..m\.trash0' | cat | hd
+    #   But the bytes are the stats and then the file name are this:
+    #     20  1b 5b 30 31 3b 33 34 6d  2e 74 72 61 73 68 30
+    #     sp                            .  t  r  a  s  h  0
+    #         └ ansi color esc code ┘
+    # - But the way Homefries colors `ll`, the stats are not
+    #   colorful, only the path, so we can grep for the color
+    #   code and ignore stats (unless no color code).
+    #   - Tryme:
+    #       ll --color=no ...
+    local leading_stats='^\([^ ]\+ \+\)\{8\}'
+    local ansi_color_escape='\[..;..m'
+    local prefix="\(${leading_stats}\|${ansi_color_escape}\)"
+    # Maybe color code .\[.*, maybe slash /, maybe whitespace \s, then end of line.
+    local suffix="\(.\[.*\)\?/\?\s*$"
+    grep -v \
+      -e "${prefix}\.DS_Store${suffix}" \
+      -e "${prefix}\.localized${suffix}" \
+      -e "${prefix}\.trash${suffix}" \
+      -e "${prefix}\.trash0${suffix}" \
+      ;
   fi
 }
 
