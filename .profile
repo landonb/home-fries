@@ -37,9 +37,9 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-my_profile () {
+my_profile() {
 
-  setup_my_profile () {
+  setup_my_profile() {
     source_user_bashrc
     update_path_user_home_bin
     update_path_user_home_local_bin
@@ -49,7 +49,7 @@ my_profile () {
     profile_unset_functions
   }
 
-  source_user_bashrc () {
+  source_user_bashrc() {
     # Return unless interactive shell (and Bashrc is already loading).
     ! ${HOMEFRIES_STARTUP:-false} || return 0
 
@@ -72,7 +72,7 @@ my_profile () {
     HOMEFRIES_STARTUP=true . "${HOME}/.bashrc"
   }
 
-  prepend_path_part () {
+  prepend_path_part() {
     local path_elem="$1"
     # Don't bother if the directory doesn't exist.
     [ ! -d "${path_elem}" ] && return 0
@@ -84,7 +84,7 @@ my_profile () {
     export PATH
   }
 
-  prepend_ldpath_part () {
+  prepend_ldpath_part() {
     local ldpath_elem="$1"
     # Don't bother if the directory doesn't exist.
     [ ! -d "${ldpath_elem}" ] && return 0
@@ -97,12 +97,12 @@ my_profile () {
     # BROKEN/2020-02-06: Something is resetting LD_LIBRARY_PATH after this runs.
   }
 
-  update_path_user_home_bin () {
+  update_path_user_home_bin() {
     # Set PATH to include user's private bin/, if it exists.
     prepend_path_part "${HOME}/bin"
   }
 
-  update_path_user_home_local_bin () {
+  update_path_user_home_local_bin() {
     # 2020-02-06: (lb): The distro-supplied default (example) ~/.profile
     #   adds ~/bin to PATH, but I keep user-local applications one directory
     #   deeper, at ~/.local/bin (which may or may not be because I call
@@ -113,12 +113,12 @@ my_profile () {
     prepend_path_part "${HOME}/.local/bin"
   }
 
-  update_ldpath_user_home_local_lib () {
+  update_ldpath_user_home_local_lib() {
     # And also.
     prepend_ldpath_part "${HOME}/.local/lib"
   }
 
-  profile_unset_functions () {
+  profile_unset_functions() {
     unset -f setup_my_profile
     unset -f source_user_bashrc
     unset -f prepend_path_part
@@ -134,4 +134,3 @@ my_profile () {
 
 my_profile
 unset -f my_profile
-
