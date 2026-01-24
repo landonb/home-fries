@@ -102,7 +102,7 @@ uptime-s() {
         sed -r 's/(^ +| +$)//'
     )"
     # local date_system_boot_nrm="$(date -j -f "%b %e %H:%M:%S" "${date_system_boot_raw}:00")"
-    local date_system_boot_nrm="$(${gdate} -d "${date_system_boot_raw}" ${format})"
+    local date_system_boot_nrm="$(${gdate} -d "${date_system_boot_raw}" "${format}")"
 
     echo "${date_system_boot_nrm}"
   }
