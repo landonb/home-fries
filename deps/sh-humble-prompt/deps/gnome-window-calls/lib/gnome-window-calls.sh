@@ -231,9 +231,22 @@ raise_window_Wayland_titled() {
   # - DUNNO: Author doesn't remember why they wrote it this
   #   way. But it works, so not much reason to futz with it.
   local window_ids
-  if ! window_ids="$(get_window_ids_Wayland)"; then
 
-    return 1
+  local found_wm_class=false
+  if [ $# -eq 1 ]; then
+    local jq_filter="select(.wm_class == \"$1\")"
+    if window_ids="$(get_window_ids_Wayland_filtered "${jq_filter}")"; then
+      if [ -n "${window_ids}" ]; then
+        found_wm_class=true
+      fi
+    fi
+  fi
+
+  if ! ${found_wm_class}; then
+    if ! window_ids="$(get_window_ids_Wayland)"; then
+
+      return 1
+    fi
   fi
 
   # ***
@@ -300,22 +313,25 @@ raise_window_Wayland_titled() {
   # ***
 
   local window_id
+  if ${found_wm_class}; then
+    window_id="$(echo "${title_and_ids}" | sed 's/.*\t//')"
+  else
+    local pattern
+    for pattern in "$@"; do
+      local title_and_id
+      # Use Perl regex, or \t doesn't work (though literal "${pattern}.*	"
+      # works, but not "${pattern}.*"$'\t', which is a Bashism anyway).
+      title_and_id="$(
+        echo "${title_and_ids}" | grep -P -e "${pattern}.*\t" | head -n1
+      )"
 
-  local pattern
-  for pattern in "$@"; do
-    local title_and_id
-    # Use Perl regex, or \t doesn't work (though literal "${pattern}.*	"
-    # works, but not "${pattern}.*"$'\t', which is a Bashism anyway).
-    title_and_id="$(
-      echo "${title_and_ids}" | grep -P -e "${pattern}.*\t" | head -n1
-    )"
+      if [ -n "${title_and_id}" ]; then
+        window_id="$(echo "${title_and_id}" | sed 's/.*\t//')"
 
-    if [ -n "${title_and_id}" ]; then
-      window_id="$(echo "${title_and_id}" | sed 's/.*\t//')"
-
-      break
-    fi
-  done
+        break
+      fi
+    done
+  fi
 
   if [ -n "${window_id}" ]; then
     window_activate "${window_id}" > /dev/null
