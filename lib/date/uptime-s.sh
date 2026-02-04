@@ -120,7 +120,21 @@ uptime-s() {
         awk '{$1=$2=""; print $0}' |
         sed -r 's/(^ +| +$)//'
     )"
-    local date_system_boot_nrm="$(${gdate} -d "${date_system_boot_raw}" "${format}")"
+
+    # SAVVY: If $format unset, don't quote it (don't use empty argument),
+    # otherwise `date` fails, e.g.,
+    #   $ date -d '2026-01-04 11:29' ''
+    #   date: the argument ‘’ lacks a leading '+';
+    # - Note you cannot solve with sneaky parameter expansion, e.g.,
+    #     ${gdate} -d "${date_system_boot_raw}" ${format:+\"${format}\"}
+    #   won't work.
+    local date_system_boot_nrm
+    if [ -z "${format}" ]; then
+      # Default format, e.g., "Sun Jan  4 11:29:00 AM CST 2026".
+      date_system_boot_nrm="$(${gdate} -d "${date_system_boot_raw}")"
+    else
+      date_system_boot_nrm="$(${gdate} -d "${date_system_boot_raw}" "${format}")"
+    fi
 
     echo "${date_system_boot_nrm}"
   }
