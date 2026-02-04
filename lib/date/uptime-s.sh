@@ -89,9 +89,28 @@
 # - Then, to clear all but date fields:
 #     awk '{$1=$2=$3=$4=$9=$10=""'; print $0}'
 
+# Without an argument, uses default date format, e.g.,
+#
+#   $ uptime-s
+#   Sun Jan  4 11:29:00 AM CST 2026
+#
+# - Or you can specify the format, e.g.,
+#
+#   $ uptime-s "+%b %e %H:%M:%S"
+#   Jan  4 11:29:00
+#
+# - Or, e.g.,
+#
+#   $ uptime-s "+%C%y-%m-%d %H:%M"
+#   2026-01-04 11:29
+
 uptime-s() {
   local format="$1"
 
+  # Avoid @macOS/BSD `date` (otherwise you'll want to use
+  # nonstandard `date -j` to avoid setting system clock;
+  # and you might need to add seconds component, e.g.,
+  # "${date_system_boot_raw}:00").
   local gdate
   gdate="$(date-or-gdate)" || return 0
 
@@ -101,7 +120,6 @@ uptime-s() {
         awk '{$1=$2=""; print $0}' |
         sed -r 's/(^ +| +$)//'
     )"
-    # local date_system_boot_nrm="$(date -j -f "%b %e %H:%M:%S" "${date_system_boot_raw}:00")"
     local date_system_boot_nrm="$(${gdate} -d "${date_system_boot_raw}" "${format}")"
 
     echo "${date_system_boot_nrm}"
