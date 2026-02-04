@@ -345,8 +345,16 @@ home_fries_configure_history() {
   # effect. (Though you could still <Up> to go through history and the
   # commands not appended to the history file are still accessible.)
 
+  # SAVVY/2026-02-04: For kludge's sake, use parameter expansion's
+  # `:+` to avoid trailing semicolon.
+  # - CXREF: See PROMPT_COMMAND kludge in DepoXy:
+  #     _dxy_source_shell_goodies_zoxide_kludge
+  #   ~/.depoxy/ambers/core/startapps.sh
+  # - The kludge removes the trailing semicolon, so this change
+  #   unnecessary, but we'll avoid it nonetheless for consistency.
+
   if [[ ! $PROMPT_COMMAND =~ "_hist_util_hook_bg" ]]; then
-    PROMPT_COMMAND="history -a;_hist_util_hook_bg;${PROMPT_COMMAND}"
+    PROMPT_COMMAND="history -a;_hist_util_hook_bg${PROMPT_COMMAND:+;${PROMPT_COMMAND}}"
   fi
 
   # HISTIGNORE: A colon-separated list of patterns.
