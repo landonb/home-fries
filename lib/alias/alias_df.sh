@@ -14,7 +14,10 @@ check_deps() {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Show resource usage, and default to human readable figures.
-# df -h: "Human-readable" output. [Not sure why man uses quotes.]
+# - REFER:
+#   df -h: BSD: "Human-readable" output [Not sure why BSD man uses quotes].
+#          GNU: print sizes in powers of 1024 (e.g., 1023M).
+#   df -T: GNU: print file system type.
 # E.g., without -h:
 #         Filesystem  1K-blocks      Used Available Use% Mounted on
 #         /foo/bar    926199176 628671508 250409540  72% /baz/bat
