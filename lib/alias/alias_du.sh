@@ -14,7 +14,7 @@ home_fries_aliases_wire_du() {
 
   claim_alias_or_warn "dub" "du -b -d 1 . | sort -n | column -t -C right | sed '/^\s\+$/d'"
 
-  # 2024-06-13: Duh.
+  # NOTED/2024-06-13: Duh.
   claim_alias_or_warn "duh" "du -h -d 1 ."
 
   # claim_alias_or_warn "duhome" "du -ah /home | sort -n"
