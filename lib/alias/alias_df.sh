@@ -18,6 +18,8 @@ check_deps() {
 #   df -h: BSD: "Human-readable" output [Not sure why BSD man uses quotes].
 #          GNU: print sizes in powers of 1024 (e.g., 1023M).
 #   df -T: GNU: print file system type.
+#   df -Y: BSD: Include file system type.
+#
 # E.g., without -h:
 #         Filesystem  1K-blocks      Used Available Use% Mounted on
 #         /foo/bar    926199176 628671508 250409540  72% /baz/bat
@@ -29,7 +31,7 @@ home_fries_aliases_wire_df() {
   if os_is_linux; then
     alias df="df -h -T"
   elif os_is_macos; then
-    alias df="df -h"
+    alias df="df -h -Y"
   fi
 }
 
