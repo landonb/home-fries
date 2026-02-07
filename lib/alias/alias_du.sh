@@ -9,9 +9,10 @@
 home_fries_aliases_wire_du() {
   alias du="du -h"
 
-  claim_alias_or_warn "dum" "du -m -d 1 . | sort -n | column -t"
+  # DUNNO: Addubg `-C right` arg causes column to print leading empty line.
+  claim_alias_or_warn "dum" "du -m -d 1 . | sort -n | column -t -C right | sed '/^\s\+$/d'"
 
-  claim_alias_or_warn "dub" "du -b -d 1 . | sort -n | column -t"
+  claim_alias_or_warn "dub" "du -b -d 1 . | sort -n | column -t -C right | sed '/^\s\+$/d'"
 
   # 2024-06-13: Duh.
   claim_alias_or_warn "duh" "du -h -d 1 ."
