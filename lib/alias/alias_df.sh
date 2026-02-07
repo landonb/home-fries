@@ -6,14 +6,14 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-check_deps () {
+check_deps() {
   # Verify .homefries/lib/distro_util.sh loaded.
   check_dep 'os_is_macos'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_aliases_wire_df () {
+home_fries_aliases_wire_df() {
   # Show resource usage, and default to human readable figures.
   # df -h: "Human-readable" output. [Not sure why man uses quotes.]
   # E.g., without -h:
@@ -31,7 +31,7 @@ home_fries_aliases_wire_df () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_alias_df () {
+unset_f_alias_df() {
   unset -f check_deps
   unset -f home_fries_aliases_wire_df
   # So meta.
@@ -40,11 +40,11 @@ unset_f_alias_df () {
 
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 
-_homefries_warn_on_execute () {
+_homefries_warn_on_execute() {
   >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
 }
 
-main () {
+main() {
   check_deps
   unset -f check_deps
 }
@@ -56,4 +56,3 @@ else
 fi
 unset -f _homefries_warn_on_execute
 unset -f main
-
