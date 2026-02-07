@@ -26,13 +26,49 @@ check_deps() {
 # and then with -h:
 #         Filesystem  Size  Used Avail Use% Mounted on
 #         /foo/bar    884G  600G  239G  72% /baz/bat
+#
+# FEATR/2026-02-06: Truncate long filesystem and path names.
+# - On author's Linux host, tomb filesystems have long names, e.g.,
+#     /dev/mapper/tomb.mydevice.a1234b12cd123ed1ab123cd12e12f12ab1cd12e1f123a12b112cde123f12a12b.loop9
+#   and the tmpfs mount path is also a long value, e.g.,
+#     /run/credentials/systemd-cryptsetup@luks\x2a2b3c4567\x2a123b\x2c45d6\x2e78f9\x2a0123456bcde7.service
+#   which makes the first column very wide and wraps every line unless
+#   the output window is wider than you're likely to have it.
+# - One solution uses `column` to truncate those 2 columns, e.g.,:
+#     df | tail +2 | column -t \
+#       --table-columns FS,Type,Size,Used,Avail,Use%,"Mounted on" \
+#       --table-truncate 1,7 --output-width 120
+#   - Note that --output-width is necessary: because pipes, column
+#     doesn't sense the terminal window width.
+# - A better option is to target the long names specifically.
+#   - We use `sed` to look for long (at least 6 character) hex values,
+#     maybe preceded by \x2 (or just \x, because 2 matches hex values).
+#   - Then we fix column formatting using column.
+#     - Note because the final column name contains a space ("Mounted on")
+#       we have to explicitly define it, otherwise column thinks "on" is
+#       its own column -- and if the terminal width is too narrow, it'll
+#       print the "on" column on a new line, which has the effect of
+#       printing a blank line between all the rows (because there is no
+#       "on" cell value for any row).
+#     - Actually, better yet, strip the header (tail +2), or you'll see
+#       double headers; and then column prints the header line.
 
 home_fries_aliases_wire_df() {
+  claim_alias_or_warn "df" "_hf_df" ${_force:-true}
+}
+
+_hf_df() {
+  local file_types
   if os_is_linux; then
-    alias df="df -h -T"
+    file_types="-T"
   elif os_is_macos; then
-    alias df="df -h -Y"
+    file_types="-Y"
   fi
+
+  command df -h ${file_types} |
+    tail +2 |
+    sed 's/\(\(\\x\)\?[a-f0-9]\{6,\}\)\+/__TRUNC__/g' |
+    column -t --table-columns Filesystem,Type,Size,Used,Avail,Use%,'Mounted on'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
