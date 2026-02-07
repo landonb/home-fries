@@ -6,7 +6,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_aliases_wire_du () {
+home_fries_aliases_wire_du() {
   alias du="du -h"
 
   claim_alias_or_warn "dum" "du -m -d 1 . | sort -n"
@@ -29,7 +29,7 @@ home_fries_aliases_wire_du () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_alias_du () {
+unset_f_alias_du() {
   unset -f home_fries_aliases_wire_du
   # So meta.
   unset -f unset_f_alias_du
@@ -40,4 +40,3 @@ unset_f_alias_du () {
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
   >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
 fi
-
