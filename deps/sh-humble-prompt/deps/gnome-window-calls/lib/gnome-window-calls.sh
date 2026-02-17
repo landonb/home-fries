@@ -25,39 +25,66 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# Window Calls supports the following actions:
+#
+# - org.gnome.Shell.Extensions.Windows.List
+#
+# - org.gnome.Shell.Extensions.Windows.MoveToWorkspace
+#
+# - org.gnome.Shell.Extensions.Windows.Details
+# - org.gnome.Shell.Extensions.Windows.GetTitle
+# - org.gnome.Shell.Extensions.Windows.GetFrameBounds
+#
+# - org.gnome.Shell.Extensions.Windows.Resize
+# - org.gnome.Shell.Extensions.Windows.MoveResize
+# - org.gnome.Shell.Extensions.Windows.Move
+#
+# - org.gnome.Shell.Extensions.Windows.Maximize
+# - org.gnome.Shell.Extensions.Windows.Minimize
+# - org.gnome.Shell.Extensions.Windows.Unmaximize
+# - org.gnome.Shell.Extensions.Windows.Unminimize
+# - org.gnome.Shell.Extensions.Windows.Activate
+# - org.gnome.Shell.Extensions.Windows.Close
+
 print_window_list() {
   gdbus call --session --dest org.gnome.Shell \
     --object-path /org/gnome/Shell/Extensions/Windows \
     --method org.gnome.Shell.Extensions.Windows.List
 }
 
-print_window_details() {
+window_calls_call() {
   local window_id="$1"
+  local window_action="$2"
 
   gdbus call --session --dest org.gnome.Shell \
     --object-path /org/gnome/Shell/Extensions/Windows \
-    --method org.gnome.Shell.Extensions.Windows.Details \
+    --method org.gnome.Shell.Extensions.Windows.${window_action} \
     "${window_id}"
+}
+
+print_window_details() {
+  local window_id="$1"
+
+  window_calls_call "${window_id}" "Details"
 }
 
 window_activate() {
   local window_id="$1"
 
-  gdbus call --session --dest org.gnome.Shell \
-    --object-path /org/gnome/Shell/Extensions/Windows \
-    --method org.gnome.Shell.Extensions.Windows.Activate \
-    -- "${window_id}"
+  window_calls_call "${window_id}" "Activate"
 }
 
 window_minimize() {
   local window_id="$1"
 
-  gdbus call --session --dest org.gnome.Shell \
-    --object-path /org/gnome/Shell/Extensions/Windows \
-    --method org.gnome.Shell.Extensions.Windows.Minimize \
-    -- "${window_id}"
+  window_calls_call "${window_id}" "Minimize"
 }
 
+window_unminimize() {
+  local window_id="$1"
+
+  window_calls_call "${window_id}" "Unminimize"
+}
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 get_window_ids_Wayland() {
@@ -260,6 +287,7 @@ raise_window_Wayland_titled() {
   # differently, perhaps you could pipe to a while loop, e.g.:
   #
   #   export -f print_window_details
+  #   export -f window_calls_call
   #   echo "${window_ids}" \
   #     | xargs -I{} bash -c 'print_window_details "{}"' 2> /dev/null \
   #     | gawk 'match($0, /\{.*\}/, a) {print a[0]}' \
@@ -275,6 +303,7 @@ raise_window_Wayland_titled() {
   # - USYNC: See similar pipeline in downstream app:
   #   ~/.kit/sh/sh-humble-prompt/lib/show-command-name-in-window-title.sh
   export -f print_window_details
+  export -f window_calls_call
   local window_details
   window_details="$(
     echo "${window_ids}" \
@@ -344,6 +373,64 @@ raise_window_Wayland_titled() {
 
     return 1
   fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# args: wm_class value to match.
+raise_all_Wayland_classed() {
+  local wm_class="$1"
+
+  raise_or_lower_all_Wayland_classed "${wm_class}" "window_unminimize" "Unminimized"
+}
+
+# args: wm_class value to match.
+lower_all_Wayland_classed() {
+  local wm_class="$1"
+
+  raise_or_lower_all_Wayland_classed "${wm_class}" "window_minimize" "Minimized"
+}
+
+raise_or_lower_all_Wayland_classed() {
+  local wm_class="$1"
+  local window_action="$2"
+  local friendly_action="$3"
+
+  if [ -z "${wm_class}" ]; then
+    >&2 echo "ERROR: Please specify the window class to match"
+
+    return 1
+
+  fi
+
+  local window_ids
+
+  local found_wm_class=false
+  local jq_filter="select(.wm_class == \"${wm_class}\")"
+  if window_ids="$(get_window_ids_Wayland_filtered "${jq_filter}")"; then
+    if [ -n "${window_ids}" ]; then
+      found_wm_class=true
+    fi
+  fi
+
+  if ! ${found_wm_class}; then
+    >&2 echo "No windows found for the specified class: ${wm_class}"
+
+    # Meh, doesn't seem like an error if nothing found, technically
+    # raised all windows, it's just that there weren't any windows.
+    return 0
+  fi
+
+  # ***
+
+  export -f ${window_action}
+  export -f window_calls_call
+  # Prints "()" on stdout for each window.
+  local resp
+  resp="$(
+    echo "${window_ids}" | xargs -I{} bash -c "${window_action} \"{}\""
+  )"
+  echo "${friendly_action} $(echo "${resp}" | wc -l) window(s)"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
