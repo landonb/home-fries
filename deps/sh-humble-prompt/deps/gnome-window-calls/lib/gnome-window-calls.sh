@@ -387,34 +387,73 @@ raise_all_Wayland_classed() {
 # args: wm_class value to match.
 lower_all_Wayland_classed() {
   local wm_class="$1"
+  local keep_focused="${2:-false}"
 
-  raise_or_lower_all_Wayland_classed "${wm_class}" "window_minimize" "Minimized"
+  raise_or_lower_all_Wayland_classed "${wm_class}" "window_minimize" "Minimized" "${keep_focused}"
 }
 
 raise_or_lower_all_Wayland_classed() {
   local wm_class="$1"
   local window_action="$2"
   local friendly_action="$3"
+  local keep_focused="$4"
 
-  if [ -z "${wm_class}" ]; then
-    >&2 echo "ERROR: Please specify the window class to match"
+  # ***
 
-    return 1
+  # Note the org.gnome.Shell.Extensions.Windows.List response doesn't
+  # appear to indicate if a window is minimized already or not, so we
+  # won't filter on it.
+  # - This just means that the window count output later, e.g.,
+  #     $ lower-all google-chrome
+  #     Minimized 13 window(s)
+  #   always reports the total window count, regardless of if
+  #   any windows are already minimized.
+  #   - Though it may report one window less if user specifies
+  #     keep_focused, e.g.,
+  #       $ lower-all google-chrome ${_keep_focused:-true}
+  #       Minimized 12 window(s)
 
+  local condits=""
+
+  if [ -n "${wm_class}" ]; then
+    condits=".wm_class == \"${wm_class}\""
   fi
+
+  if ${keep_focused}; then
+    if [ -n "${condits}" ]; then
+      condits="${condits} and "
+    fi
+    condits="${condits}.focus == false"
+  fi
+
+  # Use identify filter if no conditions.
+  local jq_filter="."
+  if [ -n "${condits}" ]; then
+    jq_filter="select(${condits})"
+  fi
+
+  # ***
 
   local window_ids
 
-  local found_wm_class=false
-  local jq_filter="select(.wm_class == \"${wm_class}\")"
-  if window_ids="$(get_window_ids_Wayland_filtered "${jq_filter}")"; then
-    if [ -n "${window_ids}" ]; then
-      found_wm_class=true
-    fi
-  fi
+  if ! window_ids="$(get_window_ids_Wayland_filtered "${jq_filter}")" \
+    || [ -z "${window_ids}" ] \
+    ; then
 
-  if ! ${found_wm_class}; then
-    >&2 echo "No windows found for the specified class: ${wm_class}"
+    # Outputing jq filter is more dev-friendly than user-friendly, so not this:
+    #   >&2 echo "No windows found for the specified filter: ${jq_filter}"
+    local unfocused=""
+    if ${keep_focused}; then
+      unfocused="unfocused "
+    fi
+    if [ -n "${wm_class}" ]; then
+      >&2 echo "No ${unfocused}windows found for window class '${wm_class}'"
+    else
+      # Dunno: This path even possible? Maybe if you wire this fcn. to a
+      # desktop environment keyboard accelerator, but then you won't see
+      # the output, anyway.
+      >&2 echo "No ${unfocused}windows found"
+    fi
 
     # Meh, doesn't seem like an error if nothing found, technically
     # raised all windows, it's just that there weren't any windows.
