@@ -58,6 +58,12 @@ home_fries_aliases_wire_df() {
 }
 
 _hf_df() {
+  if [ $# -ne 0 ]; then
+    df "$@"
+
+    return
+  fi
+
   local file_types
   if os_is_linux; then
     file_types="-T"
