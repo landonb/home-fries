@@ -6,6 +6,9 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# CPYST: Here's a one-liner to demo the 5 `du` variants:
+#   for du_alias in dub dum duh dud dup; do echo "\$ ${du_alias}"; eval ${du_alias}; echo; done
+
 home_fries_aliases_wire_du() {
   alias du="du -h"
 
