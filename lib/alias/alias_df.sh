@@ -60,6 +60,22 @@ check_deps() {
 #                   `column` will split apart to separate columns;
 # - 2nd sed:      Truncate long names/path with UUIDs;
 # - column ...:   Add column name header line (and format table output).
+# - Final seds:   Color specific output rows:
+#   - We'll color specific mount paths:
+#     - On Linux, color all ext4 disks, which is probably all the disks
+#       whose available space you'd want to monitor (vs., e.g., tmpfs or
+#       squashfs filesystems that you don't care about, or fuse.gocryptfs
+#       which probably live on the ext4 filesystems being highlighted);
+#       - We'll also color fuse.sshfs filesystems, e.g., for when you
+#         mount a drive connected to another host; and
+#     - On macOS, color /System/Volumes/Data, which is the main data store;
+#       - We'll also color nfs filesystems (similar to fuse.sshfs highlights).
+#   - Altly: Instead of all ext4 filesystems, we could target specific
+#     mountpoints, such as /home and any /media* mount:
+#       sed "s/^\(.* \/home\)\$/"$(attr_bold)$(fg_skyblue)"\1"$(attr_reset)"/g" |
+#       sed "s/^\(.* \/media\/.*\)\$/"$(attr_bold)$(fg_skyblue)"\1"$(attr_reset)"/g" |
+#   - Altly: Highlight /media paths, but only /media/${USER} paths:
+#       sed "s/^\(.* \/media\/${LOGNAME}\/[^ ]\+\)\$/"$(attr_bold)$(fg_skyblue)"\1"$(attr_reset)"/g" |
 
 home_fries_aliases_wire_df() {
   claim_alias_or_warn "df" "_hf_df" ${_force:-true}
@@ -97,13 +113,19 @@ _hf_df() {
     table_trunc="10"
   fi
 
+  # Specify max column width — because `column` output piped (to
+  # highlight `sed`s), `column` uses default column width (80).
+  local terminal_column_width="$(tput cols)"
 
   command df -h ${file_types} |
     tail +2 |
     replace_single_spaces_with_em_space |
     sed 's/\(\(\\x\)\?[a-f0-9]\{6,\}\)\+/__TRUNC__/g' |
     column -t --table-columns "${table_cols}" \
-      --table-truncate ${table_trunc}
+      --table-truncate ${table_trunc} \
+      --output-width ${terminal_column_width} |
+    sed "s/^\([^ ]\+ \+\<\(ext4\|fuse.sshfs\|nfs\)\>.*\)\$/"$(attr_bold)$(fg_skyblue)"\1"$(attr_reset)"/g" |
+    sed "s/^\(.* \/System\/Volumes\/Data\)\$/"$(attr_bold)$(fg_skyblue)"\1"$(attr_reset)"/g"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
