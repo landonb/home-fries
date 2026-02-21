@@ -84,6 +84,7 @@ _hf_df() {
       sed 's/^\([^ ]\) \([^ ]\)/\1 \2/g'
     }
     table_cols="Filesystem,Type,Size,Used,Avail,Use%,'Mounted on'"
+    table_trunc="7"
   elif os_is_macos; then
     file_types="-Y"
     replace_single_spaces_with_em_space() {
@@ -93,6 +94,7 @@ _hf_df() {
     # Default macOS `command df -h` (no Type, because no -Y):
     #  table_cols="Filesystem,Size,Used,Avail,Capacity,iused,ifree,%iused,'Mounted on'"
     table_cols="Filesystem,Type,Size,Used,Avail,Capacity,iused,ifree,%iused,'Mounted on'"
+    table_trunc="10"
   fi
 
 
@@ -100,7 +102,8 @@ _hf_df() {
     tail +2 |
     replace_single_spaces_with_em_space |
     sed 's/\(\(\\x\)\?[a-f0-9]\{6,\}\)\+/__TRUNC__/g' |
-    column -t --table-columns "${table_cols}"
+    column -t --table-columns "${table_cols}" \
+      --table-truncate ${table_trunc}
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
