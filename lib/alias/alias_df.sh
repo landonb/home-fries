@@ -53,6 +53,14 @@ check_deps() {
 #     - Actually, better yet, strip the header (tail +2), or you'll see
 #       double headers; and then column prints the header line.
 
+# REFER: These are the components of the `df` pipeline:
+# - tail -n +2:   Trim `df` headers line;
+# - 1st sed:      Preserve macOS Filesystem names that include spaces,
+#                   e.g., "map auto_home" and "map -static", otherwise
+#                   `column` will split apart to separate columns;
+# - 2nd sed:      Truncate long names/path with UUIDs;
+# - column ...:   Add column name header line (and format table output).
+
 home_fries_aliases_wire_df() {
   claim_alias_or_warn "df" "_hf_df" ${_force:-true}
 }
@@ -68,16 +76,29 @@ _hf_df() {
   local table_cols
   if os_is_linux; then
     file_types="-T"
+    replace_single_spaces_with_em_space() {
+      # Only replaces first space, because GNU `fd` only uses single
+      # spaces between column values (so cannot easily detect space
+      # in filesystem path vs. space between values).
+      # - Note the replacement string, `\1 \2`, uses em space.
+      sed 's/^\([^ ]\) \([^ ]\)/\1 \2/g'
+    }
     table_cols="Filesystem,Type,Size,Used,Avail,Use%,'Mounted on'"
   elif os_is_macos; then
     file_types="-Y"
+    replace_single_spaces_with_em_space() {
+      # See comment above; same sed, except no start-of-line (^) match.
+      sed 's/\([^ ]\) \([^ ]\)/\1 \2/g'
+    }
     # Default macOS `command df -h` (no Type, because no -Y):
     #  table_cols="Filesystem,Size,Used,Avail,Capacity,iused,ifree,%iused,'Mounted on'"
     table_cols="Filesystem,Type,Size,Used,Avail,Capacity,iused,ifree,%iused,'Mounted on'"
   fi
 
+
   command df -h ${file_types} |
     tail +2 |
+    replace_single_spaces_with_em_space |
     sed 's/\(\(\\x\)\?[a-f0-9]\{6,\}\)\+/__TRUNC__/g' |
     column -t --table-columns "${table_cols}"
 }
