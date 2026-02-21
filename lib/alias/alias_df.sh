@@ -65,16 +65,21 @@ _hf_df() {
   fi
 
   local file_types
+  local table_cols
   if os_is_linux; then
     file_types="-T"
+    table_cols="Filesystem,Type,Size,Used,Avail,Use%,'Mounted on'"
   elif os_is_macos; then
     file_types="-Y"
+    # Default macOS `command df -h` (no Type, because no -Y):
+    #  table_cols="Filesystem,Size,Used,Avail,Capacity,iused,ifree,%iused,'Mounted on'"
+    table_cols="Filesystem,Type,Size,Used,Avail,Capacity,iused,ifree,%iused,'Mounted on'"
   fi
 
   command df -h ${file_types} |
     tail +2 |
     sed 's/\(\(\\x\)\?[a-f0-9]\{6,\}\)\+/__TRUNC__/g' |
-    column -t --table-columns Filesystem,Type,Size,Used,Avail,Use%,'Mounted on'
+    column -t --table-columns "${table_cols}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
