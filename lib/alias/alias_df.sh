@@ -59,7 +59,7 @@ home_fries_aliases_wire_df() {
 
 _hf_df() {
   if [ $# -ne 0 ]; then
-    df "$@"
+    command df "$@"
 
     return
   fi
