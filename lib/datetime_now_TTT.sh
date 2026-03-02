@@ -131,4 +131,17 @@ TTTttt() {
   echo "$(date '+%Y%m%d%H%M%S')"
 }
 
+# TTTttz prints, e.g.:
+# 2026-02-28 11:30:27.592532474 -0600
+# - Similar to `stat` human-readable formats:
+#     stat -c %w  # birth
+#     stat -c %x  # last access
+#     stat -c %y  # last data modification
+#     stat -c %z  # status change
+#   - Though author unsure which filesystems track more than
+#     the typical two times, file creation and last modification.
+TTTttz() {
+  date "+%Y-%m-%d %H:%M:%S.%N %z"
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
