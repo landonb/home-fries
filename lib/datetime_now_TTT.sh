@@ -65,6 +65,10 @@ TTTtt() {
 
 # The current date (year, month, day).
 
+# BECUZ/2026-02-28: These date calls don't need to
+# be echoed like the other date wrappers which use
+# local vars. But we'll do anyway for consistency.
+
 # Same as: $(TTT -)
 TTT-() {
   echo "$(date +%Y-%m-%d)"
@@ -121,9 +125,8 @@ TTT:tt() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# The current date and time (including seconds).
+# The current date and time and seconds.
 
-# The only TTT* to include seconds.
 TTTttt() {
   echo "$(date '+%Y%m%d%H%M%S')"
 }
