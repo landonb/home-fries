@@ -13,9 +13,9 @@ home_fries_aliases_wire_du() {
   alias du="du -h"
 
   # DUNNO: Addubg `-C right` arg causes column to print leading empty line.
-  claim_alias_or_warn "dum" "du -m -d 1 . | sort -n | column -t -C right | sed '/^\s\+$/d'"
+  claim_alias_or_warn "dum" "foo() { du -m -d 1 \\\${1:-.} | sort -n | column -t -C right | sed '/^\s\+$/d'; }; foo"
 
-  claim_alias_or_warn "dub" "du -b -d 1 . | sort -n | column -t -C right | sed '/^\s\+$/d'"
+  claim_alias_or_warn "dub" "foo() { du -b -d 1 \\\${1:-.} | sort -n | column -t -C right | sed '/^\s\+$/d'; }; foo"
 
   # NOTED/2024-06-13: Duh.
   # - PREVY/2026-02-06: Nothing simple lasts forever.
@@ -27,7 +27,7 @@ home_fries_aliases_wire_du() {
   #     the future, esp. because it's a fun command name,
   #     and I bet some feature will come along that's more
   #     deserving of such a cool command name.
-  claim_alias_or_warn "dud" "du -h -d 1 ."
+  claim_alias_or_warn "dud" "foo() { du -h -d 1 \\\${1:-.}; }; foo"
   # HSTRY/2026-02-06: Adding `dup` in case one wants
   # to sort `du` output by path name (though author
   # assumes I'll probably mostly use complicated new
@@ -38,7 +38,7 @@ home_fries_aliases_wire_du() {
   # - `dup` is also kinda a fun name, so don't expect
   #   that this command won't be renamed or dropped
   #   in the future, just like `dud` is "not safe".
-  claim_alias_or_warn "dup" "du -h -d 1 . | sort -k2,2"
+  claim_alias_or_warn "dup" "foo() { du -h -d 1 \\\${1:-.} | sort -k2,2; }; foo"
   claim_alias_or_warn "duh" "_hf_duh"
 
   # claim_alias_or_warn "duhome" "du -ah /home | sort -n"
@@ -49,7 +49,7 @@ home_fries_aliases_wire_du() {
   # See also the `free` alias.
 
   # List the top 20 files/folders sizes.
-  claim_alias_or_warn "dutop" 'du -sh * | sort -hr | head -20'
+  claim_alias_or_warn "dutop" "foo() { du -sh \\\${1:-.}/* | sort -hr | head -20; }; foo"
 }
 
 # Print "human-readable" size values (uses closest block
@@ -65,7 +65,9 @@ home_fries_aliases_wire_du() {
 #     - Which we map to 0,1,2,...9, and reverse-sort on.
 
 _hf_duh() {
-  du -h -d 1 . |
+  local target="${1:-.}"
+
+  du -h -d 1 "${target}" |
     awk '{ print substr($1, length($1)), substr($1, 0,length($1)-1), $0 }' |
     sed \
       -e 's/^K/0/' \
