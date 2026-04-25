@@ -49,6 +49,7 @@ home_fries_aliases_wire_du() {
   # See also the `free` alias.
 
   # List the top 20 files/folders sizes.
+  # - REFER: -s | --summarize  display only a total for each argument
   claim_alias_or_warn "dutop" "foo() { du -sh \\\${1:-.}/* | sort -hr | head -20; }; foo"
 }
 
