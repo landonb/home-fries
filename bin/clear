@@ -211,10 +211,47 @@ clear_clipboard_contents() {
   fi
 }
 
-clear_terminal_screen_and_scrollback_buffer_and_clipboard_contents() {
-  clear_terminal_screen_and_scrollback_buffer
+_clear_parse_args() {
+  clear_screen=true
+  clear_clippy=true
 
-  clear_clipboard_contents
+  # ALTLTish:
+  #   while [ "$1" != '' ] && [ "$1" != '--' ]; do
+  while [ $# -gt 0 ]; do
+    case $1 in
+    -b | --both | both)
+      clear_screen=true
+      clear_clippy=true
+      ;;
+    -c | --clip | clip)
+      clear_clippy=true
+      ;;
+    -l | --lite | lite)
+      clear_clippy=false
+      ;;
+    *)
+      >&2 echo "ERROR: Unrecognized argument: “$1”"
+
+      exit 1
+      ;;
+    esac
+
+    shift
+  done
+}
+
+clear_terminal_screen_and_scrollback_buffer_and_clipboard_contents() {
+  local clear_screen=true
+  local clear_clippy=true
+  _clear_parse_args "$@"
+
+  if ${clear_screen}; then
+    clear_terminal_screen_and_scrollback_buffer
+  fi
+
+  if ${clear_clippy}; then
+    clear_clipboard_contents
+  fi
 }
 
 # ***
