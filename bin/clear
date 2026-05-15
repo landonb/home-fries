@@ -155,6 +155,15 @@
 # but that leaves one page of scrollback [verified most recently 2024-10-30
 # on macOS], unlike `/usr/bin/reset` or the following magic escape sequence.
 
+# CPYST: Clear screen without clearing the scrollback ('CSI 3 J' — `\\033[3J`):
+# - Clear screen above cursor line, but leave cursor (sorta, moves it one line down):
+#   printf "\\033[2J"
+# - Clear screen and move cursor to the top (looks nicer, IMO):
+#   printf "\\033[2J\\033[1;1H"  # same as: `clear --screen`
+clear_terminal_screen() {
+  printf "\\033[2J\\033[1;1H"
+}
+
 clear_terminal_screen_and_scrollback_buffer() {
   printf "\\033[2J\\033[3J\\033[1;1H"
 }
@@ -213,21 +222,32 @@ clear_clipboard_contents() {
 
 _clear_parse_args() {
   clear_screen=true
-  clear_clippy=true
+  clear_scrollback=true
+  clear_clipboard=true
 
   # ALTLTish:
   #   while [ "$1" != '' ] && [ "$1" != '--' ]; do
   while [ $# -gt 0 ]; do
     case $1 in
-    -b | --both | both)
+    -a | --all | all)
       clear_screen=true
-      clear_clippy=true
+      clear_scrollback=true
+      clear_clipboard=true
       ;;
-    -c | --clip | clip)
-      clear_clippy=true
+    -s | --screen | screen)
+      clear_screen=true
+      clear_scrollback=false
+      clear_clipboard=false
       ;;
-    -l | --lite | lite)
-      clear_clippy=false
+    -b | -S | --scrollback | scrollback)
+      clear_screen=true
+      clear_scrollback=true
+      clear_clipboard=false
+      ;;
+    -c | --clipboard | clipboard | --clip | clip)
+      clear_screen=false
+      clear_scrollback=false
+      clear_clipboard=true
       ;;
     *)
       >&2 echo "ERROR: Unrecognized argument: “$1”"
@@ -242,14 +262,19 @@ _clear_parse_args() {
 
 clear_terminal_screen_and_scrollback_buffer_and_clipboard_contents() {
   local clear_screen=true
-  local clear_clippy=true
+  local clear_scrollback=true
+  local clear_clipboard=true
   _clear_parse_args "$@"
 
   if ${clear_screen}; then
+    clear_terminal_screen
+  fi
+
+  if ${clear_scrollback}; then
     clear_terminal_screen_and_scrollback_buffer
   fi
 
-  if ${clear_clippy}; then
+  if ${clear_clipboard}; then
     clear_clipboard_contents
   fi
 }
