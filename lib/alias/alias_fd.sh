@@ -24,6 +24,9 @@ home_fries_aliases_wire_fd() {
 
     # Without the --no-ignore
     claim_alias_or_warn "fdi" "_hf_fd"
+
+    # Without the output-stream-blocking final `ls` command:
+    claim_alias_or_warn "fdx" "HOMEFRIES_FD_EXEC_BATCH=false _hf_fd"
   fi
 }
 
@@ -89,6 +92,7 @@ _hf_fd() {
   local no_hidden=false
   local no_ignore=false
   local unrestricted=false
+  local exec_batch=""
 
   local arg
   for arg in "$@"; do
@@ -104,8 +108,46 @@ _hf_fd() {
       no_hidden=false
       no_ignore=true
       ;;
+    # See following comment — Cannot add non-fd options, e.g.:
+    #   --exec-batch) exec_batch="..." ;;
     esac
   done
+
+  # Currently, CLI args are passed-through to `fd` below, and we
+  # don't rebuild $@ specially. So each arg must match a legit
+  # `fd` option. As such, other options should be vars/environs,
+  # possibly presented to user via separate command name (e.g.,
+  # how `fdx` alias sets the HOMEFRIES_FD_EXEC_BATCH variable).
+  #
+  # HSTRY/2026-05-19: Adding `--exec-batch` to default `fd`
+  # behavior, for deterministic, and ordered, search results.
+  # - Note this probably mostly works well in practice (author
+  #   cannot detect any more or less lag with or without
+  #   `--exec-batch ls`, at least for simple searches).
+  #  - But if you run a search that blocks `fd` and its output
+  #    for longer than you appreciate, cancel the search and
+  #    run `fdx` (see alias above) to run a "normal" fd command,
+  #    which streams results, outputting each path as its found.
+  #
+  # SAVVY: Note the ls output is a single color, not separate colors
+  #   for directories and basename, like default fd. On the other
+  #   hand, both eza and lsd highlight similar to fd; though they
+  #   both add "./" prefix to path matches.
+  if [ "${HOMEFRIES_FD_EXEC_BATCH}" = "fd" ] ||
+    [ "${HOMEFRIES_FD_EXEC_BATCH}" = "false" ]; then
+    exec_batch=""
+  elif [ "${HOMEFRIES_FD_EXEC_BATCH}" = "ls" ]; then
+    exec_batch="--exec-batch ls -1d --color=always"
+  elif [ "${HOMEFRIES_FD_EXEC_BATCH}" = "lsd" ]; then
+    # --classify: Appends one of: */=>@|
+    exec_batch="--exec-batch lsd -1d --classify --color always"
+  elif [ "${HOMEFRIES_FD_EXEC_BATCH}" = "eza" ] ||
+    # BONUS: In addition to ensuring results sorted consistently between
+    # repeated queries, also indicates file type, and shows symlink targets.
+    command -v eza >/dev/null; then
+
+    exec_batch="--exec-batch eza --oneline -d"
+  fi
 
   # ***
 
@@ -161,7 +203,8 @@ _hf_fd() {
     ${no_hidden} || printf "%s" "-H"
   ) $(
     ${no_follow} || printf "%s" "-L"
-  ) ${exclude} ${ignore_file_arg} $@"
+  ) ${exclude} ${ignore_file_arg} $@ \\
+    ${exec_batch}"
 
   ! ${HOMEFRIES_FD_TRACE:-false} || echo "${fd_cmd}"
 
