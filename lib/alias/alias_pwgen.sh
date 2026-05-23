@@ -33,7 +33,7 @@ home_fries_aliases_wire_pwgen() {
   # - Note the surrounding () is necessary for redirection, e.g., `pwgen23 > foo`.
   claim_alias_or_warn "pwgen23" "_hf_aliases_wire_pwgen_clip_and_print"
 
-  claim_alias_or_warn "pwgenpin" \
+  claim_alias_or_warn "pwgenPIN" \
     "pwgen -A -r abcdefghijklmnopqrstuvwxyz ${PWGEN_PINLEN:-4} \
     | _hf_clip_echo"
 }
