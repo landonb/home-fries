@@ -31,7 +31,7 @@ home_fries_aliases_wire_pwgen() {
   # until quantum computing screws us over and we all need to move to
   # elliptic-curve cryptography.
   # - Note the surrounding () is necessary for redirection, e.g., `pwgen23 > foo`.
-  claim_alias_or_warn "pwgen23" "_hf_aliases_wire_pwgen_clip_and_print"
+  claim_alias_or_warn "pwgen23" "_hf_pwgen23_clip_echo"
 
   claim_alias_or_warn "pwgenPIN" \
     "pwgen -A -r abcdefghijklmnopqrstuvwxyz \\\${PWGEN_PINLEN:-4} \
@@ -46,7 +46,7 @@ _hf_pwgen23() {
   pwgen 2 1 ${PWGEN_OMIT}
 }
 
-_hf_aliases_wire_pwgen_clip_and_print() {
+_hf_pwgen23_clip_echo() {
   local pwd="$(_hf_pwgen23)"
 
   echo "${pwd}" | _hf_clip_echo
