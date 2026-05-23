@@ -38,7 +38,7 @@ home_fries_aliases_wire_pwgen() {
     | _hf_clip_echo"
 }
 
-_hf_aliases_wire_pwgen_pwgen23() {
+_hf_pwgen23() {
   pwgen 2 1 ${PWGEN_OMIT} |
     tr -d '\n'
   pwgen -n 21 -s -N 1 -y ${PWGEN_OMIT} |
@@ -47,7 +47,7 @@ _hf_aliases_wire_pwgen_pwgen23() {
 }
 
 _hf_aliases_wire_pwgen_clip_and_print() {
-  local pwd="$(_hf_aliases_wire_pwgen_pwgen23)"
+  local pwd="$(_hf_pwgen23)"
 
   echo "${pwd}" | _hf_clip_echo
 }
