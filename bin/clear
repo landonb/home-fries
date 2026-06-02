@@ -14,6 +14,11 @@
 #   # ~/.inputrc
 #   Control-l: 'clear\n'
 
+# REFER: See below: _clear_parse_args
+print_usage() {
+  echo "USAGE: $(basename -- "$0") [-h|--help] [-s|--screen] [-b|-S|--scrollback] [-c|--clip|--clipboard] [-a|--all]"
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # HSTRY: Circa 2020, author created this command because I had issues
@@ -229,6 +234,11 @@ _clear_parse_args() {
   #   while [ "$1" != '' ] && [ "$1" != '--' ]; do
   while [ $# -gt 0 ]; do
     case $1 in
+    -h | --help | help)
+      print_usage
+
+      exit 0
+      ;;
     -a | --all | all)
       clear_screen=true
       clear_scrollback=true
