@@ -169,9 +169,10 @@ _hf_realpath_strip_tilded_clip_echo() {
 
 # ***
 
-tilde_for_home() {
-  sed -E "s#^${HOME}(/|$)#~\1#"
-}
+# HSTRY/2026-06-02: Upstreamed to logger.sh:
+#   sed -E "s#^${HOME}(/|$)#~\1#"
+# - Cxref: logger.sh sourced by: source_homefries_libs_all
+tilde_for_home() { _sh_tilde_for_home "$@"; }
 
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 

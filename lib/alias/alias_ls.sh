@@ -418,16 +418,8 @@ _hf_gls_or_ls() {
   fi
 }
 
-gnu_sed() {
-  for cmd in "gsed" "sed"; do
-    (
-      unset -f ${cmd}
-      unalias ${cmd}
-      command -v ${cmd}
-    ) 2>/dev/null &&
-      break
-  done
-}
+# HSTRY/2026-06-02: Upstreamed to logger.sh: gnu_sed
+# - Cxref: logger.sh sourced by: source_homefries_libs_all
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
