@@ -17,12 +17,15 @@ FILE="tags"
 
 while [[ $# > 1 ]]; do
   key="$1"
+
   case $key in
   -f)
     FILE="$2"
+
     shift
     ;;
   esac
+
   shift
 done
 
