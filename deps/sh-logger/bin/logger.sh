@@ -219,6 +219,106 @@ _sh_logger_log_msg() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# https://en.wikipedia.org/wiki/And_Now_for_Something_Completely_Different
+
+# HSTRY/2026-06-01: This func. originated in Homefries, then later added
+# separately 3+ times in DepoXy code, and also to myrepos-mredit-command.
+# - It's a rare case of shell code I'd be "unable" (unwilling =) to DRY.
+#   - But then I thought, Hey, ya know what almost every shell
+#     project I write sources (and includes in deps/)? logger.sh!
+#   - Not that I think we should start overloading logger.sh with
+#     unrelated shell utility code... but this func. is *sorta*
+#     related to logging, because I only use this func. to
+#     prepare path strings for logging/printing to the terminal.
+#     - So in this particular case, *IGTAT*:
+#       https://www.reddit.com/r/futurama/comments/16ha2hr/im_going_to_allow_this/
+#         https://futurama.fandom.com/wiki/Glab
+
+# USAGE: Pass path as first arg., or pipe via stdin.
+_sh_tilde_for_home() {
+  (
+    if test $# -gt 0; then
+      echo "$1"
+    else
+      cat
+    fi
+  ) | $(gnu_sed) -E "s#^${HOME}(/|$)#~\1#"
+}
+
+# ***
+
+_sh_first_command() {
+  local match=""
+
+  for cmd in $@; do
+    if match="$(
+      unset -f ${cmd}
+      unalias ${cmd} 2>/dev/null || true
+      command -v ${cmd} 2>/dev/null
+    )"; then
+
+      break
+    fi
+  done
+
+  if test -z "${match}"; then
+    >&2 echo "ERROR: Missing command(s): $@"
+
+    # /shrug Gentle fallback?
+    # - UCASE: So that users don't need to guard calls to this func.,
+    #   e.g., so `$(gnu_sed) -e ...`  doesn't resolve to `-e` if
+    #   gnu_sed prints an error — this should *always* print a valid
+    #   pipeline command.
+    #   - W/out (''):
+    #     $ echo foo | $(gnu_sed) -e bar
+    #     ERROR: (g)sed absent!
+    #     bash: -e: command not found
+    #   - With 'cat':
+    #     $ echo foo | $(gnu_sed) -e bar
+    #     ERROR: (g)sed absent!
+    #     cat: bar: No such file or directory
+    #   - With '_sh_cat_niladic':
+    #     $ echo foo | $(gnu_sed) -e bar
+    #     ERROR: (g)sed absent!
+    #     foo
+    echo "_sh_cat_niladic"
+
+    return 1
+  fi
+
+  echo "${match}"
+}
+
+# cat, but no args.
+# - Words: Niladic, or Nullary: "Of an op or f in a prog, having no args."
+#   https://en.wiktionary.org/wiki/niladic
+_sh_cat_niladic() {
+  # ALTLY: Always prefers just echoing args:
+  #   if test $# -gt 0; then
+  #     echo "$@"
+  #   else
+  #     cat
+  #   fi
+  # - Instead: Prefer stdin when avail., fallback args.
+  if read -t 0 notused; then
+    cat
+  else
+    echo "$@"
+  fi
+}
+
+gnu_sed() {
+  if ! _sh_first_command "gsed" "sed" 2>/dev/null; then
+    >&2 echo "ERROR: (g)sed absent!"
+
+    # _sh_first_command has printed "_sh_cat_niladic" for a graceful
+    # fallback (see comment above), so just propagate status.
+    return 1
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # BWARE/2023-12-26: There are two extreme log levels, both 50, but one
 # is nonlethal (`critical`) while the other (`fatal`) returns nonzero
 # and can be used to trip errexit.
@@ -306,16 +406,21 @@ verbose() {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 test_sh_logger() {
-  fatal "FATAL: I'm going down!"
-  critical "CRITICAL: Take me to a hospital!"
-  error "ERROR: Oops! I did it again!!"
-  warn "WARN: This is your last warning."
-  warning "WARNING: I lied, one more warning."
-  notice "NOTICE: Hear ye, hear ye!!"
-  info "INFO: Extra! Extra! Read all about it!!"
-  debug "DEBUG: If anyone asks, you're my debugger."
-  trace "TRACE: Not a trace."
-  verbose "VERBOSE: I'M YELLING AT YOU"
+  (
+    LOG_LEVEL=${LOG_LEVEL_NOTSET:-0}
+
+    fatal "FATAL: I'm going down!"
+    critical "CRITICAL: Take me to a hospital!"
+    error "ERROR: Oops! I did it again!!"
+    warn "WARN: This is your last warning."
+    warning "WARNING: I lied, one more warning."
+    notice "NOTICE: Hear ye, hear ye!!"
+    info "INFO: Extra! Extra! Read all about it!!"
+    debug "DEBUG: If anyone asks, you're my debugger."
+    trace "TRACE: Not a trace."
+    verbose "VERBOSE: I'M YELLING AT YOU"
+    verbose "_sh_tilde_for_home: Home Sweet $(echo "${HOME}/sweet/home" | _sh_tilde_for_home)"
+  )
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
