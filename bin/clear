@@ -225,6 +225,7 @@ clear_clipboard_contents() {
   fi
 }
 
+# INERT: The more I tweak this, the more I want to update to (enhanced) getopt.
 _clear_parse_args() {
   clear_screen=true
   clear_scrollback=true
