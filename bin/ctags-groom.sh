@@ -11,7 +11,29 @@ set -e
 # ctags doesn't handle negative look behinds so instead this script
 # strips false positives out of a tags file.
 
-ctags "$@"
+_ctags() {
+  local found=false
+
+  for cmd in "ctags-universal" "ctags"; do
+    if command -v ${cmd} 2>/dev/null; then
+      found=true
+
+      break
+    fi
+  done
+
+  if ! ${found}; then
+    >&2 echo "ERROR: Ctags not found (neither Universal nor Exuberant)"
+
+    return 1
+  fi
+}
+
+# Guard clause: Print error and exit if no Ctags.
+_ctags >/dev/null
+
+# Call Ctags.
+$(_ctags) "$@"
 
 FILE="tags"
 
