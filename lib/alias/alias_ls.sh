@@ -9,7 +9,7 @@
 # *** Directory listings.
 
 home_fries_aliases_wire_ls() {
-  local ls_cmd="$(ls-or-gls)"
+  local ls_cmd="$(_hf_gls_or_ls)"
 
   # 2015-01-20: Using --color=tty still works, but `man` says use --color=auto.
   local color_opt="--color=auto"
@@ -118,7 +118,7 @@ function l() {
     fi
   }
 
-  $(ls-or-gls) -lhFA \
+  $(_hf_gls_or_ls) -lhFA \
     --color=always \
     --hide-control-chars \
     --group-directories-first \
@@ -261,7 +261,7 @@ print_file_url_friendly_ls_alias() {
 #
 #     function ll-slow () {
 #       # Too slow (but simpler 'sed' than the `ff` function below)
-#       $(ls-or-gls) -lhFa --color=always \
+#       $(_hf_gls_or_ls) -lhFa --color=always \
 #         | sed 'h;s/^\(.*\)$/echo "\1" | awk "{print \\$9}"/e;s/\x1b[[0-9;]*m//g;G;s/\n/\t/' \
 #         | sort -d -f \
 #         | cut -f2-
@@ -321,9 +321,9 @@ print_file_url_friendly_ls_alias() {
 
 function ll() {
   if [ $# -gt 1 ]; then
-    $(ls-or-gls) -lhFa --color=always "$@"
+    $(_hf_gls_or_ls) -lhFa --color=always "$@"
   else
-    $(ls-or-gls) -lhFa --color=always "$(echo "${1:-.}" | command sed -e 's#^file://##g')" |
+    $(_hf_gls_or_ls) -lhFa --color=always "$(echo "${1:-.}" | command sed -e 's#^file://##g')" |
       $(gnu_sed) 'h;s/^\([^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+ \+\)\?\)\?\)\?\)\?\)\?\)\?\)\?\)\?//;s/\x1b[[0-9;]*m//g;s/^$/\./;s/^\.\/$/\.\./;s/^\.\.\/$/\.\.\./;G;s/\n/\t/' |
       _hf_filter_ll "$@" |
       LC_ALL=C sort -d -f -k1,1 |
@@ -383,9 +383,9 @@ function _hf_filter_ll() {
 #   the command is same as `ll` minus the last \(...\)\? group.
 function lll() {
   if [ $# -gt 1 ]; then
-    $(ls-or-gls) -lhFa --time-style=long-iso --color=always "$@"
+    $(_hf_gls_or_ls) -lhFa --time-style=long-iso --color=always "$@"
   else
-    $(ls-or-gls) -lhFa --time-style=long-iso --color=always "$@" |
+    $(_hf_gls_or_ls) -lhFa --time-style=long-iso --color=always "$@" |
       $(gnu_sed) 'h;s/^\([^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\( \+[^ ]\+\)\?\)\?\)\?\)\?\)\?\)\?\)\?//;s/\x1b[[0-9;]*m//g;s/^$/\./;s/^\.\/$/\.\./;s/^\.\.\/$/\.\.\./;G;s/\n/\t/' |
       LC_ALL=C sort -d -f -k1,1 |
       cut -f2-
@@ -412,7 +412,7 @@ function llz() {
 
 # REFER: For macOS ACL features, use `/bin/ls`, e.g., `/bin/ls -led ~/.Trash`
 # - See `man ls` and `man chmod` for more on ACL.
-ls-or-gls() {
+_hf_gls_or_ls() {
   if ! command -v gls; then
     echo "/usr/bin/env ls"
   fi
