@@ -18,10 +18,10 @@ FILE="tags"
 while [[ $# > 1 ]]; do
   key="$1"
   case $key in
-    -f)
-      FILE="$2"
-      shift
-      ;;
+  -f)
+    FILE="$2"
+    shift
+    ;;
   esac
   shift
 done
@@ -35,4 +35,3 @@ done
 /usr/bin/env sed -i -E \
   '/var[ 	]+[a-zA-Z0-9_$]+[ 	]+=[ 	]+require\(.+language:js$/d' \
   ${FILE}
-
