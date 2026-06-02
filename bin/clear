@@ -239,22 +239,22 @@ _clear_parse_args() {
 
       exit 0
       ;;
-    -a | --all | all)
+    -a | --all | a | all)
       clear_screen=true
       clear_scrollback=true
       clear_clipboard=true
       ;;
-    -s | --screen | screen)
+    -s | --screen | s | screen)
       clear_screen=true
       clear_scrollback=false
       clear_clipboard=false
       ;;
-    -b | -S | --scrollback | scrollback)
+    -b | -S | --scrollback | b | S | scrollback)
       clear_screen=true
       clear_scrollback=true
       clear_clipboard=false
       ;;
-    -c | --clipboard | clipboard | --clip | clip)
+    -c | --clipboard | c | clipboard | --clip | clip)
       clear_screen=false
       clear_scrollback=false
       clear_clipboard=true
