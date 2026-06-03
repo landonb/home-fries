@@ -89,19 +89,23 @@ home_fries_aliases_wire_cd_pushd_popd() {
 # THANX:
 # https://github.com/lukas-reineke/dotfiles/blob/02064d6dccb2e/bash/functions.sh
 
+# CALSO: Colors and Text Attributes:
+#   local RED='\e[0;31m'
+#   local GRN='\e[0;32m'
+#   local YEL='\e[33m'
+#   local CYN='\e[36m'
+#   local BLU='\e[34m'
+#   local LGR='\e[37m'
+#   local DGR='\e[90m'
+#   local WHT='\e[97m'
+#   local MGT='\e[35m'
+#   local UNDERLINE='\e[4m'
+#   local BOLD='\e[1m'
+#   local NC='\e[0m' # No Color
+
 # "mkdir and enter"
 mkcd() {
-  # local RED='\e[0;31m'
   local GRN='\e[0;32m'
-  # local YEL='\e[33m'
-  # local CYN='\e[36m'
-  # local BLU='\e[34m'
-  # local LGR='\e[37m'
-  # local DGR='\e[90m'
-  # local WHT='\e[97m'
-  # local MGT='\e[35m'
-  # local UNDERLINE='\e[4m'
-  # local BOLD='\e[1m'
   local NC='\e[0m' # No Color
 
   if [ -z "$1" ]; then
