@@ -105,20 +105,94 @@ home_fries_aliases_wire_cd_pushd_popd() {
 
 # "mkdir and enter"
 mkcd() {
+  _hf_mkcd_parse_args() {
+    eoargs=false
+    verbose=true
+    target=""
+
+    while [ $# -gt 0 ]; do
+      if ! ${eoargs}; then
+        case $1 in
+        -p | --parents)
+          verbose=false
+          shift
+          ;;
+        -v | --verbose)
+          verbose=true
+          shift
+          ;;
+        --)
+          eoargs=true
+          shift
+          ;;
+        -* | --*)
+          shift
+          ;;
+        *)
+          if test -n "${target}"; then
+            >&2 echo "error: too many cooks"
+
+            return 1
+          fi
+          target="$1"
+          shift
+          ;;
+        esac
+      elif test -n "${target}"; then
+        >&2 echo "error: too many cooks"
+
+        return 1
+      else
+        target="$1"
+        shift
+      fi
+    done
+
+    if test -z "${target}"; then
+      >&2 echo "error: where?"
+
+      return 1
+    fi
+  }
+
+  # ***
+
   local GRN='\e[0;32m'
   local NC='\e[0m' # No Color
 
-  if [ -z "$1" ]; then
-    >&2 echo "USAGE: mkcd {path}"
+  if [ $# -eq 0 ]; then
+    >&2 echo "USAGE: mkcd [mkdir OPTIONs]... DIRECTORY"
 
     return 1
-  elif [ -d "$1" ]; then
-    echo -e "${GRN}$* already exists${NC}"
-
-    cd -- "$1"
-  else
-    mkdir -p -- "$1" && cd -- "$1"
   fi
+
+  local okus=true # OKay statUS
+
+  local eoargs=false
+  local verbose=true
+  local target=""
+  if _hf_mkcd_parse_args "$@"; then
+    if [ -d "${target}" ]; then
+      if ${verbose}; then
+        echo -e "${GRN}${target} already exists${NC}"
+      fi
+
+      cd -- "${target}"
+    else
+      # echo "eval \"command mkdir -p $@\""
+      if eval "command mkdir -p $@"; then
+        cd -- "${target}"
+      else
+        okus=false
+      fi
+    fi
+  else
+    okus=false
+  fi
+
+  unset -f _hf_mkcd_parse_args
+
+  ${okus}
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
