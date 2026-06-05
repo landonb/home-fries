@@ -6,7 +6,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_aliases_wire_ag () {
+home_fries_aliases_wire_ag() {
   # The Silver Search.
   # Always allow lowercase, and, more broadly, all smartcase.
   alias ag="ag --smart-case --hidden"
@@ -22,13 +22,13 @@ home_fries_aliases_wire_ag () {
 # i.e., from Vim as `set grepprg=ag_peek`. (2018-01-12: Deprecated;
 # favor just inlining in the .vim file.)
 # 2018-01-29: Obsolete. In Vim, idea to `set grepprg=ag_peek`, but didn't work.
-ag_peek () {
-  ag -A 0 -B 0 --hidden --follow --max-count 1 "${@}" 2> /dev/null
+ag_peek() {
+  ag -A 0 -B 0 --hidden --follow --max-count 1 "${@}" 2>/dev/null
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_alias_ag () {
+unset_f_alias_ag() {
   unset -f home_fries_aliases_wire_ag
   # So meta.
   unset -f unset_f_alias_ag
@@ -39,4 +39,3 @@ unset_f_alias_ag () {
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
   >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
 fi
-

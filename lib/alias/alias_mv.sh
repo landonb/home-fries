@@ -6,7 +6,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_aliases_wire_mv () {
+home_fries_aliases_wire_mv() {
   # HINT: You can easily force-mv (omit the -i flag)
   #       by calling the builtin, e.g.,
   #         \mv ...
@@ -73,7 +73,7 @@ home_fries_aliases_wire_mv () {
 #   $ ls -d -- *
 #   ls: cannot access '*': No such file or directory
 
-mv_dotglob () {
+mv_dotglob() {
   ${SHOILERPLATE:-${HOME}/.kit/sh}/sh-rm_safe/bin/mv_safe "$@"
 
   # Leave noglob unset (set +f)
@@ -84,7 +84,7 @@ mv_dotglob () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_alias_mv () {
+unset_f_alias_mv() {
   unset -f home_fries_aliases_wire_mv
   # So meta.
   unset -f unset_f_alias_mv
@@ -95,4 +95,3 @@ unset_f_alias_mv () {
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
   >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
 fi
-

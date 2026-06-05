@@ -7,7 +7,7 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Similar commands: `hash`, `type -a`, `command -v`.
-home_fries_aliases_wire_hash_type_command () {
+home_fries_aliases_wire_hash_type_command() {
   # Show executable path or alias definition.
   claim_alias_or_warn "cmd" "command -v"
 
@@ -17,7 +17,7 @@ home_fries_aliases_wire_hash_type_command () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_alias_hash_type_command () {
+unset_f_alias_hash_type_command() {
   unset -f home_fries_aliases_wire_hash_type_command
   # So meta.
   unset -f unset_f_alias_hash_type_command
@@ -28,4 +28,3 @@ unset_f_alias_hash_type_command () {
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
   >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
 fi
-

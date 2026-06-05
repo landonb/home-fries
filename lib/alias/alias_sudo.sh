@@ -6,7 +6,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_aliases_wire_sudo () {
+home_fries_aliases_wire_sudo() {
   # Apply alias resolution to whatever term follows a `sudo`.
   # 2019-03-26: From Bash manual: "If the last character of the alias value is
   # a space or tab character, then the next command word following the alias is
@@ -21,7 +21,7 @@ home_fries_aliases_wire_sudo () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_alias_sudo () {
+unset_f_alias_sudo() {
   unset -f home_fries_aliases_wire_sudo
   # So meta.
   unset -f unset_f_alias_sudo
@@ -32,4 +32,3 @@ unset_f_alias_sudo () {
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
   >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
 fi
-

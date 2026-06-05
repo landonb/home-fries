@@ -6,14 +6,14 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_aliases_wire_free () {
+home_fries_aliases_wire_free() {
   alias free="free -m"
   # See also the `du`, `dum`, and `dub` aliases.
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_alias_free () {
+unset_f_alias_free() {
   unset -f home_fries_aliases_wire_free
   # So meta.
   unset -f unset_f_alias_free
@@ -24,4 +24,3 @@ unset_f_alias_free () {
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
   >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
 fi
-

@@ -6,7 +6,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_aliases_wire_history () {
+home_fries_aliases_wire_history() {
   claim_alias_or_warn "h" "history"
 
   claim_alias_or_warn "hless" "history | tac | less"
@@ -14,7 +14,7 @@ home_fries_aliases_wire_history () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_alias_history () {
+unset_f_alias_history() {
   unset -f home_fries_aliases_wire_history
   # So meta.
   unset -f unset_f_alias_history
@@ -25,4 +25,3 @@ unset_f_alias_history () {
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
   >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
 fi
-

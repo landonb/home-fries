@@ -6,7 +6,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_aliases_wire_find () {
+home_fries_aliases_wire_find() {
   # Does this help?
   claim_alias_or_warn "findi" "find . -iname"
 
@@ -22,7 +22,7 @@ home_fries_aliases_wire_find () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_alias_find () {
+unset_f_alias_find() {
   unset -f home_fries_aliases_wire_find
   # So meta.
   unset -f unset_f_alias_find
@@ -33,4 +33,3 @@ unset_f_alias_find () {
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
   >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
 fi
-

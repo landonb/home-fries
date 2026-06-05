@@ -17,7 +17,7 @@
 #   #   /usr/bin/python /usr/lib/command-not-found whereami"
 #   npm install -g @rafaelrinaldi/whereami
 
-home_fries_aliases_wire_amis () {
+home_fries_aliases_wire_amis() {
   claim_alias_or_warn "howami" "echo 'Doing well. Thanks for asking.' ; \
                 /usr/bin/python /usr/lib/command-not-found howami"
   claim_alias_or_warn "whatami" "echo 'Neither plant nor animal.' ; \
@@ -30,7 +30,7 @@ home_fries_aliases_wire_amis () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_alias_amis () {
+unset_f_alias_amis() {
   unset -f home_fries_aliases_wire_amis
   # So meta.
   unset -f unset_f_alias_amis
@@ -41,4 +41,3 @@ unset_f_alias_amis () {
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
   >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
 fi
-

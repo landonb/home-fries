@@ -6,7 +6,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-check_deps () {
+check_deps() {
   check_dep 'rm_safe'
   check_dep 'rm_rotate'
 }
@@ -14,7 +14,7 @@ check_deps () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Change `rm` into a respectable trashcan.
-home_fries_aliases_wire_rm_rmtrash () {
+home_fries_aliases_wire_rm_rmtrash() {
   RM_SAFE_TRASH_HOME="${RM_SAFE_TRASH_HOME:-${HOME}}"
 
   # Use full path so `sudo rm` works.
@@ -32,7 +32,7 @@ home_fries_aliases_wire_rm_rmtrash () {
 # - CXREF: See extensive comments re: `mv_dotglob`:
 #   ~/.homefries/lib/alias/alias_mv.sh
 
-rm_dotglob () {
+rm_dotglob() {
   ${SHOILERPLATE:-${HOME}/.kit/sh}/sh-rm_safe/bin/rm_safe "$@"
 
   # Leave noglob unset (set +f)
@@ -43,7 +43,7 @@ rm_dotglob () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_alias_rm_rmtrash () {
+unset_f_alias_rm_rmtrash() {
   unset -f home_fries_aliases_wire_rm_rmtrash
   # So meta.
   unset -f unset_f_alias_rm_rmtrash
@@ -51,11 +51,11 @@ unset_f_alias_rm_rmtrash () {
 
 # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ #
 
-_homefries_warn_on_execute () {
+_homefries_warn_on_execute() {
   >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
 }
 
-main () {
+main() {
   check_deps
   unset -f check_deps
 }
@@ -67,4 +67,3 @@ else
 fi
 unset -f _homefries_warn_on_execute
 unset -f main
-

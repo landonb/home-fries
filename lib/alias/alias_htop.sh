@@ -11,14 +11,14 @@
 # - I'm not aware of anyway nowadays (at least not running around in my
 #   dev circles) that uses this program. So, yes, this is one of the rare
 #   times where Homefries shadows an existing command.
-home_fries_aliases_wire_htop () {
+home_fries_aliases_wire_htop() {
   # claim_alias_or_warn "ht" "htop"
   alias ht="htop"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_alias_htop () {
+unset_f_alias_htop() {
   unset -f home_fries_aliases_wire_htop
   # So meta.
   unset -f unset_f_alias_htop
@@ -29,4 +29,3 @@ unset_f_alias_htop () {
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
   >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
 fi
-

@@ -6,13 +6,13 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_aliases_wire_completion () {
+home_fries_aliases_wire_completion() {
   home_fries_create_aliases_tab_completion
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-home_fries_create_aliases_tab_completion () {
+home_fries_create_aliases_tab_completion() {
   # Helpful Bash Tab Completion aliases.
 
   # For those (silly) projects that use tabs (I know!) in Bash scripts,
@@ -41,7 +41,7 @@ home_fries_create_aliases_tab_completion () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-unset_f_alias_completion () {
+unset_f_alias_completion() {
   unset -f home_fries_aliases_wire_completion
   unset -f home_fries_create_aliases_tab_completion
   # So meta.
@@ -53,4 +53,3 @@ unset_f_alias_completion () {
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
   >&2 echo "ERROR: Trying sourcing the file instead: . $0" && exit 1
 fi
-
