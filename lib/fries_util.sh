@@ -354,6 +354,30 @@ home_fries_export_kube_editor_vim() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# USAGE: E.g.,
+#
+#   touch-date-relative "5 min ago" <path>
+#   touch-date-relative "last month" <path>
+
+touch-date-relative() {
+  local friendly_date="$1"
+  if ! shift; then
+    >&2 echo "ERROR: Please specify a relative date with which to touch"
+
+    return 1
+  fi
+
+  local date
+  if ! date="$(date -d "${friendly_date}")"; then
+
+    return 1
+  fi
+
+  touch -d "${date}" "$@"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # FIXME/2022-11-04 15:30: Cleanup this comment:
 
 # 2020-01-03: More random crap!
