@@ -5,13 +5,16 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# OVIEW: Rotate trashes, e.g., since rm_safe moves files to ~/.trash0,
+# we rm ~/.trash, rename ~/.trash0 → ~/.trash, and recreate ~/.trash0.
+
 RM_SAFE_TRASH_HOME="${RM_SAFE_TRASH_HOME:-${HOME}}"
 
 # USYNC: In lieu of sourcing a common lib file, keep
 #        the RM_SAFE_FIRST_TRASH environ synced. See:
 #           ~/.kit/sh/sh-rm_safe/bin/rm_safe
 #           ~/.kit/sh/sh-rm_safe/bin/rm_rotate
-set_environs() {
+_rm_rotate_set_environs() {
   if ! os_is_macos; then
     RM_SAFE_FIRST_TRASH="${RM_SAFE_FIRST_TRASH:-.trash0}"
     RM_SAFE_FINAL_TRASH="${RM_SAFE_FINAL_TRASH:-.trash}"
@@ -61,7 +64,7 @@ set_environs() {
 #   macOS Trash.
 # - These rules now apply, because macOS:
 #   - The first "trash" location is a directory that other apps
-#     should not care about: ~/.Trash-TBD
+#     should not care about: ~/.Trash0 (née ~/.Trash-TBD)
 #   - The second "trash" location (once you rotate) is the normal
 #     macOS Trash: ~/.Trash
 #     - This is logically the same path this project has used on Linux
@@ -88,8 +91,8 @@ set_environs() {
 #   has used for years, albeit capitalized, e.g.,:
 #     os_is_macos && trash_name='.Trash'
 #   and to move individual paths out of it on rotation (e.g.,
-#   `mv ~/.Trash/* ~/.Trash-TDB`), rather than simply renaming the
-#   directory (`mv ~/.Trash ~/.Trash-TBD`) which macOS disallows.
+#   `mv ~/.Trash/* ~/.Trash0`), rather than simply renaming the
+#   directory (`mv ~/.Trash ~/.Trash0`) which macOS disallows.
 #   - But then rotated files are no longer protected like files in the
 #     honorable ~/.Trash.
 # - But does ACL on the ~/.Trash really matter?
@@ -125,180 +128,671 @@ set_environs() {
 # - Whatever terminal app you use on @macOS, it must have the
 #   Full Disk Access permission to view the ~/.Trash directory
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# DRY_ECHO="echo" rm_rotate ~/.kit/landonb -r
+# DRY_ECHO="echo" rm_rotate ~/.kit/landonb
+
 DRY_ECHO=""
 # Uncomment for trace with rotate:
 #  DRY_ECHO="echo"
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# DUNNO/2026-06-05: Author does not recall why rm_safe source_deps
+# is a POSIX- and any-realpath-friendly nightmare, and rm_safe is
+# a Bash script; while this script uses the simpler source_deps
+# approach and is POSIX- (e.g., dash-) friendly.
+
+# DEVEL: Test from plain env. to ensure your shell (Homefries, DepoXy)
+# doesn't mask missing deps:
+#
+#   $ cd ~/.kit/sh/sh-rm_safe
+#   $ env -i HOME="$HOME" LOGNAME="$LOGNAME" bash --noprofile --norc
+#   $ bin/rm_rotate
+
+_rm_rotate_source_deps() {
+  source_dep "deps/sh-colors/bin/colors.sh"
+}
+
+source_dep() {
+  local dep_path="$(dirname -- "$(realpath -- "$0")")/../$1"
+
+  ! . "${dep_path}" 2>/dev/null || return 0
+
+  >&2 echo "ERROR: ‘$(basename -- "$0")’ failed to find or source: ${dep_path}"
+
+  exit_1
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+_rm_rotate_print_usage() {
+  echo "USAGE: rm_rotate [-h|--help] [-r|--report] [-c|--concise] [--] [<DEVICE-OR-TRASH-PATH>]..."
+
+  exit_0
+}
+
+_rm_rotate_parse_args() {
+  do_report=false
+  only_report_active=false
+  # This script currently POSIX-compliant, so not good array support
+  # outside $@. Otherwise we might assemble devices list. But instead
+  # we'll process args twice — here, and later to process device paths.
+  has_paths=false
+
+  while [ $# -gt 0 ]; do
+    case $1 in
+    -h | --help)
+      _rm_rotate_print_usage
+
+      exit 0
+      ;;
+    -r | --report)
+      do_report=true
+      ;;
+    -c | --concise)
+      only_report_active=true
+      ;;
+    --)
+      break
+      ;;
+    -* | --*)
+      >&2 echo "ERROR: Unrecognized argument: “$1”"
+
+      exit_1
+      ;;
+    *)
+      _rm_rotate_verify_user_path "$1"
+      ;;
+    esac
+
+    shift
+  done
+
+  if [ $# -gt 0 ]; then
+    _rm_rotate_verify_user_path "$1"
+    shift
+  fi
+}
+
+_rm_rotate_verify_user_path() {
+  local device_path="$1"
+
+  has_paths=true
+
+  # Assumes user specifies base dir, and not .trash[0] dir itself.
+  if ! test -d "${device_path}"; then
+    >&2 echo "ERROR: Not a directory: ${device_path}"
+
+    exit_1
+  fi
+
+  local bname
+  bname="$(basename -- "${device_path}")"
+
+  if [ "${bname}" = "${RM_SAFE_FIRST_TRASH}" ] ||
+    [ "${bname}" = "${RM_SAFE_FINAL_TRASH}" ]; then
+    >&2 echo "ERROR: Please specify device root, not trash dir itself: ${device_path}"
+
+    exit_1
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 rm_rotate() {
   local first_trash="${RM_SAFE_FIRST_TRASH}"
   local final_trash="${RM_SAFE_FINAL_TRASH}"
 
-  _rm_rotate_acl_can_delete_directory() {
-    local test_path="$1"
+  _rm_rotate_enumerate_devices "$@"
+}
 
-    # Check @macOS ACL permissions using Apple ls's -e, e.g.,
+_rm_rotate_enumerate_devices() {
+  if ${has_paths}; then
+    _rm_rotate_device_list "$@"
+  elif command -v findmnt >/dev/null; then
+    local device_path=""
+    for device_path in $(
+      findmnt -l -t fuse.gocryptfs,fuse.encfs,ext4 -o TARGET --noheadings |
+        grep -v "^/boot" |
+        sort
+    ); do
+      _rm_rotate_rotate_device_trash "${device_path}"
+    done
+  else
+    # @macOS, etc.
+    # FTREQ: How best to handle on macOS?
+    # - UCASE: DMG & AFS file systems.
+    #   - Currently, files are moved to home trash,
+    #     i.e., copied from one device to another.
+    _rm_rotate_rotate_device_trash "/"
+  fi
+}
+
+# ***
+
+_rm_rotate_device_list() {
+  local device_path=""
+
+  while [ $# -gt 0 ]; do
+    case $1 in
+    -h | --help | \
+      -r | --report | \
+      -c | --concise) ;;
+    --)
+      break
+      ;;
+    *)
+      _rm_rotate_specified_device_trash "$1"
+      ;;
+    esac
+
+    shift
+  done
+
+  while [ $# -gt 0 ]; do
+    _rm_rotate_specified_device_trash "$1"
+    shift
+  done
+}
+
+_rm_rotate_specified_device_trash() {
+  local device_path="$1"
+
+  _rm_rotate_rotate_device_trash "${device_path}"
+}
+
+# ***
+
+_rm_rotate_rotate_device_trash() {
+  local device_path="$1"
+
+  # E.g., ~/.trash0
+  local first_path
+  # E.g., ~/.trash
+  local final_path
+
+  if [ "${device_path}" = "/" ]; then
+    first_path="${RM_SAFE_TRASH_HOME}/${first_trash}"
+    final_path="${RM_SAFE_TRASH_HOME}/${final_trash}"
+  else
+    first_path="${device_path}/${first_trash}"
+    final_path="${device_path}/${final_trash}"
+  fi
+
+  # Tailings, as in residue, as in the this path might be
+  # considered residue. For example, maybe the final path
+  # *used* to exist, but the user later disabled trash by
+  # deleting it, but forgot to cleanup the first path dir.
+  _rm_rotate_alert_tailings() {
+    if ${RM_SAFE_INHIBIT_ALERT_TAILINGS:=false} &&
+      [ -e "${first_path}" ]; then
+      echo "- Also be aware tailings at ‘${first_path}’"
+    fi
+  }
+
+  if [ -f "${final_path}" ]; then
+    # The "final" trash (/<dev>/.trash) is a regular file, which
+    # means rm_safe is "disabled" on this device (though we alert
+    # if the ${first_trash} exists, e.g., /<dev>/.trash0).
+    if ! ${only_report_active}; then
+      # CRUMB: #_new_item
+      local leader=""
+      local action="Skipping inactivated"
+      ! ${do_report} || action="Disabled trash"
+      local ftype="Regular file"
+      ! ${do_report} || ftype="Reg. file"
+      echo "${leader} $(fg_lightmagenta)${action}:$(
+        attr_reset
+      ) $(fg_lightgray)${ftype}:$(attr_reset) $(
+        _rmr_print_path_stylized "${device_path}" "${final_trash}"
+      )"
+      _rm_rotate_alert_tailings
+    fi
+
+    return 0
+  elif [ -h "${final_path}" ]; then
+    # The "final" trash is a symlink (though we don't verify its target).
+    # UCASE: The typical use case is to symlink /<dev>/.trash to the main
+    # home device ~/.trash; then files are mv'd to the main trash on rm.
+    # - Similarly to when /<dev>/.trash is absent, tell the user when
+    #   first_trash (e.g., /<dev>/.trash0) exists.
+    # - Note we (obviously) don't empty the symlink target; we assume that
+    #   happens on another loop (and if the symlink is *not* to a
+    #   /<dev>/.trash[0]/ directory, well, that's the user's concern).
+    echo "SKIPD: Disregarding symlink ‘${final_path}’"
+    echo "- With final destination at ‘$(realpath -- "${final_path}")’"
+    _rm_rotate_alert_tailings
+
+    return 0
+  elif ! [ -d "${final_path}" ] && ! [ -d "${first_path}" ]; then
+    # Neither .trash/ nor .trash0/ on this device.
+    if ! ${only_report_active}; then
+      # CRUMB: #_new_item
+      local leader=""
+      local action="Skipping “empty” trash"
+      ! ${do_report} || action="“Empty” trash"
+      echo "${leader} $(fg_lightmagenta)${action}:$(
+        attr_reset
+      ) $(fg_lightgray)Nothing at:$(attr_reset) $(
+        _rmr_print_path_stylized "${device_path}" "${final_trash}"
+      ) or $(_rmr_print_path_stylized "../${first_trash}")"
+      _rm_rotate_alert_tailings
+    fi
+
+    return 0
+  fi
+
+  _sh_rm_rotate_print_stats "${first_path}" "${final_path}"
+
+  if ${do_report}; then
+
+    return 0
+  fi
+
+  if ! _sh_rm_rotate_must_prompt_user_okay_to_proceed "${first_path}" "${final_path}"; then
+
+    return 0
+  fi
+
+  local first_path_is_deletable=true
+  if ! _rm_rotate_acl_can_delete_directory "${first_path}"; then
+    first_path_is_deletable=false
+  fi
+
+  local rotate_is_deletable=true
+  if ! _rm_rotate_acl_can_delete_directory "${final_path}"; then
+    rotate_is_deletable=false
+  fi
+
+  # Remove the final trash (/<dev>/.trash).
+  # - This directory was the first trash (/dev/.trash0) at some
+  #   point in the past (until whenever the user last rotated).
+  # - Note that rm_rotate is not time-based or anything (though
+  #   you could wire it to cron, eh): It rotates only when user
+  #   runs `rm_rotate`.
+  #   - COPYD/FTREQ: /tmp-like time-based automatic file deletion,
+  #     e.g., check daily and /bin/rm any file that has not been
+  #     used in X days, perhaps 30d like macOS uses; or a lax 90.
+  # ∴ If user really wants to permantently remove what's in the
+  #   trash, they should run `rm_rotate` twice.
+  if [ -d "${final_path}" ]; then
+    # Check @macOS ACL permissions using Apple's `ls -e`, e.g.,
     #   $ /bin/ls -le -d ~/.Trash
     #   drwx------+ 207 user  staff  6624 Jul  8 21:58 /Users/user/.Trash
     #    0: group:everyone deny delete
-    # - Note also the '+' after flags to indicate ACL perms.
-    ! (
-      /bin/ls -le -d "${test_path}" 2>/dev/null |
-        grep -q -e "group:everyone deny delete"
-    )
-  }
-
-  _rm_rotate_enumerate_devices() {
-    if command -v findmnt >/dev/null; then
-      local device_path=""
-      for device_path in $(
-        findmnt -l -t fuse.gocryptfs,fuse.encfs,ext4 -o TARGET --noheadings |
-          grep -v "^/boot" |
-          sort
-      ); do
-        _rm_rotate_rotate_device_trash "${device_path}"
-      done
+    if ${rotate_is_deletable}; then
+      ${DRY_ECHO} command rm -rf -- "${final_path}"
     else
-      # @macOS, etc.
-      _rm_rotate_rotate_device_trash "/"
+      # I.e., ~/.Trash
+      ${DRY_ECHO} command rm -rf -- "${final_path}"/*
     fi
-  }
+  fi
 
-  _rm_rotate_rotate_device_trash() {
-    local device_path="$1"
-
-    local first_path
-    local final_path
-
-    if [ "${device_path}" = "/" ]; then
-      first_path="${RM_SAFE_TRASH_HOME}/${first_trash}"
-      final_path="${RM_SAFE_TRASH_HOME}/${final_trash}"
+  # No need to create final trash (/<dev>/.trash) if first trash
+  # (/<dev>/.trash0) currently empty.
+  if ! [ -d "${first_path}" ]; then
+    # No first trash. To avoid rm_safe prompting user later, create it.
+    # - Otherwise on first `rm` (rm_safe), user is prompted to setup
+    #   device trash.
+    #   - This lets user proactively setup trash, e.g.:
+    #       mkdir .trash
+    #       rm_rotate .
+    #     Or even simply this will do it:
+    #       mkdir .trash0
+    #     But latter won't create the "locked" Git repo
+    #     (which is purely for vanity, and only adds the
+    #      lifespan value to the stats report; so it does
+    #      not matter whether user makes .trash, .trash0,
+    #      or runs `touch foo && rm foo` to setup trash).
+    _sh_rm_safe_init_trash_dirs "${first_path}"
+  else
+    # First trash not empty. Move to final directory (which will be
+    # deleted on next rm_rotate). Then create a new first directory.
+    if ${first_path_is_deletable} && ${rotate_is_deletable}; then
+      ${DRY_ECHO} command mv -- "${first_path}" "${final_path}"
+      ${DRY_ECHO} command touch -- "${final_path}"
+      ${DRY_ECHO} command mkdir -p -- "${first_path}"
     else
-      first_path="${device_path}/${first_trash}"
-      final_path="${device_path}/${final_trash}"
+      # SAVVY: Because ACL, cannot delete (or rename) ~/.Trash
+      # This `mkdir` unnecessary but just to be clear.
+      ${DRY_ECHO} command mkdir -p -- "${final_path}"
+      # BWARE: Note the mv'ing ".*" includes "." and "..", which
+      # generates warnings, e.g., on Linux:
+      #   $ command mv -- foo/* foo/.* bar
+      #   mv: cannot move 'foo/.' to 'bar/.': Device or resource busy
+      #   mv: 'foo/..' and 'bar/..' are the same file
+      # Or on macOS:
+      #   $ command mv -- foo/* foo/.* bar
+      #   mv: rename foo/. to bar/.: Invalid argument
+      #   mv: foo/.. and bar/.. are identical
+      # - If we limit this script to Bash, we could use dotglob, e.g.,
+      #     #!/usr/bin/env bash
+      #     ...
+      #     local old_dot_glob
+      #     old_dot_glob="$(shopt -p dotglob)"
+      #     shopt -s dotglob
+      #     command mv -- "${first_path}"/* "${final_path}"
+      #     eval "${old_dot_glob}"
+      # - Better yet, for POSIX compatibility, use `find`:
+      ${DRY_ECHO} \
+        find "${first_path}" -mindepth 1 -maxdepth 1 -name "*" \
+        -exec $(gnu_mv) -t "${final_path}" {} \+
     fi
 
-    if [ ! -d "${final_path}" ]; then
-      echo "SKIPD: No trash found under ‘${device_path}’"
-      echo "- At least nothing found at ‘${final_path}’"
+    _sh_rm_safe_init_trash_dirs "${first_path}" "${final_path}"
+  fi
 
-      return 0
-    elif [ -h "${final_path}" ]; then
-      echo "SKIPD: Disregarding symlink ‘${final_path}’"
-      echo "- With final destination at ‘$(realpath -- "${final_path}")’"
+  echo "$(fg_green)━━━━━━▶  Success No cap$(attr_reset)"
+}
 
-      return 0
+# ***
+
+_sh_rm_rotate_print_stats() {
+  local trash_path
+  local is_first_path=true
+
+  for trash_path in "$@"; do
+    _rm_rotate_print_trash_stats "${trash_path}"
+    is_first_path=false
+  done
+}
+
+_rm_rotate_print_trash_stats() {
+  local trash_path="$1"
+
+  _rm_rotate_print_trash_stats_path "$@"
+  _rm_rotate_print_trash_stats_stats "$@"
+}
+
+_rm_rotate_print_trash_stats_path() {
+  local trash_path="$1"
+  if ${is_first_path}; then
+
+    # CRUMB: #_new_item
+    local leader=""
+    local action="Rotating"
+    ! ${do_report} || action="rm_safe"
+    echo "${leader} $(fg_lightgreen)${action}$(
+      attr_reset
+    ) $(
+      fg_lightorange
+    )<dev>/$(attr_reset)$(fg_lightblue)trash$(attr_reset)"
+  fi
+
+  local pipec="┗━"
+  local absent=""
+  ! ${is_first_path} || pipec="┣━"
+  if test -d "${trash_path}"; then
+    pipec="${pipec}┳━"
+  else
+    pipec="${pipec}━━"
+    absent=" $(fg_lightgreen)(absent)$(attr_reset)"
+  fi
+
+  echo "  ${pipec} $(_rmr_print_path_stylized "${trash_path}")${absent}"
+}
+
+_rm_rotate_print_trash_stats_stats() {
+  local trash_path="$1"
+
+  local pipec=" "
+  ! ${is_first_path} || pipec="┃"
+
+  if ! test -d "${trash_path}"; then
+    # ALTLY: Instead of " (absent)" appended above, its own line:
+    #   printf "%s %s\n" \
+    #     "  ${pipec} ┗━━" \
+    #     "$(fg_lightgreen)Missing$(attr_reset)"
+
+    return
+  fi
+
+  local latest_epoch
+  local create_date
+  local create_epoch
+  local rotate_date
+  local rotate_epoch
+  local lifespan
+
+  rotate_date="$(command date -r "${trash_path}" "+%Y-%m-%d")"
+  rotate_epoch="$($(_rmr_gnu_stat) -c %Y "${trash_path}")"
+
+  latest_epoch="$(date "+%s")"
+  since_rotate="$(printf "%4dd" "$(((latest_epoch - rotate_epoch) / 86400))")"
+
+  if test -d "${trash_path}/.git"; then
+    create_date="$(command date -r "${trash_path}/.git" "+%Y-%m-%d")"
+    # AWARE: Using BSD/Apple stat, it's `stat -f %m <path>` for epoch seconds.
+    create_epoch="$($(_rmr_gnu_stat) -c %Y "${trash_path}/.git")"
+    if ${RM_SAFE_STATS_SHRUGGIE:-true}; then
+      lifespan="$(printf "%4dd  /" "$(((rotate_epoch - create_epoch) / 86400))")"
+    else
+      lifespan="$(printf "%4dd /" "$(((rotate_epoch - create_epoch) / 86400))")"
     fi
-
-    local yes_or_no=""
-    printf %s "Empty ‘${final_path}’, and replace with trash from ‘${first_path}’? [y/n] "
-    read yes_or_no
-
-    # Bash-specific: [ "${yes_or_no^^}" = "Y" ]. POSIX-compatible:
-    if [ "$(first_char_capped ${yes_or_no})" != "Y" ]; then
-      if [ -z "${yes_or_no}" ]; then
-        echo
-      fi
-      # REFER: https://en.wikipedia.org/wiki/Sorry_Ma,_Forgot_to_Take_Out_the_Trash
-      echo "SKIPD: Sorry Ma, left trash ‘${first_path}’"
-
-      return 0
+  else
+    # ...._date="YYYY-MM-DD"
+    create_date="<Beats me>"
+    create_epoch="${rotate_epoch}"
+    if ${RM_SAFE_STATS_SHRUGGIE:-true}; then
+      lifespan="¯\_㋡_/¯"
+    else
+      lifespan="  🤷d /"
     fi
+  fi
 
-    local trash_is_deletable=true
-    if ! _rm_rotate_acl_can_delete_directory "${first_path}"; then
-      trash_is_deletable=false
-    fi
+  # Refer: %s mapping:
+  #
+  #      Pipe  Date    Span  Date            Items      Mbs
+  #        |"Cr."|  "Te" |"Use"| Since     "It"  |  "Mb" |reset
+  #        |  |  |    |  |  |  |   |         |   |   |   |  |
+  printf "%s %s %s / %s %s %s %s (%s ago) / %s %4d / %s %sM%s\n" \
+    "  ${pipec} ┗━━" \
+    "$(fg_lightgreen)Creation:$(fg_lightyellow)" \
+    "${create_date}" \
+    "$(fg_lightgreen)Term:$(fg_lightyellow)" \
+    "${lifespan}" \
+    "$(fg_lightgreen)Last Use:$(fg_lightyellow)" \
+    "${rotate_date}" \
+    "${since_rotate}" \
+    "$(fg_lightgreen)Items:$(fg_lightyellow)" \
+    "$(find "${trash_path}" -mindepth 1 -maxdepth 1 | wc -l)" \
+    "$(fg_lightgreen)Mbytes:$(fg_lightyellow)" \
+    "$(_rmr_stats_print_size_mb "${trash_path}")" \
+    "$(attr_reset)"
+}
 
-    local rotate_is_deletable=true
-    if ! _rm_rotate_acl_can_delete_directory "${final_path}"; then
-      rotate_is_deletable=false
-    fi
+# Print file size.
+# - Linux GNU and Homebrew gstat: (g)stat -c %s <path>
+# - Avoid: Raw BSD macOS stat is: stat -f %z <path>
+# - COPYD: print_ctags_report():
+#   ~/.depoxy/ambers/home/.projlns/infuse-projlns-core.sh @ 216
+_rmr_stats_print_size_mb() {
+  local path="$1"
 
-    # Remove the TBD directory from last time.
-    # - Note that rm_rotate is not time-based or anything: It rotates
-    #   only when user runs `rm_rotate`. That is, it doesn't keep files
-    #   for some set amount of time or anything; it keeps files until
-    #   the user runs `rm_rotate`, then it deletes the former directory
-    #   and moves the active trash to the TBD position. Thus, if user
-    #   wants to really permantently remove what's in the trash, they
-    #   should run `rm_rotate` twice in a row.
-    if [ -d "${final_path}" ]; then
-      # Check @macOS ACL permissions using Apple ls's -e, e.g.,
-      #   $ /bin/ls -le -d ~/.Trash
-      #   drwx------+ 207 user  staff  6624 Jul  8 21:58 /Users/user/.Trash
-      #    0: group:everyone deny delete
-      if ${rotate_is_deletable}; then
-        ${DRY_ECHO} command rm -rf -- "${final_path}"
-      else
-        # I.e., ~/.Trash
-        ${DRY_ECHO} command rm -rf -- "${final_path}"/*
-      fi
-    fi
+  # Aside: For individual file Mbytes:
+  #   echo "scale=0; $($(_rmr_gnu_stat) -c %s "${path}") / 1024 / 1024" | bc -l
+  # Savvy: Note `du -sm` prints "1" for empty dir (`du`, `du -h` prints
+  # "4.0K"), but `du -sb` prints "0".
+  # - So not this:
+  #   command du -sm "${path}" | awk '{print $1}' | numfmt --grouping
+  # - Also note that --exclude applies to subdirs, so this not good:
+  #     command du -sb "${path}" --exclude=.git
+  #   So we'll send top-level paths minus .git/ to du.
+  echo "scale=0; $(
+    find "${path}" -maxdepth 1 -mindepth 1 ! -name ".git" -print0 |
+      du -sb --files0-from=- --total | tail -n 1 | awk '{print $1}'
+  ) / 1024" | bc -l |
+    numfmt --grouping
+}
 
-    # Avoid creating -TBD directory if trash already empty.
-    if [ -n "$(command ls -- "${first_path}")" ]; then
-      # First trash not empty. Move to final directory (which will be
-      # deleted on next rm_rotate), and then create a new first directory.
-
-      if ${trash_is_deletable} && ${rotate_is_deletable}; then
-        ${DRY_ECHO} command mv -- "${first_path}" "${final_path}"
-        ${DRY_ECHO} command touch -- "${final_path}"
-        ${DRY_ECHO} command mkdir -p -- "${first_path}"
-      else
-        # SAVVY: Because ACL, cannot delete (or rename) ~/.Trash
-        # This `mkdir` unnecessary but just to be clear.
-        ${DRY_ECHO} command mkdir -p -- "${final_path}"
-        # BWARE: Note the mv'ing ".*" includes "." and "..", which
-        # generates warnings, e.g., on Linux:
-        #   $ command mv -- foo/* foo/.* bar
-        #   mv: cannot move 'foo/.' to 'bar/.': Device or resource busy
-        #   mv: 'foo/..' and 'bar/..' are the same file
-        # Or on macOS:
-        #   $ command mv -- foo/* foo/.* bar
-        #   mv: rename foo/. to bar/.: Invalid argument
-        #   mv: foo/.. and bar/.. are identical
-        # - If we limit this script to Bash, we could use dotglob, e.g.,
-        #     #!/usr/bin/env bash
-        #     ...
-        #     local old_dot_glob
-        #     old_dot_glob="$(shopt -p dotglob)"
-        #     shopt -s dotglob
-        #     command mv -- "${first_path}"/* "${final_path}"
-        #     eval "${old_dot_glob}"
-        # - Better yet, for POSIX compatibility, use `find`:
-        ${DRY_ECHO} \
-          find "${first_path}" -mindepth 1 -maxdepth 1 -name "*" \
-          -exec $(gnu_mv) -t "${final_path}" {} \+
-      fi
-
-      _sh_rm_safe_ensure_trash_dir_with_proper_permissions "${first_path}"
-      _sh_rm_safe_ensure_trash_dir_with_proper_permissions "${final_path}"
-    fi
-  }
-
-  _rm_rotate_enumerate_devices
+# - COPYD: gnu_stat():
+#   ~/.depoxy/ambers/home/.projlns/infuse-projlns-core.sh @ 245
+_rmr_gnu_stat() {
+  for cmd in "gstat" "stat"; do
+    (
+      unset -f ${cmd}
+      unalias ${cmd}
+      command -v ${cmd}
+    ) 2>/dev/null &&
+      break
+  done
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+_sh_rm_rotate_must_prompt_user_okay_to_proceed() {
+  local first_path="$1"
+  local final_path="$2"
+
+  local latest_epoch=""
+  latest_epoch="$(date "+%s")"
+
+  # 
+  echo "$(fg_hotpink)$(attr_reset)"
+
+  local since_rotate=""
+  if test -d "${final_path}"; then
+    if ! _sh_rm_rotate_is_empty_trash "${final_path}"; then
+      local rotate_epoch=""
+      rotate_epoch="$($(_rmr_gnu_stat) -c %Y "${final_path}")"
+      since_rotate="$(printf "%d" "$(((latest_epoch - rotate_epoch) / 86400))")"
+
+      printf "%s\n" \
+        "$(fg_hotpink)┣┳▶ ALERT  This will permanently delete $(
+          attr_reset
+        )$(_rmr_print_path_stylized "${final_path}/") $(fg_hotpink)(last used ${since_rotate}d ago)$(attr_reset)"
+    else
+      printf "%s\n" \
+        "$(fg_hotpink)┣┳▶ SAVVY   The final trash d. is empty $(
+          attr_reset
+        )$(_rmr_print_path_stylized "${final_path}/") $(fg_hotpink)(nothing to permanently delete right now)$(attr_reset)"
+    fi
+  else
+    printf "%s\n" \
+      "$(fg_hotpink)┣┳▶ ALERT:  There is no final trash dir $(
+        attr_reset
+      )$(_rmr_print_path_stylized "${final_path}/") $(fg_hotpink)(nothing to permanently delete right now)$(attr_reset)"
+  fi
+
+  # "$(fg_hotpink)┣━━▶ And this trash will takes its place $(
+  printf "%s\n%s\n%s" \
+    "$(fg_hotpink)┣┻┳▶ This will “freeze” the latest trash $(
+      attr_reset
+    )$(_rmr_print_path_stylized "${first_path}/") $(fg_hotpink)(by renaming it to $(_rmr_print_path_stylized "${final_trash}/"))$(attr_reset)" \
+    "$(fg_hotpink)┣┳┻┳▶ And create a new “first” trash dir $(
+      attr_reset
+    )$(_rmr_print_path_stylized "${first_path}/") $(fg_hotpink)(that you can start using immediately)$(attr_reset)" \
+    "$(fg_hotpink)┗┻━┻━▶ Okay to proceed? [y/N]$(attr_reset) "
+
+  local yes_or_no=""
+  read yes_or_no
+
+  # Bash-specific: [ "${yes_or_no^^}" = "Y" ]. POSIX-compatible:
+  if [ "$(first_char_capped ${yes_or_no})" != "Y" ]; then
+    if [ -z "${yes_or_no}" ]; then
+      echo
+    fi
+    local leader=""
+    # REFER: https://en.wikipedia.org/wiki/Sorry_Ma,_Forgot_to_Take_Out_the_Trash
+    printf "%s%s\n" \
+      " $(fg_lavender)${leader} STOPD: Sorry Ma, Forget To Take Out The Trash $(attr_reset)" \
+      "$(_rmr_print_path_stylized "${first_path}")"
+
+    return 1
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+_rm_rotate_acl_can_delete_directory() {
+  local test_path="$1"
+
+  # Check @macOS ACL permissions using Apple's `ls -e,` e.g.,
+  #   $ /bin/ls -le -d ~/.Trash
+  #   drwx------+ 207 user  staff  6624 Jul  8 21:58 /Users/user/.Trash
+  #    0: group:everyone deny delete
+  # - Note the '+' after mode bits (drwx------+) to indicate ACL perms.
+  ! (
+    /bin/ls -le -d "${test_path}" 2>/dev/null |
+      grep -q -e "group:everyone deny delete"
+  )
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+_sh_rm_safe_init_trash_dirs() {
+  local trash_path
+
+  for trash_path in "$@"; do
+    _sh_rm_safe_ensure_trash_dir_with_proper_permissions "${trash_path}"
+    _sh_rm_safe_created_locked_git_repo "${trash_path}"
+  done
+}
 
 # COPYD: From rm_safe
 # - MAYBE: DRY: Add common lib file
 _sh_rm_safe_ensure_trash_dir_with_proper_permissions() {
   local trash_dir="$1"
 
-  command mkdir -p -- "${trash_dir}"
+  ${DRY_ECHO} command mkdir -p -- "${trash_dir}"
 
-  command chmod 700 "${trash_dir}"
+  ${DRY_ECHO} command chmod 700 -- "${trash_dir}"
 
   if os_is_macos; then
     # Ensure ~/.Trash0 permissions like ~/.Trash
-    if ! command chmod +a "group:everyone deny delete" "${trash_dir}"; then
+    if ! command chmod +a "group:everyone deny delete" -- "${trash_dir}"; then
       # E.g.,
-      #   chmod: Failed to set ACL on file '/Users/puck/.Trash': Operation not permitted
+      #   chmod: Failed to set ACL on file '/Users/puck/.Trash':
+      #     Operation not permitted
 
       >&2 echo "ERROR: You may need to enable Full Disk Access on your terminal app"
     fi
   fi
+}
+
+# HSTRY/2026-06-04: This is silly! But I like it.
+# - Use case: Just in case you run a Git within a trash dir, so
+#   you're not confused. Also because if you were to rm a .git/
+#   dir. at some point, that would "become" the trash Git repo.
+_sh_rm_safe_created_locked_git_repo() {
+  local trash_dir="$1"
+
+  (
+    cd -- "${trash_dir}"
+
+    local pre_commit_hook=".git/hooks/pre-commit"
+
+    if test -f "${pre_commit_hook}"; then
+
+      return
+    fi
+
+    ${DRY_ECHO} command git init . -q
+    ${DRY_ECHO} command git commit --allow-empty -m "${RM_SAFE_TRASH_COMMIT_MSG:-trash}" -q
+    cat <<EOF >"${pre_commit_hook}"
+#!/bin/sh
+echo "Error: This repository is locked. Commits are disabled."
+exit 1
+EOF
+    ${DRY_ECHO} chmod +x -- "${pre_commit_hook}"
+  )
+}
+
+_sh_rm_rotate_is_empty_trash() {
+  local trash_dir="$1"
+
+  _rmr_trash_listing() { command ls -A -- "${trash_dir}"; }
+
+  ! [ -d "${trash_dir}" ] ||
+    [ -z "$(_rmr_trash_listing)" ] ||
+    (
+      [ "$(_rmr_trash_listing)" = ".git" ] &&
+        cd -- "${trash_dir}" &&
+        test "$(git log -1 --format='%B')" = "${RM_SAFE_TRASH_COMMIT_MSG:-trash}" &&
+        test "$(git rev-list --count --all)" = "1"
+    )
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -322,33 +816,82 @@ os_is_macos() {
   [ "$(uname)" = "Darwin" ]
 }
 
+_rmr_print_path_stylized() {
+  local device_path="$1"
+  local trash_dir="$2"
+
+  if test -z "${trash_dir}"; then
+    trash_dir="$(basename -- "${device_path}")"
+    # POSIX variation of Bashism:
+    #   [[ "${device_path}" == */ ]] && echo "Yes"
+    case "${device_path}" in
+    */) trash_dir="${trash_dir}/" ;;
+    esac
+
+    device_path="$(dirname -- "${device_path}")"
+  fi
+
+  echo "$(
+    fg_lightorange
+  )$(echo "${device_path}" | _rmr_tilde_for_home)/$(
+    attr_reset
+  )$(
+    fg_lightblue
+  )${trash_dir}$(
+    attr_reset
+  )"
+}
+
+# COPYD: Less robust tilde swapper:
+#   ~/.kit/git/git-smart/bin/git-sign-help
+#   ~/.kit/sh/sh-rm_safe/bin/rm_rotate
+# - Canon code:
+#   ~/.kit/sh/sh-logger/bin/logger.sh
+_rmr_tilde_for_home() {
+  _rmr_gnu_sed() {
+    if command -v gsed 2>/dev/null ||
+      command -v sed 2>/dev/null; then
+
+      return
+    fi
+
+    >&2 echo "ERROR: (g)sed absent!"
+
+    echo "_rmr_nullary_cat"
+  }
+
+  _rmr_nullary_cat() { cat; }
+
+  $(_rmr_gnu_sed) -E "s#^${HOME}(/|$)#~\1#"
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 PROG_NAME="rm_rotate"
 
-clear_traps() {
+_rm_rotate_clear_traps() {
   trap - EXIT INT
 }
 
-set_traps() {
+_rm_rotate_set_traps() {
   trap -- trap_exit EXIT
   trap -- trap_int INT
 }
 
 exit_0() {
-  clear_traps
+  _rm_rotate_clear_traps
 
   exit 0
 }
 
 exit_1() {
-  clear_traps
+  _rm_rotate_clear_traps
 
   exit 1
 }
 
 trap_exit() {
-  clear_traps
+  _rm_rotate_clear_traps
 
   # USAGE: Alert on unexpected error path, so you can add happy path.
   >&2 echo "ALERT: "$(basename -- "$0")" exited abnormally!"
@@ -358,7 +901,7 @@ trap_exit() {
 }
 
 trap_int() {
-  clear_traps
+  _rm_rotate_clear_traps
 
   exit 3
 }
@@ -368,13 +911,20 @@ trap_int() {
 main() {
   set -e
 
-  set_traps
+  _rm_rotate_set_traps
 
-  set_environs
+  _rm_rotate_set_environs
+
+  _rm_rotate_source_deps
+
+  local do_report=false
+  local only_report_active=false
+  local has_paths=false
+  _rm_rotate_parse_args "$@"
 
   rm_rotate "$@"
 
-  clear_traps
+  _rm_rotate_clear_traps
 }
 
 # Run the command unless being sourced.
