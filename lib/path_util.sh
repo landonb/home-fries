@@ -303,7 +303,37 @@ pushd_alias() {
     return 1
   fi
 
-  eval "alias $1='pushd \"$2\" > /dev/null'"
+  eval "alias $1='_hf_pushd_with_args \"$1\" \"$2\"'"
+}
+
+_hf_pushd_with_args() {
+  local alname="$1"
+  local target="$2"
+  local bonusp="$3"
+
+  local final_destination="${target}/${bonusp}"
+
+  if [ $# -gt 3 ]; then
+    # E.g.,
+    #   $ pushd foo bar
+    #   bash: pushd: too many arguments
+    #   $ cd foo bar
+    #   bash: cd: too many arguments
+    >&2 echo "homefries: ${alname}: too many arguments"
+
+    return 1
+  fi
+
+  if ! test -d "${final_destination}"; then
+    # E.g.,
+    #   $ cd foo
+    #   bash: cd: foo: No such file or directory
+    >&2 echo "homefries: ${alname}: No such file or directory"
+
+    return 1
+  fi
+
+  pushd -- "${final_destination}" >/dev/null
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
