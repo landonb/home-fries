@@ -155,6 +155,29 @@ _hofr_no_color() {
 #     00000000  5c 5b 5c 5d               |\[\]|
 #
 #   But author has not noticed a difference between which one is used.
+#
+# BWARE: The SOX and STX bytes cause issue with `bat` and `less -R`,
+# e.g.,
+#   $ ( printf "\001\033[32m\002foo\n" | less -R )
+# Shows:
+#   ^A^Bfoo
+
+# SOH: Start of Non-printing ‖ \x01 Start of Header ‖ tells shell
+#      line-editor to start ignoring width counting.
+# STX: End of Non-printing ‖ \x02 Start of Text ‖ tells shell to
+#      resume counting chars towards the visible len. of the prompt.
+
+prepare_non_printing_signals() {
+  SHCOLORS_SOH=""
+  SHCOLORS_STX=""
+
+  # HSTRY/2026-06-10: Only if over SSH, otherwise `less -R` and `bat` complain.
+  if [ -n "${SSH_CLIENT}" ] || [ -n "${SSH_TTY}" ] || [ -n "${SSH_CONNECTION}" ]; then
+    SHCOLORS_SOH="\001"
+    SHCOLORS_STX="\002"
+  fi
+}
+prepare_non_printing_signals
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -191,98 +214,98 @@ fg_pink() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[38;5;211m"
-  printf "\001\033[38;2;255;135;175m\002"
+  printf "${SHCOLORS_SOH}\033[38;2;255;135;175m${SHCOLORS_STX}"
 }
 
 fg_orange() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[38;5;203m"
-  printf "\001\033[38;2;255;95;95m\002"
+  printf "${SHCOLORS_SOH}\033[38;2;255;95;95m${SHCOLORS_STX}"
 }
 
 fg_skyblue() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[38;5;111m"
-  printf "\001\033[38;2;135;175;255m\002"
+  printf "${SHCOLORS_SOH}\033[38;2;135;175;255m${SHCOLORS_STX}"
 }
 
 fg_mediumgrey() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[38;5;246m"
-  printf "\001\033[38;2;148;148;148m\002"
+  printf "${SHCOLORS_SOH}\033[38;2;148;148;148m${SHCOLORS_STX}"
 }
 
 fg_lavender() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[38;5;183m"
-  printf "\001\033[38;2;215;175;255m\002"
+  printf "${SHCOLORS_SOH}\033[38;2;215;175;255m${SHCOLORS_STX}"
 }
 
 fg_tan() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[38;5;179m"
-  printf "\001\033[38;2;215;175;95m\002"
+  printf "${SHCOLORS_SOH}\033[38;2;215;175;95m${SHCOLORS_STX}"
 }
 
 fg_forest() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[38;5;22m"
-  printf "\001\033[38;2;0;95;0m\002"
+  printf "${SHCOLORS_SOH}\033[38;2;0;95;0m${SHCOLORS_STX}"
 }
 
 fg_maroon() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[38;5;52m"
-  printf "\001\033[38;2;95;0;0m\002"
+  printf "${SHCOLORS_SOH}\033[38;2;95;0;0m${SHCOLORS_STX}"
 }
 
 fg_hotpink() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[38;5;198m"
-  printf "\001\033[38;2;255;0;135m\002"
+  printf "${SHCOLORS_SOH}\033[38;2;255;0;135m${SHCOLORS_STX}"
 }
 
 fg_mintgreen() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[38;5;121m"
-  printf "\001\033[38;2;135;255;175m\002"
+  printf "${SHCOLORS_SOH}\033[38;2;135;255;175m${SHCOLORS_STX}"
 }
 
 fg_lightorange() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[38;5;215m"
-  printf "\001\033[38;2;255;175;95m\002"
+  printf "${SHCOLORS_SOH}\033[38;2;255;175;95m${SHCOLORS_STX}"
 }
 
 fg_lightred() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[38;5;203m"
-  printf "\001\033[38;2;255;95;95m\002"
+  printf "${SHCOLORS_SOH}\033[38;2;255;95;95m${SHCOLORS_STX}"
 }
 
 fg_jade() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[38;5;35m"
-  printf "\001\033[38;2;0;175;95m\002"
+  printf "${SHCOLORS_SOH}\033[38;2;0;175;95m${SHCOLORS_STX}"
 }
 
 fg_lime() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[38;5;154m"
-  printf "\001\033[38;2;175;255;0m\002"
+  printf "${SHCOLORS_SOH}\033[38;2;175;255;0m${SHCOLORS_STX}"
 }
 
 ### background colors
@@ -291,260 +314,260 @@ bg_pink() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[48;5;211m"
-  printf "\001\033[48;2;255;135;175m\002"
+  printf "${SHCOLORS_SOH}\033[48;2;255;135;175m${SHCOLORS_STX}"
 }
 
 bg_orange() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[48;5;203m"
-  printf "\001\033[48;2;255;95;95m\002"
+  printf "${SHCOLORS_SOH}\033[48;2;255;95;95m${SHCOLORS_STX}"
 }
 
 bg_skyblue() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[48;5;111m"
-  printf "\001\033[48;2;135;175;255m\002"
+  printf "${SHCOLORS_SOH}\033[48;2;135;175;255m${SHCOLORS_STX}"
 }
 
 bg_mediumgrey() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[48;5;246m"
-  printf "\001\033[48;2;148;148;148m\002"
+  printf "${SHCOLORS_SOH}\033[48;2;148;148;148m${SHCOLORS_STX}"
 }
 
 bg_lavender() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[48;5;183m"
-  printf "\001\033[48;2;215;175;255m\002"
+  printf "${SHCOLORS_SOH}\033[48;2;215;175;255m${SHCOLORS_STX}"
 }
 
 bg_tan() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[48;5;179m"
-  printf "\001\033[48;2;215;175;95m\002"
+  printf "${SHCOLORS_SOH}\033[48;2;215;175;95m${SHCOLORS_STX}"
 }
 
 bg_forest() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[48;5;22m"
-  printf "\001\033[48;2;0;95;0m\002"
+  printf "${SHCOLORS_SOH}\033[48;2;0;95;0m${SHCOLORS_STX}"
 }
 
 bg_maroon() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[48;5;52m"
-  printf "\001\033[48;2;95;0;0m\002"
+  printf "${SHCOLORS_SOH}\033[48;2;95;0;0m${SHCOLORS_STX}"
 }
 
 bg_hotpink() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[48;5;198m"
-  printf "\001\033[48;2;255;0;135m\002"
+  printf "${SHCOLORS_SOH}\033[48;2;255;0;135m${SHCOLORS_STX}"
 }
 
 bg_mintgreen() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[48;5;121m"
-  printf "\001\033[48;2;135;255;175m\002"
+  printf "${SHCOLORS_SOH}\033[48;2;135;255;175m${SHCOLORS_STX}"
 }
 
 bg_lightorange() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[48;5;215m"
-  printf "\001\033[48;2;255;175;95m\002"
+  printf "${SHCOLORS_SOH}\033[48;2;255;175;95m${SHCOLORS_STX}"
 }
 
 bg_lightred() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[48;5;203m"
-  printf "\001\033[48;2;255;95;95m\002"
+  printf "${SHCOLORS_SOH}\033[48;2;255;95;95m${SHCOLORS_STX}"
 }
 
 bg_jade() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[48;5;35m"
-  printf "\001\033[48;2;0;175;95m\002"
+  printf "${SHCOLORS_SOH}\033[48;2;0;175;95m${SHCOLORS_STX}"
 }
 
 bg_lime() {
   _hofr_no_color && return
   # Via TERM=*-256color:
   #   printf "\033[48;5;154m"
-  printf "\001\033[48;2;175;255;0m\002"
+  printf "${SHCOLORS_SOH}\033[48;2;175;255;0m${SHCOLORS_STX}"
 }
 
 # ***
 
 fg_black() {
   _hofr_no_color && return
-  printf "\001\033[30m\002"
+  printf "${SHCOLORS_SOH}\033[30m${SHCOLORS_STX}"
 }
 
 fg_red() {
   _hofr_no_color && return
-  printf "\001\033[31m\002"
+  printf "${SHCOLORS_SOH}\033[31m${SHCOLORS_STX}"
 }
 
 fg_green() {
   _hofr_no_color && return
-  printf "\001\033[32m\002"
+  printf "${SHCOLORS_SOH}\033[32m${SHCOLORS_STX}"
 }
 
 fg_yellow() {
   _hofr_no_color && return
-  printf "\001\033[33m\002"
+  printf "${SHCOLORS_SOH}\033[33m${SHCOLORS_STX}"
 }
 
 fg_blue() {
   _hofr_no_color && return
-  printf "\001\033[34m\002"
+  printf "${SHCOLORS_SOH}\033[34m${SHCOLORS_STX}"
 }
 
 fg_magenta() {
   _hofr_no_color && return
-  printf "\001\033[35m\002"
+  printf "${SHCOLORS_SOH}\033[35m${SHCOLORS_STX}"
 }
 
 fg_cyan() {
   _hofr_no_color && return
-  printf "\001\033[36m\002"
+  printf "${SHCOLORS_SOH}\033[36m${SHCOLORS_STX}"
 }
 
 fg_lightgray() {
   _hofr_no_color && return
-  printf "\001\033[37m\002"
+  printf "${SHCOLORS_SOH}\033[37m${SHCOLORS_STX}"
 }
 
 fg_darkgray() {
   _hofr_no_color && return
-  printf "\001\033[90m\002"
+  printf "${SHCOLORS_SOH}\033[90m${SHCOLORS_STX}"
 }
 
 fg_lightred() {
   _hofr_no_color && return
-  printf "\001\033[91m\002"
+  printf "${SHCOLORS_SOH}\033[91m${SHCOLORS_STX}"
 }
 
 fg_lightgreen() {
   _hofr_no_color && return
-  printf "\001\033[92m\002"
+  printf "${SHCOLORS_SOH}\033[92m${SHCOLORS_STX}"
 }
 
 fg_lightyellow() {
   _hofr_no_color && return
-  printf "\001\033[93m\002"
+  printf "${SHCOLORS_SOH}\033[93m${SHCOLORS_STX}"
 }
 
 fg_lightblue() {
   _hofr_no_color && return
-  printf "\001\033[94m\002"
+  printf "${SHCOLORS_SOH}\033[94m${SHCOLORS_STX}"
 }
 
 fg_lightmagenta() {
   _hofr_no_color && return
-  printf "\001\033[95m\002"
+  printf "${SHCOLORS_SOH}\033[95m${SHCOLORS_STX}"
 }
 
 fg_lightcyan() {
   _hofr_no_color && return
-  printf "\001\033[96m\002"
+  printf "${SHCOLORS_SOH}\033[96m${SHCOLORS_STX}"
 }
 
 fg_white() {
   _hofr_no_color && return
-  printf "\001\033[97m\002"
+  printf "${SHCOLORS_SOH}\033[97m${SHCOLORS_STX}"
 }
 
 bg_black() {
   _hofr_no_color && return
-  printf "\001\033[40m\002"
+  printf "${SHCOLORS_SOH}\033[40m${SHCOLORS_STX}"
 }
 
 bg_red() {
   _hofr_no_color && return
-  printf "\001\033[41m\002"
+  printf "${SHCOLORS_SOH}\033[41m${SHCOLORS_STX}"
 }
 
 bg_green() {
   _hofr_no_color && return
-  printf "\001\033[42m\002"
+  printf "${SHCOLORS_SOH}\033[42m${SHCOLORS_STX}"
 }
 
 bg_yellow() {
   _hofr_no_color && return
-  printf "\001\033[43m\002"
+  printf "${SHCOLORS_SOH}\033[43m${SHCOLORS_STX}"
 }
 
 bg_blue() {
   _hofr_no_color && return
-  printf "\001\033[44m\002"
+  printf "${SHCOLORS_SOH}\033[44m${SHCOLORS_STX}"
 }
 
 bg_magenta() {
   _hofr_no_color && return
-  printf "\001\033[45m\002"
+  printf "${SHCOLORS_SOH}\033[45m${SHCOLORS_STX}"
 }
 
 bg_cyan() {
   _hofr_no_color && return
-  printf "\001\033[46m\002"
+  printf "${SHCOLORS_SOH}\033[46m${SHCOLORS_STX}"
 }
 
 bg_lightgray() {
   _hofr_no_color && return
-  printf "\001\033[47m\002"
+  printf "${SHCOLORS_SOH}\033[47m${SHCOLORS_STX}"
 }
 
 bg_darkgray() {
   _hofr_no_color && return
-  printf "\001\033[100m\002"
+  printf "${SHCOLORS_SOH}\033[100m${SHCOLORS_STX}"
 }
 
 bg_lightred() {
   _hofr_no_color && return
-  printf "\001\033[101m\002"
+  printf "${SHCOLORS_SOH}\033[101m${SHCOLORS_STX}"
 }
 
 bg_lightgreen() {
   _hofr_no_color && return
-  printf "\001\033[102m\002"
+  printf "${SHCOLORS_SOH}\033[102m${SHCOLORS_STX}"
 }
 
 bg_lightyellow() {
   _hofr_no_color && return
-  printf "\001\033[103m\002"
+  printf "${SHCOLORS_SOH}\033[103m${SHCOLORS_STX}"
 }
 
 bg_lightblue() {
   _hofr_no_color && return
-  printf "\001\033[104m\002"
+  printf "${SHCOLORS_SOH}\033[104m${SHCOLORS_STX}"
 }
 
 bg_lightmagenta() {
   _hofr_no_color && return
-  printf "\001\033[105m\002"
+  printf "${SHCOLORS_SOH}\033[105m${SHCOLORS_STX}"
 }
 
 bg_lightcyan() {
   _hofr_no_color && return
-  printf "\001\033[106m\002"
+  printf "${SHCOLORS_SOH}\033[106m${SHCOLORS_STX}"
 }
 
 bg_white() {
   _hofr_no_color && return
-  printf "\001\033[107m\002"
+  printf "${SHCOLORS_SOH}\033[107m${SHCOLORS_STX}"
 }
 
 ### Colors inspired by Vim dubs_after_dark
@@ -555,13 +578,13 @@ bg_white() {
 # https://www.htmlcsscolor.com/hex/00CC00
 fg_free_speech_green() {
   _hofr_no_color && return
-  printf "\001\033[38;2;0;204;0m\002"
+  printf "${SHCOLORS_SOH}\033[38;2;0;204;0m${SHCOLORS_STX}"
 }
 #
 # https://www.htmlcsscolor.com/hex/002200
 bg_myrtle() {
   _hofr_no_color && return
-  printf "\001\033[48;2;0;34;0m\002"
+  printf "${SHCOLORS_SOH}\033[48;2;0;34;0m${SHCOLORS_STX}"
 }
 
 # DiffChange
@@ -570,13 +593,13 @@ bg_myrtle() {
 # https://www.htmlcsscolor.com/hex/FF9955
 fg_sunshade() {
   _hofr_no_color && return
-  printf "\001\033[38;2;255;153;85m\002"
+  printf "${SHCOLORS_SOH}\033[38;2;255;153;85m${SHCOLORS_STX}"
 }
 #
 # https://www.htmlcsscolor.com/hex/220000
 bg_seal_brown() {
   _hofr_no_color && return
-  printf "\001\033[48;2;34;0;0m\002"
+  printf "${SHCOLORS_SOH}\033[48;2;34;0;0m${SHCOLORS_STX}"
 }
 
 # DiffDelete
@@ -660,7 +683,7 @@ bg_seal_brown() {
 # a string -- use the escape code.
 attr_reset() {
   _hofr_no_color && return
-  printf "\001\033[0m\002"
+  printf "${SHCOLORS_SOH}\033[0m${SHCOLORS_STX}"
 }
 
 # ***
@@ -670,7 +693,7 @@ attr_bold() {
   # See also:
   #   printf "$(tput bold)"
   # - but like noted above, prefer this escape code.
-  printf "\001\033[1m\002"
+  printf "${SHCOLORS_SOH}\033[1m${SHCOLORS_STX}"
 }
 
 # CALSO:
@@ -678,7 +701,7 @@ attr_bold() {
 #   00000000  1b 5b 32 6d               |.[2m|
 attr_dim() {
   _hofr_no_color && return
-  printf "\001\033[2m\002"
+  printf "${SHCOLORS_SOH}\033[2m${SHCOLORS_STX}"
 }
 
 # CALSO:
@@ -686,7 +709,7 @@ attr_dim() {
 #   00000000  1b 5b 33 6d               |.[3m|
 attr_emphasis() {
   _hofr_no_color && return
-  printf "\001\033[3m\002"
+  printf "${SHCOLORS_SOH}\033[3m${SHCOLORS_STX}"
 }
 
 attr_italic() {
@@ -698,7 +721,7 @@ attr_italic() {
 #   00000000  1b 5b 34 6d               |.[4m|
 attr_underline() {
   _hofr_no_color && return
-  printf "\001\033[4m\002"
+  printf "${SHCOLORS_SOH}\033[4m${SHCOLORS_STX}"
 }
 
 attr_underlined() {
@@ -712,7 +735,7 @@ attr_underlined() {
 #   00000000  1b 5b 35 6d               |.[5m|
 attr_blink() {
   _hofr_no_color && return
-  printf "\001\033[5m\002"
+  printf "${SHCOLORS_SOH}\033[5m${SHCOLORS_STX}"
 }
 
 # CALSO: Aka begin standout mode:
@@ -721,7 +744,7 @@ attr_blink() {
 attr_invert() {
   # Aka negative image.
   _hofr_no_color && return
-  printf "\001\033[7m\002"
+  printf "${SHCOLORS_SOH}\033[7m${SHCOLORS_STX}"
 }
 
 # CALSO:
@@ -730,7 +753,7 @@ attr_invert() {
 attr_hidden() {
   # Aka invisible image.
   _hofr_no_color && return
-  printf "\001\033[8m\002"
+  printf "${SHCOLORS_SOH}\033[8m${SHCOLORS_STX}"
 }
 
 # CALSO:
@@ -741,7 +764,7 @@ attr_hidden() {
 #     https://github.com/tmux/tmux/issues/1137
 attr_strikethrough() {
   _hofr_no_color && return
-  printf "\001\033[9m\002"
+  printf "${SHCOLORS_SOH}\033[9m${SHCOLORS_STX}"
 }
 
 # ***
@@ -753,7 +776,7 @@ res_all() { attr_reset; }
 #   00000000  1b 5b 33 6d               |.[3m|
 res_bold() {
   _hofr_no_color && return
-  printf "\001\033[22m\002"
+  printf "${SHCOLORS_SOH}\033[22m${SHCOLORS_STX}"
 }
 
 # (lb): I do not recall what 'dim' means.
@@ -764,7 +787,7 @@ res_dim() { res_bold; }
 #   00000000  1b 5b 32 33 6d            |.[23m|
 res_emphasis() {
   _hofr_no_color && return
-  printf "\001\033[23m\002"
+  printf "${SHCOLORS_SOH}\033[23m${SHCOLORS_STX}"
 }
 
 res_italic() {
@@ -776,7 +799,7 @@ res_italic() {
 #   00000000  1b 5b 32 34 6d            |.[24m|
 res_underline() {
   _hofr_no_color && return
-  printf "\001\033[24m\002"
+  printf "${SHCOLORS_SOH}\033[24m${SHCOLORS_STX}"
 }
 
 res_underlined() {
@@ -786,21 +809,21 @@ res_underlined() {
 # DUNNO: `man 5 terminfo` does not show cap-code to reset 'blink'.
 res_blink() {
   _hofr_no_color && return
-  printf "\001\033[25m\002"
+  printf "${SHCOLORS_SOH}\033[25m${SHCOLORS_STX}"
 }
 
 # DUNNO: `man 5 terminfo` does not show cap-code to reset 'smso'.
 res_reverse() {
   # Aka negative image.
   _hofr_no_color && return
-  printf "\001\033[27m\002"
+  printf "${SHCOLORS_SOH}\033[27m${SHCOLORS_STX}"
 }
 
 # DUNNO: `man 5 terminfo` does not show cap-code to reset 'invis'.
 res_hidden() {
   # Aka invisible image.
   _hofr_no_color && return
-  printf "\001\033[28m\002"
+  printf "${SHCOLORS_SOH}\033[28m${SHCOLORS_STX}"
 }
 
 # *** Convenience aliases.
