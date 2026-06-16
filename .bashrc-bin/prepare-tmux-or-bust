@@ -93,13 +93,13 @@ fries_tmux_session_entitle_unless_attach_existing() {
     if [[ ${nsessns} -gt ${FRIES_TMUX_LIMIT} ]] ||
       [[ ! -f ${HOME_FRIES_TMUX_NAMES_FILE} ]] \
       ; then
-      _fries_too_many_clients_tmux_switch_client
+      _fries_tmux_too_many_clients_tmux_switch_client
     else
       _fries_tmux_rename_session_10lettername
     fi
   }
 
-  _fries_too_many_clients_tmux_switch_client() {
+  _fries_tmux_too_many_clients_tmux_switch_client() {
     # Use a catch-all session named with the current date
     # to use when exceeding client maximum.
     local sname="$(date +%Y-%m-%d)"
