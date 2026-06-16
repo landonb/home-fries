@@ -8,7 +8,7 @@
 
 _hf_check_deps_space() {
   # Verify sh-colors/bin/colors.sh loaded.
-  check_dep '_hofr_no_color' || return 1
+  check_dep '_shcol_no_color' || return 1
 
   # Verify distro_util.sh loaded.
   check_dep 'os_is_macos' || return 1
