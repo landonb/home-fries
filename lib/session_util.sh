@@ -247,7 +247,7 @@ _hf_desktop_lock() {
 # CALSO: `systemctl hibernate`
 
 _hf_desktop_suspend() {
-  tmux_expire_sudo
+  _hf_tmux_expire_sudo
 
   if command -v systemctl >/dev/null; then
     systemctl suspend
@@ -261,7 +261,7 @@ _hf_desktop_suspend() {
 # - This tmux loop is a remnant of that paranoia.
 # - 2018-02-19: Tmux, Too!
 #   - REFER: pane_id returns, e.g., %0, %1, %2; pane_index returns 1, 2, 3.
-tmux_expire_sudo() {
+_hf_tmux_expire_sudo() {
   if ! command -v tmux >/dev/null; then
 
     return
