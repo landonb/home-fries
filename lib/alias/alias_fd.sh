@@ -153,9 +153,9 @@ _hf_fd() {
     # --classify: Appends one of: */=>@|
     exec_batch="--exec-batch lsd -1d --classify --color always"
   elif [ "${HOMEFRIES_FD_EXEC_BATCH}" = "eza" ] ||
+    command -v eza >/dev/null; then
     # BONUS: In addition to ensuring results sorted consistently between
     # repeated queries, also indicates file type, and shows symlink targets.
-    command -v eza >/dev/null; then
 
     exec_batch="--exec-batch eza --oneline -d"
   fi
