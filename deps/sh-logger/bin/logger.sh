@@ -289,22 +289,11 @@ _sh_first_command() {
   echo "${match}"
 }
 
-# cat, but no args.
+# cat, but ignore args.
 # - Words: Niladic, or Nullary: "Of an op or f in a prog, having no args."
 #   https://en.wiktionary.org/wiki/niladic
 _sh_cat_niladic() {
-  # ALTLY: Always prefers just echoing args:
-  #   if test $# -gt 0; then
-  #     echo "$@"
-  #   else
-  #     cat
-  #   fi
-  # - Instead: Prefer stdin when avail., fallback args.
-  if read -t 0 notused; then
-    cat
-  else
-    echo "$@"
-  fi
+  cat
 }
 
 gnu_sed() {
