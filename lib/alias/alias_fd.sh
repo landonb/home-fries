@@ -93,9 +93,17 @@ _hf_fd() {
   local no_ignore=false
   local unrestricted=false
   local exec_batch=""
+  local format=""
+  local format_pending=false
 
   local arg
   for arg in "$@"; do
+    if ${format_pending}; then
+      format="--format $1"
+      format_pending=false
+      continue
+    fi
+
     case "${arg}" in
     -L | --follow) no_follow=false ;;
     --no-follow) no_follow=true ;;
@@ -107,6 +115,9 @@ _hf_fd() {
       unrestricted=true
       no_hidden=false
       no_ignore=true
+      ;;
+    --format)
+      format_pending=true
       ;;
     # See following comment — Cannot add non-fd options, e.g.:
     #   --exec-batch) exec_batch="..." ;;
@@ -203,7 +214,7 @@ _hf_fd() {
     ${no_hidden} || printf "%s" "-H"
   ) $(
     ${no_follow} || printf "%s" "-L"
-  ) ${exclude} ${ignore_file_arg} $@ \\
+  ) ${format} ${exclude} ${ignore_file_arg} $@ \\
     ${exec_batch}"
 
   ! ${HOMEFRIES_FD_TRACE:-false} || echo "${fd_cmd}"
