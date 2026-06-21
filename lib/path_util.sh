@@ -312,11 +312,8 @@ pushd_alias() {
 _hf_pushd_with_args() {
   local alname="$1"
   local target="$2"
-  local bonusp="$3"
 
-  local final_destination="${target}/${bonusp}"
-
-  if [ $# -gt 3 ]; then
+  if [ $# -gt 2 ]; then
     # E.g.,
     #   $ pushd foo bar
     #   bash: pushd: too many arguments
@@ -327,7 +324,7 @@ _hf_pushd_with_args() {
     return 1
   fi
 
-  if ! test -d "${final_destination}"; then
+  if ! test -d "${target}"; then
     # E.g.,
     #   $ cd foo
     #   bash: cd: foo: No such file or directory
@@ -336,7 +333,7 @@ _hf_pushd_with_args() {
     return 1
   fi
 
-  pushd -- "${final_destination}" >/dev/null
+  pushd -- "${target}" >/dev/null
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
