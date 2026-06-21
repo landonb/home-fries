@@ -298,12 +298,15 @@ pushd_alias_or_warn() {
 }
 
 pushd_alias() {
-  if type "$1" >/dev/null 2>&1; then
+  local name="$1"
+  local comm="$2"
+
+  if type "${name}" >/dev/null 2>&1; then
 
     return 1
   fi
 
-  eval "alias $1='_hf_pushd_with_args \"$1\" \"$2\"'"
+  eval "alias ${name}='_hf_pushd_with_args \"${name}\" \"${comm}\"'"
 }
 
 _hf_pushd_with_args() {
