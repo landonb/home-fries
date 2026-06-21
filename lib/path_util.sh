@@ -297,32 +297,46 @@ pushd_alias_or_warn() {
   fi
 }
 
+# REFER: The printf below escape-quotes an arbitrary no. of args.
+# - CALSO: There's a similar mechanism, which is a Bash4.4+ism:
+#     ${@@Q}   "Parameter transformation": ${parameter@operator}
+#               Q — The expansion is a string that is the value of param.
+#                   quoted in a format that can be reused as input.
+#   but that just single-quotes each item, not escaped-doubles.
+#   - Also ${@@E} sounds like it might work, but alas no.
+# - Fortunately the printf shell built-in repeats the pattern
+#   for an arbitrary number of arguments, which is perfect.
+
 pushd_alias() {
   local name="$1"
-  local comm="$2"
+  shift
 
   if type "${name}" >/dev/null 2>&1; then
 
     return 1
   fi
 
-  eval "alias ${name}='_hf_pushd_with_args \"${name}\" \"${comm}\"'"
+  eval "alias ${name}='_hf_pushd_with_args \"${name}\" $(printf '\"%s\" ' "$@")'"
 }
 
 _hf_pushd_with_args() {
   local alname="$1"
   local target="$2"
+  shift 2
 
-  if [ $# -gt 2 ]; then
-    # E.g.,
-    #   $ pushd foo bar
-    #   bash: pushd: too many arguments
-    #   $ cd foo bar
-    #   bash: cd: too many arguments
-    >&2 echo "homefries: ${alname}: too many arguments"
+  local curr_dir="$(realpath -- "$(pwd)")"
+  local prev_target="${target}"
 
-    return 1
-  fi
+  while [ $# -gt 0 ]; do
+    if [ "${curr_dir}" = "$(realpath -- "${prev_target}")" ]; then
+      target="$1"
+
+      break
+    fi
+
+    prev_target="$1"
+    shift
+  done
 
   if ! test -d "${target}"; then
     # E.g.,
