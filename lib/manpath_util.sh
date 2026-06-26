@@ -50,6 +50,12 @@ _hf_jit_configure_manpath() {
   # but I think it makes more sense to clean MANPATH and recreate from scratch.
   export MANPATH=
 
+  # REFER: /etc/manpath.config and ~/.manpath (empty)
+  # AWARE: `manpath` tests every path on PATH with trailing bin/
+  #        replaced by man/, and adds any such paths that exist.
+  # - REFER: man 5 manpath
+  _HF_MAN_PATH_USED="${PATH}"
+
   local newpath=""
   candidates=$(echo $(manpath) | tr ":" "\n")
   for prospect in ${candidates}; do
@@ -216,8 +222,13 @@ _hf_man_colorman() {
 
 # `man` lazy-loader. Sneaky sneaky. Shaves tenth sec. or so off session start.
 man() {
-  ! ${_LOADED_HF_MANPATH_UTIL_MAN:-false} &&
+  if test -z "${MANPATH}" ||
+    [ "${_HF_MAN_PATH_USED}" != "${PATH}" ] ||
+    ! ${_LOADED_HF_MANPATH_UTIL_MAN:-false} \
+    ; then
+
     _hf_jit_configure_manpath
+  fi
   _LOADED_HF_MANPATH_UTIL_MAN=true
 
   local try_path_1="${HOME}/.config/less/termcap"
