@@ -9,7 +9,8 @@
 home_fries_aliases_wire_fd() {
   # `fd` is `fdfind` on Debian 12, Ubuntu 20.04, etc.
   # REFER: https://github.com/sharkdp/fd/issues/1009
-  #   https://stackoverflow.com/questions/1583219/how-can-i-do-a-recursive-find-replace-of-a-string-with-awk-or-sed/71931037#71931037
+  #   https://stackoverflow.com/questions/1583219/
+  #     how-can-i-do-a-recursive-find-replace-of-a-string-with-awk-or-sed/71931037#71931037
   if ! (
     unset -f fdfind
     unalias fdfind
