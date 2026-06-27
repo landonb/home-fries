@@ -7,6 +7,10 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Show grep differences in colour.
+# REFER:
+#   egrep → grep -E, --extended-regexp
+#   fgrep → grep -F, --fixed-strings
+#   rgrep → grep -r, --recursive
 home_fries_aliases_wire_grep() {
   claim_alias_or_warn "grep" "grep --color=auto" ${_force:-true}
   claim_alias_or_warn "fgrep" "fgrep --color=auto" ${_force:-true}
@@ -15,6 +19,11 @@ home_fries_aliases_wire_grep() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# ISOFF: No such dotfile (at least not in Home-fries, DepoXy, or
+# author's private DepoXy Client's dotfiles).
+# - SAVVY: Instead of running or piping to *grep,
+#   Homefries/DepoXy/Author urge you to use `rg`.
+#
 # Include preferred egrep switches and excludes.
 #   -n, --line-number
 #   -R, --dereference-recursive
