@@ -327,6 +327,11 @@ _hf_pushd_with_args() {
   local curr_dir="$(realpath -- "$(pwd)")"
   local prev_target="${target_dir}"
 
+  # FEATR: If alias made with *multiple* (full) paths, progress
+  # through the paths depending on cwd. I.e., consider:
+  #   pushd_alias_or_warn cdtest ~/foo ~/bar
+  # then cdtest normally cd's to ~/foo, unless
+  # current dir is ~/foo, than goes to ~/bar.
   while [ $# -gt 0 ]; do
     if [ "${curr_dir}" = "$(realpath -- "${prev_target}")" ]; then
       target_dir="$1"
