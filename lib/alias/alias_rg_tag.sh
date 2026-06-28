@@ -196,19 +196,19 @@ home_fries_create_aliases_rg_tag_wrap() {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 home_fries_create_aliases_rg_options() {
-  # 2017-09-13: ripgrep!
+  # REFER/2017-09-13: ripgrep!
   # https://github.com/BurntSushi/ripgrep
-  # I'm only doing this because The Silver Searcher is identifying
-  # one of my reST files as binary, and I don't care to figure out
-  # why.
-  #alias rg="rg --smart-case --hidden"
-  # 2017-10-16: Output is difficult to read. Emulate The Silver Searcher.
-  #  Colors: red, blue, green, cyan, magenta, yellow, white, black.
-  #  Styles: nobold, bold, nointense, intense.
-  #  Format is {type}:{attribute}:{value}.
-  #    {type}: path, line, column, match.
-  #    {attribute}: fg, bg style.
-  #    {value} is either a color (for fg and bg) or a text style.
+  # - HSTRY: I found rg after The Silver Searcher identified one of
+  #   my reST files as binary, and I didn't care to figure out why.
+  # - SAVVY/2017-10-16: The default output is difficult to read.
+  #   - So let's emulate The Silver Searcher, whose colors I like.
+  # - REFER:
+  #   - Colors: red, blue, green, cyan, magenta, yellow, white, black
+  #   - Styles: nobold, bold, nointense, intense
+  #   - Format is {type}:{attribute}:{value} —
+  #       {type}: path, line, column, match
+  #       {attribute}: fg, bg style
+  #       {value} is either a color (for fg and bg) or a text style
   claim_alias_or_warn "rgn" "\
     rg \
       --smart-case \
