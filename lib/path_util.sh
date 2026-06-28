@@ -327,21 +327,41 @@ _hf_pushd_with_args() {
   local curr_dir="$(realpath -- "$(pwd)")"
   local prev_target="${target_dir}"
 
-  # FEATR: If alias made with *multiple* (full) paths, progress
-  # through the paths depending on cwd. I.e., consider:
-  #   pushd_alias_or_warn cdtest ~/foo ~/bar
-  # then cdtest normally cd's to ~/foo, unless
-  # current dir is ~/foo, than goes to ~/bar.
-  while [ $# -gt 0 ]; do
-    if [ "${curr_dir}" = "$(realpath -- "${prev_target}")" ]; then
-      target_dir="$1"
+  # FEATR: If user, when calling the alias, passes a (relative)
+  # path, assume they want to enter a subdir of the 1st target.
+  if [ $# -gt 0 ]; then
+    # Slice array using relative index position.
+    # - Altly: Direct index via ${@:$#} or Indirect expansion
+    #   via ${!#} which uses $#.
+    local final_arg="${@: -1}"
+    # Check relative path (using Bashism; Altly: for Posix:
+    #   case "${pth}" in
+    #       /*) echo "Abso-lutely!" ;;
+    #       *)  echo "Relativistical." ;;
+    #   esac
+    # - Note the tilde-prefix technically doesn't affect
+    #   this function's usage, but included for complete-
+    #   ness.
+    if [[ "${final_arg}" != /* ]] && [[ "${final_arg}" != ~* ]]; then
+      target_dir="${target_dir}/${final_arg}"
+    else
+      # FEATR: If alias made with *multiple* (full) paths, progress
+      # through the paths depending on cwd. I.e., consider:
+      #   pushd_alias_or_warn cdtest ~/foo ~/bar
+      # then cdtest normally cd's to ~/foo, unless
+      # current dir is ~/foo, than goes to ~/bar.
+      while [ $# -gt 0 ]; do
+        if [ "${curr_dir}" = "$(realpath -- "${prev_target}")" ]; then
+          target_dir="$1"
 
-      break
+          break
+        fi
+
+        prev_target="$1"
+        shift
+      done
     fi
-
-    prev_target="$1"
-    shift
-  done
+  fi
 
   if ! test -d "${target_dir}"; then
     # Format error line `cd`, e.g.:
