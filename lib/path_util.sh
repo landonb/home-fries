@@ -320,16 +320,16 @@ pushd_alias() {
 }
 
 _hf_pushd_with_args() {
-  local alname="$1"
-  local target="$2"
+  local alias_name="$1"
+  local target_dir="$2"
   shift 2
 
   local curr_dir="$(realpath -- "$(pwd)")"
-  local prev_target="${target}"
+  local prev_target="${target_dir}"
 
   while [ $# -gt 0 ]; do
     if [ "${curr_dir}" = "$(realpath -- "${prev_target}")" ]; then
-      target="$1"
+      target_dir="$1"
 
       break
     fi
@@ -338,16 +338,16 @@ _hf_pushd_with_args() {
     shift
   done
 
-  if ! test -d "${target}"; then
+  if ! test -d "${target_dir}"; then
     # E.g.,
     #   $ cd foo
     #   bash: cd: foo: No such file or directory
-    >&2 echo "homefries: ${alname}: No such file or directory"
+    >&2 echo "homefries: ${alias_name}: No such file or directory"
 
     return 1
   fi
 
-  pushd -- "${target}" >/dev/null
+  pushd -- "${target_dir}" >/dev/null
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
