@@ -219,12 +219,6 @@ home_fries_create_aliases_rg_options() {
       --colors 'line:style:bold' \
       --colors 'match:bg:white'"
 
-  # DELETE/2018-01-29: This fcn., rg_peek, is not called.
-  # 2018-01-29: Obsolete. In Vim, idea to `set grepprg=rg_peek`, but didn't work.
-  function rg_peek() {
-    rg -A 0 -B 0 --hidden --follow --max-count 1 $* 2>/dev/null
-  }
-
   claim_alias_or_warn "rgg" "rg --ignore-parent"
 }
 
