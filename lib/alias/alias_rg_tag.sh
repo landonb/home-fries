@@ -136,6 +136,7 @@ home_fries_create_aliases_rg_tag_wrap() {
         --colors 'path:style:bold'
         --colors 'line:fg:green'
         --colors 'line:style:bold'
+        --colors 'column:none'
         --colors 'match:bg:white'
         --glob '!**/{${dir_globs}}/**'
         --glob '!**/{${file_globs}}'
@@ -217,6 +218,7 @@ home_fries_create_aliases_rg_options() {
       --colors 'path:style:bold' \
       --colors 'line:fg:green' \
       --colors 'line:style:bold' \
+      --colors 'column:none' \
       --colors 'match:bg:white'"
 
   claim_alias_or_warn "rgg" "rg --ignore-parent"
