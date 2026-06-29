@@ -21,7 +21,7 @@ home_fries_aliases_wire_fd() {
   fi
 
   if _hf_fd_abs_path >/dev/null; then
-    alias fd="_hf_fd -I"
+    claim_alias_or_warn "fd" "_hf_fd -I" ${_force:-true}
 
     # Without the --no-ignore
     claim_alias_or_warn "fdi" "_hf_fd"

@@ -12,7 +12,7 @@
 #   -f  "Forces non-regular files to be opened."
 #       "Also suppresses the warning message when a binary file is opened."
 home_fries_aliases_wire_less() {
-  alias less='less -Rf'
+  claim_alias_or_warn "less" "less -Rf" ${_force:-true}
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
