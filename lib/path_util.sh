@@ -367,7 +367,7 @@ _hf_pushd_with_args() {
     # Format error line `cd`, e.g.:
     #   $ cd foo
     #   bash: cd: foo: No such file or directory
-    >&2 echo "homefries: ${alias_name}: No such file or directory"
+    >&2 echo "homefries: ${alias_name}: No such file or directory: ${target_dir}"
 
     return 1
   fi
