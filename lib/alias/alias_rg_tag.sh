@@ -383,7 +383,7 @@ home_fries_create_aliases_rg_options() {
 #       - Which is part of shared_args/shared_args_raw/shared_args_too.
 
 rg_producer_consumer() {
-  local shared_args="--smart-case --hidden"
+  local shared_args="--smart-case --hidden --color=always"
   if ! test -t 1; then
     # Stdout not terminal, so acting as producer.
     # - --tag enables `tag` (which creates /tmp/tag_aliases) — and
@@ -459,7 +459,20 @@ rg_producer_consumer() {
       --colors 'path:none' --colors 'line:none' --colors 'column:none' --colors 'match:none' \
       ${pattern_opt_a} "${@:1:${found_index}}" ${pattern_opt_b} "${@:${after_index}}" |
       command rg ${shared_args_too} --passthru \
-        ${pattern_opt_a} "${@:1:${found_index}}" ${pattern_opt_b} "${@:${after_index}}"
+        ${pattern_opt_a} "${@:1:${found_index}}" ${pattern_opt_b} "${@:${after_index}}" |
+      (
+        if ${HOMEFRIES_RG_GR_INHIBIT_PRUNE:-false}; then
+          cat
+        else
+          # Remove --heading and blank lines with no results following.
+          awk '
+            /^$/ { if (heading) { heading = ""; next; } }
+            /^\x1b\[[0-9;]*m[^\[]/ { heading = $0; next; }
+            { if (heading) { print heading; heading = ""; } }
+            1
+            '
+        fi
+      )
   else
     # Both stdin and stdout connected to terminal;
     # acting as passthrough.
