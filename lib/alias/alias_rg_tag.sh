@@ -363,6 +363,24 @@ home_fries_create_aliases_rg_options() {
 #         rg ...
 #     - Or use the shell's aliases lookup, e.g.:
 #         eval "${BASH_ALIASES[rg]} ..."
+# - Savvy: We can call `rg` directly for the sink.
+#   - Here's why we don't need to call the `_hf_rg` wrapper:
+#     - Many of the options control how input files are selected:
+#         --hidden --follow
+#         --no-ignore-vcs --no-ignore-parent
+#         --glob '!**/{.git,.tox,node_modules,.crypt}/**'
+#         --glob '!**/{*.swp,...,*.zip,doc/tags}' "$@"
+#       - But these would be ignored, because input is being streamed.
+#     - Half of the options set colors:
+#         --colors 'path:fg:yellow' --colors 'path:style:bold'
+#         --colors 'line:fg:green' --colors 'line:style:bold'
+#         --colors 'column:none' --colors 'match:bg:white'
+#       - But only the 'match' color matters, because the others
+#         are input-file related (coloring path, line, column),
+#         which are only used by the first stage (the source).
+#     - That leaves only one option we need to specify:
+#         --smart-case
+#       - Which is part of shared_args/shared_args_raw/shared_args_too.
 
 rg_producer_consumer() {
   local shared_args="--smart-case --hidden"
@@ -436,17 +454,11 @@ rg_producer_consumer() {
     local shared_args_raw="${shared_args} --no-line-number --no-column"
     # USYNC: #_rg_colors
     local shared_args_too="${shared_args_raw} --colors match:bg:green"
-
-    _hf_rg ${shared_args_raw} \
-      --colors 'path:none' \
-      --colors 'line:none' \
-      --colors 'column:none' \
-      --colors 'match:none' \
-      -e '^$' \
-      -e '^\x1b\[[0-9;]*m[^\[]' \
+    # See comment above re: We call rg directly for the sink (not _hf_rg).
+    command rg ${shared_args_raw} -e '^$' -e '^\x1b\[[0-9;]*m[^\[]' \
+      --colors 'path:none' --colors 'line:none' --colors 'column:none' --colors 'match:none' \
       ${pattern_opt_a} "${@:1:${found_index}}" ${pattern_opt_b} "${@:${after_index}}" |
-      _hf_rg --passthru \
-        ${shared_args_too} \
+      command rg ${shared_args_too} --passthru \
         ${pattern_opt_a} "${@:1:${found_index}}" ${pattern_opt_b} "${@:${after_index}}"
   else
     # Both stdin and stdout connected to terminal;
