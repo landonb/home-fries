@@ -612,6 +612,20 @@ bg_seal_brown() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+fg_rgb() {
+  _shcol_no_col && return
+  # REFER: \x1b[38;2;R;G;Bm
+  printf "${SHCOLORS_SOH}\033[38;2;${1};${2};${3}m${SHCOLORS_STX}"
+}
+
+bg_rgb() {
+  _shcol_no_col && return
+  # REFER: \x1b[48;2;R;G;Bm
+  printf "${SHCOLORS_SOH}\033[48;2;${1};${2};${3}m${SHCOLORS_STX}"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # CALSO: We use completion to find func. names. Naïve alt: Grep this file:
 #   grep "() {$" ~/.kit/sh/sh-colors/bin/colors.sh \
 #   | sed 's/^\(.*\)() {$/  export -f \1/' \
@@ -697,6 +711,7 @@ _shcol_export() {
 # a string -- use the escape code.
 attr_reset() {
   _shcol_no_col && return
+  # REFER: \x1b[0m
   printf "${SHCOLORS_SOH}\033[0m${SHCOLORS_STX}"
 }
 
