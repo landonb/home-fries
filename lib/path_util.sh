@@ -316,7 +316,7 @@ pushd_alias() {
     return 1
   fi
 
-  eval "alias ${name}='_hf_pushd_with_args \"${name}\" $(printf '\"%s\" ' "$@")'"
+  eval "alias ${name}='_hf_pushd_with_args \"${name}\"$(printf ' \"%s\"' "$@")'"
 }
 
 _hf_pushd_with_args() {
