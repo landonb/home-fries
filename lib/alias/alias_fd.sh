@@ -106,17 +106,17 @@ _hf_fd() {
     fi
 
     case "${arg}" in
-    -L | --follow) no_follow=false ;;
-    --no-follow) no_follow=true ;;
     -H | --hidden) no_hidden=false ;;
     --no-hidden) no_hidden=true ;;
-    --ignore) no_ignore=false ;;
     -I | --no-ignore) no_ignore=true ;;
+    --ignore) no_ignore=false ;;
     -u | --unrestricted)
       unrestricted=true
       no_hidden=false
       no_ignore=true
       ;;
+    -L | --follow) no_follow=false ;;
+    --no-follow) no_follow=true ;;
     --format)
       format_pending=true
       ;;
