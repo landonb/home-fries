@@ -128,6 +128,7 @@ home_fries_create_aliases_rg_tag_wrap() {
   local rg_wrap_with_options="$(
     echo "
       tag
+        --with-filename
         --smart-case
         --hidden
         --follow
