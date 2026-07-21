@@ -49,12 +49,19 @@ home_fries_create_aliases_rg_tag_wrap() {
     local aliases="${TAG_ALIAS_FILE:-/tmp/tag_aliases}"
     command rm -f "${aliases}"
 
+    local tag_ecode
     # See: ${HOME}/.gopath/bin/tag
     command tag "$@"
+    tag_ecode=$?
+    # tag passes through rg exit: 0 if 1+ matches, 1 if none, or 2 if error.
+    if [ ${tag_ecode} -eq 0 ]; then
+      if ! [ -s "${aliases}" ] || ! . "${aliases}"; then
+        >&2 echo "GAFFE: Missing or broken tag aliases file"
+        tag_ecode=3
+      fi
+    fi
 
-    # The tag command does not set $? on error, not sure why.
-    [ -s "${aliases}" ] || return 1
-    . "${aliases}" 2>/dev/null
+    return ${tag_ecode}
   }
 
   # [lb] 2019-01-06: BEWARE: --no-ignore-parent can be used to ignore .ignore's
