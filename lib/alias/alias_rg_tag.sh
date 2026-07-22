@@ -202,6 +202,10 @@ home_fries_create_aliases_rg_tag_wrap() {
 
   alias rg="${rg_wrap_with_options}"
 
+  if ${HOMEFRIES_RG_TRACE:-false}; then
+    >&2 echo "eval \"_hf_rg() { ${rg_wrap_with_options} \\\"\\\$@\\\"; }\""
+  fi
+
   eval "_hf_rg() { ${rg_wrap_with_options} \"\$@\"; }"
 }
 
