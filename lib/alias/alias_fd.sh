@@ -95,6 +95,8 @@ _hf_fd() {
   local unrestricted=false
   local exec_batch=""
   local format=""
+  local color1="--color=always"
+  local color2="--color always"
 
   _hf_fd_parse_args() {
     while [ $# -gt 0 ]; do
@@ -118,6 +120,15 @@ _hf_fd() {
           shift
         else
           >&2 echo "ERROR: Missing --format arg"
+        fi
+        ;;
+      -c | --color)
+        if [ $# -gt 1 ]; then
+          color1="--color='$2'"
+          color2="--color '$2'"
+          shift
+        else
+          >&2 echo "ERROR: Missing --color arg"
         fi
         ;;
       # See following comment — Cannot add non-fd options, e.g.:
@@ -153,16 +164,16 @@ _hf_fd() {
     [ "${HOMEFRIES_FD_EXEC_BATCH}" = "false" ]; then
     exec_batch=""
   elif [ "${HOMEFRIES_FD_EXEC_BATCH}" = "ls" ]; then
-    exec_batch="--exec-batch ls -1d --color=always"
+    exec_batch="--exec-batch ls -1d ${color1}"
   elif [ "${HOMEFRIES_FD_EXEC_BATCH}" = "lsd" ]; then
     # --classify: Appends one of: */=>@|
-    exec_batch="--exec-batch lsd -1d --classify --color always"
+    exec_batch="--exec-batch lsd -1d --classify ${color2}"
   elif [ "${HOMEFRIES_FD_EXEC_BATCH}" = "eza" ] ||
     command -v eza >/dev/null; then
     # BONUS: In addition to ensuring results sorted consistently between
     # repeated queries, also indicates file type, and shows symlink targets.
 
-    exec_batch="--exec-batch eza --oneline -d"
+    exec_batch="--exec-batch eza --oneline -d ${color1}"
   fi
 
   # ***
