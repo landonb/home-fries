@@ -238,7 +238,7 @@ _hf_fd() {
   ) ${format} ${exclude} ${ignore_file_arg} $@ \\
     ${exec_batch}"
 
-  ! ${HOMEFRIES_FD_TRACE:-false} || echo "${fd_cmd}"
+  ! ${HOMEFRIES_FD_TRACE:-false} || >&2 echo "${fd_cmd}"
 
   eval "${fd_cmd}"
 }
