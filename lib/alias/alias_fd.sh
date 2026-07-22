@@ -104,10 +104,35 @@ _hf_fd() {
   local color2="--color always"
 
   _hf_fd_parse_args() {
-    while [ $# -gt 0 ]; do
-      local arg="$1"
+    GETOPT_LONGOPTS=hidden,no-hidden,no-ignore,ignore,unrestricted,follow,no-follow,format:,color:
+    GETOPT_SHORTIES=HIuLc:
 
-      case "${arg}" in
+    getopt --test >/dev/null && true
+    if [ $? -ne 4 ]; then
+      >&2 echo 'ERROR: Missing enhanced getopt'
+
+      exit 1
+    fi
+
+    # DEVEL: Uncommentable:
+    #  >&2 echo "getopt --options=${GETOPT_SHORTIES} --longoptions=${GETOPT_LONGOPTS} --name \"$0\" -- \"$@\""
+    if ! PARSED=$(
+      getopt --options=${GETOPT_SHORTIES} --longoptions=${GETOPT_LONGOPTS} --name "$0" -- "$@"
+    ); then
+      # getopt prints its own error.
+
+      exit 1
+    fi
+    # DEVEL: Uncommentable:
+    #  >&2 echo "getopt=${PARSED}"
+    eval set -- "${PARSED}"
+
+    # Process named options until '--', then break.
+    # - USYNC: These case names same as GETOPT_LONGOPTS, GETOPT_SHORTIES, defined above.
+    # - SAVVY: [ "$(getopt --options=h)" = " --" ]
+    while true; do
+      case "$1" in
+
       -H | --hidden) no_hidden=false ;;
       --no-hidden) no_hidden=true ;;
       -I | --no-ignore) no_ignore=true ;;
@@ -136,8 +161,20 @@ _hf_fd() {
           >&2 echo "ERROR: Missing --color arg"
         fi
         ;;
-      # See following comment — Cannot add non-fd options, e.g.:
-      #   --exec-batch) exec_batch="..." ;;
+      # BWARE: See following comment — Can only add actual fd options
+      # (because we don't rebuild $@, otherwise we could; but we can
+      #  use environs as necessary instead).
+      --)
+        shift
+
+        break
+        ;;
+      *)
+        # getopt puts non-option args after the '--', so this should be unreachable.
+        >&2 echo "GAFFE: Unreachable code ($1)"
+
+        exit_1
+        ;;
       esac
 
       shift
