@@ -95,35 +95,39 @@ _hf_fd() {
   local unrestricted=false
   local exec_batch=""
   local format=""
-  local format_pending=false
 
-  local arg
-  for arg in "$@"; do
-    if ${format_pending}; then
-      format="--format $1"
-      format_pending=false
-      continue
-    fi
+  _hf_fd_parse_args() {
+    while [ $# -gt 0 ]; do
+      local arg="$1"
 
-    case "${arg}" in
-    -H | --hidden) no_hidden=false ;;
-    --no-hidden) no_hidden=true ;;
-    -I | --no-ignore) no_ignore=true ;;
-    --ignore) no_ignore=false ;;
-    -u | --unrestricted)
-      unrestricted=true
-      no_hidden=false
-      no_ignore=true
-      ;;
-    -L | --follow) no_follow=false ;;
-    --no-follow) no_follow=true ;;
-    --format)
-      format_pending=true
-      ;;
-    # See following comment — Cannot add non-fd options, e.g.:
-    #   --exec-batch) exec_batch="..." ;;
-    esac
-  done
+      case "${arg}" in
+      -H | --hidden) no_hidden=false ;;
+      --no-hidden) no_hidden=true ;;
+      -I | --no-ignore) no_ignore=true ;;
+      --ignore) no_ignore=false ;;
+      -u | --unrestricted)
+        unrestricted=true
+        no_hidden=false
+        no_ignore=true
+        ;;
+      -L | --follow) no_follow=false ;;
+      --no-follow) no_follow=true ;;
+      --format)
+        if [ $# -gt 1 ]; then
+          format="--format '$2'"
+          shift
+        else
+          >&2 echo "ERROR: Missing --format arg"
+        fi
+        ;;
+      # See following comment — Cannot add non-fd options, e.g.:
+      #   --exec-batch) exec_batch="..." ;;
+      esac
+
+      shift
+    done
+  }
+  _hf_fd_parse_args "$@"
 
   # Currently, CLI args are passed-through to `fd` below, and we
   # don't rebuild $@ specially. So each arg must match a legit
