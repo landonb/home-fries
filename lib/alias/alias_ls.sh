@@ -174,18 +174,38 @@ function l() {
 #    if [ $# -gt 1 ]; then
 #      ... (just call ls without processing)
 
-print_file_url_friendly_ls_alias() {
-  printf "%s" "\
-  _ls() {
-    if [ \\\$# -gt 1 ]; then
-      ${ls_cmd} -hFA ${color_opt} \\\"\\\$@\\\";
-    else
-      echo \\\"'\\\${1:-.}'\\\" | command sed -e \\\"s#^'file://#'#g\\\" | xargs ${ls_cmd} -hFA --color=auto;
-    fi;
-  }; _ls" |
-    sed -e 's/^ \+//g' |
-    tr "\n" " "
-}
+# For claim_alias_or_warn that eval's raw string variable.
+# - PREVY/2026-08-04: This is how we used to roll,
+#   preserved here and not commented so you can compare
+#   implementations.
+if ${_HF_LS_EVAL_UNSAFE:-false}; then
+  print_file_url_friendly_ls_alias_unsafe() {
+    printf "%s" "\
+      _ls() {
+        if [ \\\$# -gt 1 ]; then
+          ${ls_cmd} -hFA ${color_opt} \\\"\\\$@\\\";
+        else
+          echo \\\"'\\\${1:-.}'\\\" | command sed -e \\\"s#^'file://#'#g\\\" | xargs ${ls_cmd} -hFA --color=auto;
+        fi;
+      }; _ls" |
+      sed -e 's/^ \+//g' |
+      tr "\n" " "
+  }
+else
+  # For claim_alias_or_warn that eval's "safe" ${variable@Q}.
+  print_file_url_friendly_ls_alias() {
+    printf "%s" "\
+      _ls() {
+        if [ \$# -gt 1 ]; then
+          ${ls_cmd} -hFA ${color_opt} \"\$@\";
+        else
+          echo \"'\${1:-.}'\" | command sed -e \"s#^'file://#'#g\" | xargs ${ls_cmd} -hFA --color=auto;
+        fi;
+      }; _ls" |
+      sed -e 's/^ \+//g' |
+      tr "\n" " "
+  }
+fi
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 

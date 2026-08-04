@@ -13,7 +13,7 @@
 #       "Also suppresses the warning message when a binary file is opened."
 home_fries_aliases_wire_less() {
   claim_alias_or_warn "less" "less -Rf" ${_force:-true}
-  claim_alias_or_warn "tl" '_f() { tree -C \"\$@\" | less; }; _f'
+  claim_alias_or_warn "tl" '_f() { tree -C "$@" | less; }; _f'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

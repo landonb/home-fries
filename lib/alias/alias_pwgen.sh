@@ -34,7 +34,7 @@ home_fries_aliases_wire_pwgen() {
   claim_alias_or_warn "pwgen23" "_hf_pwgen23_clip_echo"
 
   claim_alias_or_warn "pwgenPIN" \
-    "pwgen -A -r abcdefghijklmnopqrstuvwxyz \\\${PWGEN_PINLEN:-4} \
+    "pwgen -A -r abcdefghijklmnopqrstuvwxyz \${PWGEN_PINLEN:-4} \
     | _hf_clip_echo"
 
   claim_alias_or_warn "pwgenPINs" "_hf_pwgenPINs"
