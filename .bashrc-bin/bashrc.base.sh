@@ -51,7 +51,7 @@ esac
 
 # *** Developer options to enable trace and profiling
 
-# USAGE:
+# USAGE: (See also: `bbash`):
 # HOMEFRIES_TRACE=true HOMEFRIES_PROFILING=true HOMEFRIES_HELLO=true HOMEFRIES_LOADEDDOTS=true bash
 
 # YOU: Uncomment to enable logging to stdout:
