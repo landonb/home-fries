@@ -412,6 +412,8 @@ function llz() {
 
 # REFER: For macOS ACL features, use `/bin/ls`, e.g., `/bin/ls -led ~/.Trash`
 # - See `man ls` and `man chmod` for more on ACL.
+# SAVVY: Cannot use 'command', e.g., `echo "command ls"', because used
+# as xargs arg. (also more versatile to use /usr/bin/env).
 _hf_gls_or_ls() {
   if ! command -v gls; then
     echo "/usr/bin/env ls"
