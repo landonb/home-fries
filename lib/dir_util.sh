@@ -45,12 +45,12 @@ dir_any() {
     >&2 echo "ERROR: Not a directory: “${test_dir}”"
     return 3
   fi
-  if ! $(/usr/bin/env ls -A "${test_dir}" >/dev/null 2>&1); then
+  if ! $(command ls -A -- "${test_dir}" >/dev/null 2>&1); then
     # Permissions error, etc.
     >&2 echo "ERROR: Unreadable directory: “${test_dir}”"
     return 2
   fi
-  if [ -n "$(/usr/bin/env ls -A "${test_dir}")" ]; then
+  if [ -n "$(command ls -A -- "${test_dir}")" ]; then
     return 0
   fi
   return 1
