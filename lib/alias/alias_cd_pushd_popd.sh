@@ -25,6 +25,11 @@ home_fries_aliases_wire_cd_pushd_popd() {
   # IDEA/MAYBE: Enhance completions on cdd (limit to directories).
   function cdd() {
     local target="$1"
+    if [ "${target}" == '--' ] && [ $# -ge 2 ]; then
+      shift
+
+      target="$1"
+    fi
 
     if [ $# -gt 1 ]; then
       >&2 echo "ERROR: Too many args. to 'cdd'"
