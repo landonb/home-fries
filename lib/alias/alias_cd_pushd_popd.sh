@@ -26,8 +26,8 @@ home_fries_aliases_wire_cd_pushd_popd() {
   function cdd() {
     local target="$1"
 
-    if [ -n "$2" ]; then
-      >&2 echo 'Too many args'
+    if [ $# -gt 1 ]; then
+      >&2 echo "ERROR: Too many args. to 'cdd'"
 
       return 1
     fi
