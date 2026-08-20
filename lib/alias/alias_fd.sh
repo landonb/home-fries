@@ -121,7 +121,10 @@ _hf_fd() {
     ); then
       # getopt prints its own error.
 
-      exit 1
+      # Allow it... and consider adding offending pass-through option to --[long]options.
+      #  return 1
+      >&2 echo "FTREQ: Add offending pass-through option(s)"
+      >&2 echo "       listed above to --[long]options"
     fi
     # DEVEL: Uncommentable:
     #  >&2 echo "getopt=${PARSED}"
