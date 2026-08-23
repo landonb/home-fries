@@ -6,7 +6,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-check_dep() {
+_hflpu_check_dep() {
   if ! command -v $1 >/dev/null 2>&1; then
     >&2 printf '\r%s\n' "WARNING: Missing dependency: ‘$1’"
     false
@@ -15,11 +15,11 @@ check_dep() {
   fi
 }
 
-check_deps() {
+_hflpu_check_deps() {
   # Verify logger.sh loaded (die, reset_errexit, tweak_errexit).
-  check_dep '_sh_logger_log_msg'
+  _hflpu_check_dep '_sh_logger_log_msg'
   # Verify process_util.sh loaded (die, reset_errexit, tweak_errexit).
-  check_dep 'reset_errexit'
+  _hflpu_check_dep 'reset_errexit'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -382,8 +382,9 @@ _hf_pushd_with_args() {
 main() {
   unset -f main
 
-  check_deps
-  unset -f check_deps
+  _hflpu_check_deps
+  unset -f _hflpu_check_dep
+  unset -f _hflpu_check_deps
 }
 
 main "$@"
