@@ -19,50 +19,21 @@ HOMEFRIES_PS1_PREV_CMD_FAILED_STYLE=${HOMEFRIES_PS1_PREV_CMD_FAILED_STYLE:-1}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-_humb_prompt_is_user_logged_on_via_ssh() {
-  # https://unix.stackexchange.com/questions/9605/how-can-i-detect-if-the-shell-is-controlled-from-ssh
-  # "If one of the variables SSH_CLIENT or SSH_TTY is defined, it's an ssh session.
-  #  If the login shell's parent process name is sshd, it's an ssh session."
-  if [ -n "${SSH_CLIENT}" ] || [ -n "${SSH_TTY}" ]; then
+_humb_prompt_source_deps() {
+  local canon_base
+  canon_base="$(dirname -- "$(realpath -- "${BASH_SOURCE[0]}")")"
 
-    return 0
-  else
-    local command_name
-    # E.g., locally on LM MATE:
-    #   mate-terminal
-    # Or SSH to LM MATE:
-    #   sshd
-    # Or SSH to macoS:
-    #   sshd-session: user@ttys014
-    command_name="$(ps -o comm= -p ${PPID} | sed 's/:.*$//')"
+  if ! command -v "dirlock" >/dev/null; then
+    if ! command -v "print_nanos_now" >/dev/null; then
+      # CXREF: sh-print-nanos-now/bin/print-nanos-now.sh
+      . "${canon_base}/../deps/sh-print-nanos-now/bin/print-nanos-now.sh"
+    fi
 
-    case "${command_name}" in
-    sshd | sshd-session)
-      # DUNNO/2024-10-28: Not sure this branch ever followed, or
-      # if SSH_CLIENT/SSH_TTY checks always followed instead.
-
-      return 0
-      ;;
-    *)
-
-      return 1
-      ;;
-    esac
+    . "${canon_base}/dirlock_util.sh"
   fi
-
-  return 1
 }
 
-# 2015.03.04: I need to know when I'm in chroot hell.
-# NOTE: There's a better way using sudo to check if in chroot jail
-#       (which is compatible with Mac, BSD, etc.) but we don't want
-#       to use sudo, and we know we're on Linux. And on Linux,
-#       the inode of the (outermost) root directory is always 2.
-
-_humb_prompt_user_is_trapped_in_chroot() {
-  (_humb_prompt_os_is_linux && [ $(stat -c %i /) -ne 2 ]) ||
-    (_humb_prompt_os_is_macos && [ $(stat -f %i /) -ne 2 ])
-}
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # DEVEL: If you need insight into the titlebar function, try logging
 # or even xtrace'ing to a tmp file, e.g.,
@@ -116,11 +87,6 @@ _humb_prompt_format_titlebar() {
   # Gnome-terminal's default (though it doesn't specify it, it just is):
   #  titlebar='\[\e]0;\u@\h:\w\a\]'
 
-  # 2021-07-16: Add window number to window title.
-  # - CXREF: See _humb_print_terminal_window_number for deets.
-  # Sets ITERM2_WINDOW_NUMBER
-  _humb_set_iterm2_window_number_environ
-
   local winnum="${ITERM2_WINDOW_NUMBER}"
 
   # - CXREF: ~/.kit/sh/sh-humble-prompt/lib/show-command-name-in-window-title.sh
@@ -137,10 +103,10 @@ _humb_prompt_format_titlebar() {
   local endof_osc='\a'
 
   # Name this terminal window specially if special.
-  # NOTE: This information comes from Gnome, where we've set the Gnome shortcut
-  #       to pass this environment variable to us.
-  # NOTE: To test gnome-terminal, run it from your home directory, otherwise it
-  #       won't find your bash scripts.
+  # REFER: This information comes from Gnome, where we've set the Gnome shortcut
+  #        to pass this environment variable to us.
+  # SAVVY: To test gnome-terminal, run it from your home directory, otherwise it
+  #        won't find your bash scripts.
   local titlebar
 
   if ! _humb_prompt_is_user_logged_on_via_ssh; then
@@ -274,8 +240,6 @@ _humb_prompt_customize_shell_prompts_and_window_title() {
   #     ;;
   #   esac
 
-  local titlebar="$(_humb_prompt_format_titlebar)"
-
   # 2012.10.17: The default bash includes ${debian_chroot:+($debian_chroot)} in
   # the PS1 string, but it really shouldn't be set on any of our systems (it's
   # pretty much obsolete, or at least pertains to a linux usage we're not).
@@ -284,73 +248,38 @@ _humb_prompt_customize_shell_prompts_and_window_title() {
   #  http://unix.stackexchange.com/questions/3171/what-is-debian-chroot-in-bashrc
   #  https://en.wikipedia.org/wiki/Chroot
 
-  # MAYBE/2018-12-23: Move these definitions to color_util.sh or similar?
-  # - NOTE: Bash 4.2 added Unicode support, i.e.,
-  #           echo -e "\uHHHH"
-  #           printf "\uHHHH"
-  # - NOTE: For 5 to 8 digiti Unicode character, use \U, e.g.,
-  #           echo -e "\UHHHHHHHH"
-  #           printf "\UHHHHHHHH"
-  # - NOTE: Pad the \U to 8 digits, or built-in printf may complain.
-  #           @mint19.3 $ printf "\U1F4A9"
-  #           💩
-  #           @mint19.3 $ /usr/bin/printf "\U1F4A9"
-  #           /usr/bin/printf: missing hexadecimal number in escape
-  #           @mint19.3 $ /usr/bin/printf "\U0001F4A9"
-  #           💩
-  #         (though latest Bash `echo` and `printf` do not care).
-  # - NOTE: If set in PS1 directly, need to $'interpolate', e.g.,
-  #           PS1="${titlebar}${prompt_stuff}"$' \U1F480 '"\$ "
-  #         - SAVVY: Bash's $'...' sees \uXXXX unicode espace
-  #           sequences, but not $"..."
-  # - NOTE: And now that I've noted all of this, It's actually
-  #         easier to just embed the Unicode within this file.
-  #         And then raw macOS (with system Bash 3.x, whose `echo`
-  #         and `printf` won't recognize the \Unicode syntax)
-  #         will work.
-  # - NOTE: I was using ⚓ for _hf_session_is_subshell on Linux for
-  #         years until I discovered on @macOS it renders at the
-  #         lowly VS15 variant, ⚓︎.
-  #         - I tried the ring buoy instead but the terminal does
-  #           not read its width correctly. This messes up Bash
-  #           history, e.g., if you <Up> then <Home>, the cursor
-  #           is off by one. Same for a few other glyphs.
-  #         - Canoe works, but I'd like a fuller, smoother icon.
-  #           And I like the red color pop that leads my eye to
-  #           the start of the prompt.
-  #         - Works: 🛶 🍁 🎃 🍿 🫑 🍒 🍓 🍉 🍎 / Don't: ⚓ 🛟 🥭
-  local u_tomato="🍅" #             # 🍅  $(printf "\U1F345")
-  # local u_evergreen_tree="🌲"     # 🌲  $(printf "\U1F332")
-  # local u_cactus="🌵"             # 🌵  $(printf "\U1F335")
-  local u_mushroom="🍄" #           # 🍄  $(printf "\U1F344")
-  local u_skull="💀"    #           # 💀  $(printf "\U1F480")
-  local u_horny="😈"    #           # 💀  $(printf "\U1F480")
-  # local u_owl="🦉"                # 🦉  $(printf "\U1F989")
-  # local u_herb="🌿"               # 🌿  $(printf "\U1F33F")
-  # local u_pineapple="🍍"          # 🍍  $(printf "\U1F34D")
-  # # (Draws too light to see:)
-  # local u_skull_n_xbones="☠"      # ☠  $(printf "\u2620")
+  local local_shell_icon
+  local remote_shell_icon
+  _humb_prompt_shell_prompt_set_shell_icons
 
-  local local_shell_icon="${u_mushroom}"
-  local remote_shell_icon="${u_skull}"
+  # ***
 
-  if _hf_session_is_subshell; then
-    local_shell_icon="${u_tomato}"
-    remote_shell_icon="${u_horny}"
+  # Sync. access to reading all window titles, picking avail.
+  # window number, and then writing the number to the window
+  # title.
+  local lock_dir="${HUMBLE_WINNUM_LOCK_DIR:-${TMPDIR:-/tmp}/sh-humble-prompt--LOCK}"
+  dirlock_acquire
+
+  # 2021-07-16: Add window number to window title.
+  # - CXREF: See _humb_print_terminal_window_number for deets.
+  # Sets ITERM2_WINDOW_NUMBER.
+  _humb_set_iterm2_window_number_environ
+
+  # If user hasn't opted-out using DEBUG trap to manage window title,
+  # update it now with the window number ("claiming" it) so we can
+  # release the lock in a timely manner.
+  if ${HUMB_SHOW_COMMAND_IN_TITLE:-true}; then
+    _humb_hook_titlebar_update
+
+    dirlock_release
   fi
-
-  if [ ${HOMEFRIES_PS1_GIT_REBASE_STYLE:-0} -eq 1 ]; then
-    # 2024-08-19: Styles I demoed: (🍅) >🍅< ⟪🍅⟫ ⟬🍅⟭ ┃🍅┃
-    # - I also demoed other icons but none of these render
-    #   well in the macOS terminal good: ⏪ ☢️  ⚠️  🏁
-    local_shell_icon='$([ -f "$(git root 2> /dev/null)/.git/rebase-merge/git-rebase-todo" ] && echo "('"${local_shell_icon}"')" || echo "'"${local_shell_icon}"'")'
-    remote_shell_icon='$([ -f "$(git root 2> /dev/null)/.git/rebase-merge/git-rebase-todo" ] && echo "('"${remote_shell_icon}"')" || echo "'"${remote_shell_icon}"'")'
-  fi
-
-  local_shell_icon="${local_shell_icon} "
-  remote_shell_icon="${remote_shell_icon} "
 
   _humb_prompt_customize_shell_prompt_PS1
+
+  if ! ${HUMB_SHOW_COMMAND_IN_TITLE:-true}; then
+    dirlock_release
+  fi
+
   _humb_prompt_customize_shell_prompt_PS2
 }
 
@@ -413,6 +342,14 @@ _humb_prompt_customize_shell_prompt_PS1() {
     return
   fi
 
+  local titlebar
+  titlebar="$(_humb_prompt_format_titlebar)"
+
+  if ${HOMEFRIES_PS1_EMOJI_DISABLE:-false}; then
+    local_shell_icon=""
+    remote_shell_icon=""
+  fi
+
   local prompt_symbol="\$"
   if [ ${HOMEFRIES_PS1_GIT_REBASE_STYLE:-0} -eq 2 ]; then
     prompt_symbol='$([ -f "$(git root 2> /dev/null)/.git/rebase-merge/git-rebase-todo" ] && echo "(\$)" || echo "\$")'
@@ -429,11 +366,6 @@ _humb_prompt_customize_shell_prompt_PS1() {
     # ALTLY: Use one test, but then the final PS1 string is longer (because
     # ${prompt_symbol} is duplicated):
     #   prompt_symbol="\$(test \${_humb_exitcode:-0} -ne 0 && echo \"${fg_red}${prompt_symbol}${attr_reset}\" || echo \"${prompt_symbol}\")"
-  fi
-
-  if ${HOMEFRIES_PS1_EMOJI_DISABLE:-false}; then
-    local_shell_icon=""
-    remote_shell_icon=""
   fi
 
   if [ $EUID -eq 0 ]; then
@@ -460,7 +392,7 @@ _humb_prompt_customize_shell_prompt_PS1() {
   fi
 }
 
-# ***
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 _humb_prompt_customize_shell_prompt_PS2() {
   # 2018-05-28: How about a bold PS2 (continuation) prompt?
@@ -489,6 +421,139 @@ home_fries_set_PS4() {
   # Default is: PS4='+'
   PS4='(${BASH_SOURCE[0]}:${LINENO}): ${FUNCNAME[0]} - [${SHLVL},${BASH_SUBSHELL}, $?]
   '
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# MAYBE/2018-12-23: Move these definitions to color_util.sh or similar?
+# - REFER: Bash 4.2 added Unicode support, i.e.,
+#            echo -e "\uHHHH"
+#            printf "\uHHHH"
+# - REFER: For 5 to 8 digiti Unicode character, use \U, e.g.,
+#            echo -e "\UHHHHHHHH"
+#            printf "\UHHHHHHHH"
+# - REFER: Pad the \U to 8 digits, or built-in printf may complain.
+#            @mint19.3 $ printf "\U1F4A9"
+#            💩
+#            @mint19.3 $ /usr/bin/printf "\U1F4A9"
+#            /usr/bin/printf: missing hexadecimal number in escape
+#            @mint19.3 $ /usr/bin/printf "\U0001F4A9"
+#            💩
+#          (though latest Bash `echo` and `printf` do not care).
+# - REFER: If set in PS1 directly, need to $'interpolate', e.g.,
+#            PS1="${titlebar}${prompt_stuff}"$' \U1F480 '"\$ "
+#          - SAVVY: Bash's $'...' sees \uXXXX unicode espace
+#            sequences, but not $"..."
+# - REFER: And now that I've noted all of this, It's actually
+#          easier to just embed the Unicode within this file.
+#          And then raw macOS (with system Bash 3.x, whose `echo`
+#          and `printf` won't recognize the \Unicode syntax)
+#          will work.
+# - REFER:  I was using ⚓ for _hf_session_is_subshell on Linux for
+#          years until I discovered on @macOS it renders at the
+#          lowly VS15 variant, ⚓︎.
+#          - I tried the ring buoy instead but the terminal does
+#            not read its width correctly. This messes up Bash
+#            history, e.g., if you <Up> then <Home>, the cursor
+#            is off by one. Same for a few other glyphs.
+#          - Canoe works, but I'd like a fuller, smoother icon.
+#            And I like the red color pop that leads my eye to
+#            the start of the prompt.
+#          - Works: 🛶 🍁 🎃 🍿 🫑 🍒 🍓 🍉 🍎 / Don't: ⚓ 🛟 🥭
+_humb_prompt_shell_prompt_set_shell_icons() {
+  local u_tomato="🍅" #             # 🍅  $(printf "\U1F345")
+  # local u_evergreen_tree="🌲"     # 🌲  $(printf "\U1F332")
+  # local u_cactus="🌵"             # 🌵  $(printf "\U1F335")
+  local u_mushroom="🍄" #           # 🍄  $(printf "\U1F344")
+  local u_skull="💀"    #           # 💀  $(printf "\U1F480")
+  local u_horny="😈"    #           # 💀  $(printf "\U1F480")
+  # local u_owl="🦉"                # 🦉  $(printf "\U1F989")
+  # local u_herb="🌿"               # 🌿  $(printf "\U1F33F")
+  # local u_pineapple="🍍"          # 🍍  $(printf "\U1F34D")
+  # # (Draws too light to see:)
+  # local u_skull_n_xbones="☠"      # ☠  $(printf "\u2620")
+
+  local_shell_icon="${u_mushroom}"
+  remote_shell_icon="${u_skull}"
+
+  if _hf_session_is_subshell; then
+    local_shell_icon="${u_tomato}"
+    remote_shell_icon="${u_horny}"
+  fi
+
+  if [ ${HOMEFRIES_PS1_GIT_REBASE_STYLE:-0} -eq 1 ]; then
+    # 2024-08-19: Styles I demoed: (🍅) >🍅< ⟪🍅⟫ ⟬🍅⟭ ┃🍅┃
+    # - I also demoed other icons but none of these render
+    #   well in the macOS terminal good: ⏪ ☢️  ⚠️  🏁
+    local_shell_icon='$([ -f "$(git root 2> /dev/null)/.git/rebase-merge/git-rebase-todo" ] && echo "('"${local_shell_icon}"')" || echo "'"${local_shell_icon}"'")'
+    remote_shell_icon='$([ -f "$(git root 2> /dev/null)/.git/rebase-merge/git-rebase-todo" ] && echo "('"${remote_shell_icon}"')" || echo "'"${remote_shell_icon}"'")'
+  fi
+
+  local_shell_icon="${local_shell_icon} "
+  remote_shell_icon="${remote_shell_icon} "
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+dirlock_acquire() {
+  # >&2 echo "dirlock: ${lock_dir}"
+  dirlock "${lock_dir}" \
+    "${_DONT_FLOCKIN_CARE:-false}" \
+    "${_FLOCKING_REQUIRED:-false}" \
+    "${_FLOCKING_RE_TRIES:--1}" \
+    "${_FLOCKING_TIME_OUT:-0}"
+}
+
+dirlock_release() {
+  # >&2 echo "dunlock: ${lock_dir}"
+  dunlock "${lock_dir}"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+_humb_prompt_is_user_logged_on_via_ssh() {
+  # https://unix.stackexchange.com/questions/9605/how-can-i-detect-if-the-shell-is-controlled-from-ssh
+  # "If one of the variables SSH_CLIENT or SSH_TTY is defined, it's an ssh session.
+  #  If the login shell's parent process name is sshd, it's an ssh session."
+  if [ -n "${SSH_CLIENT}" ] || [ -n "${SSH_TTY}" ]; then
+
+    return 0
+  else
+    local command_name
+    # E.g., locally on LM MATE:
+    #   mate-terminal
+    # Or SSH to LM MATE:
+    #   sshd
+    # Or SSH to macoS:
+    #   sshd-session: user@ttys014
+    command_name="$(ps -o comm= -p ${PPID} | sed 's/:.*$//')"
+
+    case "${command_name}" in
+    sshd | sshd-session)
+      # DUNNO/2024-10-28: Not sure this branch ever followed, or
+      # if SSH_CLIENT/SSH_TTY checks always followed instead.
+
+      return 0
+      ;;
+    *)
+
+      return 1
+      ;;
+    esac
+  fi
+
+  return 1
+}
+
+# 2015.03.04: I need to know when I'm in chroot hell.
+# REFER: There's a better way using sudo to check if in chroot jail
+#        (which is compatible with Mac, BSD, etc.) but we don't want
+#        to use sudo, and we know we're on Linux. And on Linux,
+#        the inode of the (outermost) root directory is always 2.
+
+_humb_prompt_user_is_trapped_in_chroot() {
+  (_humb_prompt_os_is_linux && [ $(stat -c %i /) -ne 2 ]) ||
+    (_humb_prompt_os_is_macos && [ $(stat -f %i /) -ne 2 ])
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -558,11 +623,13 @@ _humb_prompt_os_is_macos() {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# NOTE: This function is a one-off, as it wouldn't be necessary to
-#       call it more than once. So it cleans itself up rather than
-#       hang around the environment.
+# REFER: This function is a one-off, as it wouldn't be necessary to
+# call it more than once. So it cleans itself up rather than hang
+# around the environment.
 
 _humb_prompt_configure() {
+  _humb_prompt_source_deps
+
   _humb_prompt_customize_shell_prompts_and_window_title
 
   unset -f _humb_prompt_os_is_linux

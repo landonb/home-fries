@@ -17,8 +17,10 @@
 #   still work.
 
 _humb_hook_titlebar_update() {
-  # Sets ITERM2_WINDOW_NUMBER
-  _humb_set_iterm2_window_number_environ
+  if [ -z "${ITERM2_WINDOW_NUMBER}" ]; then
+    # Sets ITERM2_WINDOW_NUMBER.
+    _humb_set_iterm2_window_number_environ
+  fi
 
   # MEH: (lb): I'd rather the title not flicker for fast commands,
   # but it's nice to have for long-running commands, like `man foo`
@@ -30,6 +32,11 @@ _humb_hook_titlebar_update() {
   # title is restored. This makes for a nice titlebar title that shows the
   # basename of the directory when the prompt is active, but shows the name
   # of the actively running command if there is one, e.g., `man bash`.
+
+  # SAVVY: This is what actually changes the window titlebar title —
+  # and what "claims" ITERM2_WINDOW_NUMBER.
+  # - ALTLY: If user disable this mechanism (see HUMB_SHOW_COMMAND_IN_TITLE),
+  #   then the PS1= will claim ITERM2_WINDOW_NUMBER.
   trap 'printf "\033]0;%s\007" "${ITERM2_WINDOW_NUMBER}${BASH_COMMAND}"' DEBUG
 
   # This is a one-off script: Source it, then call _humb_hook_titlebar_update,
@@ -308,7 +315,8 @@ _humb_probe_desktop_environment() {
 #   ~/.local/share/gnome-shell/extensions/window-calls@domandoman.xyz/
 
 # SAVVY:
-# - Use jq filter to pick gnome-terminal window IDs only.
+# - Use jq filter to pick gnome-terminal and Alacritty
+#   window IDs only.
 # - For each ID, send gdbus command to window-calls
 #   extension to get window details, including title.
 # - Use gawk to remove the '(' ... ',)' around details.
