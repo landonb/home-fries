@@ -104,8 +104,8 @@ _hf_fd() {
   local color2="--color always"
 
   _hf_fd_parse_args() {
-    GETOPT_LONGOPTS=hidden,no-hidden,no-ignore,ignore,unrestricted,follow,no-follow,format:,color:
-    GETOPT_SHORTIES=HIuLc:
+    GETOPT_LONGOPTS=help,version,hidden,no-hidden,no-ignore,ignore,unrestricted,follow,no-follow,format:,color:
+    GETOPT_SHORTIES=hVHIuLc:
 
     getopt --test >/dev/null && true
     if [ $? -ne 4 ]; then
@@ -136,6 +136,8 @@ _hf_fd() {
     while true; do
       case "$1" in
 
+      -h | --help) ;;
+      -V | --version) ;;
       -H | --hidden) no_hidden=false ;;
       --no-hidden) no_hidden=true ;;
       -I | --no-ignore) no_ignore=true ;;
