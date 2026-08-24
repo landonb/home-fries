@@ -518,15 +518,10 @@ home_fries_up() {
 
   # Configure the terminal prompt and colors.
 
-  # Set `PS1=` to customize the terminal prompt.
-  # TIMED/2024-06-25: 0.05 secs. (per HOMEFRIES_PROFILING=true)
-  # - Uses: lib/term/set-shell-prompt-and-window-title.sh
-  # - Deps: lib/session_util.sh
-  # - Don't run_and_unset: Let client reuse if they want.
-  run_and_report "_humb_prompt_configure"
-
   # Set PS4, for `set -x` and `set -v` debugging/tracing.
-  # - lib/term/set-shell-prompt-and-window-title.sh
+  # - CXREF:
+  #   sh-humble-prompt/lib/set-shell-prompt-and-window-title.sh
+  # - CALSO: See PS1= setup below: _humb_prompt_configure
   run_and_unset "home_fries_set_PS4"
 
   # Fix the colors used by `ls -C` to be less annoying.
@@ -599,11 +594,31 @@ home_fries_up() {
 
   #########################
 
-  # Update mate-terminal titlebar on each command.
-  # (lb): Note that all commands after this will appear/flicker
-  # in the window title.
-  run_and_unset "_humb_hook_titlebar_update"
-  # - deps/sh-humble-prompt/lib/show-command-name-in-window-title.sh
+  # Set `PS1=` to customize the terminal prompt and window title
+  # (including adding the ITERM2_WINDOW_NUMBER), and optionally
+  # wires `trap ... DEBUG` to update the window title for every
+  # command.
+  # - TIMED/2024-06-25: 0.05 secs. (per HOMEFRIES_PROFILING=true)
+  #   - SPIKE/2026-08-23: Test again, prob. slower now.
+  # - CXREF:
+  #   sh-humble-prompt/lib/set-shell-prompt-and-window-title.sh
+  #   sh-humble-prompt/lib/show-command-name-in-window-title.sh
+  # - SAVVY: This "claims" the terminal window number (passed
+  #   around as ITERM2_WINDOW_NUMBER) by using it to set the
+  #   window title (which is the only source of truth for which
+  #   window numbers are claimed or not). This requires possibly
+  #   blocking to acquire a mutex (using a budget 'mkdir' lock)
+  #   to suss the window number (gather all existing window
+  #   titles) and then to set it (update PS1, or call `trap`),
+  #   before releasing the lock ('rmdir').
+  # - REFER: Set HUMB_SHOW_COMMAND_IN_TITLE=false to disable
+  #   _humb_hook_titlebar_update title trap.
+  #   - AWARE: Otherwise, when true (the default), all commands
+  #     after this will appear/flicker in the window title (so
+  #     call this toward the end of shell setup).
+  run_and_unset "_humb_prompt_configure"
+
+  #########################
 
   # Lest we apply same always-on to any new window opened as child of this one.
   export DUBS_ALWAYS_ON_VISIBLE=
