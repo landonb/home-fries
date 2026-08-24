@@ -102,6 +102,7 @@ _hf_fd() {
   local format=""
   local color1="--color=always"
   local color2="--color always"
+  local no_exec=false
 
   _hf_fd_parse_args() {
     GETOPT_LONGOPTS=help,version,hidden,no-hidden,no-ignore,ignore,unrestricted,follow,no-follow,format:,color:
@@ -172,6 +173,8 @@ _hf_fd() {
       --)
         shift
 
+        no_exec=true
+
         break
         ;;
       *)
@@ -207,20 +210,22 @@ _hf_fd() {
   #   for directories and basename, like default fd. On the other
   #   hand, both eza and lsd highlight similar to fd; though they
   #   both add "./" prefix to path matches.
-  if [ "${HOMEFRIES_FD_EXEC_BATCH}" = "fd" ] ||
-    [ "${HOMEFRIES_FD_EXEC_BATCH}" = "false" ]; then
-    exec_batch=""
-  elif [ "${HOMEFRIES_FD_EXEC_BATCH}" = "ls" ]; then
-    exec_batch="--exec-batch ls -1d ${color1}"
-  elif [ "${HOMEFRIES_FD_EXEC_BATCH}" = "lsd" ]; then
-    # --classify: Appends one of: */=>@|
-    exec_batch="--exec-batch lsd -1d --classify ${color2}"
-  elif [ "${HOMEFRIES_FD_EXEC_BATCH}" = "eza" ] ||
-    command -v eza >/dev/null; then
-    # BONUS: In addition to ensuring results sorted consistently between
-    # repeated queries, also indicates file type, and shows symlink targets.
+  if ! ${no_exec}; then
+    if [ "${HOMEFRIES_FD_EXEC_BATCH}" = "fd" ] ||
+      [ "${HOMEFRIES_FD_EXEC_BATCH}" = "false" ]; then
+      exec_batch=""
+    elif [ "${HOMEFRIES_FD_EXEC_BATCH}" = "ls" ]; then
+      exec_batch="--exec-batch ls -1d ${color1}"
+    elif [ "${HOMEFRIES_FD_EXEC_BATCH}" = "lsd" ]; then
+      # --classify: Appends one of: */=>@|
+      exec_batch="--exec-batch lsd -1d --classify ${color2}"
+    elif [ "${HOMEFRIES_FD_EXEC_BATCH}" = "eza" ] ||
+      command -v eza >/dev/null; then
+      # BONUS: In addition to ensuring results sorted consistently between
+      # repeated queries, also indicates file type, and shows symlink targets.
 
-    exec_batch="--exec-batch eza --oneline -d ${color1}"
+      exec_batch="--exec-batch eza --oneline -d ${color1}"
+    fi
   fi
 
   # ***
