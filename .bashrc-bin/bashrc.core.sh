@@ -342,7 +342,6 @@ source_utils_sources() {
   source_it "dir_util.sh"
   # Earlier: "distro_util.sh"
   source_it "docker_util.sh"
-  source_it "fffind_util.sh"
   source_it "file_util.sh"
   source_it "fries_util.sh"
   source_it "hist_util.sh"
