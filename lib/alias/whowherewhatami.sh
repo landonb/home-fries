@@ -17,15 +17,27 @@
 #   #   /usr/bin/python /usr/lib/command-not-found whereami"
 #   npm install -g @rafaelrinaldi/whereami
 
+# Sometimes same output as command-not-found, e.g.,
+#     $ python3 /usr/lib/command-not-found howami
+#     howami: command not found
+# - But not always, e.g.,
+#     $ python3 /usr/lib/command-not-found whyami
+#     Command 'whyami' not found, did you mean:
+#       command 'whoami' from deb coreutils
+#     Try: sudo apt install <deb name>
+#
+# HSTRY/2026-08-26: Removed /usr/lib/command-not-found usage because not
+# installed on Debian by default. Also overkill. Espec. for Joke Aliases.
+
 home_fries_aliases_wire_amis() {
-  claim_alias_or_warn "howami" "echo 'Doing well. Thanks for asking.' ; \
-                /usr/bin/python /usr/lib/command-not-found howami"
-  claim_alias_or_warn "whatami" "echo 'Neither plant nor animal.' ; \
-                /usr/bin/python /usr/lib/command-not-found whatami"
-  claim_alias_or_warn "whenami" "echo 'You are in the here and now.' ; \
-                /usr/bin/python /usr/lib/command-not-found whenami"
-  claim_alias_or_warn "whyami" "echo 'Because you gotta be somebody.' ; \
-                /usr/bin/python /usr/lib/command-not-found whyami"
+  claim_alias_or_warn "howami" \
+    "echo -e 'Doing well. Thanks for asking.\nhowami: command not found'"
+  claim_alias_or_warn "whatami" \
+    "echo -e 'Neither plant nor animal.\nwhatami: command not found'"
+  claim_alias_or_warn "whenami" \
+    "echo -e 'You are in the here and now.\nwhenami: command not found'"
+  claim_alias_or_warn "whyami" \
+    "echo -e 'Because you gotta be somebody.\nwhyami: command not found'"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
