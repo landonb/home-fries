@@ -616,7 +616,7 @@ home_fries_up() {
   #   - AWARE: Otherwise, when true (the default), all commands
   #     after this will appear/flicker in the window title (so
   #     call this toward the end of shell setup).
-  run_and_unset "_humb_prompt_configure"
+  run_and_report "_humb_prompt_configure"
 
   #########################
 
