@@ -15,6 +15,8 @@
 #   case it's a long-running process, we'll show the window number
 #   like we normally do, so the systemwide foregrounder shortcuts
 #   still work.
+# - Après: Caller can unset functions (cleanup user's shell) using:
+#     _humb_cleanup_lib_term_window_title_show_command_name
 
 _humb_hook_titlebar_update() {
   if [ -z "${ITERM2_WINDOW_NUMBER}" ]; then
@@ -38,10 +40,6 @@ _humb_hook_titlebar_update() {
   # - ALTLY: If user disable this mechanism (see HUMB_SHOW_COMMAND_IN_TITLE),
   #   then the PS1= will claim ITERM2_WINDOW_NUMBER.
   trap 'printf "\033]0;%s\007" "${ITERM2_WINDOW_NUMBER}${BASH_COMMAND}"' DEBUG
-
-  # This is a one-off script: Source it, then call _humb_hook_titlebar_update,
-  # and it'll unset the functions it no longer needs.
-  _humb_cleanup_lib_term_window_title_show_command_name
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

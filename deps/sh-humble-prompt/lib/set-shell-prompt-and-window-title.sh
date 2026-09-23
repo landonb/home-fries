@@ -631,6 +631,17 @@ _humb_prompt_configure() {
   _humb_prompt_source_deps
 
   _humb_prompt_customize_shell_prompts_and_window_title
+}
+
+# Called externally to cleanup user's environment. Tidy, tidy shell.
+# - Calso:
+#   _humb_cleanup_lib_term_window_title_show_command_name
+_humb_prompt_unset_functions() {
+  unset -f _humb_prompt_unset_functions
+
+  # ***
+
+  unset -f _humb_prompt_source_deps
 
   unset -f _humb_prompt_os_is_linux
   unset -f _humb_prompt_os_is_macos
@@ -641,6 +652,8 @@ _humb_prompt_configure() {
 
   unset -f _humb_prompt_customize_shell_prompt_PS1
   unset -f _humb_prompt_customize_shell_prompt_PS2
+
+  unset -f _humb_prompt_shell_prompt_set_shell_icons
 
   unset -f _humb_prompt_customize_shell_prompts_and_window_title
 
