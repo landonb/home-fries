@@ -120,14 +120,26 @@ _hf_fd() {
     # DEVEL: Uncommentable:
     #  >&2 echo "getopt --options=${GETOPT_SHORTIES} --longoptions=${GETOPT_LONGOPTS} --name \"$0\" -- \"$@\""
     if ! PARSED=$(
-      getopt --options=${GETOPT_SHORTIES} --longoptions=${GETOPT_LONGOPTS} --name "$0" -- "$@"
+      getopt --quiet --options=${GETOPT_SHORTIES} --longoptions=${GETOPT_LONGOPTS} --name "$0" -- "$@"
     ); then
-      # getopt prints its own error.
+      # If not --quiet, getopt prints its own error(s), e.g.:
+      #   $ fd --X -X
+      #   /home/user/.local/bin/bash: unrecognized option '--X'
+      #   /home/user/.local/bin/bash: invalid option -- 'X'
 
-      # Allow it... and consider adding offending pass-through option to --[long]options.
-      #  return 1
-      >&2 echo "FTREQ: Add offending pass-through option(s)"
-      >&2 echo "       listed above to --[long]options"
+      # This happens if user uses unrecognized -short or long --options
+      # *before* the end-of-options '--' option that are either (a) not
+      # valid 'fd' options; or (b) valid options just not wired herein.
+      # - No need to blather the user, e.g.:
+      #     >&2 echo "WARNG: FTREQ: Add offending pass-through option(s)"
+      #     >&2 echo "       listed above to --[long]options"
+      # - These options are simply omitted from PARSED.
+      #   - And we disable stderr with '--quiet'.
+      # - SAVVY: The final 'fd' call below *uses "$@"*.
+      #   - Even though we recognize a subset of options,
+      #     it'd be a PITA to support passing-through all.
+      #   - So 'fd' call below uses args. here but ends "$@".
+      :
     fi
     # DEVEL: Uncommentable:
     #  >&2 echo "getopt=${PARSED}"
