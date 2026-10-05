@@ -97,6 +97,7 @@ _hf_fd() {
   local no_hidden=false
   local no_ignore=false
   local unrestricted=false
+  local case_style=""
   local no_follow=false
   local format=""
   local color1="--color=always"
@@ -106,8 +107,8 @@ _hf_fd() {
   local exec_batch=""
 
   _hf_fd_parse_args() {
-    GETOPT_LONGOPTS=help,version,hidden,no-hidden,no-ignore,ignore,unrestricted,follow,no-follow,format:,color:
-    GETOPT_SHORTIES=hVHIuLc:
+    GETOPT_LONGOPTS=help,version,hidden,no-hidden,no-ignore,ignore,unrestricted,ignore-case,case-sensitive,smart-case,follow,no-follow,format:,color:
+    GETOPT_SHORTIES=hVHIuiLc:
 
     getopt --test >/dev/null && true
     if [ $? -ne 4 ]; then
@@ -149,6 +150,10 @@ _hf_fd() {
         no_hidden=false
         no_ignore=true
         ;;
+      -i | --ignore-case) case_style="--ignore-case" ;;
+      --case-sensitive) case_style="--case-sensitive" ;;
+      # Not an fd option.
+      --smart-case) case_style="" ;;
       -L | --follow) no_follow=false ;;
       --no-follow) no_follow=true ;;
       --format)
@@ -287,7 +292,7 @@ _hf_fd() {
     ${no_hidden} || printf "%s" "-H"
   ) $(
     ${no_follow} || printf "%s" "-L"
-  ) ${format} ${exclude} ${ignore_file_arg} $@ \\
+  ) ${case_style} ${format} ${exclude} ${ignore_file_arg} $@ \\
     ${exec_batch}"
 
   ! ${HOMEFRIES_FD_TRACE:-false} || >&2 echo "${fd_cmd}"
