@@ -113,7 +113,7 @@ _hf_fd() {
     if [ $? -ne 4 ]; then
       >&2 echo 'ERROR: Missing enhanced getopt'
 
-      exit 1
+      return 1
     fi
 
     # DEVEL: Uncommentable:
@@ -182,14 +182,18 @@ _hf_fd() {
         # getopt puts non-option args after the '--', so this should be unreachable.
         >&2 echo "GAFFE: Unreachable code ($1)"
 
-        exit_1
+        return 1
         ;;
       esac
 
       shift
     done
   }
-  _hf_fd_parse_args "$@"
+
+  if ! _hf_fd_parse_args "$@"; then
+
+    return 1
+  fi
 
   # Currently, CLI args are passed-through to `fd` below, and we
   # don't rebuild $@ specially. So each arg must match a legit
