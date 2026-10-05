@@ -94,15 +94,16 @@ home_fries_aliases_wire_fd() {
 #   no_ignore accordingly.
 
 _hf_fd() {
-  local no_follow=false
   local no_hidden=false
   local no_ignore=false
   local unrestricted=false
-  local exec_batch=""
+  local no_follow=false
   local format=""
   local color1="--color=always"
   local color2="--color always"
   local no_exec=false
+  #
+  local exec_batch=""
 
   _hf_fd_parse_args() {
     GETOPT_LONGOPTS=help,version,hidden,no-hidden,no-ignore,ignore,unrestricted,follow,no-follow,format:,color:
