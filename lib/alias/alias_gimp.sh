@@ -37,7 +37,7 @@ home_fries_create_alias_gimp_flatpak() {
 
   # Note this might shadow /usr/bin/gimp if installed via APT.
   # - REFER: Add "//stable" as suggested by https://www.gimp.org/downloads/.
-  claim_alias_or_warn "gimp" "flatpak run org.gimp.GIMP//stable"
+  claim_alias_or_warn "gimp" "flatpak run org.gimp.GIMP//stable" ${_force:-true}
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
