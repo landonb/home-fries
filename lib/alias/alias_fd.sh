@@ -27,7 +27,7 @@ home_fries_aliases_wire_fd() {
     claim_alias_or_warn "fdi" "_hf_fd"
 
     # Without the output-stream-blocking final `ls` command:
-    claim_alias_or_warn "fdx" "HOMEFRIES_FD_EXEC_BATCH=false _hf_fd"
+    claim_alias_or_warn "fdd" "HOMEFRIES_FD_EXEC_BATCH=false _hf_fd"
 
     # HOMEFRIES_FD_EXEC_BATCH=ls
     # HOMEFRIES_FD_EXEC_BATCH=lsd
