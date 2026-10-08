@@ -257,8 +257,17 @@ _humb_prompt_customize_shell_prompts_and_window_title() {
   # Sync. access to reading all window titles, picking avail.
   # window number, and then writing the number to the window
   # title.
+  # - UTEST: Test timeout (DepoXy users):
+  #     # CXREF: depoxy/bin/windows/new-terminal-window
+  #     mkdir /tmp/sh-humble-prompt--LOCK
+  #     HUMBLEPROMPT_NUM_SUSS_TIMEOUT_SECS=10 ~/.depoxy/ambers/bin/windows/new-terminal-window
   local lock_dir="${HUMBLE_WINNUM_LOCK_DIR:-${TMPDIR:-/tmp}/sh-humble-prompt--LOCK}"
-  dirlock_acquire
+  if ! ${HUMB_NO_WINDOW_NUMBER:-false} && ! dirlock_acquire; then
+    # Timeout!
+    HUMB_NO_WINDOW_NUMBER=true
+
+    >&2 echo "Ope, could not secure the window number suss lock, gave up!"
+  fi
 
   # 2021-07-16: Add window number to window title.
   # - CXREF: See _humb_print_terminal_window_number for deets.
@@ -496,15 +505,24 @@ _humb_prompt_shell_prompt_set_shell_icons() {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 dirlock_acquire() {
+  local num_suss_timeout_secs=${HUMBLEPROMPT_NUM_SUSS_TIMEOUT_SECS:-5}
+  local wait_alert_after_secs=${HUMBLEPROMPT_WAIT_ALERT_AFTER_SECS:-1}
+
   # >&2 echo "dirlock: ${lock_dir}"
   dirlock "${lock_dir}" \
     "${_DONT_FLOCKIN_CARE:-false}" \
     "${_FLOCKING_REQUIRED:-false}" \
     "${_FLOCKING_RE_TRIES:--1}" \
-    "${_FLOCKING_TIME_OUT:-0}"
+    "${_FLOCKING_TIME_OUT:-${num_suss_timeout_secs}}" \
+    "${_FLOCKING_MSGAFTER:-${wait_alert_after_secs}}"
 }
 
 dirlock_release() {
+  if ${HUMB_NO_WINDOW_NUMBER:-false}; then
+
+    return
+  fi
+
   # >&2 echo "dunlock: ${lock_dir}"
   dunlock "${lock_dir}"
 }

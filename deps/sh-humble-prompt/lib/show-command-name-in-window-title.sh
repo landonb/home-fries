@@ -108,7 +108,7 @@ _humb_set_iterm2_window_number_environ() {
 #   familiar with it. Best just to make custom bindings yourself.
 
 _humb_print_terminal_window_number() {
-  ! ${HOMFRIES_NO_WINDOW_NUMBER:-false} || return 0
+  ! ${HUMB_NO_WINDOW_NUMBER:-false} || return 0
 
   local window_number=""
 
