@@ -14,6 +14,7 @@ home_fries_aliases_wire_clip() {
 }
 
 # Strips and clips stdin.
+# - CALSO: `wl-copy -n|--no-newline`
 _hf_clip() {
   tr -d "\n" | _hf_clip_raw
 }
