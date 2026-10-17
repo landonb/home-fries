@@ -11,6 +11,11 @@
 # - Copies whatever is on stdin to the clipboard, and echoes it.
 home_fries_aliases_wire_clip() {
   claim_alias_or_warn "clip" "_hf_clip_echo"
+
+  # USAGE: E.g.:
+  #   echo foo | c
+  #   c this and that
+  claim_alias_or_warn "c" "_hf_clip_switch"
 }
 
 # Strips and clips stdin.
@@ -71,6 +76,23 @@ _hf_clip_raw() {
 _hf_clip_echo() {
   # SAVVY: >(Bashism)
   tee >(_hf_clip)
+}
+
+# ***
+
+# Neither filter nor func.: It's Switch!
+# - You can pipe to it, or send it args.
+# - Just don't not send it args. if not
+#   being used as a filter (else blocks
+#   waiting for stdin).
+_hf_clip_switch() {
+  (
+    if test $# -gt 0; then
+      echo "$@"
+    else
+      cat
+    fi
+  ) | _hf_clip
 }
 
 # ***
