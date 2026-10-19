@@ -48,20 +48,24 @@ bash-exit-bash-hole() {
   fi
 
   if ${edge_of_universe}; then
-    echo "stay"
+    >&2 echo "stay"
   else
     if ${parent_is_bash}; then
-      echo "exit, sh"
-
-      exit 2>/dev/null
+      >&2 echo "exit, sh"
     elif ${parent_is_ibash}; then
-      echo "exit, -b"
-
-      exit 2>/dev/null
+      >&2 echo "exit, -b"
     elif ${parent_is_poetry}; then
-      echo "exit, po"
+      >&2 echo "exit, po"
+    fi
 
-      exit 2>/dev/null
+    if ! exit 2>/dev/null; then
+      # Upsy-Daisy.
+      printf "\033[A"
+      >&2 echo "𝖭ᝪ! 𝖭ᝪ! 𝖭ᝪ!"
+
+      # This'll fail and emit msg., e.g.,
+      # "There are stopped jobs."
+      exit
     fi
   fi
 }
