@@ -33,6 +33,7 @@ bash-exit-bash-hole() {
 
   local edge_of_universe=true
 
+  # CALSO: _hf_session_is_subshell
   if [ ${SHLVL:-1} -gt 1 ]; then
     parent_is_bash=true
     edge_of_universe=false
