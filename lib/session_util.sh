@@ -49,7 +49,10 @@ bash-exit-bash-hole() {
   fi
 
   if ${edge_of_universe}; then
-    >&2 echo "stay"
+    # Altly: "stay", "OH NO YOU  DINT", "Oh No U Di'n't!!!", "𝙊𝙝 𝙉𝙤 𝙐 𝘿𝙞'𝙣'𝙩!!!".
+    >&2 echo "ㄖ卄 几ㄖ ㄩ ᗪ丨'几'ㄒ!!!"
+
+    return 1
   else
     if ${parent_is_bash}; then
       >&2 echo "exit, sh"
@@ -128,8 +131,10 @@ _hf_session_is_subshell() {
 #   conflicts, but you probably don't need that command and
 #   can rename it.
 home_fries_session_util_configure_aliases_bexit() {
-  _hf_session_is_subshell ||
+  if ${HOMEFRIES_BEXIT_EXCLUSIVE:-false} && _hf_session_is_subshell; then
+
     return 0
+  fi
 
   claim_alias_or_warn "bexit" "bash-exit-bash-hole"
 
