@@ -31,30 +31,38 @@ bash-exit-bash-hole() {
   local parent_is_ibash=false
   local parent_is_poetry=false
 
+  local edge_of_universe=true
+
   if [ ${SHLVL:-1} -gt 1 ]; then
     parent_is_bash=true
+    edge_of_universe=false
   elif _hf_session_util_is_ppid_bash; then
     parent_is_bash=true
+    edge_of_universe=false
   elif _hf_session_util_is_ppid_ibash; then
     parent_is_ibash=true
+    edge_of_universe=false
   elif _hf_session_util_is_ppid_poetry_shell; then
     parent_is_poetry=true
+    edge_of_universe=false
   fi
 
-  if ${parent_is_bash}; then
-    echo "exit, sh"
-
-    exit 2>/dev/null
-  elif ${parent_is_ibash}; then
-    echo "exit, -b"
-
-    exit 2>/dev/null
-  elif ${parent_is_poetry}; then
-    echo "exit, po"
-
-    exit 2>/dev/null
-  else
+  if ${edge_of_universe}; then
     echo "stay"
+  else
+    if ${parent_is_bash}; then
+      echo "exit, sh"
+
+      exit 2>/dev/null
+    elif ${parent_is_ibash}; then
+      echo "exit, -b"
+
+      exit 2>/dev/null
+    elif ${parent_is_poetry}; then
+      echo "exit, po"
+
+      exit 2>/dev/null
+    fi
   fi
 }
 
