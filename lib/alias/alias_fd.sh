@@ -184,14 +184,18 @@ _hf_fd() {
           >&2 echo "ERROR: Missing --color arg"
         fi
         ;;
-      # BWARE: See following comment — Can only add actual fd options
-      # (because we don't rebuild $@, otherwise we could; but we can
-      #  use environs as necessary instead).
+      # Note that getopt always adds '--', whether anything follows
+      # it or not.
+      # - Non-opt args are the search terms.
+      # - See 'no_exec=true' below: If user uses actual EOAO '--'
+      #   (end-of-args-option) in $@, then cannot exec_batch. But
+      #   cannot check here, because getopt *always* adds '--'.
+      #   - See longer comment above exec_batch block, below.
       --)
+        # End-of-args arg.
+        # - Pop it, so $@ after the while-loop excludes it.
         shift
-
-        no_exec=true
-
+        # We've got all we're gonna get.
         break
         ;;
       *)
@@ -209,6 +213,23 @@ _hf_fd() {
   if ! _hf_fd_parse_args "$@"; then
 
     return 1
+  fi
+
+  _hf_fd_has_double_dash() {
+    for arg in "$@"; do
+      [ "${arg}" = "--" ] &&
+        return 0
+    done
+
+    return 1
+  }
+
+  # If user uses end-of-options arg, because we don't rebuild
+  # $@ (we pass exactly what user passed us (though we could
+  # revamp this wrapper and use 'eval', *but I don't wanna*)),
+  # we cannot use exec_batch (which is passed *after* $@)
+  if _hf_fd_has_double_dash "$@"; then
+    no_exec=true
   fi
 
   # Currently, CLI args are passed-through to `fd` below, and we
