@@ -28,10 +28,10 @@ home_fries_aliases_wire_fd() {
     claim_alias_or_warn "fdi" "_hf_fd"
 
     # Without the --exec-batch: Non-blocking, streaming output.
-    claim_alias_or_warn "fdd" "HOMEFRIES_FD_EXEC_BATCH=false _hf_fd"
+    claim_alias_or_warn "fdd" "HOMEFRIES_FD_EXEC_BATCH=false _hf_fd -I"
 
     # HOMEFRIES_FD_EXEC_BATCH=ls
-    claim_alias_or_warn "fds" "HOMEFRIES_FD_EXEC_BATCH=ls _hf_fd"
+    claim_alias_or_warn "fds" "HOMEFRIES_FD_EXEC_BATCH=ls _hf_fd -I"
   fi
 }
 
