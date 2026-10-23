@@ -121,6 +121,15 @@ _hf_fd() {
     GETOPT_LONGOPTS=help,version,hidden,no-hidden,no-ignore,ignore,unrestricted,ignore-case,case-sensitive,smart-case,follow,no-follow,format:,color:
     GETOPT_SHORTIES=hVHIuiLc:
 
+    if ! ${HOMEFRIES_FD_EXCLUSIVE_OPTS:-false}; then
+      # REFER:
+      # man fd | grep '^       -'
+      # - OMITD: Arg-optional options:
+      #   strip-cwd-prefix::,
+      GETOPT_LONGOPTS=hidden,no-ignore,unrestricted,no-ignore-vcs,no-require-git,no-ignore-parent,case-sensitive,ignore-case,glob,regex,fixed-strings,and:,absolute-path,list-details,follow,full-path,print0,max-results:,quiet,show-errors,one-file-system,mount,xdev,help,version,max-depth:,min-depth:,exact-depth:,prune,type:,extension:,exclude:,ignore-file:,color:,hyperlink,threads:,size:,changed-within:,changed-before:,owner:,base-directory:,path-separator:,search-path:,format:,exec:,exec-batch:,batch-size:
+      GETOPT_SHORTIES=HIusigFalLp01qhVd:t:e:E:c:j:S:o:x:X:
+    fi
+
     getopt --test >/dev/null && true
     if [ $? -ne 4 ]; then
       >&2 echo 'ERROR: Missing enhanced getopt'
@@ -210,15 +219,27 @@ _hf_fd() {
         # We've got all we're gonna get.
         break
         ;;
+      # Pass-through 'fd' options that take an argument.
+      # - CRUMB: HOMEFRIES_FD_EXCLUSIVE_OPTS=true
+      --and | --max-results | -d | --max-depth | --min-depth | --exact-depth | -t | --type | -e | --extension | -E | --exclude | --ignore-file | -j | --threads | -S | --size | --changed-within | --changed-before | -o | --owner | --base-directory | --path-separator | --search-path | -x | --exec | -X | --exec-batch | --batch-size)
+        shift
+        ;;
+      # This is an option arg. option.
+      #  --strip-cwd-prefix) ;;
       *)
-        # getopt puts non-option args after the '--', so this should be unreachable.
-        >&2 echo "GAFFE: Unreachable code ($1)"
-
-        return 1
+        # This is a pass-through 'fd' option (that doesn't
+        # take an arg.) [HOMEFRIES_FD_EXCLUSIVE_OPTS=true].
         ;;
       esac
 
       shift
+
+      if [ $# -eq 0 ]; then
+        # We break at the '--', so not gonna happen.
+        >&2 echo "GAFFE: Unreachable code"
+
+        break
+      fi
     done
   }
 
