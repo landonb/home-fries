@@ -13,8 +13,11 @@ home_fries_aliases_wire_clip() {
   claim_alias_or_warn "clip" "_hf_clip_echo"
 
   # USAGE: E.g.:
-  #   echo foo | c
-  #   c this and that
+  #   $ echo foo | c
+  #   $ c this and that
+  #   $ c
+  #   This input I'm typing goes to the clipboard
+  #   <Ctrl-D>
   claim_alias_or_warn "c" "_hf_clip_switch"
 }
 
