@@ -30,8 +30,20 @@ home_fries_aliases_wire_fd() {
     # Without the --exec-batch: Non-blocking, streaming output.
     claim_alias_or_warn "fdd" "HOMEFRIES_FD_EXEC_BATCH=false _hf_fd -I"
 
+    # 'ls' uses color, but not as much as 'eza'.
     # HOMEFRIES_FD_EXEC_BATCH=ls
     claim_alias_or_warn "fds" "HOMEFRIES_FD_EXEC_BATCH=ls _hf_fd -I"
+
+    # 'lsd' uses similar colors to 'ls', but adds (shitty, imo,
+    # sorry) file-type icons (they're just so puny, and I find
+    # file browser icons distracting and visually unappealing
+    # in any context; and they don't add any data (they're not
+    # visually expressive or large enough for me to see clearly,
+    # and it takes longer to view an image and figure out what
+    # it stands for than to just read a three-character file
+    # extension! <ahem> /rant)).
+    # HOMEFRIES_FD_EXEC_BATCH=lsd
+    claim_alias_or_warn "fdsd" "HOMEFRIES_FD_EXEC_BATCH=lsd _hf_fd -I"
   fi
 }
 
