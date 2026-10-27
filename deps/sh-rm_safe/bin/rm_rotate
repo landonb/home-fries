@@ -932,8 +932,7 @@ if [ "$(basename -- "$(realpath -- "$0")")" = "${PROG_NAME}" ]; then
   # Being executed.
   main "$@"
 else
-  # Being sourced.
+  _rm_rotate_set_environs
   export -f rm_rotate
+  unset -f main
 fi
-
-unset -f main

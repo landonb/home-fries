@@ -14,10 +14,10 @@ RM_SAFE_TRASH_HOME="${RM_SAFE_TRASH_HOME:-${HOME}}"
 set_environs() {
   if ! os_is_macos; then
     RM_SAFE_FIRST_TRASH="${RM_SAFE_FIRST_TRASH:-.trash0}"
-    # RM_SAFE_FINAL_TRASH="${RM_SAFE_FINAL_TRASH:-.trash}"
+    RM_SAFE_FINAL_TRASH="${RM_SAFE_FINAL_TRASH:-.trash}"
   else
     RM_SAFE_FIRST_TRASH="${RM_SAFE_FIRST_TRASH:-.Trash0}"
-    # RM_SAFE_FINAL_TRASH="${RM_SAFE_FINAL_TRASH:-.Trash}"
+    RM_SAFE_FINAL_TRASH="${RM_SAFE_FINAL_TRASH:-.Trash}"
   fi
 }
 
@@ -799,9 +799,13 @@ _sh_rm_safe_process_items() {
 #   ARG_VERBOSE
 #   N_PATH_ARGS
 
+# INERT/2026-10-26: FTREQ: Convert to getopt (though curr. works, so why).
+
 parse_args() {
+  ARG_FIRST_PATH=""
   ARG_FORCE=false
   ARG_SAFE=false
+  ARG_TRASH_PRINT=""
   ARG_VERBOSE=""
   N_PATH_ARGS=0
 
@@ -810,6 +814,7 @@ parse_args() {
   for arg in "$@"; do
     if ${end_of_options}; then
       let 'N_PATH_ARGS +=1 '
+      ARG_FINAL_PATH="${arg}"
     else
       # Arg list and "help" snippets from 'rm (GNU coreutils) 8.32'.
       case "${arg}" in
@@ -863,24 +868,34 @@ parse_args() {
         # its wordy menu prompt when there's do device trash
         ARG_VERBOSE="-v"
         ;;
+      --first-trash)
+        ARG_TRASH_PRINT="${RM_SAFE_FIRST_TRASH}"
+        ;;
+      --final-trash)
+        ARG_TRASH_PRINT="${RM_SAFE_FINAL_TRASH}"
+        ;;
       --help)
         # "display this help and exit"
         print_help
 
-        return 0
+        exit_0
         ;;
       --version)
         # "output version information and exit"
+        # FTREQ: Add shell script vers mgmt to git-bump-version-tag to maintain this.
+        RM_SAFE_VERSION_FLOOR="1.4.0" # ₐₜ ₗₑₐₛₜ # 𝒂𝒕 𝒍𝒆𝒂𝒔𝒕
+        echo "${_rm_safe__this_filename} (DXY coreutils) ᴀᴛ ʟᴇᴀsᴛ ${RM_SAFE_VERSION_FLOOR}"
+
         command rm --version
 
-        return 0
+        exit_0
         ;;
       --*)
         # Same as, e.g., `command rm --x`.
         >&2 echo "rm_safe: unrecognized option '${arg}'"
         >&2 echo "Try 'rm --help' for more information."
 
-        return 1
+        exit_1
         ;;
       -*)
         for char in $(echo "${arg#-}" | sed -E -e 's/(.)/\1\n/g'); do
@@ -905,6 +920,7 @@ parse_args() {
         ;;
       *)
         let 'N_PATH_ARGS +=1 '
+        ARG_FINAL_PATH="${arg}"
         ;;
       esac
     fi
@@ -960,58 +976,75 @@ is_a_rm_arg() {
 
 # ***
 
+# ▷ rm_safe is a wrapper around `rm` ◁
+# ╰──────────────────────────────────╯
+# ╭──────────────────────────────────╮
+# ▷ How rm_safe makes `rm` more safe ◁
+
 print_help() {
   echo "rm_safe is a wrapper around \`rm\`"
-  echo "--------------------------------"
-  command rm --help
+  echo
+  command rm --help | sed 's/^/  /'
 
   cat <<'EOF'
 
-rm_safe modifies `rm` behavior
-------------------------------
+How rm_safe makes `rm` more safe
 
-rm_safe prefers to move files to a trash dir, e.g., `~/.trash`
+  rm_safe prefers to move files to a trash dir, e.g., `~/.trash`
 
-It'll move directories automatically and otherwise prefers not
-to prompt you
+  It'll move directories automatically and otherwise prefers not
+  to prompt you
 
-rm_safe recognizes the following `rm` options:
-  -f, --force, -v, --verbose, --help, --version
+  rm_safe recognizes the following `rm` options:
+    -f, --force, -v, --verbose, --help, --version
 
-rm_safe ignores the other options, unless -f|--force,
-in which case `rm_safe` passes all args to `command rm`
-and doesn't do any more processing
+  rm_safe ignores the other options, unless -f|--force,
+  in which case `rm_safe` passes all args to `command rm`
+  and doesn't do any more processing
 
-rm_safe adds these additional option(s):
-  -s, --safe      By default, `sudo rm` is a pass-through and just
-                    calls `command rm`
-                    
-                  Use `rm -s|--safe` to use `rm_safe` as 'root'
+  rm_safe adds these additional option(s):
+    -s, --safe      By default, `sudo rm` is a pass-through and just
+                      calls `command rm`
+                      
+                    Use `rm -s|--safe` to use `rm_safe` as 'root'
 
-                  Note this only works if you define the two aliases:
-                    alias sudo='sudo '
-                    alias rm='/path/to/rm_safe'
-                  - The trailing space in the sudo alias causes
-                    `sudo` to use shell alias, if present;
-                    otherwise `sudo rm` just calls `/bin/rm`
+                    Note this only works if you define the two aliases:
+                      alias sudo='sudo '
+                      alias rm='/path/to/rm_safe'
+                    - The trailing space in the sudo alias causes
+                      `sudo` to use shell alias, if present;
+                      otherwise `sudo rm` just calls `/bin/rm`
 
-You can bypass rm_safe easily:
-  rm_safe -f ...
-Or:
-  command rm ...
-Will both behave like normal `rm`
+  You can bypass rm_safe easily:
+    rm_safe -f ...
+  Or:
+    command rm ...
+  Will both behave like normal `rm`
 EOF
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 rm_safe() {
+  local ARG_FINAL_PATH=""
   local ARG_FORCE=false
   local ARG_SAFE=false
+  local ARG_TRASH_PRINT=""
   local ARG_VERBOSE=""
   local N_PATH_ARGS=0
 
-  parse_args "$@" || return 1
+  # Exits on --help, --version, or unknown args.
+  parse_args "$@"
+
+  # ***
+
+  # KLUGE: Yeah, feels klunky. (Author wants this in DepoXy, for
+  # `cdt` convenience, which pushd's to the cwd device trash dir.)
+  if [ -n "${ARG_TRASH_PRINT}" ]; then
+    print_trash_dir_for_trash "${ARG_TRASH_PRINT}" "${ARG_FINAL_PATH}"
+
+    return 0
+  fi
 
   # ***
 
@@ -1177,7 +1210,8 @@ set_trash_fs_mount() {
   local fs_of_item="$2"
   local item_path="$3"
 
-  if ${TRASH_FS_MOUNT_LOCKED}; then
+  if ${TRASH_FS_MOUNT_LOCKED:-false}; then
+
     return
   fi
 
@@ -1196,6 +1230,25 @@ set_trash_fs_mount() {
   fi
 
   _trace "TRASH_FS_MOUNT=${TRASH_FS_MOUNT}" # E.g., "/dev/sdb1"
+}
+
+print_trash_dir_for_trash() {
+  local which_trash="$1"
+  local item_path="${2:-.}"
+
+  # Prints "/home" for main trash...
+  #   local TRASH_FS_MOUNT
+  #   TRASH_FS_MOUNT=$(_sh_rm_safe_device_filepath_for_path "${item_path}")
+
+  local fs_of_main_trash
+  fs_of_main_trash="$(print_fs_of_main_trash)" || return 1
+
+  local fs_of_item
+  fs_of_item="$(print_fs_of_item "${item_path}")" || return 1
+
+  set_trash_fs_mount "${fs_of_main_trash}" "${fs_of_item}" "${item_path}"
+
+  echo "${TRASH_FS_MOUNT}/${which_trash}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
