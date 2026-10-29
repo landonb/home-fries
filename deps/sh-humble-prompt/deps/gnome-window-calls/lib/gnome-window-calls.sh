@@ -9,6 +9,7 @@
 # - REFER: See DepoXy users:
 #     https://github.com/DepoXy/sh-humble-prompt#🙇
 #     https://github.com/DepoXy/gvim-open-kindness#🐬
+# - DPNDS: Source from Bash, because 'declare -a', '<<<'.
 
 # REFER: Depends on `window-calls` GNOME Shell extension:
 #   https://extensions.gnome.org/extension/4724/window-calls/
@@ -330,8 +331,8 @@ raise_window_Wayland_titled() {
 
   # ***
 
-  local title_and_ids
-  title_and_ids="$(
+  local titles_and_ids
+  titles_and_ids="$(
     printf "%s" "${window_details}" \
       | jq -r '"\(.title)\t\(.id)"' \
         2>&1
@@ -348,42 +349,108 @@ raise_window_Wayland_titled() {
   fi
 
   if [ -n "${RAISELOWER_TRACE_DIR}" ]; then
-    echo "${title_and_ids}" > "${RAISELOWER_TRACE_DIR}/05--title_and_ids"
+    echo "${titles_and_ids}" > "${RAISELOWER_TRACE_DIR}/05--titles_and_ids"
   fi
 
   # ***
 
-  local window_id
-  if ${found_wm_class}; then
-    window_id="$(echo "${title_and_ids}" | sed 's/.*\t//')"
-  else
-    local pattern
-    for pattern in "$@"; do
-      local title_and_id
-      # Use Perl regex, or \t doesn't work (though literal "${pattern}.*	"
-      # works, but not "${pattern}.*"$'\t', which is a Bashism anyway).
-      title_and_id="$(
-        echo "${title_and_ids}" | grep -P -e "${pattern}.*\t" | head -n1
-      )"
-
-      if [ -n "${title_and_id}" ]; then
-        window_id="$(echo "${title_and_id}" | sed 's/.*\t//')"
-
-        break
-      fi
-    done
-  fi
-
-  if [ -n "${window_id}" ]; then
-    window_activate "${window_id}" > /dev/null
-
-    if [ -n "${RAISELOWER_TRACE_DIR}" ]; then
-      echo -e "\nwindow_id: ${window_id}" >> "${RAISELOWER_TRACE_DIR}/05--title_and_ids"
+  if ! (
+    if ${found_wm_class}; then
+      activate_windows_for_application "${titles_and_ids}"
+    else
+      activate_windows_by_pattern_match "${titles_and_ids}" "$@"
     fi
-  else
-    >&2 echo "ALERT: No matching window identified for: $@"
+  ); then
+    >&2 echo "ALERT: No matching window(s) identified for: $@"
 
     return 1
+  fi
+}
+
+activate_windows_for_application() {
+  local titles_and_ids="$1"
+
+  local was_raised=false
+
+  local title_and_id=""
+  while IFS= read -r title_and_id; do
+    local window_id=""
+    window_id="$(echo "${title_and_id}" | sed 's/.*\t//')"
+
+    activate_window_by_window_id "${window_id}"
+    was_raised=true
+
+    if ! ${RAISELOWER_RAISE_ALL_WINDOWS:-false}; then
+      break
+    fi
+  done <<< "${titles_and_ids}"
+
+  ${was_raised}
+}
+
+activate_windows_by_pattern_match() {
+  local titles_and_ids="$1"
+  shift
+
+  local was_raised=false
+
+  local window_id=""
+  declare -a window_ids=()
+
+  local pattern
+  for pattern in "$@"; do
+    local matching_titles_and_ids
+    # Use Perl regex, or \t doesn't work (literal "${pattern}.*	"
+    # works, but not "${pattern}.*"$'\t').
+    matching_titles_and_ids="$(
+      echo "${titles_and_ids}" | grep -P -e "${pattern}.*\t"
+    )"
+
+    # Note 'while ... done <<< ""' runs 1 loop (we also do
+    # inner window_id non-empty check, so this redundant).
+    if [ -n "${matching_titles_and_ids}" ]; then
+
+      local title_and_id=""
+      while IFS= read -r title_and_id; do
+        window_id="$(echo "${title_and_id}" | sed 's/.*\t//')"
+        if [ -n "${window_id}" ]; then
+          window_ids+=("${window_id}")
+
+          # HSTRY/2026-10-28: New opt-in raise-all (fully untested =).
+          # - MAYBE: We might need to adjust how 'lower' works w/ this,
+          #   e.g., might raise all app windows than lower topmost if
+          #   it was previously also topmost.
+          if ! ${RAISELOWER_RAISE_ALL_WINDOWS:-false}; then
+            break
+          fi
+        fi
+      done <<< "${matching_titles_and_ids}"
+
+      if ! ${RAISELOWER_RAISE_ALL_WINDOWS:-false}; then
+        break
+      fi
+    fi
+  done
+
+  declare -a unique_ids=()
+  # Altly: unique_ids=($(printf "%s\n" "${window_ids[@]}" | sort -u))
+  unique_ids=($(printf "%s\n" "${window_ids[@]}" | awk '!seen[$0]++'))
+
+  for window_id in "${unique_ids[@]}"; do
+    activate_window_by_window_id "${window_id}"
+    was_raised=true
+  done
+
+  ${was_raised}
+}
+
+activate_window_by_window_id() {
+  local window_id="$1"
+
+  window_activate "${window_id}" > /dev/null
+
+  if [ -n "${RAISELOWER_TRACE_DIR}" ]; then
+    echo -e "\nwindow_id: ${window_id}" >> "${RAISELOWER_TRACE_DIR}/05--titles_and_ids"
   fi
 }
 
